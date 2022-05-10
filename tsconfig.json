@@ -6,7 +6,9 @@
     "module": "commonjs",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-     "strictPropertyInitialization": true,
-    "skipLibCheck": true
+     "strictPropertyInitialization": false,
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "sourceMap": true
   }
 }

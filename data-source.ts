@@ -5,7 +5,6 @@ import {prepareInit} from "./utils/prepareInit";
 
 prepareInit()
 
-console.log('biao2',global.conf)
 const { datasource } = global.conf
 const { mysql, mongodb } = datasource
 console.log(__dirname,'__dirname')
