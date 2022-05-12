@@ -1,9 +1,9 @@
 package jwt
 
 import (
-	"net/http"
-
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"net/http"
 
 	"canyon/pkg/e"
 	"canyon/pkg/util"

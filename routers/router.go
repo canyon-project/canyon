@@ -12,6 +12,9 @@ func InitRouter() *gin.Engine {
 	{
 		//获取标签列表
 		apiv1.GET("/tags", v1.GetTags)
+
+		//获取报表自定义配置列表
+		apiv1.GET("/CustomConfigs", v1.GetCustomConfigs)
 	}
 
 	return r

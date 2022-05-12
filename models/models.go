@@ -14,10 +14,9 @@ import (
 var db *gorm.DB
 
 type Model struct {
-	ID         int `gorm:"primary_key" json:"id"`
-	CreatedOn  int `json:"created_on"`
-	ModifiedOn int `json:"modified_on"`
-	DeletedOn  int `json:"deleted_on"`
+	ID        int `gorm:"primary_key" json:"id"`
+	CreatedAt int `json:"created_at"`
+	UpdatedAt int `json:"updated_at"`
 }
 
 // Setup initializes the database instance
@@ -34,7 +33,7 @@ func Setup() {
 	}
 
 	gorm.DefaultTableNameHandler = func(db *gorm.DB, defaultTableName string) string {
-		return setting.DatabaseSetting.TablePrefix + defaultTableName
+		return defaultTableName
 	}
 
 	db.SingularTable(true)
@@ -50,17 +49,17 @@ func CloseDB() {
 	defer db.Close()
 }
 
-// updateTimeStampForCreateCallback will set `CreatedOn`, `ModifiedOn` when creating
+// updateTimeStampForCreateCallback will set `CreatedAt`, `UpdatedAt` when creating
 func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 	if !scope.HasError() {
 		nowTime := time.Now().Unix()
-		if createTimeField, ok := scope.FieldByName("CreatedOn"); ok {
+		if createTimeField, ok := scope.FieldByName("CreatedAt"); ok {
 			if createTimeField.IsBlank {
 				createTimeField.Set(nowTime)
 			}
 		}
 
-		if modifyTimeField, ok := scope.FieldByName("ModifiedOn"); ok {
+		if modifyTimeField, ok := scope.FieldByName("UpdatedAt"); ok {
 			if modifyTimeField.IsBlank {
 				modifyTimeField.Set(nowTime)
 			}
@@ -68,10 +67,10 @@ func updateTimeStampForCreateCallback(scope *gorm.Scope) {
 	}
 }
 
-// updateTimeStampForUpdateCallback will set `ModifiedOn` when updating
+// updateTimeStampForUpdateCallback will set `UpdatedAt` when updating
 func updateTimeStampForUpdateCallback(scope *gorm.Scope) {
 	if _, ok := scope.Get("gorm:update_column"); !ok {
-		scope.SetColumn("ModifiedOn", time.Now().Unix())
+		scope.SetColumn("UpdatedAt", time.Now().Unix())
 	}
 }
 
