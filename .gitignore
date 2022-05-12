@@ -1,14 +1,8 @@
-node_modules
+.idea/
 .DS_Store
-dist
-dist-ssr
-*.local
 
-package-lock.json
-.idea
-code
-report
+runtime/*
+!runtime/qrcode/bg.jpg
+!runtime/fonts
 
-pnpm-lock.yaml
-.pnpm-debug.log
-conf/applicationdev.yml
+conf/app_dev.ini
