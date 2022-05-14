@@ -53,7 +53,7 @@ export class AuthService {
     const { refresh_token: thRefreshToken, access_token: thAccessToken } =
       await axios
         .post(
-          `https://gitlab.com/oauth/token?client_id=${ClientId}&client_secret=${clientSecret}&code=${params.code}&grant_type=authorization_code&redirect_uri=${redirect_uri}`,
+          `http://gitlab.rico.org.cn/oauth/token?client_id=${ClientId}&client_secret=${clientSecret}&code=${params.code}&grant_type=authorization_code&redirect_uri=${redirect_uri}`,
         )
         .then((res) => {
           console.log(res.data, 123)
@@ -73,7 +73,7 @@ export class AuthService {
       email,
       id: thId,
     } = await axios
-      .get('https://gitlab.com/api/v4/user', {
+      .get('http://gitlab.rico.org.cn/api/v4/user', {
         headers: {
           Authorization: `Bearer ${thAccessToken}`,
         },

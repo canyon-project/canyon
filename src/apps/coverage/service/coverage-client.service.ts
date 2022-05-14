@@ -128,9 +128,10 @@ export class CoverageClientService {
   async retrieveACoverageForAProjectService(params) {
     const { commitSha, currentUser, thRepoId } = params
 
+    console.log({ commitSha, currentUser, thRepoId })
     const fd = await this.gitlabService.getASingleCommit({
       currentUser,
-      thRepoId: 'canyon999/canyon-demo2',
+      thRepoId: thRepoId,
       commitSha,
     })
 
@@ -168,7 +169,9 @@ export class CoverageClientService {
       const c = await this.coverageModel.findOne({
         _id: coverageRepositoryFindResult[i].relationId,
       })
-      cov.push(JSON.parse(c.coverage))
+      try {
+        cov.push(JSON.parse(c.coverage))
+      } catch (e) {}
     }
 
     return {

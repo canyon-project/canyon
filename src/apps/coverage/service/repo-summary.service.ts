@@ -97,10 +97,13 @@ export class RepoSummaryService {
 
       const record = coverageRepositoryFindReduce[i].record
       for (let j = 0; j < record.length; j++) {
+        // console.log(record,'record')
         const c = await this.coverageModel.findOne({
           _id: record[j].relationId,
         })
-        cov.push(JSON.parse(c.coverage))
+        try {
+          cov.push(JSON.parse(c.coverage))
+        } catch (e) {}
       }
 
       const genTreeSummaryMain = CanyonUtil.genTreeSummaryMain(
@@ -139,12 +142,14 @@ export class RepoSummaryService {
         {
           label: '平均覆盖率',
           value:
-            String(rows
+            String(
+              rows
                 .map((item) => item.coverage)
                 .reduce((p, c) => {
                   p = p + c
                   return p
-                }, 0) / rows.length) + '%',
+                }, 0) / rows.length,
+            ) + '%',
         },
         {
           label: '最近一次上报',

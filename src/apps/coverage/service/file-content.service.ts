@@ -22,13 +22,16 @@ export class FileContentService {
 
   async invoke(params: any) {
     const { filePath, commitSha, projectId } = params
+    console.log(params, 'params')
     const token = await this.userRepository
       .findOne({ id: 1 })
       .then((res) => res.thAccessToken)
 
     const res = await axios
       .get(
-        `https://gitlab.com/api/v4/projects/35883228/repository/files/${encodeURIComponent(
+        `http://gitlab.rico.org.cn/api/v4/projects/${encodeURIComponent(
+          projectId,
+        )}/repository/files/${encodeURIComponent(
           decodeURIComponent(filePath),
         )}`,
         {
