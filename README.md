@@ -7,6 +7,5 @@ Canyon can realize multi terminal coverage reporting and collection through babe
 
 ## Table of Contents
 
-- [Canyon <img src="https://github.com/canyon-project/canyon/blob/main/screenshots/screenshot_build_success.png" style="max-width:100px;" />](#canyon-)
-  - [What is Canyon?](#what-is-canyon)
-  - [Table of Contents](#table-of-contents)
+- [What is Canyon?](#what-is-canyon)
+- [Table of Contents](#table-of-contents)
