@@ -4,6 +4,9 @@ import { Repository } from 'typeorm'
 import { User } from '../../auth/entities/user.entity'
 import service from './request'
 
+// gitlab的所有服务
+const gitlabApplicationUri = global.conf.gitlab.application.uri
+// console.log(sss,'sss')
 export class GitlabService {
   constructor(
     @Inject('user_REPOSITORY')
@@ -16,7 +19,7 @@ export class GitlabService {
     return await Promise.all(
       repos.map((item) => {
         return service.get(
-          `http://gitlab.rico.org.cn/api/v4/projects/${item.thRepoId}`,
+          `${gitlabApplicationUri}/api/v4/projects/${item.thRepoId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -27,14 +30,13 @@ export class GitlabService {
     )
   }
 
+  //检索一个仓库 thRepoId 可以是id也可以是仓库名
   async retrieveARepo({ currentUser, thRepoId }) {
     const token = await this.userRepository
       .findOne({ id: currentUser })
       .then((res) => res.thAccessToken)
     return await service.get(
-      `http://gitlab.rico.org.cn/api/v4/projects/${encodeURIComponent(
-        thRepoId,
-      )}`,
+      `${gitlabApplicationUri}/api/v4/projects/${encodeURIComponent(thRepoId)}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -50,7 +52,7 @@ export class GitlabService {
       .then((res) => res.thAccessToken)
     return await axios
       .get(
-        `http://gitlab.rico.org.cn/api/v4/projects/${encodeURIComponent(
+        `${gitlabApplicationUri}/api/v4/projects/${encodeURIComponent(
           thRepoId,
         )}/repository/commits/${commitSha}`,
         {
@@ -61,8 +63,9 @@ export class GitlabService {
       )
       .then((res) => {
         return res.data
-      }).catch(err=>{
-        console.log(err,'错位')
+      })
+      .catch((err) => {
+        console.log(err, '错位')
       })
   }
 }

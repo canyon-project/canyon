@@ -76,12 +76,6 @@ export class RepoService {
         'user.avatar as reporterAvatar',
       ])
       .getRawMany()
-
-    // console.log(sss, 'sss')
-    //
-    // const coverageRepositoryFind = await this.coverageRepository.find({
-    //   repoId: repo.id,
-    // })
     const coverageRepositoryFindReduce = coverageRepositoryFind.reduce(
       (previousValue, currentValue) => {
         const find = previousValue.find(

@@ -30,11 +30,9 @@ export class RepoController {
 
   @Get('repo/:thRepoId/commit')
   listCoverageCommit(
-    @Query() query: any,
     @Param() param,
     @Request() request: { user: { id: number } },
   ) {
-    console.log(param, 'param')
     return this.reposService.listCoverageCommit({
       thRepoId: param.thRepoId,
       currentUser: request.user.id,

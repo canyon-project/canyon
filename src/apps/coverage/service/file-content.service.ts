@@ -29,11 +29,7 @@ export class FileContentService {
 
     const res = await axios
       .get(
-        `http://gitlab.rico.org.cn/api/v4/projects/${encodeURIComponent(
-          projectId,
-        )}/repository/files/${encodeURIComponent(
-          decodeURIComponent(filePath),
-        )}`,
+        `http://gitlab.rico.org.cn/api/v4/projects/${projectId}/repository/files/${filePath}`,
         {
           params: {
             ref: commitSha,
@@ -69,7 +65,9 @@ export class FileContentService {
       const c = await this.coverageModel.findOne({
         _id: coverageRepositoryFindResult[i].relationId,
       })
-      cov.push(JSON.parse(c.coverage))
+      try {
+        cov.push(JSON.parse(c.coverage))
+      } catch (e) {}
     }
     return {
       fileDetail: res,

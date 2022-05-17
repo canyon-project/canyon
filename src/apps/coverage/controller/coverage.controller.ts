@@ -25,7 +25,6 @@ export class CoverageController {
     @Request() request: { user: { id: number } },
     @Query() query: any,
   ) {
-    console.log(query, 'query')
     return this.coverageClientService.retrieveACoverageForAProjectService({
       currentUser: request.user.id,
       ...query,
