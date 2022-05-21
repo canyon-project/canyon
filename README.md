@@ -9,7 +9,12 @@ Canyon can realize multi terminal coverage reporting and collection through babe
 
 - [What is Canyon?](#what-is-canyon)
 - [Table of Contents](#table-of-contents)
+- [Contributing](#Contributing)
 - [License](#License)
+
+## Contributing
+
+We encourage you to contribute to Canyon! whether thats joining in on the community slack or discourse, or contributing pull requests / documentation changes or raising issues.
 
 ## License
 
