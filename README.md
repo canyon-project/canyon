@@ -10,6 +10,7 @@ Canyon can realize multi terminal coverage reporting and collection through babe
 - [What is Canyon?](#what-is-canyon)
 - [Table of Contents](#table-of-contents)
 - [Setup Documentation](setup-documentation)
+- [Usage Documentation](usage-documentation)
 - [Documentation and Other Links](Documentation-and-Other-Links)
 - [Contributing](#Contributing)
 - [License](#License)

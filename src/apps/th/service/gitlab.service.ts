@@ -6,26 +6,23 @@ import service from './request'
 
 // gitlab的所有服务
 const gitlabApplicationUri = global.conf.gitlab.application.uri
-// console.log(sss,'sss')
 export class GitlabService {
   constructor(
     @Inject('user_REPOSITORY')
     private userRepository: Repository<User>,
   ) {}
-  async repoList({ currentUser, repos }) {
+  // todo 这里是否有重构的可能性？改成直接传一个ids，不知道gitlab有没有api接口
+  async repoList({ currentUser, thRepoIds }) {
     const token = await this.userRepository
       .findOne({ id: currentUser })
       .then((res) => res.thAccessToken)
     return await Promise.all(
-      repos.map((item) => {
-        return service.get(
-          `${gitlabApplicationUri}/api/v4/projects/${item.thRepoId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+      thRepoIds.map((item) => {
+        return service.get(`${gitlabApplicationUri}/api/v4/projects/${item}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        )
+        })
       }),
     )
   }

@@ -22,9 +22,9 @@ export class RepoService {
     // 1.查询所有仓库
     const repos = await this.repoRepository.find()
     // 2.去gitlab兑换
-    const gitlabInfos = await this.gitlabService.repoList({
+    const gitlabRepoList = await this.gitlabService.repoList({
       currentUser: currentUser,
-      repos,
+      thRepoIds: repos.map((item) => item.thRepoId),
     })
     // 3.构建数据rows
     const rows = []
@@ -39,15 +39,15 @@ export class RepoService {
         },
       })
       // 5.通过thRepoId查找到对应的gitlab 仓库信息
-      const gitlabInfosFind = gitlabInfos.find(
+      const gitlabRepoListFind = gitlabRepoList.find(
         (item) => String(item.id) === repos[i].thRepoId,
       )
       // 6.拼装数据
       const row = {
         times: coverageRepositoryFind.length,
         lastTimeReport: coverageRepositoryFind[0].createdAt,
-        id: gitlabInfosFind.id,
-        pathWithNamespace: gitlabInfosFind.path_with_namespace,
+        id: gitlabRepoListFind.id,
+        pathWithNamespace: gitlabRepoListFind.path_with_namespace,
       }
       rows.push(row)
     }
