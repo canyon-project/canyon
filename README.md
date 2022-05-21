@@ -9,3 +9,10 @@ Canyon can realize multi terminal coverage reporting and collection through babe
 
 - [What is Canyon?](#what-is-canyon)
 - [Table of Contents](#table-of-contents)
+- [License](#License)
+
+## License
+
+[MIT](https://opensource.org/licenses/MIT)
+
+Copyright (c) 2022-present, zhangtao25
