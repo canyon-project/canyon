@@ -9,8 +9,24 @@ Canyon can realize multi terminal coverage reporting and collection through babe
 
 - [What is Canyon?](#what-is-canyon)
 - [Table of Contents](#table-of-contents)
+- [Setup Documentation](setup-documentation)
+- [Documentation and Other Links](Documentation-and-Other-Links)
 - [Contributing](#Contributing)
 - [License](#License)
+
+## Setup Documentation
+
+This section of the documentation will help you install and configure the Canyon Server.
+
+## Usage Documentation
+
+Our document teaches you how to install the babel-plugin-canyon in a JavaScript project and report to the canyon server to view the coverage information.
+
+## Documentation and Other Links
+
+- Setup Documentation
+- Usage Documentation
+- babel-plugin-istanbul
 
 ## Contributing
 
