@@ -13,16 +13,11 @@ datasource:
     username: root
     password: root
     database: canyon
-mail:
-  sender: xxx@xxx.com
-  appId: 100000000
-  url: http:xxx
-base:
-  url: http://127.0.0.1:8080
-  docUrl: http://127.0.0.1:8081
 
 gitlab:
   application:
-    clientId: f
-    clientSecret: f
-    redirectUri: f
+    clientId: clientId
+    clientSecret: clientSecret
+    redirectUri: redirectUri
+    uri: uri
+

@@ -1,5 +1,5 @@
 import {Controller, Get, Post, Body, Query, Request, UseGuards} from '@nestjs/common'
-import { RepoService } from '../service/repo.service'
+import { RepoListService } from '../service/repo-list.service'
 import { CoverageClientService } from '../service/coverage-client.service'
 import { FileContentService } from '../service/file-content.service'
 import {JwtAuthGuard} from "../../auth/guards/jwt-auth.guard";

@@ -8,16 +8,18 @@ import {
   UseGuards,
   Request,
 } from '@nestjs/common'
-import { RepoService } from '../service/repo.service'
+import { RepoListService } from '../service/repo-list.service'
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 import { RepoSummaryService } from '../service/repo-summary.service'
+import { RepoCoverageService } from '../service/repo-coverage.service'
 
 @UseGuards(JwtAuthGuard)
 @Controller('')
 export class RepoController {
   constructor(
-    private readonly reposService: RepoService,
+    private readonly repoListService: RepoListService,
     private readonly repoSummaryService: RepoSummaryService,
+    private readonly repoCoverageService: RepoCoverageService,
   ) {}
 
   //获取个人所有的项目
@@ -25,26 +27,27 @@ export class RepoController {
   //2.哪些激活了的
   @Get('repo')
   repoList(@Query() query: any, @Request() request: { user: { id: number } }) {
-    return this.reposService.repoList({ currentUser: request.user.id })
+    return this.repoListService.repoList({ currentUser: request.user.id })
   }
 
-  @Get('repo/:thRepoId/commit')
+  @Get('repo/:thRepoId/coverage')
   listCoverageCommit(
     @Param() param,
     @Request() request: { user: { id: number } },
   ) {
-    return this.reposService.listCoverageCommit({
+    return this.repoCoverageService.invoke({
       thRepoId: param.thRepoId,
       currentUser: request.user.id,
     })
   }
 
   @Get('repo/:thRepoId/summary')
-  summary(@Param() param, @Request() request: { user: { id: number } }) {
-    console.log(param, 'param')
+  repoSummary(@Param() param, @Request() request: any) {
+    console.log(request.headers['lang'])
     return this.repoSummaryService.invoke({
       thRepoId: param.thRepoId,
       currentUser: request.user.id,
+      lang: request.headers['lang'],
     })
   }
 }

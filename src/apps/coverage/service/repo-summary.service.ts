@@ -8,7 +8,7 @@ import * as moment from 'moment'
 import { Model } from 'mongoose'
 import { CoverageDocument } from '../schema/coverage.schema'
 import CanyonUtil from 'canyon-util'
-moment.locale('zh_cn')
+// moment.locale('zh_cn')
 function calculatePercentage(a, b) {
   if (b === 0) {
     return 0
@@ -30,15 +30,18 @@ export class RepoSummaryService {
     private userRepository: Repository<User>,
     private readonly gitlabService: GitlabService,
   ) {}
-  async invoke({ currentUser, thRepoId }) {
-    const retrieveARepo = await this.gitlabService.retrieveARepo({
+  async invoke({ currentUser, thRepoId, lang }) {
+    moment.locale(lang)
+    // 1.根据id查询gitlab项目信息
+    const gitlabRetrieveARepo = await this.gitlabService.retrieveARepo({
       currentUser: currentUser,
       thRepoId: thRepoId,
     })
+    // 2.根据gitlab仓库id查询到canyon的仓库id
     const repo = await this.repoRepository.findOne({
-      thRepoId: retrieveARepo.id,
+      thRepoId: gitlabRetrieveARepo.id,
     })
-
+    // 3.和user表联查出覆盖率信息
     const coverageRepositoryFind = await this.coverageRepository
       .createQueryBuilder('coverage')
       .where({ repoId: repo.id })
@@ -57,12 +60,9 @@ export class RepoSummaryService {
       ])
       .getRawMany()
 
+    // 最近一次上报人
     const lastTimeReport = coverageRepositoryFind[0].createdAt
-
-    //
-    // const coverageRepositoryFind = await this.coverageRepository.find({
-    //   repoId: repo.id,
-    // })
+    // 根据commit信息聚合数据
     const coverageRepositoryFindReduce = coverageRepositoryFind.reduce(
       (previousValue, currentValue) => {
         const find = previousValue.find(
@@ -78,26 +78,21 @@ export class RepoSummaryService {
             record: [currentValue],
           })
         }
-
         return previousValue
       },
       [],
     )
-
     const rows = []
-
     for (let i = 0; i < coverageRepositoryFindReduce.length; i++) {
       const gitlabService: any = await this.gitlabService.getASingleCommit({
         thRepoId,
         currentUser,
         commitSha: coverageRepositoryFindReduce[i].commitSha,
       })
-
+      // 每次循环根据commitSha把覆盖率都查出来
       const cov = []
-
       const record = coverageRepositoryFindReduce[i].record
       for (let j = 0; j < record.length; j++) {
-        // console.log(record,'record')
         const c = await this.coverageModel.findOne({
           _id: record[j].relationId,
         })
@@ -105,13 +100,10 @@ export class RepoSummaryService {
           cov.push(JSON.parse(c.coverage))
         } catch (e) {}
       }
-
+      //调用canyon覆盖率合并方法合并覆盖率，然后在计算概览
       const genTreeSummaryMain = CanyonUtil.genTreeSummaryMain(
         CanyonUtil.mergeCoverage(cov),
       )
-
-      console.log(gitlabService.committed_date, 'gitlabService')
-
       const row = {
         ...coverageRepositoryFindReduce[i],
         commitMsg: gitlabService.title,
@@ -136,32 +128,33 @@ export class RepoSummaryService {
     return {
       gongGeData: [
         {
-          label: '总共上报',
+          label: 'totalTimes',
           value: coverageRepositoryFind.length,
         },
         {
-          label: '平均覆盖率',
+          label: 'averageCoverage',
           value:
-            String(
-              rows
-                .map((item) => item.coverage)
-                .reduce((p, c) => {
-                  p = p + c
-                  return p
-                }, 0) / rows.length,
+            Number(
+              Number(
+                rows
+                  .map((item) => item.coverage)
+                  .reduce((p, c) => {
+                    p = p + c
+                    return p
+                  }, 0) / rows.length,
+              ).toFixed(2),
             ) + '%',
         },
         {
-          label: '最近一次上报',
+          label: 'lastReportTime',
           value: moment(lastTimeReport).fromNow(),
         },
         {
-          label: '最近一次commit覆盖率',
+          label: 'lastCommitCoverage',
           value: String(lastTimeCommit) + '%',
         },
       ],
-      chartData: rows,
-      // t: gitlabService,
+      chartData: rows.reverse(),
     }
   }
 }

@@ -21,6 +21,7 @@ export class AppController {
       thAppClientId,
       thAppRedirectUri,
       thAppUri,
+      version:global.version
     }
   }
 }
