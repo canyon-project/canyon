@@ -15,7 +15,7 @@ export const databaseProviders = [
         password: mysql.password,
         database: mysql.database,
         entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-        synchronize: true,
+        // synchronize: true,
         // charset:'utf8mb4'
         // mysql数据库编码使用utf8mb4_general_ci
       }),

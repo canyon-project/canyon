@@ -26,9 +26,11 @@ export class RepoListService {
       currentUser: currentUser,
       thRepoIds: repos.map((item) => item.thRepoId),
     })
+    // console.log(gitlabRepoList,'gitlabRepoList')
     // 3.构建数据rows
     const rows = []
     for (let i = 0; i < repos.length; i++) {
+      console.log(repos[i].id,'repos[i].id')
       // 4.根据repoId，到coverage表中获取对应的上报信息，降序
       const coverageRepositoryFind = await this.coverageRepository.find({
         where: {
@@ -42,6 +44,7 @@ export class RepoListService {
       const gitlabRepoListFind = gitlabRepoList.find(
         (item) => String(item.id) === repos[i].thRepoId,
       )
+      console.log(coverageRepositoryFind,'coverageRepositoryFind')
       // 6.拼装数据
       const row = {
         times: coverageRepositoryFind.length,
