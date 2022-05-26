@@ -27,7 +27,7 @@ Our document teaches you how to install the babel-plugin-canyon in a JavaScript 
 
 - Setup Documentation
 - Usage Documentation
-- babel-plugin-istanbul
+- [babel-plugin-canyon](https://github.com/canyon-project/babel-plugin-canyon)
 
 ## Contributing
 
