@@ -16,7 +16,7 @@ export const coverageProviders = [
       connection.model(
         'canyon_coverage_model',
         CoverageSchema,
-        'canyon_coverage_v2',
+        'canyon_coverage',
       ),
     inject: ['MONGODB_CONNECTION'],
   },
