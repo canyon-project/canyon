@@ -29,7 +29,7 @@ export class FileContentService {
 
     const res = await axios
       .get(
-        `http://gitlab.rico.org.cn/api/v4/projects/${projectId}/repository/files/${filePath}`,
+        `${global.conf.gitlab.application.uri}/api/v4/projects/${projectId}/repository/files/${filePath}`,
         {
           params: {
             ref: commitSha,

@@ -42,8 +42,6 @@ export class AuthService {
   async oauthToken(params) {
     // 1.拿前端传来的code兑换access_token，refresh_token
 
-    console.log(process.env.CUSTOM_ENV)
-
     const redirect_uri = global.conf.gitlab.application.redirectUri
     const ClientId = global.conf.gitlab.application.clientId
     const clientSecret = global.conf.gitlab.application.clientSecret
@@ -53,7 +51,7 @@ export class AuthService {
     const { refresh_token: thRefreshToken, access_token: thAccessToken } =
       await axios
         .post(
-          `http://gitlab.rico.org.cn/oauth/token?client_id=${ClientId}&client_secret=${clientSecret}&code=${params.code}&grant_type=authorization_code&redirect_uri=${redirect_uri}`,
+          `${global.conf.gitlab.application.uri}/oauth/token?client_id=${ClientId}&client_secret=${clientSecret}&code=${params.code}&grant_type=authorization_code&redirect_uri=${redirect_uri}`,
         )
         .then((res) => {
           console.log(res.data, 123)
@@ -73,7 +71,7 @@ export class AuthService {
       email,
       id: thId,
     } = await axios
-      .get('http://gitlab.rico.org.cn/api/v4/user', {
+      .get(`${global.conf.gitlab.application.uri}/api/v4/user`, {
         headers: {
           Authorization: `Bearer ${thAccessToken}`,
         },
