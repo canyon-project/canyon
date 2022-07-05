@@ -11,12 +11,13 @@ export class CoverageController {
     private readonly fileContentService: FileContentService,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Post('client')
   create(
     @Request() request: { user: { id: number } },
     @Body() coverageClientDto: any,
   ) {
-    return this.coverageClientService.invoke(1, coverageClientDto)
+    return this.coverageClientService.invoke(request.user.id, coverageClientDto)
   }
 
   @UseGuards(JwtAuthGuard)
@@ -32,8 +33,9 @@ export class CoverageController {
   }
 
   // 检索一个项目的某一版本的某个文件的内容，这边需要找出他的覆盖率，通过文件路径
+  @UseGuards(JwtAuthGuard)
   @Get('filecontent')
-  fileContent(@Query() fileContentDto: any) {
-    return this.fileContentService.invoke(fileContentDto)
+  fileContent(@Query() fileContentDto: any,     @Request() request: { user: { id: number } },) {
+    return this.fileContentService.invoke(request.user.id, fileContentDto)
   }
 }

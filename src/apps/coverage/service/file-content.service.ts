@@ -20,11 +20,11 @@ export class FileContentService {
     private coverageModel: Model<CoverageDocument>,
   ) {}
 
-  async invoke(params: any) {
+  async invoke(currentUser, params: any) {
     const { filePath, commitSha, projectId } = params
-    console.log(params, 'params')
+    console.log(params, 'params',{ id: currentUser })
     const token = await this.userRepository
-      .findOne({ id: 1 })
+      .findOne({ id: currentUser })
       .then((res) => res.thAccessToken)
 
     const res = await axios
