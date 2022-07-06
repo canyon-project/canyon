@@ -6,8 +6,8 @@ async function bootstrap() {
   prepareInit()
   const { AppModule } = await import('./app.module')
   const app = await NestFactory.create(AppModule)
-  app.use(bodyParser.json({ limit: '50mb' }))
-  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }))
+  app.use(bodyParser.json({ limit: '150mb' }))
+  app.use(bodyParser.urlencoded({ limit: '150mb', extended: true }))
   app.use(function (req, res, next) {
     const old_url = req.url
     if (old_url.includes('/api')) {
