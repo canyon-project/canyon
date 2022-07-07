@@ -44,6 +44,7 @@ export class Coverage extends CommonBaseEntity {
   @Column({
     name: 'report_id',
     type: 'varchar',
+    default: '',
     comment: '报告id',
   })
   reportId: string
