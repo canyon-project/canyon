@@ -40,4 +40,11 @@ export class Coverage extends CommonBaseEntity {
     comment: '关系id',
   })
   relationId: string
+
+  @Column({
+    name: 'report_id',
+    type: 'varchar',
+    comment: '报告id',
+  })
+  reportId: string
 }

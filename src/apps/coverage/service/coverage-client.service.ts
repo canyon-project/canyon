@@ -32,7 +32,7 @@ export class CoverageClientService {
 
   async invoke(currentUser, coverageClientDto: any) {
     const coverageReport = await this.dataFormatAndCheck(coverageClientDto)
-    const { coverage, commitSha, repoId, instrumentCwd } = coverageReport
+    const { coverage, commitSha, repoId, instrumentCwd, reportId } = coverageReport
     // 每次上报的覆盖率，本体存在mongodb，覆盖率信息存在mysql，通过relationId关联
     const coverageModelInsertManyResult = await this.coverageModel.create({
       coverage: JSON.stringify(coverage),
@@ -42,6 +42,7 @@ export class CoverageClientService {
       reporter: currentUser,
       repoId,
       instrumentCwd,
+      reportId,
       relationId: String(coverageModelInsertManyResult._id),
     }
     console.log(cov, 'cov')
@@ -53,6 +54,7 @@ export class CoverageClientService {
 
   async dataFormatAndCheck(data: any): Promise<any> {
     data = this.regularData(data)
+    console.log(data,'data')
     const cov: any = {}
     const instrumentCwd = data.instrumentCwd
     const coverage = data.coverage
@@ -100,6 +102,7 @@ export class CoverageClientService {
       instrumentCwd,
     }).then((res) => res.coverage)
     cov.instrumentCwd = data.instrumentCwd
+    cov.reportId = data.reportId
     cov.thRepoId = checkIsHasProject.thRepoId
     cov.repoId = checkIsHasProject.id
     cov.commitSha = data.commitSha
