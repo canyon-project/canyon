@@ -40,6 +40,7 @@ export class RepoCoverageService {
         'coverage.id as id',
         'coverage.commitSha as commitSha',
         'coverage.instrumentCwd as instrumentCwd',
+          'coverage.reportId as reportId',
         'coverage.createdAt as createdAt',
         'user.username as reporterUsername',
         'user.avatar as reporterAvatar',
