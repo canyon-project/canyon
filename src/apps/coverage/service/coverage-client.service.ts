@@ -32,26 +32,29 @@ export class CoverageClientService {
   ) {}
 
   async invoke(currentUser, coverageClientDto: any) {
-    const coverageReport = await this.dataFormatAndCheck(coverageClientDto)
-    const { coverage, commitSha, repoId, instrumentCwd, reportId } =
-      coverageReport
-    // 每次上报的覆盖率，本体存在mongodb，覆盖率信息存在mysql，通过relationId关联
-    const coverageModelInsertManyResult = await this.coverageModel.create({
-      coverage: JSON.stringify({}),
-    })
-    const cov = {
-      commitSha,
-      reporter: currentUser,
-      repoId,
-      instrumentCwd,
-      reportId,
-      relationId: String(coverageModelInsertManyResult._id),
-    }
-    const coverageRepositoryInsertResult = await this.coverageRepository.insert(
-      cov,
-    )
+    setTimeout(async () => {
+      console.time('dataFormatAndCheck')
+      const coverageReport = await this.dataFormatAndCheck(coverageClientDto)
+      console.timeEnd('dataFormatAndCheck')
+      const { coverage, commitSha, repoId, instrumentCwd, reportId } =
+        coverageReport
+      // 每次上报的覆盖率，本体存在mongodb，覆盖率信息存在mysql，通过relationId关联
 
-    setTimeout(() => {
+      const coverageModelInsertManyResult = await this.coverageModel.create({
+        coverage: JSON.stringify({}),
+      })
+
+      const cov = {
+        commitSha,
+        reporter: currentUser,
+        repoId,
+        instrumentCwd,
+        reportId,
+        relationId: String(coverageModelInsertManyResult._id),
+      }
+      const coverageRepositoryInsertResult =
+        await this.coverageRepository.insert(cov)
+      console.time('updateOne')
       this.coverageModel
         .updateOne(
           {
@@ -60,11 +63,12 @@ export class CoverageClientService {
           { coverage: JSON.stringify(coverage) },
         )
         .then((r) => {
+          console.timeEnd('updateOne')
           console.log(r)
         })
     }, 0)
 
-    return { coverageRepositoryInsertResult, coverageModelInsertManyResult }
+    return { success: true, msg: '覆盖率已上传' }
   }
 
   async dataFormatAndCheck(data: any): Promise<any> {

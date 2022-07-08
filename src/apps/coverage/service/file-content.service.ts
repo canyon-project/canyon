@@ -22,7 +22,6 @@ export class FileContentService {
 
   async invoke(currentUser, params: any) {
     const { filePath, commitSha, projectId } = params
-    console.log(params, 'params',{ id: currentUser })
     const token = await this.userRepository
       .findOne({ id: currentUser })
       .then((res) => res.thAccessToken)

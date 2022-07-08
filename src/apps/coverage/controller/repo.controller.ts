@@ -43,7 +43,6 @@ export class RepoController {
 
   @Get('repo/:thRepoId/summary')
   repoSummary(@Param() param, @Request() request: any) {
-    console.log(request.headers['lang'])
     return this.repoSummaryService.invoke({
       thRepoId: param.thRepoId,
       currentUser: request.user.id,
