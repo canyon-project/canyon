@@ -9,6 +9,7 @@ import CanyonUtil from 'canyon-util'
 import { Repo } from '../entities/repo.entity'
 import axios from 'axios'
 import { GitlabService } from '../../th/service/gitlab.service'
+import mongoose from 'mongoose'
 
 /**
  * 上传覆盖率，十分重要的服务
@@ -32,10 +33,11 @@ export class CoverageClientService {
 
   async invoke(currentUser, coverageClientDto: any) {
     const coverageReport = await this.dataFormatAndCheck(coverageClientDto)
-    const { coverage, commitSha, repoId, instrumentCwd, reportId } = coverageReport
+    const { coverage, commitSha, repoId, instrumentCwd, reportId } =
+      coverageReport
     // 每次上报的覆盖率，本体存在mongodb，覆盖率信息存在mysql，通过relationId关联
     const coverageModelInsertManyResult = await this.coverageModel.create({
-      coverage: JSON.stringify(coverage),
+      coverage: JSON.stringify({}),
     })
     const cov = {
       commitSha,
@@ -45,16 +47,28 @@ export class CoverageClientService {
       reportId,
       relationId: String(coverageModelInsertManyResult._id),
     }
-    console.log(cov, 'cov')
     const coverageRepositoryInsertResult = await this.coverageRepository.insert(
       cov,
     )
+
+    setTimeout(() => {
+      this.coverageModel
+        .updateOne(
+          {
+            _id: String(coverageModelInsertManyResult._id),
+          },
+          { coverage: JSON.stringify(coverage) },
+        )
+        .then((r) => {
+          console.log(r)
+        })
+    }, 0)
+
     return { coverageRepositoryInsertResult, coverageModelInsertManyResult }
   }
 
   async dataFormatAndCheck(data: any): Promise<any> {
     data = this.regularData(data)
-    console.log(data,'data')
     const cov: any = {}
     const instrumentCwd = data.instrumentCwd
     const coverage = data.coverage
@@ -75,7 +89,6 @@ export class CoverageClientService {
       )
     }
 
-    console.log(1, data.thRepoId)
     // 检查是否有项目在表里
     let checkIsHasProject = await this.repoRepository.findOne({
       thRepoId: String(data.thRepoId),
@@ -107,7 +120,6 @@ export class CoverageClientService {
     cov.repoId = checkIsHasProject.id
     cov.commitSha = data.commitSha
     cov.project = checkIsHasProject
-    console.log(cov, 'covcovcov')
     return cov
   }
 
