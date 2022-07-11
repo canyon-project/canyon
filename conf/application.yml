@@ -6,6 +6,9 @@ datasource:
     username: root
     password: root
     database: canyon
+    userEntityTableName: user
+    repoEntityTableName: repo
+    coverageEntityTableName: coverage
   mongodb:
     type: mongodb
     host: 127.0.0.1

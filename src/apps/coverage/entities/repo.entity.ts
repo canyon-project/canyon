@@ -1,7 +1,9 @@
 import { Column, Entity } from 'typeorm'
 import { CommonBaseEntity } from '../../../common/base/common-base.entity'
 
-@Entity('repo')
+const { repoEntityTableName } = global.conf
+
+@Entity(repoEntityTableName)
 export class Repo extends CommonBaseEntity {
   @Column({
     name: 'th_repo_id',

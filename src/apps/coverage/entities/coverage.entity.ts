@@ -1,7 +1,9 @@
 import { Entity, Column } from 'typeorm'
 import { CommonBaseEntity } from '../../../common/base/common-base.entity'
 
-@Entity('coverage')
+const { coverageEntityTableName } = global.conf
+
+@Entity(coverageEntityTableName)
 export class Coverage extends CommonBaseEntity {
   @Column({
     name: 'commit_sha',

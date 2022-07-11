@@ -1,7 +1,9 @@
 import { Column, Entity } from 'typeorm'
 import { CommonBaseEntity } from '../../../common/base/common-base.entity'
 
-@Entity('user')
+const { userEntityTableName } = global.conf
+
+@Entity(userEntityTableName)
 export class User extends CommonBaseEntity {
   @Column({
     type: 'varchar',
