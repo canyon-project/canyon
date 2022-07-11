@@ -1,24 +1,26 @@
 datasource:
   mysql:
     type: mysql
-    host: 10.128.13.42
-    port: 13306
+    host: 127.0.0.1
+    port: 3306
     username: root
-    password: qwer123
-    database: canyon_dev_v2
+    password: root
+    database: canyon
     userEntityTableName: user
     repoEntityTableName: repo
     coverageEntityTableName: coverage
   mongodb:
     type: mongodb
-    host: flttsworkstruct01.mongo.db.fat.qa.nt.ctripcorp.com
-    port: 55111
-    username: t_flttsworkstruct
-    password: HW3cp57rCtgk9DKUmFEz
-    database: flttsworkstructdb
+    host: 127.0.0.1
+    port: 27017
+    username: root
+    password: root
+    database: canyon
+
 gitlab:
   application:
-    clientId: eb632e9a6d1c2af6e144438db888c9d13d3a8d26d0ab2e6aa47db9b7b5854665
-    clientSecret: 0b9c789a7905525a72dc725ab2b3d60a83afa7584072800f15ba29875a46e45e
-    redirectUri: http://canyon.flight.ctripcorp.com/login
-    uri: http://git.dev.sh.ctripcorp.com
+    clientId: clientId
+    clientSecret: clientSecret
+    redirectUri: redirectUri
+    uri: uri
+
