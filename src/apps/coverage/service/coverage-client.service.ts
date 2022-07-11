@@ -68,11 +68,11 @@ export class CoverageClientService {
         })
     }, 0)
 
-    await new Promise((resolve, reject) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 15000)
-    })
+    // await new Promise((resolve, reject) => {
+    //   setTimeout(() => {
+    //     resolve(true)
+    //   }, 15000)
+    // })
 
     return { success: true, msg: '覆盖率已上传(15000ms)' }
   }
