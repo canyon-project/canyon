@@ -1,7 +1,7 @@
 import { Entity, Column } from 'typeorm'
 import { CommonBaseEntity } from '../../../common/base/common-base.entity'
 
-const { coverageEntityTableName } = global.conf
+const { coverageEntityTableName } = global.conf.datasource.mysql
 
 @Entity(coverageEntityTableName)
 export class Coverage extends CommonBaseEntity {

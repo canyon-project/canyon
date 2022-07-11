@@ -1,7 +1,7 @@
 import { Column, Entity } from 'typeorm'
 import { CommonBaseEntity } from '../../../common/base/common-base.entity'
 
-const { userEntityTableName } = global.conf
+const { userEntityTableName } = global.conf.datasource.mysql
 
 @Entity(userEntityTableName)
 export class User extends CommonBaseEntity {
