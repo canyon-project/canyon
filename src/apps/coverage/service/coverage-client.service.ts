@@ -68,7 +68,13 @@ export class CoverageClientService {
         })
     }, 0)
 
-    return { success: true, msg: '覆盖率已上传' }
+    await new Promise((resolve, reject) => {
+      setTimeout(() => {
+        resolve(true)
+      }, 15000)
+    })
+
+    return { success: true, msg: '覆盖率已上传(15000ms)' }
   }
 
   async dataFormatAndCheck(data: any): Promise<any> {
