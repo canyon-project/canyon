@@ -151,9 +151,7 @@ export class CoverageClientService {
   }
 
   async retrieveACoverageForAProjectService(params) {
-    const { commitSha, currentUser, thRepoId } = params
-
-    console.log({ commitSha, currentUser, thRepoId })
+    const { commitSha, currentUser, thRepoId, reportId } = params
     const fd = await this.gitlabService.getASingleCommit({
       currentUser,
       thRepoId: thRepoId,
@@ -167,9 +165,10 @@ export class CoverageClientService {
       commitMsg: fd.title,
     }
 
+    const where = { commitSha: commitSha, reportId }
     const coverageRepositoryFindResult = await this.coverageRepository
       .createQueryBuilder('coverage')
-      .where({ commitSha: commitSha })
+      .where(JSON.parse(JSON.stringify(where)))
       .orderBy({
         createdAt: 'DESC',
       })
