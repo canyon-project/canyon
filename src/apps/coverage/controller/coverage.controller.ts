@@ -1,8 +1,16 @@
-import {Controller, Get, Post, Body, Query, Request, UseGuards} from '@nestjs/common'
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common'
 import { RepoListService } from '../service/repo-list.service'
 import { CoverageClientService } from '../service/coverage-client.service'
 import { FileContentService } from '../service/file-content.service'
-import {JwtAuthGuard} from "../../auth/guards/jwt-auth.guard";
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 
 @Controller('coverage')
 export class CoverageController {
@@ -35,7 +43,19 @@ export class CoverageController {
   // 检索一个项目的某一版本的某个文件的内容，这边需要找出他的覆盖率，通过文件路径
   @UseGuards(JwtAuthGuard)
   @Get('filecontent')
-  fileContent(@Query() fileContentDto: any,     @Request() request: { user: { id: number } },) {
+  fileContent(
+    @Query() fileContentDto: any,
+    @Request() request: { user: { id: number } },
+  ) {
     return this.fileContentService.invoke(request.user.id, fileContentDto)
+  }
+
+  // get
+  //  /treeSummary/
+  @Get('/treesummary')
+  retrieveCoverageTreeSummary(
+      @Query() params: any,
+  ) {
+    return {}
   }
 }
