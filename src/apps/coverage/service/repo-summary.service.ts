@@ -101,7 +101,7 @@ export class RepoSummaryService {
         } catch (e) {}
       }
       //调用canyon覆盖率合并方法合并覆盖率，然后在计算概览
-      const genTreeSummaryMain = CanyonUtil.genTreeSummaryMain(
+      const genTreeSummaryMain: any = CanyonUtil.genTreeSummaryMain(
         CanyonUtil.mergeCoverage(cov),
       )
       const row = {

@@ -80,7 +80,7 @@ export class RepoCoverageService {
         ...coverageRepositoryFindReduce[i],
         commitMsg: gitlabService.title,
         lastTimeReport: coverageRepositoryFindReduce[i].record.sort((a, b) =>
-          moment(a.createdAt).isBefore(moment(b.createdAt)) ? -1 : 1,
+          moment(a.createdAt).isBefore(moment(b.createdAt)) ? 1 : -1,
         )[0].createdAt,
       }
       rows.push(row)
