@@ -34,6 +34,7 @@ export class RetrieveCoverageTreeSummaryService {
     const redirectUri = global.conf.gitlab.application.redirectUri
     const coverageRepositoryFind = await this.coverageRepository.find({
       reportId: reportId,
+      covType: 'agg',
     })
     const allCoverages = await Promise.all(
       coverageRepositoryFind.map((item) => {
@@ -56,6 +57,13 @@ export class RetrieveCoverageTreeSummaryService {
     })
     const res = Array.from(m).map((item) => {
       const relationIds = item[1].map((item) => item.relationId)
+      const s: any = CanyonUtil.genTreeSummaryMain(
+        CanyonUtil.mergeCoverage(
+          allCoverages
+            .filter((i) => relationIds.includes(i.relationId))
+            .map((i) => i.coverage),
+        ),
+      )
       return {
         reportUrl: `${redirectUri.replace(
           '/login',
@@ -63,13 +71,7 @@ export class RetrieveCoverageTreeSummaryService {
         )}/redirect?type=reportId&id=${reportId}&commitSha=${item[0]}`,
         commitSha: item[0],
         aggRows: item[1],
-        treeSummary: CanyonUtil.genTreeSummaryMain(
-          CanyonUtil.mergeCoverage(
-            allCoverages
-              .filter((i) => relationIds.includes(i.relationId))
-              .map((i) => i.coverage),
-          ),
-        ),
+        statistics: s[0].statistics,
       }
     })
     return res

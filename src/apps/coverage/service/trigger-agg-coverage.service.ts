@@ -92,33 +92,37 @@ export class TriggerAggCoverageService {
 
     // 转换为二维数组
     const twoDimensionalArray = Array.from(m)
-    for (let i = 0; i < twoDimensionalArray.length; i++) {
-      const item = twoDimensionalArray[i]
-      const relationIds = item[1].map((item) => item.relationId)
-      //  这边要逐个聚合，每次会有海量
-      // 聚合好的覆盖率
-      let mainCov = []
-      for (let i = 0; i < relationIds.length; i++) {
-        console.log(`正在合并第${i + 1}个`)
-        const singleCov = await this.coverageModel
-          .findOne({ _id: relationIds[i] })
-          .then((r) => JSON.parse(r.coverage))
-        mainCov = CanyonUtil.mergeCoverage([mainCov, singleCov])
-      }
 
-      const { mongoCoverageId, coverageId } = ids.find(
-        (i) => i.commitSha === item[0],
-      )
-      await this.coverageModel.updateOne(
-        { _id: mongoCoverageId },
-        { coverage: JSON.stringify(mainCov) },
-      )
-      // 修改状态
-      await this.coverageRepository.update(
-        { id: coverageId },
-        { covAggStatus: 'complete' },
-      )
-    }
+    setTimeout(async () => {
+      for (let i = 0; i < twoDimensionalArray.length; i++) {
+        const item = twoDimensionalArray[i]
+        const relationIds = item[1].map((item) => item.relationId)
+        //  这边要逐个聚合，每次会有海量
+        // 聚合好的覆盖率
+        let mainCov = []
+        for (let i = 0; i < relationIds.length; i++) {
+          console.log(`正在合并第${i + 1}个`)
+          const singleCov = await this.coverageModel
+            .findOne({ _id: relationIds[i] })
+            .then((r) => JSON.parse(r.coverage))
+          mainCov = CanyonUtil.mergeCoverage([mainCov, singleCov])
+        }
+
+        const { mongoCoverageId, coverageId } = ids.find(
+          (i) => i.commitSha === item[0],
+        )
+        await this.coverageModel.updateOne(
+          { _id: mongoCoverageId },
+          { coverage: JSON.stringify(mainCov) },
+        )
+        // 修改状态
+        await this.coverageRepository.update(
+          { id: coverageId },
+          { covAggStatus: 'complete' },
+        )
+      }
+    }, 0)
+
     return { msg: '聚合中', ids }
   }
 }
