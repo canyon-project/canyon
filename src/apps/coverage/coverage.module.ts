@@ -10,6 +10,8 @@ import { GitlabService } from '../th/service/gitlab.service'
 import { RepoSummaryService } from './service/repo-summary.service'
 import { RepoCoverageService } from './service/repo-coverage.service'
 import { RetrieveCoverageTreeSummaryService } from './service/retrieve-coverage-tree-summary.service'
+import { TriggerAggCoverageService } from "./service/trigger-agg-coverage.service"
+import { ListAggStatusService } from "./service/list-agg-status.service"
 
 @Module({
   imports: [DatabaseModule],
@@ -22,6 +24,8 @@ import { RetrieveCoverageTreeSummaryService } from './service/retrieve-coverage-
     RepoSummaryService,
     RepoCoverageService,
     RetrieveCoverageTreeSummaryService,
+    TriggerAggCoverageService,
+    ListAggStatusService,
     ...coverageProviders,
   ],
 })

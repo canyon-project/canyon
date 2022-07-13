@@ -44,7 +44,7 @@ export class RepoSummaryService {
     // 3.和user表联查出覆盖率信息
     const coverageRepositoryFind = await this.coverageRepository
       .createQueryBuilder('coverage')
-      .where({ repoId: repo.id })
+      .where({ repoId: repo.id, covType: 'agg' })
       .orderBy({
         createdAt: 'DESC',
       })

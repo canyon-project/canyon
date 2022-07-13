@@ -34,13 +34,13 @@ export class RepoCoverageService {
 
     const coverageRepositoryFind = await this.coverageRepository
       .createQueryBuilder('coverage')
-      .where({ repoId: repo.id })
+      .where({ repoId: repo.id, covType: 'normal' })
       .leftJoinAndSelect(User, 'user', `user.id=coverage.reporter`)
       .select([
         'coverage.id as id',
         'coverage.commitSha as commitSha',
         'coverage.instrumentCwd as instrumentCwd',
-          'coverage.reportId as reportId',
+        'coverage.reportId as reportId',
         'coverage.createdAt as createdAt',
         'user.username as reporterUsername',
         'user.avatar as reporterAvatar',

@@ -50,4 +50,23 @@ export class Coverage extends CommonBaseEntity {
     comment: '报告id',
   })
   reportId: string
+
+  //agg、normal
+  @Column({
+    name: 'cov_type',
+    type: 'varchar',
+    default: 'normal',
+    comment: '类型',
+  })
+  covType: string
+
+  @Column({
+    name: 'cov_agg_status',
+    type: 'varchar',
+    default: 'complete',
+    comment: '覆盖率聚合状态',
+  })
+  covAggStatus: string
+
+  // 需要有一个触发表，commit reportId relationId
 }

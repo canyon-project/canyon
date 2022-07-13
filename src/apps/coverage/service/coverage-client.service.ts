@@ -153,7 +153,7 @@ export class CoverageClientService {
 
     const coverageRepositoryFindResult = await this.coverageRepository
       .createQueryBuilder('coverage')
-      .where({ commitSha: commitSha })
+      .where({ commitSha: commitSha, covType: 'agg' })
       .orderBy({
         createdAt: 'DESC',
       })

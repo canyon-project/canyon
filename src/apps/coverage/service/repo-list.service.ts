@@ -33,6 +33,7 @@ export class RepoListService {
       const coverageRepositoryFind = await this.coverageRepository.find({
         where: {
           repoId: repos[i].id,
+          covType: 'normal',
         },
         order: {
           createdAt: 'DESC',

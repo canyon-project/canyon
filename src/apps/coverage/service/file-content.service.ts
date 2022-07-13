@@ -58,6 +58,7 @@ export class FileContentService {
     // const { commitSha } = params
     const coverageRepositoryFindResult = await this.coverageRepository.find({
       commitSha: commitSha,
+      covType: 'agg',
     })
     const cov = []
     for (let i = 0; i < coverageRepositoryFindResult.length; i++) {

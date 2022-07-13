@@ -11,6 +11,8 @@ import { CoverageClientService } from '../service/coverage-client.service'
 import { FileContentService } from '../service/file-content.service'
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
 import { RetrieveCoverageTreeSummaryService } from '../service/retrieve-coverage-tree-summary.service'
+import { TriggerAggCoverageService } from '../service/trigger-agg-coverage.service'
+import { ListAggStatusService } from '../service/list-agg-status.service'
 
 @Controller('coverage')
 export class CoverageController {
@@ -18,6 +20,8 @@ export class CoverageController {
     private readonly coverageClientService: CoverageClientService,
     private readonly fileContentService: FileContentService,
     private readonly retrieveCoverageTreeSummaryService: RetrieveCoverageTreeSummaryService,
+    private readonly triggerAggCoverageService: TriggerAggCoverageService,
+    private readonly listAggStatusService: ListAggStatusService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -51,8 +55,22 @@ export class CoverageController {
     return this.fileContentService.invoke(request.user.id, fileContentDto)
   }
 
+  // 获取概览
   @Get('/treesummary')
   retrieveCoverageTreeSummary(@Query() params: any) {
     return this.retrieveCoverageTreeSummaryService.invoke(params)
+  }
+
+  // 获取聚合状态
+  @Get('/aggstatus')
+  listAggStatus(@Query() params: any) {
+    return this.listAggStatusService.invoke(params)
+  }
+
+  @Post('/triggeragg')
+  triggeragg(@Body() params: any) {
+    //commitSha、reportId
+    return this.triggerAggCoverageService.invoke(params)
+    // 触发聚合覆盖率
   }
 }
