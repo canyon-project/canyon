@@ -9,6 +9,7 @@ import { FileContentService } from './service/file-content.service'
 import { GitlabService } from '../th/service/gitlab.service'
 import { RepoSummaryService } from './service/repo-summary.service'
 import { RepoCoverageService } from './service/repo-coverage.service'
+import { RetrieveCoverageTreeSummaryService } from './service/retrieve-coverage-tree-summary.service'
 
 @Module({
   imports: [DatabaseModule],
@@ -20,6 +21,7 @@ import { RepoCoverageService } from './service/repo-coverage.service'
     GitlabService,
     RepoSummaryService,
     RepoCoverageService,
+    RetrieveCoverageTreeSummaryService,
     ...coverageProviders,
   ],
 })

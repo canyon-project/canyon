@@ -2,14 +2,11 @@ import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common'
 import { Repository } from 'typeorm'
 import { Coverage } from '../entities/coverage.entity'
 import { User } from '../../auth/entities/user.entity'
-import { formatCoverage } from '../../../utils'
 import { CoverageDocument } from '../schema/coverage.schema'
 import { Model } from 'mongoose'
 import CanyonUtil from 'canyon-util'
 import { Repo } from '../entities/repo.entity'
-import axios from 'axios'
 import { GitlabService } from '../../th/service/gitlab.service'
-import mongoose from 'mongoose'
 
 /**
  * 上传覆盖率，十分重要的服务
@@ -32,49 +29,38 @@ export class CoverageClientService {
   ) {}
 
   async invoke(currentUser, coverageClientDto: any) {
-    setTimeout(async () => {
-      console.time('dataFormatAndCheck')
-      const coverageReport = await this.dataFormatAndCheck(coverageClientDto)
-      console.timeEnd('dataFormatAndCheck')
-      const { coverage, commitSha, repoId, instrumentCwd, reportId } =
-        coverageReport
-      // 每次上报的覆盖率，本体存在mongodb，覆盖率信息存在mysql，通过relationId关联
+    const dataFormatAndCheckTimeStart = new Date().getTime()
+    const coverageReport = await this.dataFormatAndCheck(coverageClientDto)
+    const dataFormatAndCheckTimeEnd = new Date().getTime()
+    const { coverage, commitSha, repoId, instrumentCwd, reportId } =
+      coverageReport
+    // 每次上报的覆盖率，本体存在mongodb，覆盖率信息存在mysql，通过relationId关联
+    const coverageModelInsertManyTimeStart = new Date().getTime()
+    const coverageModelInsertManyResult = await this.coverageModel.create({
+      coverage: JSON.stringify(coverage),
+    })
+    const coverageModelInsertManyTimeEnd = new Date().getTime()
 
-      const coverageModelInsertManyResult = await this.coverageModel.create({
-        coverage: JSON.stringify({}),
-      })
-
-      const cov = {
-        commitSha,
-        reporter: currentUser,
-        repoId,
-        instrumentCwd,
-        reportId,
-        relationId: String(coverageModelInsertManyResult._id),
-      }
-      const coverageRepositoryInsertResult =
-        await this.coverageRepository.insert(cov)
-      console.time('updateOne')
-      this.coverageModel
-        .updateOne(
-          {
-            _id: String(coverageModelInsertManyResult._id),
-          },
-          { coverage: JSON.stringify(coverage) },
-        )
-        .then((r) => {
-          console.timeEnd('updateOne')
-          console.log(r)
-        })
-    }, 0)
-
-    // await new Promise((resolve, reject) => {
-    //   setTimeout(() => {
-    //     resolve(true)
-    //   }, 15000)
-    // })
-
-    return { success: true, msg: '覆盖率已上传(15000ms)' }
+    const cov = {
+      commitSha,
+      reporter: currentUser,
+      repoId,
+      instrumentCwd,
+      reportId,
+      relationId: String(coverageModelInsertManyResult._id),
+    }
+    const coverageRepositoryInsertResult = await this.coverageRepository.insert(
+      cov,
+    )
+    return {
+      coverageRepositoryInsertResult,
+      time: {
+        dataFormatAndCheckTime:
+          dataFormatAndCheckTimeEnd - dataFormatAndCheckTimeStart,
+        coverageRepositoryInsertTime:
+          coverageModelInsertManyTimeEnd - coverageModelInsertManyTimeStart,
+      },
+    }
   }
 
   async dataFormatAndCheck(data: any): Promise<any> {
@@ -98,7 +84,6 @@ export class CoverageClientService {
         HttpStatus.BAD_REQUEST,
       )
     }
-
     // 检查是否有项目在表里
     let checkIsHasProject = await this.repoRepository.findOne({
       thRepoId: String(data.thRepoId),
@@ -152,6 +137,7 @@ export class CoverageClientService {
 
   async retrieveACoverageForAProjectService(params) {
     const { commitSha, currentUser, thRepoId } = params
+    // console.log({ commitSha, currentUser, thRepoId })
     const fd = await this.gitlabService.getASingleCommit({
       currentUser,
       thRepoId: thRepoId,
@@ -165,10 +151,9 @@ export class CoverageClientService {
       commitMsg: fd.title,
     }
 
-    const where = { commitSha: commitSha }
     const coverageRepositoryFindResult = await this.coverageRepository
       .createQueryBuilder('coverage')
-      .where(JSON.parse(JSON.stringify(where)))
+      .where({ commitSha: commitSha })
       .orderBy({
         createdAt: 'DESC',
       })

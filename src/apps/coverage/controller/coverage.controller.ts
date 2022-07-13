@@ -7,16 +7,17 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common'
-import { RepoListService } from '../service/repo-list.service'
 import { CoverageClientService } from '../service/coverage-client.service'
 import { FileContentService } from '../service/file-content.service'
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard'
+import { RetrieveCoverageTreeSummaryService } from '../service/retrieve-coverage-tree-summary.service'
 
 @Controller('coverage')
 export class CoverageController {
   constructor(
     private readonly coverageClientService: CoverageClientService,
     private readonly fileContentService: FileContentService,
+    private readonly retrieveCoverageTreeSummaryService: RetrieveCoverageTreeSummaryService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -50,12 +51,8 @@ export class CoverageController {
     return this.fileContentService.invoke(request.user.id, fileContentDto)
   }
 
-  // get
-  //  /treeSummary/
   @Get('/treesummary')
-  retrieveCoverageTreeSummary(
-      @Query() params: any,
-  ) {
-    return {}
+  retrieveCoverageTreeSummary(@Query() params: any) {
+    return this.retrieveCoverageTreeSummaryService.invoke(params)
   }
 }
