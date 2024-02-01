@@ -2,7 +2,7 @@ name: Npm Publish
 
 on:
   push:
-    branches: [ * ]
+    branches: [ "*" ]
 
 jobs:
   install:
