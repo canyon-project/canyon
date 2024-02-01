@@ -1,0 +1,31 @@
+{
+  "menus": {
+    "projects": "项目",
+    "settings": "设置",
+    "docs": "文档"
+  },
+  "projects": {
+    "desc": "查看与您的账户相关的所有项目",
+    "table": {
+      "name": "名称",
+      "description": "描述",
+      "created_at": "创建时间",
+      "updated_at": "更新时间",
+      "option": "操作",
+      "delete": "删除",
+      "detail": "详情"
+    },
+    "record": "记录",
+    "overview": "概览"
+  },
+  "settings": {
+    "desc": "设置您的账户信息",
+    "form": {
+      "name": "名称",
+      "email": "邮箱",
+      "password": "密码",
+      "password_confirmation": "确认密码",
+      "submit": "提交"
+    }
+  }
+}

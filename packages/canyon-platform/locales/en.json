@@ -1,0 +1,31 @@
+{
+  "menus": {
+    "projects": "Projects",
+    "settings": "Settings",
+    "docs": "Docs"
+  },
+  "projects": {
+    "desc": "View all projects related to your account",
+    "table": {
+      "name": "Name",
+      "description": "Description",
+      "created_at": "Created At",
+      "updated_at": "Updated At",
+      "option": "Option",
+      "delete": "Delete",
+      "detail": "Detail"
+    },
+    "overview": "Overview",
+    "records": "Records"
+  },
+  "settings": {
+    "desc": "Configure your account information",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "password_confirmation": "Confirm Password",
+      "submit": "Submit"
+    }
+  }
+}

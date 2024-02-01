@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.ant-menu-light.ant-menu-root.ant-menu-vertical{
+  border-inline-end:none !important;
+}
+.ant-table-thead >tr>th{
+  /*background-color: white !important;*/
+}
+a{
+  color: #287DFA;
+}
+a:hover{
+  color: #287DFA;
+  opacity: .8;
+}

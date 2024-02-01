@@ -1,0 +1,17 @@
+query GetProjectRecords($projectID: String!, $current: Int!, $pageSize: Int!, $keyword: String!) {
+  getProjectRecords(projectID:$projectID,current:$current, pageSize:$pageSize, keyword:$keyword) {
+    data {
+      message
+      sha
+      compareTarget
+      branch
+      compareUrl
+      webUrl
+      newlines
+      statements
+      lastReportTime
+      times
+    }
+    total
+  }
+}

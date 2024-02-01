@@ -1,0 +1,28 @@
+{
+  "menus": {
+    "projects": "項目",
+    "settings": "設置"
+  },
+  "projects": {
+    "desc": "查看與您的帳戶相關的所有項目",
+    "table": {
+      "name": "名稱",
+      "description": "描述",
+      "created_at": "創建時間",
+      "updated_at": "更新時間",
+      "option": "操作",
+      "delete": "刪除",
+      "detail": "詳情"
+    }
+  },
+  "settings": {
+    "desc": "設置您的帳戶信息",
+    "form": {
+      "name": "名稱",
+      "email": "郵箱",
+      "password": "密碼",
+      "password_confirmation": "確認密碼",
+      "submit": "提交"
+    }
+  }
+}

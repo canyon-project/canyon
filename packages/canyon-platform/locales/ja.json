@@ -1,0 +1,28 @@
+{
+  "menus": {
+    "projects": "プロジェクト",
+    "settings": "設定"
+  },
+  "projects": {
+    "desc": "アカウントに関連するすべてのプロジェクトを表示します",
+    "table": {
+      "name": "名前",
+      "description": "説明",
+      "created_at": "作成日時",
+      "updated_at": "更新日時",
+      "option": "オプション",
+      "delete": "削除",
+      "detail": "詳細"
+    }
+  },
+  "settings": {
+    "desc": "アカウント情報を設定します",
+    "form": {
+      "name": "名前",
+      "email": "メール",
+      "password": "パスワード",
+      "password_confirmation": "パスワード確認",
+      "submit": "送信"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+query GetProjectsBuOptions {
+  getProjectsBuOptions {
+    bu
+  }
+}

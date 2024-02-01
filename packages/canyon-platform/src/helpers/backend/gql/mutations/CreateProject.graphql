@@ -1,0 +1,8 @@
+mutation CreateProject($projectID: String!) {
+  createProject(projectID: $projectID) {
+    id
+    name
+    pathWithNamespace
+    description
+  }
+}

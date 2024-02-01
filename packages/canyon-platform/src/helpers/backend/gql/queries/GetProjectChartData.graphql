@@ -1,0 +1,7 @@
+query GetProjectChartData($projectID: String!) {
+  getProjectChartData(projectID: $projectID){
+    sha
+    newlines
+    statements
+  }
+}

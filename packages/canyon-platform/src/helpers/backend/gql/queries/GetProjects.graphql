@@ -1,0 +1,15 @@
+query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$bu: [String!]!) {
+  getProjects(current:$current, pageSize:$pageSize, keyword:$keyword,bu:$bu) {
+    total
+    data {
+      id
+      name
+      pathWithNamespace
+      description
+      bu
+      reportTimes
+      lastReportTime
+      maxCoverage
+    }
+  }
+}

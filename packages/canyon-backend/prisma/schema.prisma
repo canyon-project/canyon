@@ -1,0 +1,106 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+model User {
+  id           Int      @id
+  username     String
+  password     String
+  nickname     String
+  avatar       String
+  refreshToken String   @map("refresh_token")
+  accessToken  String   @map("access_token")
+  email        String
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("user_20240130")
+}
+
+// 确认数据结构，Coverage使用随机生成的id，不使用自增id。
+// 取消task，使用consumer消费者模式聚合数据
+// commitSha => sha
+model Coverage {
+  id            String   @id @default(cuid())
+  key           String?
+  sha           String   @map("sha")
+  branch        String
+  compareTarget String   @map("compare_target")
+  projectID     String   @map("project_id")
+  instrumentCwd String?  @map("instrument_cwd")
+  reporter      Int
+  reportID      String   @map("report_id")
+  covType       String   @map("cov_type")
+  relationID    String   @map("relation_id")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+  consumer      Int // 1: 未消费, 2: 已消费
+  children      String[] // 记录由哪些子任务生成
+  tags          Json[] // 打标签
+
+  @@map("coverage_20240130")
+}
+
+model Project {
+  id                String   @id
+  name              String
+  pathWithNamespace String   @map("path_with_namespace")
+  description       String
+  bu                String
+  // maxCoverage       Float    @map("max_coverage")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("project_20240130")
+}
+
+model Summary {
+  id      String @id @default(cuid())
+  total   Int
+  covered Int
+  skipped Int
+
+  metricType String @map("metric_type")
+
+  covType String @map("cov_type")
+
+  reportID String @map("report_id")
+
+  sha String @map("sha")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("summary_20240130")
+}
+
+model Codechange {
+  id        String @id @default(cuid())
+  projectID String @map("project_id")
+
+  compareTarget String @map("compare_target")
+
+  sha String @map("sha")
+
+  path String
+
+  additions Int[]
+
+  deletions Int[]
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("codechange_20240130")
+}
+
+model Distributedlock {
+  lockName       String    @id
+  isLocked       Boolean   @default(false)
+  lockTimestamp  DateTime?
+  lockExpiration DateTime?
+
+  @@map("distributedlock_20240130")
+}
