@@ -27,12 +27,12 @@ function parseGitLabUrl(gitLabUrl) {
 export class GetProjectsService {
   constructor(private readonly prisma: PrismaService) {}
   async invoke(current, pageSize, keyword, bu) {
-    const whereCondition = {
+    const whereCondition: any = {
       OR: [
         // { description: { contains: keyword } },
         // { name: { contains: keyword } },
-        { pathWithNamespace: { contains: keyword } },
-        { id: { contains: keyword } },
+        { pathWithNamespace: { contains: keyword, mode: 'insensitive' } },
+        { id: { contains: keyword, mode: 'insensitive' } },
       ],
     };
 
