@@ -44,11 +44,11 @@
       "children": [
         {
           "label": "Terms of service",
-          "link": "https://expo.dev/terms"
+          "link": "https://github.com/canyon-project/canyon"
         },
         {
           "label": "Guidelines",
-          "link": "https://expo.dev/terms"
+          "link": "https://github.com/canyon-project/canyon"
         }
       ]
     }

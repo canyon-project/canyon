@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Request } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req } from '@nestjs/common';
 
 @Controller()
 export class AppController {
@@ -8,7 +8,7 @@ export class AppController {
   }
 
   @Get('/api/base')
-  base(): any {
+  async base() {
     return {
       SYSTEM_QUESTION_LINK: process.env.SYSTEM_QUESTION_LINK,
       GITLAB_URL: process.env.GITLAB_URL,
@@ -18,8 +18,6 @@ export class AppController {
 
   @Post('/api/echo')
   echo(@Body() body: any, @Req() request: any): any {
-    console.log(body);
-    console.log(request.cookies); // or "request.cookies['cookieKey']"
-    return body;
+    return request.cookies;
   }
 }
