@@ -19,13 +19,15 @@ function getDecode(str: string) {
 const report = init(document.querySelector('#root') as any, {
   onSelectFile(path: string) {
     return new Promise((resolve) => {
-      resolve({
-        // @ts-ignore
-        fileCoverage: __coverage__[path],
-        // @ts-ignore
-        fileContent: getDecode(__filecontent__[path]),
-        fileCodeChange:[1,2,3,4]
-      });
+      setTimeout(()=>{
+        resolve({
+          // @ts-ignore
+          fileCoverage: __coverage__[path],
+          // @ts-ignore
+          fileContent: getDecode(__filecontent__[path]),
+          fileCodeChange:[1,2,3,4]
+        });
+      },1000)
     });
   },
 });

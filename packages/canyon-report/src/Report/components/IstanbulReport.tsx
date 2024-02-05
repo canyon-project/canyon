@@ -157,6 +157,7 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
           />
         )
       )}
+      {loading && <div className="loading">loading...</div>}
     </div>
   );
 };
