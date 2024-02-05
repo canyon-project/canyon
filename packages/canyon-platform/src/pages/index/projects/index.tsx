@@ -1,6 +1,6 @@
 import { FolderOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Card, Divider, Popconfirm, Select, Table, Typography } from 'antd';
+import { Button, Divider, Popconfirm, Select, Table, theme, Typography } from 'antd';
 import Search from 'antd/es/input/Search';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -17,7 +17,9 @@ import {
 
 const { Title } = Typography;
 
+const { useToken } = theme;
 const ProjectPage = () => {
+  const { token } = useToken();
   const { t } = useTranslation();
   const [deleteProject] = useMutation(DeleteProjectDocument);
   const columns: ColumnsType<Project> = [
@@ -173,8 +175,13 @@ const ProjectPage = () => {
             setCurrent(1);
           }}
         />
-        <Card className={''} bodyStyle={{ padding: 0, overflow: 'hidden' }}>
+        <div>
           <Table
+            style={{
+              border: `1px solid ${token.colorBorder}`,
+              background: 'white',
+              borderRadius: `${token.borderRadius}px`,
+            }}
             loading={loading}
             rowKey={'id'}
             pagination={{
@@ -186,7 +193,7 @@ const ProjectPage = () => {
             bordered={false}
             dataSource={projectsData?.getProjects?.data || []}
             columns={columns}
-            onChange={(val, _, _sorter:any) => {
+            onChange={(val, _, _sorter: any) => {
               setSorter({
                 field: _sorter.field,
                 order: _sorter.order,
@@ -195,7 +202,7 @@ const ProjectPage = () => {
               setPageSize(val.pageSize || 10);
             }}
           />
-        </Card>
+        </div>
       </div>
     </div>
   );
