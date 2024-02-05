@@ -274,7 +274,7 @@ const ProjectOverviewPage = () => {
         <div style={{ flex: 1 }}>
           <Spin spinning={projectChartDataLoading}>
             <div
-              className={'bg-white p-6'}
+              className={'bg-white p-[22px]'}
               style={{
                 border: `1px solid ${token.colorBorder}`,
                 background: 'white',
