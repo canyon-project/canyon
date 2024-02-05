@@ -1,5 +1,5 @@
-query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$bu: [String!]!) {
-  getProjects(current:$current, pageSize:$pageSize, keyword:$keyword,bu:$bu) {
+query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$bu: [String!]!,$field: String!,$order: String!) {
+  getProjects(current:$current, pageSize:$pageSize, keyword:$keyword,bu:$bu,field:$field,order:$order) {
     total
     data {
       id

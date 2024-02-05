@@ -168,7 +168,22 @@ type Query {
   me: User!
 
   """获取Project"""
-  getProjects(current: Int!, pageSize: Int!, keyword: String!, bu: [String!]!): ProjectPagesModel!
+  getProjects(
+    keyword: String!
+    bu: [String!]!
+
+    """当前页码"""
+    current: Int!
+
+    """每页数量"""
+    pageSize: Int!
+
+    """排序字段名称"""
+    field: String!
+
+    """升序或降序"""
+    order: String!
+  ): ProjectPagesModel!
 
   """获取Projects部门选项"""
   getProjectsBuOptions: [BuOption!]!

@@ -8,7 +8,6 @@ import { ProjectPagesModel } from './models/project-pages.model';
 import { ProjectService } from './services/project.service';
 import { GetProjectChartDataService } from './services/get-project-chart-data.service';
 import { ProjectChartDataModel } from './models/project-chart-data.model';
-import { ProjectRecordsModel } from './models/project-records.model';
 import { GetProjectRecordsService } from './services/get-project-records.service';
 import { ProjectRecordsPagesModel } from './models/project-records-pages.model';
 import { GetProjectCompartmentDataService } from './services/get-project-compartment-data.service';
@@ -17,6 +16,7 @@ import { GetProjectRecordDetailByShaService } from './services/get-project-recor
 import { ProjectRecordDetailModel } from './models/project-record-detail.model';
 import { Project2 } from './project2.model';
 import { GetProjectsService } from './services/get-projects.service';
+import { PaginationArgs, SorterArgs } from '../types/input-types.args';
 @Resolver(() => 'Project')
 export class ProjectResolver {
   constructor(
@@ -31,12 +31,20 @@ export class ProjectResolver {
     description: '获取Project',
   })
   getProjects(
-    @Args('current', { type: () => Int }) current: number,
-    @Args('pageSize', { type: () => Int }) pageSize: number,
     @Args('keyword', { type: () => String }) keyword: string,
     @Args('bu', { type: () => [String] }) bu: string[],
+    @Args() paginationArgs: PaginationArgs,
+    @Args() sorterArgs: SorterArgs,
   ): Promise<ProjectPagesModel> {
-    return this.getProjectsService.invoke(current, pageSize, keyword, bu);
+    // @ts-ignore
+    return this.getProjectsService.invoke(
+      paginationArgs.current,
+      paginationArgs.pageSize,
+      keyword,
+      bu,
+      sorterArgs.field,
+      sorterArgs.order,
+    );
   }
 
   @Query(() => [BuOption], {

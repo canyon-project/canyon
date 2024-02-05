@@ -4,7 +4,7 @@ import { Button, Card, Divider, Popconfirm, Select, Table, Typography } from 'an
 import Search from 'antd/es/input/Search';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
@@ -34,15 +34,18 @@ const ProjectPage = () => {
     {
       title: 'Bu',
       dataIndex: 'bu',
+      sorter: true,
     },
     {
       title: t('Report Times'),
       dataIndex: 'reportTimes',
+      sorter: true,
     },
     {
       title: 'Max coverage',
       dataIndex: 'maxCoverage',
       key: 'maxCoverage',
+      sorter: true,
       render: (text) => {
         return <span>{text}%</span>;
       },
@@ -50,6 +53,7 @@ const ProjectPage = () => {
     {
       title: t('Last Report Time'),
       dataIndex: 'lastReportTime',
+      sorter: true,
       render(_) {
         return <span>{dayjs(_).format('YYYY-MM-DD HH:mm')}</span>;
       },
@@ -102,12 +106,16 @@ const ProjectPage = () => {
       return [];
     }
   })();
-  // const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState('');
   const [bu, setBu] = useState<string[]>(initBu);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  // const [loading, setLoading] = useState(false);
+  const [sorter, setSorter] = useState<any>({});
+
+  const { data: projectsBuOptionsData } = useQuery(GetProjectsBuOptionsDocument, {
+    fetchPolicy: 'no-cache',
+  });
+
   const {
     data: projectsData,
     loading,
@@ -118,23 +126,11 @@ const ProjectPage = () => {
       pageSize: pageSize,
       keyword: keyword,
       bu: bu,
+      field: sorter.field || '',
+      order: sorter.order || '',
     },
     fetchPolicy: 'no-cache',
   });
-
-  const {
-    data: projectsBuOptionsData,
-    // loading,
-    // refetch,
-  } = useQuery(GetProjectsBuOptionsDocument, {
-    fetchPolicy: 'no-cache',
-  });
-
-  useEffect(() => {
-    // refetch();
-  }, []);
-
-  // const s = useMemo(() => {}, [projectsData]);
 
   return (
     <div>
@@ -144,7 +140,6 @@ const ProjectPage = () => {
             <FolderOutlined className={'text-[#687076] text-[32px]'} />
             <span>{t('menus.projects')}</span>
           </Title>
-          {/*<Text type={'secondary'}>{t('projects.desc')}</Text>*/}
         </div>
         <div>
           <Link to={`/projects/new`}>
@@ -191,7 +186,11 @@ const ProjectPage = () => {
             bordered={false}
             dataSource={projectsData?.getProjects?.data || []}
             columns={columns}
-            onChange={(val) => {
+            onChange={(val, _, _sorter:any) => {
+              setSorter({
+                field: _sorter.field,
+                order: _sorter.order,
+              });
               setCurrent(val.current || 1);
               setPageSize(val.pageSize || 10);
             }}
