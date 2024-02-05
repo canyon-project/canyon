@@ -61,7 +61,7 @@ export class GetProjectCompartmentDataService {
       },
       {
         label: 'Max Coverage',
-        value: max.toFixed(2),
+        value: max.toFixed(2) + '%',
       },
       {
         label: 'Last Report Time',
@@ -71,7 +71,7 @@ export class GetProjectCompartmentDataService {
       },
       {
         label: 'Last Commit Coverage',
-        value: lastCoverageStatements.toFixed(2),
+        value: lastCoverageStatements.toFixed(2) + '%',
       },
     ];
   }
