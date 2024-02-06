@@ -85,12 +85,13 @@ export class ProjectService {
           id: projectID,
         },
       })
-      .then(({ id, name, pathWithNamespace, description, bu }) => {
+      .then(({ id, name, pathWithNamespace, description, bu, createdAt }) => {
         return {
           id,
           name,
           pathWithNamespace,
           description,
+          createdAt,
           bu: bu,
           reportTimes: 0,
           lastReportTime: new Date(),

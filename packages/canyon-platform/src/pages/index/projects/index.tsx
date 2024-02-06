@@ -1,6 +1,6 @@
 import { FolderOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Divider, Popconfirm, Select, Table, theme, Typography } from 'antd';
+import { Button, Divider, Popconfirm, Select, Table, theme, Tooltip, Typography } from 'antd';
 import Search from 'antd/es/input/Search';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
+import ProjectNoData from '../../../components/app/project/nodata.tsx';
 import {
   DeleteProjectDocument,
   GetProjectsBuOptionsDocument,
@@ -153,28 +154,34 @@ const ProjectPage = () => {
       </div>
 
       <div className={'p-6'}>
-        <Select
-          defaultValue={initBu}
-          mode='multiple'
-          onChange={(v) => {
-            setBu(v);
-            localStorage.setItem('bu', JSON.stringify(v));
-          }}
-          placeholder={'Bu'}
-          className={'w-[200px] mr-2'}
-          options={(projectsBuOptionsData?.getProjectsBuOptions || []).map(({ bu }) => ({
-            label: bu,
-            value: bu,
-          }))}
-        />
-        <Search
-          placeholder={'Search by project id or name'}
-          className={'w-[480px] mb-3'}
-          onSearch={(value) => {
-            setKeyword(value);
-            setCurrent(1);
-          }}
-        />
+        <div className={'flex justify-between'}>
+          <div>
+            <Select
+              defaultValue={initBu}
+              mode='multiple'
+              onChange={(v) => {
+                setBu(v);
+                localStorage.setItem('bu', JSON.stringify(v));
+              }}
+              placeholder={'Bu'}
+              className={'w-[200px] mr-2'}
+              options={(projectsBuOptionsData?.getProjectsBuOptions || []).map(({ bu }) => ({
+                label: bu,
+                value: bu,
+              }))}
+            />
+            <Search
+              placeholder={'Search by project id or name'}
+              className={'w-[480px] mb-3'}
+              onSearch={(value) => {
+                setKeyword(value);
+                setCurrent(1);
+              }}
+            />
+          </div>
+          <ProjectNoData />
+        </div>
+
         <div>
           <Table
             style={{

@@ -28,6 +28,7 @@ type Project {
   maxCoverage: Float!
   reportTimes: Float!
   lastReportTime: DateTime!
+  createdAt: DateTime!
 }
 
 type BuOption {
@@ -184,6 +185,9 @@ type Query {
     """升序或降序"""
     order: String!
   ): ProjectPagesModel!
+
+  """获取没有数据的项目"""
+  getProjectsNoData: [Project!]!
 
   """获取Projects部门选项"""
   getProjectsBuOptions: [BuOption!]!

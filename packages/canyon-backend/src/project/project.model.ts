@@ -25,6 +25,9 @@ export class Project {
 
   @Field(() => Date)
   lastReportTime: Date;
+
+  @Field(() => Date)
+  createdAt: Date;
 }
 
 // buOption
