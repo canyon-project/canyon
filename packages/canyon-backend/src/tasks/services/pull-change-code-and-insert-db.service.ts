@@ -5,7 +5,7 @@ export class PullChangeCodeAndInsertDbService {
     const codechanges = await prisma.codechange.findMany({
       where: {
         projectID,
-        commitSha,
+        sha: commitSha,
         compareTarget,
       },
     });
@@ -20,7 +20,7 @@ export class PullChangeCodeAndInsertDbService {
       const data = diffLineData.map(({ path, additions, deletions }) => {
         return {
           projectID,
-          commitSha,
+          sha: commitSha,
           compareTarget,
           path,
           additions,
