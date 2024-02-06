@@ -147,18 +147,26 @@ function Index() {
                   Canyon
                 </Title>
 
-                <Tooltip
-                  title={
-                    <div>
-                      <span>{t('menus.docs')}</span>
-                      <ArrowRightOutlined />
-                    </div>
-                  }
-                >
-                  <a href={baseData?.SYSTEM_QUESTION_LINK} target={'_blank'} rel='noreferrer'>
-                    <img src={book} />
-                  </a>
-                </Tooltip>
+                <div>
+                  <Tooltip
+                    title={
+                      <div>
+                        <span>{t('menus.docs')}</span>
+                        <ArrowRightOutlined />
+                      </div>
+                    }
+                  >
+                    <a
+                      href={baseData?.SYSTEM_QUESTION_LINK}
+                      target={'_blank'}
+                      rel='noreferrer'
+                      className={'ml-2'}
+                    >
+                      <img src={book} />
+                    </a>
+                  </Tooltip>
+                  {/*marker position*/}
+                </div>
               </div>
             </div>
             <Menu
