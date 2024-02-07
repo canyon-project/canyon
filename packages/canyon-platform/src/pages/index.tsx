@@ -92,7 +92,7 @@ function Index() {
           commitSha: window.__canyon__.commitSha,
           projectID: window.__canyon__.projectID,
           instrumentCwd: window.__canyon__.instrumentCwd,
-          reportID: `${meData?.me.username};${loc.pathname};${window.__canyon__.commitSha}`,
+          reportID: `${loc.pathname}`,
           branch: window.__canyon__.branch,
         }),
       });
