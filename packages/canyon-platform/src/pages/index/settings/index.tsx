@@ -1,10 +1,13 @@
 import { FolderOutlined, SearchOutlined, SettingFilled, SettingOutlined } from '@ant-design/icons';
-import { Alert, Card, Input, message, Select,Typography } from 'antd';
+import {Alert, Card, Divider, Input, message, Select, Typography} from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import copy from 'copy-to-clipboard';
 import { useTranslation } from 'react-i18next';
 const { Title } = Typography;
-// import languages from '../../../../languages.json';
+import languages from '../../../../languages.json';
+const gridStyle: any = {
+  width: '100%'
+};
 const Settings = () => {
   const { t } = useTranslation();
   return (
@@ -14,7 +17,59 @@ const Settings = () => {
         <span>{t('menus.settings')}</span>
       </Title>
 
-      {/*<Card title={'PREFERENCES'} className={'mb-8'}>*/}
+      <Card title="Preference">
+        <Card.Grid hoverable={false} style={gridStyle}>
+          <div className={'flex'}>
+            <div className={'w-1/2'}>Language</div>
+
+            <div className={'w-1/2'}>
+              <Select
+                value={localStorage.getItem('language') || navigator.language}
+                onChange={(value) => {
+                  localStorage.setItem('language', value);
+                  window.location.reload();
+                }}
+                options={languages.map((item) => {
+                  return {
+                    label: item.name,
+                    value: item.code,
+                  };
+                })}
+                className={'w-[100%]'}
+              />
+            </div>
+          </div>
+        </Card.Grid>
+
+        <Card.Grid hoverable={false} style={gridStyle}>
+          <div className={'flex'}>
+            <div className={'w-1/2'}>Theme</div>
+
+            <div className={'w-1/2'}>
+              <Select
+                value={localStorage.getItem('theme') || 'light'}
+                onChange={(value) => {
+                  localStorage.setItem('theme', value);
+                  window.location.reload();
+                }}
+                options={[
+                  {
+                    label: 'Light',
+                    value: 'light',
+                  },
+                  {
+                    label: 'Dark',
+                    value: 'dark',
+                  }
+                ]}
+                className={'w-[100%]'}
+              />
+            </div>
+          </div>
+        </Card.Grid>
+      </Card>
+
+      {/*<Card title={'Preference'} className={'mb-8'}>*/}
       {/*  <div className={'flex mb-5'}>*/}
       {/*    <div className={'w-1/2'}>Language</div>*/}
 
@@ -35,7 +90,7 @@ const Settings = () => {
       {/*      />*/}
       {/*    </div>*/}
       {/*  </div>*/}
-
+      {/*  <Divider/>*/}
       {/*  <div className={'flex'}>*/}
       {/*    <div className={'w-1/2'}>Theme</div>*/}
 

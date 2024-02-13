@@ -7,18 +7,7 @@ import {
 } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
 import { useRequest } from 'ahooks';
-import {
-  Avatar,
-  Breadcrumb,
-  Button,
-  Dropdown,
-  FloatButton,
-  Menu,
-  MenuProps,
-  theme,
-  Tooltip,
-  Typography,
-} from 'antd';
+import { Avatar, Breadcrumb, Dropdown, Menu, MenuProps, theme, Tooltip, Typography } from 'antd';
 import axios from 'axios';
 import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -78,9 +67,8 @@ function Index() {
       nav('/projects');
     }
 
-    // token
-    // reportID username+sha
     try {
+      // @ts-ignore
       fetch(window.__canyon__.dsn, {
         method: 'POST',
         headers: {
@@ -88,11 +76,16 @@ function Index() {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
+          // @ts-ignore
           coverage: window.__coverage__,
+          // @ts-ignore
           commitSha: window.__canyon__.commitSha,
+          // @ts-ignore
           projectID: window.__canyon__.projectID,
+          // @ts-ignore
           instrumentCwd: window.__canyon__.instrumentCwd,
           reportID: `${loc.pathname}`,
+          // @ts-ignore
           branch: window.__canyon__.branch,
         }),
       });
@@ -110,15 +103,11 @@ function Index() {
   }, [loc.pathname]);
   const { token } = useToken();
   const { data: meData } = useQuery(MeDocument);
-  const dropdownItems = [getItem('Logout', 'logout', <LogoutOutlined />)];
+  const dropdownItems = [getItem(t('app.logout'), 'logout', <LogoutOutlined />)];
   const dropdownClick = ({ key }: any) => {
     if (key === 'logout') {
       localStorage.clear();
       window.location.href = '/welcome';
-    }
-    if (key === 'settings') {
-      // window.location.href = '/settings';
-      // nav(`/settings`);
     }
   };
   const { data: baseData } = useRequest(() => axios.get('/api/base').then(({ data }) => data));
@@ -162,6 +151,7 @@ function Index() {
                       rel='noreferrer'
                       className={'ml-2'}
                     >
+                      {/* eslint-disable-next-line jsx-a11y/alt-text */}
                       <img src={book} />
                     </a>
                   </Tooltip>
@@ -210,7 +200,7 @@ function Index() {
             </div>
           </div>
         }
-        footer={<AppFooter></AppFooter>}
+        footer={<AppFooter />}
       />
     </>
   );

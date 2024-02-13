@@ -1,6 +1,6 @@
 import { FolderOutlined, PlusOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Divider, Popconfirm, Select, Table, theme, Tooltip, Typography } from 'antd';
+import { Button, Divider, Popconfirm, Select, Table, theme, Typography } from 'antd';
 import Search from 'antd/es/input/Search';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -30,7 +30,7 @@ const ProjectPage = () => {
       key: 'id',
     },
     {
-      title: t('projects.table.name'),
+      title: t('projects.name'),
       dataIndex: 'pathWithNamespace',
       key: 'pathWithNamespace',
     },
@@ -40,12 +40,12 @@ const ProjectPage = () => {
       sorter: true,
     },
     {
-      title: t('Report Times'),
+      title: t('projects.report_times'),
       dataIndex: 'reportTimes',
       sorter: true,
     },
     {
-      title: 'Max coverage',
+      title: t('projects.max_coverage'),
       dataIndex: 'maxCoverage',
       key: 'maxCoverage',
       sorter: true,
@@ -54,7 +54,7 @@ const ProjectPage = () => {
       },
     },
     {
-      title: t('Last Report Time'),
+      title: t('projects.latest_report_time'),
       dataIndex: 'lastReportTime',
       sorter: true,
       render(_) {
@@ -62,8 +62,8 @@ const ProjectPage = () => {
       },
     },
     {
-      title: t('projects.table.option'),
-      key: 'operation',
+      title: t('common.option'),
+      key: 'option',
       render: (_, { id }) => (
         <>
           <Link
@@ -71,7 +71,7 @@ const ProjectPage = () => {
               pathname: `/projects/${id}`,
             }}
           >
-            {t('projects.table.detail')}
+            {t('common.detail')}
           </Link>
           <Divider type={'vertical'} />
           <Popconfirm
@@ -92,7 +92,7 @@ const ProjectPage = () => {
             okText='Yes'
             cancelText='No'
           >
-            <a className={'text-red-500 hover:text-red-600'}>{t('Delete')}</a>
+            <a className={'text-red-500 hover:text-red-600'}>{t('common.delete')}</a>
           </Popconfirm>
         </>
       ),
@@ -147,7 +147,7 @@ const ProjectPage = () => {
         <div>
           <Link to={`/projects/new`}>
             <Button type={'primary'} icon={<PlusOutlined />}>
-              Create a Project
+              {t('projects.create')}
             </Button>
           </Link>
         </div>
@@ -171,7 +171,7 @@ const ProjectPage = () => {
               }))}
             />
             <Search
-              placeholder={'Search by project id or name'}
+              placeholder={t('projects.search_keywords')}
               className={'w-[480px] mb-3'}
               onSearch={(value) => {
                 setKeyword(value);
@@ -186,7 +186,6 @@ const ProjectPage = () => {
           <Table
             style={{
               border: `1px solid ${token.colorBorder}`,
-              background: 'white',
               borderRadius: `${token.borderRadius}px`,
             }}
             loading={loading}

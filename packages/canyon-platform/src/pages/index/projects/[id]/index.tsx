@@ -1,7 +1,7 @@
-import { DownOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
-import { Divider, Dropdown, Input, Progress, Spin, Table, theme } from 'antd';
+import { Input, Spin, Table, theme,Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,25 +13,16 @@ import {
   GetProjectChartDataDocument,
   GetProjectCompartmentDataDocument,
   GetProjectRecordsDocument,
-  GetProjectsDocument,
-  Project,
   ProjectRecordsModel,
 } from '../../../../helpers/backend/gen/graphql.ts';
-import dayjs from "dayjs";
-// const dataSource = [];
-const items = [
-  { key: '1', label: 'Action 1' },
-  { key: '2', label: 'Action 2' },
-];
 
 const { useToken } = theme;
+const { Title,Text } = Typography;
 
 const ProjectOverviewPage = () => {
   const { token } = useToken();
   const { t } = useTranslation();
-  const [searchValue, setSearchValue] = useState('');
   const [keyword, setKeyword] = useState('');
-  // const [bu, setBu] = useState<string[]>(initBu);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [open, setOpen] = useState(false);
@@ -45,7 +36,6 @@ const ProjectOverviewPage = () => {
   const {
     data: projectsData,
     loading,
-    refetch,
   } = useQuery(GetProjectRecordsDocument, {
     variables: {
       projectID: pam.id as string,
@@ -58,14 +48,9 @@ const ProjectOverviewPage = () => {
 
   const {
     data: projectByIdData,
-    // loading,
-    // refetch,
   } = useQuery(GetProjectByIdDocument, {
     variables: {
       projectID: pam.id as string,
-      // current: 1,
-      // pageSize: 10,
-      // keyword: '',
     },
     fetchPolicy: 'no-cache',
   });
@@ -75,9 +60,6 @@ const ProjectOverviewPage = () => {
     {
       variables: {
         projectID: pam.id as string,
-        // current: 1,
-        // pageSize: 10,
-        // keyword: '',
       },
       fetchPolicy: 'no-cache',
     },
@@ -88,9 +70,6 @@ const ProjectOverviewPage = () => {
     {
       variables: {
         projectID: pam.id as string,
-        // current: 1,
-        // pageSize: 10,
-        // keyword: '',
       },
       fetchPolicy: 'no-cache',
     },
@@ -179,13 +158,6 @@ const ProjectOverviewPage = () => {
         return <span>{dayjs(_).format('MM-DD HH:mm')}</span>;
       },
     },
-    // {
-    //   title: 'Agg Process',
-    //   dataIndex: 'times',
-    //   render(_: any): JSX.Element {
-    //     return <Progress percent={50} size='small' status='active' />;
-    //   },
-    // },
     {
       title: 'Option',
       render(_): JSX.Element {
@@ -215,10 +187,6 @@ const ProjectOverviewPage = () => {
     tooltip: {
       trigger: 'axis',
     },
-    // legend: {
-    //   x: 'right',
-    //   data: ['Overall', 'New Lines'],
-    // },
     legend: {
       x: 'right',
       data: ['Statements', 'New Lines'],
@@ -242,9 +210,9 @@ const ProjectOverviewPage = () => {
 
   return (
     <div className={'px-6 pt-5 pb-5'}>
-      <h1 className={'mb-10'}>{projectByIdData?.getProjectByID.pathWithNamespace}</h1>
+      <Title level={2}>{projectByIdData?.getProjectByID.pathWithNamespace}</Title>
 
-      <p className={'text-[#6b6d85]'}>{t('projects.overview')}</p>
+      <Text type={'secondary'}>{t('projects.overview')}</Text>
 
       <div className={'flex mb-10'}>
         <Spin spinning={projectCompartmentDataLoading}>
@@ -254,17 +222,15 @@ const ProjectOverviewPage = () => {
             {(projectCompartmentDataData?.getProjectCompartmentData || []).map((item, index) => {
               return (
                 <div
-                  // style={{ border: '1px solid #dfe3e6' }}
-                  className={'bg-white p-[20px] h-[150px] flex justify-between flex-col'}
+                  className={'p-[20px] h-[150px] flex justify-between flex-col'}
                   style={{
                     border: `1px solid ${token.colorBorder}`,
-                    background: 'white',
                     borderRadius: `${token.borderRadius}px`,
                   }}
                   key={index}
                 >
-                  <div className={'text-[#6b6d85]'}>{item.label}</div>
-                  <div className={'text-xl'}>{item.value}</div>
+                  <Text type={'secondary'} >{item.label}</Text>
+                  <Text className={'text-xl'}>{item.value}</Text>
                 </div>
               );
             })}
@@ -274,18 +240,15 @@ const ProjectOverviewPage = () => {
         <div style={{ flex: 1 }}>
           <Spin spinning={projectChartDataLoading}>
             <div
-              className={'bg-white p-[22px]'}
+              className={'p-[22px]'}
               style={{
                 border: `1px solid ${token.colorBorder}`,
-                background: 'white',
                 borderRadius: `${token.borderRadius}px`,
               }}
             >
-              <h3>Trends in coverage</h3>
+              <Title level={4}>Trends in coverage</Title>
               <ReactECharts
-                theme={{
-                  color: ['#287DFA', '#FFB400'],
-                }}
+                theme={localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'}
                 style={{ height: '240px' }}
                 option={option}
               />
@@ -294,7 +257,7 @@ const ProjectOverviewPage = () => {
         </div>
       </div>
 
-      <p className={'text-[#6b6d85]'}>{t('projects.records')}</p>
+      <Text type={'secondary'} className={'block'}>{t('projects.records')}</Text>
       <Input.Search
         placeholder={'Enter the "Commit Sha" or "Branch" or "Compare Target" keyword for search'}
         onSearch={(value) => {
@@ -309,7 +272,6 @@ const ProjectOverviewPage = () => {
         loading={loading}
         style={{
           border: `1px solid ${token.colorBorder}`,
-          background: 'white',
           borderRadius: `${token.borderRadius}px`,
         }}
         bordered={false}

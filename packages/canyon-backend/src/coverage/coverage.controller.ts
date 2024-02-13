@@ -5,8 +5,10 @@ import {
   Post,
   Query,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import type { Response } from 'express';
 // import { AppService } from './app.service';
 import { CoverageClientService } from './services/coverage-client.service';
 // import { RetrieveCoverageSummaryService } from './services/retrieve-coverage-summary.service';
@@ -15,6 +17,9 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CoverageService } from './services/coverage.service';
 // import { query } from 'express';
 import { RetrieveCoverageTreeSummaryService } from './services/retrieve-coverage-tree-summary.service';
+import { getSpecificCoverageData } from '../adapter/coverage-data.adapter';
+import { join } from 'path';
+import {download} from "../utils/download";
 // import * as platform from 'platform'
 // export function getPlatformInfo(str) {
 //   return platform.parse(str)
@@ -115,5 +120,22 @@ export class CoverageController {
       code: -1,
       reportID: 'reportID',
     };
+  }
+
+  // 下载istanbul覆盖率报告文件 参数reportID、commitSha、
+  @Get('/api/coverage/download')
+  async downloadCoverageReport(
+    @Query()
+    params: {
+      relationID: string;
+      instrumentCmd: string;
+    },
+    @Res() res: Response,
+  ) {
+    const coverageMapData = await getSpecificCoverageData(params.relationID);
+    await download(params.instrumentCmd, coverageMapData);
+
+    const url = join(__dirname, '../../public', 'coverage.zip');
+    res.download(url);
   }
 }

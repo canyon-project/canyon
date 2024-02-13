@@ -43,7 +43,7 @@ export default defineConfig({
     host: '0.0.0.0',
     proxy: {
       '^/graphql|^/api': {
-        target: 'http://localhost:8080',
+        target: 'http://10.128.59.28',
         changeOrigin: true,
       }
     },
