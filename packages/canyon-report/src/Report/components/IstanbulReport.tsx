@@ -4,7 +4,7 @@ import { useEffect, useState } from 'preact/hooks';
 
 import { classForPercent } from '../../helper.ts';
 import { Dims, IstanbulReportProps } from '../types';
-import Code from './Code.tsx';
+import Code from './code.tsx';
 import Th from './Th';
 import Tr from './Tr';
 
@@ -154,6 +154,7 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
             fileCoverage={fileCoverage}
             fileContent={fileContent}
             fileCodeChange={fileCodeChange}
+            theme={'dark'}
           />
         )
       )}

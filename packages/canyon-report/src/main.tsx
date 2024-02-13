@@ -27,7 +27,7 @@ const report = init(document.querySelector('#root') as any, {
           fileContent: getDecode(__filecontent__[path]),
           fileCodeChange:[1,2,3,4]
         });
-      },1000)
+      },200)
     });
   },
 });

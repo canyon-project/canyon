@@ -55,7 +55,7 @@ html,body{
 }
 
 #canyon-report pre {
-    font: 12px/1.4 Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    // font: 12px/1.4 Consolas, "Liberation Mono", Menlo, Courier, monospace;
     margin: 0;
     padding: 0;
     -moz-tab-size: 2;
