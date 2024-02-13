@@ -41,4 +41,5 @@ export type TrProps = {
 export type IstanbulReportProps = {
   onSelectFile: OnSelectFile;
   watermarks: Watermarks;
+  theme: string;
 };

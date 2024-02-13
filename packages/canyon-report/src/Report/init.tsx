@@ -12,11 +12,12 @@ const configWatermarks = {
 };
 const init = (
   dom: HTMLElement,
-  { onSelectFile }: { onSelectFile: OnSelectFile },
+  { onSelectFile,theme }: { onSelectFile: OnSelectFile,theme:string },
 ) => {
   loadCssCode();
   render(
     <IstanbulReport
+      theme={theme}
       onSelectFile={onSelectFile}
       watermarks={configWatermarks}
     />,

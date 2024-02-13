@@ -1,5 +1,5 @@
 import './reset.css';
-
+import './assets/css/index.css'
 import { genSummaryMapByCoverageMap } from '@canyon/data';
 
 import { init } from './index';
@@ -17,6 +17,7 @@ function getDecode(str: string) {
 }
 
 const report = init(document.querySelector('#root') as any, {
+  theme:'dark',
   onSelectFile(path: string) {
     return new Promise((resolve) => {
       setTimeout(()=>{

@@ -11,8 +11,9 @@ import Tr from './Tr';
 const capitalized = (word: string) =>
   word.charAt(0).toUpperCase() + word.slice(1);
 
-const dims = ['statements', 'branches', 'functions', 'lines','newlines'];
+const dims = ['statements', 'branches', 'functions', 'lines', 'newlines'];
 const IstanbulReport: FC<IstanbulReportProps> = ({
+  theme,
   onSelectFile,
   watermarks,
 }) => {
@@ -70,7 +71,7 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
   }, []); // 空数组表示仅在组件挂载和卸载时运行
 
   return (
-    <div id={'canyon-report'}>
+    <div id={'canyon-report'} className={theme}>
       <div className={'pad1'}>
         <h1>
           <a
