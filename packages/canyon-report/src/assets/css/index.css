@@ -1,36 +1,11 @@
-.box{
-  border: 20px solid white;
-  border-left: none;
-  margin: 0;
-  position: relative;
-}
-
-.box pre{
-  position: relative;
-  z-index: 2;
-}
-
-.box pre code.hljs{
-  padding: 0 !important;
-  background-color: unset !important;
-}
-
-.box pre code .hljs-tag{
-  background-color: unset !important;
-}
-
-html,body{
-  margin: 0;
-  padding: 0;
-}
-
-
-
-
 #canyon-report {
-  font-family: Helvetica Neue, Helvetica, Arial;
   font-size: 14px;
   color: #333;
+}
+
+#canyon-report.dark{
+  color: white;
+  background-color: #1a1a1a;
 }
 
 #canyon-report .small {
@@ -40,8 +15,6 @@ html,body{
 #canyon-report *,
 #canyon-report *:after,
 #canyon-report *:before {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
 
@@ -57,13 +30,17 @@ html,body{
 #canyon-report pre {
   margin: 0;
   padding: 0;
-  -moz-tab-size: 2;
-  -o-tab-size: 2;
   tab-size: 2;
 }
 
 #canyon-report a {
   color: #0074D9;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#canyon-report.dark a {
+  color: white;
   text-decoration: none;
   cursor: pointer;
 }
@@ -128,21 +105,11 @@ html,body{
   float: left;
 }
 
-@media only screen and (max-width: 640px) {
-  #canyon-report .col3 {
-    width: 100%;
-    max-width: 100%;
-  }
-
-  #canyon-report .hide-mobile {
-    display: none !important;
-  }
-
-}
-
 #canyon-report .quiet {
-  /*color: #7f7f7f;*/
   color: rgba(0, 0, 0, 0.5);
+}
+#canyon-report.dark .quiet {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 #canyon-report .quiet a {
@@ -277,7 +244,6 @@ html,body{
   width: 7px;
   display: inline-block;
   margin-left: 0.5em;
-  /*background: url(sort-arrow-sprite.png) no-repeat scroll 0 0 transparent;*/
 }
 
 #canyon-report .coverage-summary .sorted .sorter {
@@ -326,10 +292,52 @@ html,body{
   background: #fce1e5;
 }
 
+
+/*dark red*/
+
+#canyon-report.dark .red.solid,
+#canyon-report.dark .status-line.low,
+#canyon-report.dark .low .cover-fill {
+  background: #BF3030;
+}
+
+#canyon-report.dark .low .chart {
+  border: 1px solid #BF3030;
+}
+
+#canyon-report.dark .highlighted,
+#canyon-report.dark .highlighted .cstat-no,
+#canyon-report.dark .highlighted .fstat-no,
+#canyon-report.dark .highlighted .cbranch-no {
+  background: #BF3030 !important;
+}
+
+#canyon-report.dark .cstat-no,
+#canyon-report.dark .fstat-no,
+#canyon-report.dark .cbranch-no,
+#canyon-report.dark .cbranch-no {
+  background: #A60000;
+}
+
+#canyon-report.dark .low,
+#canyon-report.dark .cline-no {
+  background: #A60000;
+}
+
+/*#canyon-report.dark .low,*/
+/*#canyon-report.dark .cline-no {*/
+/*  background: #b38b8b;*/
+/*}*/
+
 #canyon-report .high,
 #canyon-report .cline-yes {
   background: #e6f5d0;
 }
+
+/*#canyon-report.dark .high,*/
+/*#canyon-report.dark .cline-yes {*/
+/*  background: green;*/
+/*}*/
 
 #canyon-report .cstat-yes {
   background: #a1d76a;
@@ -344,6 +352,24 @@ html,body{
   border: 1px solid #4d9221;
 }
 
+#canyon-report.dark .high,
+#canyon-report.dark .cline-yes {
+  background: #4d9221;
+}
+
+#canyon-report.dark .cstat-yes {
+  background: #4d9221;
+}
+
+#canyon-report.dark .status-line.high,
+#canyon-report.dark .high .cover-fill {
+  background: #00cc00;
+}
+
+#canyon-report.dark .high .chart {
+  border: 1px solid #00cc00;
+}
+
 #canyon-report .status-line.medium,
 #canyon-report .medium .cover-fill {
   background: #f9cd0b;
@@ -356,6 +382,23 @@ html,body{
 #canyon-report .medium {
   background: #fff4c2;
 }
+
+#canyon-report.dark .status-line.medium,
+#canyon-report.dark .medium .cover-fill {
+  background: #FFd300;
+}
+
+#canyon-report.dark .medium .chart {
+  border: 1px solid #FFd300;
+}
+
+#canyon-report.dark .medium {
+  background: #A68900;
+}
+
+/*#canyon-report.dark .medium {*/
+/*  background: #FBC02D;*/
+/*}*/
 
 #canyon-report .cstat-skip {
   background: #ddd;
@@ -427,36 +470,6 @@ html,body{
 #canyon-report .footer,
 #canyon-report .push {
   height: 48px;
-}
-
-#canyon-report.dark{
-  background-color: #1a1a1a;
-  font-family: Helvetica Neue, Helvetica, Arial;
-  font-size: 14px;
-  color: white;
-}
-
-#canyon-report.dark .medium{
-  background-color: #8b4b00;
-}
-
-#canyon-report.dark .low,
-#canyon-report.dark .cline-no {
-  background: #b38b8b;
-}
-
-#canyon-report.dark .status-line.medium,
-#canyon-report.dark .medium .cover-fill {
-  background: #f9cd0b;
-}
-
-#canyon-report.dark .medium .chart {
-  border: 1px solid #f9cd0b;
-}
-
-#canyon-report.dark .quiet {
-  /*color: #7f7f7f;*/
-  color: rgba(255, 255, 255, 0.5);
 }
 
 html{

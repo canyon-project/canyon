@@ -39,6 +39,7 @@ const Sha = () => {
   useEffect(() => {
     if (reportRef.current && data) {
       const report = init(reportRef.current, {
+        theme:localStorage.getItem('theme')||'light',
         onSelectFile(path: string) {
           return handleSelectFile({
             filepath: path,
