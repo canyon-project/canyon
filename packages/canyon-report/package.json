@@ -18,7 +18,7 @@
     "@canyon/data": "workspace:^",
     "highlight.js": "^11.9.0",
     "preact": "^10.16.0",
-    "shiki": "^1.1.2"
+    "shiki": "^1.1.1"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.5.0",
