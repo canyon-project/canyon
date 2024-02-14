@@ -30,6 +30,7 @@ const Code:FC<{
   fileCodeChange: number[];
   theme:string
 }> = ({ fileCoverage, fileContent:code, fileCodeChange,theme }) => {
+  console.log(theme)
   // const code = `const a=1`
   const [html, setHtml] = useState('');
   const { lines } = coreFn(fileCoverage, code);

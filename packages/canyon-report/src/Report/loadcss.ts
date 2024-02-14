@@ -474,10 +474,6 @@ const cssCode = `
   height: 48px;
 }
 
-html{
-  background-color: #1a1a1a;
-}
-
 `;
 export const loadCssCode = () => {
   const style = document.createElement('style');

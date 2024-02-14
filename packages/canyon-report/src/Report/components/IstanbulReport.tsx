@@ -155,7 +155,7 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
             fileCoverage={fileCoverage}
             fileContent={fileContent}
             fileCodeChange={fileCodeChange}
-            theme={'dark'}
+            theme={theme}
           />
         )
       )}

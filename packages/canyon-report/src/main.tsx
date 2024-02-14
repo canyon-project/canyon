@@ -17,7 +17,7 @@ function getDecode(str: string) {
 }
 
 const report = init(document.querySelector('#root') as any, {
-  theme:'dark',
+  theme:'light',
   onSelectFile(path: string) {
     return new Promise((resolve) => {
       setTimeout(()=>{
