@@ -5,7 +5,7 @@ import { initReactI18next } from 'react-i18next';
 // import languages from '../languages.json';
 import cn from '../locales/cn.json';
 import en from '../locales/en.json';
-import ja from '../locales/ja.json';
+// import ja from '../locales/ja.json';
 // import ko from '../locales/ko.json';
 // import tw from '../locales/tw.json';
 // const getIos = (code: string, languages: { code: string; iso: string }[]) =>
@@ -19,7 +19,7 @@ i18n
   // 初始化 i18next
   // 配置参数的文档: https://www.i18next.com/overview/configuration-options
   .init({
-    debug: true,
+    // debug: true,
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,
@@ -31,11 +31,8 @@ i18n
       cn: {
         translation: cn,
       },
-      ja: {
-        translation: ja,
-      },
     },
-    lng: localStorage.getItem('language') || navigator.language,
+    lng: localStorage.getItem('language') || 'cn',
   });
 
 export default i18n;

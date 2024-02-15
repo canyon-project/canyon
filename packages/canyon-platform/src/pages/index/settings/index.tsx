@@ -1,12 +1,14 @@
-import { FolderOutlined, SearchOutlined, SettingFilled, SettingOutlined } from '@ant-design/icons';
-import {Alert, Card, Divider, Input, message, Select, Typography} from 'antd';
+import { SettingOutlined } from '@ant-design/icons';
+import { Card, message, Select, Typography } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
 import copy from 'copy-to-clipboard';
 import { useTranslation } from 'react-i18next';
-const { Title } = Typography;
+
 import languages from '../../../../languages.json';
+
+const { Title } = Typography;
 const gridStyle: any = {
-  width: '100%'
+  width: '100%',
 };
 const Settings = () => {
   const { t } = useTranslation();
@@ -17,14 +19,14 @@ const Settings = () => {
         <span>{t('menus.settings')}</span>
       </Title>
 
-      <Card title="Preference">
+      <Card title='Preference'>
         <Card.Grid hoverable={false} style={gridStyle}>
           <div className={'flex'}>
             <div className={'w-1/2'}>Language</div>
 
             <div className={'w-1/2'}>
               <Select
-                value={localStorage.getItem('language') || navigator.language}
+                value={localStorage.getItem('language') || 'cn'}
                 onChange={(value) => {
                   localStorage.setItem('language', value);
                   window.location.reload();
@@ -60,7 +62,7 @@ const Settings = () => {
                   {
                     label: 'Dark',
                     value: 'dark',
-                  }
+                  },
                 ]}
                 className={'w-[100%]'}
               />

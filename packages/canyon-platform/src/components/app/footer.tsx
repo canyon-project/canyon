@@ -9,14 +9,14 @@ const AppFooter = () => {
         {lists.map((item) => {
           return (
             <div key={item.title}>
-              <div className={'text-[16px] px-3.5 py-2'}>{item.title}</div>
+              <Text className={'text-[16px] block px-3.5 py-2'}>{item.title}</Text>
               <div>
                 {item.children.map((child) => {
                   return (
                     <Text
                       key={child.label}
                       className={
-                        'text-[16px] cursor-pointer px-3.5 py-2 rounded block hover:bg-[#F0F0F0]'
+                        'text-[16px] cursor-pointer px-3.5 py-2 rounded block hover:bg-[#F0F0F0] dark:hover:bg-[#1a1d1e]'
                       }
                       type={'secondary'}
                       onClick={() => {

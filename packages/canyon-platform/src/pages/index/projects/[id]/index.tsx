@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { Input, Spin, Table, theme,Typography } from 'antd';
+import { Input, Spin, Table, theme, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
@@ -17,7 +17,7 @@ import {
 } from '../../../../helpers/backend/gen/graphql.ts';
 
 const { useToken } = theme;
-const { Title,Text } = Typography;
+const { Title, Text } = Typography;
 
 const ProjectOverviewPage = () => {
   const { token } = useToken();
@@ -33,10 +33,7 @@ const ProjectOverviewPage = () => {
 
   const pam = useParams();
 
-  const {
-    data: projectsData,
-    loading,
-  } = useQuery(GetProjectRecordsDocument, {
+  const { data: projectsData, loading } = useQuery(GetProjectRecordsDocument, {
     variables: {
       projectID: pam.id as string,
       current: current,
@@ -46,9 +43,7 @@ const ProjectOverviewPage = () => {
     fetchPolicy: 'no-cache',
   });
 
-  const {
-    data: projectByIdData,
-  } = useQuery(GetProjectByIdDocument, {
+  const { data: projectByIdData } = useQuery(GetProjectByIdDocument, {
     variables: {
       projectID: pam.id as string,
     },
@@ -178,6 +173,7 @@ const ProjectOverviewPage = () => {
   ];
 
   const option = {
+    backgroundColor: 'transparent',
     grid: {
       top: '30px',
       left: '30px',
@@ -210,9 +206,9 @@ const ProjectOverviewPage = () => {
 
   return (
     <div className={'px-6 pt-5 pb-5'}>
-      <Title level={2}>{projectByIdData?.getProjectByID.pathWithNamespace}</Title>
+      <Title level={2} className={'pb-5'}>{projectByIdData?.getProjectByID.pathWithNamespace}</Title>
 
-      <Text type={'secondary'}>{t('projects.overview')}</Text>
+      <Text type={'secondary'} className={'block mb-3'}>{t('projects.overview')}</Text>
 
       <div className={'flex mb-10'}>
         <Spin spinning={projectCompartmentDataLoading}>
@@ -229,7 +225,7 @@ const ProjectOverviewPage = () => {
                   }}
                   key={index}
                 >
-                  <Text type={'secondary'} >{item.label}</Text>
+                  <Text type={'secondary'}>{item.label}</Text>
                   <Text className={'text-xl'}>{item.value}</Text>
                 </div>
               );
@@ -240,7 +236,7 @@ const ProjectOverviewPage = () => {
         <div style={{ flex: 1 }}>
           <Spin spinning={projectChartDataLoading}>
             <div
-              className={'p-[22px]'}
+              className={'p-[18px]'}
               style={{
                 border: `1px solid ${token.colorBorder}`,
                 borderRadius: `${token.borderRadius}px`,
@@ -248,7 +244,13 @@ const ProjectOverviewPage = () => {
             >
               <Title level={4}>Trends in coverage</Title>
               <ReactECharts
-                theme={localStorage.getItem('theme') === 'dark' ? 'dark' : 'light'}
+                theme={
+                  localStorage.getItem('theme') === 'dark'
+                    ? 'dark'
+                    : {
+                        color: ['#287DFA', '#FFB400'],
+                      }
+                }
                 style={{ height: '240px' }}
                 option={option}
               />
@@ -257,7 +259,9 @@ const ProjectOverviewPage = () => {
         </div>
       </div>
 
-      <Text type={'secondary'} className={'block'}>{t('projects.records')}</Text>
+      <Text type={'secondary'} className={'block mb-3'}>
+        {t('projects.records')}
+      </Text>
       <Input.Search
         placeholder={'Enter the "Commit Sha" or "Branch" or "Compare Target" keyword for search'}
         onSearch={(value) => {

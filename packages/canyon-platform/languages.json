@@ -10,23 +10,5 @@
     "file": "cn.json",
     "iso": "zh-CN",
     "name": "简体中文"
-  },
-  {
-    "code": "tw",
-    "file": "tw.json",
-    "iso": "zh-TW",
-    "name": "繁體中文"
-  },
-  {
-    "code": "ja",
-    "file": "ja.json",
-    "iso": "ja-JA",
-    "name": "日本語"
-  },
-  {
-    "code": "ko",
-    "file": "ko.json",
-    "iso": "ko-KO",
-    "name": "한국어"
   }
 ]
