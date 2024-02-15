@@ -11,7 +11,7 @@ const gridStyle: any = {
 const Settings = () => {
   const { t } = useTranslation();
   return (
-    <div className={'px-6 dark:bg-black'}>
+    <div className={'px-6'}>
       <Title level={2} className={'flex items-center gap-3'}>
         <SettingOutlined className={'text-[#687076] text-[32px]'} />
         <span>{t('menus.settings')}</span>

@@ -7,7 +7,7 @@ const cssCode = `
 
 #canyon-report.dark{
   color: white;
-  background-color: #1a1a1a;
+  background-color: #151718;
 }
 
 #canyon-report .small {

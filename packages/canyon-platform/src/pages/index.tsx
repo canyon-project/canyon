@@ -15,6 +15,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import book from '../assets/book.svg';
 import logoSvg from '../assets/logo.svg';
+import lightLogoSvg from '../assets/light-logo.svg'
 import AppFooter from '../components/app/footer.tsx';
 import { MeDocument } from '../helpers/backend/gen/graphql.ts';
 import { genBreadcrumbItems } from '../layouts/genBreadcrumbItems.tsx';
@@ -132,7 +133,7 @@ function Index() {
                     nav(`/`);
                   }}
                 >
-                  <img className={'w-[30px] mr-[8px]'} src={logoSvg} alt='' />
+                  <img className={'w-[30px] mr-[8px]'} src={localStorage.getItem('theme')==='dark'?lightLogoSvg:logoSvg} alt='' />
                   Canyon
                 </Title>
 
@@ -169,7 +170,7 @@ function Index() {
               }}
               selectedKeys={[selectedKey]}
               items={items}
-              className={''}
+              className={'dark:bg-[#151718]'}
               style={{ flex: '1' }}
             />
 
@@ -191,7 +192,7 @@ function Index() {
           </div>
         }
         mainContent={
-          <div className={'flex-1 bg-[#fbfcfd] dark:bg-[#151718] min-h-[100vh]'}>
+          <div className={'flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] min-h-[100vh]'}>
             <div className={'m-auto max-w-[1250px]'}>
               <div>
                 <Breadcrumb className={'pt-3 pb-3 pl-6'} items={genBreadcrumbItems(loc.pathname)} />
