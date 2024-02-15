@@ -119,7 +119,7 @@ const Settings = () => {
       {/*  </div>*/}
       {/*</Card>*/}
       <div className={'h-5'}></div>
-      <Card title={'User Auth Tokens'}>
+      <Card title={t('settings.user_auth_tokens')}>
         {/*<Alert*/}
         {/*  className={'mt-5 mb-5'}*/}
         {/*  message='Join us for office hours'*/}
