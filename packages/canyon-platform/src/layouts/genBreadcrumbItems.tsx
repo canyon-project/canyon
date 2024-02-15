@@ -1,33 +1,36 @@
 import { useNavigate } from 'react-router-dom';
+import {useTranslation} from "react-i18next";
 function matchPattern(str) {
   return /^\/projects\/\d+(?!(\/\d+))$/.test(str);
 }
 
 export function genBreadcrumbItems(pathname:string) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
+  const {t} = useTranslation();
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   const nav = useNavigate();
   if (matchPattern(pathname)) {
     return [
       {
-        title: <span className={'cursor-pointer'}>Projects</span>,
+        title: <span className={'cursor-pointer'}>{t('menus.projects')}</span>,
         onClick() {
           nav('/projects');
         },
       },
       {
-        title: 'Overview',
+        title: t('projects.overview'),
       },
     ];
   } else if (pathname.includes('commits')) {
     return [
       {
-        title: <span className={'cursor-pointer'}>Projects</span>,
+        title: <span className={'cursor-pointer'}>{t('menus.projects')}</span>,
         onClick() {
           nav('/projects');
         },
       },
       {
-        title: <span className={'cursor-pointer'}>Overview</span>,
+        title: <span className={'cursor-pointer'}>{t('projects.overview')}</span>,
         onClick() {
           const regex = /\/projects\/(\d+)\//;
           const match = pathname.match(regex);
@@ -40,7 +43,8 @@ export function genBreadcrumbItems(pathname:string) {
         },
       },
       {
-        title: 'Coverage Details',
+        title: t('projects.coverage_details'),
+        // title: 'Coverage Details',
       },
     ];
   } else {

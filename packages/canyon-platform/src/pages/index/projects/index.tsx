@@ -192,7 +192,7 @@ const ProjectPage = () => {
             rowKey={'id'}
             pagination={{
               total: projectsData?.getProjects?.total,
-              showTotal: (total) => `Total ${total} items`,
+              showTotal: (total) => t('common.total_items', { total }),
               current,
               pageSize,
             }}

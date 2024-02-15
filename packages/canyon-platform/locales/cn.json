@@ -33,7 +33,8 @@
     "reported_details": "上报细节",
     "reporter": "上报人",
     "search_keywords": "搜索关键字",
-    "overview_search_keywords": "搜索关键字"
+    "overview_search_keywords": "搜索关键字",
+    "coverage_details": "覆盖率详情"
   },
   "settings": {
     "desc": "设置您的账户信息",
@@ -55,7 +56,8 @@
     "search": "搜索",
     "no_data": "暂无数据",
     "no_result": "暂无结果",
-    "created_at": "创建时间"
+    "created_at": "创建时间",
+    "total_items": "共计 {{total}} 项"
   },
   "app": {
     "logout": "退出登录",

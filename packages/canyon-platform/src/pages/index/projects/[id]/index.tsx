@@ -83,13 +83,13 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: 'Branch',
+      title: t('projects.branch'),
       dataIndex: 'branch',
       width: '160px',
       ellipsis: true,
     },
     {
-      title: 'Compare Target',
+      title: t('projects.compare_target'),
       dataIndex: 'compareTarget',
       width: '160px',
       render(_, { compareUrl }): JSX.Element {
@@ -101,13 +101,13 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: 'Message',
+      title: t('projects.message'),
       dataIndex: 'message',
       width: '160px',
       ellipsis: true,
     },
     {
-      title: 'Statements',
+      title: t('projects.statements'),
       dataIndex: 'statements',
       render(_, { sha }) {
         return (
@@ -125,7 +125,7 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: 'New Lines',
+      title: t('projects.newlines'),
       dataIndex: 'newlines',
       render(_, { sha }) {
         return (
@@ -142,11 +142,11 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: 'Times',
+      title: t('projects.report_times'),
       dataIndex: 'times',
     },
     {
-      title: 'Last Report',
+      title: t('projects.latest_report_time'),
       dataIndex: 'lastReportTime',
       width: '120px',
       render(_) {
@@ -154,7 +154,7 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: 'Option',
+      title: t('common.option'),
       render(_): JSX.Element {
         return (
           <div className={'w-[100px]'}>
@@ -164,7 +164,7 @@ const ProjectOverviewPage = () => {
                 setSha(_.sha);
               }}
             >
-              Logs
+              {t('projects.reported_details')}
             </a>
           </div>
         );
@@ -242,7 +242,7 @@ const ProjectOverviewPage = () => {
                 borderRadius: `${token.borderRadius}px`,
               }}
             >
-              <Title level={4}>Trends in coverage</Title>
+              <Title level={4}>{t('projects.trends_in_coverage')}</Title>
               <ReactECharts
                 theme={
                   localStorage.getItem('theme') === 'dark'
@@ -263,7 +263,7 @@ const ProjectOverviewPage = () => {
         {t('projects.records')}
       </Text>
       <Input.Search
-        placeholder={'Enter the "Commit Sha" or "Branch" or "Compare Target" keyword for search'}
+        placeholder={t('projects.overview_search_keywords')}
         onSearch={(value) => {
           // setSearchValue(value);
           setKeyword(value);
@@ -282,7 +282,7 @@ const ProjectOverviewPage = () => {
         rowKey={'sha'}
         columns={columns}
         pagination={{
-          showTotal: (total) => `Total ${total} items`,
+          showTotal: (total) => t('common.total_items', { total }),
           total: projectsData?.getProjectRecords?.total,
           current,
           pageSize,
