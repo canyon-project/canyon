@@ -14,16 +14,18 @@ const capitalized = (word: string) =>
 const dims = ['statements', 'branches', 'functions', 'lines', 'newlines'];
 const IstanbulReport: FC<IstanbulReportProps> = ({
   theme,
+  defaultPath,
   onSelectFile,
   watermarks,
 }) => {
+  console.log(defaultPath,'defaultPath')
   const [summary, setSummary] = useState<CoverageSummaryDataMap>({});
   // @ts-ignore
   const [fileCoverage, setFileCoverage] = useState({} as any);
   const [fileContent, setFileContent] = useState('');
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activePath, setActivePath] = useState('~');
+  const [activePath, setActivePath] = useState(defaultPath);
 
   const summaryTreeItem = useMemo(() => {
     return genSummaryTreeItem(activePath, summary);
@@ -46,17 +48,17 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
   }, [activePath]);
 
   useEffect(() => {
-    if (activePath.includes('.')) {
-      setLoading(true);
-      onSelectFile(activePath).then(
-        ({ fileContent, fileCoverage, fileCodeChange }) => {
+    setLoading(true);
+    onSelectFile(activePath).then(
+      ({ fileContent, fileCoverage, fileCodeChange }) => {
+        if (activePath.includes('.')) {
           setFileContent(fileContent);
           setFileCoverage(fileCoverage);
           setFileCodeChange(fileCodeChange);
-          setLoading(false);
-        },
-      );
-    }
+        }
+        setLoading(false);
+      },
+    );
   }, [activePath]);
   useEffect(() => {
     const handleSetOptionEvent = (e: { detail: any }) => {

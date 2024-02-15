@@ -42,4 +42,5 @@ export type IstanbulReportProps = {
   onSelectFile: OnSelectFile;
   watermarks: Watermarks;
   theme: string;
+  defaultPath:string;
 };

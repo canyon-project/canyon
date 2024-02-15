@@ -12,7 +12,7 @@ const configWatermarks = {
 };
 const init = (
   dom: HTMLElement,
-  { onSelectFile,theme }: { onSelectFile: OnSelectFile,theme:string },
+  { onSelectFile,theme,defaultPath }: { onSelectFile: OnSelectFile,theme:string,defaultPath:string },
 ) => {
   loadCssCode();
   render(
@@ -20,6 +20,7 @@ const init = (
       theme={theme}
       onSelectFile={onSelectFile}
       watermarks={configWatermarks}
+      defaultPath={defaultPath}
     />,
     dom!,
   );

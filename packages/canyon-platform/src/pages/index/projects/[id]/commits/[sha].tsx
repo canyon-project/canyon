@@ -4,13 +4,18 @@ import { useRequest } from 'ahooks';
 import axios from 'axios';
 import { useEffect, useRef } from 'react';
 // import { useParams } from 'react-router';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 // import { GetCoverageSummaryMapDocument } from '../../../../helpers/backend/gen/graphql.ts';
 import { handleSelectFile } from './helper';
 const Sha = () => {
   const prm = useParams();
+  const nav = useNavigate();
   const [sprm] = useSearchParams();
+  // 在组件中
+  const location = useLocation();
+  const currentPathname = location.pathname;
+
   // const { data } = useQuery(GetCoverageSummaryMapDocument, {
   //   variables: {
   //     reportID: sprm.get('report_id') || '',
@@ -28,31 +33,57 @@ const Sha = () => {
           sha: prm.sha || '',
           mode: sprm.get('mode') || '',
         },
-      }).then(({data}) => data);
+      }).then(({ data }) => data);
     },
     {
-      onSuccess(res) {
-      },
+      onSuccess() {},
     },
   );
   const reportRef = useRef(null);
   useEffect(() => {
     if (reportRef.current && data) {
       const report = init(reportRef.current, {
-        theme:localStorage.getItem('theme')||'light',
+        defaultPath: sprm.get('path') || '~',
+        theme: localStorage.getItem('theme') || 'light',
         onSelectFile(path: string) {
-          return handleSelectFile({
-            filepath: path,
-            reportID: sprm.get('report_id') || '',
-            sha: prm.sha || '',
-            projectID: prm.id || '',
-            mode: sprm.get('mode') || '',
-          }).then(r=>{
-            return r
-          });
+          // console.log(path)
+
+          // 假设你想要导航到 '/path' 并且拼接参数
+          // const path1 = `/path`;
+          const params = new URLSearchParams();
+          if (sprm.get('report_id')) {
+            params.append('report_id', sprm.get('report_id') || '');
+          }
+          if (sprm.get('mode')) {
+            params.append('mode', sprm.get('mode') || '');
+          }
+
+          // params.append('mode', sprm.get('mode'));
+          params.append('path', path);
+
+          // 将参数拼接到路径中
+          const pathWithParams = `${currentPathname}?${params.toString()}`;
+
+          nav(pathWithParams);
+          if (path.includes('.')) {
+            return handleSelectFile({
+              filepath: path,
+              reportID: sprm.get('report_id') || '',
+              sha: prm.sha || '',
+              projectID: prm.id || '',
+              mode: sprm.get('mode') || '',
+            }).then((r) => {
+              return r;
+            });
+          } else {
+            return new Promise((resolve) => {
+              resolve({});
+            });
+            // return new P
+          }
         },
       });
-      const summary = data.reduce((acc: any, cur) => {
+      const summary = data.reduce((acc: any, cur: any) => {
         acc[cur.path] = cur;
         return acc;
       }, {});

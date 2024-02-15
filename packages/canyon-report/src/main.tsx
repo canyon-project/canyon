@@ -1,5 +1,6 @@
 import './reset.css';
-import './assets/css/index.css'
+import './assets/css/index.css';
+
 import { genSummaryMapByCoverageMap } from '@canyon/data';
 
 import { init } from './index';
@@ -17,19 +18,26 @@ function getDecode(str: string) {
 }
 
 const report = init(document.querySelector('#root') as any, {
-  theme:'light',
+  theme: 'light',
+  defaultPath: '~/src',
   onSelectFile(path: string) {
-    return new Promise((resolve) => {
-      setTimeout(()=>{
-        resolve({
-          // @ts-ignore
-          fileCoverage: __coverage__[path],
-          // @ts-ignore
-          fileContent: getDecode(__filecontent__[path]),
-          fileCodeChange:[1,2,3,4]
-        });
-      },200)
-    });
+    if (path.includes('.')) {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({
+            // @ts-ignore
+            fileCoverage: __coverage__[path],
+            // @ts-ignore
+            fileContent: getDecode(__filecontent__[path]),
+            fileCodeChange: [1, 2, 3, 4],
+          });
+        }, 200);
+      });
+    } else {
+      return new Promise((resolve) => {
+        resolve({});
+      });
+    }
   },
 });
 report.setOption({
