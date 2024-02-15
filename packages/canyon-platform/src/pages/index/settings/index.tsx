@@ -19,10 +19,10 @@ const Settings = () => {
         <span>{t('menus.settings')}</span>
       </Title>
 
-      <Card title='Preference'>
+      <Card title={t('settings.preference')}>
         <Card.Grid hoverable={false} style={gridStyle}>
           <div className={'flex'}>
-            <div className={'w-1/2'}>Language</div>
+            <div className={'w-1/2'}>{t('common.language')}</div>
 
             <div className={'w-1/2'}>
               <Select
@@ -45,7 +45,7 @@ const Settings = () => {
 
         <Card.Grid hoverable={false} style={gridStyle}>
           <div className={'flex'}>
-            <div className={'w-1/2'}>Theme</div>
+            <div className={'w-1/2'}>{t('common.theme')}</div>
 
             <div className={'w-1/2'}>
               <Select
@@ -56,11 +56,11 @@ const Settings = () => {
                 }}
                 options={[
                   {
-                    label: 'Light',
+                    label: t('common.light'),
                     value: 'light',
                   },
                   {
-                    label: 'Dark',
+                    label: t('common.dark'),
                     value: 'dark',
                   },
                 ]}

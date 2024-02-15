@@ -37,6 +37,7 @@
   },
   "settings": {
     "desc": "设置您的账户信息",
+    "preference": "偏好",
     "user_auth_tokens": "用户授权令牌",
     "copied_to_clipboard": "已复制到剪贴板"
   },
@@ -45,6 +46,9 @@
     "detail": "详情",
     "delete": "删除",
     "language": "语言",
+    "theme": "主题",
+    "light": "明亮",
+    "dark": "黑暗",
     "confirm": "确认",
     "cancel": "取消",
     "copy": "复制",
