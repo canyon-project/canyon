@@ -20,7 +20,7 @@
     "latest_report_coverage": "最近上报覆盖率",
     "no_data": "{{msg}}个项目没数据",
     "trends_in_coverage": "覆盖率趋势",
-    "record": "记录",
+    "records": "记录",
     "overview": "概览",
     "branch": "分支",
     "compare_target": "对比目标",
