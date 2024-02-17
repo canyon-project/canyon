@@ -15,7 +15,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "^4.12.0",
+    "@rollup/rollup-linux-x64-gnu": "*",
     "rollup": "^4.12.0"
   }
 }
