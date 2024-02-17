@@ -13,8 +13,5 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@rollup/rollup-linux-x64-gnu": "*"
-  }
+  "license": "ISC"
 }
