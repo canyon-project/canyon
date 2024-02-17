@@ -29,7 +29,7 @@ const ProjectNoData: React.FC = () => {
   return (
     <>
       {data?.getProjectsNoData?.length && (
-        <Tooltip title={'View Details'}>
+        <Tooltip title={t('projects.view_detail')}>
           <Button type={'link'} onClick={showModal}>
             {t('projects.no_data', { msg: data?.getProjectsNoData?.length || 0 })}
           </Button>

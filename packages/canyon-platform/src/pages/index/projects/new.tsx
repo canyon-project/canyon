@@ -1,5 +1,5 @@
 import { useMutation } from '@apollo/client';
-import { Button, Input, message, Space, Spin } from 'antd';
+import { Button, Input, message, Space, Spin,Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -7,6 +7,7 @@ import {
   CreateProjectDocument,
 } from '../../../helpers/backend/gen/graphql.ts';
 
+const { Title,Text } = Typography;
 // import {
 //   CheckProjectUrlDocument,
 //   CreateProjectDocument,
@@ -18,9 +19,9 @@ const ProjectNew = () => {
   const [createProject] = useMutation(CreateProjectDocument);
   return (
     <div className={'px-6'}>
-      <h2 className={'text-3xl'}>Create Project</h2>
+      <Title level={2}>Create Project</Title>
 
-      <h4 className={'text-lg'}>Check</h4>
+      <Title level={4}>Check</Title>
       <Space>
         <Input
           placeholder={
@@ -41,23 +42,23 @@ const ProjectNew = () => {
         </Button>
       </Space>
       <div className={'h-[20px]'}></div>
-      <h4 className={'text-lg '}>Check Your Project</h4>
+      <Title level={4}>Check Your Project</Title>
       <Spin spinning={loading}>
         <div>
-          <span>projectID:</span>
-          <span>{data?.checkProjectUrl.id}</span>
+          <Text>projectID:</Text>
+          <Text>{data?.checkProjectUrl.id}</Text>
         </div>
         <div>
-          <span>name:</span>
-          <span>{data?.checkProjectUrl.name}</span>
+          <Text>name:</Text>
+          <Text>{data?.checkProjectUrl.name}</Text>
         </div>
         <div>
-          <span>path:</span>
-          <span>{data?.checkProjectUrl.pathWithNamespace}</span>
+          <Text>path:</Text>
+          <Text>{data?.checkProjectUrl.pathWithNamespace}</Text>
         </div>
         <div>
-          <span>description:</span>
-          <span>{data?.checkProjectUrl.description}</span>
+          <Text>description:</Text>
+          <Text>{data?.checkProjectUrl.description}</Text>
         </div>
       </Spin>
 

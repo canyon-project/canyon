@@ -1,11 +1,11 @@
 import { useRequest } from 'ahooks';
-import { Button, Divider, Space } from 'antd';
+import { Button, Divider, Space,Typography } from 'antd';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 import CopyCode from '../../../../components/app/CopyCode.tsx';
 import { gettingStartedContent } from '../../../../components/app/getting-started-content.ts';
-
+const { Title,Text } = Typography;
 // import CopyCode from '../components/CopyCode.tsx';
 // import { gettingStartedContent } from '../components/getting- started-content.ts';
 const ProjectGettingStarted = () => {
@@ -13,15 +13,15 @@ const ProjectGettingStarted = () => {
   const { data } = useRequest(() => axios.get('/api/base').then(({ data }) => data));
   return (
     <div className={'p-[20px] px-6'}>
-      <h2 className={'text-3xl'}>Configure Babel</h2>
+      <Title level={2}>Configure Babel</Title>
       <Divider />
-      <h4 className={'text-lg'}>Install</h4>
-      <p>Add the canyon and istanbul babel plugin as a dependency using npm:</p>
+      <Title level={4}>Install</Title>
+      <Text>Add the canyon and istanbul babel plugin as a dependency using npm:</Text>
       <CopyCode code={gettingStartedContent.babel} />
-      <h4 className={'text-lg'}>Configure Babel</h4>
-      <p>Add the following configuration to babel:</p>
+      <Title level={4}>Configure Babel</Title>
+      <Text>Add the following configuration to babel:</Text>
       <CopyCode code={gettingStartedContent.webpack} />
-      <h4 className={'text-lg'}>Next Steps</h4>
+      <Title level={4}>Next Steps</Title>
       <Space>
         <Button
           type={'primary'}

@@ -56,21 +56,21 @@ export class GetProjectCompartmentDataService {
 
     return [
       {
-        label: 'Total Times',
+        label: 'projects.total_times',
         value: String(coverages.length),
       },
       {
-        label: 'Max Coverage',
+        label: 'projects.max_coverage',
         value: max.toFixed(2) + '%',
       },
       {
-        label: 'Last Report Time',
+        label: 'projects.latest_report_time',
         value: dayjs(
           coverages.length > 0 ? coverages[0].createdAt : new Date(),
         ).format('MM-DD HH:mm'),
       },
       {
-        label: 'Last Commit Coverage',
+        label: 'projects.latest_report_coverage',
         value: lastCoverageStatements.toFixed(2) + '%',
       },
     ];

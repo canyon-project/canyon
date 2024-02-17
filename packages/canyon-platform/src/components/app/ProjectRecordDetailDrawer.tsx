@@ -1,10 +1,11 @@
 import { useQuery } from '@apollo/client';
-import { Avatar, Divider, Drawer, Table } from 'antd';
+import { Avatar, Divider, Drawer, Table,Typography } from 'antd';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { GetProjectRecordDetailByShaDocument } from '../../helpers/backend/gen/graphql.ts';
+const {Text} = Typography;
 
 const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
   const pam = useParams();
@@ -20,11 +21,11 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
   // const pam = useParams();
   const columns = [
     {
-      title: 'Coverage ID',
+      title: t('projects.coverage_id'),
       dataIndex: 'id',
     },
     {
-      title: 'Report ID',
+      title: t('projects.report_id'),
       dataIndex: 'reportID',
     },
     {
@@ -32,40 +33,40 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
       dataIndex: 'sha',
     },
     {
-      title: 'Statements',
+      title: t('projects.statements'),
       dataIndex: 'statements',
       render(_: any): JSX.Element {
         return <span>{_}%</span>;
       },
     },
     {
-      title: 'New Lines',
+      title: t('projects.newlines'),
       dataIndex: 'newlines',
       render(_: any): JSX.Element {
         return <span>{_}%</span>;
       },
     },
     {
-      title: t('Reporter'),
+      title: t('projects.reporter'),
       dataIndex: 'reporterUsername',
       render(_: any, t: any): any {
         return (
           <div>
             <Avatar src={t.reporterAvatar} />
-            <span style={{ marginLeft: '10px', color: '#4f5162' }}>{t.reporterUsername}</span>
+            <Text style={{ marginLeft: '10px' }}>{t.reporterUsername}</Text>
           </div>
         );
       },
     },
     {
-      title: 'Times',
+      title: t('projects.report_times'),
       dataIndex: 'createdAt',
       render(_: any) {
         return dayjs(_).format('MM-DD HH:mm');
       },
     },
     {
-      title: 'Option',
+      title: t('common.option'),
       render(_: any) {
         return (
           <div>
@@ -75,7 +76,7 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
                 search: `?report_id=${_.reportID}`,
               }}
             >
-              Detail
+              {t('common.detail')}
             </Link>
           </div>
         );
@@ -85,11 +86,8 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
 
   return (
     <>
-      <Drawer title={'Report Log'} placement='right' width={'85%'} onClose={onClose} open={open}>
+      <Drawer title={t('projects.reported_details')} placement='right' width={'85%'} onClose={onClose} open={open}>
         <Table
-          pagination={{
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          }}
           loading={loading}
           size={'small'}
           rowKey={'id'}

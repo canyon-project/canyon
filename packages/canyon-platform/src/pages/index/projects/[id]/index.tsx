@@ -185,7 +185,7 @@ const ProjectOverviewPage = () => {
     },
     legend: {
       x: 'right',
-      data: ['Statements', 'New Lines'],
+      data: [t('projects.statements'), t('projects.newlines')],
     },
     xAxis: {
       type: 'category',
@@ -194,7 +194,7 @@ const ProjectOverviewPage = () => {
     yAxis: {
       type: 'value',
     },
-    series: ['Statements', 'New Lines'].map((_, index) => ({
+    series: [t('projects.statements'), t('projects.newlines')].map((_, index) => ({
       name: _,
       data:
         projectChartData?.getProjectChartData.map(({ statements, newlines }) =>
@@ -225,7 +225,7 @@ const ProjectOverviewPage = () => {
                   }}
                   key={index}
                 >
-                  <Text type={'secondary'}>{item.label}</Text>
+                  <Text type={'secondary'}>{t(item.label)}</Text>
                   <Text className={'text-xl'}>{item.value}</Text>
                 </div>
               );

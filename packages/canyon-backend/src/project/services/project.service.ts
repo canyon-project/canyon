@@ -64,7 +64,7 @@ export class ProjectService {
         id: String(projectID),
         pathWithNamespace: path_with_namespace,
         name: name,
-        description: description,
+        description: description || '',
         bu: bu,
       },
     });
