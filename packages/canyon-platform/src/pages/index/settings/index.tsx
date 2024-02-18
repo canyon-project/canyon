@@ -14,7 +14,7 @@ const Settings = () => {
   const { t } = useTranslation();
   return (
     <div className={'px-6'}>
-      <Title level={2} className={'flex items-center gap-3'}>
+      <Title level={2} className={'flex items-center gap-3 pb-8'}>
         <SettingOutlined className={'text-[#687076] text-[32px]'} />
         <span>{t('menus.settings')}</span>
       </Title>
