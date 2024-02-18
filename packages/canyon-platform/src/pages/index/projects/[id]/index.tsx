@@ -148,16 +148,17 @@ const ProjectOverviewPage = () => {
     {
       title: t('projects.latest_report_time'),
       dataIndex: 'lastReportTime',
-      width: '120px',
+      width: '130px',
       render(_) {
         return <span>{dayjs(_).format('MM-DD HH:mm')}</span>;
       },
     },
     {
       title: t('common.option'),
+      width: '100px',
       render(_): JSX.Element {
         return (
-          <div className={'w-[100px]'}>
+          <div>
             <a
               onClick={() => {
                 setOpen(true);
@@ -206,9 +207,13 @@ const ProjectOverviewPage = () => {
 
   return (
     <div className={'px-6 pt-5 pb-5'}>
-      <Title level={2} className={'pb-5'}>{projectByIdData?.getProjectByID.pathWithNamespace}</Title>
+      <Title level={2} className={'pb-5'}>
+        {projectByIdData?.getProjectByID.pathWithNamespace}
+      </Title>
 
-      <Text type={'secondary'} className={'block mb-3'}>{t('projects.overview')}</Text>
+      <Text type={'secondary'} className={'block mb-3'}>
+        {t('projects.overview')}
+      </Text>
 
       <div className={'flex mb-10'}>
         <Spin spinning={projectCompartmentDataLoading}>
@@ -218,7 +223,9 @@ const ProjectOverviewPage = () => {
             {(projectCompartmentDataData?.getProjectCompartmentData || []).map((item, index) => {
               return (
                 <div
-                  className={'p-[20px] h-[150px] flex justify-between flex-col'}
+                  className={
+                    'p-[20px] h-[150px] flex justify-between flex-col bg-white dark:bg-[#0C0D0E]'
+                  }
                   style={{
                     border: `1px solid ${token.colorBorder}`,
                     borderRadius: `${token.borderRadius}px`,
@@ -236,7 +243,7 @@ const ProjectOverviewPage = () => {
         <div style={{ flex: 1 }}>
           <Spin spinning={projectChartDataLoading}>
             <div
-              className={'p-[18px]'}
+              className={'p-[18px] bg-white dark:bg-[#0C0D0E]'}
               style={{
                 border: `1px solid ${token.colorBorder}`,
                 borderRadius: `${token.borderRadius}px`,
