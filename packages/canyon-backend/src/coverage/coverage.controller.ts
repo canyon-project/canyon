@@ -19,7 +19,7 @@ import { CoverageService } from './services/coverage.service';
 import { RetrieveCoverageTreeSummaryService } from './services/retrieve-coverage-tree-summary.service';
 import { getSpecificCoverageData } from '../adapter/coverage-data.adapter';
 import { join } from 'path';
-import {download} from "../utils/download";
+import { download } from '../utils/download';
 // import * as platform from 'platform'
 // export function getPlatformInfo(str) {
 //   return platform.parse(str)
@@ -36,17 +36,12 @@ export class CoverageController {
 
   @UseGuards(JwtAuthGuard)
   @Post('coverage/client')
-  coverageClient(
+  async coverageClient(
     @Body() coverageClientDto: CoverageClientDto,
     @Request() req: any,
   ): Promise<any> {
-    // console.log(req.user,'req')
-    return this.coverageClientService.invoke(
-      req.user.id,
-      coverageClientDto,
-      // req.headers['user-agent'],
-      // req.ip,
-    );
+    // 添加特殊上报逻辑处 (这是标记，勿动！)
+    return this.coverageClientService.invoke(req.user.id, coverageClientDto);
   }
 
   @Get('api/coverage/summary/map')
