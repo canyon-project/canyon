@@ -471,3 +471,11 @@
 #canyon-report .push {
   height: 48px;
 }
+
+#canyon-report .highlighted-word{
+  background-color: #F6C6CE;
+}
+
+#canyon-report.dark .highlighted-word{
+  background-color: rgb(122, 84, 116);
+}

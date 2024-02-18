@@ -1,5 +1,14 @@
 // 这里 css 三部分，以===============分割
 const cssCode = `
+#canyon-report .highlighted-word{
+  background-color: #F6C6CE;
+}
+
+#canyon-report.dark .highlighted-word{
+  background-color: rgb(122, 84, 116);
+}
+
+
 #canyon-report {
   font-size: 14px;
   color: #333;

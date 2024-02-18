@@ -18,7 +18,6 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
   onSelectFile,
   watermarks,
 }) => {
-  console.log(defaultPath,'defaultPath')
   const [summary, setSummary] = useState<CoverageSummaryDataMap>({});
   // @ts-ignore
   const [fileCoverage, setFileCoverage] = useState({} as any);
@@ -154,6 +153,7 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
       ) : (
         !loading && (
           <Code
+            filePath={activePath}
             fileCoverage={fileCoverage}
             fileContent={fileContent}
             fileCodeChange={fileCodeChange}

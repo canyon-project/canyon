@@ -1,48 +1,67 @@
-// import {useEffect, useState} from "react";
+import { FC } from 'preact/compat';
+import { useEffect, useState } from 'preact/hooks';
 import { codeToHtml } from 'shiki';
 
-// import { code as code1 } from '../code.ts';
-// import { coreFn } from '../helper.ts';
-// import LineCount from "./line-count.tsx";
-// import LineCoverage from "./line-coverage.tsx";
-// import LineNew from "./line-new.tsx";
-// import fileCoverage from '../meta/coverage.json';
+import { coreFn, genDecorationsLv2Array } from '../../helper.ts';
 import LineCoverage from './line/coverage.tsx';
 import LineNew from './line/new.tsx';
 import LineNumber from './line/number.tsx';
-import {coreFn} from "../../helper.ts";
-import {useEffect, useState} from "preact/hooks";
-import {FC} from "preact/compat";
-function getDecode(str: string) {
-  return decodeURIComponent(
-    atob(str)
-      .split('')
-      .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join(''),
-  );
-}
-// const code = getDecode(code1);
-const Code:FC<{
+
+const Code: FC<{
+  filePath: string;
   fileCoverage: any;
   fileContent: string;
   fileCodeChange: number[];
-  theme:string
-}> = ({ fileCoverage, fileContent:code, fileCodeChange,theme }) => {
-  console.log(theme)
+  theme: string;
+}> = ({ fileCoverage, fileContent: code, fileCodeChange, theme, filePath }) => {
   // const code = `const a=1`
   const [html, setHtml] = useState('');
   const { lines } = coreFn(fileCoverage, code);
-  // console.log(lines,'lines')
   useEffect(() => {
-    codeToHtml(code, {
-      theme: theme === 'light' ? 'light-plus' : 'tokyo-night',
-      lang: 'tsx',
-      decorations: [],
-    }).then((h) => {
-      setHtml(h);
-    });
+    if (fileCoverage && JSON.stringify(fileCoverage) !== JSON.stringify({})) {
+      // 语句标记
+      const originalMarksStatement: any = [];
+      const statementStats = fileCoverage.s;
+      const statementMeta = fileCoverage.statementMap;
+      Object.entries(statementStats).forEach(([stName, count]: any) => {
+        const meta = statementMeta[stName];
+        const type = count > 0 ? 'yes' : 'no';
+        const startCol = meta.start.column;
+        const endCol = meta.end.column + 1;
+        const startLine = meta.start.line - 1;
+        const endLine = meta.end.line - 1;
+        if (type === 'no') {
+          originalMarksStatement.push({
+            start: [startLine, startCol],
+            end: [endLine, endCol],
+          });
+        }
+      });
+      const decorationsLv2Array = genDecorationsLv2Array(
+        code,
+        originalMarksStatement,
+      );
+
+      codeToHtml(code, {
+        theme: theme === 'light' ? 'light-plus' : 'tokyo-night',
+        lang: filePath.split('.').pop() as string,
+        decorations: decorationsLv2Array.map(([line, startCol, endCol]) => {
+          return {
+            start: {
+              line: line,
+              character: startCol - 1 < 0 ? 0 : startCol - 1,
+            },
+            end: {
+              line: line,
+              character: endCol - 1 < 0 ? 0 : endCol - 1,
+            },
+            properties: { class: 'highlighted-word' },
+          };
+        }),
+      }).then((h) => {
+        setHtml(h);
+      });
+    }
   }, [theme]);
 
   return (
