@@ -183,6 +183,19 @@ export class ConsumerCoverageService {
     // ************** 重要逻辑 **************
     const covTypes = ['agg', 'all'];
     for (let i = 0; i < covTypes.length; i++) {
+      // normal类型的数据，检查compareTarget，批量更新成最新的。
+      if (covTypes[i] === 'agg') {
+        await this.prisma.coverage.updateMany({
+          where: {
+            sha: normalCoverage.sha,
+            projectID: normalCoverage.projectID,
+          },
+          data: {
+            compareTarget: normalCoverage.compareTarget,
+          },
+        });
+      }
+
       const covType = covTypes[i];
       const covTypeCoverage = await this.prisma.coverage.findFirst({
         where: removeNullKeys({
