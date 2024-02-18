@@ -24,7 +24,7 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
   const [fileContent, setFileContent] = useState('');
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
   const [loading, setLoading] = useState(false);
-  const [activePath, setActivePath] = useState('~/src/pages/Home.tsx');
+  const [activePath, setActivePath] = useState(defaultPath);
 
   const summaryTreeItem = useMemo(() => {
     return genSummaryTreeItem(activePath, summary);
