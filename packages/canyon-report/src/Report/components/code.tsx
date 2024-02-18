@@ -27,7 +27,7 @@ const Code: FC<{
         const meta = statementMeta[stName];
         const type = count > 0 ? 'yes' : 'no';
         const startCol = meta.start.column;
-        const endCol = meta.end.column + 1;
+        const endCol = meta.end.column;
         const startLine = meta.start.line - 1;
         const endLine = meta.end.line - 1;
         if (type === 'no') {
@@ -41,7 +41,6 @@ const Code: FC<{
         code,
         originalMarksStatement,
       );
-
       codeToHtml(code, {
         theme: theme === 'light' ? 'light-plus' : 'tokyo-night',
         lang: filePath.split('.').pop() as string,
@@ -49,11 +48,11 @@ const Code: FC<{
           return {
             start: {
               line: line,
-              character: startCol - 1 < 0 ? 0 : startCol - 1,
+              character: startCol - 1 < 0 ? 0 : startCol,
             },
             end: {
               line: line,
-              character: endCol - 1 < 0 ? 0 : endCol - 1,
+              character: endCol - 1 < 0 ? 0 : endCol,
             },
             properties: { class: 'highlighted-word' },
           };
