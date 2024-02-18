@@ -85,7 +85,8 @@ function Index() {
           projectID: window.__canyon__.projectID,
           // @ts-ignore
           instrumentCwd: window.__canyon__.instrumentCwd,
-          reportID: `${loc.pathname}`,
+          // @ts-ignore
+          reportID: `${meData?.me.username};${loc.pathname};${window.__canyon__.commitSha}`,
           // @ts-ignore
           branch: window.__canyon__.branch,
         }),
