@@ -39,7 +39,7 @@ export class ConsumerCoverageService {
   async acquireLock(_lockName, timeout = 60000) {
     return this.prisma.$transaction(async (tx) => {
       const normalCoverage =
-        await tx.$queryRaw`SELECT * FROM coverage_20240130 WHERE cov_type = 'normal' AND consumer = 1 ORDER BY random() LIMIT 1`
+        await tx.$queryRaw`SELECT * FROM coverage WHERE cov_type = 'normal' AND consumer = 1 ORDER BY random() LIMIT 1`
           .then((res: any) =>
             res?.length > 0 ? mapToLowerCamelCase(res[0]) : null,
           )

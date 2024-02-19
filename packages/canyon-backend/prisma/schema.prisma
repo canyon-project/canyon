@@ -19,7 +19,7 @@ model User {
   email        String
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
-  @@map("user_20240130")
+  @@map("user")
 }
 
 // 确认数据结构，Coverage使用随机生成的id，不使用自增id。
@@ -43,7 +43,7 @@ model Coverage {
   children      String[] // 记录由哪些子任务生成
   tags          Json[] // 打标签
 
-  @@map("coverage_20240130")
+  @@map("coverage")
 }
 
 model Project {
@@ -55,7 +55,7 @@ model Project {
   // maxCoverage       Float    @map("max_coverage")
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
-  @@map("project_20240130")
+  @@map("project")
 }
 
 model Summary {
@@ -74,7 +74,7 @@ model Summary {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
-  @@map("summary_20240130")
+  @@map("summary")
 }
 
 model Codechange {
@@ -93,7 +93,7 @@ model Codechange {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
-  @@map("codechange_20240130")
+  @@map("codechange")
 }
 
 model Distributedlock {
@@ -102,5 +102,5 @@ model Distributedlock {
   lockTimestamp  DateTime?
   lockExpiration DateTime?
 
-  @@map("distributedlock_20240130")
+  @@map("distributedlock")
 }
