@@ -6,11 +6,35 @@ export class CodechangeService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getCodechange(sha, filepath) {
-    return this.prisma.codechange.findMany({
+    const { compareTarget } = await this.prisma.coverage.findFirst({
       where: {
         sha: sha,
-        path: filepath,
+        covType: 'all',
       },
     });
+    return this.prisma.codechange
+      .findFirst({
+        where: {
+          compareTarget,
+          sha: sha,
+          path: filepath.replace('~/', ''),
+        },
+      })
+      .then((r) => {
+        console.log(r);
+        if (r) {
+          return r;
+        } else {
+          return {
+            id: '',
+            projectID: '',
+            compareTarget: compareTarget,
+            sha: sha,
+            path: filepath.replace('~/', ''),
+            additions: [],
+            deletions: [],
+          };
+        }
+      });
   }
 }
