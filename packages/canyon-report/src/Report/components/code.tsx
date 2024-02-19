@@ -95,7 +95,10 @@ const Code: FC<{
         })}
       />
       <LineNew news={fileCodeChange} />
-      <div dangerouslySetInnerHTML={{ __html: html }} />
+      <div
+        style={{ flexGrow: 1, overflow: 'auto' }}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
     </div>
   );
 };

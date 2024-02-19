@@ -107,11 +107,13 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
         <div className="clearfix">
           {dims.map((dim) => (
             <div className="fl pad1y space-right2">
-              <span className="strong">
+              <span className="strong" style={{ marginRight: '5px' }}>
                 {/*// @ts-ignore*/}
                 {summaryTreeItem.summary[dim].pct}%
               </span>
-              <span className="quiet">{capitalized(dim)}</span>
+              <span className="quiet" style={{ marginRight: '5px' }}>
+                {capitalized(dim)}
+              </span>
               <span className="fraction">
                 {/*// @ts-ignore*/}
                 {summaryTreeItem.summary[dim].covered}/{/*// @ts-ignore*/}
