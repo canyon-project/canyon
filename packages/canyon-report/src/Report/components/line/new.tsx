@@ -1,11 +1,10 @@
-const LineNew = ({ news }) => {
-  // const news = [1, 2, 3, 7, 8, 9, 10, 14, 15];
+const LineNew = ({ news, count }) => {
   return (
     <div style={{ width: '20px', textAlign: 'center' }}>
-      {[...Array(200)].map((line, index) => {
+      {[...Array(count)].map((line, index) => {
         return (
           <div style={{ height: '14px', color: 'green', width: '20px' }}>
-            {news.includes(index) ? '+' : ''}
+            {news.includes(index + 1) ? '+' : ''}
           </div>
         );
       })}

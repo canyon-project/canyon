@@ -21,7 +21,6 @@ export class CodechangeService {
         },
       })
       .then((r) => {
-        console.log(r);
         if (r) {
           return r;
         } else {

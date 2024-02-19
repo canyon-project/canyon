@@ -94,7 +94,7 @@ const Code: FC<{
           }
         })}
       />
-      <LineNew news={fileCodeChange} />
+      <LineNew news={fileCodeChange} count={code.split('\n').length} />
       <div
         style={{ flexGrow: 1, overflow: 'auto' }}
         dangerouslySetInnerHTML={{ __html: html }}
