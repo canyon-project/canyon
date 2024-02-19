@@ -121,7 +121,7 @@ export function genDecorationsLv2Array(code, startends) {
 
       for (let i = start[0]; i <= end[0]; i++) {
         const intervalStart = i === start[0] ? start[1] : 0;
-        const intervalEnd = i === end[0] ? end[1] : lines[i].length;
+        const intervalEnd = lines[i].length;
         result.push([i, intervalStart, intervalEnd]);
       }
     });
