@@ -153,22 +153,28 @@ export const getCommits = async (
   { projectID, commitShas }: { projectID: string; commitShas: string[] },
   token: string,
 ) => {
+  console.log('getCommits', commitShas);
   return await Promise.all(
-    commitShas.map((commitSha) =>
-      {
-        return axios
-          .get<Commit>(
-            `${GITLAB_URL}/api/v4/projects/${projectID}/repository/commits/${commitSha}`,
-            {
-              headers: {
-                // Authorization: `Bearer ${token}`,
-                'private-token': process.env.PRIVATE_TOKEN,
-              },
+    commitShas.map((commitSha) => {
+      return axios
+        .get<Commit>(
+          `${GITLAB_URL}/api/v4/projects/${projectID}/repository/commits/${commitSha}`,
+          {
+            headers: {
+              // Authorization: `Bearer ${token}`,
+              'private-token': process.env.PRIVATE_TOKEN,
             },
-          )
-          .then(({ data }) => data)
-      },
-    ),
+          },
+        )
+        .then(({ data }) => data)
+        .catch(() => {
+          return {
+            id: commitSha,
+            message: '???',
+            web_url: '???',
+          };
+        });
+    }),
   );
 };
 

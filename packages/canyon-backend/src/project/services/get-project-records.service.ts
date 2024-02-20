@@ -34,7 +34,6 @@ export class GetProjectRecordsService {
         createdAt: 'desc',
       },
     });
-
     const commits = await getCommits(
       {
         projectID,
