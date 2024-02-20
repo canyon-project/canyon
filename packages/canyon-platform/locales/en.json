@@ -14,7 +14,7 @@
     "create": "Create a Project",
     "desc": "View all projects related to your account",
     "name": "Name",
-    "report_times": "Report Times",
+    "report_times": "Times",
     "max_coverage": "Max Coverage",
     "latest_report_time": "Last Reported",
     "latest_report_coverage": "Latest Report Coverage",
@@ -38,7 +38,10 @@
     "coverage_details": "Coverage Details",
     "report_id": "Report ID",
     "coverage_id": "Coverage ID",
-    "view_detail": "View Detail"
+    "view_detail": "View Detail",
+    "max_coverage_tooltip": "Maximum coverage for the last 30 days",
+    "statements_tooltip": "Statement coverage is also overall coverage",
+    "newlines_tooltip": "Change code line coverage"
   },
   "settings": {
     "desc": "Set up your account information",

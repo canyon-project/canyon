@@ -15,9 +15,9 @@ import { ProjectCompartmentDataModel } from './models/project-compartment-data.m
 import { GetProjectRecordDetailByShaService } from './services/get-project-record-detail-by-sha.service';
 import { ProjectRecordDetailModel } from './models/project-record-detail.model';
 import { Project2 } from './project2.model';
-import { GetProjectsService } from './services/get-projects.service';
 import { PaginationArgs, SorterArgs } from '../types/input-types.args';
 import { GetProjectsNoDataService } from './services/get-projects-no-data.service';
+import { GetProjectsService } from './services/get-projects.service';
 @Resolver(() => 'Project')
 export class ProjectResolver {
   constructor(

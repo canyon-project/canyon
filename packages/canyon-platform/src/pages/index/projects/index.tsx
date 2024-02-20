@@ -1,6 +1,6 @@
-import { FolderOutlined, PlusOutlined } from '@ant-design/icons';
+import { FolderOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Divider, Popconfirm, Select, Table, theme, Typography } from 'antd';
+import { Button, Divider, Popconfirm, Select, Table, theme, Tooltip, Typography } from 'antd';
 import Search from 'antd/es/input/Search';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-import ProjectNoData from '../../../components/app/project/nodata.tsx';
+// import ProjectNoData from '../../../components/app/project/nodata.tsx';
 import {
   DeleteProjectDocument,
   GetProjectsBuOptionsDocument,
@@ -45,7 +45,14 @@ const ProjectPage = () => {
       sorter: true,
     },
     {
-      title: t('projects.max_coverage'),
+      title: (
+        <>
+          <Tooltip title={t('projects.max_coverage_tooltip')} className={'mr-2'}>
+            <QuestionCircleOutlined />
+          </Tooltip>
+          {t('projects.max_coverage')}
+        </>
+      ),
       dataIndex: 'maxCoverage',
       key: 'maxCoverage',
       sorter: true,
@@ -179,11 +186,12 @@ const ProjectPage = () => {
               }}
             />
           </div>
-          <ProjectNoData />
+          {/*<ProjectNoData />*/}
         </div>
 
         <div>
           <Table
+            showSorterTooltip={false}
             style={{
               border: `1px solid ${token.colorBorder}`,
               borderRadius: `${token.borderRadius}px`,

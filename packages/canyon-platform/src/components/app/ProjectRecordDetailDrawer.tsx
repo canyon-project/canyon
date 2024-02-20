@@ -1,15 +1,15 @@
 import { useQuery } from '@apollo/client';
-import { Avatar, Divider, Drawer, Table,Typography } from 'antd';
+import { Avatar, Drawer, Table, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import { GetProjectRecordDetailByShaDocument } from '../../helpers/backend/gen/graphql.ts';
-const {Text} = Typography;
+const { Text } = Typography;
 
 const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
   const pam = useParams();
-  const { data,loading } = useQuery(GetProjectRecordDetailByShaDocument, {
+  const { data, loading } = useQuery(GetProjectRecordDetailByShaDocument, {
     variables: {
       projectID: pam.id as string,
       sha: sha,
@@ -17,7 +17,6 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
   });
 
   const { t } = useTranslation();
-  const nav = useNavigate();
   // const pam = useParams();
   const columns = [
     {
@@ -27,10 +26,9 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
     {
       title: t('projects.report_id'),
       dataIndex: 'reportID',
-    },
-    {
-      title: 'Sha',
-      dataIndex: 'sha',
+      render(_: any): JSX.Element {
+        return <div className={'text-ellipsis w-[240px]'}>{_}</div>;
+      },
     },
     {
       title: t('projects.statements'),
@@ -86,7 +84,13 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
 
   return (
     <>
-      <Drawer title={t('projects.reported_details')} placement='right' width={'85%'} onClose={onClose} open={open}>
+      <Drawer
+        title={t('projects.reported_details') + '-' + sha}
+        placement='right'
+        width={'85%'}
+        onClose={onClose}
+        open={open}
+      >
         <Table
           loading={loading}
           size={'small'}

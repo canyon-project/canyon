@@ -14,8 +14,8 @@ import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import book from '../assets/book.svg';
+import lightLogoSvg from '../assets/light-logo.svg';
 import logoSvg from '../assets/logo.svg';
-import lightLogoSvg from '../assets/light-logo.svg'
 import AppFooter from '../components/app/footer.tsx';
 import { MeDocument } from '../helpers/backend/gen/graphql.ts';
 import { genBreadcrumbItems } from '../layouts/genBreadcrumbItems.tsx';
@@ -86,7 +86,7 @@ function Index() {
           // @ts-ignore
           instrumentCwd: window.__canyon__.instrumentCwd,
           // @ts-ignore
-          reportID: `${meData?.me.username};${loc.pathname};${window.__canyon__.commitSha}`,
+          reportID: `${meData?.me.username};${loc.pathname};${window.__canyon__.commitSha.slice(0, 8)}`,
           // @ts-ignore
           branch: window.__canyon__.branch,
         }),
@@ -134,7 +134,11 @@ function Index() {
                     nav(`/`);
                   }}
                 >
-                  <img className={'w-[30px] mr-[8px]'} src={localStorage.getItem('theme')==='dark'?lightLogoSvg:logoSvg} alt='' />
+                  <img
+                    className={'w-[30px] mr-[8px]'}
+                    src={localStorage.getItem('theme') === 'dark' ? lightLogoSvg : logoSvg}
+                    alt=''
+                  />
                   Canyon
                 </Title>
 
@@ -187,7 +191,7 @@ function Index() {
                   <Text>{meData?.me.nickname}</Text>
                   <Text type={'secondary'}>{meData?.me.email || ''}</Text>
                 </div>
-                <MoreOutlined />
+                <MoreOutlined className={'dark:text-[#fff]'} />
               </div>
             </Dropdown>
           </div>

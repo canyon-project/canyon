@@ -1,5 +1,6 @@
+import { BranchesOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
-import { Input, Spin, Table, theme, Typography } from 'antd';
+import { Input, Spin, Table, theme, Tooltip, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
@@ -74,6 +75,7 @@ const ProjectOverviewPage = () => {
     {
       title: 'Sha',
       dataIndex: 'sha',
+      width: '100px',
       render(_, { webUrl }): JSX.Element {
         return (
           <a href={webUrl} target={'_blank'} rel='noreferrer'>
@@ -83,15 +85,19 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: t('projects.branch'),
+      title: (
+        <>
+          <BranchesOutlined className={'mr-2'} />
+          {t('projects.branch')}
+        </>
+      ),
       dataIndex: 'branch',
-      width: '160px',
       ellipsis: true,
     },
     {
       title: t('projects.compare_target'),
       dataIndex: 'compareTarget',
-      width: '160px',
+      width: '150px',
       render(_, { compareUrl }): JSX.Element {
         return (
           <a href={compareUrl} target={'_blank'} rel='noreferrer'>
@@ -107,16 +113,21 @@ const ProjectOverviewPage = () => {
       ellipsis: true,
     },
     {
-      title: t('projects.statements'),
+      title: (
+        <>
+          <Tooltip title={t('projects.statements_tooltip')} className={'mr-2'}>
+            <QuestionCircleOutlined />
+          </Tooltip>
+          {t('projects.statements')}
+        </>
+      ),
       dataIndex: 'statements',
+      width: '140px',
       render(_, { sha }) {
         return (
           <Link
             to={{
               pathname: `/projects/${pam.id}/commits/${sha}`,
-            }}
-            onClick={() => {
-              // nav(`/project/${pam.id}/commits/${_}`);
             }}
           >
             {_}%
@@ -125,15 +136,22 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: t('projects.newlines'),
+      title: (
+        <>
+          <Tooltip title={t('projects.newlines_tooltip')} className={'mr-2'}>
+            <QuestionCircleOutlined />
+          </Tooltip>
+          {t('projects.newlines')}
+        </>
+      ),
       dataIndex: 'newlines',
+      width: '130px',
       render(_, { sha }) {
         return (
           <Link
             to={{
               pathname: `/projects/${pam.id}/commits/${sha}`,
               search: '?mode=codechange',
-              // query: {},
             }}
           >
             {_}%
@@ -144,6 +162,7 @@ const ProjectOverviewPage = () => {
     {
       title: t('projects.report_times'),
       dataIndex: 'times',
+      width: '80px',
     },
     {
       title: t('projects.latest_report_time'),

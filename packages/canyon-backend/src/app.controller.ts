@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
@@ -14,10 +14,5 @@ export class AppController {
       GITLAB_URL: process.env.GITLAB_URL,
       GITLAB_CLIENT_ID: process.env.GITLAB_CLIENT_ID,
     };
-  }
-
-  @Post('/api/echo')
-  echo(@Body() body: any, @Req() request: any): any {
-    return request.cookies;
   }
 }
