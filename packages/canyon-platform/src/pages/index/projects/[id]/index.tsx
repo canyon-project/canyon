@@ -1,4 +1,4 @@
-import { BranchesOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import Icon, { BranchesOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
 import { Input, Spin, Table, theme, Tooltip, Tour, TourProps, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -9,6 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 
 import ProjectRecordDetailDrawer from '../../../../components/app/ProjectRecordDetailDrawer.tsx';
+import MaterialSymbolsCommitSharp from '../../../../components/sha.tsx';
 import {
   GetProjectByIdDocument,
   GetProjectChartDataDocument,
@@ -97,7 +98,12 @@ const ProjectOverviewPage = () => {
 
   const columns: ColumnsType<ProjectRecordsModel> = [
     {
-      title: 'Sha',
+      title: (
+        <div>
+          <Icon component={MaterialSymbolsCommitSharp} className={'mr-2'} />
+          Sha
+        </div>
+      ),
       dataIndex: 'sha',
       width: '100px',
       render(_, { webUrl }): JSX.Element {

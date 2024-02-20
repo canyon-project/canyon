@@ -153,7 +153,6 @@ export const getCommits = async (
   { projectID, commitShas }: { projectID: string; commitShas: string[] },
   token: string,
 ) => {
-  console.log('getCommits', commitShas);
   return await Promise.all(
     commitShas.map((commitSha) => {
       return axios
