@@ -288,15 +288,37 @@ export class ConsumerCoverageService {
       }
 
       // 查询agg类型的数据，如果有就更新，没有就插入
-      const updateCoverage = await this.prisma.coverage.findFirst({
+      const updateCoverages = await this.prisma.coverage.findMany({
         where: removeNullKeys({
           covType: covType,
           sha: normalCoverage.sha,
           reportID: covType === 'agg' ? normalCoverage.reportID : null,
         }),
+        orderBy: {
+          createdAt: 'asc', //升序排，保留最老的数据
+        },
       });
 
-      if (updateCoverage) {
+      if (updateCoverages.length > 0) {
+        // 更新最老的那个数据
+        const updateCoverage = updateCoverages[0];
+        if (updateCoverages.length > 1) {
+          logger({
+            type: 'error',
+            title: '覆盖率数据错误',
+            message: `agg类型的数据有多个`,
+          });
+          await this.prisma.coverage.deleteMany({
+            where: {
+              id: {
+                in: updateCoverages
+                  .filter((_, index) => index !== 0) // 除了第一个
+                  .map((item) => String(item.id)),
+              },
+            },
+          });
+        }
+
         await this.prisma.coverage.update({
           where: {
             id: String(updateCoverage.id),
