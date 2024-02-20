@@ -65,7 +65,7 @@ export class ProjectService {
         pathWithNamespace: path_with_namespace,
         name: name,
         description: description || '',
-        bu: bu,
+        bu: bu || '默认',
       },
     });
   }
