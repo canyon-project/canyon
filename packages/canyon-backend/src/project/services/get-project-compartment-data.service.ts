@@ -39,21 +39,27 @@ export class GetProjectCompartmentDataService {
       lastCoverageSummary.covered,
       lastCoverageSummary.total,
     );
+    // 获取 30 天前的日期
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     // 上报的最大值
-    const maxs = coverages.map((coverage) => {
-      const summary = summarys.find(
-        (item) => item.sha === coverage.sha && item.metricType === 'statements',
-      );
-      const max =
-        (summary?.total || 0) === 0
-          ? 0
-          : percent(summary.covered, summary.total);
-      return max;
-    });
+    const maxs = coverages
+      .filter((i) => new Date(i.createdAt) >= thirtyDaysAgo)
+      .map((coverage) => {
+        const summary = summarys.find(
+          (item) =>
+            item.sha === coverage.sha && item.metricType === 'statements',
+        );
+        const max =
+          (summary?.total || 0) === 0
+            ? 0
+            : percent(summary.covered, summary.total);
+        return max;
+      });
 
     const max = Math.max(...maxs);
-
+    console.log(max > 0, 'max');
     return [
       {
         label: 'projects.total_times',
@@ -61,7 +67,7 @@ export class GetProjectCompartmentDataService {
       },
       {
         label: 'projects.max_coverage',
-        value: max.toFixed(2) + '%',
+        value: max > 0 ? max.toFixed(2) + '%' : '0%',
       },
       {
         label: 'projects.latest_report_time',
