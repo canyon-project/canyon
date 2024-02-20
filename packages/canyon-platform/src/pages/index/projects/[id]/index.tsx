@@ -1,10 +1,10 @@
 import { BranchesOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
-import { Input, Spin, Table, theme, Tooltip, Typography } from 'antd';
+import { Input, Spin, Table, theme, Tooltip, Tour, TourProps, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
 
@@ -70,6 +70,30 @@ const ProjectOverviewPage = () => {
       fetchPolicy: 'no-cache',
     },
   );
+  const ref1 = useRef(null);
+  const ref2 = useRef(null);
+  const [tourOpen, setTourOpen] = useState(false);
+  const steps: TourProps['steps'] = [
+    {
+      title: t('projects.statements_tour_title'),
+      description: t('projects.statements_tour_description'),
+      target: () => ref1.current,
+    },
+    {
+      title: t('projects.newlines_tour_title'),
+      description: t('projects.newlines_tour_description'),
+      target: () => ref2.current,
+    },
+  ];
+
+  useEffect(() => {
+    if (!localStorage.getItem('touropen')) {
+      setTimeout(() => {
+        setTourOpen(true);
+        localStorage.setItem('touropen', 'true');
+      }, 2000);
+    }
+  }, []);
 
   const columns: ColumnsType<ProjectRecordsModel> = [
     {
@@ -114,12 +138,12 @@ const ProjectOverviewPage = () => {
     },
     {
       title: (
-        <>
+        <div ref={ref1}>
           <Tooltip title={t('projects.statements_tooltip')} className={'mr-2'}>
             <QuestionCircleOutlined />
           </Tooltip>
           {t('projects.statements')}
-        </>
+        </div>
       ),
       dataIndex: 'statements',
       width: '140px',
@@ -137,12 +161,12 @@ const ProjectOverviewPage = () => {
     },
     {
       title: (
-        <>
+        <div ref={ref2}>
           <Tooltip title={t('projects.newlines_tooltip')} className={'mr-2'}>
             <QuestionCircleOutlined />
           </Tooltip>
           {t('projects.newlines')}
-        </>
+        </div>
       ),
       dataIndex: 'newlines',
       width: '130px',
@@ -233,7 +257,13 @@ const ProjectOverviewPage = () => {
       <Text type={'secondary'} className={'block mb-3'}>
         {t('projects.overview')}
       </Text>
-
+      <Tour
+        open={tourOpen}
+        onClose={() => {
+          setTourOpen(false);
+        }}
+        steps={steps}
+      />
       <div className={'flex mb-10'}>
         <Spin spinning={projectCompartmentDataLoading}>
           <div

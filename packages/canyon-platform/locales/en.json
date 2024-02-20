@@ -41,7 +41,11 @@
     "view_detail": "View Detail",
     "max_coverage_tooltip": "Maximum coverage for the last 30 days",
     "statements_tooltip": "Statement coverage is also overall coverage",
-    "newlines_tooltip": "Change code line coverage"
+    "newlines_tooltip": "Change code line coverage",
+    "statements_tour_title": "Statement Coverage",
+    "newlines_tour_title": "New Line Coverage",
+    "statements_tour_description": "Click on the percentage number in this column to jump to the full coverage details page.",
+    "newlines_tour_description": "Click on the percentage number in this column to jump to the changed line coverage details page."
   },
   "settings": {
     "desc": "Set up your account information",

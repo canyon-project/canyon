@@ -41,7 +41,11 @@
     "view_detail": "查看详情",
     "max_coverage_tooltip": "近30天的最大覆盖率",
     "statements_tooltip": "语句覆盖率也是总体覆盖率",
-    "newlines_tooltip": "变更代码行覆盖率"
+    "newlines_tooltip": "变更代码行覆盖率",
+    "statements_tour_title": "语句覆盖率",
+    "newlines_tour_title": "变更代码行覆盖率",
+    "statements_tour_description": "点击此列中的百分比数字以跳转至全量覆盖详情页面。",
+    "newlines_tour_description": "点击此列中的百分比数字以跳转至变更行覆盖详情页面。"
   },
   "settings": {
     "desc": "设置您的账户信息",
