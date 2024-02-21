@@ -15,6 +15,7 @@
     "desc": "查看与您的账户相关的所有项目",
     "name": "名称",
     "report_times": "次数",
+    "report_time": "上报时间",
     "max_coverage": "最大覆盖率",
     "latest_report_time": "最近上报时间",
     "latest_report_coverage": "最近上报覆盖率",

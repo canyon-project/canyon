@@ -57,7 +57,7 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
       },
     },
     {
-      title: t('projects.report_times'),
+      title: t('projects.report_time'),
       dataIndex: 'createdAt',
       render(_: any) {
         return dayjs(_).format('MM-DD HH:mm');

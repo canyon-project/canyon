@@ -15,6 +15,7 @@
     "desc": "View all projects related to your account",
     "name": "Name",
     "report_times": "Times",
+    "report_time": "Report Time",
     "max_coverage": "Max Coverage",
     "latest_report_time": "Last Reported",
     "latest_report_coverage": "Latest Report Coverage",
