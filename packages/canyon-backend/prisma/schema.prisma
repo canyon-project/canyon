@@ -22,9 +22,6 @@ model User {
   @@map("user")
 }
 
-// 确认数据结构，Coverage使用随机生成的id，不使用自增id。
-// 取消task，使用consumer消费者模式聚合数据
-// commitSha => sha
 model Coverage {
   id            String   @id @default(cuid())
   key           String?
@@ -39,9 +36,9 @@ model Coverage {
   relationID    String   @map("relation_id")
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
   updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
-  consumer      Int // 1: 未消费, 2: 已消费
-  children      String[] // 记录由哪些子任务生成
-  tags          Json[] // 打标签
+  consumer      Int
+  children      String[]
+  tags          Json[]
 
   @@map("coverage")
 }
@@ -52,7 +49,6 @@ model Project {
   pathWithNamespace String   @map("path_with_namespace")
   description       String
   bu                String
-  // maxCoverage       Float    @map("max_coverage")
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
   @@map("project")
