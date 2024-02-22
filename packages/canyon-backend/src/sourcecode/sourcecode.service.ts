@@ -7,14 +7,27 @@ export class SourcecodeService {
   constructor(private readonly prisma: PrismaService) {}
 
   getsourcecode(projectID, sha, filepath): Promise<any> {
-    // return this.prisma.''
-    return getFileInfo(
-      {
-        projectID,
-        filepath: encodeURIComponent(filepath.replace('~/', '')),
-        commitSha: sha,
-      },
-      'accessToken',
-    );
+    // 实在不想硬编码
+    if (projectID === '100807') {
+      return getFileInfo(
+        {
+          projectID,
+          filepath: encodeURIComponent(
+            filepath.replace('~/src/taro/pages/tnt', 'src/pages/tnt'),
+          ),
+          commitSha: sha,
+        },
+        'accessToken',
+      );
+    } else {
+      return getFileInfo(
+        {
+          projectID,
+          filepath: encodeURIComponent(filepath.replace('~/', '')),
+          commitSha: sha,
+        },
+        'accessToken',
+      );
+    }
   }
 }
