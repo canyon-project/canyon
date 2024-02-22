@@ -137,18 +137,26 @@ const IstanbulReport: FC<IstanbulReportProps> = ({
             <Th />
             <tbody>
               {/*// @ts-ignore*/}
-              {summaryTreeItem.children.map(({ path, summary }) => {
-                return (
-                  <Tr
-                    setActivePath={(p) => {
-                      setActivePath(p);
-                    }}
-                    path={path}
-                    item={summary}
-                    watermarks={watermarks}
-                  />
-                );
-              })}
+              {summaryTreeItem.children
+                .filter(
+                  (item) =>
+                    // 过滤掉这些
+                    !['index.android.js', 'index.ios.js'].some((str) => {
+                      return item.path.includes(str);
+                    }),
+                )
+                .map(({ path, summary }) => {
+                  return (
+                    <Tr
+                      setActivePath={(p) => {
+                        setActivePath(p);
+                      }}
+                      path={path}
+                      item={summary}
+                      watermarks={watermarks}
+                    />
+                  );
+                })}
             </tbody>
           </table>
         </div>
