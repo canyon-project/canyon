@@ -36,4 +36,6 @@ export class Project {
 export class BuOption {
   @Field(() => String)
   bu: string;
+  @Field(() => Number)
+  count: number;
 }

@@ -148,6 +148,7 @@ export class GetProjectsService {
         return {
           id: id,
           bu: project.bu,
+          description: project.description,
           lastReportTime:
             summarys.length > 0
               ? summarys[0].createdAt

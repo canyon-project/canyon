@@ -16,7 +16,7 @@ import {
   Project,
 } from '../../../helpers/backend/gen/graphql.ts';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const { useToken } = theme;
 const ProjectPage = () => {
@@ -33,6 +33,16 @@ const ProjectPage = () => {
       title: t('projects.name'),
       dataIndex: 'pathWithNamespace',
       key: 'pathWithNamespace',
+      render: (text, record) => {
+        return (
+          <div className={'flex flex-col'}>
+            {text}
+            <Text type={'secondary'} style={{ fontSize: '12px' }}>
+              {record.description}
+            </Text>
+          </div>
+        );
+      },
     },
     {
       title: 'Bu',
@@ -172,8 +182,8 @@ const ProjectPage = () => {
               }}
               placeholder={'Bu'}
               className={'w-[200px] mr-2'}
-              options={(projectsBuOptionsData?.getProjectsBuOptions || []).map(({ bu }) => ({
-                label: bu,
+              options={(projectsBuOptionsData?.getProjectsBuOptions || []).map(({ bu, count }) => ({
+                label: bu + ` ${count}`,
                 value: bu,
               }))}
             />
@@ -206,6 +216,7 @@ const ProjectPage = () => {
             }}
             bordered={false}
             dataSource={projectsData?.getProjects?.data || []}
+            // @ts-ignore
             columns={columns}
             onChange={(val, _, _sorter: any) => {
               setSorter({

@@ -4,6 +4,7 @@ query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$bu: [Strin
     data {
       id
       pathWithNamespace
+      description
       bu
       reportTimes
       lastReportTime

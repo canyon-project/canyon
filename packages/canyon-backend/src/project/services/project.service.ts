@@ -101,8 +101,18 @@ export class ProjectService {
   }
 
   async getProjectsBuOptions() {
-    return this.prisma.project.groupBy({
-      by: ['bu'],
-    });
+    return this.prisma.project
+      .groupBy({
+        by: ['bu'],
+        _count: true,
+      })
+      .then((res) => {
+        return res.map((item) => {
+          return {
+            bu: item.bu,
+            count: item._count,
+          };
+        });
+      });
   }
 }

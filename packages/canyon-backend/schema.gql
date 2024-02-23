@@ -33,6 +33,7 @@ type Project {
 
 type BuOption {
   bu: String!
+  count: Float!
 }
 
 type ProjectPagesModel {
