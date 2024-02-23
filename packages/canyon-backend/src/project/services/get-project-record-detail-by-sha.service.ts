@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { calculateCoverageOverviewByConditionFilter } from '../../utils/summary';
-// import process from 'process';
-import { getCommits } from '../../adapter/gitlab.adapter';
 import { percent } from '../../utils/utils';
-// import { getProjectByID } from '../adapter/gitlab.adapter';
 @Injectable()
 export class GetProjectRecordDetailByShaService {
   constructor(private readonly prisma: PrismaService) {}
   async invoke(projectID, sha): Promise<any> {
+    const current = 1;
+    const pageSize = 200;
     const coverages = await this.prisma.coverage.findMany({
       where: {
         projectID,
         sha,
         covType: 'agg',
       },
+      skip: (current - 1) * pageSize,
+      take: pageSize,
       orderBy: {
         createdAt: 'desc',
       },
