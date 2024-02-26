@@ -41,6 +41,7 @@ export class CoverageController {
     @Request() req: any,
   ): Promise<any> {
     // 添加特殊上报逻辑处 (这是标记，勿动！)
+    // {{$mpaasSpecial}}添加特殊上报逻辑处 (这是标记，勿动！)
     return this.coverageClientService.invoke(req.user.id, coverageClientDto);
   }
 
