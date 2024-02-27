@@ -41,9 +41,9 @@ function isValidCoverage(coverage) {
 @ValidatorConstraint({ name: 'isValidCoverage', async: false })
 export class IsValidCoverage implements ValidatorConstraintInterface {
   validate(coverage: unknown) {
-    if (Object.keys(coverage).length === 0) {
-      return false;
-    }
+    // if (Object.keys(coverage).length === 0) {
+    //   return false;
+    // }
     return Object.values(coverage).every((item) => {
       return isValidCoverage(item);
     });

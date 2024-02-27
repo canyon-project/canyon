@@ -172,9 +172,10 @@ export class ConsumerCoverageService {
     const normalCoverageData = await getSpecificCoverageData(
       normalCoverage.relationID,
     );
-    if (Object.keys(normalCoverageData).length === 0) {
-      return;
-    }
+    // 允许{}的数据，后面可以作为每个覆盖率的触发器
+    // if (Object.keys(normalCoverageData).length === 0) {
+    //   return;
+    // }
 
     // 拉取变更代码
     await this.pullChangeCode(normalCoverage);
