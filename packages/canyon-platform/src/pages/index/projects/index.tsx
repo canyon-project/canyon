@@ -91,6 +91,14 @@ const ProjectPage = () => {
             {t('common.detail')}
           </Link>
           <Divider type={'vertical'} />
+          <Link
+            to={{
+              pathname: `/projects/${id}/configure`,
+            }}
+          >
+            {t('common.configure')}
+          </Link>
+          <Divider type={'vertical'} />
           <Popconfirm
             title='Delete the project'
             description='Are you sure to delete this project?'
