@@ -150,4 +150,24 @@ export class ProjectResolver {
   ): Promise<Project2> {
     return this.projectService.deleteProject(user, projectID);
   }
+
+  @Mutation(() => Project2, {
+    description: '更新项目',
+  })
+  @UseGuards(GqlAuthGuard)
+  updateProject(
+    @GqlUser() user: AuthUser,
+    @Args('projectID', { type: () => String }) projectID: string,
+    @Args('description', { type: () => String }) description: string,
+    @Args('tag', { type: () => String }) tag: string,
+    @Args('coverage', { type: () => String }) coverage: string,
+  ): Promise<Project2> {
+    return this.projectService.updateProject(
+      user,
+      projectID,
+      description,
+      tag,
+      coverage,
+    );
+  }
 }

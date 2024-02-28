@@ -49,6 +49,8 @@ model Project {
   pathWithNamespace String   @map("path_with_namespace")
   description       String
   bu                String
+  tag               String
+  coverage          String
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
   @@map("project")

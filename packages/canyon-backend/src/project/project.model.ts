@@ -15,6 +15,12 @@ export class Project {
   description: string;
 
   @Field(() => String)
+  tag: string;
+
+  @Field(() => String)
+  coverage: string;
+
+  @Field(() => String)
   bu: string;
 
   @Field(() => Number)

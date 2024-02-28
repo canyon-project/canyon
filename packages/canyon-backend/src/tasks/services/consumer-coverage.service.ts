@@ -18,7 +18,7 @@ import {
 import { PullChangeCodeAndInsertDbService } from './pull-change-code-and-insert-db.service';
 import { logger } from '../../logger';
 const randomInteger = Math.floor(Math.random() * 2000) + 2000;
-
+import * as TestExclude from 'test-exclude';
 @Injectable()
 export class ConsumerCoverageService {
   constructor(
@@ -99,6 +99,40 @@ export class ConsumerCoverageService {
         return normalCoverage;
       }
     });
+  }
+
+  async filterCoverage(projectID, coverage) {
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id: projectID,
+      },
+    });
+
+    let matchRule: any = {}; // Default value
+
+    try {
+      // Attempt to parse project?.coverage
+      matchRule = JSON.parse(project?.coverage || '{}');
+    } catch (error) {
+      // console.error('Error parsing coverage:', error);
+      // Log the error or handle it as needed
+      // You can also return an empty object or any default value
+    }
+    const exclude = new TestExclude({
+      cwd: '~',
+      include: matchRule.include,
+      exclude: matchRule.exclude,
+      extension: matchRule.extensions,
+    });
+
+    const filterCoverage = {};
+
+    for (const filterCoverageKey of Object.keys(coverage)) {
+      if (exclude.shouldInstrument(filterCoverageKey)) {
+        filterCoverage[filterCoverageKey] = coverage[filterCoverageKey];
+      }
+    }
+    return Object.keys(filterCoverage).length > 0 ? filterCoverage : coverage;
   }
 
   @Interval(randomInteger) //添加随机数，防止分布式服务同时执行，务必确保原子性，1-2s
@@ -243,10 +277,17 @@ export class ConsumerCoverageService {
               },
             });
 
+      const mainCovFilterCoverage = await this.filterCoverage(
+        normalCoverage.projectID,
+        mainCov,
+      );
+
       // !!!!!/
 
       // 创建新的覆盖率数据
-      const { insertedId: newKey } = await createNewCoverageData(mainCov);
+      const { insertedId: newKey } = await createNewCoverageData(
+        mainCovFilterCoverage,
+      );
 
       if (newKey === null) {
         logger({
@@ -268,7 +309,7 @@ export class ConsumerCoverageService {
 
       // 生成覆盖率概览数据
       const coverageSummaryMap = genSummaryMapByCoverageMap(
-        mainCov,
+        mainCovFilterCoverage,
         codechanges,
       );
       const allSummary = getSummaryByPath('~', coverageSummaryMap);

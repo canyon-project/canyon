@@ -8,7 +8,8 @@ query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$bu: [Strin
       bu
       reportTimes
       lastReportTime
-      maxCoverage
+      maxCoverage,
+      tag
     }
   }
 }

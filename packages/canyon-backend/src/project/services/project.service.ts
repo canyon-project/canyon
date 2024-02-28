@@ -66,6 +66,8 @@ export class ProjectService {
         name: name,
         description: description || '',
         bu: bu || '默认',
+        coverage: '',
+        tag: '',
       },
     });
   }
@@ -78,6 +80,31 @@ export class ProjectService {
     });
   }
 
+  async updateProject(user, projectID, description, tag, coverage) {
+    function removeEmptyValues(obj) {
+      for (const key in obj) {
+        if (
+          obj[key] === undefined ||
+          obj[key] === null ||
+          obj[key] === '__null__'
+        ) {
+          delete obj[key];
+        }
+      }
+      return obj;
+    }
+    return this.prisma.project.update({
+      where: {
+        id: projectID,
+      },
+      data: removeEmptyValues({
+        description: description,
+        tag: tag,
+        coverage: coverage,
+      }),
+    });
+  }
+
   async getProjectByID(projectID): Promise<Project> {
     return this.prisma.project
       .findFirst({
@@ -85,19 +112,32 @@ export class ProjectService {
           id: projectID,
         },
       })
-      .then(({ id, name, pathWithNamespace, description, bu, createdAt }) => {
-        return {
+      .then(
+        ({
           id,
           name,
           pathWithNamespace,
           description,
+          bu,
           createdAt,
-          bu: bu,
-          reportTimes: 0,
-          lastReportTime: new Date(),
-          maxCoverage: 0,
-        };
-      });
+          coverage,
+          tag,
+        }) => {
+          return {
+            id,
+            name,
+            pathWithNamespace,
+            description,
+            createdAt,
+            bu: bu,
+            reportTimes: 0,
+            lastReportTime: new Date(),
+            maxCoverage: 0,
+            tag,
+            coverage,
+          };
+        },
+      );
   }
 
   async getProjectsBuOptions() {

@@ -24,6 +24,8 @@ type Project {
   name: String!
   pathWithNamespace: String!
   description: String!
+  tag: String!
+  coverage: String!
   bu: String!
   maxCoverage: Float!
   reportTimes: Float!
@@ -216,4 +218,7 @@ type Mutation {
 
   """删除项目"""
   deleteProject(projectID: String!): Project2!
+
+  """更新项目"""
+  updateProject(projectID: String!, description: String!, tag: String!, coverage: String!): Project2!
 }

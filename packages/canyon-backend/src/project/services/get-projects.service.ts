@@ -156,6 +156,7 @@ export class GetProjectsService {
           maxCoverage: maxCoverage,
           reportTimes: [...new Set(summarys.map(({ sha }) => sha))].length,
           pathWithNamespace: project.pathWithNamespace,
+          tag: project.tag,
         };
       }),
     );

@@ -1,6 +1,6 @@
 import { FolderOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Divider, Popconfirm, Select, Table, theme, Tooltip, Typography } from 'antd';
+import { Button, Divider, Popconfirm, Select, Table, Tag, theme, Tooltip, Typography } from 'antd';
 import Search from 'antd/es/input/Search';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -19,6 +19,10 @@ import {
 const { Title, Text } = Typography;
 
 const { useToken } = theme;
+const tagsData = ['V2Vi', 'Q1JO', 'VHJpcC5jb20=', 'Q3RyaXA='].map(atob);
+
+const colors = ['#4FA15B', '#087EA4', '#287DFA', '#FFB400'];
+
 const ProjectPage = () => {
   const { token } = useToken();
   const { t } = useTranslation();
@@ -33,6 +37,7 @@ const ProjectPage = () => {
       title: t('projects.name'),
       dataIndex: 'pathWithNamespace',
       key: 'pathWithNamespace',
+      width: '260px',
       render: (text, record) => {
         return (
           <div className={'flex flex-col'}>
@@ -40,6 +45,25 @@ const ProjectPage = () => {
             <Text type={'secondary'} style={{ fontSize: '12px' }}>
               {record.description}
             </Text>
+          </div>
+        );
+      },
+    },
+    {
+      title: '标签',
+      dataIndex: 'tag',
+      render: (text) => {
+        const selectedTags = text ? text.split(',') : [];
+        return (
+          <div>
+            {selectedTags.map((tag: string) => (
+              <Tag
+                key={tag}
+                color={tagsData.indexOf(tag) > -1 ? colors[tagsData.indexOf(tag)] : '#108ee9'}
+              >
+                {tag}
+              </Tag>
+            ))}
           </div>
         );
       },
