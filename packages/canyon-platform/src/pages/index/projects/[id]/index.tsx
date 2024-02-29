@@ -1,4 +1,4 @@
-import Icon, { BranchesOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import Icon, { BranchesOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
 import { Input, Spin, Table, theme, Tooltip, Tour, TourProps, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import ProjectRecordDetailDrawer from '../../../../components/app/ProjectRecordDetailDrawer.tsx';
 import MaterialSymbolsCommitSharp from '../../../../components/sha.tsx';
@@ -57,6 +57,7 @@ const ProjectOverviewPage = () => {
     {
       variables: {
         projectID: pam.id as string,
+        branch: '-',
       },
       fetchPolicy: 'no-cache',
     },
@@ -253,12 +254,31 @@ const ProjectOverviewPage = () => {
       type: 'line',
     })),
   };
-
+  const nav = useNavigate();
   return (
     <div className={'px-6 pt-5 pb-5'}>
-      <Title level={2} className={'pb-5'}>
-        {projectByIdData?.getProjectByID.pathWithNamespace}
-      </Title>
+      <div className={'mb-10'}>
+        <div className={'flex'}>
+          <Title level={2}>
+            {projectByIdData?.getProjectByID.pathWithNamespace}
+            <EditOutlined
+              className={'ml-3 cursor-pointer'}
+              style={{ fontSize: '20px' }}
+              onClick={() => {
+                nav(`/projects/${pam.id}/configure`);
+              }}
+            />
+          </Title>
+        </div>
+
+        <div>
+          <Text type={'secondary'}>Project ID: 115249</Text>
+          <Text className={'ml-6'} type={'secondary'}>
+            默认分支: {projectByIdData?.getProjectByID.defaultBranch}
+          </Text>
+        </div>
+        <div></div>
+      </div>
 
       <Text type={'secondary'} className={'block mb-3'}>
         {t('projects.overview')}
@@ -304,7 +324,14 @@ const ProjectOverviewPage = () => {
                 borderRadius: `${token.borderRadius}px`,
               }}
             >
-              <Title level={4}>{t('projects.trends_in_coverage')}</Title>
+              <div className={'flex items-center'}>
+                <Title level={4} style={{ marginBottom: '0' }}>
+                  {t('projects.trends_in_coverage')}
+                </Title>
+                <Text type={'secondary'} className={'ml-2'}>
+                  仅展示默认分支趋势
+                </Text>
+              </div>
               <ReactECharts
                 theme={
                   localStorage.getItem('theme') === 'dark'
@@ -325,9 +352,9 @@ const ProjectOverviewPage = () => {
         {t('projects.records')}
       </Text>
       <Input.Search
+        defaultValue={keyword}
         placeholder={t('projects.overview_search_keywords')}
         onSearch={(value) => {
-          // setSearchValue(value);
           setKeyword(value);
           setCurrent(1);
         }}
@@ -342,6 +369,7 @@ const ProjectOverviewPage = () => {
         }}
         bordered={false}
         rowKey={'sha'}
+        // @ts-ignore
         columns={columns}
         pagination={{
           showTotal: (total) => t('common.total_items', { total }),

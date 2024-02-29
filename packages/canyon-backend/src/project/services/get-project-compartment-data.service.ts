@@ -59,7 +59,6 @@ export class GetProjectCompartmentDataService {
       });
 
     const max = Math.max(...maxs);
-    console.log(max > 0, 'max');
     return [
       {
         label: 'projects.total_times',

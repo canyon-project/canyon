@@ -74,6 +74,7 @@ const BasicForms: FC<{ data: any }> = ({ data }) => {
         coverage: '__null__',
         tag: values.tag,
         description: values.description,
+        defaultBranch: '__null__',
       },
     }).then(() => {
       message.success('成功');

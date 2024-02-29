@@ -68,8 +68,9 @@ export class ProjectResolver {
   })
   getProjectChartData(
     @Args('projectID', { type: () => String }) projectID: string,
+    @Args('branch', { type: () => String }) branch: string,
   ): Promise<ProjectChartDataModel[]> {
-    return this.getProjectChartDataService.invoke(projectID);
+    return this.getProjectChartDataService.invoke(projectID, branch);
   }
 
   @Query(() => [ProjectCompartmentDataModel], {
@@ -161,6 +162,7 @@ export class ProjectResolver {
     @Args('description', { type: () => String }) description: string,
     @Args('tag', { type: () => String }) tag: string,
     @Args('coverage', { type: () => String }) coverage: string,
+    @Args('defaultBranch', { type: () => String }) defaultBranch: string,
   ): Promise<Project2> {
     return this.projectService.updateProject(
       user,
@@ -168,6 +170,7 @@ export class ProjectResolver {
       description,
       tag,
       coverage,
+      defaultBranch,
     );
   }
 }

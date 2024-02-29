@@ -8,5 +8,7 @@ query GetProjectByID($projectID: ID!) {
     lastReportTime
     coverage
     tag
+    branchOptions
+    defaultBranch
   }
 }

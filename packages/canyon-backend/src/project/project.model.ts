@@ -23,8 +23,14 @@ export class Project {
   @Field(() => String)
   bu: string;
 
+  @Field(() => [String])
+  branchOptions: string[];
+
   @Field(() => Number)
   maxCoverage: number;
+
+  @Field(() => String)
+  defaultBranch: string;
 
   @Field(() => Number)
   reportTimes: number;

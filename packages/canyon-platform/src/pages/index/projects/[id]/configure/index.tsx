@@ -1,7 +1,7 @@
 import Icon, { AppstoreOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import { Editor } from '@monaco-editor/react';
-import { Button, Card, message, theme, Typography } from 'antd';
+import { Button, Card, message, Select, theme, Typography } from 'antd';
 import { useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
@@ -34,7 +34,10 @@ const ProjectConfigure = () => {
   };
   const [coverage, setCoverage] = useState<string>('');
 
+  const [defaultBranch, setDefaultBranch] = useState<string>('');
+
   // const { t } = useTranslation();
+  // const branchOptions = [];
   return (
     <div className={'px-6'}>
       <Title level={2} className={'flex items-center gap-3 pb-8'}>
@@ -66,6 +69,32 @@ const ProjectConfigure = () => {
         <Card.Grid hoverable={false} style={gridStyle}>
           <div className={'mb-5'}>
             <div className={'mb-2'}>
+              <div>默认分支</div>
+              <Text className={'text-xs'} type={'secondary'}>
+                默认分支作用于概览页面中覆盖率趋势图和表格。
+              </Text>
+            </div>
+            {GetProjectByIdDocumentData && (
+              <Select
+                defaultValue={GetProjectByIdDocumentData?.getProjectByID.defaultBranch}
+                placeholder={'请选择默认分支'}
+                className={'w-[240px]'}
+                showSearch={true}
+                options={(GetProjectByIdDocumentData?.getProjectByID.branchOptions || []).map(
+                  (item) => ({
+                    label: item,
+                    value: item,
+                  }),
+                )}
+                onSelect={(value) => {
+                  setDefaultBranch(value as string);
+                }}
+              />
+            )}
+          </div>
+
+          <div className={'mb-5'}>
+            <div className={'mb-2'}>
               <div>检测范围</div>
               <Text className={'text-xs'} type={'secondary'}>
                 提示: 使用
@@ -79,11 +108,12 @@ const ProjectConfigure = () => {
                   rel='noreferrer'
                 >
                   查看示例
-                </a>。
+                </a>
+                。
                 配置include、exclude和extensions字段，include字段表示需要检测的文件，exclude字段表示不需要检测的文件，extensions字段表示需要检测的文件后缀。
               </Text>
             </div>
-            <div style={{border: '1px solid ' + token.colorBorder}}>
+            <div style={{ border: '1px solid ' + token.colorBorder }}>
               {GetProjectByIdDocumentData?.getProjectByID && (
                 <Editor
                   theme={
@@ -115,13 +145,18 @@ const ProjectConfigure = () => {
             type={'primary'}
             onClick={() => {
               try {
-                JSON.parse(coverage);
+                // coverage用户输入了才检测
+                if (coverage !== '') {
+                  JSON.parse(coverage);
+                }
+
                 updateProject({
                   variables: {
                     projectID: prm.id,
                     coverage: coverage,
                     tag: '__null__',
                     description: '__null__',
+                    defaultBranch: defaultBranch,
                   },
                 }).then(() => {
                   showMessage();
@@ -130,7 +165,6 @@ const ProjectConfigure = () => {
                 message.error('Invalid JSON');
               }
             }}
-            disabled={Boolean(!coverage)}
           >
             保存更改
           </Button>

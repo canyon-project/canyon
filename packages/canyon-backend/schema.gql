@@ -27,7 +27,9 @@ type Project {
   tag: String!
   coverage: String!
   bu: String!
+  branchOptions: [String!]!
   maxCoverage: Float!
+  defaultBranch: String!
   reportTimes: Float!
   lastReportTime: DateTime!
   createdAt: DateTime!
@@ -196,7 +198,7 @@ type Query {
   getProjectsBuOptions: [BuOption!]!
 
   """获取Project图表"""
-  getProjectChartData(projectID: String!): [ProjectChartDataModel!]!
+  getProjectChartData(projectID: String!, branch: String!): [ProjectChartDataModel!]!
 
   """获取Project宫格"""
   getProjectCompartmentData(projectID: String!): [ProjectCompartmentDataModel!]!
@@ -220,5 +222,5 @@ type Mutation {
   deleteProject(projectID: String!): Project2!
 
   """更新项目"""
-  updateProject(projectID: String!, description: String!, tag: String!, coverage: String!): Project2!
+  updateProject(projectID: String!, description: String!, tag: String!, coverage: String!, defaultBranch: String!): Project2!
 }

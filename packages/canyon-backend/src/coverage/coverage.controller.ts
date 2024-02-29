@@ -20,6 +20,7 @@ import { RetrieveCoverageTreeSummaryService } from './services/retrieve-coverage
 import { getSpecificCoverageData } from '../adapter/coverage-data.adapter';
 import { join } from 'path';
 import { download } from '../utils/download';
+import { PrismaService } from '../prisma/prisma.service';
 // import * as platform from 'platform'
 // export function getPlatformInfo(str) {
 //   return platform.parse(str)
@@ -32,6 +33,7 @@ export class CoverageController {
     private readonly coverageClientService: CoverageClientService,
     // private readonly retrieveCoverageSummaryService: RetrieveCoverageSummaryService,
     private readonly retrieveCoverageTreeSummaryService: RetrieveCoverageTreeSummaryService,
+    private prisma: PrismaService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -60,7 +62,7 @@ export class CoverageController {
 
   // 获取概览，重要！！！！！
   @Get('coverage/treesummary')
-  coverageTreeSummary(
+  async coverageTreeSummary(
     @Query()
     params: {
       reportId?: string;
@@ -70,8 +72,26 @@ export class CoverageController {
       commitSha?: string;
       commit_sha?: string;
       sha?: string;
+      projectID?: string;
+      branch?: string;
     },
   ) {
+    // 同时有projectID和branch时，联查出最新的sha
+    if (params.projectID && params.branch) {
+      const coverage = await this.prisma.coverage.findFirst({
+        orderBy: {
+          createdAt: 'desc',
+        },
+        where: {
+          projectID: params.projectID,
+          branch: params.branch,
+        },
+      });
+      if (coverage) {
+        params.sha = coverage.sha;
+      }
+    }
+    console.log(params.sha);
     return this.retrieveCoverageTreeSummaryService.invoke({
       reportID: params.reportId || params.report_id || params.reportID || null,
       sha:

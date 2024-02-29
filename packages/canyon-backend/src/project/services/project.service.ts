@@ -68,6 +68,7 @@ export class ProjectService {
         bu: bu || '默认',
         coverage: '',
         tag: '',
+        defaultBranch: '-',
       },
     });
   }
@@ -80,7 +81,14 @@ export class ProjectService {
     });
   }
 
-  async updateProject(user, projectID, description, tag, coverage) {
+  async updateProject(
+    user,
+    projectID,
+    description,
+    tag,
+    coverage,
+    defaultBranch,
+  ) {
     function removeEmptyValues(obj) {
       for (const key in obj) {
         if (
@@ -101,11 +109,20 @@ export class ProjectService {
         description: description,
         tag: tag,
         coverage: coverage,
+        defaultBranch: defaultBranch,
       }),
     });
   }
 
   async getProjectByID(projectID): Promise<Project> {
+    const branchOptions = await this.prisma.coverage
+      .groupBy({
+        by: ['branch'],
+        where: {
+          projectID: projectID,
+        },
+      })
+      .then((res) => res.map((item) => item.branch));
     return this.prisma.project
       .findFirst({
         where: {
@@ -122,6 +139,7 @@ export class ProjectService {
           createdAt,
           coverage,
           tag,
+          defaultBranch,
         }) => {
           return {
             id,
@@ -135,6 +153,8 @@ export class ProjectService {
             maxCoverage: 0,
             tag,
             coverage,
+            defaultBranch,
+            branchOptions,
           };
         },
       );
