@@ -90,6 +90,8 @@ export class CoverageController {
       });
       if (coverage) {
         params.sha = coverage.sha;
+      } else {
+        params.sha = 'sha_not_found';
       }
     }
     return this.retrieveCoverageTreeSummaryService.invoke({
