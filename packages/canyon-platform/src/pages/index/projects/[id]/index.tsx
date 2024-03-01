@@ -272,7 +272,7 @@ const ProjectOverviewPage = () => {
         </div>
 
         <div>
-          <Text type={'secondary'}>Project ID: 115249</Text>
+          <Text type={'secondary'}>Project ID: {projectByIdData?.getProjectByID.id}</Text>
           <Text className={'ml-6'} type={'secondary'}>
             默认分支: {projectByIdData?.getProjectByID.defaultBranch}
           </Text>
