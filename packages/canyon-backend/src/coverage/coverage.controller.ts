@@ -85,13 +85,13 @@ export class CoverageController {
         where: {
           projectID: params.projectID,
           branch: params.branch,
+          covType: 'all',
         },
       });
       if (coverage) {
         params.sha = coverage.sha;
       }
     }
-    console.log(params.sha);
     return this.retrieveCoverageTreeSummaryService.invoke({
       reportID: params.reportId || params.report_id || params.reportID || null,
       sha:
