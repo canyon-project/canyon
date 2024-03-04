@@ -85,7 +85,7 @@ export class CoverageClientService {
       reportID,
       compareTarget,
       branch,
-      // device,
+      tags,
     } = coverageReport;
     const dataFormatAndCheckTimeEnd = new Date().getTime();
     // ******************************************************
@@ -97,7 +97,7 @@ export class CoverageClientService {
       compareTarget,
       sha,
       branch: branch || '-', //branch可能为空
-      // device: device || '-', //device可能为空
+      tags: tags || [], //tags可能为空
       // ip: ip || '-',
       reporter: Number(currentUserDb.id),
       projectID,
