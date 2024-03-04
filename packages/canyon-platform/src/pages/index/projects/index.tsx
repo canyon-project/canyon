@@ -1,6 +1,17 @@
 import { FolderOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Button, Divider, Popconfirm, Select, Table, Tag, theme, Tooltip, Typography } from 'antd';
+import {
+  Button,
+  Divider,
+  Popconfirm,
+  Select,
+  Space,
+  Table,
+  Tag,
+  theme,
+  Tooltip,
+  Typography,
+} from 'antd';
 import Search from 'antd/es/input/Search';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
@@ -55,7 +66,7 @@ const ProjectPage = () => {
       render: (text) => {
         const selectedTags = text ? text.split(',') : [];
         return (
-          <div>
+          <Space>
             {selectedTags.map((tag: string) => (
               <Tag
                 key={tag}
@@ -64,7 +75,7 @@ const ProjectPage = () => {
                 {tag}
               </Tag>
             ))}
-          </div>
+          </Space>
         );
       },
     },
