@@ -340,7 +340,7 @@ const ProjectOverviewPage = () => {
                         color: ['#287DFA', '#FFB400'],
                       }
                 }
-                style={{ height: '240px' }}
+                style={{ height: '250px' }}
                 option={option}
               />
             </div>
