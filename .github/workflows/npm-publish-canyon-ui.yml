@@ -1,4 +1,4 @@
-name: Npm Publish
+name: Npm Publish canyon-ui
 
 on:
   push:

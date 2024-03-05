@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Build canyon-cli
 
 on:
   push:
