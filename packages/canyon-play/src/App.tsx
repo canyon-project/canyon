@@ -1,9 +1,9 @@
 import Icon, {FolderOutlined, LineChartOutlined, MoneyCollectOutlined, SettingOutlined} from '@ant-design/icons';
-import { CanyonCardPrimary, CanyonLayoutBase } from '@canyon/ui';
+import { CanyonCardPrimary, CanyonLayoutBase } from 'canyon-ui';
 console.log(CanyonLayoutBase, 'CanyonLayoutBase');
 import { SolarUserIdLinear } from './assets/icons/SolarUserIdLinear.tsx';
 import UsageIcon from './assets/icons/usage.svg?react';
-// import {CanyonCardPrimary} from "@canyon/ui/src";
+// import {CanyonCardPrimary} from "canyon-ui/src";
 // import ''
 const App = () => {
   return (

@@ -11,7 +11,7 @@
     "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
-    "@canyon/ui": "workspace:^",
+    "canyon-ui": "workspace:^",
     "@ant-design/icons": "^5.3.0",
     "@apollo/client": "^3.9.5",
     "@graphql-typed-document-node/core": "^3.2.0",

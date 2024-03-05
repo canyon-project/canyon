@@ -1,5 +1,5 @@
 {
-  "name": "@canyon/ui",
+  "name": "canyon-ui",
   "version": "0.0.0",
   "type": "module",
   "main": "dist/canyon-ui.cjs",
