@@ -2,17 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as dayjs from 'dayjs';
 // import { calculateCoverageOverviewByConditionFilter } from '../../utils/summary';
-import { percent } from '../../utils/utils';
+import { percent, removeNullKeys } from '../../utils/utils';
 
 @Injectable()
 export class GetProjectCompartmentDataService {
   constructor(private readonly prisma: PrismaService) {}
   async invoke(projectID) {
-    const coverages = await this.prisma.coverage.findMany({
+    const project = await this.prisma.project.findFirst({
       where: {
+        id: projectID,
+      },
+    });
+    const coverages = await this.prisma.coverage.findMany({
+      where: removeNullKeys({
         projectID: projectID,
         covType: 'all',
-      },
+        branch: ['', '-'].includes(project.defaultBranch)
+          ? null
+          : project.defaultBranch,
+      }),
       orderBy: {
         createdAt: 'desc',
       },

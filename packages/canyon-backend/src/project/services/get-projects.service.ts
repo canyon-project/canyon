@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { Prisma } from '@prisma/client';
+import { removeNullKeys } from '../../utils/utils';
 @Injectable()
 export class GetProjectsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -99,12 +100,18 @@ export class GetProjectsService {
 
     const rows = await Promise.all(
       projectIDs.map(async (id) => {
+        const { defaultBranch } = await this.prisma.project.findFirst({
+          where: {
+            id: id,
+          },
+        });
         // 1.获取所有sha
         const shas = await this.prisma.coverage.findMany({
-          where: {
+          where: removeNullKeys({
             projectID: id,
             covType: 'all',
-          },
+            branch: ['', '-'].includes(defaultBranch) ? null : defaultBranch,
+          }),
           select: {
             sha: true,
           },
