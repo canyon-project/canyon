@@ -25,6 +25,6 @@ jobs:
           node-version: 18
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
-      - run: pnpm --filter=@canyon/ui publish -f --no-git-checks --access=public --filter
+      - run: pnpm --filter=canyon-ui publish -f --no-git-checks --access=public --filter
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
