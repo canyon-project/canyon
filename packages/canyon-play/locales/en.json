@@ -1,0 +1,72 @@
+{
+  "welcome": {
+    "hello": "Hello,",
+    "copywriter": "Welcome to Canyon.",
+    "desc": "You will be redirected to the source code control management system for authentication.",
+    "continue": "Continue"
+  },
+  "menus": {
+    "projects": "Projects",
+    "settings": "Settings",
+    "docs": "Docs"
+  },
+  "projects": {
+    "create": "Create a Project",
+    "desc": "View all projects related to your account",
+    "name": "Name",
+    "report_times": "Times",
+    "report_time": "Report Time",
+    "max_coverage": "Max Coverage",
+    "latest_report_time": "Last Reported",
+    "latest_report_coverage": "Latest Report Coverage",
+    "no_data": "{{msg}} projects have no data",
+    "total_times": "Total Times",
+    "trends_in_coverage": "Trends in coverage",
+    "records": "Records",
+    "overview": "Overview",
+    "branch": "Branch",
+    "compare_target": "Compare Target",
+    "message": "Commit Message",
+    "functions": "Functions",
+    "branches": "Branches",
+    "statements": "Statements",
+    "lines": "Lines",
+    "newlines": "New Lines",
+    "reported_details": "Logs",
+    "reporter": "Reporter",
+    "search_keywords": "Search by project id or name",
+    "overview_search_keywords": "Enter the \"Commit Sha\" or \"Branch\" or \"Compare Target\" keyword for search",
+    "coverage_details": "Coverage Details",
+    "report_id": "Report ID",
+    "coverage_id": "Coverage ID",
+    "view_detail": "View Detail",
+    "max_coverage_tooltip": "Maximum coverage for the last 30 days",
+    "statements_tooltip": "Statement coverage is also overall coverage",
+    "newlines_tooltip": "Change code line coverage",
+    "statements_tour_title": "Statement Coverage",
+    "newlines_tour_title": "New Line Coverage",
+    "statements_tour_description": "Click on the percentage number in this column to jump to the full coverage details page.",
+    "newlines_tour_description": "Click on the percentage number in this column to jump to the changed line coverage details page."
+  },
+  "settings": {
+    "desc": "Set up your account information",
+    "preference": "Preferences",
+    "user_auth_tokens": "User Authorization Tokens",
+    "copied_to_clipboard": "Copied to clipboard"
+  },
+  "common": {
+    "option": "Option",
+    "detail": "Detail",
+    "configure": "Configure",
+    "delete": "Delete",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "created_at": "Created At",
+    "total_items": "Total {{total}} Items"
+  },
+  "app": {
+    "logout": "Logout"
+  }
+}

@@ -19,7 +19,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       fileName: 'canyon-report',
-      name: 'CanyonReport'
+      name: 'CanyonReport',
     },
   },
 });
