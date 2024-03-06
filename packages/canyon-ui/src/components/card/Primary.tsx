@@ -7,7 +7,7 @@ const CanyonCardPrimary = ({ theme, language,children }) => {
   const { token } = useToken();
   return (
     <div
-      className={'bg-white rounded-md'}
+      className={'bg-white rounded-md overflow-hidden'}
       style={{
         border: '1px solid #dfe3e6',
         boxShadow: `${token.boxShadowTertiary}`,

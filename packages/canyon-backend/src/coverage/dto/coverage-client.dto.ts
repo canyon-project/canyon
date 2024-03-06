@@ -22,11 +22,6 @@ export class CoverageClientDto {
   @IsOptional({ message: 'branch 可以为空' })
   branch: string;
 
-  @IsString()
-  @MinLength(1, { message: 'device长度最小为1' })
-  @IsOptional({ message: 'device 可以为空' })
-  device: string;
-
   // 允许为空，但是最小长度为1
   @IsString()
   @MinLength(1, { message: 'compareTarget长度最小为1' })

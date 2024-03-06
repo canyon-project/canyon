@@ -28,3 +28,6 @@ body{
 .ant-collapse-content-box{
   padding: 0 !important;
 }
+.ant-tabs-nav{
+  padding-left: 40px !important;
+}
