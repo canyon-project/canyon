@@ -24,19 +24,19 @@ type FieldType = {
   remember?: string;
 };
 
-const LoginBtn = () => {
+const LoginBtn = ({oauthUrl}) => {
   return (
     <div className={'flex flex-col gap-3 w-[250px] items-center justify-around py-10 pl-5'}>
-      <Button type='default' className={'w-full text-left'} disabled>
+      <Button type='default' className={'w-full text-left'} disabled={!Boolean(oauthUrl.google)}>
         <img src={google} alt='' className={'w-[14px] mr-2 mt-[-2px]'} />
         Sign in with Google
       </Button>
-      <Button type='default' className={'w-full text-left'} disabled>
+      <Button type='default' className={'w-full text-left'} disabled={!Boolean(oauthUrl.github)}>
         <img src={github} alt='' className={'w-[14px] mr-2 mt-[-2px]'} />
         Sign in with Github
       </Button>
 
-      <Button type='default' className={'w-full text-left'} href={'test'}>
+      <Button type='default' className={'w-full text-left'} href={oauthUrl.gitlab} disabled={!Boolean(oauthUrl.gitlab)}>
         <img src={gitlab} alt='' className={'w-[14px] mr-2 mt-[-2px]'} />
         Sign in with Gitlab
       </Button>
@@ -50,7 +50,7 @@ const LoginBtn = () => {
 const LoginForm = ({ onLoginSuccess }) => {
   const { run } = useRequest(
     ({ username, password }) =>
-      fetch(`http://localhost:8080/api/login`, {
+      fetch(`/api/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -72,7 +72,7 @@ const LoginForm = ({ onLoginSuccess }) => {
       onSuccess: (data) => {
         // console.log(data);
         message.success('登录成功');
-        // onLoginSuccess();
+        onLoginSuccess();
         localStorage.setItem('token', data.token);
       },
       onError: (error) => {
@@ -126,7 +126,7 @@ const LoginForm = ({ onLoginSuccess }) => {
   );
 };
 
-const CanyonPageLogin = ({ onLoginSuccess }) => {
+const CanyonPageLogin = ({ onLoginSuccess,oauthUrl }) => {
   return (
     <div className={'w-full relative'}>
       <div className={'m-auto w-[680px] pt-20'}>
@@ -151,7 +151,7 @@ const CanyonPageLogin = ({ onLoginSuccess }) => {
                       <div className={'flex px-10 py-5'}>
                         <LoginForm onLoginSuccess={onLoginSuccess}></LoginForm>
                         <Divider type={'vertical'} style={{ height: '200px' }} />
-                        <LoginBtn />
+                        <LoginBtn oauthUrl={oauthUrl} />
                       </div>
                     ),
                   },

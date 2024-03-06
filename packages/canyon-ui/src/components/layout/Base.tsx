@@ -36,6 +36,8 @@ interface CanyonLayoutBaseProps {
   menuItems: MenuProps['items'];
   renderMainContent?: ReactNode;
   onClickGlobalSearch?: () => void;
+  MeData:any
+  itemsDropdown:any
 }
 const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
   title = 'Canyon',
@@ -46,16 +48,18 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
   menuItems,
   renderMainContent,
   onClickGlobalSearch,
+                                                       MeData,
+                                                       itemsDropdown
 }) => {
   const { token } = useToken();
 
-  const meData = {
-    me: {
-      avatar: '',
-      nickname: '张涛',
-      email: 'tzhangm@trip.com',
-    },
-  };
+  // const meData = {
+  //   me: {
+  //     avatar: '',
+  //     nickname: '张涛',
+  //     email: 'tzhangm@trip.com',
+  //   },
+  // };
 
   return (
     <div>
@@ -165,7 +169,7 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
 
               <Dropdown
                 menu={{
-                  items: [],
+                  items: itemsDropdown,
                   onClick: () => {},
                 }}
               >
@@ -175,10 +179,10 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                   }
                   style={{ borderTop: `1px solid ${token.colorBorder}` }}
                 >
-                  <Avatar src={meData?.me.avatar}></Avatar>
+                  <Avatar src={MeData?.me.avatar}></Avatar>
                   <div className={'flex flex-col'}>
-                    <Text>{meData?.me.nickname}</Text>
-                    <Text type={'secondary'}>{meData?.me.email || ''}</Text>
+                    <Text>{MeData?.me.nickname}</Text>
+                    <Text type={'secondary'}>{MeData?.me.email || ''}</Text>
                   </div>
                   <MoreOutlined className={'dark:text-[#fff]'} />
                 </div>

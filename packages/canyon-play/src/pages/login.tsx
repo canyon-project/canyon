@@ -1,14 +1,22 @@
 import { CanyonPageLogin } from 'canyon-ui';
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 const Login2 = () => {
   const nav = useNavigate();
   return (
     <div>
-      <CanyonPageLogin onLoginSuccess={()=>{
-        // 跳转到首页
-        nav('/')
-      }} />
+      <CanyonPageLogin
+        oauthUrl={{
+          gitlab: 'https://gitlab.com',
+        }}
+        onLoginSuccess={() => {
+          // 跳转到首页
+          // nav('/');
+          setTimeout(()=>{
+            window.location.href = '/';
+          },100)
+        }}
+      />
     </div>
   );
 };

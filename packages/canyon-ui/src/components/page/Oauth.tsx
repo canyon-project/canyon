@@ -36,7 +36,7 @@ const CanyonPageOauth = ({ URLSearchParams, onSHibai }) => {
     fetcher('/api/oauth/token');
   }, []);
 
-  return <Spin spinning={true}>login in...</Spin>;
+  return <Spin spinning={true}>logging in...</Spin>;
 };
 
 export default CanyonPageOauth;
