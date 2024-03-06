@@ -12,11 +12,13 @@ export class GetProjectsService {
         {
           pathWithNamespace: {
             contains: keyword,
+            mode: 'insensitive', // Ignore case sensitivity
           },
         },
         {
           id: {
             contains: keyword,
+            mode: 'insensitive', // Ignore case sensitivity
           },
         },
       ],

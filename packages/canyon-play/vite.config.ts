@@ -5,14 +5,13 @@ import Pages from 'vite-plugin-pages';
 // import svgr from 'vite-plugin-svgr'
 // import * as path from 'path';
 // https://vitejs.dev/config/
-import svgr from "vite-plugin-svgr";
+// import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
   plugins: [
-    svgr(),
-    Pages({
-      exclude: ['**/helper/**'],
-    }),
+    // svgr(),
+    react(),
+    Pages(),
   ],
   resolve: {
     alias: {

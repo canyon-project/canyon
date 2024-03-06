@@ -20,3 +20,11 @@ a:hover{
 body{
   /*background-color: #4d9221;*/
 }
+
+.ant-collapse-arrow{
+  /*padding-top: 50px !important;*/
+}
+
+.ant-collapse-content-box{
+  padding: 0 !important;
+}

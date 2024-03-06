@@ -1,52 +1,22 @@
-import Icon, {FolderOutlined, LineChartOutlined, MoneyCollectOutlined, SettingOutlined} from '@ant-design/icons';
-import { CanyonCardPrimary, CanyonLayoutBase } from 'canyon-ui';
-console.log(CanyonLayoutBase, 'CanyonLayoutBase');
-import { SolarUserIdLinear } from './assets/icons/SolarUserIdLinear.tsx';
-import UsageIcon from './assets/icons/usage.svg?react';
-// import {CanyonCardPrimary} from "canyon-ui/src";
-// import ''
-const App = () => {
-  return (
-    <>
-      {/*<img src={UsageIcon} alt=""/>*/}
+import { ConfigProvider, theme } from 'antd';
+import { useRoutes } from 'react-router-dom';
 
-      <CanyonLayoutBase
-        title={'Arex'}
-        logo={
-          <div>
-            <img src='/logo.jpg' alt='' className={'w-[30px]'} />
-          </div>
-        }
-        mainTitleRightNode={''}
-        menuSelectedKey={'usage'}
-        onSelectMenu={(selectInfo) => {
-          console.log(selectInfo);
-        }}
-        menuItems={[
-          {
-            label: 'projects',
-            key: 'projects',
-            icon: <FolderOutlined />,
-          },
-          {
-            label: 'settings',
-            key: 'settings',
-            icon: <SettingOutlined />,
-          },
-          {
-            label: 'usage',
-            key: 'usage',
-            icon: <LineChartOutlined />,
-          },
-          {
-            label: 'billing',
-            key: 'billing',
-            icon: <MoneyCollectOutlined />,
-          },
-        ]}
-        renderMainContent={<CanyonCardPrimary />}
-      />
-    </>
+import routes from '~react-pages';
+// console.log(routes,'routes')
+const { darkAlgorithm } = theme;
+const App = () => {
+  const isDark = localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : false;
+  return (
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#287DFA',
+        },
+        algorithm: isDark ? [darkAlgorithm] : [],
+      }}
+    >
+      {useRoutes(routes)}
+    </ConfigProvider>
   );
 };
 
