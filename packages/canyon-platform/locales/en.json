@@ -8,6 +8,7 @@
   "menus": {
     "projects": "Projects",
     "settings": "Settings",
+    "usage": "Usage",
     "docs": "Docs"
   },
   "projects": {

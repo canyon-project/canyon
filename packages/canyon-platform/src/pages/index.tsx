@@ -188,6 +188,11 @@ function Index() {
             icon: <FolderOutlined />,
           },
           {
+            label: t('menus.usage'),
+            key: 'usage',
+            icon: <LineChartOutlined />,
+          },
+          {
             label: t('menus.settings'),
             key: 'settings',
             icon: <SettingOutlined />,
