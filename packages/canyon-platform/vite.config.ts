@@ -31,7 +31,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      // '@canyon/report': path.resolve('../canyon-report/src'),
+      'canyon-ui': path.resolve('../canyon-ui/src'),
       // '@': path.resolve(__dirname, './src'),
     },
   },
@@ -45,7 +45,7 @@ export default defineConfig({
       '^/graphql|^/api': {
         target: 'http://127.0.0.1:8080',
         changeOrigin: true,
-      }
+      },
     },
   },
 });

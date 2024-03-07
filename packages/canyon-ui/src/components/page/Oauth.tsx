@@ -2,7 +2,7 @@ import { message, Spin } from 'antd';
 import { useEffect, useState } from 'react';
 // import { useNavigate, useSearchParams } from 'react-router-dom';
 // import useSWR from 'swr';
-const CanyonPageOauth = ({ URLSearchParams, onSHibai }) => {
+const CanyonPageOauth = ({ URLSearchParams, onOauthFail }) => {
   // const nav = useNavigate();
   // const [URLSearchParams] = useSearchParams();
   const fetcher = (url: string) =>
@@ -13,7 +13,7 @@ const CanyonPageOauth = ({ URLSearchParams, onSHibai }) => {
       },
       body: JSON.stringify({
         code: URLSearchParams.get('code'),
-        redirectUri: location.origin + '/login',
+        redirectUri: location.origin + '/oauth',
       }),
     })
       .then((res) => res.json())
@@ -22,7 +22,7 @@ const CanyonPageOauth = ({ URLSearchParams, onSHibai }) => {
           message.error(res.message);
           localStorage.clear();
           // nav('/welcome');
-          onSHibai();
+          onOauthFail();
         } else {
           localStorage.setItem('token', res.token);
           window.location.href = localStorage.getItem('callback') || '/';

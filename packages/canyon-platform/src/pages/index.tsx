@@ -56,7 +56,7 @@ function Index() {
     if (localStorage.getItem('token') === null) {
       localStorage.clear();
       localStorage.setItem('callback', window.location.href);
-      nav('/welcome');
+      nav('/login');
     }
   }, []);
 
@@ -109,7 +109,7 @@ function Index() {
   const dropdownClick = ({ key }: any) => {
     if (key === 'logout') {
       localStorage.clear();
-      window.location.href = '/welcome';
+      window.location.href = '/login';
     }
   };
   const { data: baseData } = useRequest(() => axios.get('/api/base').then(({ data }) => data));

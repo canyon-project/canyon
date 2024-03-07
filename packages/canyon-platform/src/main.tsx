@@ -19,11 +19,11 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
       message.error(`[GraphQL error]: msg: ${msg}, Path: ${path}`);
       if (
         msg === 'Unauthorized' &&
-        window.location.pathname !== '/welcome' &&
+        window.location.pathname !== '/oauth' &&
         window.location.pathname !== '/login'
       ) {
         localStorage.clear();
-        window.location.href = '/welcome';
+        window.location.href = '/login';
       }
       // 在这里你可以执行自定义的操作，比如显示错误提示
     });

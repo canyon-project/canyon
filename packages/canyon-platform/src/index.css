@@ -16,3 +16,12 @@ a:hover{
   color: #287DFA;
   opacity: .8;
 }
+
+/*账单那边*/
+.ant-collapse-content-box{
+  padding: 0 !important;
+}
+/*登陆页面*/
+.ant-tabs-nav{
+  padding-left: 40px !important;
+}
