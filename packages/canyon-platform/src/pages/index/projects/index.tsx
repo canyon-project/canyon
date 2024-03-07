@@ -14,6 +14,7 @@ import {
 } from 'antd';
 import Search from 'antd/es/input/Search';
 import { ColumnsType } from 'antd/es/table';
+import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,6 +27,7 @@ import {
   GetProjectsDocument,
   Project,
 } from '../../../helpers/backend/gen/graphql.ts';
+// import {CanyonTextTitle} from "canyon-ui/src";
 
 const { Title, Text } = Typography;
 
@@ -196,24 +198,37 @@ const ProjectPage = () => {
   });
 
   return (
-    <div>
+    <>
       <div className={'flex justify-between items-center px-6 pb-2 pt-0'}>
-        <div>
-          <Title level={2} className={'flex items-center gap-3'}>
-            <FolderOutlined className={'text-[#687076] text-[32px]'} />
-            <span>{t('menus.projects')}</span>
-          </Title>
-        </div>
-        <div>
+        {/*<div>*/}
+        {/*  <Title level={2} className={'flex items-center gap-3'}>*/}
+        {/*    <FolderOutlined className={'text-[#687076] text-[32px]'} />*/}
+        {/*    <span>{t('menus.projects')}</span>*/}
+        {/*  </Title>*/}
+        {/*</div>*/}
+
+        {/*<div>*/}
+        {/*  <Link to={`/projects/new`}>*/}
+        {/*    <Button type={'primary'} icon={<PlusOutlined />}>*/}
+        {/*      {t('projects.create')}*/}
+        {/*    </Button>*/}
+        {/*  </Link>*/}
+        {/*</div>*/}
+      </div>
+
+      <CanyonTextTitle
+        icon={<FolderOutlined />}
+        title={t('menus.projects')}
+        right={
           <Link to={`/projects/new`}>
             <Button type={'primary'} icon={<PlusOutlined />}>
               {t('projects.create')}
             </Button>
           </Link>
-        </div>
-      </div>
+        }
+      />
 
-      <div className={'p-6'}>
+      <div>
         <div className={'flex justify-between'}>
           <div>
             <Select
@@ -242,13 +257,9 @@ const ProjectPage = () => {
           {/*<ProjectNoData />*/}
         </div>
 
-        <div>
+        <CanyonCardPrimary>
           <Table
             showSorterTooltip={false}
-            style={{
-              border: `1px solid ${token.colorBorder}`,
-              borderRadius: `${token.borderRadius}px`,
-            }}
             loading={loading}
             rowKey={'id'}
             pagination={{
@@ -270,9 +281,9 @@ const ProjectPage = () => {
               setPageSize(val.pageSize || 10);
             }}
           />
-        </div>
+        </CanyonCardPrimary>
       </div>
-    </div>
+    </>
   );
 };
 

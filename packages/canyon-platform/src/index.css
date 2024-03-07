@@ -25,3 +25,11 @@ a:hover{
 .ant-tabs-nav{
   padding-left: 40px !important;
 }
+
+/*.ant-table-wrapper .ant-table-tbody >tr >td{*/
+/*  border-bottom: none !important;*/
+/*}*/
+
+.ant-table-wrapper .ant-table-pagination.ant-pagination{
+  margin-right: 16px;
+}

@@ -1,10 +1,7 @@
 import {
   ArrowRightOutlined,
-  DashboardOutlined,
   FolderOutlined,
-  LineChartOutlined,
   LogoutOutlined,
-  MoneyCollectOutlined,
   MoreOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
@@ -12,8 +9,7 @@ import { useQuery } from '@apollo/client';
 import { useRequest } from 'ahooks';
 import { Avatar, Breadcrumb, Dropdown, Menu, MenuProps, theme, Tooltip, Typography } from 'antd';
 import axios from 'axios';
-import { CanyonLayoutBase, CanyonModalGlobalSearch } from 'canyon-ui';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
@@ -117,87 +113,101 @@ function Index() {
     }
   };
   const { data: baseData } = useRequest(() => axios.get('/api/base').then(({ data }) => data));
-  const [menuSelectedKey, setMenuSelectedKey] = useState<string>('projects');
-  window.canyonModalGlobalSearchRef = useRef(null);
   return (
     <>
-      {/*<img src={UsageIcon} alt=""/>*/}
-      {/*<Button onClick={()=>{*/}
-      {/*  window.canyonModalGlobalSearchRef.current.report();*/}
-      {/*}}>开启</Button>*/}
-      <CanyonLayoutBase
-        itemsDropdown={[
-          {
-            label: (
-              <div className={'text-red-500'}>
-                <LogoutOutlined className={'mr-2'} />
-                Logout
-              </div>
-            ),
-            // icon: <ArrowRightOutlined />,
-            onClick: () => {
-              localStorage.clear();
-              // nav('/login');
-              window.location.href = '/login';
-            },
-          },
-        ]}
-        MeData={meData}
-        onClickGlobalSearch={() => {
-          window.canyonModalGlobalSearchRef.current.report();
-        }}
-        title={'Canyon'}
-        logo={
-          <div>
-            <img src='/logo.svg' alt='' className={'w-[30px]'} />
-          </div>
-        }
-        mainTitleRightNode={
-          <div>
-            <Tooltip
-              title={
-                <div>
-                  <span>{t('menus.docs')}</span>
-                  <ArrowRightOutlined />
-                </div>
-              }
+      <ScrollBasedLayout
+        sideBar={
+          <div
+            className={'w-[260px] h-[100vh] overflow-hidden flex flex-col'}
+            style={{ borderRight: `1px solid ${token.colorBorder}` }}
+          >
+            <div
+              className={'px-3 py-[16px] mb-[8px]'}
+              style={{ borderBottom: `1px solid ${token.colorBorder}` }}
             >
-              <a
-                href={baseData?.SYSTEM_QUESTION_LINK}
-                target={'_blank'}
-                rel='noreferrer'
-                className={'ml-2'}
+              <div className={'text-xl font-bold flex items-center justify-between'}>
+                <Title
+                  level={4}
+                  className={'cursor-pointer'}
+                  style={{ marginBottom: 0 }}
+                  onClick={() => {
+                    nav(`/`);
+                  }}
+                >
+                  <img
+                    className={'w-[30px] mr-[8px]'}
+                    src={localStorage.getItem('theme') === 'dark' ? lightLogoSvg : logoSvg}
+                    alt=''
+                  />
+                  Canyon
+                </Title>
+
+                <div>
+                  <Tooltip
+                    title={
+                      <div>
+                        <span>{t('menus.docs')}</span>
+                        <ArrowRightOutlined />
+                      </div>
+                    }
+                  >
+                    <a
+                      href={baseData?.SYSTEM_QUESTION_LINK}
+                      target={'_blank'}
+                      rel='noreferrer'
+                      className={'ml-2'}
+                    >
+                      {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                      <img src={book} />
+                    </a>
+                  </Tooltip>
+                  {/*marker position*/}
+                </div>
+              </div>
+            </div>
+            <Menu
+              onSelect={(selectInfo) => {
+                if (selectInfo.key === 'projects') {
+                  nav('/projects');
+                } else {
+                  nav(selectInfo.key);
+                }
+              }}
+              selectedKeys={[selectedKey]}
+              items={items}
+              className={'dark:bg-[#151718]'}
+              style={{ flex: '1' }}
+            />
+
+            <Dropdown menu={{ items: dropdownItems, onClick: dropdownClick }}>
+              <div
+                className={
+                  'h-[77px] py-[16px] px-[16px] flex items-center justify-between cursor-pointer'
+                }
+                style={{ borderTop: `1px solid ${token.colorBorder}` }}
               >
-                {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                <img src={book} />
-              </a>
-            </Tooltip>
-            {/*marker position*/}
+                <Avatar src={meData?.me.avatar}></Avatar>
+                <div className={'flex flex-col'}>
+                  <Text>{meData?.me.nickname}</Text>
+                  <Text type={'secondary'}>{meData?.me.email || ''}</Text>
+                </div>
+                <MoreOutlined className={'dark:text-[#fff]'} />
+              </div>
+            </Dropdown>
           </div>
         }
-        menuSelectedKey={menuSelectedKey}
-        onSelectMenu={(selectInfo) => {
-          console.log(selectInfo);
-          setMenuSelectedKey(selectInfo.key);
-          nav(`/${selectInfo.key}`);
-        }}
-        menuItems={[
-          {
-            label: t('menus.projects'),
-            key: 'projects',
-            icon: <FolderOutlined />,
-          },
-          {
-            label: t('menus.settings'),
-            key: 'settings',
-            icon: <SettingOutlined />,
-          },
-        ]}
-        renderMainContent={<Outlet />}
-        search={false}
-        account={false}
+        mainContent={
+          <div className={'flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] min-h-[100vh]'}>
+            <div className={'m-auto max-w-[1250px]'}>
+              <div>
+                <Breadcrumb className={'pt-3 pb-3 pl-6'} items={genBreadcrumbItems(loc.pathname)} />
+              </div>
+              <Outlet />
+            </div>
+          </div>
+        }
+        footer={<AppFooter />}
       />
-      <CanyonModalGlobalSearch ref={canyonModalGlobalSearchRef} />
     </>
   );
 }
