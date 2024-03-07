@@ -1,4 +1,5 @@
 import { useRequest } from 'ahooks';
+import { Alert } from 'antd';
 import axios from 'axios';
 import { CanyonPageLogin } from 'canyon-ui';
 import { useTranslation } from 'react-i18next';
@@ -18,6 +19,15 @@ const Login2 = () => {
 
   return (
     <div>
+            <Alert
+        showIcon={false}
+        message={
+          <div className={'text-center'}>
+            携程用户请直接点击右上角的“Sign in with Gitlab”登陆！！！
+          </div>
+        }
+        banner
+      />
       <CanyonPageLogin
         logo={<img src={logo} className={'w-[36px]'} alt='' />}
         oauthUrl={{
