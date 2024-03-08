@@ -14,28 +14,6 @@ const CanyonCardPrimary = ({ theme, language, children }) => {
       }}
     >
       {children}
-      {/*<Title level={3} className={'p-5'} style={{ marginBottom: '0' }}>*/}
-      {/*  <Space>*/}
-      {/*    <StockOutlined />*/}
-      {/*    EAS Update*/}
-      {/*  </Space>*/}
-      {/*</Title>*/}
-      {/*<div*/}
-      {/*  style={{*/}
-      {/*    borderBottom: '1px solid #dfe3e6',*/}
-      {/*  }}*/}
-      {/*/>*/}
-      {/*<Row gutter={16} className={'p-5'}>*/}
-      {/*  <Col span={12}>*/}
-      {/*    <Statistic title='Active Users' value={112893} />*/}
-      {/*  </Col>*/}
-      {/*  <Col span={12}>*/}
-      {/*    <Statistic title='Account Balance (CNY)' value={112893} precision={2} />*/}
-      {/*    <Button style={{ marginTop: 16 }} type='primary'>*/}
-      {/*      Recharge*/}
-      {/*    </Button>*/}
-      {/*  </Col>*/}
-      {/*</Row>*/}
     </div>
   );
 };

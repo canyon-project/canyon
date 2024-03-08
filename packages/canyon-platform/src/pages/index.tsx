@@ -1,5 +1,6 @@
-import {
+import Icon, {
   ArrowRightOutlined,
+  CreditCardOutlined,
   DashboardOutlined,
   FolderOutlined,
   LineChartOutlined,
@@ -20,6 +21,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import book from '../assets/book.svg';
 import lightLogoSvg from '../assets/light-logo.svg';
 import logoSvg from '../assets/logo.svg';
+import UilUsersAlt from '../assets/users-icon.tsx';
 import AppFooter from '../components/app/footer.tsx';
 import { MeDocument } from '../helpers/backend/gen/graphql.ts';
 import { genBreadcrumbItems } from '../layouts/genBreadcrumbItems.tsx';
@@ -192,17 +194,32 @@ function Index() {
             key: 'projects',
             icon: <FolderOutlined />,
           },
-          // {
-          //   label: t('menus.usage'),
-          //   key: 'usage',
-          //   icon: <LineChartOutlined />,
-          // },
           {
             label: t('menus.settings'),
             key: 'settings',
             icon: <SettingOutlined />,
           },
-        ]}
+        ].concat(
+          meData?.me.username === 'tzhangm'
+            ? [
+                {
+                  label: t('menus.usage'),
+                  key: 'usage',
+                  icon: <LineChartOutlined />,
+                },
+                {
+                  label: t('menus.billing'),
+                  key: 'billing',
+                  icon: <CreditCardOutlined />,
+                },
+                {
+                  label: t('menus.members'),
+                  key: 'members',
+                  icon: <Icon component={UilUsersAlt} style={{ fontSize: '15px' }} />,
+                },
+              ]
+            : [],
+        )}
         renderMainContent={<Outlet />}
         search={false}
         account={false}

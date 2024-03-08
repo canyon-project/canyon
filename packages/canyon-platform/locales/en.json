@@ -9,7 +9,10 @@
     "projects": "Projects",
     "settings": "Settings",
     "usage": "Usage",
-    "docs": "Docs"
+    "docs": "Docs",
+    "billing": "Billing",
+    "members": "Members",
+    "cart": "Cart"
   },
   "projects": {
     "create": "Create a Project",

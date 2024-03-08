@@ -9,7 +9,9 @@
     "projects": "项目",
     "settings": "设置",
     "usage": "用量",
-    "docs": "文档"
+    "billing": "账单",
+    "members": "成员",
+    "cart": "购物车"
   },
   "projects": {
     "create": "创建项目",

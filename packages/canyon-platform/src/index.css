@@ -33,3 +33,12 @@ a:hover{
 .ant-table-wrapper .ant-table-pagination.ant-pagination{
   margin-right: 16px;
 }
+
+.ant-collapse-header{
+  background-color: #f8f9fa !important;
+  padding: 24px 20px !important;
+}
+
+.ant-collapse-item{
+  margin-bottom: 0 !important;
+}
