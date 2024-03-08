@@ -256,7 +256,7 @@ const ProjectOverviewPage = () => {
   };
   const nav = useNavigate();
   return (
-    <div className={'px-6 pt-5 pb-5'}>
+    <div className={''}>
       <div className={'mb-10'}>
         <div className={'flex'}>
           <Title level={2}>

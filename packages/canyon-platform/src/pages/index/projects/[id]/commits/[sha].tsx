@@ -92,7 +92,10 @@ const Sha = () => {
   }, [data]);
 
   return (
-    <div className='px-6' style={{ minHeight: 'calc(100vh - 96px)' }}>
+    <div
+      className='p-2 rounded-md'
+      style={{ minHeight: 'calc(100vh - 96px)', backgroundColor: 'white' }}
+    >
       <div className={'bg-white'} ref={reportRef} />
     </div>
   );

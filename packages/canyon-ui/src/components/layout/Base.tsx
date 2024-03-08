@@ -40,6 +40,7 @@ interface CanyonLayoutBaseProps {
   itemsDropdown: any;
   search: any;
   account: any;
+  breadcrumb: any;
 }
 const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
   title = 'Canyon',
@@ -54,6 +55,7 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
   itemsDropdown,
   search,
   account,
+  breadcrumb,
 }) => {
   const { token } = useToken();
 
@@ -192,7 +194,8 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
           }
           mainContent={
             <div className={'flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] min-h-[100vh]'}>
-              <div className={'m-auto w-[1250px] p-[24px]'}>{renderMainContent}</div>
+              <div className={'m-auto w-[1200px] px-[12px]'}>{breadcrumb}</div>
+              <div className={'m-auto w-[1200px] p-[12px]'}>{renderMainContent}</div>
             </div>
           }
           footer={<Footer />}

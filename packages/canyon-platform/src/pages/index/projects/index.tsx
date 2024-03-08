@@ -199,23 +199,6 @@ const ProjectPage = () => {
 
   return (
     <>
-      <div className={'flex justify-between items-center px-6 pb-2 pt-0'}>
-        {/*<div>*/}
-        {/*  <Title level={2} className={'flex items-center gap-3'}>*/}
-        {/*    <FolderOutlined className={'text-[#687076] text-[32px]'} />*/}
-        {/*    <span>{t('menus.projects')}</span>*/}
-        {/*  </Title>*/}
-        {/*</div>*/}
-
-        {/*<div>*/}
-        {/*  <Link to={`/projects/new`}>*/}
-        {/*    <Button type={'primary'} icon={<PlusOutlined />}>*/}
-        {/*      {t('projects.create')}*/}
-        {/*    </Button>*/}
-        {/*  </Link>*/}
-        {/*</div>*/}
-      </div>
-
       <CanyonTextTitle
         icon={<FolderOutlined />}
         title={t('menus.projects')}

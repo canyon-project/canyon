@@ -107,6 +107,10 @@ function Index() {
       return loc.pathname.replace('/', '');
     }
   }, [loc.pathname]);
+
+  useEffect(() => {
+    setMenuSelectedKey(loc.pathname.replace('/', ''));
+  }, [loc.pathname]);
   const { token } = useToken();
   const { data: meData } = useQuery(MeDocument);
   const dropdownItems = [getItem(t('app.logout'), 'logout', <LogoutOutlined />)];
@@ -126,6 +130,7 @@ function Index() {
       {/*  window.canyonModalGlobalSearchRef.current.report();*/}
       {/*}}>开启</Button>*/}
       <CanyonLayoutBase
+        breadcrumb={<Breadcrumb className={'py-3'} items={genBreadcrumbItems(loc.pathname)} />}
         itemsDropdown={[
           {
             label: (
@@ -187,11 +192,11 @@ function Index() {
             key: 'projects',
             icon: <FolderOutlined />,
           },
-          {
-            label: t('menus.usage'),
-            key: 'usage',
-            icon: <LineChartOutlined />,
-          },
+          // {
+          //   label: t('menus.usage'),
+          //   key: 'usage',
+          //   icon: <LineChartOutlined />,
+          // },
           {
             label: t('menus.settings'),
             key: 'settings',

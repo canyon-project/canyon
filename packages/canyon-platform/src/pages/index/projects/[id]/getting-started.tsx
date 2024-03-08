@@ -12,7 +12,7 @@ const ProjectGettingStarted = () => {
   const nav = useNavigate();
   const { data } = useRequest(() => axios.get('/api/base').then(({ data }) => data));
   return (
-    <div className={'p-[20px] px-6'}>
+    <div className={''}>
       <Title level={2}>Configure Babel</Title>
       <Divider />
       <Title level={4}>Install</Title>

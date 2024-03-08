@@ -39,7 +39,7 @@ const ProjectConfigure = () => {
   // const { t } = useTranslation();
   // const branchOptions = [];
   return (
-    <div className={'px-6'}>
+    <div className={''}>
       <Title level={2} className={'flex items-center gap-3 pb-8'}>
         <AppstoreOutlined className={'text-[#687076] text-[32px]'} />
         <span>项目配置</span>

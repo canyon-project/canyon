@@ -18,7 +18,7 @@ const ProjectNew = () => {
   const [createTodo, { data, loading }] = useMutation(CheckProjectUrlDocument);
   const [createProject] = useMutation(CreateProjectDocument);
   return (
-    <div className={'px-6'}>
+    <div className={''}>
       <Title level={2}>Create Project</Title>
 
       <Title level={4}>Check</Title>
