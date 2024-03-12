@@ -221,10 +221,10 @@ type Query {
   getProjectRecordDetailBySha(projectID: ID!, sha: String!): [ProjectRecordDetailModel!]!
 
   """获取所有组织列表"""
-  getOrganizations: OrganizationModel!
+  getOrganizations: [OrganizationModel!]!
 
   """获取所有使用列表"""
-  getUsages: UsageModel!
+  getUsages: [UsageModel!]!
 }
 
 type Mutation {

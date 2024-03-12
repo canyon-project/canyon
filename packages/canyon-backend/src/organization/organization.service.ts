@@ -6,9 +6,6 @@ export class OrganizationService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getOrganizations() {
-    return {
-      name: 'test',
-      id: '1',
-    };
+    return this.prisma.organization.findMany();
   }
 }

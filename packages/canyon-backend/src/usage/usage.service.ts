@@ -6,9 +6,6 @@ export class UsageService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getUsages() {
-    return {
-      id: 'test',
-      size: 1,
-    };
+    return this.prisma.usage.findMany();
   }
 }
