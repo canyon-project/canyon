@@ -89,7 +89,7 @@ export class RetrieveCoverageTreeSummaryService {
       return {
         status: 'success',
         reportIDs: reportIDs,
-        reportUrl: `${(redirectUri || '').replace('/login', '')}/projects/${coverages[0]?.projectID || ''}/commits/${sha}`,
+        reportUrl: `${(redirectUri || '').replace('/oauth', '')}/projects/${coverages[0]?.projectID || ''}/commits/${sha}`,
         sha: sha,
         statistics: calculateCoverageOverviewByConditionFilter(
           summarys.filter((summary) => summary.covType === 'all'),
