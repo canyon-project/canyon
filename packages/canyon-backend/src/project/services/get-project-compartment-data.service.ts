@@ -41,7 +41,7 @@ export class GetProjectCompartmentDataService {
     const lastCoverageSummary = summarys.find(
       (item) =>
         item.sha === lastCoverage.sha && item.metricType === 'statements',
-    );
+    ) || { covered: 0, total: 0 };
 
     const lastCoverageStatements = percent(
       lastCoverageSummary.covered,
@@ -58,7 +58,7 @@ export class GetProjectCompartmentDataService {
         const summary = summarys.find(
           (item) =>
             item.sha === coverage.sha && item.metricType === 'statements',
-        );
+        ) || { covered: 0, total: 0 };
         const max =
           (summary?.total || 0) === 0
             ? 0
