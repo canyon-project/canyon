@@ -19,6 +19,8 @@ import { SourcecodeModule } from './sourcecode/sourcecode.module';
 import { join } from 'path';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { UploadModule } from './upload/upload.module';
+import { OrganizationModule } from './organization/organization.module';
+import { UsageModule } from './usage/usage.module';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
@@ -31,6 +33,8 @@ import { UploadModule } from './upload/upload.module';
     CodechangeModule,
     SourcecodeModule,
     UploadModule,
+    OrganizationModule,
+    UsageModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../../canyon-platform', 'dist'),
       exclude: ['/graphql/(.*)'],

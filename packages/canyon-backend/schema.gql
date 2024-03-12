@@ -169,6 +169,16 @@ type Project2 {
   description: String!
 }
 
+type OrganizationModel {
+  id: ID!
+  name: String!
+}
+
+type UsageModel {
+  id: ID!
+  size: Float!
+}
+
 type Query {
   """提供执行此查询的用户的详细信息（通过授权 Bearer 标头）"""
   me: User!
@@ -209,6 +219,12 @@ type Query {
 
   """获取Project记录的详细通过sha"""
   getProjectRecordDetailBySha(projectID: ID!, sha: String!): [ProjectRecordDetailModel!]!
+
+  """获取所有组织列表"""
+  getOrganizations: OrganizationModel!
+
+  """获取所有使用列表"""
+  getUsages: UsageModel!
 }
 
 type Mutation {

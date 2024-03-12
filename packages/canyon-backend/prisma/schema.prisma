@@ -103,3 +103,40 @@ model Distributedlock {
 
   @@map("distributedlock")
 }
+
+model Organization {
+  id   String @id @default(cuid())
+  name String
+
+  @@map("organization")
+}
+
+model OrganizationMember {
+  id     String                 @id @default(cuid())
+  role   OrganizationMemberRole
+  userID Int                    @map("user_id")
+  teamID String                 @map("team_id")
+
+  @@map("organization_member")
+}
+
+model Usage {
+  id         String   @id @default(cuid())
+  projectID  String   @map("project_id")
+  sha        String
+  coverageID String   @map("coverage_id")
+  reporter   Int
+  size       Int
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("usage")
+}
+
+enum OrganizationMemberRole {
+  OWNER
+  ADMIN
+  DEVELOPER
+  VIEWER
+
+  @@map("organization_member_role")
+}
