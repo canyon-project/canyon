@@ -62,10 +62,20 @@ export class GetProjectRecordsService {
         },
       });
       const s = summarys.find((item) => {
-        return item.sha === coverage.sha && item.metricType === 'statements';
+        return (
+          (item.sha === coverage.sha && item.metricType === 'statements') || {
+            covered: 0,
+            total: 0,
+          }
+        );
       });
       const l = summarys.find((item) => {
-        return item.sha === coverage.sha && item.metricType === 'newlines';
+        return (
+          (item.sha === coverage.sha && item.metricType === 'newlines') || {
+            covered: 0,
+            total: 0,
+          }
+        );
       });
 
       const cs = await this.prisma.coverage.findMany({
