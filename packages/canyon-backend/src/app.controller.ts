@@ -7,6 +7,11 @@ export class AppController {
     return '230614ms';
   }
 
+  @Get('/coverage')
+  coverage() {
+    return global.__coverage__ || {};
+  }
+
   @Get('/api/base')
   async base() {
     return {

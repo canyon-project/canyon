@@ -94,6 +94,15 @@ export class CoverageClientService {
     // ******************************************************
     const coverageDataRepositoryInsertResult =
       await createNewCoverageData(coverage);
+    if (coverageDataRepositoryInsertResult.insertedId === null) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: '覆盖率数据插入错误',
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
     const coverageDataInsertDb = {
       compareTarget,
       sha,

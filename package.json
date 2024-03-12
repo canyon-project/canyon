@@ -13,5 +13,8 @@
     "migrate": "npx prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma",
     "rm": "find ./ -type d \\( -name \"dist\" -o -name \"node_modules\" \\) -exec rm -rf {} +",
     "preinstall": "node ./scripts/check.js"
+  },
+  "devDependencies": {
+    "nyc": "^15.1.0"
   }
 }
