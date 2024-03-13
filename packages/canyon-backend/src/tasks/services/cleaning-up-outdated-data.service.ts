@@ -12,8 +12,9 @@ export class CleaningUpOutdatedDataService {
     const conditions = {
       where: {
         covType: 'normal',
+        consumer: 2,
         createdAt: {
-          lt: new Date(new Date().valueOf() - 2 * 24 * 60 * 60 * 1000),
+          lt: new Date(new Date().valueOf() - 1 * 24 * 60 * 60 * 1000),
         },
       },
     };
