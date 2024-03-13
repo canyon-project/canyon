@@ -3,6 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import {
   createNewCoverageData,
+  deleteSpecificCoverageData,
   getSpecificCoverageData,
 } from '../../adapter/coverage-data.adapter';
 import {
@@ -388,6 +389,8 @@ export class ConsumerCoverageService {
           },
         });
       }
+      // 删除老的覆盖率数据，以前这里没做删除，导致数据越来越多，异步删除。
+      deleteSpecificCoverageData(covTypeCoverage.relationID);
     }
   }
 }
