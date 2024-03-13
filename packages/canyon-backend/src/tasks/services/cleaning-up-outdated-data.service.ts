@@ -13,7 +13,7 @@ export class CleaningUpOutdatedDataService {
       where: {
         covType: 'normal',
         createdAt: {
-          lt: new Date(new Date().valueOf() - 3 * 24 * 60 * 60 * 1000),
+          lt: new Date(new Date().valueOf() - 2 * 24 * 60 * 60 * 1000),
         },
       },
     };
