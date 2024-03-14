@@ -77,7 +77,7 @@ const Sha = () => {
             });
           } else {
             return new Promise((resolve) => {
-              resolve({});
+              resolve({} as any);
             });
             // return new P
           }
@@ -93,8 +93,8 @@ const Sha = () => {
 
   return (
     <div
-      className='p-2 rounded-md'
-      style={{ minHeight: 'calc(100vh - 96px)', backgroundColor: 'white' }}
+      className='p-2 rounded-md bg-white dark:bg-[#151718]'
+      style={{ minHeight: 'calc(100vh - 96px)' }}
     >
       <div className={'bg-white'} ref={reportRef} />
     </div>
