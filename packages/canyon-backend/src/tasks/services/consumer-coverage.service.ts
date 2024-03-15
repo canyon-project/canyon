@@ -39,44 +39,59 @@ export class ConsumerCoverageService {
   }
   async acquireLock(_lockName, timeout = 60000) {
     return this.prisma.$transaction(async (tx) => {
-      const normalCoverage =
-        await tx.$queryRaw`SELECT * FROM coverage WHERE cov_type = 'normal' AND consumer = 1 ORDER BY random() LIMIT 1`
-          .then((res: any) =>
-            res?.length > 0 ? mapToLowerCamelCase(res[0]) : null,
-          )
-          .catch((err) => {
-            logger({
-              type: 'error',
-              title: '随机抽取时出错',
-              message: String(err),
+      try {
+        const normalCoverage =
+          await tx.$queryRaw`SELECT * FROM coverage WHERE cov_type = 'normal' AND consumer = 1 ORDER BY random() LIMIT 1`
+            .then((res: any) =>
+              res?.length > 0 ? mapToLowerCamelCase(res[0]) : null,
+            )
+            .catch((err) => {
+              logger({
+                type: 'error',
+                title: '随机抽取时出错',
+                message: String(err),
+              });
+              return null;
             });
-            return null;
-          });
-      if (normalCoverage === null) {
-        return false;
-      }
+        if (normalCoverage === null) {
+          return false;
+        }
 
-      const lockName = `${_lockName}_${normalCoverage.projectID}_${normalCoverage.sha}`;
+        const lockName = `${_lockName}_${normalCoverage.projectID}_${normalCoverage.sha}`;
 
-      const now = new Date();
-      const expirationTime = new Date(now.getTime() + timeout);
+        const now = new Date();
+        const expirationTime = new Date(now.getTime() + timeout);
 
-      const existingLock = await tx.distributedlock.findUnique({
-        where: {
-          lockName,
-        },
-      });
+        const existingLock = await tx.distributedlock.findUnique({
+          where: {
+            lockName,
+          },
+        });
 
-      if (existingLock) {
-        if (
-          existingLock.lockExpiration.getTime() < now.getTime() ||
-          !existingLock.isLocked
-        ) {
-          await tx.distributedlock.update({
-            where: {
-              lockName,
-            },
+        if (existingLock) {
+          if (
+            existingLock.lockExpiration.getTime() < now.getTime() ||
+            !existingLock.isLocked
+          ) {
+            await tx.distributedlock.update({
+              where: {
+                lockName,
+              },
+              data: {
+                isLocked: true,
+                lockTimestamp: now,
+                lockExpiration: expirationTime,
+              },
+            });
+            await this.markedAsConsumed(tx, normalCoverage);
+            return normalCoverage;
+          } else {
+            return false;
+          }
+        } else {
+          await tx.distributedlock.create({
             data: {
+              lockName,
               isLocked: true,
               lockTimestamp: now,
               lockExpiration: expirationTime,
@@ -84,20 +99,14 @@ export class ConsumerCoverageService {
           });
           await this.markedAsConsumed(tx, normalCoverage);
           return normalCoverage;
-        } else {
-          return false;
         }
-      } else {
-        await tx.distributedlock.create({
-          data: {
-            lockName,
-            isLocked: true,
-            lockTimestamp: now,
-            lockExpiration: expirationTime,
-          },
+      } catch (e) {
+        logger({
+          type: 'error',
+          title: 'acquireLock出现错误',
+          message: String(e),
         });
-        await this.markedAsConsumed(tx, normalCoverage);
-        return normalCoverage;
+        return null;
       }
     });
   }
