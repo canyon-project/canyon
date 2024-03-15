@@ -18,7 +18,7 @@ import {
 } from '../../utils/utils';
 import { PullChangeCodeAndInsertDbService } from './pull-change-code-and-insert-db.service';
 import { logger } from '../../logger';
-const randomInteger = Math.floor(Math.random() * 2000) + 2000;
+const randomInteger = Math.floor(Math.random() * 5000) + 5000;
 import * as TestExclude from 'test-exclude';
 @Injectable()
 export class ConsumerCoverageService {
