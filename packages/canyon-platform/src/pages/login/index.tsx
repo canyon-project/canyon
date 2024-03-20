@@ -19,7 +19,7 @@ const Login2 = () => {
 
   return (
     <div>
-            <Alert
+      <Alert
         showIcon={false}
         message={
           <div className={'text-center'}>
@@ -29,6 +29,7 @@ const Login2 = () => {
         banner
       />
       <CanyonPageLogin
+        // register={'/register'}
         logo={<img src={logo} className={'w-[36px]'} alt='' />}
         oauthUrl={{
           gitlab: `${data?.GITLAB_URL}/oauth/authorize?response_type=code&state=STATE&scope=api&client_id=${data?.GITLAB_CLIENT_ID}&redirect_uri=${window.location.origin}/oauth`,
