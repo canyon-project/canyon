@@ -3,8 +3,15 @@ import { AppModule } from './app.module';
 import { json } from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
+import * as fs from 'fs';
 
 async function bootstrap() {
+  // 获取启动变量，动态修改.env文件
+  const CFG = process.env.CFG;
+  if (CFG) {
+    fs.writeFileSync('./.env', CFG, 'utf8');
+  }
+
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
