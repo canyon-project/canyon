@@ -1,0 +1,9 @@
+docker run -e "CFG=\
+# Prisma Config\n\
+DATABASE_URL=postgress://canyon:canyon@localhost:5432/canyon\n\
+# Gitlab Config\n\
+GITLAB_URL=\"***\"\n\
+GITLAB_CLIENT_ID=\"***\"\n\
+GITLAB_CLIENT_SECRET=\"***\"\n\
+REDIRECT_URI=http://localhost:3000/login\n\
+PRIVATE_TOKEN=***" -p 8080:8080 zhangtao25/canyon
