@@ -1,5 +1,5 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+// import { AppModule } from './app.module';
 import { json } from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
@@ -11,7 +11,7 @@ async function bootstrap() {
   if (CFG) {
     fs.writeFileSync('./.env', CFG, 'utf8');
   }
-
+  const { AppModule } = await import('./app.module');
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.useGlobalPipes(new ValidationPipe());
