@@ -14,7 +14,7 @@ const CanyonPageLogin: FC<{
   onLoginSuccess: () => void;
   oauthUrl: { gitlab: string };
   logo: React.ReactNode;
-  register: string;
+  register?: string;
 }> = ({ onLoginSuccess, oauthUrl, logo, register }) => {
   return (
     <div className={'w-full relative'}>
