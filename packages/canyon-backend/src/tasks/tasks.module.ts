@@ -19,4 +19,8 @@ import { PullChangeCodeAndInsertDbService } from './services/pull-change-code-an
     ConsumerCoverageService,
   ],
 })
-export class TasksModule {}
+export class TasksModule {
+  constructor() {
+    console.log('TasksModule loaded');
+  }
+}

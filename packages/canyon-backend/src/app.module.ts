@@ -21,10 +21,10 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { UploadModule } from './upload/upload.module';
 import { OrganizationModule } from './organization/organization.module';
 import { UsageModule } from './usage/usage.module';
+const condition = process.env.MODE === 'task';
 @Module({
   imports: [
     ScheduleModule.forRoot(),
-    // TasksModule, // 任务模块(这是标记，勿动！)
     AuthModule,
     UserModule,
     ProjectModule,
@@ -46,7 +46,7 @@ import { UsageModule } from './usage/usage.module';
       autoSchemaFile: 'schema.gql',
       driver: ApolloDriver,
     }),
-    // TasksModule,
+    ...(condition ? [TasksModule] : []),
   ],
   controllers: [AppController, SourcecodeController],
   providers: [AppService, SourcecodeService],
