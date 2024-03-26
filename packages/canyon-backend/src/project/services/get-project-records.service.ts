@@ -50,17 +50,37 @@ export class GetProjectRecordsService {
 
     const rows = [];
 
+    const csList = await Promise.all(
+      coverages.map((coverage) =>
+        this.prisma.coverage.findMany({
+          where: {
+            projectID,
+            sha: coverage.sha,
+            covType: 'agg',
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        }),
+      ),
+    );
+
+    const summarysList = await Promise.all(
+      coverages.map((coverage) =>
+        this.prisma.summary.findMany({
+          where: {
+            sha: coverage.sha,
+            covType: 'all',
+            metricType: {
+              in: ['statements', 'newlines'],
+            },
+          },
+        }),
+      ),
+    );
     for (let i = 0; i < coverages.length; i++) {
       const coverage = coverages[i];
-      const summarys = await this.prisma.summary.findMany({
-        where: {
-          sha: coverage.sha,
-          covType: 'all',
-          metricType: {
-            in: ['statements', 'newlines'],
-          },
-        },
-      });
+      const summarys = summarysList[i];
       const s = summarys.find((item) => {
         return item.sha === coverage.sha && item.metricType === 'statements';
       }) || { covered: 0, total: 0 };
@@ -68,16 +88,7 @@ export class GetProjectRecordsService {
         return item.sha === coverage.sha && item.metricType === 'newlines';
       }) || { covered: 0, total: 0 };
 
-      const cs = await this.prisma.coverage.findMany({
-        where: {
-          projectID,
-          sha: coverage.sha,
-          covType: 'agg',
-        },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      });
+      const cs = csList[i];
 
       const data = {
         ...coverage,
