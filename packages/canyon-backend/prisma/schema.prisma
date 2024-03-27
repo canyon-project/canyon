@@ -43,6 +43,14 @@ model Coverage {
   @@map("coverage")
 }
 
+model CoverageData {
+  id             String   @id @default(cuid())
+  compresseddata String
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("coveragedata")
+}
+
 model Project {
   id                String   @id
   name              String

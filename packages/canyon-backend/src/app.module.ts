@@ -21,6 +21,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { UploadModule } from './upload/upload.module';
 import { OrganizationModule } from './organization/organization.module';
 import { UsageModule } from './usage/usage.module';
+import { CoveragedataModule } from './coveragedata/coveragedata.module';
 const condition = process.env.MODE === 'task';
 @Module({
   imports: [
@@ -30,6 +31,7 @@ const condition = process.env.MODE === 'task';
     ProjectModule,
     PrismaModule,
     CoverageModule,
+    CoveragedataModule,
     CodechangeModule,
     SourcecodeModule,
     UploadModule,
