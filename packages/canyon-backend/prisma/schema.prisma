@@ -1,0 +1,81 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String // 邮箱是核心，唯一的
+  username  String // 用户名默认就是邮箱
+  password  String // 密码统一123456
+  nickname  String // 昵称
+  avatar    String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("user")
+}
+
+model Account {
+  id                   String   @id @default(cuid())
+  userID               String
+  provider             String
+  providerAccountId    String
+  providerRefreshToken String
+  providerAccessToken  String
+  providerScope        String
+  loggedIn             DateTime @default(now()) @db.Timestamp(3)
+
+  @@map("account")
+}
+
+model Coverage {
+  id                String   @id @default(cuid())
+  key               String // 防止重复插入
+  sha               String   @map("sha")
+  branch            String
+  compareTarget     String   @map("compare_target")
+  provider          String
+  providerProjectID String   @map("providerProjectID")
+  instrumentCwd     String   @map("instrument_cwd")
+  reporter          String
+  reportID          String   @map("report_id") // 未来聚合的一句，区分case
+  covType           String   @map("cov_type") // 普通类型，默认normal
+  relationID        String   @map("relation_id")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+  consumer          Int // 消费过没有，1否，2已消费
+  tag               Json // 存点额外的信息
+
+  @@map("coverage")
+}
+
+model Project {
+  id                String @id @default(cuid())
+  provider          String
+  providerProjectID String @map("provider_project_id")
+
+  pathWithNamespace String @map("path_with_namespace") // 编码过后就是项目ID，gitlab里是这么用的
+
+  description String // 描述
+  tag         Json // 打标记
+  coverage    Json // 覆盖率相关配置，就是nyc配置
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("project")
+}
+
+model CoverageData {
+  id         String   @id @default(cuid())
+  coverageID String   @map("coverage_id")
+  data       Json
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("coveragedata")
+}
