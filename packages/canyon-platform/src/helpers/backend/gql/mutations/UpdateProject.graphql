@@ -1,0 +1,5 @@
+mutation UpdateProject($projectID: String!,$description: String!,$tag: String!,$coverage: String!,$defaultBranch: String!) {
+  updateProject(projectID: $projectID,description: $description,tag: $tag,coverage: $coverage,defaultBranch: $defaultBranch) {
+    id
+  }
+}

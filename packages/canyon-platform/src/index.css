@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.ant-menu-light.ant-menu-root.ant-menu-vertical{
+  border-inline-end:none !important;
+}
+.ant-table-thead >tr>th{
+  /*background-color: white !important;*/
+}
+a{
+  color: #287DFA;
+}
+a:hover{
+  color: #287DFA;
+  opacity: .8;
+}
+
+/*账单那边*/
+.ant-collapse-content-box{
+  padding: 0 !important;
+}
+/*登陆页面*/
+.ant-tabs-nav{
+  padding-left: 40px !important;
+}
+
+/*.ant-table-wrapper .ant-table-tbody >tr >td{*/
+/*  border-bottom: none !important;*/
+/*}*/
+
+.ant-table-wrapper .ant-table-pagination.ant-pagination{
+  margin-right: 16px;
+}
+
+.ant-collapse-header{
+  background-color: #f8f9fa !important;
+  padding: 24px 20px !important;
+}
+
+.ant-collapse-item{
+  margin-bottom: 0 !important;
+}
