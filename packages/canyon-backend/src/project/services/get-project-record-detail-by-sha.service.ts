@@ -16,7 +16,7 @@ export class GetProjectRecordDetailByShaService {
       skip: (current - 1) * pageSize,
       take: pageSize,
       orderBy: {
-        createdAt: 'desc',
+        updatedAt: 'desc',
       },
     });
 
