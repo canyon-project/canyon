@@ -83,6 +83,21 @@ export class ProjectRecordsModel {
   })
   statements: number;
 
+  @Field(() => Number, {
+    description: '分支覆盖率',
+  })
+  branches: number;
+
+  @Field(() => Number, {
+    description: '函数覆盖率',
+  })
+  functions: number;
+
+  @Field(() => Number, {
+    description: '行覆盖率',
+  })
+  lines: number;
+
   @Field(() => Date, {
     description: '最近一次上报',
   })

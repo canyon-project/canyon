@@ -110,6 +110,15 @@ type ProjectRecordsModel {
   """全量"""
   statements: Float!
 
+  """分支覆盖率"""
+  branches: Float!
+
+  """函数覆盖率"""
+  functions: Float!
+
+  """行覆盖率"""
+  lines: Float!
+
   """最近一次上报"""
   lastReportTime: DateTime!
 

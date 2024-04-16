@@ -5,6 +5,9 @@ query GetProjectRecords($projectID: String!, $current: Int!, $pageSize: Int!, $k
       sha
       compareTarget
       branch
+      branches
+      lines
+      functions
       compareUrl
       webUrl
       newlines
