@@ -1,6 +1,5 @@
 import Icon, { BranchesOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
-import { Input, Spin, Table, theme, Tooltip, Tour, TourProps, Typography } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';

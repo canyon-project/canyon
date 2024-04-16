@@ -1,5 +1,4 @@
 import { useMutation } from '@apollo/client';
-import { Button, Input, message, Space, Spin,Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -7,11 +6,7 @@ import {
   CreateProjectDocument,
 } from '../../../helpers/backend/gen/graphql.ts';
 
-const { Title,Text } = Typography;
-// import {
-//   CheckProjectUrlDocument,
-//   CreateProjectDocument,
-// } from '../../helpers/backend/gen/graphql.ts';
+const { Title, Text } = Typography;
 
 const ProjectNew = () => {
   const nav = useNavigate();

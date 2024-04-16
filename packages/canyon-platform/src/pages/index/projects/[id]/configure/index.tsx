@@ -1,7 +1,6 @@
 import Icon, { AppstoreOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import { Editor } from '@monaco-editor/react';
-import { Button, Card, message, Select, theme, Typography } from 'antd';
 import { useState } from 'react';
 // import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';

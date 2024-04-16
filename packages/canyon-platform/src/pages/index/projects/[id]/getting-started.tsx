@@ -1,11 +1,10 @@
 import { useRequest } from 'ahooks';
-import { Button, Divider, Space,Typography } from 'antd';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 import CopyCode from '../../../../components/app/CopyCode.tsx';
 import { gettingStartedContent } from '../../../../components/app/getting-started-content.ts';
-const { Title,Text } = Typography;
+const { Title, Text } = Typography;
 // import CopyCode from '../components/CopyCode.tsx';
 // import { gettingStartedContent } from '../components/getting- started-content.ts';
 const ProjectGettingStarted = () => {

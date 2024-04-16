@@ -1,10 +1,9 @@
 import react from '@vitejs/plugin-react';
 import * as path from 'path';
+import AutoImport from 'unplugin-auto-import/vite';
+import AntdResolver from 'unplugin-auto-import-antd';
 import { defineConfig } from 'vite';
 import Pages from 'vite-plugin-pages';
-// import svgr from 'vite-plugin-svgr'
-// import * as path from 'path';
-// https://vitejs.dev/config/
 const resolve = (p: string) => path.resolve(__dirname, p);
 export default defineConfig({
   plugins: [
@@ -24,7 +23,11 @@ export default defineConfig({
               ],
       },
     }),
-    // svgr(),
+    AutoImport({
+      imports: ['react'],
+      dts: './src/auto-imports.d.ts',
+      resolvers: [AntdResolver()],
+    }),
     Pages({
       exclude: ['**/helper/**'],
     }),

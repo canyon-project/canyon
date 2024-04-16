@@ -1,18 +1,5 @@
 import { FolderOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import {
-  Button,
-  Divider,
-  Popconfirm,
-  Select,
-  Space,
-  Table,
-  Tag,
-  theme,
-  Tooltip,
-  Typography,
-} from 'antd';
-import Search from 'antd/es/input/Search';
 import { ColumnsType } from 'antd/es/table';
 import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui';
 import dayjs from 'dayjs';
@@ -29,15 +16,13 @@ import {
 } from '../../../helpers/backend/gen/graphql.ts';
 // import {CanyonTextTitle} from "canyon-ui/src";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
-const { useToken } = theme;
 const tagsData = ['V2Vi', 'Q1JO', 'VHJpcC5jb20=', 'Q3RyaXA='].map(atob);
 
 const colors = ['#4FA15B', '#087EA4', '#287DFA', '#FFB400'];
 
 const ProjectPage = () => {
-  const { token } = useToken();
   const { t } = useTranslation();
   const [deleteProject] = useMutation(DeleteProjectDocument);
   const columns: ColumnsType<Project> = [
@@ -228,7 +213,7 @@ const ProjectPage = () => {
                 value: bu,
               }))}
             />
-            <Search
+            <Input.Search
               placeholder={t('projects.search_keywords')}
               className={'w-[480px] mb-3'}
               onSearch={(value) => {
