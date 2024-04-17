@@ -1,5 +1,6 @@
 import { FolderOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
+import { Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui';
 import dayjs from 'dayjs';
@@ -21,7 +22,19 @@ const { Text } = Typography;
 const tagsData = ['V2Vi', 'Q1JO', 'VHJpcC5jb20=', 'Q3RyaXA='].map(atob);
 
 const colors = ['#4FA15B', '#087EA4', '#287DFA', '#FFB400'];
-
+function countingStars(num: any) {
+  if (num >= 75 && num < 80) {
+    return '🌟';
+  } else if (num >= 80 && num < 85) {
+    return '🌟🌟';
+  } else if (num >= 85 && num < 90) {
+    return '🌟🌟🌟';
+  } else if (num >= 90 && num < 95) {
+    return '🌟🌟🌟🌟';
+  } else if (num >= 95 && num <= 100) {
+    return '🌟🌟🌟🌟🌟';
+  }
+}
 const ProjectPage = () => {
   const { t } = useTranslation();
   const [deleteProject] = useMutation(DeleteProjectDocument);
@@ -89,7 +102,11 @@ const ProjectPage = () => {
       key: 'maxCoverage',
       sorter: true,
       render: (text) => {
-        return <span>{text}%</span>;
+        return (
+          <Space>
+            {text}%{countingStars(text)}
+          </Space>
+        );
       },
     },
     {
