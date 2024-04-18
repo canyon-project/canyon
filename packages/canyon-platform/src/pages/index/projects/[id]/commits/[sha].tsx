@@ -1,11 +1,13 @@
 // import { useQuery } from '@apollo/client';
 import { init } from '@canyon/report';
 import { useRequest } from 'ahooks';
+import { Divider, Switch } from 'antd';
 import axios from 'axios';
 import { useEffect, useRef } from 'react';
 // import { useParams } from 'react-router';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
+import SummarySearchTable from '../../../../../components/app/SummarySearchTable.tsx';
 // import { GetCoverageSummaryMapDocument } from '../../../../helpers/backend/gen/graphql.ts';
 import { handleSelectFile } from './helper';
 const Sha = () => {
@@ -90,13 +92,34 @@ const Sha = () => {
       report.setOption({ summary: summary });
     }
   }, [data]);
-
+  const [showmode, setShowmode] = useState('0');
   return (
     <div
       className='p-2 rounded-md bg-white dark:bg-[#151718]'
       style={{ minHeight: 'calc(100vh - 96px)' }}
     >
-      <div className={'bg-white'} ref={reportRef} />
+      <Radio.Group
+        value={showmode}
+        buttonStyle='solid'
+        onChange={(v) => {
+          setShowmode(v.target.value);
+        }}
+      >
+        <Radio.Button value='0'>Tree</Radio.Button>
+        <Radio.Button value='1'>List</Radio.Button>
+        {/*<Radio.Button value="c">Beijing</Radio.Button>*/}
+        {/*<Radio.Button value="d">Chengdu</Radio.Button>*/}
+      </Radio.Group>
+      <Divider style={{ margin: '10px 0' }} />
+      {showmode === '1' && data && <SummarySearchTable data={data} />}
+      {/*{!showmode &&}*/}
+      <div
+        style={{
+          display: showmode === '1' ? 'none' : 'block',
+        }}
+        className={'bg-white'}
+        ref={reportRef}
+      />
     </div>
   );
 };

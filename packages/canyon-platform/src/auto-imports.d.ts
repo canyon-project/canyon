@@ -11,6 +11,8 @@ declare global {
   const Form: typeof import('antd')['Form']
   const Input: typeof import('antd')['Input']
   const Popconfirm: typeof import('antd')['Popconfirm']
+  const Popover: typeof import('antd')['Popover']
+  const Radio: typeof import('antd')['Radio']
   const Select: typeof import('antd')['Select']
   const Space: typeof import('antd')['Space']
   const Spin: typeof import('antd')['Spin']
