@@ -80,7 +80,7 @@ const ProjectPage = () => {
       title: t('projects.name'),
       dataIndex: 'pathWithNamespace',
       key: 'pathWithNamespace',
-      width: '260px',
+      width: '240px',
       render: (text, record) => {
         return (
           <div className={'flex flex-col'}>
