@@ -36,9 +36,6 @@ export class CoverageClientService {
   ) {}
 
   async invoke(currentUser, coverageClientDto: CoverageClientDto, ip) {
-    if (coverageClientDto.projectID === '98620') {
-      return {};
-    }
     // 1.检验 user 是否存在
     const currentUserDb = await this.prisma.user.findFirst({
       where: {
