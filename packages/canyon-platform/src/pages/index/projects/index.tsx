@@ -80,10 +80,10 @@ const ProjectPage = () => {
       title: t('projects.name'),
       dataIndex: 'pathWithNamespace',
       key: 'pathWithNamespace',
-      width: '230px',
+      // width: '230px',
       render: (text, record) => {
         return (
-          <div className={'flex flex-col'}>
+          <div className={'flex flex-col w-[220px]'}>
             {text}
             <Text type={'secondary'} style={{ fontSize: '12px' }}>
               {record.description}
