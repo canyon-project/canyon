@@ -80,7 +80,7 @@ const ProjectPage = () => {
       title: t('projects.name'),
       dataIndex: 'pathWithNamespace',
       key: 'pathWithNamespace',
-      width: '240px',
+      width: '230px',
       render: (text, record) => {
         return (
           <div className={'flex flex-col'}>
@@ -98,7 +98,7 @@ const ProjectPage = () => {
       render: (text) => {
         const selectedTags = text ? text.split(',') : [];
         return (
-          <div className={'flex w-[140px] flex-wrap'}>
+          <div className={'flex w-[130px] flex-wrap'}>
             {selectedTags.map((tag: string) => (
               <Tag
                 className={'mb-2'}
