@@ -11,9 +11,9 @@ const { Text } = Typography;
 
 const { CheckableTag } = Tag;
 
-const tagsData = ['V2Vi', 'Q1JO', 'VHJpcC5jb20=', 'Q3RyaXA='].map(atob);
+const tagsData = ['V2Vi', 'Q1JO', 'VHJpcC5jb20=', 'Q3RyaXA=', 'RkxJR0hU', 'Q09SUA=='].map(atob);
 
-const colors = ['#4FA15B', '#087EA4', '#287DFA', '#FFB400'];
+const colors = ['#4FA15B', '#087EA4', '#287DFA', '#FFB400', '#981d97', '#0B52D1'];
 
 // value, onChange提供给antd的Form使用
 const TagComponent: FC<{ value?: string; onChange?: (value: string) => void }> = ({
