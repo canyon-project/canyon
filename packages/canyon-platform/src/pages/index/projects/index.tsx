@@ -19,9 +19,9 @@ import {
 
 const { Text } = Typography;
 
-const tagsData = ['V2Vi', 'Q1JO', 'VHJpcC5jb20=', 'Q3RyaXA='].map(atob);
+const tagsData = ['V2Vi', 'Q1JO', 'VHJpcC5jb20=', 'Q3RyaXA=', 'RkxJR0hU', 'Q09SUA=='].map(atob);
 
-const colors = ['#4FA15B', '#087EA4', '#287DFA', '#FFB400'];
+const colors = ['#4FA15B', '#087EA4', '#287DFA', '#FFB400', '#981d97', '#0B52D1'];
 function countingStars(num: any) {
   if (num >= 75 && num < 80) {
     return '🌟';
