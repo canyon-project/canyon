@@ -42,3 +42,12 @@ a:hover{
 .ant-collapse-item{
   margin-bottom: 0 !important;
 }
+
+.ant-table-row-level-0 .favor-heart{
+  visibility: hidden;
+  cursor: pointer;
+}
+
+.ant-table-row-level-0:hover .favor-heart{
+  visibility:unset;
+}

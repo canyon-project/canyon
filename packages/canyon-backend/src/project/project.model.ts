@@ -38,6 +38,9 @@ export class Project {
   @Field(() => Date)
   lastReportTime: Date;
 
+  @Field(() => Boolean)
+  favored: boolean;
+
   @Field(() => Date)
   createdAt: Date;
 }

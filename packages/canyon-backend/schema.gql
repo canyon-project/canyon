@@ -11,6 +11,7 @@ type User {
   refreshToken: String!
   accessToken: String!
   email: String!
+  favor: String!
   createdAt: DateTime!
 }
 
@@ -32,6 +33,7 @@ type Project {
   defaultBranch: String!
   reportTimes: Float!
   lastReportTime: DateTime!
+  favored: Boolean!
   createdAt: DateTime!
 }
 
@@ -201,6 +203,7 @@ type Query {
 
     """升序或降序"""
     order: String!
+    favorOnly: Boolean!
   ): ProjectPagesModel!
 
   """获取没有数据的项目"""
@@ -224,6 +227,9 @@ type Query {
 }
 
 type Mutation {
+  """关注项目"""
+  favorProject(projectID: ID!, favored: Boolean!): User!
+
   """检查输入的gitlab链接"""
   checkProjectUrl(projectUrl: String!): Project2!
 

@@ -18,4 +18,32 @@ export class UserService {
       },
     });
   }
+  async favorProject(
+    user: User,
+    projectID: string,
+    favored: boolean,
+  ): Promise<User> {
+    const favorProjects = await this.prisma.user
+      .findUnique({
+        where: {
+          id: user.id,
+        },
+      })
+      .then((r) => r.favor.split(',').filter((item) => item !== ''));
+
+    let favors = [];
+    if (favored) {
+      favors = favorProjects.concat(projectID);
+    } else {
+      favors = favorProjects.filter((item) => item !== projectID);
+    }
+    return this.prisma.user.update({
+      where: {
+        id: user.id,
+      },
+      data: {
+        favor: favors.join(','),
+      },
+    });
+  }
 }

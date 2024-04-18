@@ -155,6 +155,7 @@ export class ProjectService {
             coverage,
             defaultBranch,
             branchOptions,
+            favored: false,
           };
         },
       );

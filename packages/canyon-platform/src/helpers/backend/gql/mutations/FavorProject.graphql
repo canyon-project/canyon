@@ -1,5 +1,5 @@
-query Me {
-  me {
+mutation FavorProject($projectID: ID!,$favored: Boolean!) {
+  favorProject(projectID: $projectID,favored: $favored) {
     id
     username
     password

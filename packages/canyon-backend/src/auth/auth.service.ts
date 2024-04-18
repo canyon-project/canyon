@@ -78,6 +78,7 @@ export class AuthService {
       avatar: avatar || '/default-avatar.png',
       email,
       password: '123456',
+      favor: '',
       createdAt: new Date(),
     };
 

@@ -6,7 +6,23 @@ import * as dayjs from 'dayjs';
 @Injectable()
 export class GetProjectsService {
   constructor(private readonly prisma: PrismaService) {}
-  async invoke(current, pageSize, keyword, bu, field, order): Promise<any> {
+  async invoke(
+    userID,
+    current,
+    pageSize,
+    keyword,
+    bu,
+    field,
+    order,
+    favorOnly,
+  ): Promise<any> {
+    const favorProjects = await this.prisma.user
+      .findUnique({
+        where: {
+          id: userID,
+        },
+      })
+      .then((r) => r.favor.split(',').filter((item) => item !== ''));
     // 2.根据项目ID再查询到对应的项目信息，使用promise.all
     const whereCondition: any = {
       OR: [
@@ -61,32 +77,33 @@ export class GetProjectsService {
       for (let i = 0; i < pros.length; i++) {
         const { id, pathWithNamespace, description, tag, bu: _bu } = pros[i];
         const covs = res[0].filter((item) => {
-          // console.log(item.projectID, id);
           return item.projectID === id;
         });
-        // console.log(bu);
-        reslut.push({
-          id: id,
-          bu: _bu,
-          description: description,
-          lastReportTime:
-            covs.length > 0
-              ? covs.sort((a, b) =>
-                  dayjs(b.updatedAt).isBefore(a.updatedAt) ? -1 : 1,
-                )[0].updatedAt
-              : new Date('1970-01-01T00:00:00Z'),
-          maxCoverage:
-            covs.filter((item) => within30days(item.updatedAt)).length > 0
-              ? Math.max(
-                  ...covs
-                    .filter((item) => within30days(item.updatedAt))
-                    .map((item) => item.summary['statements']['pct']),
-                )
-              : 0,
-          reportTimes: covs.length,
-          pathWithNamespace: pathWithNamespace,
-          tag: tag,
-        });
+        if ((favorOnly && favorProjects.includes(id)) || !favorOnly) {
+          reslut.push({
+            favored: favorProjects.includes(id),
+            id: id,
+            bu: _bu,
+            description: description,
+            lastReportTime:
+              covs.length > 0
+                ? covs.sort((a, b) =>
+                    dayjs(b.updatedAt).isBefore(a.updatedAt) ? -1 : 1,
+                  )[0].updatedAt
+                : new Date('1970-01-01T00:00:00Z'),
+            maxCoverage:
+              covs.filter((item) => within30days(item.updatedAt)).length > 0
+                ? Math.max(
+                    ...covs
+                      .filter((item) => within30days(item.updatedAt))
+                      .map((item) => item.summary['statements']['pct']),
+                  )
+                : 0,
+            reportTimes: covs.length,
+            pathWithNamespace: pathWithNamespace,
+            tag: tag,
+          });
+        }
       }
       field = field || 'lastReportTime';
       return reslut.sort((a, b) => {

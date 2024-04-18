@@ -1,5 +1,5 @@
-query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$bu: [String!]!,$field: String!,$order: String!) {
-  getProjects(current:$current, pageSize:$pageSize, keyword:$keyword,bu:$bu,field:$field,order:$order) {
+query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$bu: [String!]!,$field: String!,$order: String!,$favorOnly: Boolean!) {
+  getProjects(current:$current, pageSize:$pageSize, keyword:$keyword,bu:$bu,field:$field,order:$order,favorOnly:$favorOnly) {
     total
     data {
       id
@@ -10,6 +10,7 @@ query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$bu: [Strin
       lastReportTime
       maxCoverage,
       tag
+      favored
     }
   }
 }

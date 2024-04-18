@@ -17,6 +17,7 @@ model User {
   refreshToken String   @map("refresh_token")
   accessToken  String   @map("access_token")
   email        String
+  favor        String
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
   @@map("user")

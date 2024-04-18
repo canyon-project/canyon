@@ -27,5 +27,8 @@ export class User {
   email: string;
 
   @Field()
+  favor: string;
+
+  @Field()
   createdAt: Date;
 }

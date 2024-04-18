@@ -18,6 +18,7 @@ import { Project2 } from './project2.model';
 import { PaginationArgs, SorterArgs } from '../types/input-types.args';
 import { GetProjectsNoDataService } from './services/get-projects-no-data.service';
 import { GetProjectsService } from './services/get-projects.service';
+import { User } from '../user/user.model';
 @Resolver(() => 'Project')
 export class ProjectResolver {
   constructor(
@@ -29,23 +30,28 @@ export class ProjectResolver {
     private readonly getProjectsService: GetProjectsService,
     private readonly getProjectsNoDataService: GetProjectsNoDataService,
   ) {}
+  @UseGuards(GqlAuthGuard)
   @Query(() => ProjectPagesModel, {
     description: '获取Project',
   })
   getProjects(
+    @GqlUser() user: User,
     @Args('keyword', { type: () => String }) keyword: string,
     @Args('bu', { type: () => [String] }) bu: string[],
     @Args() paginationArgs: PaginationArgs,
     @Args() sorterArgs: SorterArgs,
+    @Args('favorOnly', { type: () => Boolean }) favorOnly: boolean,
   ): Promise<ProjectPagesModel> {
     // @ts-ignore
     return this.getProjectsService.invoke(
+      user?.id,
       paginationArgs.current,
       paginationArgs.pageSize,
       keyword,
       bu,
       sorterArgs.field,
       sorterArgs.order,
+      favorOnly,
     );
   }
 
@@ -81,6 +87,7 @@ export class ProjectResolver {
   ): Promise<ProjectCompartmentDataModel[]> {
     return this.getProjectCompartmentDataService.invoke(projectID);
   }
+
   @Query(() => ProjectRecordsPagesModel, {
     description: '获取Project记录',
   })

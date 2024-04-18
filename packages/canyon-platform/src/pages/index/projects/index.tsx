@@ -1,4 +1,10 @@
-import { FolderOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import {
+  FolderOutlined,
+  HeartFilled,
+  HeartOutlined,
+  PlusOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import { Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -8,14 +14,13 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
-// import ProjectNoData from '../../../components/app/project/nodata.tsx';
 import {
   DeleteProjectDocument,
+  FavorProjectDocument,
   GetProjectsBuOptionsDocument,
   GetProjectsDocument,
   Project,
 } from '../../../helpers/backend/gen/graphql.ts';
-// import {CanyonTextTitle} from "canyon-ui/src";
 
 const { Text } = Typography;
 
@@ -38,11 +43,38 @@ function countingStars(num: any) {
 const ProjectPage = () => {
   const { t } = useTranslation();
   const [deleteProject] = useMutation(DeleteProjectDocument);
+  const [favorProject] = useMutation(FavorProjectDocument);
   const columns: ColumnsType<Project> = [
     {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
+      align: 'center',
+      render(text, record) {
+        return (
+          <Space>
+            <div
+              className={'favor-heart'}
+              style={{ visibility: record.favored ? 'unset' : undefined }}
+              onClick={() => {
+                favorProject({
+                  variables: {
+                    projectID: record.id,
+                    favored: !record.favored,
+                  },
+                }).then(() => {
+                  refetch().then(() => {
+                    message.success('success');
+                  });
+                });
+              }}
+            >
+              {record.favored ? <HeartFilled style={{ color: 'red' }} /> : <HeartOutlined />}
+            </div>
+            {text}
+          </Space>
+        );
+      },
     },
     {
       title: t('projects.name'),
@@ -174,7 +206,9 @@ const ProjectPage = () => {
       return [];
     }
   })();
+  const initFavorOnly = Boolean(localStorage.getItem('favorOnlyFilter'));
   const [keyword, setKeyword] = useState('');
+  const [favorOnly, setFavorOnly] = useState(initFavorOnly);
   const [bu, setBu] = useState<string[]>(initBu);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -196,6 +230,7 @@ const ProjectPage = () => {
       bu: bu,
       field: sorter.field || '',
       order: sorter.order || '',
+      favorOnly: favorOnly,
     },
     fetchPolicy: 'no-cache',
   });
@@ -239,8 +274,22 @@ const ProjectPage = () => {
                 setCurrent(1);
               }}
             />
+            <Space className={'ml-5'}>
+              <Text type={'secondary'}>Favor Only: </Text>
+              <Switch
+                checkedChildren={<HeartFilled />}
+                defaultChecked={Boolean(localStorage.getItem('favorOnlyFilter'))}
+                onChange={(v) => {
+                  if (v) {
+                    localStorage.setItem('favorOnlyFilter', '1');
+                  } else {
+                    localStorage.removeItem('favorOnlyFilter');
+                  }
+                  setFavorOnly(v);
+                }}
+              />
+            </Space>
           </div>
-          {/*<ProjectNoData />*/}
         </div>
 
         <CanyonCardPrimary>

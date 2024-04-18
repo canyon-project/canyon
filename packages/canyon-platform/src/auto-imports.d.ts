@@ -16,6 +16,7 @@ declare global {
   const Select: typeof import('antd')['Select']
   const Space: typeof import('antd')['Space']
   const Spin: typeof import('antd')['Spin']
+  const Switch: typeof import('antd')['Switch']
   const Table: typeof import('antd')['Table']
   const Tag: typeof import('antd')['Tag']
   const Tooltip: typeof import('antd')['Tooltip']
