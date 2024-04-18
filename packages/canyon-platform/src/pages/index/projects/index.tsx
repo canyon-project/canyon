@@ -66,16 +66,17 @@ const ProjectPage = () => {
       render: (text) => {
         const selectedTags = text ? text.split(',') : [];
         return (
-          <Space>
+          <div className={'flex w-[140px] flex-wrap'}>
             {selectedTags.map((tag: string) => (
               <Tag
+                className={'mb-2'}
                 key={tag}
                 color={tagsData.indexOf(tag) > -1 ? colors[tagsData.indexOf(tag)] : '#108ee9'}
               >
                 {tag}
               </Tag>
             ))}
-          </Space>
+          </div>
         );
       },
     },
