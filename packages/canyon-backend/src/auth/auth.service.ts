@@ -85,7 +85,10 @@ export class AuthService {
     if (userFindDB) {
       await this.prisma.user.update({
         where: { id: userFindDB.id },
-        data: user,
+        data: {
+          accessToken,
+          refreshToken,
+        },
       });
     } else {
       await this.prisma.user.create({
