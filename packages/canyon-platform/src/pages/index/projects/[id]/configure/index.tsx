@@ -152,10 +152,13 @@ const ProjectConfigure = () => {
                 updateProject({
                   variables: {
                     projectID: prm.id,
-                    coverage: coverage,
+                    coverage: coverage || GetProjectByIdDocumentData?.getProjectByID.coverage || '',
                     tag: '__null__',
                     description: '__null__',
-                    defaultBranch: defaultBranch,
+                    defaultBranch:
+                      defaultBranch ||
+                      GetProjectByIdDocumentData?.getProjectByID.defaultBranch ||
+                      '-',
                   },
                 }).then(() => {
                   showMessage();
