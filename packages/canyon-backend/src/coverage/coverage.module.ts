@@ -17,6 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoveragediskEntity } from './coveragedisk.entity';
 import { CoveragediskService } from './services/coveragedisk.service';
 import { TestCoverage } from './services/test.coverage';
+import { TestExcludeService } from './services/test-exclude.service';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { TestCoverage } from './services/test.coverage';
     PullChangeCodeAndInsertDbService,
     CoveragediskService,
     TestCoverage,
+    TestExcludeService,
   ],
 })
 export class CoverageModule {}

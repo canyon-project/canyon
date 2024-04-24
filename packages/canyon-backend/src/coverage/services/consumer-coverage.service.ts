@@ -11,6 +11,7 @@ import { CoverageDataAdapterService } from './coverage-data-adapter.service';
 import { PullChangeCodeAndInsertDbService } from './pull-change-code-and-insert-db.service';
 import { logger } from '../../logger';
 import { CoveragediskService } from './coveragedisk.service';
+import { TestExcludeService } from './test-exclude.service';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -21,6 +22,7 @@ export class ConsumerCoverageService {
     private readonly coverageDataAdapterService: CoverageDataAdapterService,
     private readonly pullChangeCodeAndInsertDbService: PullChangeCodeAndInsertDbService,
     private readonly coveragediskService: CoveragediskService,
+    private readonly testExcludeService: TestExcludeService,
   ) {}
 
   async invoke() {
@@ -94,7 +96,13 @@ export class ConsumerCoverageService {
         data: {
           summary: getSummaryByPath(
             '~',
-            genSummaryMapByCoverageMap(newcoverage, codechanges),
+            genSummaryMapByCoverageMap(
+              await this.testExcludeService.invoke(
+                queueDataToBeConsumed.projectID,
+                newcoverage,
+              ),
+              codechanges,
+            ),
           ) as any,
           updatedAt: new Date(),
           compareTarget: queueDataToBeConsumed.compareTarget,
@@ -115,7 +123,10 @@ export class ConsumerCoverageService {
           summary: getSummaryByPath(
             '~',
             genSummaryMapByCoverageMap(
-              queueDataToBeConsumed.coverage,
+              await this.testExcludeService.invoke(
+                queueDataToBeConsumed.projectID,
+                queueDataToBeConsumed.coverage,
+              ),
               codechanges,
             ),
           ) as any,

@@ -7,6 +7,7 @@ import { CoverageSummary } from '../models/coverage-summary';
 import { genSummaryMapByCoverageMap } from '@canyon/data';
 // import { getSpecificCoverageData } from '../../adapter/coverage-data.adapter';
 import { CoverageDataAdapterService } from './coverage-data-adapter.service';
+import { TestExcludeService } from './test-exclude.service';
 // import { getFileInfo } from '../../adapter/gitlab.adapter';
 // import { GitlabFileInfo } from '../models/gitlab-file-info.model';
 // import { Codechange } from '../models/codechange.model';
@@ -16,6 +17,7 @@ export class CoverageService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly coverageDataAdapterService: CoverageDataAdapterService,
+    private readonly testExcludeService: TestExcludeService,
   ) {}
 
   async getCoverageSummaryMap(
@@ -23,19 +25,23 @@ export class CoverageService {
     reportID: string,
     mode: string,
   ): Promise<CoverageSummary[]> {
-    const coverageData = await this.getCoverageDataFromAdapter(sha, reportID);
-
+    const coverages = await this.prisma.coverage.findMany({
+      where: {
+        sha: sha,
+        covType: 'agg',
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+    });
+    if (coverages.length === 0) {
+      return [];
+    }
+    const coverageData = await this.getCoverageDataFromAdapter(
+      sha,
+      reportID,
+    ).then((r) => this.testExcludeService.invoke(coverages[0].projectID, r));
     if (mode === 'codechange') {
-      const coverages = await this.prisma.coverage.findMany({
-        where: {
-          sha: sha,
-          covType: 'agg',
-        },
-        orderBy: {
-          updatedAt: 'desc',
-        },
-      });
-      // console.log(coverages[0]);
       const codechanges = await this.prisma.codechange.findMany({
         where: {
           compareTarget: coverages[0].compareTarget,
