@@ -5,43 +5,28 @@ import {
   Post,
   Query,
   Request,
-  Res,
   UseGuards,
 } from '@nestjs/common';
-import type { Response } from 'express';
-// import { AppService } from './app.service';
 import { CoverageClientService } from './services/coverage-client.service';
-// import { RetrieveCoverageSummaryService } from './services/retrieve-coverage-summary.service';
 import { CoverageClientDto } from './dto/coverage-client.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CoverageService } from './services/coverage.service';
-// import { query } from 'express';
 import { RetrieveCoverageTreeSummaryService } from './services/retrieve-coverage-tree-summary.service';
-// import { getSpecificCoverageData } from '../adapter/coverage-data.adapter';
-import { join } from 'path';
-import { download } from '../utils/download';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConsumerCoverageService } from './services/consumer-coverage.service';
 import { TestCoverage } from './services/test.coverage';
-// import axios from 'axios';
-// import * as platform from 'platform'
-// export function getPlatformInfo(str) {
-//   return platform.parse(str)
-// }
 
 @Controller()
 export class CoverageController {
   constructor(
     private readonly coverageService: CoverageService,
     private readonly coverageClientService: CoverageClientService,
-    // private readonly retrieveCoverageSummaryService: RetrieveCoverageSummaryService,
     private readonly retrieveCoverageTreeSummaryService: RetrieveCoverageTreeSummaryService,
     private prisma: PrismaService,
     private consumerCoverageService: ConsumerCoverageService,
     private testCoverage: TestCoverage,
   ) {
     this.consumerCoverageService.invoke();
-    // this.testCoverage.invoke();
   }
 
   @UseGuards(JwtAuthGuard)
@@ -50,7 +35,6 @@ export class CoverageController {
     @Body() coverageClientDto: CoverageClientDto,
     @Request() req: any,
   ): Promise<any> {
-    // console.log(req.ip);
     // 添加特殊上报逻辑处 (这是标记，勿动！)
     // {{$mpaasSpecial}}添加特殊上报逻辑处 (这是标记，勿动！)
     return this.coverageClientService.invoke(
@@ -62,9 +46,8 @@ export class CoverageController {
 
   @Get('api/coverage/summary/map')
   async coverageSummary(@Query() query): Promise<any> {
-    // return {};
-    const { sha, reportID, mode } = query;
-    return this.coverageService.getCoverageSummaryMap(sha, reportID, mode);
+    const { sha, reportID } = query;
+    return this.coverageService.getCoverageSummaryMap(sha, reportID);
   }
 
   @Get('api/coverage/map')
@@ -119,14 +102,7 @@ export class CoverageController {
   }
 
   @Get('coverage/aggstatus')
-  listAggStatus(
-    @Query()
-    params: {
-      reportId?: string;
-      report_id?: string;
-      reportID?: string;
-    },
-  ) {
+  listAggStatus() {
     return {
       code: 2,
       msg: '聚合完成',
@@ -136,15 +112,7 @@ export class CoverageController {
   // 触发覆盖率聚合方法
   // 传 reportId 和 reporterId 都可以
   @Post('coverage/triggeragg')
-  triggeragg(
-    @Body()
-    params: {
-      reportId?: string;
-      report_id?: string;
-      reportID?: string;
-      sha?: string;
-    },
-  ) {
+  triggeragg() {
     return {
       msg: '报告聚合中',
       data: [],

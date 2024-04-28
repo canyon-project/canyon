@@ -1,15 +1,7 @@
 // import { data } from 'autoprefixer';
 import axios from 'axios';
-function getDecode(str: string) {
-  return decodeURIComponent(
-    atob(str)
-      .split('')
-      .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join(''),
-  );
-}
+
+import { getDecode } from '../../../../../../helpers/utils/common.ts';
 
 interface HandleSelectFile {
   projectID: string;
@@ -62,3 +54,23 @@ export function handleSelectFile({ projectID, sha, filepath, reportID }: HandleS
     },
   );
 }
+
+
+export const getCoverageSummaryMapService = ({sha,reportID})=>axios({
+  url: '/api/coverage/summary/map',
+  method: 'GET',
+  params: {
+    reportID: reportID || '',
+    sha: sha || ''
+  },
+})
+  .then(({ data }) => data)
+  .then((r) =>
+    r.map((i) => ({
+      ...i,
+      path: i.path.replace('~/', ''),
+    })),
+  )
+  .then((r) => {
+    return r;
+  })

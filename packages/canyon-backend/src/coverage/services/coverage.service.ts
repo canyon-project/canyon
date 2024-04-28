@@ -23,7 +23,6 @@ export class CoverageService {
   async getCoverageSummaryMap(
     sha: string,
     reportID: string,
-    mode: string,
   ): Promise<CoverageSummary[]> {
     const coverages = await this.prisma.coverage.findMany({
       where: {
@@ -41,33 +40,20 @@ export class CoverageService {
       sha,
       reportID,
     ).then((r) => this.testExcludeService.invoke(coverages[0].projectID, r));
-    if (mode === 'codechange') {
-      const codechanges = await this.prisma.codechange.findMany({
-        where: {
-          compareTarget: coverages[0].compareTarget,
-          sha: sha,
-        },
-      });
-      const covSummary = genSummaryMapByCoverageMap(coverageData, codechanges);
-      return Object.entries(covSummary)
-        .filter(([key]) =>
-          codechanges.map(({ path }) => `~/${path}`).includes(key),
-        )
-        .map(([key, value]) => {
-          return {
-            path: key,
-            ...value,
-          };
-        });
-    } else {
-      const covSummary = genSummaryMapByCoverageMap(coverageData, []);
-      return Object.entries(covSummary).map(([key, value]) => {
-        return {
-          path: key,
-          ...value,
-        };
-      });
-    }
+    const codechanges = await this.prisma.codechange.findMany({
+      where: {
+        compareTarget: coverages[0].compareTarget,
+        sha: sha,
+      },
+    });
+    const covSummary = genSummaryMapByCoverageMap(coverageData, codechanges);
+    return Object.entries(covSummary).map(([key, value]) => {
+      return {
+        path: key,
+        ...value,
+        change: codechanges.map(({ path }) => `~/${path}`).includes(key),
+      };
+    });
   }
 
   async getCoverageData(commitSha, reportID, filepath) {

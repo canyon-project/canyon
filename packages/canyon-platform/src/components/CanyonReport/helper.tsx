@@ -1,22 +1,102 @@
-import { Dims } from './Report';
+// 批注语句
 
-export const classForPercent = (
-  type: Dims,
-  value: number,
-  _watermarks: any,
-) => {
-  const watermarks = _watermarks[type];
-  if (!watermarks) {
-    return 'unknown';
+export function annotateStatements(fileCoverage: any) {
+  const annotateStatementsList: any[] = [];
+  const statementStats = fileCoverage.s;
+  const statementMeta = fileCoverage.statementMap;
+  Object.entries(statementStats).forEach(([stName, count]: any) => {
+    const meta = statementMeta[stName];
+    const type = count > 0 ? 'yes' : 'no';
+    const startCol = meta.start.column;
+    const endCol = meta.end.column + 1;
+    const startLine = meta.start.line;
+    const endLine = meta.end.line;
+    if (type === 'no') {
+      annotateStatementsList.push({
+        startLine,
+        endLine,
+        startCol,
+        endCol,
+        type,
+      });
+    }
+  });
+  return annotateStatementsList;
+}
+
+export function annotateFunctions(fileCoverage, structuredText) {
+  const fnStats = fileCoverage.f;
+  const fnMeta = fileCoverage.fnMap;
+  if (!fnStats) {
+    return [];
   }
-  if (value < watermarks[0]) {
-    return 'low';
+  const list = [];
+  Object.entries(fnStats).forEach(([fName, count]) => {
+    const meta = fnMeta[fName];
+    const type = count > 0 ? 'yes' : 'no';
+    // Some versions of the instrumenter in the wild populate 'func'
+    // but not 'decl':
+    const decl = meta.decl || meta.loc;
+    const startCol = decl.start.column;
+    let endCol = decl.end.column + 1;
+    const startLine = decl.start.line;
+    const endLine = decl.end.line;
+    if (type === 'no') {
+      if (endLine !== startLine) {
+        console.log('???????');
+        endCol = structuredText[startLine - 1].length;
+      }
+      list.push({
+        startLine,
+        endLine,
+        startCol,
+        endCol,
+        type,
+      });
+    }
+  });
+  return list;
+}
+
+export function convertingProductionFunctions(
+  startEnds: { start: number; end: number }[],
+  sourcecode: string,
+) {
+  // codeLines是源码的每一行
+  const codeLines = sourcecode.split('\n');
+
+  const result = [];
+
+  for (let g = 0; g < startEnds.length; g++) {
+    const xy = [];
+    let count = 0;
+    for (let i = 0; i < codeLines.length; i++) {
+      const line = codeLines[i];
+      // 注意这块，需要加1，因为split('\n')的时候，每一行的末尾是没有\n的
+      for (let j = 0; j < line.length + 1; j++) {
+        if (count === startEnds[g].start || count === startEnds[g].end) {
+          xy.push({
+            l: i + 1,
+            c: j + 1,
+          });
+        }
+        count++;
+      }
+    }
+    result.push(xy);
   }
-  if (value >= watermarks[1]) {
-    return 'high';
-  }
-  return 'medium';
-};
+  return result.map((i) => {
+    return {
+      startLine: i[0].l,
+      startCol: i[0].c,
+      endLine: i[1].l,
+      endCol: i[1].c,
+    };
+  });
+}
+
+
+
 
 export function coreFn(
   fileCoverage: any,
@@ -180,4 +260,9 @@ export function genDecorationsLv2Array(code, startends) {
 
   const mergedArray = mergeRows(convertedData);
   return mergedArray;
+}
+
+
+export function capitalizeFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }

@@ -181,7 +181,6 @@ const ProjectOverviewPage = () => {
           <Link
             to={{
               pathname: `/projects/${pam.id}/commits/${sha}`,
-              search: '?mode=codechange',
             }}
           >
             {_}%

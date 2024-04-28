@@ -1,15 +1,12 @@
-// import { useQuery } from '@apollo/client';
-import { init } from '@canyon/report';
+import { useQuery } from '@apollo/client';
 import { useRequest } from 'ahooks';
-import { Divider, Switch } from 'antd';
-import axios from 'axios';
-import { useEffect, useRef } from 'react';
-// import { useParams } from 'react-router';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
-import SummarySearchTable from '../../../../../components/app/SummarySearchTable.tsx';
-// import { GetCoverageSummaryMapDocument } from '../../../../helpers/backend/gen/graphql.ts';
-import { handleSelectFile } from './helper';
+import CanyonReport from '../../../../../components/CanyonReport';
+import { GetProjectByIdDocument } from '../../../../../helpers/backend/gen/graphql.ts';
+import { getCoverageSummaryMapService, handleSelectFile } from './helper';
+const { useToken } = theme;
+
 const Sha = () => {
   const prm = useParams();
   const nav = useNavigate();
@@ -17,108 +14,86 @@ const Sha = () => {
   // 在组件中
   const location = useLocation();
   const currentPathname = location.pathname;
-
-  // const { data } = useQuery(GetCoverageSummaryMapDocument, {
-  //   variables: {
-  //     reportID: sprm.get('report_id') || '',
-  //     commitSha: prm.sha || '',
-  //     mode: sprm.get('mode') || '',
-  //   },
-  // });
-  const { data } = useRequest(
-    () => {
-      return axios({
-        url: '/api/coverage/summary/map',
-        method: 'GET',
-        params: {
-          reportID: sprm.get('report_id') || '',
-          sha: prm.sha || '',
-          mode: sprm.get('mode') || '',
-        },
-      }).then(({ data }) => data);
+  const { data: getProjectByIdDocumentData } = useQuery(GetProjectByIdDocument, {
+    variables: {
+      projectID: prm['id'] as string,
     },
+  });
+  const pathWithNamespace =
+    getProjectByIdDocumentData?.getProjectByID.pathWithNamespace.split('/')[1];
+  const { token } = useToken();
+
+  const { data: coverageSummaryMapData, loading } = useRequest(
+    () =>
+      getCoverageSummaryMapService({
+        reportID: sprm.get('report_id'),
+        sha: prm.sha,
+      }),
     {
       onSuccess() {},
     },
   );
-  const reportRef = useRef(null);
+
+  const [activatedPath, setActivatedPath] = useState(sprm.get('path') || '');
+  const [mainData, setMainData] = useState<any>(false);
+
   useEffect(() => {
-    if (reportRef.current && data) {
-      const report = init(reportRef.current, {
-        defaultPath: sprm.get('path') || '~',
-        theme: localStorage.getItem('theme') || 'light',
-        onSelectFile(path: string) {
-          // console.log(path)
-
-          // 假设你想要导航到 '/path' 并且拼接参数
-          // const path1 = `/path`;
-          const params = new URLSearchParams();
-          if (sprm.get('report_id')) {
-            params.append('report_id', sprm.get('report_id') || '');
-          }
-          if (sprm.get('mode')) {
-            params.append('mode', sprm.get('mode') || '');
-          }
-
-          // params.append('mode', sprm.get('mode'));
-          params.append('path', path);
-
-          // 将参数拼接到路径中
-          const pathWithParams = `${currentPathname}?${params.toString()}`;
-
-          nav(pathWithParams);
-          if (path.includes('.')) {
-            return handleSelectFile({
-              filepath: path,
-              reportID: sprm.get('report_id') || '',
-              sha: prm.sha || '',
-              projectID: prm.id || '',
-              mode: sprm.get('mode') || '',
-            }).then((r) => {
-              return r;
-            });
-          } else {
-            return new Promise((resolve) => {
-              resolve({} as any);
-            });
-            // return new P
-          }
-        },
-      });
-      const summary = data.reduce((acc: any, cur: any) => {
-        acc[cur.path] = cur;
-        return acc;
-      }, {});
-      report.setOption({ summary: summary });
+    const params = new URLSearchParams();
+    if (sprm.get('report_id')) {
+      params.append('report_id', sprm.get('report_id') || '');
     }
-  }, [data]);
-  const [showmode, setShowmode] = useState('0');
+    if (sprm.get('mode')) {
+      params.append('mode', sprm.get('mode') || '');
+    }
+    params.append('path', activatedPath);
+
+    // 将参数拼接到路径中
+    const pathWithParams = `${currentPathname}?${params.toString()}`;
+
+    nav(pathWithParams);
+
+    if (activatedPath.includes('.')) {
+      handleSelectFile({
+        filepath: '~/' + activatedPath,
+        reportID: sprm.get('report_id') || '',
+        sha: prm.sha || '',
+        projectID: prm.id || '',
+        mode: sprm.get('mode') || '',
+      }).then((r) => {
+        if (r.fileCoverage){
+          // console.log(r)
+          setMainData(r);
+        } else {
+          setMainData(false)
+        }
+
+      });
+    } else {
+      console.log('设么也不做');
+      setMainData(false);
+    }
+  }, [activatedPath]);
+
   return (
     <div
       className='p-2 rounded-md bg-white dark:bg-[#151718]'
-      style={{ minHeight: 'calc(100vh - 96px)' }}
+      style={{
+        // border: `1px solid ${token.colorBorder}`,
+        boxShadow: `${token.boxShadowTertiary}`,
+      }}
     >
-      <Radio.Group
-        value={showmode}
-        buttonStyle='solid'
-        onChange={(v) => {
-          setShowmode(v.target.value);
+      {/*{pathWithNamespace}111*/}
+      {/*{pathWithNamespace}*/}
+      <CanyonReport
+        theme={localStorage.getItem('theme') || 'light'}
+        mainData={mainData}
+        pathWithNamespace={pathWithNamespace}
+        activatedPath={activatedPath}
+        coverageSummaryMapData={coverageSummaryMapData || []}
+        loading={loading}
+        onSelect={(v) => {
+          setActivatedPath(v.path);
         }}
-      >
-        <Radio.Button value='0'>Tree</Radio.Button>
-        <Radio.Button value='1'>List</Radio.Button>
-        {/*<Radio.Button value="c">Beijing</Radio.Button>*/}
-        {/*<Radio.Button value="d">Chengdu</Radio.Button>*/}
-      </Radio.Group>
-      <Divider style={{ margin: '10px 0' }} />
-      {showmode === '1' && data && <SummarySearchTable data={data} />}
-      {/*{!showmode &&}*/}
-      <div
-        style={{
-          display: showmode === '1' ? 'none' : 'block',
-        }}
-        className={'bg-white'}
-        ref={reportRef}
       />
     </div>
   );

@@ -11,7 +11,11 @@ const LineNumber = ({ count, theme }) => {
   return (
     <div style={style}>
       {[...Array(count)].map((i, index) => {
-        return <div key={index}>{index + 1}</div>;
+        return (
+          <div style={{ height: '18px', lineHeight: '18px' }} key={index}>
+            {index + 1}
+          </div>
+        );
       })}
     </div>
   );

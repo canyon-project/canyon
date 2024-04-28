@@ -6,16 +6,18 @@ const { darkAlgorithm } = theme;
 const App = () => {
   const isDark = localStorage.getItem('theme') ? localStorage.getItem('theme') === 'dark' : false;
   return (
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: '#287DFA',
-        },
-        algorithm: isDark ? [darkAlgorithm] : [],
-      }}
-    >
-      {useRoutes(routes)}
-    </ConfigProvider>
+    <div className={'dark:text-white dark:text-opacity-85'}>
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: '#0071c2',
+          },
+          algorithm: isDark ? [darkAlgorithm] : [],
+        }}
+      >
+        {useRoutes(routes)}
+      </ConfigProvider>
+    </div>
   );
 };
 

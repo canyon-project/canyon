@@ -10,11 +10,12 @@
   /*background-color: white !important;*/
 }
 a{
-  color: #287DFA;
+  color: #0071c2;
 }
 a:hover{
-  color: #287DFA;
+  color: #0071c2;
   opacity: .8;
+  text-decoration:underline;
 }
 
 /*账单那边*/
@@ -43,6 +44,7 @@ a:hover{
   margin-bottom: 0 !important;
 }
 
+/*收藏的project的样式*/
 .ant-table-row-level-0 .favor-heart{
   visibility: hidden;
   cursor: pointer;
@@ -50,4 +52,38 @@ a:hover{
 
 .ant-table-row-level-0:hover .favor-heart{
   visibility:unset;
+}
+
+
+
+.content-class-no-found {
+  background: rgb(255,237,240);
+}
+
+.content-class-found {
+  background: rgb(255,237,240);
+}
+
+.dark .content-class-no-found {
+  background: rgb(122, 84, 116);
+}
+
+.dark .content-class-found {
+  background: rgb(122, 84, 116);
+}
+
+
+/*thead tr:nth-child(2){*/
+/*  display: none !important;*/
+/*}*/
+
+.highlight{
+  color: red !important;
+}
+
+
+.YourHighlightClass {
+  padding: 0 !important;
+  color: white !important;
+  background: rgb(244,176,27) !important;
 }
