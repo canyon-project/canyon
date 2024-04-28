@@ -52,4 +52,7 @@ export class CoverageClientDto {
   @IsNotEmpty({ message: 'coverage不能为空' })
   @Validate(IsValidCoverage)
   coverage: any;
+
+  @IsOptional({ message: 'tags 可以为空' })
+  tags: any;
 }

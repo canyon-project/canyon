@@ -82,7 +82,7 @@ export class CoverageClientService {
     // ******************************************************
     // ******************************************************
     // ******************************************************
-    const coverageReport = await this.dataFormatAndCheck(coverageClientDto);
+    const coverageReport = coverageClientDto;
     const cov: Coverage & { coverage: any } = {
       id: '',
       key: coverageReport.key || '',
@@ -95,7 +95,7 @@ export class CoverageClientService {
       reporter: currentUser,
       reportID: coverageReport.reportID,
       covType: 'normal',
-      covOrigin: coverageReport.covOrigin || 'handmade', //没有就是手工
+      covOrigin: 'handmade', //没有就是手工
       summary: {},
       tag: coverageReport.tags || {},
       relationID: '',
@@ -120,54 +120,6 @@ export class CoverageClientService {
       coverageId: '',
       dataFormatAndCheckTime: '',
       coverageInsertDbTime: '',
-    };
-  }
-  async dataFormatAndCheck(data: CoverageClientDto): Promise<any> {
-    data = this.regularData(data);
-    const instrumentCwd = data.instrumentCwd;
-    const noPass = [];
-    for (const coverageKey in data.coverage) {
-      if (coverageKey.includes(instrumentCwd)) {
-      } else {
-        noPass.push(coverageKey);
-      }
-    }
-    if (noPass.length > 0) {
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'coverage对象与canyon.processCwd不匹配',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-
-    // 3.修改覆盖率路径
-    // 考虑到会出现大数的情况
-    // CanyonUtil.formatReportObject上报时就开启源码回溯
-    const coverage = await formatReportObject({
-      coverage: data.coverage,
-      instrumentCwd,
-    }).then((res) => res.coverage);
-    return {
-      ...data,
-      coverage: coverage,
-    };
-  }
-
-  regularData(data: any) {
-    const obj = {};
-    const { coverage } = data;
-    // 针对windows电脑，把反斜杠替换成正斜杠
-    // 做数据过滤，去除 \u0000 字符
-    for (const coverageKey in coverage) {
-      if (!coverageKey.includes('\u0000')) {
-        obj[coverageKey] = coverage[coverageKey];
-      }
-    }
-    return {
-      ...data,
-      coverage: obj,
     };
   }
 }

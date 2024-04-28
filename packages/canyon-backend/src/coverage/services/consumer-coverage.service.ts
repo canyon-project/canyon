@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import {
   genSummaryMapByCoverageMap,
@@ -12,6 +12,7 @@ import { PullChangeCodeAndInsertDbService } from './pull-change-code-and-insert-
 import { logger } from '../../logger';
 import { CoveragediskService } from './coveragedisk.service';
 import { TestExcludeService } from './test-exclude.service';
+import { formatReportObject } from '../../utils/coverage';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -39,9 +40,18 @@ export class ConsumerCoverageService {
           const lockAcquired = await this.acquireLock(lockName, 1000 * 60 * 2);
 
           if (lockAcquired) {
+            // 到这里，获取到锁了以后再作处理
+            const dataFormatAndCheckQueueDataToBeConsumed =
+              await this.dataFormatAndCheck(queueDataToBeConsumed);
             try {
-              await this.consume(queueDataToBeConsumed, 'agg');
-              await this.consume(queueDataToBeConsumed, 'all');
+              await this.consume(
+                dataFormatAndCheckQueueDataToBeConsumed,
+                'agg',
+              );
+              await this.consume(
+                dataFormatAndCheckQueueDataToBeConsumed,
+                'all',
+              );
               // 执行任务
             } finally {
               await this.releaseLock(lockName);
@@ -230,5 +240,53 @@ export class ConsumerCoverageService {
         lockName,
       },
     });
+  }
+  async dataFormatAndCheck(data): Promise<any> {
+    data = this.regularData(data);
+    const instrumentCwd = data.instrumentCwd;
+    const noPass = [];
+    for (const coverageKey in data.coverage) {
+      if (coverageKey.includes(instrumentCwd)) {
+      } else {
+        noPass.push(coverageKey);
+      }
+    }
+    if (noPass.length > 0) {
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'coverage对象与canyon.processCwd不匹配',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    // 3.修改覆盖率路径
+    // 考虑到会出现大数的情况
+    // CanyonUtil.formatReportObject上报时就开启源码回溯
+    const coverage = await formatReportObject({
+      coverage: data.coverage,
+      instrumentCwd,
+    }).then((res) => res.coverage);
+    return {
+      ...data,
+      coverage: coverage,
+    };
+  }
+
+  regularData(data: any) {
+    const obj = {};
+    const { coverage } = data;
+    // 针对windows电脑，把反斜杠替换成正斜杠
+    // 做数据过滤，去除 \u0000 字符
+    for (const coverageKey in coverage) {
+      if (!coverageKey.includes('\u0000')) {
+        obj[coverageKey] = coverage[coverageKey];
+      }
+    }
+    return {
+      ...data,
+      coverage: obj,
+    };
   }
 }
