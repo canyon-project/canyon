@@ -1,0 +1,12 @@
+query GetProjectsNoData{
+  getProjectsNoData {
+    id
+    pathWithNamespace
+    description
+    bu
+    reportTimes
+    lastReportTime
+    maxCoverage
+    createdAt
+  }
+}

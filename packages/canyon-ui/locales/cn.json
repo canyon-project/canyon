@@ -1,0 +1,72 @@
+{
+  "welcome": {
+    "hello": "你好，",
+    "copywriter": "欢迎来到Canyon。",
+    "desc": "您将被重定向到源代码控制管理系统进行身份验证。",
+    "continue": "继续"
+  },
+  "menus": {
+    "projects": "项目",
+    "settings": "设置",
+    "docs": "文档"
+  },
+  "projects": {
+    "create": "创建项目",
+    "desc": "查看与您的账户相关的所有项目",
+    "name": "名称",
+    "report_times": "次数",
+    "report_time": "上报时间",
+    "max_coverage": "最大覆盖率",
+    "latest_report_time": "最近上报时间",
+    "latest_report_coverage": "最近上报覆盖率",
+    "no_data": "{{msg}}个项目没数据",
+    "total_times": "总次数",
+    "trends_in_coverage": "覆盖率趋势",
+    "records": "记录",
+    "overview": "概览",
+    "branch": "分支",
+    "compare_target": "对比目标",
+    "message": "提交信息",
+    "functions": "函数",
+    "branches": "分支",
+    "statements": "语句",
+    "lines": "行",
+    "newlines": "新增行",
+    "reported_details": "上报细节",
+    "reporter": "上报人",
+    "search_keywords": "按项目 ID 或名称搜索",
+    "overview_search_keywords": "输入 \"Commit Sha \"或 \"分支 \"或 \"比较目标 \"关键词进行搜索",
+    "coverage_details": "覆盖率详情",
+    "report_id": "上报 ID",
+    "coverage_id": "覆盖率 ID",
+    "view_detail": "查看详情",
+    "max_coverage_tooltip": "近30天的最大覆盖率",
+    "statements_tooltip": "语句覆盖率也是总体覆盖率",
+    "newlines_tooltip": "变更代码行覆盖率",
+    "statements_tour_title": "语句覆盖率",
+    "newlines_tour_title": "变更代码行覆盖率",
+    "statements_tour_description": "点击此列中的百分比数字以跳转至全量覆盖详情页面。",
+    "newlines_tour_description": "点击此列中的百分比数字以跳转至变更行覆盖详情页面。"
+  },
+  "settings": {
+    "desc": "设置您的账户信息",
+    "preference": "偏好",
+    "user_auth_tokens": "用户授权令牌",
+    "copied_to_clipboard": "已复制到剪贴板"
+  },
+  "common": {
+    "option": "操作",
+    "detail": "详情",
+    "configure": "配置",
+    "delete": "删除",
+    "language": "语言",
+    "theme": "主题",
+    "light": "光明",
+    "dark": "黑暗",
+    "created_at": "创建时间",
+    "total_items": "共计 {{total}} 项"
+  },
+  "app": {
+    "logout": "退出登录"
+  }
+}

@@ -1,0 +1,14 @@
+query Me {
+  me {
+    id
+    username
+    password
+    nickname
+    avatar
+    refreshToken
+    accessToken
+    email
+    favor
+    createdAt
+  }
+}
