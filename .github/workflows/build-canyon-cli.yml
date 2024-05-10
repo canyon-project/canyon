@@ -1,0 +1,46 @@
+name: Build canyon-cli
+
+on:
+  push:
+    branches: [ "*" ]
+    tags:
+      - "v*.*.*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      - name: Use Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+      - run: pnpm i
+      - run: pnpm --filter canyon-cli exec -- npm run build
+      - run: pnpm --filter canyon-cli exec -- npm run build-linux
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Build
+          path: packages/canyon-cli/out
+
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    needs: build
+
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: Build
+          path: packages/canyon-cli/out
+      - run: mv packages/canyon-cli/out build
+      - run: zip -r canyon-cli.zip build/
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: "canyon-cli.zip"

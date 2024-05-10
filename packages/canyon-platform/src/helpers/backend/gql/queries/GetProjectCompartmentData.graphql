@@ -1,0 +1,6 @@
+query GetProjectCompartmentData($projectID: String!) {
+  getProjectCompartmentData(projectID: $projectID){
+    value
+    label
+  }
+}

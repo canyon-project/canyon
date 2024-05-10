@@ -1,0 +1,20 @@
+query GetProjectByID($projectID: ID!) {
+  getProjectByID(projectID: $projectID) {
+    id
+    name
+    pathWithNamespace
+    description
+    reportTimes
+    lastReportTime
+    coverage
+    tag
+    branchOptions
+    defaultBranch
+    tags {
+      id
+      name
+      link
+      color
+    }
+  }
+}
