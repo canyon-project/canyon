@@ -1,4 +1,5 @@
 import {FileCoverageData, Range} from "istanbul-lib-coverage";
+import {percent} from "./percent.ts";
 
 /**
  * returns computed line coverage from statement coverage.
@@ -34,6 +35,6 @@ export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData,
     total: newLine.length,
     covered: newLine.length - rows.filter((i) => !i[1]).length,
     skipped: 0,
-    pct:0
+    pct: percent(newLine.length - rows.filter((i) => !i[1]).length, newLine.length)
   };
 }
