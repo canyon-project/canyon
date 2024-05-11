@@ -81,7 +81,7 @@ export class RetrieveCoverageTreeSummaryService {
       };
     } catch (e) {
       return {
-        status: 'fail',
+        status: 'success',
         reportIDs: [],
         sha: params.sha || '',
         statistics: emptyStatistics,
