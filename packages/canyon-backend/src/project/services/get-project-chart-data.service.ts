@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { calculateCoverageOverviewByConditionFilter } from '../../utils/summary';
 import { removeNullKeys } from '../../utils/utils';
 // import { getProjectByID } from '../adapter/gitlab.adapter';
 @Injectable()
