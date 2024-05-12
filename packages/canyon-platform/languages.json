@@ -10,5 +10,11 @@
     "file": "cn.json",
     "iso": "zh-CN",
     "name": "简体中文"
+  },
+  {
+    "code": "ja",
+    "file": "ja.json",
+    "iso": "ja-JA",
+    "name": "日本語"
   }
 ]

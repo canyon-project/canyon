@@ -5,7 +5,7 @@ import { initReactI18next } from 'react-i18next';
 // import languages from '../languages.json';
 import cn from '../locales/cn.json';
 import en from '../locales/en.json';
-// import ja from '../locales/ja.json';
+import ja from '../locales/ja.json';
 // import ko from '../locales/ko.json';
 // import tw from '../locales/tw.json';
 // const getIos = (code: string, languages: { code: string; iso: string }[]) =>
@@ -31,6 +31,12 @@ i18n
       cn: {
         translation: cn,
       },
+      ja: {
+        translation: ja,
+      },
+      // ko: {
+      //   translation: ko,
+      // },
     },
     lng: localStorage.getItem('language') || 'cn',
   });
