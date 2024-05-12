@@ -1,0 +1,76 @@
+{
+  "welcome": {
+    "hello": "こんにちは、",
+    "copywriter": "Canyonへようこそ。",
+    "desc": "認証のために、ソースコード管理システムにリダイレクトされます。",
+    "continue": "続ける"
+  },
+  "menus": {
+    "projects": "プロジェクト",
+    "settings": "設定",
+    "usage": "使用法",
+    "docs": "ドキュメント",
+    "billing": "請求",
+    "members": "メンバー",
+    "cart": "カート"
+  },
+  "projects": {
+    "create": "プロジェクトを作成する",
+    "desc": "アカウントに関連するすべてのプロジェクトを表示します",
+    "name": "リポジトリ",
+    "report_times": "回数",
+    "report_time": "レポート時間",
+    "max_coverage": "最大カバレッジ",
+    "latest_report_time": "最終レポート",
+    "latest_report_coverage": "最新のレポートカバレッジ",
+    "no_data": "{{msg}}のプロジェクトにはデータがありません",
+    "total_times": "合計回数",
+    "trends_in_coverage": "カバレッジのトレンド",
+    "records": "レコード",
+    "overview": "概要",
+    "branch": "ブランチ",
+    "compare_target": "比較対象",
+    "message": "コミットメッセージ",
+    "functions": "関数",
+    "branches": "ブランチ",
+    "statements": "ステートメント",
+    "lines": "行",
+    "newlines": "新しい行",
+    "reported_details": "ログ",
+    "reporter": "レポーター",
+    "search_keywords": "プロジェクトIDまたは名前で検索",
+    "overview_search_keywords": "検索する\"コミットSha\"または\"ブランチ\"または\"比較対象\"キーワードを入力してください",
+    "coverage_details": "カバレッジの詳細",
+    "report_id": "レポートID",
+    "coverage_id": "カバレッジID",
+    "view_detail": "詳細を表示",
+    "max_coverage_tooltip": "過去30日間の最大カバレッジ",
+    "statements_tooltip": "ステートメントカバレッジは全体的なカバレッジです",
+    "newlines_tooltip": "コード行カバレッジの変更",
+    "statements_tour_title": "ステートメントカバレッジ",
+    "newlines_tour_title": "新しい行カバレッジ",
+    "statements_tour_description": "この列のパーセンテージ番号をクリックすると、完全なカバレッジ詳細ページに移動します。",
+    "newlines_tour_description": "この列のパーセンテージ番号をクリックすると、変更された行のカバレッジ詳細ページに移動します。"
+  },
+  "settings": {
+    "desc": "アカウント情報を設定します",
+    "preference": "設定",
+    "user_auth_tokens": "ユーザー認証トークン",
+    "copied_to_clipboard": "クリップボードにコピーされました"
+  },
+  "common": {
+    "option": "オプション",
+    "detail": "詳細",
+    "configure": "構成",
+    "delete": "削除",
+    "language": "言語",
+    "theme": "テーマ",
+    "light": "ライト",
+    "dark": "ダーク",
+    "created_at": "作成日時",
+    "total_items": "合計{{total}}アイテム"
+  },
+  "app": {
+    "logout": "ログアウト"
+  }
+}
