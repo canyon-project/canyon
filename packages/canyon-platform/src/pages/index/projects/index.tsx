@@ -102,7 +102,7 @@ const ProjectPage = () => {
                 {text}
               </a>
             </div>
-            <Text type={'secondary'} style={{ fontSize: '12px' }}>
+            <Text type={'secondary'} style={{ fontSize: '12px',width:'240px' }}>
               {record.description}
             </Text>
           </div>
