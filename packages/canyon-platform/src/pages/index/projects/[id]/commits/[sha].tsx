@@ -49,7 +49,7 @@ const Sha = () => {
     params.append('path', activatedPath);
 
     // 将参数拼接到路径中
-    const pathWithParams = `${currentPathname}?${params.toString()}`;
+    const pathWithParams = `${currentPathname}?${params.toString()}${location.hash}`;
 
     nav(pathWithParams);
 
