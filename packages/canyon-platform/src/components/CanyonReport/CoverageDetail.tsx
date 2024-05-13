@@ -65,6 +65,7 @@ const CanyonReportCoverageDetail = ({ data, theme }) => {
   }, [editor, decorations]);
   return (
     <div
+      className={'canyon-report'}
       style={{
         display: 'flex',
         fontSize: '12px',
