@@ -81,7 +81,7 @@ const ProjectPage = () => {
       dataIndex: 'id',
       key: 'slug',
       render(text) {
-        return <span>{text.split('-')[2]}</span>;
+        return <span className={'w-[80px] block'}>{text.split('-')[2]}</span>;
       },
     },
     {
