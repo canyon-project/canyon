@@ -108,7 +108,7 @@ const CanyonReportCoverageDetail = ({ data, theme }) => {
           }}
         />
       </div>
-      <Spin spinning={viewLineHeight === 0} />
+      {viewLineHeight === 0 && <Spin spinning={viewLineHeight === 0} />}
     </>
   );
 };
