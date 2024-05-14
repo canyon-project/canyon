@@ -273,15 +273,17 @@ const ProjectOverviewPage = () => {
         </div>
 
         <div>
-          <Text type={'secondary'}>Project ID: {projectByIdData?.getProjectByID.id}</Text>
+          <Text type={'secondary'}>
+            {t('projects.config.project.id')}: {projectByIdData?.getProjectByID.id}
+          </Text>
           <Text className={'ml-6'} type={'secondary'}>
-            默认分支: {projectByIdData?.getProjectByID.defaultBranch}
+            {t('projects.default.branch')}: {projectByIdData?.getProjectByID.defaultBranch}
           </Text>
         </div>
         {projectByIdData?.getProjectByID.tags.length > 0 && (
           <div className={'pt-5'}>
             <Text className={'mr-3'} type={'secondary'}>
-              Tags:
+              {t('projects.config.tag')}:
             </Text>
             {projectByIdData?.getProjectByID.tags.map(({ color, name, link }, index) => (
               <Tag
@@ -350,7 +352,7 @@ const ProjectOverviewPage = () => {
                   {t('projects.trends_in_coverage')}
                 </Title>
                 <Text type={'secondary'} className={'ml-2'}>
-                  仅展示默认分支趋势
+                  {t('projects.trends.tooltip')}
                 </Text>
               </div>
               <ReactECharts
@@ -383,7 +385,7 @@ const ProjectOverviewPage = () => {
           style={{ width: '700px' }}
         />
         <Space>
-          <Text type={'secondary'}>只看默认分支: </Text>
+          <Text type={'secondary'}>{t('projects.only.default.branch')}: </Text>
           <Switch
             defaultChecked={Boolean(localStorage.getItem('defaultBranchOnly'))}
             onChange={(v) => {

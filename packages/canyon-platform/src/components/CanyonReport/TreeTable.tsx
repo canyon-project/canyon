@@ -1,19 +1,18 @@
 import { FileOutlined, FolderFilled } from '@ant-design/icons';
-import { genSummaryTreeItem } from '@canyon/data';
 import { ConfigProvider, Space } from 'antd';
 
 import { getCOlor, percent } from '../../helpers/utils/common.ts';
 
 const CanyonReportTreeTable = ({ dataSource, loading, activatedPath, onSelect, onlyChange }) => {
+  const { t } = useTranslation();
   const newlinesColumns = onlyChange
     ? [
         {
-          title: 'New Lines Coverage',
+          title: t('projects.newlines'),
           width: '200px',
           sorter: (a, b) => {
             return a.summary.newlines.pct - b.summary.newlines.pct;
           },
-          // key: 'total',
           dataIndex: ['summary', 'newlines', 'total'],
           render(text, record) {
             return (
@@ -35,11 +34,6 @@ const CanyonReportTreeTable = ({ dataSource, loading, activatedPath, onSelect, o
             );
           },
         },
-        // {
-        //   title: 'covered',
-        //   key: 'covered',
-        //   dataIndex: ['summary', 'newlines', 'covered'],
-        // },
       ]
     : [];
   // const newlinesColumns = [];
@@ -69,7 +63,7 @@ const CanyonReportTreeTable = ({ dataSource, loading, activatedPath, onSelect, o
           // }}
           columns={[
             {
-              title: 'Files',
+              title: t('projects.detail.files'),
               key: 'path',
               dataIndex: 'path',
               render(text, record) {
@@ -92,12 +86,12 @@ const CanyonReportTreeTable = ({ dataSource, loading, activatedPath, onSelect, o
             },
 
             {
-              title: 'Total',
+              title: t('common.total'),
               key: 'total',
               dataIndex: ['summary', 'statements', 'total'],
             },
             {
-              title: 'Covered',
+              title: t('common.covered'),
               key: 'covered',
               dataIndex: ['summary', 'statements', 'covered'],
             },
@@ -105,11 +99,11 @@ const CanyonReportTreeTable = ({ dataSource, loading, activatedPath, onSelect, o
             .concat(newlinesColumns)
             .concat([
               {
-                title: 'Coverage %',
+                title: t('projects.config.coverage')+ ' %',
                 width: '300px',
                 key: 'c',
                 dataIndex: ['summary', 'statements', 'pct'],
-                sorter(a,b){
+                sorter(a, b) {
                   return a.summary.statements.pct - b.summary.statements.pct;
                 },
                 render(text) {

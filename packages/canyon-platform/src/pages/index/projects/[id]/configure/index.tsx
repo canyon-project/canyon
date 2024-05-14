@@ -1,16 +1,12 @@
 import Icon, { AppstoreOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import { Editor } from '@monaco-editor/react';
-import { useState } from 'react';
-// import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
 
 import {
   GetProjectByIdDocument,
   UpdateProjectDocument,
 } from '../../../../../helpers/backend/gen/graphql.ts';
 import BasicForms from './helper/BasicForms.tsx';
-import ConfigRule from './helper/ConfigRule.tsx';
 import { SolarUserIdLinear } from './helper/icons/SolarUserIdLinear.tsx';
 import TestTable from './helper/TestTable.tsx';
 
@@ -22,6 +18,7 @@ const { useToken } = theme;
 const ProjectConfigure = () => {
   const prm: any = useParams();
   const { token } = useToken();
+  const { t } = useTranslation();
   const { data: GetProjectByIdDocumentData } = useQuery(GetProjectByIdDocument, {
     variables: {
       projectID: prm.id,
@@ -29,7 +26,6 @@ const ProjectConfigure = () => {
     fetchPolicy: 'no-cache',
   });
   const [updateProject] = useMutation(UpdateProjectDocument);
-  // const { message } = App.useApp();
   const showMessage = () => {
     message.success('保存成功');
   };
@@ -37,19 +33,17 @@ const ProjectConfigure = () => {
 
   const [defaultBranch, setDefaultBranch] = useState<string>('');
 
-  // const { t } = useTranslation();
-  // const branchOptions = [];
   return (
     <div className={''}>
       <Title level={2} className={'flex items-center gap-3 pb-8'}>
         <AppstoreOutlined className={'text-[#687076] text-[32px]'} />
-        <span>项目配置</span>
+        <span>{t('projects.config.title')}</span>
       </Title>
       <Card
         title={
           <div className={'flex items-center'}>
             <Icon component={SolarUserIdLinear} className={'text-[#687076] mr-2 text-[18px]'} />
-            <span>基本信息</span>
+            <span>{t('projects.config.basic.information')}</span>
           </div>
         }
       >
@@ -64,16 +58,16 @@ const ProjectConfigure = () => {
         title={
           <div className={'flex items-center'}>
             <ExperimentOutlined className={'text-[#687076] mr-2 text-[16px]'} />
-            <span>覆盖率</span>
+            <span>{t('projects.config.coverage')}</span>
           </div>
         }
       >
         <Card.Grid hoverable={false} style={gridStyle}>
           <div className={'mb-5'}>
             <div className={'mb-2'}>
-              <div>默认分支</div>
+              <div>{t('projects.default.branch')}</div>
               <Text className={'text-xs'} type={'secondary'}>
-                默认分支作用于概览页面中覆盖率趋势图和表格。
+                {t('projects.config.default.branch.desc')}
               </Text>
             </div>
             {GetProjectByIdDocumentData && (
@@ -97,22 +91,20 @@ const ProjectConfigure = () => {
 
           <div className={'mb-5'}>
             <div className={'mb-2'}>
-              <div>检测范围</div>
+              <div>{t('projects.config.detection.range')}</div>
               <Text className={'text-xs'} type={'secondary'}>
-                提示: 使用
+                {t('projects.config.tooltips')}
                 <a href='https://github.com/isaacs/minimatch' target={'_blank'} rel='noreferrer'>
-                  minimatch
+                  {t('projects.config.minimatch')}
                 </a>
-                进行匹配，
                 <a
-                  href='https://github.com/canyon-project/canyon/tree/dev/examples/config/coverage.json'
+                  href='https://github.com/canyon-project/canyon/tree/main/examples/config/coverage.json'
                   target={'_blank'}
                   rel='noreferrer'
                 >
-                  查看示例
+                  {t('projects.config.view.example')}
                 </a>
-                。
-                配置include、exclude和extensions字段，include字段表示需要检测的文件，exclude字段表示不需要检测的文件，extensions字段表示需要检测的文件后缀。
+                <span className={'ml-2'}>{t('projects.config.example2')}</span>
               </Text>
             </div>
             <div style={{ border: '1px solid ' + token.colorBorder }}>
@@ -162,7 +154,6 @@ const ProjectConfigure = () => {
                       defaultBranch ||
                       GetProjectByIdDocumentData?.getProjectByID.defaultBranch ||
                       '-',
-                    rules: [],
                   },
                 }).then(() => {
                   showMessage();
@@ -172,7 +163,7 @@ const ProjectConfigure = () => {
               }
             }}
           >
-            保存更改
+            {t('projects.config.save.changes')}
           </Button>
         </Card.Grid>
       </Card>

@@ -1,5 +1,5 @@
 import { genSummaryTreeItem } from '@canyon/data';
-import { ConfigProvider } from 'antd';
+import { Spin } from 'antd';
 
 import CanyonReportControl from './Control.tsx';
 import CanyonReportCoverageDetail from './CoverageDetail.tsx';
@@ -66,7 +66,7 @@ const CanyonReport = ({
     return acc;
   }, {});
   const summaryTreeItem = genSummaryTreeItem(activatedPath, summary);
-  console.log(summaryTreeItem,'summaryTreeItem')
+  console.log(summaryTreeItem, 'summaryTreeItem');
   function onChangeOnlyChangeKeywords(v) {
     setKeywords(v.target.value);
   }
@@ -118,16 +118,19 @@ const CanyonReport = ({
           )}
         />
       )}
-      {fMode === 'file' && mainData && (
-        <CanyonReportCoverageDetail
-          theme={theme}
-          data={{
-            coverage: mainData?.fileCoverage,
-            sourcecode: mainData?.fileContent,
-            newlines: mainData?.fileCodeChange,
-          }}
-        />
-      )}
+      <Spin spinning={!mainData && fMode === 'file'}>
+        {fMode === 'file' && mainData && (
+          <CanyonReportCoverageDetail
+            theme={theme}
+            data={{
+              coverage: mainData?.fileCoverage,
+              sourcecode: mainData?.fileContent,
+              newlines: mainData?.fileCodeChange,
+            }}
+          />
+        )}
+      </Spin>
+
       <FloatButton.BackTop />
     </div>
   );

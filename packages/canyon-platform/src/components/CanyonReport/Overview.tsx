@@ -16,7 +16,7 @@ const obj = {
 const { Text } = Typography;
 const CanyonReportOverview = ({ activatedPath, pathWithNamespace, onSelect, summaryTreeItem }) => {
   const [sprm] = useSearchParams();
-
+  const { t } = useTranslation();
   return (
     <div>
       {/*<span>{JSON.stringify(summaryTreeItem.summary)}</span>*/}
@@ -84,7 +84,7 @@ const CanyonReportOverview = ({ activatedPath, pathWithNamespace, onSelect, summ
               <div className={'flex gap-1 items-center'}>
                 <span style={{ fontWeight: '600', fontSize: '14px' }}>{value.pct}%</span>
                 <Text style={{ fontSize: '14px' }} type={'secondary'}>
-                  {capitalizeFirstLetter(key)}
+                  {t('projects.' + key)}:
                 </Text>
                 <Tag bordered={false}>
                   {value.covered}/{value.total}
