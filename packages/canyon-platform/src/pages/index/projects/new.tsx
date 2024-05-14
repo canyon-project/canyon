@@ -3,6 +3,7 @@ import { useRequest } from 'ahooks';
 import { Alert, Button, Form, Input, Select, Space } from 'antd';
 import axios from 'axios';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import {
@@ -62,12 +63,12 @@ const App: React.FC = () => {
   };
 
   const nav = useNavigate();
-
+  const { t } = useTranslation();
   return (
     <div>
-      <h2>创建项目</h2>
+      <h2>{t('projects.create')}</h2>
 
-      <h3>1. 从源代码创建项目</h3>
+      <h3>1. {t('new.step1')}</h3>
       <Form
         layout={'vertical'}
         form={form}
@@ -75,9 +76,9 @@ const App: React.FC = () => {
         onFinish={onFinish}
         style={{ maxWidth: 600 }}
       >
-        <Form.Item name='provider' label='服务提供商' rules={[{ required: true }]}>
+        <Form.Item name='provider' label={t('new.provider')} rules={[{ required: true }]}>
           <Select
-            placeholder='请选择服务提供商'
+            placeholder={t('new.provider.placeholder')}
             allowClear
             options={(gitProviderList || []).map(({ name, url, type, id, disabled }) => ({
               label: <LabelTest name={name} type={type} url={url} disabled={disabled} />,
@@ -86,25 +87,17 @@ const App: React.FC = () => {
             }))}
           />
         </Form.Item>
-        <Form.Item name='repository' label='存储库' rules={[{ required: true }]}>
+        <Form.Item name='repository' label={t('new.repository')} rules={[{ required: true }]}>
           <Input placeholder={'namespace/repo-name'} />
         </Form.Item>
 
         <Form.Item
           name='slug'
-          label='项目标识串'
+          label={t('projects.slug')}
           rules={[{ required: true, pattern: /^[a-zA-Z0-9]+$/ }]}
-          tooltip={
-            <div
-              style={{
-                textWrap: 'nowrap',
-              }}
-            >
-              用于结合代码仓库ID生成项目唯一标识
-            </div>
-          }
+          tooltip={<>{t('new.slug.tooltip')}</>}
         >
-          <Input placeholder={'仅支持英文、数字，例如：auto、auto25'} />
+          <Input placeholder={t('new.slug.placeholder')} />
         </Form.Item>
 
         <Form.Item>
@@ -114,12 +107,12 @@ const App: React.FC = () => {
               form.submit();
             }}
           >
-            检查
+            {t('new.check')}
           </Button>
         </Form.Item>
       </Form>
 
-      <h3>2. 检查你的项目</h3>
+      <h3>2. {t('new.step2')}</h3>
 
       <Spin spinning={loading}>
         <div>
@@ -150,7 +143,7 @@ const App: React.FC = () => {
           });
         }}
       >
-        创建
+        {t('new.create')}
       </Button>
     </div>
   );

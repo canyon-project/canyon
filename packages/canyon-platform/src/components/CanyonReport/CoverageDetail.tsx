@@ -1,7 +1,5 @@
-// import LineCoverage from '@canyon/report/src/Report/components/line/coverage.tsx';
-// import LineNew from '@canyon/report/src/Report/components/line/new.tsx';
-// import LineNumber from '@canyon/report/src/Report/components/line/number.tsx';
-import { DiffEditor, Editor } from '@monaco-editor/react';
+import { Editor } from '@monaco-editor/react';
+import { Spin } from 'antd';
 import * as monaco from 'monaco-editor';
 
 import { getViewLineHeight } from '../../helpers/utils/getViewLineHeight.tsx';
@@ -10,11 +8,6 @@ import LineCoverage from './line/coverage.tsx';
 import LineNew from './line/new.tsx';
 import LineNumber from './line/number.tsx';
 
-// import { annotateFunctions, annotateStatements, coreFn } from './helper.tsx';
-// import LineCoverage from './line/coverage.tsx';
-// import LineNew from './line/new.tsx';
-// import LineNumber from './line/number.tsx';
-// import {coreFn} from "@canyon/report/src/helper.ts";
 const CanyonReportCoverageDetail = ({ data, theme }) => {
   const viewLineHeight = getViewLineHeight();
   const code = data.sourcecode;
@@ -64,62 +57,59 @@ const CanyonReportCoverageDetail = ({ data, theme }) => {
     }
   }, [editor, decorations]);
   return (
-    <div
-      className={'canyon-report'}
-      style={{
-        display: 'flex',
-        fontSize: '12px',
-        lineHeight: '14px',
-        visibility: viewLineHeight > 0 ? 'visible' : 'hidden',
-        // backgroundColor: theme === 'dark' ? '#1a1b26' : 'white',
-      }}
-    >
-      <LineNumber theme={theme} count={code.split('\n').length} />
-      <LineNew count={code.split('\n').length} news={data?.newlines || []}></LineNew>
-      <LineCoverage
-        theme={theme}
-        covers={lines.map((i) => {
-          if (i.executionNumber > 0) {
-            return {
-              covered: 'yes',
-              hits: i.executionNumber,
-            };
-          } else if (i.executionNumber === 0) {
-            return {
-              covered: 'no',
-              hits: i.executionNumber,
-            };
-          } else {
-            return {
-              covered: 'neutral',
-              hits: 0,
-            };
-          }
-        })}
-      />
-      <Editor
-        theme={theme === 'light' ? 'light' : 'vs-dark'}
-        height={`${code.split('\n').length * viewLineHeight + viewLineHeight}px`}
-        language='typescript'
-        onMount={handleEditorDidMount}
-        defaultValue={data?.sourcecode}
-        options={{
-          lineNumbers: 'off',
-          readOnly: true,
-          folding: false,
-          minimap: { enabled: false },
-          scrollBeyondLastLine: false,
-          showUnused: false,
-          fontFamily: 'IBMPlexMono',
-          // fontSize: 16,
-          // scrollbar: {
-          //   vertical: 'hidden',
-          // },
-          // smoothScrolling: false,
-          // mouseWheelScrollSensitivity
+    <>
+      <div
+        className={'canyon-report'}
+        style={{
+          display: 'flex',
+          fontSize: '12px',
+          lineHeight: '14px',
+          visibility: viewLineHeight > 0 ? 'visible' : 'hidden',
+          // backgroundColor: theme === 'dark' ? '#1a1b26' : 'white',
         }}
-      />
-    </div>
+      >
+        <LineNumber theme={theme} count={code.split('\n').length} />
+        <LineNew count={code.split('\n').length} news={data?.newlines || []}></LineNew>
+        <LineCoverage
+          theme={theme}
+          covers={lines.map((i) => {
+            if (i.executionNumber > 0) {
+              return {
+                covered: 'yes',
+                hits: i.executionNumber,
+              };
+            } else if (i.executionNumber === 0) {
+              return {
+                covered: 'no',
+                hits: i.executionNumber,
+              };
+            } else {
+              return {
+                covered: 'neutral',
+                hits: 0,
+              };
+            }
+          })}
+        />
+        <Editor
+          theme={theme === 'light' ? 'light' : 'vs-dark'}
+          height={`${code.split('\n').length * viewLineHeight + viewLineHeight}px`}
+          language='typescript'
+          onMount={handleEditorDidMount}
+          defaultValue={data?.sourcecode}
+          options={{
+            lineNumbers: 'off',
+            readOnly: true,
+            folding: false,
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            showUnused: false,
+            fontFamily: 'IBMPlexMono',
+          }}
+        />
+      </div>
+      <Spin spinning={viewLineHeight === 0} />
+    </>
   );
 };
 

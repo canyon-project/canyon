@@ -1,4 +1,4 @@
-import {ExperimentOutlined, PlusOutlined, TagOutlined} from '@ant-design/icons';
+import { ExperimentOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useMutation } from '@apollo/client';
 import { createId } from '@paralleldrive/cuid2';
 import { Button, Divider, Drawer, Space, Table, Tag } from 'antd';
@@ -49,6 +49,7 @@ const TestTable = ({ tags }) => {
   const [activeID, setActiveID] = useState('');
   const [dataSource, setDataSource] = useState([]);
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
   useEffect(() => {
     if (tags !== undefined) {
       setDataSource(
@@ -68,24 +69,34 @@ const TestTable = ({ tags }) => {
       key: 'id',
       render(text) {
         return <span className={'block w-[100px]'}>{text}</span>;
-      }
+      },
     },
     {
-      title: '名称',
+      title: t('projects.config.name'),
       dataIndex: 'name',
       key: 'name',
     },
     {
-      title: '链接',
+      title: t('projects.config.link'),
       dataIndex: 'link',
       key: 'link',
       width: '300px',
       render(text) {
-        return <a href={text} target='_blank' className={'w-[200px] block'} style={{textWrap:'wrap'}}>{text}</a>;
+        return (
+          <a
+            href={text}
+            target='_blank'
+            className={'w-[200px] block'}
+            style={{ textWrap: 'wrap' }}
+            rel='noreferrer'
+          >
+            {text}
+          </a>
+        );
       },
     },
     {
-      title: '颜色',
+      title: t('projects.config.color'),
       dataIndex: 'color',
       key: 'color',
       render(text, record) {
@@ -93,7 +104,7 @@ const TestTable = ({ tags }) => {
       },
     },
     {
-      title: '操作',
+      title: t('common.option'),
       render(text, record) {
         return (
           <>
@@ -103,7 +114,7 @@ const TestTable = ({ tags }) => {
                 setOpen(true);
               }}
             >
-              编辑
+              {t('common.edit')}
             </a>
 
             <Divider type={'vertical'} />
@@ -113,7 +124,7 @@ const TestTable = ({ tags }) => {
                 setDataSource(dataSource.filter((i) => i.id !== record.id));
               }}
             >
-              删除
+              {t('common.delete')}
             </a>
           </>
         );
@@ -140,12 +151,18 @@ const TestTable = ({ tags }) => {
         title={
           <div className={'flex items-center'}>
             <TagOutlined className={'text-[#687076] mr-2 text-[16px]'} />
-            <span>标签</span>
+            <span>{t('projects.config.tag')}</span>
           </div>
         }
       >
         <Card.Grid hoverable={false} style={gridStyle}>
-          <Table dataSource={dataSource} columns={columns} bordered={true} pagination={false} size={'small'} />
+          <Table
+            dataSource={dataSource}
+            columns={columns}
+            bordered={true}
+            pagination={false}
+            size={'small'}
+          />
           <div className={'h-5'}></div>
           <Space>
             <Button
@@ -165,7 +182,7 @@ const TestTable = ({ tags }) => {
                 });
               }}
             >
-              保存更改
+              {t('projects.config.save.changes')}
             </Button>
             <Button
               icon={<PlusOutlined />}
@@ -180,14 +197,14 @@ const TestTable = ({ tags }) => {
                 );
               }}
             >
-              新增
+              {t('common.add')}
             </Button>
           </Space>
         </Card.Grid>
       </Card>
 
       <Drawer
-        title={'编辑标签'}
+        title={t('projects.config.edit.tag')}
         destroyOnClose={true}
         width={'35%'}
         open={open}
@@ -209,15 +226,15 @@ const TestTable = ({ tags }) => {
             <Input disabled />
           </Form.Item>
 
-          <Form.Item<FieldType> label='名称' name='name'>
+          <Form.Item<FieldType> label={t('projects.config.name')} name='name'>
             <Input />
           </Form.Item>
 
-          <Form.Item<FieldType> label='链接' name='link'>
-            <Input placeholder={'请输入链接地址（可选）'} />
+          <Form.Item<FieldType> label={t('projects.config.link')} name='link'>
+            <Input placeholder={t('projects.config.link.placeholder')} />
           </Form.Item>
 
-          <Form.Item<FieldType> label='颜色' name='color'>
+          <Form.Item<FieldType> label={t('projects.config.color')} name='color'>
             <CanyonColorPicker />
           </Form.Item>
         </Form>

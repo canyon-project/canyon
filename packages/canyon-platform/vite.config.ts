@@ -24,7 +24,7 @@ export default defineConfig({
       },
     }),
     AutoImport({
-      imports: ['react'],
+      imports: ['react', 'react-i18next', 'react-router-dom'],
       dts: './src/auto-imports.d.ts',
       resolvers: [AntdResolver()],
     }),

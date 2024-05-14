@@ -3,11 +3,11 @@ import Highlighter from 'react-highlight-words';
 
 import { getCOlor, percent } from '../../helpers/utils/common.ts';
 const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyChange }) => {
-  console.log(dataSource, 'dataSource');
+  const { t } = useTranslation();
   const newlinesColumns = onlyChange
     ? [
         {
-          title: 'New Lines Coverage',
+          title: t('projects.newlines'),
           width: '240px',
           sorter: (a, b) => {
             return (
@@ -64,14 +64,14 @@ const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyCh
           loading={loading}
           columns={[
             {
-              title: 'Files',
+              title: t('projects.detail.files'),
               key: 'path',
               dataIndex: 'path',
               // width: '200px',
               render(text) {
                 return (
                   <a
-                    className={'block break-words w-[500px]'}
+                    className={'block break-words w-[420px]'}
                     onClick={() => {
                       onSelect({
                         path: text,
@@ -89,12 +89,12 @@ const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyCh
               },
             },
             {
-              title: 'Total',
+              title: t('common.total'),
               key: 'total',
               dataIndex: ['statements', 'total'],
             },
             {
-              title: 'Covered',
+              title: t('common.covered'),
               key: 'covered',
               dataIndex: ['statements', 'covered'],
             },
@@ -102,7 +102,7 @@ const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyCh
             .concat(newlinesColumns)
             .concat([
               {
-                title: 'Coverage %',
+                title: t('projects.config.coverage')+ ' %',
                 width: '300px',
                 key: 'c',
                 sorter: (a, b) => {

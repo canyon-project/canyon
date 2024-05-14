@@ -77,7 +77,7 @@ const ProjectPage = () => {
       },
     },
     {
-      title: '标识串',
+      title: t('projects.slug'),
       dataIndex: 'id',
       key: 'slug',
       render(text) {
@@ -292,7 +292,7 @@ const ProjectPage = () => {
               }}
             />
             <Space className={'ml-5'}>
-              <Text type={'secondary'}>Favor Only: </Text>
+              <Text type={'secondary'}>{t('common.favor.only')}: </Text>
               <Switch
                 checkedChildren={<HeartFilled />}
                 defaultChecked={Boolean(localStorage.getItem('favorOnlyFilter'))}

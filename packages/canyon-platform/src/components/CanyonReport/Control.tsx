@@ -15,6 +15,7 @@ const CanyonReportControl = ({
 }) => {
   const { token } = useToken();
   const prm = useParams();
+  const { t } = useTranslation();
   return (
     <>
       <div className={'flex mb-2 justify-between'}>
@@ -28,12 +29,12 @@ const CanyonReportControl = ({
                 onChangeShowMode(v.target.value);
               }}
             >
-              <Radio.Button value='tree'>Code tree</Radio.Button>
-              <Radio.Button value='list'>File list</Radio.Button>
+              <Radio.Button value='tree'>{t('projects.detail.code.tree')}</Radio.Button>
+              <Radio.Button value='list'>{t('projects.detail.file.list')}</Radio.Button>
             </Radio.Group>
             <span style={{ fontSize: '14px' }}>
-              <span className={'mr-2'}>{numberFiles}</span>
-              total files
+              {/*<span className={'mr-2'}>{numberFiles}</span>*/}
+              {t('projects.detail.total.files', { msg: numberFiles })}
               {/*覆盖率提升优先级列表*/}
             </span>
           </Space>
@@ -41,7 +42,7 @@ const CanyonReportControl = ({
 
         <div className={'flex items-center gap-2'}>
           <Typography.Text type={'secondary'} style={{ fontSize: '12px' }}>
-            Only changed:{' '}
+            {t('projects.detail.only.changed')}:{' '}
           </Typography.Text>
           <Switch
             checked={onlyChange}
@@ -52,7 +53,7 @@ const CanyonReportControl = ({
           <Input
             value={keywords}
             addonBefore={<SearchOutlined />}
-            placeholder='Enter the file path to search'
+            placeholder={t('projects.detail.search.placeholder')}
             className={'w-[240px]'}
             size={'small'}
             onChange={onChangeOnlyChangeKeywords}
