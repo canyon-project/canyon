@@ -110,6 +110,7 @@ const CanyonReportCoverageDetail = ({ data, theme }) => {
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
           showUnused: false,
+          fontFamily: 'IBMPlexMono',
           // fontSize: 16,
           // scrollbar: {
           //   vertical: 'hidden',
