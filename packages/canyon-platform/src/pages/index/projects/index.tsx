@@ -94,6 +94,7 @@ const ProjectPage = () => {
             <div className={'flex gap-1'}>
               <img src='/gitproviders/gitlab.svg' alt='' className={'w-[16px]'} />
               <a
+                className={'max-w-[240px]'}
                 style={{ color: 'unset' }}
                 target={'_blank'}
                 href={`${window.GITLAB_URL}/${text}`}
@@ -102,7 +103,7 @@ const ProjectPage = () => {
                 {text}
               </a>
             </div>
-            <Text type={'secondary'} style={{ fontSize: '12px',width:'240px' }}>
+            <Text type={'secondary'} style={{ fontSize: '12px', width: '240px' }}>
               {record.description}
             </Text>
           </div>
