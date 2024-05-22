@@ -17,6 +17,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoveragediskEntity } from './entity/coveragedisk.entity';
 import { CoveragediskService } from './services/core/coveragedisk.service';
 import { TestExcludeService } from './services/common/test-exclude.service';
+import {
+  CoverageTest,
+  CoverageTestSchema,
+} from './schemas/coverage-test.schema';
+import { CoverageTestController } from './coverage-test.controller';
+import { CoverageTestService } from './services/coverage-test.service';
 
 @Module({
   imports: [
@@ -31,10 +37,15 @@ import { TestExcludeService } from './services/common/test-exclude.service';
         schema: CoverageLogSchema,
         collection: 'canyon_coverage_log',
       },
+      {
+        name: CoverageTest.name,
+        schema: CoverageTestSchema,
+        collection: 'canyon_coverage_test',
+      },
     ]),
     TypeOrmModule.forFeature([CoveragediskEntity]),
   ],
-  controllers: [CoverageController],
+  controllers: [CoverageController, CoverageTestController],
   providers: [
     PrismaService,
     CoverageClientService,
@@ -45,6 +56,7 @@ import { TestExcludeService } from './services/common/test-exclude.service';
     PullChangeCodeAndInsertDbService,
     CoveragediskService,
     TestExcludeService,
+    CoverageTestService,
   ],
 })
 export class CoverageModule {}
