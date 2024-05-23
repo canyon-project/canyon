@@ -33,6 +33,8 @@ Canyon 是一个JavaScript代码覆盖率收集平台。我们解决了开发人
 
 - 一部分是报告，负责处理展示覆盖率数据
 
+[Read the Docs to Learn More.](https://canyoncov.com)
+
 ## Contribution
 
 See [Contributing Guide](CONTRIBUTING.md).
