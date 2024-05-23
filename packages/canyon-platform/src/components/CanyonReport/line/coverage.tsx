@@ -27,7 +27,7 @@ const LineCoverage = ({ covers, theme }) => {
             <div
               key={index}
               style={{
-                backgroundColor: theme === 'light' ? '#ffadd2' : '#7A5474',
+                backgroundColor: theme === 'light' ? '#FCE1E5' : '#7A5474',
                 color: theme === 'light' ? 'rgba(0,0,0,0.5)' : '#eaeaea',
                 padding: '0 5px',
                 height: `${viewLineHeight}px`,
