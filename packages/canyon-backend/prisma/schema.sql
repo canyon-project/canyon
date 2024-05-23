@@ -80,6 +80,7 @@ CREATE TABLE "project" (
     "description" TEXT NOT NULL,
     "bu" TEXT NOT NULL,
     "tag" TEXT NOT NULL,
+    "tags" JSONB NOT NULL,
     "coverage" TEXT NOT NULL,
     "default_branch" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
