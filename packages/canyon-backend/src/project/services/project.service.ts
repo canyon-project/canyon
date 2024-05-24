@@ -50,7 +50,7 @@ export class ProjectService {
     };
   }
 
-  async createProject(user, projectID) {
+  async createProject(user, projectID, language) {
     // console.log(projectID.split('-'))
     const { path_with_namespace, description, name, bu } = await getProjectByID(
       projectID.split('-')[1],
@@ -67,6 +67,7 @@ export class ProjectService {
         tag: '',
         defaultBranch: '-',
         tags: [],
+        language: language,
       },
     });
   }
@@ -141,6 +142,7 @@ export class ProjectService {
           tag,
           defaultBranch,
           tags,
+          language,
         }) => {
           return {
             id,
@@ -157,6 +159,7 @@ export class ProjectService {
             defaultBranch,
             branchOptions,
             favored: false,
+            language,
             tags: projectTags.parse(tags).map(({ id, name, link, color }) => ({
               id,
               name,

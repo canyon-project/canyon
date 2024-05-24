@@ -22,6 +22,7 @@
     "check": "確認",
     "create": "作成",
     "provider.placeholder": "サービスプロバイダを選択してください",
+    "language.placeholder": "言語を選択してください",
     "slug.placeholder": "英語と数字のみがサポートされています、例：auto、auto25",
     "slug.tooltip": "プロジェクトの一意の識別子を生成するためにコードリポジトリIDと併用されます"
   },

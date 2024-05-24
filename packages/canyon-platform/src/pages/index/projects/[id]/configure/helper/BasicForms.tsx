@@ -1,4 +1,5 @@
 import { useMutation } from '@apollo/client';
+import { Input } from 'antd';
 import { FC } from 'react';
 import { useParams } from 'react-router-dom';
 
@@ -34,6 +35,7 @@ const BasicForms: FC<{ data: any }> = ({ data }) => {
           description: data.description,
           projectID: data.id,
           tag: data.tag,
+          language: data.language,
         }}
         onFinish={onFinish}
       >
@@ -54,6 +56,10 @@ const BasicForms: FC<{ data: any }> = ({ data }) => {
             <Input disabled />
           </Form.Item>
         </div>
+
+        <Form.Item<any> label={t('common.language')} name='language'>
+          <Input disabled />
+        </Form.Item>
 
         <Form.Item<any> label={t('projects.config.project.desc')} name='description'>
           <TextArea autoSize={{ minRows: 3, maxRows: 3 }} />

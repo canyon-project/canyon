@@ -100,6 +100,23 @@ const App: React.FC = () => {
           <Input placeholder={t('new.slug.placeholder')} />
         </Form.Item>
 
+        <Form.Item name='language' label={t('common.language')} rules={[{ required: true }]}>
+          <Select
+            placeholder={t('new.language.placeholder')}
+            options={[
+              {
+                label: 'JavaScript',
+                value: 'JavaScript',
+              },
+              {
+                label: 'Java',
+                value: 'Java',
+                disabled: true,
+              },
+            ]}
+          />
+        </Form.Item>
+
         <Form.Item>
           <Button
             type={'primary'}
@@ -136,6 +153,7 @@ const App: React.FC = () => {
           createProject({
             variables: {
               projectID: projectID,
+              language: form.getFieldValue('language'),
             },
           }).then((res) => {
             message.success(JSON.stringify(res.data?.createProject));

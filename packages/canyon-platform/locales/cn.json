@@ -22,6 +22,7 @@
     "check": "检查",
     "create": "创建",
     "provider.placeholder": "请选择提供商",
+    "language.placeholder": "请选择语言",
     "slug.placeholder": "仅支持英文、数字，例如：auto、auto25",
     "slug.tooltip": "用于结合代码仓库ID生成项目唯一标识"
   },

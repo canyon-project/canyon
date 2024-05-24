@@ -22,6 +22,7 @@
     "check": "Check",
     "create": "Create",
     "provider.placeholder": "Please select a service provider",
+    "language.placeholder": "Please select language",
     "slug.placeholder": "Only English, numbers are supported, e.g.: auto, auto25",
     "slug.tooltip": "Used in conjunction with the code repository ID to generate a unique identification for the project"
   },
