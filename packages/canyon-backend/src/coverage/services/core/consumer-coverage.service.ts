@@ -14,6 +14,7 @@ import { CoveragediskService } from './coveragedisk.service';
 import { TestExcludeService } from '../common/test-exclude.service';
 import { formatReportObject } from '../../../utils/coverage';
 import { resolveProjectID } from '../../../utils';
+import { PullFilePathAndInsertDbService } from '../common/pull-file-path-and-insert-db.service';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -25,6 +26,7 @@ export class ConsumerCoverageService {
     private readonly pullChangeCodeAndInsertDbService: PullChangeCodeAndInsertDbService,
     private readonly coveragediskService: CoveragediskService,
     private readonly testExcludeService: TestExcludeService,
+    private readonly pullFilePathAndInsertDbService: PullFilePathAndInsertDbService,
   ) {}
 
   async invoke() {
@@ -81,6 +83,12 @@ export class ConsumerCoverageService {
         reportID: covType === 'agg' ? queueDataToBeConsumed.reportID : null,
       }),
     });
+    // 异步拉取文件路径，不影响主消费任务，耗时比较长
+    await this.pullFilePathAndInsertDbService.invoke(
+      queueDataToBeConsumed.projectID,
+      queueDataToBeConsumed.sha,
+      this.prisma,
+    );
     // 拉取变更代码
     await this.pullChangeCode(queueDataToBeConsumed);
     // 判断是否需要拉取变更代码，对比sha和compareTarget
