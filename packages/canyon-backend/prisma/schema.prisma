@@ -108,6 +108,15 @@ model Codechange {
   @@map("codechange")
 }
 
+model Filepath {
+  id        String @id @default(cuid())
+  projectID String @map("project_id")
+  sha       String @map("sha")
+  path      String
+
+  @@map("filepath")
+}
+
 model Distributedlock {
   lockName       String    @id
   isLocked       Boolean   @default(false)

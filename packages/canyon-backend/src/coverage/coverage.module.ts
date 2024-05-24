@@ -23,6 +23,7 @@ import {
 } from './schemas/coverage-test.schema';
 import { CoverageTestController } from './coverage-test.controller';
 import { CoverageTestService } from './services/coverage-test.service';
+import { PullFilePathAndInsertDbService } from './services/common/pull-file-path-and-insert-db.service';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { CoverageTestService } from './services/coverage-test.service';
     CoverageDataAdapterService,
     ConsumerCoverageService,
     PullChangeCodeAndInsertDbService,
+    PullFilePathAndInsertDbService,
     CoveragediskService,
     TestExcludeService,
     CoverageTestService,
