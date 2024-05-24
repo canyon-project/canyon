@@ -20,7 +20,7 @@ export class CoverageTestController {
     private prisma: PrismaService,
   ) {}
 
-  @Post('coverage/uploadjacoco')
+  @Post('api/coverage/uploadjacoco')
   @UseInterceptors(FileInterceptor('file'))
   async uploadjacoco(@UploadedFile() file, @Body() body): Promise<any> {
     const coverage = await jacocoXml2Json(file.buffer.toString()).then((data) =>
@@ -33,7 +33,7 @@ export class CoverageTestController {
     });
   }
 
-  @Get('coverage/uploadjacoco')
+  @Get('api/coverage/uploadjacoco')
   async getjacoco(@Query() body): Promise<any> {
     return this.coverageTestService.find({
       projectID: body.projectID,
