@@ -10,17 +10,32 @@ function getDecode(str: string) {
   );
 }
 export const handleOnSelect = async ({ path, projectID, sha }) => {
-  const sourcecode = await axios
-    .get(`/api/sourcecode`, {
-      params: {
-        projectID: `tripgl-${projectID}-auto`,
-        sha: sha,
-        filepath: 'implement-customer-management-service-biz/src/main/java/' + path + '.java',
-      },
-    })
-    .then(({ data }) => data)
-    .then(({ content }) => getDecode(content));
-  return {
-    sourcecode: sourcecode,
-  };
+  if (path.includes('#')) {
+    const sourcecode = await axios
+      .get(`/api/sourcecode`, {
+        params: {
+          projectID: `tripgl-${projectID}-auto`,
+          sha: sha,
+          filepath: path.split('#')[0],
+          mode: 'blurred',
+        },
+      })
+      .then(({ data }) => data)
+      .then(({ content }) => getDecode(content));
+
+    // console.log(sourcecode, 'sourcecode????');
+    return {
+      sourcecode: sourcecode,
+    };
+  } else {
+    const sourcecode = await new Promise((resolve, reject) => {
+      resolve('');
+    });
+    return {
+      sourcecode: sourcecode,
+    };
+    // return {
+    //   sourcecode: '',
+    // };
+  }
 };

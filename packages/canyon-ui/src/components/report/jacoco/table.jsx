@@ -1,8 +1,9 @@
+import Icon from '@ant-design/icons';
 import { Progress, Space, Table } from 'antd';
-import Icon from "@ant-design/icons";
-import JavaClass from "./icons/JavaClass.tsx";
-import {EmojionePackage} from "./icons/EmojionePackage.tsx";
-import JavaMethod from "./icons/JavaMethod.tsx";
+
+import { EmojionePackage } from './icons/EmojionePackage.tsx';
+import JavaClass from './icons/JavaClass.tsx';
+import JavaMethod from './icons/JavaMethod.tsx';
 export function getCOlor(num) {
   if (num >= 80) {
     return 'rgb(33,181,119)';
@@ -28,7 +29,7 @@ function removeQuestionMark(str) {
     return str;
   }
 }
-const JacocoTable = ({ dataSource, selectedKey,onSelect,items }) => {
+const JacocoTable = ({ dataSource, selectedKey, onSelect, items }) => {
   const columns = [
     {
       title: 'Element',
@@ -44,8 +45,14 @@ const JacocoTable = ({ dataSource, selectedKey,onSelect,items }) => {
 
             <a
               onClick={() => {
-                console.log(record);
-                onSelect(record.name);
+                console.log(record, items);
+                if ((record, items.length >= 2)) {
+                  console.log(record, items.length);
+                  // items.at(-1).path + record.line
+                  onSelect(items.at(-1).path + '#L' + record.line);
+                } else {
+                  onSelect(record.name);
+                }
               }}
             >
               {removeQuestionMark(text.replaceAll(selectedKey, '').replaceAll('/', '.'))}

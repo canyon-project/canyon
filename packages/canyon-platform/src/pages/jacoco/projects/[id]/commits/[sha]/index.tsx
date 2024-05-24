@@ -2,16 +2,32 @@ import { useRequest } from 'ahooks';
 import { Button, ConfigProvider } from 'antd';
 import axios from 'axios';
 import { CanyonJacocoReport } from 'canyon-ui';
+import queryString from 'query-string';
 import { useParams, useSearchParams } from 'react-router-dom';
 
 import { handleOnSelect } from './helper/handleOnSelect.ts';
+
+function gen(path, line) {
+  return line ? path + '#' + line : path;
+}
+
 // http://localhost:8000/jacoco/projects/86085/commits/37582cf3bdb4c8c0eda2fd690c968c02f8ea5ba0?path=path
 const ReportPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const params = useParams();
   const { id: projectID, sha } = params;
-  const path = searchParams.get('path');
+  // const [path, line] = searchParams.get('path').split('#');
 
+  const loc = useLocation();
+  const nav = useNavigate();
+
+  // const path = loc.search
+
+  const path = queryString.parse(loc.search)['path'];
+  // console.log(parsed);
+  const line = Number(loc.hash.replace('#L', ''));
+  console.log(line);
+  // console.log(parsedHash);
   const { data: summary } = useRequest(
     () =>
       axios
@@ -19,7 +35,7 @@ const ReportPage = () => {
           params: {
             projectID,
             sha,
-            path,
+            path: path,
           },
         })
         .then(({ data }) => data),
@@ -30,10 +46,16 @@ const ReportPage = () => {
     },
   );
 
+  // TODO: 这里的path会包含#L，需要处理
   const onSelect = (path) => {
-    setSearchParams({
-      path,
-    });
+    // setSearchParams({
+    //   path: path,
+    // });
+
+    nav(`/jacoco/projects/${projectID}/commits/${sha}?path=${path}`);
+    // console.log(path);
+
+    console.log(path, 'path');
 
     return handleOnSelect({ path, projectID, sha });
 
@@ -49,7 +71,14 @@ const ReportPage = () => {
           },
         }}
       >
-        {summary && <CanyonJacocoReport summary={summary} selectedKey={path} onSelect={onSelect} />}
+        {summary && (
+          <CanyonJacocoReport
+            summary={summary}
+            selectedKey={path}
+            selectedLine={line}
+            onSelect={onSelect}
+          />
+        )}
       </ConfigProvider>
     </div>
   );
