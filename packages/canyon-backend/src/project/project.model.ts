@@ -35,6 +35,9 @@ export class Project {
   @Field(() => String)
   coverage: string;
 
+  @Field(() => String)
+  language: string;
+
   @Field(() => [Tag])
   tags: Tag[];
 

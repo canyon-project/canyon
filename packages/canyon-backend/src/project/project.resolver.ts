@@ -153,8 +153,9 @@ export class ProjectResolver {
   createProject(
     @GqlUser() user: AuthUser,
     @Args('projectID', { type: () => String }) projectID: string,
+    @Args('language', { type: () => String }) language: string,
   ): Promise<Project2> {
-    return this.projectService.createProject(user, projectID);
+    return this.projectService.createProject(user, projectID, language);
   }
 
   @Mutation(() => Project2, {

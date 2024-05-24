@@ -82,6 +82,7 @@ model Project {
   tag               String
   tags              Json
   coverage          String
+  language          String
   defaultBranch     String   @map("default_branch")
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 

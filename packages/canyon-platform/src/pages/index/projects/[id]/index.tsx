@@ -277,6 +277,9 @@ const ProjectOverviewPage = () => {
             {t('projects.config.project.id')}: {projectByIdData?.getProjectByID.id}
           </Text>
           <Text className={'ml-6'} type={'secondary'}>
+            {t('common.language')}: {projectByIdData?.getProjectByID.language}
+          </Text>
+          <Text className={'ml-6'} type={'secondary'}>
             {t('projects.default.branch')}: {projectByIdData?.getProjectByID.defaultBranch}
           </Text>
         </div>
