@@ -17,9 +17,7 @@ export class PullFilePathAndInsertDbService {
             id: projectID,
           },
         })
-        .then((project) =>
-          project.language ? suffixMap[project.language] : [],
-        );
+        .then((project) => (project ? suffixMap[project.language] : []));
       // 配置
       const accessToken = process.env['PRIVATE_TOKEN']; // 替换为你的访问令牌
       const projectId = projectID.split('-')[1]; // 替换为你的项目ID或URL编码的项目路径
