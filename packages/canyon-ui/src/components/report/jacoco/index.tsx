@@ -8,8 +8,10 @@ import JacocoOverview from './overview.jsx';
 import JacocoTable from './table.jsx';
 
 const { useToken } = theme;
-
-const JacocoReport = ({ summary, selectedKey, onSelect }) => {
+function gen(path, line) {
+  return line ? path + '#L' + line : path;
+}
+const JacocoReport = ({ summary, selectedKey, onSelect, selectedLine }) => {
   const { token } = useToken();
   const [breadcrumbs, setBreadcrumbs] = useState([]);
 
@@ -17,7 +19,8 @@ const JacocoReport = ({ summary, selectedKey, onSelect }) => {
 
   const dataSource = useMemo(() => {
     // TODO ??? 不要将内部数据放在外部
-    onSelect(selectedKey).then((res) => {
+    onSelect(gen(selectedKey,selectedLine)).then((res) => {
+      console.log(res,'!!!!!')
       setSourcecode(res.sourcecode);
     });
 
@@ -72,7 +75,7 @@ const JacocoReport = ({ summary, selectedKey, onSelect }) => {
     setBreadcrumbs([]);
     return summary.report.package;
     // return data;
-  }, [selectedKey, summary]);
+  }, [selectedKey, summary,selectedLine]);
 
   const onSelectControl = (path) => {
     onSelect(path);
@@ -92,18 +95,21 @@ const JacocoReport = ({ summary, selectedKey, onSelect }) => {
         boxShadow: `${token.boxShadowTertiary}`,
       }}
     >
+      Line: {selectedLine}
       <JacocoControl name={summary.report.name} items={breadcrumbs} onSelect={onSelectControl} />
 
       <JacocoOverview />
 
-      <JacocoTable
-        dataSource={dataSource}
-        selectedKey={selectedKey}
-        onSelect={onSelectTable}
-        items={breadcrumbs}
-      />
-
-      <JacocoFiledetail sourcecode={sourcecode} filecoverage={filecoverage} />
+      {selectedLine > 0 ? (
+        <JacocoFiledetail sourcecode={sourcecode} filecoverage={filecoverage} />
+      ) : (
+        <JacocoTable
+          dataSource={dataSource}
+          selectedKey={selectedKey}
+          onSelect={onSelectTable}
+          items={breadcrumbs}
+        />
+      )}
     </div>
   );
 };
