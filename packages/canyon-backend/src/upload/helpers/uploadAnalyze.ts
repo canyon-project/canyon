@@ -22,6 +22,21 @@ export function uploadAnalyze(filecontent) {
   const [filenameList, filecontentList] = filecontent.split('<<<<<< network');
   const filenameListFinal = filenameList.split('\n').filter((item) => item);
   const filecontentListFinal = extractFileContents(filecontentList);
+
+  if (
+    filecontentListFinal.find((item) => {
+      return item.filePath.includes('jacoco.xml');
+    })
+  ) {
+    return {
+      type: 'java',
+      coverage: filecontentListFinal.find((item) => {
+        return item.filePath.includes('jacoco.xml');
+      })?.fileContent,
+      filenameList: filenameListFinal,
+    };
+  }
+
   return {
     type: 'javascript',
     coverage: safeJSONParse(
