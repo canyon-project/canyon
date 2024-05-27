@@ -12,10 +12,11 @@ import { RawBodyMiddleware } from './raw-body.middleware';
 import { uploadAnalyze } from './helpers/uploadAnalyze';
 import axios from 'axios';
 import * as process from 'process';
+import { UploadService } from './upload.service';
 
 @Controller('upload')
 export class UploadController {
-  constructor() {}
+  constructor(private readonly uploadService: UploadService) {}
   @Post('v4')
   @HttpCode(200)
   test(@Query() q, @Body() b, @Req() req) {
@@ -30,7 +31,7 @@ export class UploadController {
   @UseInterceptors(RawBodyMiddleware)
   async test1(@Query() query, @Body() buffer: Buffer) {
     const { commit, branch, instrument_cwd, slug } = query;
-    const { coverage } = uploadAnalyze(buffer.toString());
+    const { coverage, type } = uploadAnalyze(buffer.toString());
     // TODO: 实现转换成canyon的数据结构
     const projectID = await axios
       .get(
@@ -46,12 +47,20 @@ export class UploadController {
         return res.data.id;
       });
     const url = process.env.APP_URI;
-    console.log({
-      branch: branch,
-      commitSha: commit,
-      projectID: String(projectID),
-      instrumentCwd: instrument_cwd,
-    });
+
+    if (type === 'java') {
+      return this.uploadService.jacoco(
+        {
+          branch: branch,
+          commitSha: commit,
+          projectID: String(projectID),
+          instrumentCwd: instrument_cwd,
+          coverage: coverage,
+        },
+        coverage,
+      );
+    }
+
     await axios
       .post(
         `${url}/coverage/client`,
@@ -71,11 +80,6 @@ export class UploadController {
       .then((res) => {
         console.log(res.data.message);
       });
-    console.log('上传成功...');
-    await axios.post(`${url}/coverage/triggeragg`, {
-      reportID: commit,
-    });
-    console.log('触发聚合...');
     return 'ok';
   }
 }
