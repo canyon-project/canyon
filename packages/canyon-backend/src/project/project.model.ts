@@ -16,6 +16,15 @@ export class Tag {
 }
 
 @ObjectType()
+export class Member {
+  @Field(() => String)
+  userID: string;
+
+  @Field(() => String)
+  role: string;
+}
+
+@ObjectType()
 export class Project {
   @Field(() => ID)
   id: string;
@@ -30,9 +39,6 @@ export class Project {
   description: string;
 
   @Field(() => String)
-  tag: string;
-
-  @Field(() => String)
   coverage: string;
 
   @Field(() => String)
@@ -40,6 +46,9 @@ export class Project {
 
   @Field(() => [Tag])
   tags: Tag[];
+
+  @Field(() => [Member])
+  members: Member[];
 
   @Field(() => String)
   bu: string;

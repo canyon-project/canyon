@@ -12,6 +12,14 @@ class TagInput {
   color: string;
 }
 
+@InputType() // 定义规则输入类型
+class MemberInput {
+  @Field()
+  userID: string;
+  @Field()
+  role: string;
+}
+
 @ArgsType()
 export class UpdateProjectArgs {
   @Field(() => ID, {
@@ -19,20 +27,28 @@ export class UpdateProjectArgs {
   })
   projectID: string;
 
-  @Field()
-  description: string;
+  @Field({
+    nullable: true,
+  })
+  description?: string;
 
-  @Field()
-  tag: string;
+  @Field({
+    nullable: true,
+  })
+  coverage?: string;
 
-  @Field()
-  coverage: string;
-
-  @Field()
-  defaultBranch: string;
+  @Field({
+    nullable: true,
+  })
+  defaultBranch?: string;
 
   @Field(() => [TagInput], {
     nullable: true,
   })
   tags?: TagInput[];
+
+  @Field(() => [MemberInput], {
+    nullable: true,
+  })
+  members?: MemberInput[];
 }

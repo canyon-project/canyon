@@ -9,7 +9,6 @@ query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$bu: [Strin
       reportTimes
       lastReportTime
       maxCoverage,
-      tag
       favored
     }
   }

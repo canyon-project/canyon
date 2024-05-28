@@ -45,3 +45,11 @@ export class ProjectRecordDetailModel {
   })
   statements: number;
 }
+
+@ObjectType()
+export class DeleModel {
+  @Field(() => Number, {
+    description: '删除数量',
+  })
+  count: number;
+}

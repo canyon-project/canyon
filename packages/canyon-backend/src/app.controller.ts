@@ -19,7 +19,7 @@ export class AppController {
     //       id: ids[i].id,
     //     },
     //     data: {
-    //       id: `tripgl-${ids[i].id}-auto`,
+    //       members: [],
     //     },
     //   });
     //

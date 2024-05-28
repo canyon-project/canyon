@@ -27,15 +27,20 @@ type Tag {
   color: String!
 }
 
+type Member {
+  userID: String!
+  role: String!
+}
+
 type Project {
   id: ID!
   name: String!
   pathWithNamespace: String!
   description: String!
-  tag: String!
   coverage: String!
   language: String!
   tags: [Tag!]!
+  members: [Member!]!
   bu: String!
   branchOptions: [String!]!
   maxCoverage: Float!
@@ -185,6 +190,11 @@ type ProjectRecordDetailModel {
   statements: Float!
 }
 
+type DeleModel {
+  """删除数量"""
+  count: Float!
+}
+
 type Project2 {
   id: ID!
   name: String!
@@ -195,6 +205,9 @@ type Project2 {
 type Query {
   """提供执行此查询的用户的详细信息（通过授权 Bearer 标头）"""
   me: User!
+
+  """列出所有用户"""
+  listUser: [User!]!
 
   """获取Project"""
   getProjects(
@@ -252,12 +265,15 @@ type Mutation {
   updateProject(
     """Project ID"""
     projectID: ID!
-    description: String!
-    tag: String!
-    coverage: String!
-    defaultBranch: String!
+    description: String
+    coverage: String
+    defaultBranch: String
     tags: [TagInput!]
+    members: [MemberInput!]
   ): Project2!
+
+  """删除sha记录"""
+  deleteProjectRecord(projectID: ID!, sha: String!): DeleModel!
 }
 
 input TagInput {
@@ -265,4 +281,9 @@ input TagInput {
   name: String!
   link: String!
   color: String!
+}
+
+input MemberInput {
+  userID: String!
+  role: String!
 }

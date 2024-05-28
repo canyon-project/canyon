@@ -8,7 +8,8 @@ import {
 } from '../../../../../helpers/backend/gen/graphql.ts';
 import BasicForms from './helper/BasicForms.tsx';
 import { SolarUserIdLinear } from './helper/icons/SolarUserIdLinear.tsx';
-import TestTable from './helper/TestTable.tsx';
+import MemberTable from './helper/MemberTable.tsx';
+import TagTable from './helper/TagTable.tsx';
 
 const gridStyle: any = {
   width: '100%',
@@ -52,7 +53,9 @@ const ProjectConfigure = () => {
         </Card.Grid>
       </Card>
       <div className={'h-5'}></div>
-      <TestTable tags={GetProjectByIdDocumentData?.getProjectByID.tags} />
+      <MemberTable members={GetProjectByIdDocumentData?.getProjectByID.members}/>
+      <div className={'h-5'}></div>
+      <TagTable tags={GetProjectByIdDocumentData?.getProjectByID.tags} />
       <div className={'h-5'}></div>
       <Card
         title={

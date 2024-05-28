@@ -1,5 +1,5 @@
-mutation UpdateProject($projectID: ID!,$description: String!,$tag: String!,$coverage: String!,$defaultBranch: String!,$tags: [TagInput!]) {
-  updateProject(projectID: $projectID,description: $description,tag: $tag,coverage: $coverage,defaultBranch: $defaultBranch,tags:$tags) {
+mutation UpdateProject($projectID: ID!,$description: String,$coverage: String,$defaultBranch: String,$tags: [TagInput!],$members: [MemberInput!]) {
+  updateProject(projectID: $projectID,description: $description,coverage: $coverage,defaultBranch: $defaultBranch,tags:$tags,members:$members) {
     id
   }
 }
