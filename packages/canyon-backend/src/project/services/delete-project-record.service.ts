@@ -4,7 +4,6 @@ import { PrismaService } from '../../prisma/prisma.service';
 export class DeleteProjectRecordService {
   constructor(private readonly prisma: PrismaService) {}
   async invoke(currentUser, projectID, sha) {
-    console.log(currentUser, 'currentUser');
     const members = await this.prisma.project
       .findFirst({
         where: {
