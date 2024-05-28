@@ -210,7 +210,7 @@ const ProjectOverviewPage = () => {
     },
     {
       title: t('common.option'),
-      width: '100px',
+      width: '110px',
       render(_): JSX.Element {
         return (
           <div>
