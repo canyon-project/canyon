@@ -7,7 +7,6 @@ query GetProjectByID($projectID: ID!) {
     reportTimes
     lastReportTime
     coverage
-    tag
     branchOptions
     defaultBranch
     language
@@ -16,6 +15,10 @@ query GetProjectByID($projectID: ID!) {
       name
       link
       color
+    }
+    members {
+      userID
+      role
     }
   }
 }

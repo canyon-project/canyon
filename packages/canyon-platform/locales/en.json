@@ -80,6 +80,7 @@
     "config.view.example": "View Example.",
     "config.example2": "Configure the include, exclude, and extensions fields. The include field indicates files to be detected, the exclude field indicates files not to be detected, and the extensions field indicates file suffixes to be detected.",
     "config.tag": "Tag",
+    "config.member": "Member",
     "config.name": "Name",
     "config.link": "Link",
     "config.link.placeholder": "Please enter the link address (optional)",

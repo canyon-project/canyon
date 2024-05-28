@@ -49,7 +49,7 @@
     "statements": "语句",
     "lines": "行",
     "newlines": "新增行",
-    "reported_details": "上报细节",
+    "reported_details": "细节",
     "reporter": "上报人",
     "search_keywords": "按项目 ID 或名称搜索",
     "overview_search_keywords": "输入 \"Commit Sha \"或 \"分支 \"或 \"比较目标 \"关键词进行搜索",

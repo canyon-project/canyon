@@ -45,7 +45,7 @@ const CanyonColorPicker = ({ value, onChange }) => {
   );
 };
 
-const TestTable = ({ tags }) => {
+const TagTable = ({ tags }) => {
   const [activeID, setActiveID] = useState('');
   const [dataSource, setDataSource] = useState([]);
   const [open, setOpen] = useState(false);
@@ -243,4 +243,4 @@ const TestTable = ({ tags }) => {
   );
 };
 
-export default TestTable;
+export default TagTable;

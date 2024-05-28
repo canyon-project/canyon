@@ -1,5 +1,6 @@
 import Icon, { BranchesOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
+import { Divider, TourProps } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
@@ -10,6 +11,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import ProjectRecordDetailDrawer from '../../../../components/app/ProjectRecordDetailDrawer.tsx';
 import MaterialSymbolsCommitSharp from '../../../../components/sha.tsx';
 import {
+  DeleteProjectDocument,
+  DeleteProjectRecordDocument,
   GetProjectByIdDocument,
   GetProjectChartDataDocument,
   GetProjectCompartmentDataDocument,
@@ -74,6 +77,7 @@ const ProjectOverviewPage = () => {
       fetchPolicy: 'no-cache',
     },
   );
+  const [deleteProjectRecord] = useMutation(DeleteProjectRecordDocument);
   const ref1 = useRef(null);
   const ref2 = useRef(null);
   const [tourOpen, setTourOpen] = useState(false);
@@ -217,6 +221,24 @@ const ProjectOverviewPage = () => {
               }}
             >
               {t('projects.reported_details')}
+            </a>
+            <Divider type={'vertical'} />
+            <a
+              className={'text-red-500'}
+              onClick={() => {
+                deleteProjectRecord({
+                  variables: {
+                    projectID: pam.id as string,
+                    sha: _.sha,
+                  },
+                }).then(() => {
+                  window.location.reload();
+                }).catch(err=>{
+                  console.log(err)
+                });
+              }}
+            >
+              删除
             </a>
           </div>
         );

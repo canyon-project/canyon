@@ -8,4 +8,11 @@ export const projectTags = z.array(
     color: z.string().default(''),
   }),
 );
+
+export const projectMembers = z.array(
+  z.object({
+    userID: z.string().default(''),
+    role: z.string().default(''),
+  }),
+);
 // console.log(User.parse([{ usernam: "Ludwig" }]));

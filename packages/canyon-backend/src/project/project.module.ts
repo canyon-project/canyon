@@ -9,6 +9,8 @@ import { GetProjectRecordDetailByShaService } from './services/get-project-recor
 // import { GetProjectsCopyService } from './services/get-projects-copy.service';
 import { GetProjectsNoDataService } from './services/get-projects-no-data.service';
 import { GetProjectsService } from './services/get-projects.service';
+import { DeleteProjectRecordService } from './services/delete-project-record.service';
+import { UpdateProjectService } from './services/crud/update-project.service';
 @Module({
   imports: [PrismaModule],
   controllers: [],
@@ -21,6 +23,8 @@ import { GetProjectsService } from './services/get-projects.service';
     GetProjectRecordDetailByShaService,
     GetProjectsService,
     GetProjectsNoDataService,
+    DeleteProjectRecordService,
+    UpdateProjectService,
   ],
   exports: [],
 })

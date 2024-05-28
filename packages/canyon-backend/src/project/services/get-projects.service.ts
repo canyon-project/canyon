@@ -67,7 +67,6 @@ export class GetProjectsService {
         id: true,
         pathWithNamespace: true,
         description: true,
-        tag: true,
         bu: true,
       },
     });
@@ -75,7 +74,7 @@ export class GetProjectsService {
       const reslut = [];
       const pros = res[1];
       for (let i = 0; i < pros.length; i++) {
-        const { id, pathWithNamespace, description, tag, bu: _bu } = pros[i];
+        const { id, pathWithNamespace, description, bu: _bu } = pros[i];
         const covs = res[0].filter((item) => {
           return item.projectID === id;
         });
@@ -101,7 +100,6 @@ export class GetProjectsService {
                 : 0,
             reportTimes: covs.length,
             pathWithNamespace: pathWithNamespace,
-            tag: tag,
           });
         }
       }

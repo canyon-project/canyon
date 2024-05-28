@@ -79,8 +79,8 @@ model Project {
   pathWithNamespace String   @map("path_with_namespace")
   description       String
   bu                String
-  tag               String
   tags              Json
+  members           Json //{userID:'xxx',role:'xxx',createdAt:'xxx'}
   coverage          String
   language          String
   defaultBranch     String   @map("default_branch")
