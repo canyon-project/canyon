@@ -223,23 +223,32 @@ const ProjectOverviewPage = () => {
               {t('projects.reported_details')}
             </a>
             <Divider type={'vertical'} />
-            <a
-              className={'text-red-500'}
-              onClick={() => {
+
+            <Popconfirm
+              title='Delete the project record'
+              description='Are you sure to delete this project record?'
+              onConfirm={() => {
                 deleteProjectRecord({
                   variables: {
                     projectID: pam.id as string,
                     sha: _.sha,
                   },
-                }).then(() => {
-                  window.location.reload();
-                }).catch(err=>{
-                  console.log(err)
-                });
+                })
+                  .then(() => {
+                    window.location.reload();
+                  })
+                  .catch((err) => {
+                    console.log(err);
+                  });
               }}
+              onCancel={() => {
+                console.log('cancel');
+              }}
+              okText='Yes'
+              cancelText='No'
             >
-              删除
-            </a>
+              <a className={'text-red-500 hover:text-red-600'}>{t('common.delete')}</a>
+            </Popconfirm>
           </div>
         );
       },
