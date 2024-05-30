@@ -15,6 +15,7 @@ import { Avatar, Breadcrumb, Dropdown, Menu, MenuProps, theme, Tooltip, Typograp
 import axios from 'axios';
 import { CanyonLayoutBase, CanyonModalGlobalSearch } from 'canyon-ui';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Marquee from 'react-fast-marquee';
 import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
@@ -122,11 +123,11 @@ function Index() {
       window.location.href = '/login';
     }
   };
-  const { data: baseData } = useRequest(() => axios.get('/api/base').then(({ data }) => data),{
+  const { data: baseData } = useRequest(() => axios.get('/api/base').then(({ data }) => data), {
     onSuccess(data) {
       // console.log(data,'ss')
       window.GITLAB_URL = data.GITLAB_URL;
-    }
+    },
   });
   const [menuSelectedKey, setMenuSelectedKey] = useState<string>('projects');
   window.canyonModalGlobalSearchRef = useRef(null);
@@ -137,7 +138,12 @@ function Index() {
       {/*  window.canyonModalGlobalSearchRef.current.report();*/}
       {/*}}>开启</Button>*/}
       <CanyonLayoutBase
-        breadcrumb={<Breadcrumb className={'py-3'} items={genBreadcrumbItems(loc.pathname)} />}
+        breadcrumb={
+          <div>
+            {/*榜单mark*/}
+            <Breadcrumb className={'py-3'} items={genBreadcrumbItems(loc.pathname)} />
+          </div>
+        }
         itemsDropdown={[
           {
             label: (
