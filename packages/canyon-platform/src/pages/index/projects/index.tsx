@@ -311,7 +311,7 @@ const ProjectPage = () => {
               className={'w-[200px] mr-2'}
               options={[
                 { label: 'Java', value: 'Java' },
-                { label: 'JavaScript', value: 'JavaScript ' },
+                { label: 'JavaScript', value: 'JavaScript' },
               ]}
             />
 
