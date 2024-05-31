@@ -73,4 +73,17 @@ export class CoverageService {
     });
     return this.coverageDataAdapterService.retrieve(relationID);
   }
+
+  async coveragejacoco(projectID, sha) {
+    const p = await this.prisma.coverage.findFirst({
+      where: {
+        projectID,
+        sha,
+      },
+    });
+
+    const data = await this.coverageDataAdapterService.retrieve(p.relationID);
+
+    return data;
+  }
 }

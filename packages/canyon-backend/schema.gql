@@ -212,6 +212,7 @@ type Query {
   """获取Project"""
   getProjects(
     keyword: String!
+    lang: [String!]!
     bu: [String!]!
 
     """当前页码"""

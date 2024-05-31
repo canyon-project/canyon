@@ -26,12 +26,10 @@ const ReportPage = () => {
   const path = queryString.parse(loc.search)['path'];
   // console.log(parsed);
   const line = Number(loc.hash.replace('#L', ''));
-  console.log(line);
-  // console.log(parsedHash);
   const { data: summary } = useRequest(
     () =>
       axios
-        .get('/api/coverage/uploadjacoco', {
+        .get('/api/coverage/jacoco', {
           params: {
             projectID,
             sha,
