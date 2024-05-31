@@ -46,6 +46,7 @@ export class ProjectResolver {
   getProjects(
     @GqlUser() user: User,
     @Args('keyword', { type: () => String }) keyword: string,
+    @Args('lang', { type: () => [String] }) lang: string[],
     @Args('bu', { type: () => [String] }) bu: string[],
     @Args() paginationArgs: PaginationArgs,
     @Args() sorterArgs: SorterArgs,
@@ -56,6 +57,7 @@ export class ProjectResolver {
       paginationArgs.current,
       paginationArgs.pageSize,
       keyword,
+      lang,
       bu,
       sorterArgs.field,
       sorterArgs.order,

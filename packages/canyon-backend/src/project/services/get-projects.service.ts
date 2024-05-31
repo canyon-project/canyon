@@ -11,6 +11,7 @@ export class GetProjectsService {
     current,
     pageSize,
     keyword,
+    lang,
     bu,
     field,
     order,
@@ -46,6 +47,11 @@ export class GetProjectsService {
         in: bu,
       };
     }
+    if (lang.length > 0) {
+      whereCondition.language = {
+        in: lang,
+      };
+    }
     const cov = this.prisma.coverage.findMany({
       where: {
         covType: 'all',
@@ -68,13 +74,20 @@ export class GetProjectsService {
         pathWithNamespace: true,
         description: true,
         bu: true,
+        language: true,
       },
     });
     const rows = await Promise.all([cov, pro]).then((res) => {
       const reslut = [];
       const pros = res[1];
       for (let i = 0; i < pros.length; i++) {
-        const { id, pathWithNamespace, description, bu: _bu } = pros[i];
+        const {
+          id,
+          pathWithNamespace,
+          description,
+          bu: _bu,
+          language,
+        } = pros[i];
         const covs = res[0].filter((item) => {
           return item.projectID === id;
         });
@@ -100,6 +113,7 @@ export class GetProjectsService {
                 : 0,
             reportTimes: covs.length,
             pathWithNamespace: pathWithNamespace,
+            language: language,
           });
         }
       }

@@ -91,7 +91,9 @@ const ProjectPage = () => {
       render: (text, record) => {
         return (
           <div className={'flex flex-col'}>
-            <div className={'flex gap-1'}>
+            <div className={'flex gap-1 items-center'}>
+              <img src={`/langs/${record.language}.svg`} alt='' className={'w-[16px]'} />
+              <Divider type={'vertical'} style={{ marginLeft: '2px', marginRight: '2px' }} />
               <img src='/gitproviders/gitlab.svg' alt='' className={'w-[16px]'} />
               <a
                 className={'max-w-[240px]'}
@@ -224,10 +226,22 @@ const ProjectPage = () => {
       return [];
     }
   })();
+  const initLang = (() => {
+    try {
+      if (JSON.parse(localStorage.getItem('lang') || '[]') instanceof Array) {
+        return JSON.parse(localStorage.getItem('lang') || '[]');
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
+  })();
   const initFavorOnly = Boolean(localStorage.getItem('favorOnlyFilter'));
   const [keyword, setKeyword] = useState('');
   const [favorOnly, setFavorOnly] = useState(initFavorOnly);
   const [bu, setBu] = useState<string[]>(initBu);
+  const [lang, setLang] = useState<string[]>(initLang);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [sorter, setSorter] = useState<any>({});
@@ -246,6 +260,7 @@ const ProjectPage = () => {
       pageSize: pageSize,
       keyword: keyword,
       bu: bu,
+      lang: lang,
       field: sorter.field || '',
       order: sorter.order || '',
       favorOnly: favorOnly,
@@ -284,6 +299,22 @@ const ProjectPage = () => {
                 value: bu,
               }))}
             />
+
+            <Select
+              defaultValue={initLang}
+              mode='multiple'
+              onChange={(v) => {
+                setLang(v);
+                localStorage.setItem('lang', JSON.stringify(v));
+              }}
+              placeholder={'Language'}
+              className={'w-[200px] mr-2'}
+              options={[
+                { label: 'Java', value: 'Java' },
+                { label: 'JavaScript', value: 'JavaScript ' },
+              ]}
+            />
+
             <Input.Search
               placeholder={t('projects.search_keywords')}
               className={'w-[480px] mb-3'}
