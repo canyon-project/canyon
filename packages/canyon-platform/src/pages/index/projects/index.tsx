@@ -78,7 +78,7 @@ const ProjectPage = () => {
       dataIndex: 'id',
       key: 'slug',
       render(text) {
-        return <span className={'w-[80px] block'}>{text.split('-')[2]}</span>;
+        return <span className={'max-w-[80px] block'}>{text.split('-')[2]}</span>;
       },
     },
     {
@@ -87,11 +87,15 @@ const ProjectPage = () => {
       key: 'pathWithNamespace',
       render: (text, record) => {
         return (
-          <div className={'flex flex-col'}>
-            <div className={'flex gap-1 items-center'}>
+          <div className={'flex gap-1'}>
+            <div>
               <img src={`/langs/${record.language}.svg`} alt='' className={'w-[16px]'} />
-              <Divider type={'vertical'} style={{ marginLeft: '2px', marginRight: '2px' }} />
+              <span style={{ width: '4px', display: 'inline-block' }}></span>
               <img src='/gitproviders/gitlab.svg' alt='' className={'w-[16px]'} />
+            </div>
+
+            <span style={{ width: '4px', display: 'inline-block' }}></span>
+            <div className={'flex gap-1 flex-col'}>
               <a
                 className={'max-w-[240px]'}
                 style={{ color: 'unset' }}
@@ -101,10 +105,10 @@ const ProjectPage = () => {
               >
                 {text}
               </a>
+              <Text type={'secondary'} style={{ fontSize: '12px', width: '240px' }}>
+                {record.description}
+              </Text>
             </div>
-            <Text type={'secondary'} style={{ fontSize: '12px', width: '240px' }}>
-              {record.description}
-            </Text>
           </div>
         );
       },

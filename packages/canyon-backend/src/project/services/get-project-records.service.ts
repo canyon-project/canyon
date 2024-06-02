@@ -86,7 +86,7 @@ export class GetProjectRecordsService {
         functions: coverage.summary['functions']['pct'] || 100,
         branches: coverage.summary['branches']['pct'] || 100,
         lines: coverage.summary['lines']['pct'] || 100,
-        lastReportTime: cs[0]?.updatedAt || new Date(),
+        lastReportTime: cs[0]?.updatedAt || coverage.createdAt, //没有agg类型的时候就用all的创建时间
         times: cs.length,
         logs: [],
       };
