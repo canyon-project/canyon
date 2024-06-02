@@ -24,9 +24,6 @@ import {
 
 const { Text } = Typography;
 
-const tagsData = ['V2Vi', 'Q1JO', 'VHJpcC5jb20=', 'Q3RyaXA=', 'RkxJR0hU', 'Q09SUA=='].map(atob);
-
-const colors = ['#4FA15B', '#087EA4', '#287DFA', '#FFB400', '#981d97', '#0B52D1'];
 function countingStars(num: any) {
   if (num >= 75 && num < 80) {
     return '🌟';
@@ -228,13 +225,13 @@ const ProjectPage = () => {
   })();
   const initLang = (() => {
     try {
-      if (JSON.parse(localStorage.getItem('lang') || '[]') instanceof Array) {
-        return JSON.parse(localStorage.getItem('lang') || '[]');
+      if (JSON.parse(localStorage.getItem('langcondition') || '[]') instanceof Array) {
+        return JSON.parse(localStorage.getItem('langcondition') || '["JavaScript"]');
       } else {
-        return [];
+        return ['JavaScript'];
       }
     } catch (e) {
-      return [];
+      return ['JavaScript'];
     }
   })();
   const initFavorOnly = Boolean(localStorage.getItem('favorOnlyFilter'));
@@ -305,7 +302,7 @@ const ProjectPage = () => {
               mode='multiple'
               onChange={(v) => {
                 setLang(v);
-                localStorage.setItem('lang', JSON.stringify(v));
+                localStorage.setItem('langcondition', JSON.stringify(v));
               }}
               placeholder={'Language'}
               className={'w-[200px] mr-2'}
