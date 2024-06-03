@@ -1,11 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
-import { removeNullKeys, within30days } from '../../utils/utils';
+import { within30days } from '../../utils/utils';
 import * as dayjs from 'dayjs';
 @Injectable()
 export class GetProjectsService {
-  constructor(private readonly prisma: PrismaService) {}
+  private coverages: any[] = [];
+  constructor(private readonly prisma: PrismaService) {
+    // 20秒刷新一次
+    setInterval(async () => {
+      this.coverages = await this.prisma.coverage.findMany({
+        where: {
+          covType: 'all',
+        },
+        select: {
+          projectID: true,
+          // project: true,
+          sha: true,
+          // branch: true,
+          // report: true,
+          createdAt: true,
+          updatedAt: true,
+          summary: true,
+        },
+      });
+    }, 1000 * 20);
+  }
   async invoke(
     userID,
     current,
@@ -52,21 +71,7 @@ export class GetProjectsService {
         in: lang,
       };
     }
-    const cov = this.prisma.coverage.findMany({
-      where: {
-        covType: 'all',
-      },
-      select: {
-        projectID: true,
-        // project: true,
-        sha: true,
-        // branch: true,
-        // report: true,
-        createdAt: true,
-        updatedAt: true,
-        summary: true,
-      },
-    });
+    const cov = this.coverages;
     const pro = this.prisma.project.findMany({
       where: whereCondition,
       select: {
