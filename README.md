@@ -36,7 +36,7 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 - A frontend service responsible for displaying coverage reports.
 
 
-[Read the Docs to Learn More.](https://canyon-docs.vercel.app/overview/why-canyon)
+[Read the Docs to Learn More.](https://canyon-docs.netlify.app/overview/why-canyon)
 
 ## Architecture overview
 
