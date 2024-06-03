@@ -38,6 +38,10 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 
 [Read the Docs to Learn More.](https://canyon-docs.vercel.app/overview/why-canyon)
 
+## Architecture overview
+
+![](./screenshots/architecture.png)
+
 ## Contribution
 
 See [Contributing Guide](CONTRIBUTING.md).
