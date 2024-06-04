@@ -77,27 +77,30 @@ function Index() {
 
     try {
       // @ts-ignore
-      fetch(window.__canyon__.dsn, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          // @ts-ignore
-          coverage: window.__coverage__,
-          // @ts-ignore
-          commitSha: window.__canyon__.commitSha,
-          // @ts-ignore
-          projectID: window.__canyon__.projectID,
-          // @ts-ignore
-          instrumentCwd: window.__canyon__.instrumentCwd,
-          // @ts-ignore
-          reportID: `${meData?.me.username};${loc.pathname};${window.__canyon__.commitSha.slice(0, 8)}`,
-          // @ts-ignore
-          branch: window.__canyon__.branch,
-        }),
-      });
+      if (!meData?.me.username === 'tzhangm') {
+        // @ts-ignore
+        fetch(window.__canyon__.dsn, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify({
+            // @ts-ignore
+            coverage: window.__coverage__,
+            // @ts-ignore
+            commitSha: window.__canyon__.commitSha,
+            // @ts-ignore
+            projectID: window.__canyon__.projectID,
+            // @ts-ignore
+            instrumentCwd: window.__canyon__.instrumentCwd,
+            // @ts-ignore
+            reportID: `${meData?.me.username};${loc.pathname};${window.__canyon__.commitSha.slice(0, 8)}`,
+            // @ts-ignore
+            branch: window.__canyon__.branch,
+          }),
+        });
+      }
     } catch (e) {
       // console.log(e);
     }
