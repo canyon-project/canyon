@@ -50,7 +50,7 @@ const ReportPage = () => {
     //   path: path,
     // });
 
-    nav(`/jacoco/projects/${projectID}/commits/${sha}?path=${path}`);
+    nav(`/projects/${projectID}/commits/${sha}?path=${path}`);
     // console.log(path);
 
     console.log(path, 'path');

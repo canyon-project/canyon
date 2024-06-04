@@ -3,6 +3,7 @@ import { useRequest } from 'ahooks';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import CanyonReport from '../../../../../components/CanyonReport';
+import ReportPage from '../../../../../components/JacocoReport';
 import { GetProjectByIdDocument } from '../../../../../helpers/backend/gen/graphql.ts';
 import { getCoverageSummaryMapService, handleSelectFile } from './helper';
 const { useToken } = theme;
@@ -84,17 +85,23 @@ const Sha = () => {
     >
       {/*{pathWithNamespace}111*/}
       {/*{pathWithNamespace}*/}
-      <CanyonReport
-        theme={localStorage.getItem('theme') || 'light'}
-        mainData={mainData}
-        pathWithNamespace={pathWithNamespace}
-        activatedPath={activatedPath}
-        coverageSummaryMapData={coverageSummaryMapData || []}
-        loading={loading}
-        onSelect={(v) => {
-          setActivatedPath(v.path);
-        }}
-      />
+
+      <>{getProjectByIdDocumentData?.getProjectByID.language === 'Java' && <ReportPage />}</>
+      <>
+        {getProjectByIdDocumentData?.getProjectByID.language === 'JavaScript' && (
+          <CanyonReport
+            theme={localStorage.getItem('theme') || 'light'}
+            mainData={mainData}
+            pathWithNamespace={pathWithNamespace}
+            activatedPath={activatedPath}
+            coverageSummaryMapData={coverageSummaryMapData || []}
+            loading={loading}
+            onSelect={(v) => {
+              setActivatedPath(v.path);
+            }}
+          />
+        )}
+      </>
     </div>
   );
 };
