@@ -73,23 +73,18 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                 // style={{ borderBottom: `1px solid ${token.colorBorder}` }}
               >
                 <div className={'flex items-center justify-between'}>
-                  <Title
-                    level={4}
-                    className={'cursor-pointer flex'}
+                  <div
+                    className={'cursor-pointer flex items-center'}
                     style={{ marginBottom: 0 }}
                     onClick={() => {
-                      // nav(`/`);
                       window.location.href = '/';
                     }}
                   >
-                    {/*<img*/}
-                    {/*  className={'w-[30px] mr-[8px]'}*/}
-                    {/*  src={localStorage.getItem('theme') === 'dark' ? lightLogoSvg : logoSvg}*/}
-                    {/*  alt=''*/}
-                    {/*/>*/}
                     {logo}
-                    <span className={'ml-[8px]'}>{title}</span>
-                  </Title>
+                    <span className={'ml-[8px]'} style={{ fontSize: '18px', fontWeight: 'bolder' }}>
+                      {title}
+                    </span>
+                  </div>
 
                   <div>{mainTitleRightNode}</div>
                 </div>

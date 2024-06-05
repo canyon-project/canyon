@@ -318,7 +318,7 @@ const ProjectPage = () => {
 
             <Input.Search
               placeholder={t('projects.search_keywords')}
-              className={'w-[480px] mb-3'}
+              className={'w-[360px] mb-3'}
               onSearch={(value) => {
                 setKeyword(value);
                 setCurrent(1);
