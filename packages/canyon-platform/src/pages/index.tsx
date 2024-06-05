@@ -1,64 +1,24 @@
 import Icon, {
   ArrowRightOutlined,
   CreditCardOutlined,
-  DashboardOutlined,
   FolderOutlined,
   LineChartOutlined,
   LogoutOutlined,
-  MoneyCollectOutlined,
-  MoreOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
 import { useRequest } from 'ahooks';
-import { Avatar, Breadcrumb, Dropdown, Menu, MenuProps, theme, Tooltip, Typography } from 'antd';
 import axios from 'axios';
 import { CanyonLayoutBase, CanyonModalGlobalSearch } from 'canyon-ui';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import Marquee from 'react-fast-marquee';
 import { useTranslation } from 'react-i18next';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import book from '../assets/book.svg';
-import lightLogoSvg from '../assets/light-logo.svg';
-import logoSvg from '../assets/logo.svg';
 import UilUsersAlt from '../assets/users-icon.tsx';
-import AppFooter from '../components/app/footer.tsx';
 import { MeDocument } from '../helpers/backend/gen/graphql.ts';
 import { genBreadcrumbItems } from '../layouts/genBreadcrumbItems.tsx';
-import ScrollBasedLayout from '../ScrollBasedLayout.tsx';
-const { useToken } = theme;
-const { Text, Title } = Typography;
-type MenuItem = Required<MenuProps>['items'][number];
-
-function getItem(
-  label: React.ReactNode,
-  key: React.Key,
-  icon?: React.ReactNode,
-  children?: MenuItem[],
-): MenuItem {
-  return {
-    key,
-    icon,
-    children,
-    label,
-  } as MenuItem;
-}
 
 function Index() {
   const { t } = useTranslation();
-  const items: MenuProps['items'] = [
-    {
-      label: t('menus.projects'),
-      key: 'projects',
-      icon: <FolderOutlined />,
-    },
-    {
-      label: t('menus.settings'),
-      key: 'settings',
-      icon: <SettingOutlined />,
-    },
-  ];
   useEffect(() => {
     if (localStorage.getItem('token') === null) {
       localStorage.clear();
@@ -77,7 +37,7 @@ function Index() {
 
     try {
       // @ts-ignore
-      if (meData?.me.username !== 'tzhangm') {
+      if (meData?.me.username && meData?.me.username !== 'tzhangm') {
         // @ts-ignore
         fetch(window.__canyon__.dsn, {
           method: 'POST',
@@ -95,7 +55,7 @@ function Index() {
             // @ts-ignore
             instrumentCwd: window.__canyon__.instrumentCwd,
             // @ts-ignore
-            reportID: `${meData?.me.username};${loc.pathname};${window.__canyon__.commitSha.slice(0, 8)}`,
+            reportID: `${meData?.me.username}|${loc.pathname}`,
             // @ts-ignore
             branch: window.__canyon__.branch,
           }),
@@ -106,29 +66,12 @@ function Index() {
     }
   }, [loc.pathname]);
 
-  const selectedKey = useMemo(() => {
-    if (loc.pathname === '/') {
-      return 'projects';
-    } else {
-      return loc.pathname.replace('/', '');
-    }
-  }, [loc.pathname]);
-
   useEffect(() => {
     setMenuSelectedKey(loc.pathname.replace('/', ''));
   }, [loc.pathname]);
-  const { token } = useToken();
   const { data: meData } = useQuery(MeDocument);
-  const dropdownItems = [getItem(t('app.logout'), 'logout', <LogoutOutlined />)];
-  const dropdownClick = ({ key }: any) => {
-    if (key === 'logout') {
-      localStorage.clear();
-      window.location.href = '/login';
-    }
-  };
   const { data: baseData } = useRequest(() => axios.get('/api/base').then(({ data }) => data), {
     onSuccess(data) {
-      // console.log(data,'ss')
       window.GITLAB_URL = data.GITLAB_URL;
     },
   });
@@ -136,10 +79,6 @@ function Index() {
   window.canyonModalGlobalSearchRef = useRef(null);
   return (
     <>
-      {/*<img src={UsageIcon} alt=""/>*/}
-      {/*<Button onClick={()=>{*/}
-      {/*  window.canyonModalGlobalSearchRef.current.report();*/}
-      {/*}}>开启</Button>*/}
       <CanyonLayoutBase
         breadcrumb={
           <div>
@@ -155,10 +94,8 @@ function Index() {
                 Logout
               </div>
             ),
-            // icon: <ArrowRightOutlined />,
             onClick: () => {
               localStorage.clear();
-              // nav('/login');
               window.location.href = '/login';
             },
           },
@@ -170,7 +107,7 @@ function Index() {
         title={'Canyon'}
         logo={
           <div>
-            <img src='/logo.svg' alt='' className={'w-[30px]'} />
+            <img src='/logo.svg' alt='' className={'w-[28px]'} />
           </div>
         }
         mainTitleRightNode={
@@ -198,7 +135,6 @@ function Index() {
         }
         menuSelectedKey={menuSelectedKey}
         onSelectMenu={(selectInfo) => {
-          console.log(selectInfo);
           setMenuSelectedKey(selectInfo.key);
           nav(`/${selectInfo.key}`);
         }}

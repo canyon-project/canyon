@@ -6,6 +6,7 @@
 export {}
 declare global {
   const Alert: typeof import('antd')['Alert']
+  const Breadcrumb: typeof import('antd')['Breadcrumb']
   const Button: typeof import('antd')['Button']
   const Card: typeof import('antd')['Card']
   const ColorPicker: typeof import('antd')['ColorPicker']
