@@ -77,7 +77,7 @@ function Index() {
 
     try {
       // @ts-ignore
-      if (!meData?.me.username === 'tzhangm') {
+      if (meData?.me.username !== 'tzhangm') {
         // @ts-ignore
         fetch(window.__canyon__.dsn, {
           method: 'POST',

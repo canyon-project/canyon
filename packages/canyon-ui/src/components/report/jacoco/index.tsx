@@ -11,7 +11,7 @@ const { useToken } = theme;
 function gen(path, line) {
   return line ? path + '#L' + line : path;
 }
-const JacocoReport = ({ summary, selectedKey, onSelect, selectedLine }) => {
+const JacocoReport = ({ summary, selectedKey, onSelect, selectedLine,title }) => {
   const { token } = useToken();
   const [breadcrumbs, setBreadcrumbs] = useState([]);
 
@@ -89,14 +89,14 @@ const JacocoReport = ({ summary, selectedKey, onSelect, selectedLine }) => {
 
   return (
     <div
-      className='p-2 rounded-md bg-white dark:bg-[#151718]'
-      style={{
-        // border: `1px solid ${token.colorBorder}`,
-        boxShadow: `${token.boxShadowTertiary}`,
-      }}
+      // className='p-2 rounded-md bg-white dark:bg-[#151718]'
+      // style={{
+      //   // border: `1px solid ${token.colorBorder}`,
+      //   boxShadow: `${token.boxShadowTertiary}`,
+      // }}
     >
-      Line: {selectedLine}
-      <JacocoControl name={summary.report.name} items={breadcrumbs} onSelect={onSelectControl} />
+      {/*Line: {selectedLine}*/}
+      <JacocoControl name={title} items={breadcrumbs} onSelect={onSelectControl} />
 
       <JacocoOverview />
 

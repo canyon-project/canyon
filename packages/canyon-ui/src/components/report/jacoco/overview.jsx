@@ -1,5 +1,5 @@
 const JacocoOverview = () => {
-  return <div>JacocoOverview</div>
+  return <div></div>
 }
 
 export default JacocoOverview;

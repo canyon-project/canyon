@@ -86,7 +86,7 @@ const Sha = () => {
       {/*{pathWithNamespace}111*/}
       {/*{pathWithNamespace}*/}
 
-      <>{getProjectByIdDocumentData?.getProjectByID.language === 'Java' && <ReportPage />}</>
+      <>{getProjectByIdDocumentData?.getProjectByID.language === 'Java' && <ReportPage title={getProjectByIdDocumentData?.getProjectByID.name} />}</>
       <>
         {getProjectByIdDocumentData?.getProjectByID.language === 'JavaScript' && (
           <CanyonReport
