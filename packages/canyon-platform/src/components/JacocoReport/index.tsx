@@ -12,7 +12,7 @@ function gen(path, line) {
 }
 
 // http://localhost:8000/jacoco/projects/86085/commits/37582cf3bdb4c8c0eda2fd690c968c02f8ea5ba0?path=path
-const ReportPage = () => {
+const ReportPage = ({title}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const params = useParams();
   const { id: projectID, sha } = params;
@@ -61,7 +61,7 @@ const ReportPage = () => {
   };
 
   return (
-    <div className={'p-[20px]'} style={{ backgroundColor: 'rgb(251,252,253)' }}>
+    <div>
       <ConfigProvider
         theme={{
           token: {
@@ -71,6 +71,7 @@ const ReportPage = () => {
       >
         {summary && (
           <CanyonJacocoReport
+            title={title}
             summary={summary}
             selectedKey={path}
             selectedLine={line}
