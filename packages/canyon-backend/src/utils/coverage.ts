@@ -8,6 +8,18 @@ function parseInstrumentCwd(instrumentCwd) {
     return [instrumentCwd, ''];
   }
 }
+function convertInstrumentCwd({ path, instrumentCwd, projectInstrumentCwd }) {
+  if (!projectInstrumentCwd) {
+    return path.replace(instrumentCwd, '');
+  } else {
+    // 这里需要解析一下instrumentCwd，如果包含"=>"，则需要替换。
+    const [leftInstrumentCwd, rightInstrumentCwd] =
+      parseInstrumentCwd(projectInstrumentCwd);
+    return path
+      .replace(instrumentCwd, '')
+      .replace(leftInstrumentCwd, rightInstrumentCwd);
+  }
+}
 // 格式化上报的覆盖率对象
 export async function formatReportObject(c: any) {
   // 去除斜杠\\
@@ -15,12 +27,13 @@ export async function formatReportObject(c: any) {
     JSON.parse(JSON.stringify(x).replace(/\\\\/g, '/'));
   const coverage = removeSlash(await remapCoverage(c.coverage));
   const instrumentCwd = removeSlash(c.instrumentCwd);
+  const projectInstrumentCwd = removeSlash(c.projectInstrumentCwd);
   const reversePath = (p: string) => {
-    // 这里需要解析一下instrumentCwd，如果包含"=>"，则需要替换。
-    const [leftInstrumentCwd, rightInstrumentCwd] =
-      parseInstrumentCwd(instrumentCwd);
-
-    const a = p.replace(leftInstrumentCwd, rightInstrumentCwd);
+    const a = convertInstrumentCwd({
+      path: p,
+      instrumentCwd,
+      projectInstrumentCwd,
+    });
     let b = '';
     // 从第二个字符开始
     for (let i = 1; i < a.length; i++) {
