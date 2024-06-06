@@ -62,6 +62,9 @@ export class Project {
   @Field(() => String)
   defaultBranch: string;
 
+  @Field(() => String)
+  instrumentCwd: string;
+
   @Field(() => Number)
   reportTimes: number;
 

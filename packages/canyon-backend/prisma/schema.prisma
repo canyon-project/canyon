@@ -80,10 +80,11 @@ model Project {
   description       String
   bu                String
   tags              Json
-  members           Json //{userID:'xxx',role:'xxx',createdAt:'xxx'}
+  members           Json
   coverage          String
   language          String
   defaultBranch     String   @map("default_branch")
+  instrumentCwd     String   @map("instrument_cwd")
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
   @@map("project")

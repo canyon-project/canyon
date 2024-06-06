@@ -1,6 +1,13 @@
 import * as libCoverage from 'istanbul-lib-coverage';
 import * as libSourceMaps from 'istanbul-lib-source-maps';
-
+function parseInstrumentCwd(instrumentCwd) {
+  if (instrumentCwd.includes('=>')) {
+    const instrumentCwdSplit = instrumentCwd.split('=>');
+    return [instrumentCwdSplit[0], instrumentCwdSplit[1]];
+  } else {
+    return [instrumentCwd, ''];
+  }
+}
 // 格式化上报的覆盖率对象
 export async function formatReportObject(c: any) {
   // 去除斜杠\\
@@ -9,7 +16,11 @@ export async function formatReportObject(c: any) {
   const coverage = removeSlash(await remapCoverage(c.coverage));
   const instrumentCwd = removeSlash(c.instrumentCwd);
   const reversePath = (p: string) => {
-    const a = p.replace(instrumentCwd, ``);
+    // 这里需要解析一下instrumentCwd，如果包含"=>"，则需要替换。
+    const [leftInstrumentCwd, rightInstrumentCwd] =
+      parseInstrumentCwd(instrumentCwd);
+
+    const a = p.replace(leftInstrumentCwd, rightInstrumentCwd);
     let b = '';
     // 从第二个字符开始
     for (let i = 1; i < a.length; i++) {
