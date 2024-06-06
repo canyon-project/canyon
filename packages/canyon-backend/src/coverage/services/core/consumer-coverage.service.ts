@@ -5,8 +5,7 @@ import {
   getSummaryByPath,
   mergeCoverageMap,
 } from '@canyon/data';
-import { removeNullKeys } from '../../../utils/utils';
-// import { validateObject } from '../../utils/coverage';
+import { percent, removeNullKeys } from '../../../utils/utils';
 import { CoverageDataAdapterService } from '../common/coverage-data-adapter.service';
 import { PullChangeCodeAndInsertDbService } from '../common/pull-change-code-and-insert-db.service';
 import { logger } from '../../../logger';
@@ -54,6 +53,10 @@ export class ConsumerCoverageService {
               await this.consume(
                 dataFormatAndCheckQueueDataToBeConsumed,
                 'all',
+              );
+              // 这里有需要补偿变更行覆盖率，因为一些懒加载的原因，可能导致每个agg类型的变更行数量不一样。所以每次更新后，需要更新一下所有agg的变更行覆盖率summary
+              await this.compensationChangeLineCoverageSummary(
+                dataFormatAndCheckQueueDataToBeConsumed,
               );
               // 执行任务
             } finally {
@@ -296,5 +299,53 @@ export class ConsumerCoverageService {
       ...data,
       coverage: obj,
     };
+  }
+
+  async compensationChangeLineCoverageSummary(queueDataToBeConsumed) {
+    // 查询all类型的coverage
+    const allCoverage = await this.prisma.coverage.findFirst({
+      where: {
+        projectID: queueDataToBeConsumed.projectID,
+        sha: queueDataToBeConsumed.sha,
+        covType: 'all',
+      },
+    });
+    // 变更行数量0，不需要补偿
+    if ((allCoverage.summary as any).newlines.total === 0) {
+      // 查询agg类型的coverage
+      const aggCoverages = await this.prisma.coverage.findMany({
+        where: {
+          projectID: queueDataToBeConsumed.projectID,
+          sha: queueDataToBeConsumed.sha,
+          covType: 'agg',
+        },
+      });
+      // 补偿函数
+      function compensation(oldSummary, newSummary) {
+        return {
+          ...oldSummary,
+          newlines: {
+            ...oldSummary.newlines,
+            total: newSummary.newlines.total,
+            pct: percent(
+              oldSummary.newlines.covered,
+              newSummary.newlines.total,
+            ),
+          },
+        };
+      }
+      // 更新agg类型的coverage
+      for (let i = 0; i < aggCoverages.length; i++) {
+        const oldSummary = aggCoverages[i].summary;
+        await this.prisma.coverage.update({
+          where: {
+            id: aggCoverages[i].id,
+          },
+          data: {
+            summary: compensation(oldSummary, allCoverage.summary),
+          },
+        });
+      }
+    }
   }
 }
