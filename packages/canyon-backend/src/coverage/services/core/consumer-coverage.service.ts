@@ -42,9 +42,17 @@ export class ConsumerCoverageService {
           const lockAcquired = await this.acquireLock(lockName, 1000 * 60 * 2);
 
           if (lockAcquired) {
+            const project = await this.prisma.project.findFirst({
+              where: {
+                id: queueDataToBeConsumed.projectID,
+              },
+            });
             // 到这里，获取到锁了以后再作处理
             const dataFormatAndCheckQueueDataToBeConsumed =
-              await this.dataFormatAndCheck(queueDataToBeConsumed);
+              await this.dataFormatAndCheck(
+                queueDataToBeConsumed,
+                project?.instrumentCwd,
+              );
             try {
               await this.consume(
                 dataFormatAndCheckQueueDataToBeConsumed,
@@ -252,9 +260,9 @@ export class ConsumerCoverageService {
       },
     });
   }
-  async dataFormatAndCheck(data): Promise<any> {
+  async dataFormatAndCheck(data, projectInstrumentCwd): Promise<any> {
     data = this.regularData(data);
-    const instrumentCwd = data.instrumentCwd;
+    const instrumentCwd = projectInstrumentCwd || data.instrumentCwd;
     const noPass = [];
     for (const coverageKey in data.coverage) {
       if (coverageKey.includes(instrumentCwd)) {
@@ -263,13 +271,7 @@ export class ConsumerCoverageService {
       }
     }
     if (noPass.length > 0) {
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'coverage对象与canyon.processCwd不匹配',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      console.log(`coverage对象与canyon.processCwd不匹配`);
     }
 
     // 3.修改覆盖率路径

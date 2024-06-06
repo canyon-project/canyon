@@ -10,6 +10,7 @@ query GetProjectByID($projectID: ID!) {
     branchOptions
     defaultBranch
     language
+    instrumentCwd
     tags {
       id
       name

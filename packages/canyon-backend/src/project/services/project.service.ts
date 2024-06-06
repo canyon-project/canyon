@@ -68,6 +68,7 @@ export class ProjectService {
         tags: [],
         members: [],
         language: language,
+        instrumentCwd: '',
       },
     });
   }
@@ -77,41 +78,6 @@ export class ProjectService {
       where: {
         id: projectID,
       },
-    });
-  }
-
-  async updateProject(
-    user,
-    projectID,
-    description,
-    tag,
-    coverage,
-    defaultBranch,
-    tags,
-  ) {
-    function removeEmptyValues(obj) {
-      for (const key in obj) {
-        if (
-          obj[key] === undefined ||
-          obj[key] === null ||
-          obj[key] === '__null__'
-        ) {
-          delete obj[key];
-        }
-      }
-      return obj;
-    }
-    return this.prisma.project.update({
-      where: {
-        id: projectID,
-      },
-      data: removeEmptyValues({
-        description: description,
-        tag: tag,
-        coverage: coverage,
-        defaultBranch: defaultBranch,
-        tags: tags,
-      }),
     });
   }
 
@@ -143,6 +109,7 @@ export class ProjectService {
           tags,
           language,
           members,
+          instrumentCwd,
         }) => {
           return {
             id,
@@ -159,6 +126,7 @@ export class ProjectService {
             branchOptions,
             favored: false,
             language,
+            instrumentCwd,
             tags: projectTags.parse(tags).map(({ id, name, link, color }) => ({
               id,
               name,

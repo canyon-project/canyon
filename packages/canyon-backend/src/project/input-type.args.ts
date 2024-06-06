@@ -35,6 +35,11 @@ export class UpdateProjectArgs {
   @Field({
     nullable: true,
   })
+  instrumentCwd?: string;
+
+  @Field({
+    nullable: true,
+  })
   coverage?: string;
 
   @Field({
