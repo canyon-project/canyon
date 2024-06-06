@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { useRequest } from 'ahooks';
+import { Divider } from 'antd';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import CanyonReport from '../../../../../components/CanyonReport';
@@ -76,33 +77,59 @@ const Sha = () => {
   }, [activatedPath]);
 
   return (
-    <div
-      className='p-2 rounded-md bg-white dark:bg-[#151718]'
-      style={{
-        // border: `1px solid ${token.colorBorder}`,
-        boxShadow: `${token.boxShadowTertiary}`,
-      }}
-    >
-      {/*{pathWithNamespace}111*/}
-      {/*{pathWithNamespace}*/}
-
-      <>{getProjectByIdDocumentData?.getProjectByID.language === 'Java' && <ReportPage title={getProjectByIdDocumentData?.getProjectByID.name} />}</>
-      <>
-        {getProjectByIdDocumentData?.getProjectByID.language === 'JavaScript' && (
-          <CanyonReport
-            theme={localStorage.getItem('theme') || 'light'}
-            mainData={mainData}
-            pathWithNamespace={pathWithNamespace}
-            activatedPath={activatedPath}
-            coverageSummaryMapData={coverageSummaryMapData || []}
-            loading={loading}
-            onSelect={(v) => {
-              setActivatedPath(v.path);
-            }}
-          />
-        )}
-      </>
-    </div>
+    <>
+      <div
+        className='p-2 rounded-md bg-white dark:bg-[#151718] flex '
+        style={{
+          boxShadow: `${token.boxShadowTertiary}`,
+          display: 'none',
+        }}
+      >
+        <div>
+          <div>Ant Design Title 1</div>
+          <div>sign, a design language for background applications, is refined by</div>
+        </div>
+        <Divider type={'vertical'} style={{ height: '60px' }} />
+        <div>
+          <div>Ant Design Title 1</div>
+          <div>sign, a design language for background applications, is refined by</div>
+        </div>
+        <Divider type={'vertical'} style={{ height: '60px' }} />
+        <div>
+          <div>Ant Design Title 1</div>
+          <div>sign, a design language for background applications, is refined by</div>
+        </div>
+      </div>
+      <div className={'h-[10px]'}></div>
+      <div
+        className='p-2 rounded-md bg-white dark:bg-[#151718]'
+        style={{
+          // border: `1px solid ${token.colorBorder}`,
+          boxShadow: `${token.boxShadowTertiary}`,
+        }}
+      >
+        <>
+          {getProjectByIdDocumentData?.getProjectByID.language === 'Java' && (
+            <ReportPage title={getProjectByIdDocumentData?.getProjectByID.name} />
+          )}
+        </>
+        <>
+          {getProjectByIdDocumentData?.getProjectByID.language === 'JavaScript' && (
+            <CanyonReport
+              theme={localStorage.getItem('theme') || 'light'}
+              mainData={mainData}
+              pathWithNamespace={pathWithNamespace}
+              activatedPath={activatedPath}
+              coverageSummaryMapData={coverageSummaryMapData || []}
+              loading={loading}
+              onSelect={(v) => {
+                setActivatedPath(v.path);
+              }}
+            />
+          )}
+        </>
+      </div>
+    </>
   );
 };
 
