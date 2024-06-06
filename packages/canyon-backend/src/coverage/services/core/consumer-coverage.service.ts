@@ -262,7 +262,7 @@ export class ConsumerCoverageService {
   }
   async dataFormatAndCheck(data, projectInstrumentCwd): Promise<any> {
     data = this.regularData(data);
-    const instrumentCwd = projectInstrumentCwd || data.instrumentCwd;
+    const instrumentCwd = data.instrumentCwd;
     const noPass = [];
     for (const coverageKey in data.coverage) {
       if (coverageKey.includes(instrumentCwd)) {
@@ -280,6 +280,7 @@ export class ConsumerCoverageService {
     const coverage = await formatReportObject({
       coverage: data.coverage,
       instrumentCwd,
+      projectInstrumentCwd,
     }).then((res) => res.coverage);
     return {
       ...data,
