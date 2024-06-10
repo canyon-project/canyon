@@ -123,9 +123,4 @@ export class CoverageController {
       reportID: 'reportID',
     };
   }
-
-  @Get('/api/coverage/jacoco')
-  coveragejacoco(@Query() query) {
-    return this.coverageService.coveragejacoco(query.projectID, query.sha);
-  }
 }

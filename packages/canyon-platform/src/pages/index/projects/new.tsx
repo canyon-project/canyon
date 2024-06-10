@@ -1,6 +1,6 @@
 import { useMutation } from '@apollo/client';
 import { useRequest } from 'ahooks';
-import { Alert, Button, Form, Input, Select, Space } from 'antd';
+import { Button, Form, Input, Select, Space } from 'antd';
 import axios from 'axios';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -10,18 +10,7 @@ import {
   CheckProjectUrlDocument,
   CreateProjectDocument,
 } from '../../../helpers/backend/gen/graphql.ts';
-
-const { Option } = Select;
 const { Text } = Typography;
-
-const layout = {
-  labelCol: { span: 8 },
-  wrapperCol: { span: 16 },
-};
-
-const tailLayout = {
-  wrapperCol: { offset: 8, span: 16 },
-};
 
 const LabelTest = ({ type, name, url, disabled }) => {
   return (
@@ -43,12 +32,7 @@ const App: React.FC = () => {
   const [projectID, setProjectID] = useState('');
 
   const onFinish = (values: any) => {
-    console.log(values);
-    console.log(`${values.provider}-${values.repository}-${values.slug}`);
-    // setProjectID(`${values.provider}-${values.repository}-${values.slug}`);
-
     const url = gitProviderList.find((i) => {
-      // console.log(i , values.provider)
       return i.id === values.provider;
     }).url;
 
@@ -57,7 +41,6 @@ const App: React.FC = () => {
         projectUrl: `${url}/${values.repository}`,
       },
     }).then((res) => {
-      console.log(res, 'res');
       setProjectID(`${values.provider}-${res.data?.checkProjectUrl.id}-${values.slug}`);
     });
   };
@@ -107,11 +90,6 @@ const App: React.FC = () => {
               {
                 label: 'JavaScript',
                 value: 'JavaScript',
-              },
-              {
-                label: 'Java',
-                value: 'Java',
-                disabled: true,
               },
             ]}
           />
