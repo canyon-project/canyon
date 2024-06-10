@@ -4,7 +4,6 @@ import { Divider } from 'antd';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import CanyonReport from '../../../../../components/CanyonReport';
-import ReportPage from '../../../../../components/JacocoReport';
 import { GetProjectByIdDocument } from '../../../../../helpers/backend/gen/graphql.ts';
 import { getCoverageSummaryMapService, handleSelectFile } from './helper';
 const { useToken } = theme;
@@ -109,11 +108,6 @@ const Sha = () => {
         }}
       >
         <>
-          {getProjectByIdDocumentData?.getProjectByID.language === 'Java' && (
-            <ReportPage title={getProjectByIdDocumentData?.getProjectByID.name} />
-          )}
-        </>
-        <>
           {getProjectByIdDocumentData?.getProjectByID.language === 'JavaScript' && (
             <CanyonReport
               theme={localStorage.getItem('theme') || 'light'}
@@ -122,7 +116,7 @@ const Sha = () => {
               activatedPath={activatedPath}
               coverageSummaryMapData={coverageSummaryMapData || []}
               loading={loading}
-              onSelect={(v) => {
+              onSelect={(v: any) => {
                 setActivatedPath(v.path);
               }}
             />

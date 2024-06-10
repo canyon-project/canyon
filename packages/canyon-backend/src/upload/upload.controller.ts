@@ -31,7 +31,7 @@ export class UploadController {
   @UseInterceptors(RawBodyMiddleware)
   async test1(@Query() query, @Body() buffer: Buffer) {
     const { commit, branch, instrument_cwd, slug } = query;
-    const { coverage, type } = uploadAnalyze(buffer.toString());
+    const { coverage } = uploadAnalyze(buffer.toString());
     // TODO: 实现转换成canyon的数据结构
     const projectID = await axios
       .get(
@@ -47,20 +47,6 @@ export class UploadController {
         return res.data.id;
       });
     const url = process.env.APP_URI;
-
-    if (type === 'java') {
-      return this.uploadService.jacoco(
-        {
-          branch: branch,
-          commitSha: commit,
-          projectID: String(projectID),
-          instrumentCwd: instrument_cwd,
-          coverage: coverage,
-        },
-        coverage,
-      );
-    }
-
     await axios
       .post(
         `${url}/coverage/client`,

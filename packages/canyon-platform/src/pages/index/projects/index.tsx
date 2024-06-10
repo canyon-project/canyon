@@ -46,7 +46,6 @@ const ProjectPage = () => {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      // align: 'center',
       render(text, record) {
         return (
           <Space>
@@ -113,26 +112,6 @@ const ProjectPage = () => {
         );
       },
     },
-    // {
-    //   title: '标签',
-    //   dataIndex: 'tag',
-    //   render: (text) => {
-    //     const selectedTags = text ? text.split(',') : [];
-    //     return (
-    //       <div className={'flex w-[130px] flex-wrap'}>
-    //         {selectedTags.map((tag: string) => (
-    //           <Tag
-    //             className={'mb-2'}
-    //             key={tag}
-    //             color={tagsData.indexOf(tag) > -1 ? colors[tagsData.indexOf(tag)] : '#108ee9'}
-    //           >
-    //             {tag}
-    //           </Tag>
-    //         ))}
-    //       </div>
-    //     );
-    //   },
-    // },
     {
       title: 'Bu',
       dataIndex: 'bu',
@@ -183,14 +162,6 @@ const ProjectPage = () => {
           >
             {t('common.detail')}
           </Link>
-          {/*<Divider type={'vertical'} />*/}
-          {/*<Link*/}
-          {/*  to={{*/}
-          {/*    pathname: `/projects/${id}/configure`,*/}
-          {/*  }}*/}
-          {/*>*/}
-          {/*  {t('common.configure')}*/}
-          {/*</Link>*/}
           <Divider type={'vertical'} />
           <Popconfirm
             title='Delete the project'
@@ -310,10 +281,7 @@ const ProjectPage = () => {
               }}
               placeholder={'Language'}
               className={'w-[200px] mr-2'}
-              options={[
-                { label: 'Java', value: 'Java' },
-                { label: 'JavaScript', value: 'JavaScript' },
-              ]}
+              options={[{ label: 'JavaScript', value: 'JavaScript' }]}
             />
 
             <Input.Search
