@@ -337,7 +337,7 @@ const ProjectOverviewPage = () => {
         )}
       </div>
 
-      <Text type={'secondary'} className={'block mb-3'}>
+      <Text className={'block mb-3'} style={{ fontWeight: 500, fontSize: 16 }}>
         {t('projects.overview')}
       </Text>
       <Tour
@@ -382,10 +382,10 @@ const ProjectOverviewPage = () => {
               }}
             >
               <div className={'flex items-center'}>
-                <Title level={4} style={{ marginBottom: '0' }}>
+                <Title level={5} style={{ marginBottom: '0' }}>
                   {t('projects.trends_in_coverage')}
                 </Title>
-                <Text type={'secondary'} className={'ml-2'}>
+                <Text type={'secondary'} className={'ml-2'} style={{ fontSize: 12 }}>
                   {t('projects.trends.tooltip')}
                 </Text>
               </div>
@@ -405,7 +405,7 @@ const ProjectOverviewPage = () => {
         </div>
       </div>
 
-      <Text type={'secondary'} className={'block mb-3'}>
+      <Text className={'block mb-3'} style={{ fontWeight: 500, fontSize: 16 }}>
         {t('projects.records')}
       </Text>
       <div className={'flex items-center gap-5'} style={{ marginBottom: '16px' }}>
