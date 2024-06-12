@@ -8,7 +8,7 @@ import {
 import { useMutation, useQuery } from '@apollo/client';
 import { Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui';
+import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui-old';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';

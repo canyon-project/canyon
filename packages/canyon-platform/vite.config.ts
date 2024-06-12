@@ -34,7 +34,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      'canyon-ui': path.resolve('../canyon-ui/src'),
+      'canyon-ui-old': path.resolve('../canyon-ui-old/src'),
       // '@': path.resolve(__dirname, './src'),
     },
   },

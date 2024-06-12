@@ -1,7 +1,7 @@
 import { SettingOutlined } from '@ant-design/icons';
 import { Table } from 'antd';
 import TextArea from 'antd/es/input/TextArea';
-import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui';
+import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui-old';
 import copy from 'copy-to-clipboard';
 import { useTranslation } from 'react-i18next';
 

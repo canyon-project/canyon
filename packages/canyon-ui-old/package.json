@@ -1,9 +1,9 @@
 {
-  "name": "canyon-ui",
+  "name": "canyon-ui-old",
   "version": "0.0.5",
   "type": "module",
-  "main": "dist/canyon-ui.cjs",
-  "module": "dist/canyon-ui.js",
+  "main": "dist/canyon-ui-old.cjs",
+  "module": "dist/canyon-ui-old.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist/*"

@@ -1,7 +1,7 @@
 import Icon, { ArrowRightOutlined, CheckCircleFilled, CheckCircleTwoTone } from '@ant-design/icons';
 import { Button, ConfigProvider, Space, theme, Typography } from 'antd';
-import { CanyonBillingCollapse, CanyonBillingRadio } from 'canyon-ui';
-import { CanyonCardPrimary } from 'canyon-ui';
+import { CanyonBillingCollapse, CanyonBillingRadio } from 'canyon-ui-old';
+import { CanyonCardPrimary } from 'canyon-ui-old';
 import { useState } from 'react';
 
 import cart from './cart.json';

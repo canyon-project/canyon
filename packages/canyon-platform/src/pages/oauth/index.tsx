@@ -1,4 +1,4 @@
-import { CanyonPageOauth } from 'canyon-ui';
+import { CanyonPageOauth } from 'canyon-ui-old';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 const Oauth = () => {

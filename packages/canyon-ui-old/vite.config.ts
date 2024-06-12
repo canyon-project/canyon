@@ -15,8 +15,8 @@ export default defineConfig({
     commonjsOptions: {},
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
-      fileName: 'canyon-ui',
-      name: 'CanyonUi',
+      fileName: 'canyon-ui-old',
+      name: 'CanyonUiOld',
     },
     rollupOptions: {
       external: ['react', 'react-dom', 'antd'],
