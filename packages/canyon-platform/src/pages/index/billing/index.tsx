@@ -22,10 +22,10 @@ import {
   theme,
   Typography,
 } from 'antd';
-import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui';
-import { CanyonBillingCollapse, CanyonBillingUpdateCard } from 'canyon-ui';
+import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui-old';
+import { CanyonBillingCollapse, CanyonBillingUpdateCard } from 'canyon-ui-old';
 import { CSSProperties } from 'react';
-// import {CanyonBillingCollapse} from "canyon-ui/";
+// import {CanyonBillingCollapse} from "canyon-ui-old/";
 // import { Button, Col, Divider, Row, Space, Statistic, theme, Typography } from 'antd';
 const { useToken } = theme;
 // const { Title } = Typography;
@@ -33,7 +33,7 @@ const { Title, Text } = Typography;
 import { useNavigate } from 'react-router-dom';
 
 import c from './cart.json';
-// import {CanyonCardPrimary} from "canyon-ui/src";
+// import {CanyonCardPrimary} from "canyon-ui-old/src";
 const items: DescriptionsProps['items'] = [
   {
     key: '1',

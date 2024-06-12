@@ -1,7 +1,7 @@
 import { useRequest } from 'ahooks';
 import { Alert } from 'antd';
 import axios from 'axios';
-import { CanyonPageLogin } from 'canyon-ui';
+import { CanyonPageLogin } from 'canyon-ui-old';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
