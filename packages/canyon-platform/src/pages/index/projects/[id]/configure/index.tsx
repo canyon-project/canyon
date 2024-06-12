@@ -1,6 +1,7 @@
 import Icon, { AppstoreOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import { Editor } from '@monaco-editor/react';
+import { FormRegion } from 'canyon-ui';
 
 import {
   GetProjectByIdDocument,
@@ -10,7 +11,6 @@ import BasicForms from './helper/BasicForms.tsx';
 import { SolarUserIdLinear } from './helper/icons/SolarUserIdLinear.tsx';
 import MemberTable from './helper/MemberTable.tsx';
 import TagTable from './helper/TagTable.tsx';
-
 const gridStyle: any = {
   width: '100%',
 };
@@ -34,26 +34,24 @@ const ProjectConfigure = () => {
 
   const [defaultBranch, setDefaultBranch] = useState<string>('');
 
+  const basicFormsRef = useRef<any>(null);
   return (
     <div className={''}>
       <Title level={2} className={'flex items-center gap-3 pb-8'}>
         <AppstoreOutlined className={'text-[#687076] text-[32px]'} />
         <span>{t('projects.config.title')}</span>
       </Title>
-      <Card
-        title={
-          <div className={'flex items-center'}>
-            <Icon component={SolarUserIdLinear} className={'text-[#687076] mr-2 text-[18px]'} />
-            <span>{t('projects.config.basic.information')}</span>
-          </div>
-        }
+      <FormRegion
+        title={t('projects.config.basic.information')}
+        icon={<Icon component={SolarUserIdLinear} />}
+        onSave={() => {
+          basicFormsRef.current?.submit();
+        }}
       >
-        <Card.Grid hoverable={false} style={gridStyle}>
-          <BasicForms data={GetProjectByIdDocumentData?.getProjectByID} />
-        </Card.Grid>
-      </Card>
+        <BasicForms ref={basicFormsRef} data={GetProjectByIdDocumentData?.getProjectByID} />
+      </FormRegion>
       <div className={'h-5'}></div>
-      <MemberTable members={GetProjectByIdDocumentData?.getProjectByID.members}/>
+      <MemberTable members={GetProjectByIdDocumentData?.getProjectByID.members} />
       <div className={'h-5'}></div>
       <TagTable tags={GetProjectByIdDocumentData?.getProjectByID.tags} />
       <div className={'h-5'}></div>
