@@ -1,10 +1,12 @@
 import { useMutation } from '@apollo/client';
+import { useForm } from 'antd/es/form/Form';
+import { FC } from 'react';
 
 import { UpdateProjectDocument } from '../../../../../../helpers/backend/gen/graphql.ts';
 
 const { TextArea } = Input;
 
-const BasicForms: FC<{ data: any }> = ({ data }) => {
+const BasicForms: FC<{ data: any }> = ({ data }, ref) => {
   const [updateProject] = useMutation(UpdateProjectDocument);
   const prm: any = useParams();
   const { t } = useTranslation();
@@ -21,9 +23,18 @@ const BasicForms: FC<{ data: any }> = ({ data }) => {
       message.success('成功');
     });
   };
+  const [form] = useForm();
+  const onSubmit = () => {
+    form.submit();
+  };
+  useImperativeHandle(ref, () => ({
+    submit: onSubmit,
+  }));
+  // use
   if (data) {
     return (
       <Form
+        form={form}
         className={'w-[850px]'}
         name='basic'
         layout={'vertical'}
@@ -69,11 +80,6 @@ const BasicForms: FC<{ data: any }> = ({ data }) => {
         >
           <Input placeholder={'/source/coverage/path=>/replace/path'} />
         </Form.Item>
-        <Form.Item>
-          <Button type='primary' htmlType='submit'>
-            {t('projects.config.save.changes')}
-          </Button>
-        </Form.Item>
       </Form>
     );
   } else {
@@ -81,4 +87,4 @@ const BasicForms: FC<{ data: any }> = ({ data }) => {
   }
 };
 
-export default BasicForms;
+export default forwardRef(BasicForms);
