@@ -1,7 +1,7 @@
 import Icon, { AppstoreOutlined, ExperimentOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import { Editor } from '@monaco-editor/react';
-import { FormRegion } from 'canyon-ui';
+import { FormRegion, TextTypography } from 'canyon-ui';
 
 import {
   GetProjectByIdDocument,
@@ -14,7 +14,7 @@ import TagTable from './helper/TagTable.tsx';
 const gridStyle: any = {
   width: '100%',
 };
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { useToken } = theme;
 const ProjectConfigure = () => {
   const prm: any = useParams();
@@ -36,11 +36,8 @@ const ProjectConfigure = () => {
 
   const basicFormsRef = useRef<any>(null);
   return (
-    <div className={''}>
-      <Title level={2} className={'flex items-center gap-3 pb-8'}>
-        <AppstoreOutlined className={'text-[#687076] text-[32px]'} />
-        <span>{t('projects.config.title')}</span>
-      </Title>
+    <div>
+      <TextTypography title={t('projects.config.title')} icon={<AppstoreOutlined />} />
       <FormRegion
         title={t('projects.config.basic.information')}
         icon={<Icon component={SolarUserIdLinear} />}
@@ -149,7 +146,6 @@ const ProjectConfigure = () => {
                   variables: {
                     projectID: prm.id,
                     coverage: coverage || GetProjectByIdDocumentData?.getProjectByID.coverage || '',
-                    tag: '__null__',
                     description: '__null__',
                     defaultBranch:
                       defaultBranch ||
