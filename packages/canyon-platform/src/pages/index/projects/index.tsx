@@ -8,7 +8,8 @@ import {
 import { useMutation, useQuery } from '@apollo/client';
 import { Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
-import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui-old';
+import { TextTypography } from 'canyon-ui';
+import { CanyonCardPrimary } from 'canyon-ui-old';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -99,6 +100,7 @@ const ProjectPage = () => {
                 className={'max-w-[240px]'}
                 style={{ color: 'unset' }}
                 target={'_blank'}
+                // @ts-ignore
                 href={`${window.GITLAB_URL}/${text}`}
                 rel='noreferrer'
               >
@@ -242,9 +244,9 @@ const ProjectPage = () => {
 
   return (
     <>
-      <CanyonTextTitle
-        icon={<FolderOutlined />}
+      <TextTypography
         title={t('menus.projects')}
+        icon={<FolderOutlined />}
         right={
           <Link to={`/projects/new`}>
             <Button type={'primary'} icon={<PlusOutlined />}>

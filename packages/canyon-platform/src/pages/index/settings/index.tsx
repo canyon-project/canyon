@@ -1,13 +1,12 @@
 import { SettingOutlined } from '@ant-design/icons';
-import { Table } from 'antd';
-import TextArea from 'antd/es/input/TextArea';
-import { CanyonCardPrimary, CanyonTextTitle } from 'canyon-ui-old';
+import { TextTypography } from 'canyon-ui';
+import { CanyonCardPrimary } from 'canyon-ui-old';
 import copy from 'copy-to-clipboard';
 import { useTranslation } from 'react-i18next';
 
 import languages from '../../../../languages.json';
 import Faa from './components/BindGitProvider.tsx';
-
+const TextArea = Input.TextArea;
 const gridStyle: any = {
   width: '100%',
 };
@@ -15,7 +14,7 @@ const Settings = () => {
   const { t } = useTranslation();
   return (
     <>
-      <CanyonTextTitle title={t('menus.settings')} icon={<SettingOutlined />} />
+      <TextTypography title={t('menus.settings')} icon={<SettingOutlined />} />
       <CanyonCardPrimary>
         <Card title={t('settings.preference')} bordered={false}>
           <Card.Grid hoverable={false} style={gridStyle}>
