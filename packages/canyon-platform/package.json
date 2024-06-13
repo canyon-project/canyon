@@ -22,7 +22,7 @@
     "ahooks": "^3.7.10",
     "antd": "^5.14.1",
     "axios": "^1.6.7",
-    "canyon-ui": "^0.0.6",
+    "canyon-ui": "^0.0.10-alpha.3",
     "canyon-ui-old": "workspace:^",
     "copy-to-clipboard": "^3.3.3",
     "dayjs": "^1.11.10",
