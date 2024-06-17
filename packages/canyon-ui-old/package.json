@@ -1,6 +1,6 @@
 {
   "name": "canyon-ui-old",
-  "version": "0.0.5",
+  "version": "0.0.8",
   "type": "module",
   "main": "dist/canyon-ui-old.cjs",
   "module": "dist/canyon-ui-old.js",

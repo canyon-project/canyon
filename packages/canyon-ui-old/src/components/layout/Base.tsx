@@ -41,6 +41,7 @@ interface CanyonLayoutBaseProps {
   search: any;
   account: any;
   breadcrumb: any;
+  footerName?: string;
 }
 const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
   title = 'Canyon',
@@ -56,6 +57,7 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
   search,
   account,
   breadcrumb,
+  footerName = 'CANYON',
 }) => {
   const { token } = useToken();
 
@@ -193,7 +195,7 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
               <div className={'m-auto w-[1150px] p-[12px]'}>{renderMainContent}</div>
             </div>
           }
-          footer={<Footer />}
+          footer={<Footer name={footerName} corp={'Trip.com'} />}
         />
       </>
     </div>
