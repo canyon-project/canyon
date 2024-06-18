@@ -3,7 +3,7 @@ import path from 'path';
 
 const sourceFilePath = path.join(new URL('.', import.meta.url).pathname, '../.env.example');
 const destinationFilePath = path.join(new URL('.', import.meta.url).pathname, '../.env');
-console.log(process.env);
+
 (async () => {
   try {
     await fs.access(destinationFilePath);
