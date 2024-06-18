@@ -123,10 +123,13 @@ export class CoverageClientService {
         id: {
           contains: coverageClientDto.projectID,
           mode: 'insensitive', // Ignore case sensitivity
+          not: {
+            contains: '-ut',
+          },
         },
       },
     });
-
+    console.log(projects);
     if (projects.length > 0) {
       const resList = [];
       for (let i = 0; i < projects.length; i++) {
