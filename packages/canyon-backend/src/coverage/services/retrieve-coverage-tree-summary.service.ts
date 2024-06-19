@@ -16,6 +16,12 @@ export class RetrieveCoverageTreeSummaryService {
           reportID: params.reportID,
           sha: params.sha,
           covType: 'agg',
+          projectID: {
+            mode: 'insensitive', // Ignore case sensitivity
+            not: {
+              contains: '-ut',
+            },
+          },
         }),
       });
 
@@ -24,6 +30,12 @@ export class RetrieveCoverageTreeSummaryService {
         where: removeNullKeys({
           reportID: params.reportID,
           sha: params.sha,
+          projectID: {
+            mode: 'insensitive', // Ignore case sensitivity
+            not: {
+              contains: '-ut',
+            },
+          },
         }),
       });
       const project = await this.prisma.project.findFirst({
@@ -48,6 +60,12 @@ export class RetrieveCoverageTreeSummaryService {
         where: {
           sha,
           covType: 'agg',
+          projectID: {
+            mode: 'insensitive', // Ignore case sensitivity
+            not: {
+              contains: '-ut',
+            },
+          },
         },
       });
 
@@ -67,6 +85,12 @@ export class RetrieveCoverageTreeSummaryService {
         where: {
           sha,
           covType: 'all',
+          projectID: {
+            mode: 'insensitive', // Ignore case sensitivity
+            not: {
+              contains: '-ut',
+            },
+          },
         },
       });
 
