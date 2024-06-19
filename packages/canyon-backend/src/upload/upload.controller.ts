@@ -23,8 +23,8 @@ export class UploadController {
     // TODO: 需要一个唯一id在post和put之间传递
     // 第一个参数 resultURL
     // 第二个参数 putURL
-    return `${process.env.UPLOAD_URL}/upload/query
-    ${process.env.UPLOAD_URL}${req.originalUrl}`;
+    return `${process.env.UPLOAD_URL || ''}/upload/query
+    ${process.env.UPLOAD_URL || ''}${req.originalUrl}`;
   }
   @Put('v4')
   @HttpCode(200)
@@ -46,7 +46,7 @@ export class UploadController {
       .then((res) => {
         return res.data.id;
       });
-    const url = process.env.APP_URI;
+    const url = process.env.APP_URI || '';
     await axios
       .post(
         `${url}/coverage/client`,
