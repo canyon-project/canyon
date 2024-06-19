@@ -20,7 +20,7 @@
     "@monaco-editor/react": "^4.6.0",
     "@paralleldrive/cuid2": "^2.2.2",
     "ahooks": "^3.7.10",
-    "antd": "^5.14.1",
+    "antd": "5.14.1",
     "axios": "^1.6.7",
     "canyon-ui": "^0.0.10-alpha.8",
     "canyon-ui-old": "workspace:^",
