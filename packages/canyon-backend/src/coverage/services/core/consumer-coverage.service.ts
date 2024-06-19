@@ -314,7 +314,7 @@ export class ConsumerCoverageService {
       },
     });
     // 变更行数量0，不需要补偿
-    if ((allCoverage.summary as any).newlines.total === 0) {
+    if ((allCoverage.summary as any).newlines.total !== 0) {
       // 查询agg类型的coverage
       const aggCoverages = await this.prisma.coverage.findMany({
         where: {
