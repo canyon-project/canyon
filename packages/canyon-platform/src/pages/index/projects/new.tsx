@@ -58,6 +58,9 @@ const App: React.FC = () => {
         name='control-hooks'
         onFinish={onFinish}
         style={{ maxWidth: 600 }}
+        initialValues={{
+          slug: 'auto',
+        }}
       >
         <Form.Item name='provider' label={t('new.provider')} rules={[{ required: true }]}>
           <Select
