@@ -1,7 +1,13 @@
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 function matchPattern(str: string) {
-  return /^\/projects\/\d+(?!(\/\d+))$/.test(str);
+  if (
+    str.includes('projects') &&
+    str.split('/').length === 3 &&
+    !['new'].includes(str.split('/')[2])
+  ) {
+    return true;
+  }
 }
 
 export function genBreadcrumbItems(pathname: string) {

@@ -16,6 +16,7 @@ import book from '../assets/book.svg';
 import UilUsersAlt from '../assets/users-icon.tsx';
 import { MeDocument } from '../helpers/backend/gen/graphql.ts';
 import { genBreadcrumbItems } from '../layouts/genBreadcrumbItems.tsx';
+import { genTitle } from '../layouts/genTitle.ts';
 
 function Index() {
   const { t } = useTranslation();
@@ -34,6 +35,7 @@ function Index() {
     if (loc.pathname === '/') {
       nav('/projects');
     }
+    document.title = genTitle(loc.pathname);
 
     try {
       // @ts-ignore
@@ -72,10 +74,12 @@ function Index() {
   const { data: meData } = useQuery(MeDocument);
   const { data: baseData } = useRequest(() => axios.get('/api/base').then(({ data }) => data), {
     onSuccess(data) {
+      // @ts-ignore
       window.GITLAB_URL = data.GITLAB_URL;
     },
   });
   const [menuSelectedKey, setMenuSelectedKey] = useState<string>('projects');
+  // @ts-ignore
   window.canyonModalGlobalSearchRef = useRef(null);
   return (
     <>
@@ -102,6 +106,7 @@ function Index() {
         ]}
         MeData={meData}
         onClickGlobalSearch={() => {
+          // @ts-ignore
           window.canyonModalGlobalSearchRef.current.report();
         }}
         title={'Canyon'}
@@ -174,6 +179,7 @@ function Index() {
         search={false}
         account={false}
       />
+      {/*// @ts-ignore*/}
       <CanyonModalGlobalSearch ref={canyonModalGlobalSearchRef} />
     </>
   );
