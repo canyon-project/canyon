@@ -42,6 +42,8 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 
 ![](./screenshots/architecture.png)
 
+## WeChat Group
+
 ## Contribution
 
 See [Contributing Guide](CONTRIBUTING.md).
