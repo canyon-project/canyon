@@ -22,6 +22,10 @@ const ScrollBasedLayout: FC<{
     // 添加滚动事件监听器
     window.addEventListener('scroll', handleScroll);
 
+    setTimeout(() => {
+      document.documentElement.scrollTop += 0.5;
+    }, 1000);
+
     // 在组件卸载时移除监听器，以防止内存泄漏
     return () => {
       window.removeEventListener('scroll', handleScroll);
