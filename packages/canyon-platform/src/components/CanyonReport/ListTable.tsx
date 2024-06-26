@@ -92,17 +92,23 @@ const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyCh
               title: t('common.total'),
               key: 'total',
               dataIndex: ['statements', 'total'],
+              sorter(a, b) {
+                return a.statements.total - b.statements.total;
+              },
             },
             {
               title: t('common.covered'),
               key: 'covered',
               dataIndex: ['statements', 'covered'],
+              sorter(a, b) {
+                return a.statements.covered - b.statements.covered;
+              },
             },
           ]
             .concat(newlinesColumns)
             .concat([
               {
-                title: t('projects.config.coverage')+ ' %',
+                title: t('projects.config.coverage') + ' %',
                 width: '300px',
                 key: 'c',
                 sorter: (a, b) => {
