@@ -89,17 +89,23 @@ const CanyonReportTreeTable = ({ dataSource, loading, activatedPath, onSelect, o
               title: t('common.total'),
               key: 'total',
               dataIndex: ['summary', 'statements', 'total'],
+              sorter(a, b) {
+                return a.summary.statements.total - b.summary.statements.total;
+              },
             },
             {
               title: t('common.covered'),
               key: 'covered',
               dataIndex: ['summary', 'statements', 'covered'],
+              sorter(a, b) {
+                return a.summary.statements.covered - b.summary.statements.covered;
+              },
             },
           ]
             .concat(newlinesColumns)
             .concat([
               {
-                title: t('projects.config.coverage')+ ' %',
+                title: t('projects.config.coverage') + ' %',
                 width: '300px',
                 key: 'c',
                 dataIndex: ['summary', 'statements', 'pct'],
