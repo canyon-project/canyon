@@ -95,9 +95,6 @@ export function convertingProductionFunctions(
   });
 }
 
-
-
-
 export function coreFn(
   fileCoverage: any,
   fileDetail: string,
@@ -173,9 +170,7 @@ export function coreFn(
   for (let i = 0; i < rows.length; i++) {
     if (numberOfRows.find((n) => Number(n.lineNumber) === i + 1)) {
       lines.push({
-        executionNumber: numberOfRows.find(
-          (n) => Number(n.lineNumber) === i + 1,
-        ).count,
+        executionNumber: numberOfRows.find((n) => Number(n.lineNumber) === i + 1).count,
       });
     } else {
       lines.push({
@@ -262,7 +257,17 @@ export function genDecorationsLv2Array(code, startends) {
   return mergedArray;
 }
 
-
 export function capitalizeFirstLetter(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+export function checkSuffix(path) {
+  //   只要path里含有vue、js、jsx等就返回true
+  return (
+    path.includes('.vue') ||
+    path.includes('.js') ||
+    path.includes('.jsx') ||
+    path.includes('.ts') ||
+    path.includes('.tsx')
+  );
 }

@@ -3,6 +3,7 @@ import { Spin } from 'antd';
 
 import CanyonReportControl from './Control.tsx';
 import CanyonReportCoverageDetail from './CoverageDetail.tsx';
+import { checkSuffix } from './helper.tsx';
 import CanyonReportListTable from './ListTable.tsx';
 import CanyonReportOverview from './Overview.tsx';
 import CanyonReportTreeTable from './TreeTable.tsx';
@@ -22,6 +23,7 @@ function checkSummaryOnlyChange(item, onlyChange) {
 function checkSummaryKeywords(item, keywords) {
   return item.path.toLowerCase().includes(keywords.toLowerCase());
 }
+
 // 1.summary最主要的数据，有外面传入
 // 2.当前默认defaultPath = sprm.get('path')，锚点
 const CanyonReport = ({
@@ -41,10 +43,9 @@ const CanyonReport = ({
   // 2.当前是文件还是文件夹
   const fMode = useMemo(() => {
     // return 获取当前path，判断是否含有 .
-    return activatedPath.includes('.') ? 'file' : 'folder';
+    return activatedPath.includes('.') && checkSuffix(activatedPath) ? 'file' : 'folder';
   }, [activatedPath]);
   // 3.是否只展示变更文件
-  const [changeMode, setChangeMode] = useState(false);
   // 4.其他的放在各自的状态里
 
   // 5.文件路径关键字搜索
