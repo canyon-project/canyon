@@ -2,6 +2,7 @@ import { FileOutlined, FolderFilled } from '@ant-design/icons';
 import { ConfigProvider, Space } from 'antd';
 
 import { getCOlor, percent } from '../../helpers/utils/common.ts';
+import { checkSuffix } from './helper.tsx';
 
 const CanyonReportTreeTable = ({ dataSource, loading, activatedPath, onSelect, onlyChange }) => {
   const { t } = useTranslation();
@@ -74,7 +75,7 @@ const CanyonReportTreeTable = ({ dataSource, loading, activatedPath, onSelect, o
                       onSelect(record);
                     }}
                   >
-                    {text.includes('.') ? (
+                    {text.includes('.') && checkSuffix(text) ? (
                       <FileOutlined style={{ fontSize: '16px' }} />
                     ) : (
                       <FolderFilled style={{ fontSize: '16px' }} />
