@@ -89,8 +89,8 @@ const ProjectPage = () => {
         return (
           <div className={'flex gap-1'}>
             <div>
-              <img src={`/langs/${record.language}.svg`} alt='' className={'w-[16px]'} />
-              <span style={{ width: '4px', display: 'inline-block' }}></span>
+              {/*<img src={`/langs/${record.language}.svg`} alt='' className={'w-[16px]'} />*/}
+              {/*<span style={{ width: '4px', display: 'inline-block' }}></span>*/}
               <img src='/gitproviders/gitlab.svg' alt='' className={'w-[16px]'} />
             </div>
 
@@ -274,21 +274,21 @@ const ProjectPage = () => {
               }))}
             />
 
-            <Select
-              defaultValue={initLang}
-              mode='multiple'
-              onChange={(v) => {
-                setLang(v);
-                localStorage.setItem('langcondition', JSON.stringify(v));
-              }}
-              placeholder={'Language'}
-              className={'w-[200px] mr-2'}
-              options={[{ label: 'JavaScript', value: 'JavaScript' }]}
-            />
+            {/*<Select*/}
+            {/*  defaultValue={initLang}*/}
+            {/*  mode='multiple'*/}
+            {/*  onChange={(v) => {*/}
+            {/*    setLang(v);*/}
+            {/*    localStorage.setItem('langcondition', JSON.stringify(v));*/}
+            {/*  }}*/}
+            {/*  placeholder={'Language'}*/}
+            {/*  className={'w-[200px] mr-2'}*/}
+            {/*  options={[{ label: 'JavaScript', value: 'JavaScript' }]}*/}
+            {/*/>*/}
 
             <Input.Search
               placeholder={t('projects.search_keywords')}
-              className={'w-[360px] mb-3'}
+              className={'w-[420px] mb-3'}
               onSearch={(value) => {
                 setKeyword(value);
                 setCurrent(1);
