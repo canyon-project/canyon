@@ -24,7 +24,7 @@ const ScrollBasedLayout: FC<{
 
     setTimeout(() => {
       document.documentElement.scrollTop += 0.5;
-    }, 200);
+    }, 800);
 
     // 在组件卸载时移除监听器，以防止内存泄漏
     return () => {
