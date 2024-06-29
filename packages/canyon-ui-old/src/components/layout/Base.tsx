@@ -181,8 +181,8 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                 >
                   <Avatar src={MeData?.me.avatar}></Avatar>
                   <div className={'flex flex-col'}>
-                    <Text>{MeData?.me.nickname}</Text>
-                    <Text type={'secondary'}>{MeData?.me.email || ''}</Text>
+                    <Text ellipsis className={'w-[150px]'}>{MeData?.me.nickname}</Text>
+                    <Text ellipsis className={'w-[150px]'} type={'secondary'}>{MeData?.me.email || ''}</Text>
                   </div>
                   <MoreOutlined className={'dark:text-[#fff]'} />
                 </div>
