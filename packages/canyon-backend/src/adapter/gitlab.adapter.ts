@@ -125,7 +125,7 @@ export interface ProjectInfo {
 }
 
 const { GITLAB_URL } = process.env;
-
+console.log(GITLAB_URL,'GITLAB_URL')
 export const getFileInfo = async (
   {
     projectID,

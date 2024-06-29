@@ -3,7 +3,11 @@ import { json } from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import * as cookieParser from 'cookie-parser';
 import * as fs from 'fs';
-
+import * as dotenv from 'dotenv';
+import * as path from 'node:path';
+dotenv.config({
+  path: path.resolve(__dirname, '../../../.env'),
+});
 async function bootstrap() {
   // 获取启动变量，动态修改.env文件
   const CFG = process.env.CFG;

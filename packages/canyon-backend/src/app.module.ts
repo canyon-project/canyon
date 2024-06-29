@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ConfigModule } from '@nestjs/config';
+// import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { CoverageModule } from './coverage/coverage.module';
 import { ScheduleModule } from '@nestjs/schedule';
@@ -20,9 +20,14 @@ import { UploadModule } from './upload/upload.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoveragediskEntity } from './coverage/entity/coveragedisk.entity';
+// import * as path from 'node:path';
 
+console.log(process.env.MONGODB_URL, 'process.env.MONGODB_URL');
 @Module({
   imports: [
+    // ConfigModule.forRoot({
+    //   envFilePath: path.resolve(__dirname, '../../../.env'),
+    // }),
     MongooseModule.forRoot(process.env.MONGODB_URL),
     TypeOrmModule.forRoot({
       type: 'better-sqlite3',
@@ -42,9 +47,6 @@ import { CoveragediskEntity } from './coverage/entity/coveragedisk.entity';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../../canyon-platform', 'dist'),
       exclude: ['/graphql/(.*)'],
-    }),
-    ConfigModule.forRoot({
-      envFilePath: './.[env]',
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: 'schema.gql',
