@@ -111,7 +111,7 @@ const ProjectConfigure = () => {
                   theme={
                     {
                       light: 'light',
-                      dark: 'vs-dark',
+                      dark: 'nightowl',
                     }[localStorage.getItem('theme') || 'light']
                   }
                   defaultValue={GetProjectByIdDocumentData?.getProjectByID.coverage}

@@ -25,6 +25,9 @@ self.MonacoEnvironment = {
   },
 };
 
-loader.config({ monaco });
-
-loader.init().then(/* ... */);
+import('monaco-themes/themes/Night Owl.json').then((data) => {
+  // @ts-ignore
+  monaco.editor.defineTheme('nightowl', data);
+  loader.config({ monaco });
+  loader.init()
+});

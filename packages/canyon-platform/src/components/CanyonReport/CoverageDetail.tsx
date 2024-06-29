@@ -92,7 +92,7 @@ const CanyonReportCoverageDetail = ({ data, theme }) => {
           })}
         />
         <Editor
-          theme={theme === 'light' ? 'light' : 'vs-dark'}
+          theme={theme === 'light' ? 'light' : 'nightowl'}
           height={`${code.split('\n').length * viewLineHeight + viewLineHeight}px`}
           language='typescript'
           onMount={handleEditorDidMount}
