@@ -3,6 +3,7 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
+  mergeCoverageMap,
 } from '@canyon/data';
 import { percent, removeNullKeys } from '../../../utils/utils';
 import { CoverageDataAdapterService } from '../common/coverage-data-adapter.service';
@@ -13,7 +14,7 @@ import { TestExcludeService } from '../common/test-exclude.service';
 import { formatReportObject } from '../../../utils/coverage';
 import { resolveProjectID } from '../../../utils';
 import { PullFilePathAndInsertDbService } from '../common/pull-file-path-and-insert-db.service';
-import {merge_coverage_json_str} from 'canyon-data'
+// import {merge_coverage_json_str} from 'canyon-data'
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 @Injectable()
@@ -116,7 +117,8 @@ export class ConsumerCoverageService {
         coverage.relationID,
       );
 
-      const newcoverage = JSON.parse(merge_coverage_json_str(JSON.stringify(queueDataToBeConsumed.coverage), JSON.stringify(cov)));
+      // const newcoverage = JSON.parse(merge_coverage_json_str(JSON.stringify(queueDataToBeConsumed.coverage), JSON.stringify(cov)));
+      const newcoverage = mergeCoverageMap(queueDataToBeConsumed.coverage, cov);
 
       await this.prisma.coverage.update({
         where: {
