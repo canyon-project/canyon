@@ -20,7 +20,7 @@ const CanyonReportOverview = ({ activatedPath, pathWithNamespace, onSelect, summ
   return (
     <div>
       {/*<span>{JSON.stringify(summaryTreeItem.summary)}</span>*/}
-      <div className={'mb-2'} style={{ fontSize: '20px', fontWeight: 'bold' }}>
+      <div className={'mb-2'} style={{ fontSize: '16px', fontWeight: 'bold' }}>
         <a
           className={'cursor-pointer'}
           onClick={() => {
@@ -58,7 +58,7 @@ const CanyonReportOverview = ({ activatedPath, pathWithNamespace, onSelect, summ
           }}
         >
           <a className={'cursor-pointer mr-2'}>
-            <CopyOutlined style={{ fontSize: '16px', fontWeight: 'bold' }} />
+            <CopyOutlined style={{ fontSize: '14px', fontWeight: 'bold' }} />
           </a>
         </CopyToClipboard>
 
@@ -69,7 +69,7 @@ const CanyonReportOverview = ({ activatedPath, pathWithNamespace, onSelect, summ
           }}
         >
           <a className={'cursor-pointer'}>
-            <ShareAltOutlined style={{ fontSize: '16px', fontWeight: 'bold' }} />
+            <ShareAltOutlined style={{ fontSize: '14px', fontWeight: 'bold' }} />
           </a>
         </CopyToClipboard>
       </div>
