@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CoveragediskEntity } from '../../entity/coveragedisk.entity';
 import { Repository } from 'typeorm';
-import {merge_coverage_json_str} from 'canyon-data'
+import {mergeCoverageMap} from "@canyon/data";
+// import {merge_coverage_json_str} from 'canyon-data'
 
 @Injectable()
 export class CoveragediskService {
@@ -56,7 +57,8 @@ export class CoveragediskService {
         where: { id: coveragedisks[i].id, pid: String(process.pid) },
       });
       //   聚合
-      cov = JSON.parse(merge_coverage_json_str(JSON.stringify(cov), JSON.stringify(JSON.parse(toBeConsumedQueues.data).coverage)));
+      // cov = JSON.parse(merge_coverage_json_str(JSON.stringify(cov), JSON.stringify(JSON.parse(toBeConsumedQueues.data).coverage)));
+      cov = mergeCoverageMap(cov, JSON.parse(toBeConsumedQueues.data).coverage);
       await this.coveragediskRepository.delete({ id: coveragedisks[i].id });
     }
     return {
