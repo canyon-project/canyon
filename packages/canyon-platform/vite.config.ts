@@ -32,12 +32,6 @@ export default defineConfig({
       exclude: ['**/helper/**', '**/components/**'],
     }),
   ],
-  resolve: {
-    alias: {
-      'canyon-ui-old': path.resolve('../canyon-ui-old/src'),
-      // '@': path.resolve(__dirname, './src'),
-    },
-  },
   build: {
     sourcemap: true,
   },
