@@ -24,6 +24,7 @@ declare global {
   const Popover: typeof import('antd')['Popover']
   const Progress: typeof import('antd')['Progress']
   const Radio: typeof import('antd')['Radio']
+  const Result: typeof import('antd')['Result']
   const Route: typeof import('react-router-dom')['Route']
   const Routes: typeof import('react-router-dom')['Routes']
   const Select: typeof import('antd')['Select']
