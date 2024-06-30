@@ -17,7 +17,9 @@ import UilUsersAlt from '../assets/users-icon.tsx';
 import { MeDocument } from '../helpers/backend/gen/graphql.ts';
 import { genBreadcrumbItems } from '../layouts/genBreadcrumbItems.tsx';
 import { genTitle } from '../layouts/genTitle.ts';
-
+import GlobaScreenWidthLimitModal from "../components/GlobaScreenWidthLimitModal.tsx";
+const theme = localStorage.getItem('theme') || 'light';
+// console.log(theme, 'theme');
 function Index() {
   const { t } = useTranslation();
   useEffect(() => {
@@ -83,6 +85,7 @@ function Index() {
   window.canyonModalGlobalSearchRef = useRef(null);
   return (
     <>
+      <GlobaScreenWidthLimitModal />
       <CanyonLayoutBase
         breadcrumb={
           <div>
@@ -112,7 +115,7 @@ function Index() {
         title={'Canyon'}
         logo={
           <div>
-            <img src='/logo.svg' alt='' className={'w-[28px]'} />
+            <img src={`/${theme}-logo.svg?a=1`} alt='' className={'w-[28px]'} />
           </div>
         }
         mainTitleRightNode={
