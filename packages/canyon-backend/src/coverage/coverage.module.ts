@@ -18,6 +18,7 @@ import { CoveragediskEntity } from './entity/coveragedisk.entity';
 import { CoveragediskService } from './services/core/coveragedisk.service';
 import { TestExcludeService } from './services/common/test-exclude.service';
 import { PullFilePathAndInsertDbService } from './services/common/pull-file-path-and-insert-db.service';
+import {CoverageReportsService} from "./services/coverage-reports.service";
 
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { PullFilePathAndInsertDbService } from './services/common/pull-file-path
     PullFilePathAndInsertDbService,
     CoveragediskService,
     TestExcludeService,
+    CoverageReportsService
   ],
 })
 export class CoverageModule {}

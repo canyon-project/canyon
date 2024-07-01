@@ -1,5 +1,5 @@
 import Icon, {
-  ArrowRightOutlined,
+  ArrowRightOutlined, BarChartOutlined,
   CreditCardOutlined,
   FolderOutlined,
   LineChartOutlined,
@@ -151,6 +151,11 @@ function Index() {
             label: t('menus.projects'),
             key: 'projects',
             icon: <FolderOutlined />,
+          },
+          {
+            label: t('报表'),
+            key: 'reports',
+            icon: <BarChartOutlined />,
           },
           {
             label: t('menus.settings'),

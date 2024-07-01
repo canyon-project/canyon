@@ -87,8 +87,8 @@ function getJsonSize(jsonObj) {
 export const mergeCoverageMap = (cov1: any, cov2: any) => {
   // 超过2M的数据用js合并
   const size = getJsonSize(cov1);
-  if (size > 2){
-    console.log(`size of cov1: ${size}M`);
+  if (size > 0){
+    // console.log(`size of cov1: ${size}M`);
     return mergeCoverageMapOfCanyonData(cov1, cov2)
   } else {
     return JSON.parse(merge_coverage_json_str(JSON.stringify(cov1), JSON.stringify(cov2)));
