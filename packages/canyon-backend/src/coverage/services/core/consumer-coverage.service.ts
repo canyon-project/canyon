@@ -3,8 +3,9 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
-  mergeCoverageMap,
+  // mergeCoverageMap,
 } from '@canyon/data';
+import {mergeCoverageMap} from "../../../utils/coverage";
 import { percent, removeNullKeys } from '../../../utils/utils';
 import { CoverageDataAdapterService } from '../common/coverage-data-adapter.service';
 import { PullChangeCodeAndInsertDbService } from '../common/pull-change-code-and-insert-db.service';
