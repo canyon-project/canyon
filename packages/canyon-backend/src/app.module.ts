@@ -22,7 +22,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoveragediskEntity } from './coverage/entity/coveragedisk.entity';
 // import * as path from 'node:path';
 
-console.log(process.env.MONGODB_URL, 'process.env.MONGODB_URL');
 @Module({
   imports: [
     // ConfigModule.forRoot({
