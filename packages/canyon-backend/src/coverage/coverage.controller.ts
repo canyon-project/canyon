@@ -14,11 +14,14 @@ import { CoverageService } from './services/coverage.service';
 import { RetrieveCoverageTreeSummaryService } from './services/retrieve-coverage-tree-summary.service';
 import { PrismaService } from '../prisma/prisma.service';
 import { ConsumerCoverageService } from './services/core/consumer-coverage.service';
+import {CoverageReportsService} from "./services/coverage-reports.service";
 
 @Controller()
 export class CoverageController {
   constructor(
     private readonly coverageService: CoverageService,
+    private readonly coverageReportsService: CoverageReportsService,
+
     private readonly coverageClientService: CoverageClientService,
     private readonly retrieveCoverageTreeSummaryService: RetrieveCoverageTreeSummaryService,
     private prisma: PrismaService,
@@ -49,7 +52,7 @@ export class CoverageController {
   }
 
   @Get('api/coverage/map')
-  async coveragemMap(@Query() query): Promise<any> {
+  async coverageMap(@Query() query): Promise<any> {
     const { projectID, sha, reportID, filepath } = query;
     return this.coverageService.getCoverageData(
       projectID,
@@ -57,6 +60,12 @@ export class CoverageController {
       reportID,
       filepath,
     );
+  }
+
+  @Get('api/coverage/reports')
+  async coverageReports(@Query() query): Promise<any> {
+    const { bu, start,end } = query;
+    return this.coverageReportsService.invoke({bu, start,end })
   }
 
   // 获取概览，重要！！！！！
