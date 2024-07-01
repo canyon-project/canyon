@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CoveragediskEntity } from '../../entity/coveragedisk.entity';
 import { Repository } from 'typeorm';
-import {mergeCoverageMap} from "@canyon/data";
+import {mergeCoverageMap} from "../../../utils/coverage";
 // import {merge_coverage_json_str} from 'canyon-data'
 
 @Injectable()

@@ -1,5 +1,7 @@
 import * as libCoverage from 'istanbul-lib-coverage';
 import * as libSourceMaps from 'istanbul-lib-source-maps';
+import {mergeCoverageMap as mergeCoverageMapOfCanyonData} from "@canyon/data";
+import {merge_coverage_json_str} from "canyon-data";
 function parseInstrumentCwd(instrumentCwd) {
   if (instrumentCwd.includes('=>')) {
     const instrumentCwdSplit = instrumentCwd.split('=>');
@@ -67,61 +69,28 @@ async function remapCoverage(obj: any) {
   return obj_1;
 }
 
-export function validateObject(obj) {
-  return Object.keys(obj).reduce((acc, item) => {
-    return {
-      ...acc,
-      [item]: {
-        ...obj[item],
-        statementMap: obj[item].statementMap ? obj[item].statementMap : {},
-        fnMap: obj[item].fnMap ? obj[item].fnMap : {},
-        branchMap: obj[item].branchMap ? obj[item].branchMap : {},
-        s: obj[item].s ? obj[item].s : {},
-        f: obj[item].f ? obj[item].f : {},
-        b: obj[item].b ? obj[item].b : {},
-      },
-    };
-  }, {});
+function getJsonSize(jsonObj) {
+  // 创建一个 TextEncoder 实例
+  const encoder = new TextEncoder();
 
-  // 检查对象是否具有所需的属性，如果不存在，则设置为空对象
-  return {
-    ...obj,
-    statementMap: obj.statementMap ? obj.statementMap : {},
-    fnMap: obj.fnMap ? obj.fnMap : {},
-    branchMap: obj.branchMap ? obj.branchMap : {},
-    s: obj.s ? obj.s : {},
-    f: obj.f ? obj.f : {},
-    b: obj.b ? obj.b : {},
-  };
+  // 将 JSON 对象转换为字符串
+  const jsonString = JSON.stringify(jsonObj);
+
+  // 将 JSON 字符串转换为字节数组
+  const encodedJson = encoder.encode(jsonString);
+
+  // 返回字节数组的长度
+  return encodedJson.length/1024/1024;
 }
 
-export function splitJSONIntoQuarters(jsonObject) {
-  // 计算JSON对象的长度
-  const length = Object.keys(jsonObject).length;
 
-  // 计算四分之一的位置
-  const quarterPosition = Math.ceil(length / 8);
-
-  // 初始化四个部分的数据
-  const quarters = [];
-  for (let i = 0; i < 8; i++) {
-    quarters[i] = {};
+export const mergeCoverageMap = (cov1: any, cov2: any) => {
+  // 超过2M的数据用js合并
+  const size = getJsonSize(cov1);
+  if (size > 2){
+    console.log(`size of cov1: ${size}M`);
+    return mergeCoverageMapOfCanyonData(cov1, cov2)
+  } else {
+    return JSON.parse(merge_coverage_json_str(JSON.stringify(cov1), JSON.stringify(cov2)));
   }
-
-  // 将原始JSON数据按照四分之一均匀分割到四个部分中
-  let i = 0;
-  let currentQuarterIndex = 0;
-  for (const key in jsonObject) {
-    if (!quarters[currentQuarterIndex]) {
-      quarters[currentQuarterIndex] = {};
-    }
-    quarters[currentQuarterIndex][key] = jsonObject[key];
-    i++;
-    if (i % quarterPosition === 0) {
-      currentQuarterIndex++;
-    }
-  }
-
-  // 返回四个部分的数据
-  return quarters;
 }
