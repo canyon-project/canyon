@@ -15,4 +15,3 @@ export const projectMembers = z.array(
     role: z.string().default(''),
   }),
 );
-// console.log(User.parse([{ usernam: "Ludwig" }]));
