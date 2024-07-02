@@ -28,7 +28,7 @@ export class CoverageReportsService {
         pathWithNamespace:true,
       }
     })
-    await sleep(1000)
+    // await sleep(1000)
     const covs =await this.prisma.coverage.findMany({
       where:{
         covType:'all',
