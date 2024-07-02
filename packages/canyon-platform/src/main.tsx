@@ -1,3 +1,4 @@
+import 'dayjs/locale/zh-cn.js'
 import './useWorker.ts';
 import './i18n.ts';
 import 'antd/dist/reset.css';
