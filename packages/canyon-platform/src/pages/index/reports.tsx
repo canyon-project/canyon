@@ -140,8 +140,8 @@ const Reports = () => {
           buttonStyle="solid"
         />
         <Select className={'w-[200px]'} value={bu}
-                options={getProjectsBuOptionsDocumentData?.getProjectsBuOptions.map(({bu,count}) => ({
-                  label: `${bu}(${count})`,
+                options={getProjectsBuOptionsDocumentData?.getProjectsBuOptions.map(({bu}) => ({
+                  label: `${bu}`,
                   value: bu
                 })) || []}
         onChange={(v)=>{
