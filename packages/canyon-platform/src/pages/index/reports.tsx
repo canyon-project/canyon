@@ -55,6 +55,7 @@ const Reports = () => {
       title: '单元测试',
       dataIndex: 'ut',
       key: 'ut',
+      sorter: (a, b) => a.ut - b.ut,
     }
   ]
 
