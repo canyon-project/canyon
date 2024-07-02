@@ -17,15 +17,20 @@ export class CoverageReportsService {
   async invoke(
     {bu,start,end}
   ) {
-    console.log(start,end)
     const projects = await this.prisma.project.findMany({
       where:{
-        bu:bu
+        bu:bu,
+        pathWithNamespace:{
+          not:{
+            contains:'canyon'
+          }
+        }
       },
       select:{
         id:true,
         name:true,
         pathWithNamespace:true,
+        description:true
       }
     })
     // await sleep(1000)
@@ -73,6 +78,7 @@ export class CoverageReportsService {
       const project = projects.find(item => item.id.includes(rows[i].projectID))
       // rows[i].name = project.name
       rows[i].pathWithNamespace = project.pathWithNamespace
+      rows[i].description = project.description
     }
     return rows.sort((a,b)=>a.auto-b.auto)
   }

@@ -38,6 +38,13 @@ const Reports = () => {
       key: 'pathWithNamespace',
     },
     {
+      title: '描述',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
+      width: '40%'
+    },
+    {
       title: 'UI自动化',
       dataIndex: 'auto',
       key: 'auto',
@@ -96,21 +103,30 @@ const Reports = () => {
       {
         name: 'UI自动化',
         type: 'bar',
-        data: data.map(item => item.auto)
+        data: data.map(item => item.auto),
+        label: {
+          show: true,
+          position: 'right'
+        }
       },
       {
         name: '单元测试',
         type: 'bar',
-        data: data.map(item => item.ut)
+        data: data.map(item => item.ut),
+        label: {
+          show: true,
+          position: 'right'
+        }
       }
     ];
-    console.log('ssss')
     return option
   },[data])
+
+  // 输出从
   return <CanyonCardPrimary>
 
 
-    <div className={'bg-white p-5'}>
+    <div className={'bg-white dark:bg-[#0F0D28] p-5'}>
       <h3 className={'mb-5'}>各仓库覆盖率数据统计</h3>
 
       <Space className={'mb-5'}>
@@ -124,8 +140,8 @@ const Reports = () => {
           buttonStyle="solid"
         />
         <Select className={'w-[200px]'} value={bu}
-                options={getProjectsBuOptionsDocumentData?.getProjectsBuOptions.map(({bu}) => ({
-                  label: bu,
+                options={getProjectsBuOptionsDocumentData?.getProjectsBuOptions.map(({bu,count}) => ({
+                  label: `${bu}(${count})`,
                   value: bu
                 })) || []}
         onChange={(v)=>{
@@ -138,13 +154,37 @@ const Reports = () => {
           (v)=>{
             setRange(v)
           }
-        }/>
+        } presets={[
+          {
+            label: '最近30天',
+            // text: '最近7天',
+            value: [dayjs().subtract(30, 'days'), dayjs()]
+          },
+          {
+            label: '6月份',
+            value: [dayjs('2024-06-01'), dayjs('2024-06-30')]
+          },
+          {
+            label: '5月份',
+            value: [dayjs('2024-05-01'), dayjs('2024-05-31')]
+          },
+          {
+            label: '4月份',
+            value: [dayjs('2024-04-01'), dayjs('2024-04-30')]
+          },
+        ]}/>
       </Space>
 
       <Spin spinning={loading}>
         {
           showType === '图表' ? (
-            data.length > 0 ? <ReactECharts option={opppppp} style={{
+            data.length > 0 ? <ReactECharts                 theme={
+              localStorage.getItem('theme') === 'dark'
+                ? 'dark'
+                : {
+                  color: ['#287DFA', '#FFB400'],
+                }
+            } option={opppppp} style={{
               height: `${data.length*50+100}px`
             }}/> : <div>暂无数据</div>
           ):      <Table dataSource={
