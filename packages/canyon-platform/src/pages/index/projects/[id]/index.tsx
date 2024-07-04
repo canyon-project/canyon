@@ -7,11 +7,11 @@ import ReactECharts from 'echarts-for-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-
+// import im from '../../../../assets/img.png'
 import ProjectRecordDetailDrawer from '../../../../components/app/ProjectRecordDetailDrawer.tsx';
 import MaterialSymbolsCommitSharp from '../../../../components/sha.tsx';
 import {
-  DeleteProjectDocument,
+  // DeleteProjectDocument,
   DeleteProjectRecordDocument,
   GetProjectByIdDocument,
   GetProjectChartDataDocument,
@@ -22,7 +22,11 @@ import {
 
 const { useToken } = theme;
 const { Title, Text } = Typography;
-
+// const content = ()=>{
+//   return <div>
+//     nihao
+//   </div>
+// }
 const ProjectOverviewPage = () => {
   const { token } = useToken();
   const { t } = useTranslation();
@@ -171,6 +175,26 @@ const ProjectOverviewPage = () => {
           </Link>
         );
       },
+      // width: '150px',
+      // render(_, { sha }) {
+      //   return (
+      //     <div className={'flex'}>
+      //       <Link
+      //         // style={{border:'1px solid #000'}}
+      //         className={'block w-[60px]'}
+      //         to={{
+      //           pathname: `/projects/${pam.id}/commits/${sha}`,
+      //         }}
+      //       >
+      //         {_}%
+      //       </Link>
+      //       <Popover content={content} title="Title">
+      //         <img src={im} alt='coverage'/>
+      //       </Popover>
+      //
+      //     </div>
+      //   );
+      // },
     },
     {
       title: (
@@ -314,7 +338,7 @@ const ProjectOverviewPage = () => {
             {t('projects.default.branch')}: {projectByIdData?.getProjectByID.defaultBranch}
           </Text>
         </div>
-        {projectByIdData?.getProjectByID.tags.length > 0 && (
+        {(projectByIdData?.getProjectByID.tags||[]).length > 0 && (
           <div className={'pt-5'}>
             <Text className={'mr-3'} type={'secondary'}>
               {t('projects.config.tag')}:
@@ -408,30 +432,51 @@ const ProjectOverviewPage = () => {
       <Text className={'block mb-3'} style={{ fontWeight: 500, fontSize: 16 }}>
         {t('projects.records')}
       </Text>
-      <div className={'flex items-center gap-5'} style={{ marginBottom: '16px' }}>
-        <Input.Search
-          defaultValue={keyword}
-          placeholder={t('projects.overview_search_keywords')}
-          onSearch={(value) => {
-            setKeyword(value);
-            setCurrent(1);
-          }}
-          style={{ width: '700px' }}
-        />
-        <Space>
-          <Text type={'secondary'}>{t('projects.only.default.branch')}: </Text>
-          <Switch
-            defaultChecked={Boolean(localStorage.getItem('defaultBranchOnly'))}
-            onChange={(v) => {
-              if (v) {
-                localStorage.setItem('defaultBranchOnly', '1');
-              } else {
-                localStorage.removeItem('defaultBranchOnly');
-              }
-              setDefaultBranchOnly(v);
+      <div className={'flex'}  style={{ marginBottom: '16px',justifyContent:'space-between' }}>
+
+        <div className={'flex items-center gap-5'}>
+          <Input.Search
+            defaultValue={keyword}
+            placeholder={t('projects.overview_search_keywords')}
+            onSearch={(value) => {
+              setKeyword(value);
+              setCurrent(1);
             }}
+            style={{ width: '500px' }}
           />
-        </Space>
+          <Space>
+            <Text type={'secondary'}>{t('projects.only.default.branch')}: </Text>
+            <Switch
+              defaultChecked={Boolean(localStorage.getItem('defaultBranchOnly'))}
+              onChange={(v) => {
+                if (v) {
+                  localStorage.setItem('defaultBranchOnly', '1');
+                } else {
+                  localStorage.removeItem('defaultBranchOnly');
+                }
+                setDefaultBranchOnly(v);
+              }}
+            />
+          </Space>
+        </div>
+
+        <div className={'flex gap-2'} style={{display:'none'}}>
+          {
+            ['#1f77b4','#ff7f0e','#2ca02c'].map((item, index) => {
+              return <div className={'flex items-center gap-1'}>
+                <span className={'block w-[20px] h-[12px] rounded-sm'} style={{backgroundColor:item}}></span>
+                <span className={'text-sm'}>{
+                  {
+                    0:'手工测试',
+                    1:'UI自动化测试',
+                    2:'单元测试',
+                  }[index] || 'unknown'
+
+                }</span>
+              </div>
+            })
+          }
+        </div>
       </div>
       {/*div*/}
       <Table
