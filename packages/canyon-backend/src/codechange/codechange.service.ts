@@ -10,6 +10,11 @@ export class CodechangeService {
       where: {
         sha: sha,
         covType: 'all',
+        projectID:{
+          not:{
+            contains:'-ut'
+          }
+        }
       },
     });
     return this.prisma.codechange
