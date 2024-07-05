@@ -81,11 +81,11 @@ export class GetProjectRecordsService {
         webUrl: commits.find(({ id }) => id === coverage.sha)?.web_url || '???',
         message:
           commits.find(({ id }) => id === coverage.sha)?.message || '???',
-        newlines: coverage.summary['newlines']['pct'] || 100,
-        statements: coverage.summary['statements']['pct'] || 100,
-        functions: coverage.summary['functions']['pct'] || 100,
-        branches: coverage.summary['branches']['pct'] || 100,
-        lines: coverage.summary['lines']['pct'] || 100,
+        newlines: coverage.summary['newlines']['pct'],
+        statements: coverage.summary['statements']['pct'],
+        functions: coverage.summary['functions']['pct'],
+        branches: coverage.summary['branches']['pct'],
+        lines: coverage.summary['lines']['pct'],
         lastReportTime: cs[0]?.updatedAt || coverage.createdAt, //没有agg类型的时候就用all的创建时间
         times: cs.length,
         logs: [],
