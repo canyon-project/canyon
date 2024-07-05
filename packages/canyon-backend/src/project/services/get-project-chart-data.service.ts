@@ -28,8 +28,8 @@ export class GetProjectChartDataService {
       .map((item) => {
         return {
           sha: item.sha,
-          statements: item.summary['statements']['pct'] || 100,
-          newlines: item.summary['newlines']['pct'] || 100,
+          statements: item.summary['statements']['pct'],
+          newlines: item.summary['newlines']['pct'],
         };
       })
       .reverse();
