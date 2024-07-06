@@ -43,17 +43,18 @@ export class ConsumerCoverageService {
           const lockAcquired = await this.acquireLock(lockName, 1000 * 60 * 2);
 
           if (lockAcquired) {
-            const project = await this.prisma.project.findFirst({
-              where: {
-                id: queueDataToBeConsumed.projectID,
-              },
-            });
+            // const project = await this.prisma.project.findFirst({
+            //   where: {
+            //     id: queueDataToBeConsumed.projectID,
+            //   },
+            // });
             // 到这里，获取到锁了以后再作处理
-            const dataFormatAndCheckQueueDataToBeConsumed =
-              await this.dataFormatAndCheck(
-                queueDataToBeConsumed,
-                project?.instrumentCwd,
-              );
+            // const dataFormatAndCheckQueueDataToBeConsumed =
+            //   await this.dataFormatAndCheck(
+            //     queueDataToBeConsumed,
+            //     project?.instrumentCwd,
+            //   );
+            const dataFormatAndCheckQueueDataToBeConsumed = queueDataToBeConsumed;
             try {
               await this.consume(
                 dataFormatAndCheckQueueDataToBeConsumed,
@@ -262,50 +263,6 @@ export class ConsumerCoverageService {
       },
     });
   }
-  async dataFormatAndCheck(data, projectInstrumentCwd): Promise<any> {
-    data = this.regularData(data);
-    const instrumentCwd = data.instrumentCwd;
-    const noPass = [];
-    for (const coverageKey in data.coverage) {
-      if (coverageKey.includes(instrumentCwd)) {
-      } else {
-        noPass.push(coverageKey);
-      }
-    }
-    if (noPass.length > 0) {
-      console.log(`coverage对象与canyon.processCwd不匹配`);
-    }
-
-    // 3.修改覆盖率路径
-    // 考虑到会出现大数的情况
-    // CanyonUtil.formatReportObject上报时就开启源码回溯
-    const coverage = await formatReportObject({
-      coverage: data.coverage,
-      instrumentCwd,
-      projectInstrumentCwd,
-    }).then((res) => res.coverage);
-    return {
-      ...data,
-      coverage: coverage,
-    };
-  }
-
-  regularData(data: any) {
-    const obj = {};
-    const { coverage } = data;
-    // 针对windows电脑，把反斜杠替换成正斜杠
-    // 做数据过滤，去除 \u0000 字符
-    for (const coverageKey in coverage) {
-      if (!coverageKey.includes('\u0000')) {
-        obj[coverageKey] = coverage[coverageKey];
-      }
-    }
-    return {
-      ...data,
-      coverage: obj,
-    };
-  }
-
   async compensationChangeLineCoverageSummary(queueDataToBeConsumed) {
     // 查询all类型的coverage
     const allCoverage = await this.prisma.coverage.findFirst({
