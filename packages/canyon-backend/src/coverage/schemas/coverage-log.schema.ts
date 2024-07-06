@@ -20,6 +20,9 @@ export class CoverageLog {
   reportID: string;
 
   @Prop()
+  instrumentCwd: string;
+
+  @Prop()
   covType: string;
 
   @Prop()

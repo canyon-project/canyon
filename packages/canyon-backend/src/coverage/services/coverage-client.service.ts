@@ -6,6 +6,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { CoverageLog } from '../schemas/coverage-log.schema';
 import { CoveragediskService } from './core/coveragedisk.service';
+import {formatReportObject} from "../../utils/coverage";
 /**
  * 上传覆盖率，十分重要的服务
  */
@@ -98,15 +99,29 @@ export class CoverageClientService {
       //后加的
       coverage: coverageReport.coverage,
     };
-    await this.coveragediskService.pushQueue(cov);
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id: cov.projectID,
+      },
+      select:{
+        instrumentCwd:true
+      }
+    });
+    const dataFormatAndCheckQueueDataToBeConsumed =
+      await this.dataFormatAndCheck(
+        cov,
+        project?.instrumentCwd,
+      );
+
+    await this.coveragediskService.pushQueue(dataFormatAndCheckQueueDataToBeConsumed);
     await this.coverageLogModel.create({
       key: cov.key,
       sha: cov.sha,
       projectID: cov.projectID,
       reportID: cov.reportID,
       covType: 'normal',
-      // rule: cov.rule,
       tag: JSON.stringify(cov.tag),
+      instrumentCwd: cov.instrumentCwd,
       createdAt: new Date(),
     });
     return {
@@ -147,5 +162,47 @@ export class CoverageClientService {
     } else {
       return this.oldInvoke(currentUser, coverageClientDto, ip);
     }
+  }
+  async dataFormatAndCheck(data, projectInstrumentCwd): Promise<any> {
+    data = this.regularData(data);
+    const instrumentCwd = data.instrumentCwd;
+    const noPass = [];
+    for (const coverageKey in data.coverage) {
+      if (coverageKey.includes(instrumentCwd)) {
+      } else {
+        noPass.push(coverageKey);
+      }
+    }
+    if (noPass.length > 0) {
+      console.log(`coverage对象与canyon.processCwd不匹配`);
+    }
+
+    // 3.修改覆盖率路径
+    // 考虑到会出现大数的情况
+    // CanyonUtil.formatReportObject上报时就开启源码回溯
+    const coverage = await formatReportObject({
+      coverage: data.coverage,
+      instrumentCwd,
+      projectInstrumentCwd,
+    }).then((res) => res.coverage);
+    return {
+      ...data,
+      coverage: coverage,
+    };
+  }
+  regularData(data: any) {
+    const obj = {};
+    const { coverage } = data;
+    // 针对windows电脑，把反斜杠替换成正斜杠
+    // 做数据过滤，去除 \u0000 字符
+    for (const coverageKey in coverage) {
+      if (!coverageKey.includes('\u0000')) {
+        obj[coverageKey] = coverage[coverageKey];
+      }
+    }
+    return {
+      ...data,
+      coverage: obj,
+    };
   }
 }
