@@ -28,6 +28,12 @@ export class GetProjectRecordsService {
         { compareTarget: { contains: keyword } },
         // { message: { contains: keyword } },
       ],
+      NOT: {
+        summary: {
+          path: ['statements','covered'],
+          equals: 0,
+        },
+      },
     };
 
     if (Boolean(onlyDefault) && project.defaultBranch !== '-') {
