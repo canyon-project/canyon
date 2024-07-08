@@ -16,14 +16,18 @@ export class GetProjectChartDataService {
         projectID: projectID,
         covType: 'all',
         branch: defaultBranch === '-' ? null : defaultBranch,
+        NOT: {
+          summary: {
+            path: ['statements','covered'],
+            equals: 0,
+          },
+        },
       }),
       orderBy: {
         updatedAt: 'desc',
       },
     });
 
-    const summarys = [];
-    // console.log(allCovTypeCoverages, 'allCovTypeCoverages');
     return allCovTypeCoverages
       .map((item) => {
         return {
@@ -33,6 +37,5 @@ export class GetProjectChartDataService {
         };
       })
       .reverse();
-    // .slice(-10);
   }
 }
