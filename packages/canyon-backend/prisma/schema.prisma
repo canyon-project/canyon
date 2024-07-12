@@ -1,0 +1,67 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+model User {
+  id           Int      @id
+  username     String
+  password     String
+  nickname     String
+  avatar       String
+  refreshToken String   @map("refresh_token")
+  accessToken  String   @map("access_token")
+  email        String
+  favor        String
+  theme        String
+  lang         String
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("user")
+}
+
+model Reckoning {
+  id          String  @id @default(cuid())
+  dimType     DimType @map("dim_type") // b,f,s
+  mapIndex    Int     @map("map_index") //
+  branchIndex Int     @map("branch_index") // 除了b之外，其他的都是0
+  hits        Int // 次数
+  path        String
+  sha         String
+  projectID   String  @map("project_id")
+  reportID    String  @map("report_id")
+  rule        String
+
+  @@map("reckoning")
+}
+
+model FileMap {
+  id        String @id @default(cuid())
+  mapJson   String @map("map_json")
+  path      String
+  sha       String
+  projectID String @map("project_id")
+  branch    String
+
+  @@map("file_map")
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  key       String
+  value     String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("system_setting")
+}
+
+enum DimType {
+  b
+  f
+  s
+}

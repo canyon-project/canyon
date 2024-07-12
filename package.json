@@ -1,0 +1,20 @@
+{
+  "name": "canyon",
+  "version": "1.0.0",
+  "description": "Canyon is a JavaScript code coverage solution",
+  "author": "wr_zhang25@163.com",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "rm": "find ./ -type d \\( -name \"dist\" -o -name \"node_modules\" \\) -exec rm -rf {} +",
+    "preinstall": "node ./scripts/check.js",
+    "migrate": "npx prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma",
+    "build": "pnpm -r do-build"
+  },
+  "keywords": [],
+  "workspaces": ["packages/*"],
+  "devDependencies": {},
+  "dependencies": {
+  }
+}

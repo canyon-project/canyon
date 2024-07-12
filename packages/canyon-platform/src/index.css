@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'IBMPlexMono';
+  src: url('./assets/IBMPlexMono-Regular.woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.ant-menu.ant-menu-root.ant-menu-inline.ant-menu-light{
+  border-inline-end:none !important;
+}
+
+/*a{*/
+/*  color: #0071c2;*/
+/*}*/
+/*a:hover{*/
+/*  color: #0071c2;*/
+/*  opacity: .8;*/
+/*  text-decoration:underline;*/
+/*}*/
