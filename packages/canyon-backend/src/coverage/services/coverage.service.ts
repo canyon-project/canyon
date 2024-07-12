@@ -23,6 +23,11 @@ export class CoverageService {
         sha: sha,
         projectID,
         covType: 'agg',
+        NOT:{
+          projectID:{
+            contains:'-ut'
+          }
+        }
       },
       orderBy: {
         updatedAt: 'desc',
@@ -63,6 +68,7 @@ export class CoverageService {
 
   // 私有方法
   private async getCoverageDataFromAdapter(projectID, sha, reportID) {
+    console.log('getCoverageDataFromAdapter', projectID, sha, reportID)
     const { relationID } = await this.prisma.coverage.findFirst({
       where: {
         projectID,
