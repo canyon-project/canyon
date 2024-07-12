@@ -97,11 +97,11 @@ export class ConsumerCoverageService {
       }),
     });
     // 异步拉取文件路径，不影响主消费任务，耗时比较长
-    await this.pullFilePathAndInsertDbService.invoke(
-      queueDataToBeConsumed.projectID,
-      queueDataToBeConsumed.sha,
-      this.prisma,
-    );
+    // await this.pullFilePathAndInsertDbService.invoke(
+    //   queueDataToBeConsumed.projectID,
+    //   queueDataToBeConsumed.sha,
+    //   this.prisma,
+    // );
     // 拉取变更代码
     await this.pullChangeCode(queueDataToBeConsumed);
     // 判断是否需要拉取变更代码，对比sha和compareTarget
