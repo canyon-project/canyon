@@ -36,7 +36,7 @@ const GlobaScreenWidthLimitModal = () => {
 
 	return (
 		<>
-			{width < 1424 ? (
+			{false ? (
 				<div className={"fullscreen-modal"}>
 					<Result
 						className={"bg-white dark:bg-black rounded-lg"}
