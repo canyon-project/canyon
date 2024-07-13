@@ -20,6 +20,7 @@ import { UploadModule } from './upload/upload.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CoveragediskEntity } from './coverage/entity/coveragedisk.entity';
+import {TaskModule} from "./task/task.module";
 // import * as path from 'node:path';
 
 @Module({
@@ -43,6 +44,7 @@ import { CoveragediskEntity } from './coverage/entity/coveragedisk.entity';
     CodechangeModule,
     SourcecodeModule,
     UploadModule,
+    TaskModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../../canyon-platform', 'dist'),
       exclude: ['/graphql/(.*)'],

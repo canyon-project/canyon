@@ -11,6 +11,7 @@
     "dev": "pnpm -r do-dev",
     "build": "pnpm -r do-build",
     "rm": "find ./ -type d \\( -name \"dist\" -o -name \"node_modules\" \\) -exec rm -rf {} +",
+    "migrate": "pnpm dlx prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma",
     "preinstall": "node ./scripts/check.js",
     "prepare": "husky"
   },
