@@ -15,22 +15,10 @@ export class SynsService {
 
   @Timeout(1)
   async mainTask() {
-    // const ids = await this.prisma.fileMap.findMany({
-    //   where:{
-    //   },
-    //   select:{
-    //     id:true
-    //   }
-    // })
-    // console.log([
-    //   ...new Set(ids.map(item=>item.id).map(item=>item.split('__')[2]))
-    // ].length)
     // 1.查出07-12 12:00以前的coverage数据
     const ids = await this.prisma.coverage.findMany({
       where:{
         projectID:{
-          contains:'61889',
-          // equals:'clveyrs690000pufq6p74anzd',
           not:{
             contains:'-ut'
           }

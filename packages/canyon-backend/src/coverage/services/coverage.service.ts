@@ -4,6 +4,7 @@ import { CoverageSummary } from '../models/coverage-summary';
 import { genSummaryMapByCoverageMap } from '@canyon/data';
 import { CoverageDataAdapterService } from './common/coverage-data-adapter.service';
 import { TestExcludeService } from './common/test-exclude.service';
+import {decompressedData} from "../../utils/zstd";
 
 @Injectable()
 export class CoverageService {
@@ -68,8 +69,7 @@ export class CoverageService {
 
   // 私有方法
   private async getCoverageDataFromAdapter(projectID, sha, reportID) {
-    console.log('getCoverageDataFromAdapter', projectID, sha, reportID)
-    const { relationID } = await this.prisma.coverage.findFirst({
+    const { relationID,id } = await this.prisma.coverage.findFirst({
       where: {
         projectID,
         sha: sha,
@@ -77,6 +77,37 @@ export class CoverageService {
         reportID: reportID === '' ? undefined : reportID,
       },
     });
-    return this.coverageDataAdapterService.retrieve(relationID);
+    const maps = [this.prisma.covHit.findFirst({
+      where:{
+        id:`__${id}__`
+      }
+    }).then(res=>{
+      return JSON.parse(res.mapJsonStr)
+    }),this.prisma.covMap.findFirst({
+      where:{
+        id:`__${projectID}__${sha}__`
+      }
+    }).then(res=>{
+      return decompressedData(res.mapJsonStrZstd)
+    }).then(res=>{
+      return JSON.parse(res)
+    })]
+
+    // this.prisma.covMap
+    const time = Date.now()
+    const [hit,map] = await Promise.all(maps)
+    const obj = {}
+
+    Object.entries(hit).forEach(([key,value]:any)=>{
+
+      obj[key] = {
+        path:key,
+        ...value,
+        ...map[key]
+      }
+
+    })
+
+    return obj
   }
 }
