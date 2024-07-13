@@ -23,7 +23,7 @@ export class SynsService {
         },
         updatedAt: {
           lt: new Date('2024-07-12 12:00:00'),
-          gte: new Date('2024-07-12 00:00:00')
+          // gte: new Date('2024-07-12 00:00:00')
         }
       },
       select:{
