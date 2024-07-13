@@ -37,13 +37,11 @@ export class CoverageDataAdapterService {
     );
   }
   retrieve(relationID) {
-    console.log(relationID,'relationID')
     return this.coverageDataModel
       .findOne({
         _id: new mongoose.Types.ObjectId(relationID),
       })
       .then((r) => {
-        console.log(r)
         return decompressedData(r.coverage)
       })
       .then((r) => JSON.parse(r));

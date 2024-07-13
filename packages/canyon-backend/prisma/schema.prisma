@@ -65,28 +65,14 @@ model Coverage {
   @@map("coverage")
 }
 
-model Hit {
-  id      String @id
-  hitJson String @map("hitjson")
-
-  @@map("hit")
+model CovMap {
+  id             String @id
+  mapJsonStrZstd String @map("map_json_str_zstd")
 }
 
-model FileMap {
-  // TODO 有个问题，每次来的时候，path可能会增加，这个时候，需要更新
-  // id = projectID + sha + path
-  id      String @id
-  mapJson String @map("map_json")
-
-  @@map("file_map")
-}
-
-model CoverageData {
-  id             String   @id @default(cuid())
-  compresseddata String
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-
-  @@map("coveragedata")
+model CovHit {
+  id         String @id
+  mapJsonStr String @map("map_json_str")
 }
 
 model Project {

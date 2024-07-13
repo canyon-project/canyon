@@ -2,6 +2,7 @@ import {Injectable} from "@nestjs/common";
 import {PrismaService} from "../prisma/prisma.service";
 import {Timeout} from "@nestjs/schedule";
 import {CoverageDataAdapterService} from "../coverage/services/common/coverage-data-adapter.service";
+import * as fs from "node:fs";
 
 @Injectable()
 export class SynsService {
@@ -13,10 +14,21 @@ export class SynsService {
 
   @Timeout(1)
   async mainTask() {
+    // const ids = await this.prisma.fileMap.findMany({
+    //   where:{
+    //   },
+    //   select:{
+    //     id:true
+    //   }
+    // })
+    // console.log([
+    //   ...new Set(ids.map(item=>item.id).map(item=>item.split('__')[2]))
+    // ].length)
     // 1.查出07-12 12:00以前的coverage数据
     const ids = await this.prisma.coverage.findMany({
       where:{
         projectID:{
+          contains:'61889',
           // equals:'clveyrs690000pufq6p74anzd',
           not:{
             contains:'-ut'
@@ -33,6 +45,7 @@ export class SynsService {
         covType:true
       }
     });
+    console.log(ids.length)
     // 2.遍历coverage
     for (let i = 0; i < ids.length; i++) {
       console.log('ids',ids[i].id)
@@ -63,59 +76,56 @@ export class SynsService {
           const coverage = coverageData;
 
 
-          const fileMapTasks = Object.entries(coverage).map(
-            async (coverageEntries) => {
-              const [path, fileCoverage]: any = coverageEntries;
-              await this.prisma.fileMap
-                .create({
-                  data: {
-                    id: `__${projectID}__${sha}__${path.replaceAll('~/','')}__`,
-                    mapJson: JSON.stringify({
-                      fnMap: fileCoverage.fnMap,
-                      statementMap: fileCoverage.statementMap,
-                      branchMap: fileCoverage.branchMap,
-                    }),
-                  },
-                })
-                .then((res) => {
-                  return res;
-                })
-                .catch(() => {
-                  return true;
-                });
-            },
-          );
-          const time2 = new Date().getTime();
-          await Promise.all(fileMapTasks);
+          await this.prisma.covMap
+            .create({
+              data: {
+                id: `__${projectID}__${sha}__`,
+                mapJsonStrZstd: JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
+                  previousValue[currentValue[0]] = {
+                    f: currentValue[1].fnMap,
+                    b: currentValue[1].branchMap,
+                    s: currentValue[1].statementMap,
+                  }
+                  return previousValue
+                },{})),
+              },
+            })
+            .then((res) => {
+              return res;
+            })
+            .catch(() => {
+              return true;
+            });
 
-          console.log('fileMapTasks', new Date().getTime() - time2);
+
 
 
 
           const time3 = new Date().getTime();
-          const hitTasks = Object.entries(coverage).map(
-            async (coverageEntries) => {
-              const [path, fileCoverage]: any = coverageEntries;
-              await this.prisma.hit
-                .create({
-                  data: {
-                    id: `__${ids[i].id}__${path.replaceAll('~/','')}__`,
-                    hitJson: JSON.stringify({
-                      f: fileCoverage.f,
-                      b: fileCoverage.b,
-                      s: fileCoverage.s,
-                    }),
-                  },
-                })
-                .then((res) => {
-                  return res;
-                })
-                .catch((e) => {
-                  return true;
-                });
-            },
-          );
-          await Promise.all(hitTasks);
+
+
+          await this.prisma.covHit
+            .create({
+              data: {
+                id: `__${ids[i].id}__`,
+                mapJsonStr: JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
+                  previousValue[currentValue[0]] = {
+                    f: currentValue[1].f,
+                    b: currentValue[1].b,
+                    s: currentValue[1].s,
+                  }
+                  return previousValue
+                },{})),
+              },
+            })
+            .then((res) => {
+              return res;
+            })
+            .catch((e) => {
+              return true;
+            });
+
+
           console.log('hitTasks', new Date().getTime() - time3);
         }
       } else {
