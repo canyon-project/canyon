@@ -17,6 +17,7 @@ export class SynsService {
     const ids = await this.prisma.coverage.findMany({
       where:{
         projectID:{
+          // equals:'clveyrs690000pufq6p74anzd',
           not:{
             contains:'-ut'
           }
@@ -34,87 +35,91 @@ export class SynsService {
     });
     // 2.遍历coverage
     for (let i = 0; i < ids.length; i++) {
-
+      console.log('ids',ids[i].id)
       const {relationID,id:coverageID} = ids[i]
 
-      const coverageData = await this.coverageDataAdapterService.retrieve(relationID).catch(err=>{
-        return null
-      })
-      if (coverageData){
-
-        //   ******
-        //   ******
-        //   ******
-        //   ******
-        //   ******
-        //   ******
-
-        const coverageClientDto = await this.prisma.coverage.findFirst({
-          where:{
-            id: coverageID
-          }
+      if (relationID){
+        const coverageData = await this.coverageDataAdapterService.retrieve(relationID).catch(err=>{
+          return null
         })
+        if (coverageData){
 
-        const { sha, projectID, reportID, branch,compareTarget,reporter } =
-          coverageClientDto;
+          //   ******
+          //   ******
+          //   ******
+          //   ******
+          //   ******
+          //   ******
 
-        const coverage = coverageData;
+          const coverageClientDto = await this.prisma.coverage.findFirst({
+            where:{
+              id: coverageID
+            }
+          })
 
+          const { sha, projectID, reportID, branch,compareTarget,reporter } =
+            coverageClientDto;
 
-        const fileMapTasks = Object.entries(coverage).map(
-          async (coverageEntries) => {
-            const [path, fileCoverage]: any = coverageEntries;
-            await this.prisma.fileMap
-              .create({
-                data: {
-                  id: `__${projectID}__${sha}__${path.replaceAll('~/','')}__`,
-                  mapJson: JSON.stringify({
-                    fnMap: fileCoverage.fnMap,
-                    statementMap: fileCoverage.statementMap,
-                    branchMap: fileCoverage.branchMap,
-                  }),
-                },
-              })
-              .then((res) => {
-                return res;
-              })
-              .catch(() => {
-                return true;
-              });
-          },
-        );
-        const time2 = new Date().getTime();
-        await Promise.all(fileMapTasks);
-
-        console.log('fileMapTasks', new Date().getTime() - time2);
+          const coverage = coverageData;
 
 
+          const fileMapTasks = Object.entries(coverage).map(
+            async (coverageEntries) => {
+              const [path, fileCoverage]: any = coverageEntries;
+              await this.prisma.fileMap
+                .create({
+                  data: {
+                    id: `__${projectID}__${sha}__${path.replaceAll('~/','')}__`,
+                    mapJson: JSON.stringify({
+                      fnMap: fileCoverage.fnMap,
+                      statementMap: fileCoverage.statementMap,
+                      branchMap: fileCoverage.branchMap,
+                    }),
+                  },
+                })
+                .then((res) => {
+                  return res;
+                })
+                .catch(() => {
+                  return true;
+                });
+            },
+          );
+          const time2 = new Date().getTime();
+          await Promise.all(fileMapTasks);
 
-        const time3 = new Date().getTime();
-        const hitTasks = Object.entries(coverage).map(
-          async (coverageEntries) => {
-            const [path, fileCoverage]: any = coverageEntries;
-            await this.prisma.hit
-              .create({
-                data: {
-                  id: `__${ids[i].id}__${path.replaceAll('~/','')}__`,
-                  hitJson: JSON.stringify({
-                    f: fileCoverage.f,
-                    b: fileCoverage.b,
-                    s: fileCoverage.s,
-                  }),
-                },
-              })
-              .then((res) => {
-                return res;
-              })
-              .catch((e) => {
-                return true;
-              });
-          },
-        );
-        await Promise.all(hitTasks);
-        console.log('hitTasks', new Date().getTime() - time3);
+          console.log('fileMapTasks', new Date().getTime() - time2);
+
+
+
+          const time3 = new Date().getTime();
+          const hitTasks = Object.entries(coverage).map(
+            async (coverageEntries) => {
+              const [path, fileCoverage]: any = coverageEntries;
+              await this.prisma.hit
+                .create({
+                  data: {
+                    id: `__${ids[i].id}__${path.replaceAll('~/','')}__`,
+                    hitJson: JSON.stringify({
+                      f: fileCoverage.f,
+                      b: fileCoverage.b,
+                      s: fileCoverage.s,
+                    }),
+                  },
+                })
+                .then((res) => {
+                  return res;
+                })
+                .catch((e) => {
+                  return true;
+                });
+            },
+          );
+          await Promise.all(hitTasks);
+          console.log('hitTasks', new Date().getTime() - time3);
+        }
+      } else {
+        console.log('relationID is null')
       }
     }
   }
