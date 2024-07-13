@@ -3,6 +3,7 @@ import {PrismaService} from "../prisma/prisma.service";
 import {Timeout} from "@nestjs/schedule";
 import {CoverageDataAdapterService} from "../coverage/services/common/coverage-data-adapter.service";
 import * as fs from "node:fs";
+import {compressedData} from "../utils/zstd";
 
 @Injectable()
 export class SynsService {
@@ -48,7 +49,7 @@ export class SynsService {
     console.log(ids.length)
     // 2.遍历coverage
     for (let i = 0; i < ids.length; i++) {
-      console.log('ids',ids[i].id)
+      console.log('ids',ids[i].id,i,ids.length)
       const {relationID,id:coverageID} = ids[i]
 
       if (relationID){
@@ -75,58 +76,73 @@ export class SynsService {
 
           const coverage = coverageData;
 
-
-          await this.prisma.covMap
-            .create({
-              data: {
-                id: `__${projectID}__${sha}__`,
-                mapJsonStrZstd: JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
-                  previousValue[currentValue[0]] = {
-                    f: currentValue[1].fnMap,
-                    b: currentValue[1].branchMap,
-                    s: currentValue[1].statementMap,
-                  }
-                  return previousValue
-                },{})),
-              },
-            })
-            .then((res) => {
-              return res;
-            })
-            .catch(() => {
-              return true;
-            });
+          if (JSON.stringify(coverage)!=='{}'){
 
 
 
 
 
-          const time3 = new Date().getTime();
+
+            const zstd = await compressedData(JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
+              previousValue[currentValue[0]] = {
+                fnMap: currentValue[1].fnMap,
+                branchMap: currentValue[1].branchMap,
+                statementMap: currentValue[1].statementMap,
+              }
+              return previousValue
+            },{})))
+
+            await this.prisma.covMap
+              .create({
+                data: {
+                  id: `__${projectID}__${sha}__`,
+                  mapJsonStrZstd: zstd,
+                },
+              })
+              .then((res) => {
+                return res;
+              })
+              .catch(() => {
+                return true;
+              });
 
 
-          await this.prisma.covHit
-            .create({
-              data: {
-                id: `__${ids[i].id}__`,
-                mapJsonStr: JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
-                  previousValue[currentValue[0]] = {
-                    f: currentValue[1].f,
-                    b: currentValue[1].b,
-                    s: currentValue[1].s,
-                  }
-                  return previousValue
-                },{})),
-              },
-            })
-            .then((res) => {
-              return res;
-            })
-            .catch((e) => {
-              return true;
-            });
 
 
-          console.log('hitTasks', new Date().getTime() - time3);
+
+            const time3 = new Date().getTime();
+
+
+            await this.prisma.covHit
+              .create({
+                data: {
+                  id: `__${ids[i].id}__`,
+                  mapJsonStr: JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
+                    previousValue[currentValue[0]] = {
+                      f: currentValue[1].f,
+                      b: currentValue[1].b,
+                      s: currentValue[1].s,
+                    }
+                    return previousValue
+                  },{})),
+                },
+              })
+              .then((res) => {
+                return res;
+              })
+              .catch((e) => {
+                return true;
+              });
+
+
+            console.log('hitTasks', new Date().getTime() - time3);
+
+
+
+          } else {
+            console.log('coverage is ',JSON.stringify(coverage))
+          }
+
         }
       } else {
         console.log('relationID is null')
