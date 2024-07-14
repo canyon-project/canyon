@@ -70,6 +70,14 @@ model CovMap {
   mapJsonStrZstd String @map("map_json_str_zstd")
 }
 
+model CovMapTest {
+  id         String @id
+  mapJsonStr String @map("map_json_str")
+  projectID  String @map("project_id")
+  sha        String
+  path       String
+}
+
 model CovHit {
   id         String @id
   mapJsonStr String @map("map_json_str")

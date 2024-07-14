@@ -83,14 +83,16 @@ export class CoverageService {
       }
     }).then(res=>{
       return JSON.parse(res.mapJsonStr)
-    }),this.prisma.covMap.findFirst({
+    }),this.prisma.covMapTest.findMany({
       where:{
-        id:`__${projectID}__${sha}__`
+        projectID,
+        sha
       }
     }).then(res=>{
-      return decompressedData(res.mapJsonStrZstd)
-    }).then(res=>{
-      return JSON.parse(res)
+      return res.reduce((acc,cur)=>{
+        acc[cur.path] = JSON.parse(cur.mapJsonStr)
+        return acc
+      },{})
     })]
 
     // this.prisma.covMap

@@ -71,28 +71,37 @@ export class SynsService {
 
 
 
-            const zstd = await compressedData(JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
-              previousValue[currentValue[0]] = {
-                fnMap: currentValue[1].fnMap,
-                branchMap: currentValue[1].branchMap,
-                statementMap: currentValue[1].statementMap,
-              }
-              return previousValue
-            },{})))
 
-            await this.prisma.covMap
-              .create({
-                data: {
-                  id: `__${projectID}__${sha}__`,
-                  mapJsonStrZstd: zstd,
-                },
-              })
-              .then((res) => {
-                return res;
-              })
-              .catch(() => {
-                return true;
-              });
+
+            const fileMapTasks = Object.entries(coverage).map(
+              async (coverageEntries) => {
+                const [path, fileCoverage]: any = coverageEntries;
+                await this.prisma.covMapTest
+                  .create({
+                    data: {
+                      id: `__${projectID}__${sha}__${path}__`,
+                      mapJsonStr: JSON.stringify({
+                        fnMap: fileCoverage.fnMap,
+                        statementMap: fileCoverage.statementMap,
+                        branchMap: fileCoverage.branchMap,
+                      }),
+                      projectID:projectID,
+                      sha:sha,
+                      path,
+                    },
+                  })
+                  .then((res) => {
+                    return res;
+                  })
+                  .catch(() => {
+                    return true;
+                  });
+              },
+            );
+            const time2 = new Date().getTime();
+            await Promise.all(fileMapTasks);
+
+            console.log('fileMapTasks', new Date().getTime() - time2);
 
 
 
@@ -101,26 +110,26 @@ export class SynsService {
             const time3 = new Date().getTime();
 
 
-            await this.prisma.covHit
-              .create({
-                data: {
-                  id: `__${ids[i].id}__`,
-                  mapJsonStr: JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
-                    previousValue[currentValue[0]] = {
-                      f: currentValue[1].f,
-                      b: currentValue[1].b,
-                      s: currentValue[1].s,
-                    }
-                    return previousValue
-                  },{})),
-                },
-              })
-              .then((res) => {
-                return res;
-              })
-              .catch((e) => {
-                return true;
-              });
+            // await this.prisma.covHit
+            //   .create({
+            //     data: {
+            //       id: `__${ids[i].id}__`,
+            //       mapJsonStr: JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
+            //         previousValue[currentValue[0]] = {
+            //           f: currentValue[1].f,
+            //           b: currentValue[1].b,
+            //           s: currentValue[1].s,
+            //         }
+            //         return previousValue
+            //       },{})),
+            //     },
+            //   })
+            //   .then((res) => {
+            //     return res;
+            //   })
+            //   .catch((e) => {
+            //     return true;
+            //   });
 
 
             console.log('hitTasks', new Date().getTime() - time3);
