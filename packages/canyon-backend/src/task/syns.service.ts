@@ -76,30 +76,40 @@ export class SynsService {
             const fileMapTasks = Object.entries(coverage).map(
               async (coverageEntries) => {
                 const [path, fileCoverage]: any = coverageEntries;
-                await this.prisma.covMapTest
-                  .create({
-                    data: {
-                      id: `__${projectID}__${sha}__${path}__`,
-                      mapJsonStr: JSON.stringify({
-                        fnMap: fileCoverage.fnMap,
-                        statementMap: fileCoverage.statementMap,
-                        branchMap: fileCoverage.branchMap,
-                      }),
-                      projectID:projectID,
-                      sha:sha,
-                      path,
-                    },
-                  })
-                  .then((res) => {
-                    return res;
-                  })
-                  .catch(() => {
-                    return true;
-                  });
+
               },
             );
             const time2 = new Date().getTime();
             await Promise.all(fileMapTasks);
+
+
+            const rows = Object.entries(coverage).map((coverageEntries)=>{
+              const [path, fileCoverage]: any = coverageEntries;
+              return {
+                id: `__${projectID}__${sha}__${path}__`,
+                mapJsonStr: JSON.stringify({
+                  fnMap: fileCoverage.fnMap,
+                  statementMap: fileCoverage.statementMap,
+                  branchMap: fileCoverage.branchMap,
+                }),
+                projectID:projectID,
+                sha:sha,
+                path,
+              }
+            })
+
+
+            await this.prisma.covMapTest
+              .createMany({
+                data: rows,
+                skipDuplicates: true,
+              })
+              .then((res) => {
+                return res;
+              })
+              .catch(() => {
+                return true;
+              });
 
             console.log('fileMapTasks', new Date().getTime() - time2);
 
