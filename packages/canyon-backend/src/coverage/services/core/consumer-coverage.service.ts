@@ -115,9 +115,14 @@ export class ConsumerCoverageService {
             },
           });
     if (coverage) {
-      const cov = await this.coverageDataAdapterService.retrieve(
-        coverage.relationID,
-      );
+      // const cov = await this.coverageDataAdapterService.retrieve(
+      //   coverage.relationID,
+      // );
+      const cov = await this.prisma.covHit.findFirst({
+        where:{
+          id:`__${coverage.id}__`
+        }
+      }).then(res=>JSON.parse(res.mapJsonStr))
 
       // const newcoverage = JSON.parse(merge_coverage_json_str(JSON.stringify(queueDataToBeConsumed.coverage), JSON.stringify(cov)));
       const newcoverage = mergeCoverageMap(queueDataToBeConsumed.coverage, cov);
@@ -141,11 +146,19 @@ export class ConsumerCoverageService {
           compareTarget: queueDataToBeConsumed.compareTarget,
         },
       }); // 更新时间
-      const r = await this.coverageDataAdapterService.update(
-        coverage.relationID,
-        newcoverage,
-      );
-      return r;
+      // const r = await this.coverageDataAdapterService.update(
+      //   coverage.relationID,
+      //   newcoverage,
+      // );
+      // return r;
+      return this.prisma.covHit.update({
+        where:{
+          id:coverage.id
+        },
+        data:{
+          mapJsonStr:JSON.stringify(newcoverage)
+        }
+      })
     } else {
       // 创建新的agg
       const newAgg = await this.prisma.coverage.create({
@@ -175,18 +188,24 @@ export class ConsumerCoverageService {
           tag: queueDataToBeConsumed.tag,
         },
       });
-      const newcd = await this.coverageDataAdapterService.create(
-        queueDataToBeConsumed.coverage,
-        newAgg.id,
-      );
-      return this.prisma.coverage.update({
-        where: {
-          id: newAgg.id,
-        },
-        data: {
-          relationID: newcd,
-        },
-      });
+      // const newcd = await this.coverageDataAdapterService.create(
+      //   queueDataToBeConsumed.coverage,
+      //   newAgg.id,
+      // );
+      return await this.prisma.covHit.create({
+        data:{
+          id:`__${newAgg.id}__`,
+          mapJsonStr:JSON.stringify(queueDataToBeConsumed.coverage)
+        }
+      })
+      // return this.prisma.coverage.update({
+      //   where: {
+      //     id: newAgg.id,
+      //   },
+      //   data: {
+      //     relationID: newcd,
+      //   },
+      // });
     }
   }
   async pullChangeCode(coverage) {

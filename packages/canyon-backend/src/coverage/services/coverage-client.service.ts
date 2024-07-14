@@ -113,7 +113,41 @@ export class CoverageClientService {
         project?.instrumentCwd,
       );
 
-    await this.coveragediskService.pushQueue(dataFormatAndCheckQueueDataToBeConsumed);
+    // 这里要有一个地方分开bfs
+
+    const objMap = {}
+    const objHit = {}
+
+    Object.entries(dataFormatAndCheckQueueDataToBeConsumed.coverage).forEach(([path,value]:any)=>{
+      objMap[path] = {
+        fnMap: value.fnMap,
+        branchMap: value.branchMap,
+        statementMap: value.statementMap
+      }
+      objHit[path] = {
+        f:value.f,
+        b:value.b,
+        s:value.s
+      }
+    })
+
+    await this.coveragediskService.pushQueue({
+      ...dataFormatAndCheckQueueDataToBeConsumed,
+      coverage: objHit
+    });
+    await this.prisma.covMapTest.createMany({
+      data: Object.entries(objMap).map(([path,value])=>{
+        const {projectID,sha} = dataFormatAndCheckQueueDataToBeConsumed
+        return {
+          id: `__${projectID}__${sha}__${path}__`,
+          mapJsonStr: JSON.stringify(value), //???没删除bfs
+          projectID: projectID,
+          sha: sha,
+          path: path
+        }
+      }),
+      skipDuplicates: true,
+    })
     await this.coverageLogModel.create({
       key: cov.key,
       sha: cov.sha,

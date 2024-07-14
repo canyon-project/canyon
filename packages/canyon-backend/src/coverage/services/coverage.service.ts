@@ -5,6 +5,7 @@ import { genSummaryMapByCoverageMap } from '@canyon/data';
 import { CoverageDataAdapterService } from './common/coverage-data-adapter.service';
 import { TestExcludeService } from './common/test-exclude.service';
 import {decompressedData} from "../../utils/zstd";
+import {removeNullKeys} from "../../utils/utils";
 
 @Injectable()
 export class CoverageService {
@@ -59,17 +60,19 @@ export class CoverageService {
   }
 
   async getCoverageData(projectID, commitSha, reportID, filepath) {
+    // 获取单个需要优化
     const coverageData = await this.getCoverageDataFromAdapter(
       projectID,
       commitSha,
       reportID,
+      filepath
     );
     return JSON.stringify(coverageData[filepath]);
   }
 
   // 私有方法
-  private async getCoverageDataFromAdapter(projectID, sha, reportID) {
-    const { relationID,id } = await this.prisma.coverage.findFirst({
+  private async getCoverageDataFromAdapter(projectID, sha, reportID,filepath=null) {
+    const { id } = await this.prisma.coverage.findFirst({
       where: {
         projectID,
         sha: sha,
@@ -84,10 +87,11 @@ export class CoverageService {
     }).then(res=>{
       return JSON.parse(res.mapJsonStr)
     }),this.prisma.covMapTest.findMany({
-      where:{
+      where:removeNullKeys({
         projectID,
-        sha
-      }
+        sha,
+        path:filepath
+      })
     }).then(res=>{
       return res.reduce((acc,cur)=>{
         acc[cur.path] = JSON.parse(cur.mapJsonStr)
@@ -101,13 +105,13 @@ export class CoverageService {
     const obj = {}
 
     Object.entries(hit).forEach(([key,value]:any)=>{
-
-      obj[key] = {
-        path:key,
-        ...value,
-        ...map[key]
+      if (map[key]){
+        obj[key] = {
+          path:key,
+          ...value,
+          ...map[key]
+        }
       }
-
     })
 
     return obj

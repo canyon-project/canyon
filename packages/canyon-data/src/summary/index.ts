@@ -2,6 +2,7 @@ import {percent} from "../utils/percent.ts";
 import libCoverage, {CoverageMapData, CoverageSummaryData, Totals} from "istanbul-lib-coverage";
 import {calculateNewLineCoverageForSingleFile} from "../utils/line.ts";
 import {emptySummary} from "./helpers.ts";
+import {formatCoverageData} from "../utils/formatCoverageData.ts";
 export interface CodeChange{
   path:string
   additions:number[]
@@ -41,7 +42,7 @@ export function mergeSummary(first:any,second:any):any {
 
 export const genSummaryMapByCoverageMap = (coverageMapData: CoverageMapData,codeChanges?:CodeChange[]):CoverageSummaryDataMap => {
   const summaryMap: any = {};
-  const m = libCoverage.createCoverageMap(coverageMapData);
+  const m = libCoverage.createCoverageMap(formatCoverageData(coverageMapData));
   m.files().forEach(function (f) {
     const fc = m.fileCoverageFor(f),
       s = fc.toSummary();

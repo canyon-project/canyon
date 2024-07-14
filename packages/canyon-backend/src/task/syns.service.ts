@@ -13,7 +13,7 @@ export class SynsService {
   ) {
   }
 
-  @Timeout(1)
+  // @Timeout(1)
   async mainTask() {
     // 1.查出07-12 12:00以前的coverage数据
     const ids = await this.prisma.coverage.findMany({
