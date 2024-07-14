@@ -13,20 +13,20 @@ export class SynsService {
   ) {
   }
 
-  // @Timeout(1)
+  @Timeout(1)
   async mainTask() {
     // 1.查出07-12 12:00以前的coverage数据
     const ids = await this.prisma.coverage.findMany({
       where:{
-        projectID:{
-          not:{
-            contains:'-ut'
-          }
-        },
-        updatedAt: {
-          lt: new Date('2024-07-12 12:00:00'),
-          // gte: new Date('2024-07-12 00:00:00')
-        }
+        // projectID:{
+        //   not:{
+        //     // contains:'-ut'
+        //   }
+        // },
+        // updatedAt: {
+        //   // lt: new Date('2024-07-12 12:00:00'),
+        //   // gte: new Date('2024-07-12 00:00:00')
+        // }
       },
       select:{
         id:true,
@@ -88,9 +88,9 @@ export class SynsService {
               return {
                 id: `__${projectID}__${sha}__${path}__`,
                 mapJsonStr: JSON.stringify({
-                  fnMap: fileCoverage.fnMap,
-                  statementMap: fileCoverage.statementMap,
-                  branchMap: fileCoverage.branchMap,
+                  fnMap: fileCoverage.fnMap||{},
+                  statementMap: fileCoverage.statementMap||{},
+                  branchMap: fileCoverage.branchMap||{},
                 }),
                 projectID:projectID,
                 sha:sha,
@@ -120,26 +120,26 @@ export class SynsService {
             const time3 = new Date().getTime();
 
 
-            // await this.prisma.covHit
-            //   .create({
-            //     data: {
-            //       id: `__${ids[i].id}__`,
-            //       mapJsonStr: JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
-            //         previousValue[currentValue[0]] = {
-            //           f: currentValue[1].f,
-            //           b: currentValue[1].b,
-            //           s: currentValue[1].s,
-            //         }
-            //         return previousValue
-            //       },{})),
-            //     },
-            //   })
-            //   .then((res) => {
-            //     return res;
-            //   })
-            //   .catch((e) => {
-            //     return true;
-            //   });
+            await this.prisma.covHit
+              .create({
+                data: {
+                  id: `__${ids[i].id}__`,
+                  mapJsonStr: JSON.stringify(Object.entries(coverage).reduce((previousValue, currentValue:any)=>{
+                    previousValue[currentValue[0]] = {
+                      f: currentValue[1].f||{},
+                      b: currentValue[1].b||{},
+                      s: currentValue[1].s||{},
+                    }
+                    return previousValue
+                  },{})),
+                },
+              })
+              .then((res) => {
+                return res;
+              })
+              .catch((e) => {
+                return true;
+              });
 
 
             console.log('hitTasks', new Date().getTime() - time3);
