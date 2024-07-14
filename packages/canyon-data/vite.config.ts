@@ -12,5 +12,6 @@ export default defineConfig({
       fileName: "canyon-data",
       formats: ["es", "cjs"],
     },
+    sourcemap: true,
   },
 })

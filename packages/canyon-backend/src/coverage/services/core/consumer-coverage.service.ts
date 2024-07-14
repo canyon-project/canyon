@@ -153,7 +153,7 @@ export class ConsumerCoverageService {
       // return r;
       return this.prisma.covHit.update({
         where:{
-          id:coverage.id
+          id:`__${coverage.id}__`
         },
         data:{
           mapJsonStr:JSON.stringify(newcoverage)
