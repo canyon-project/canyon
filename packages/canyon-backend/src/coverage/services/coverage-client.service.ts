@@ -1,12 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CoverageClientDto } from '../dto/coverage-client.dto';
-import { Coverage } from '@prisma/client';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
-import { CoverageLog } from '../schemas/coverage-log.schema';
-import { CoveragediskService } from './core/coveragedisk.service';
-import {formatReportObject} from "../../utils/coverage";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { CoverageClientDto } from "../dto/coverage-client.dto";
+import { Coverage } from "@prisma/client";
+import { CoveragediskService } from "./core/coveragedisk.service";
+import { formatReportObject } from "../../utils/coverage";
 /**
  * 上传覆盖率，十分重要的服务
  */
@@ -25,8 +22,6 @@ function checkUserID(id) {
 export class CoverageClientService {
   constructor(
     private readonly prisma: PrismaService,
-    @InjectModel(CoverageLog.name)
-    private coverageLogModel: Model<CoverageLog>,
     private coveragediskService: CoveragediskService,
   ) {}
 
@@ -50,10 +45,10 @@ export class CoverageClientService {
       });
       if (isRepeated) {
         return {
-          msg: 'ok',
-          coverageId: 'isRepeated',
-          dataFormatAndCheckTime: '',
-          coverageInsertDbTime: '',
+          msg: "ok",
+          coverageId: "isRepeated",
+          dataFormatAndCheckTime: "",
+          coverageInsertDbTime: "",
         };
       }
     }
@@ -61,12 +56,12 @@ export class CoverageClientService {
     coverageClientDto.sha = coverageClientDto.commitSha;
 
     // 注意这里还是小驼峰
-    if (!coverageClientDto.reportID || coverageClientDto.reportID === '-') {
+    if (!coverageClientDto.reportID || coverageClientDto.reportID === "-") {
       coverageClientDto.reportID = coverageClientDto.sha;
     }
     if (
       !coverageClientDto.compareTarget ||
-      coverageClientDto.compareTarget === '-'
+      coverageClientDto.compareTarget === "-"
     ) {
       coverageClientDto.compareTarget = coverageClientDto.sha;
     }
@@ -79,21 +74,21 @@ export class CoverageClientService {
     // ******************************************************
     const coverageReport = coverageClientDto;
     const cov: Coverage & { coverage: any } = {
-      id: '',
-      key: coverageReport.key || '',
+      id: "",
+      key: coverageReport.key || "",
       sha: coverageReport.sha,
-      branch: coverageReport.branch || '-',
+      branch: coverageReport.branch || "-",
       compareTarget: coverageReport.compareTarget,
-      provider: 'gitlab',
+      provider: "gitlab",
       projectID: coverageReport.projectID,
       instrumentCwd: coverageReport.instrumentCwd,
       reporter: currentUser,
       reportID: coverageReport.reportID,
-      covType: 'normal',
+      covType: "normal",
       // rule: 'auto', //没有就是手工
       summary: {},
       tag: coverageReport.tags || {},
-      relationID: '',
+      relationID: "",
       createdAt: new Date(),
       updatedAt: new Date(),
       //后加的
@@ -103,66 +98,55 @@ export class CoverageClientService {
       where: {
         id: cov.projectID,
       },
-      select:{
-        instrumentCwd:true
-      }
+      select: {
+        instrumentCwd: true,
+      },
     });
     const dataFormatAndCheckQueueDataToBeConsumed =
-      await this.dataFormatAndCheck(
-        cov,
-        project?.instrumentCwd,
-      );
+      await this.dataFormatAndCheck(cov, project?.instrumentCwd);
 
     // 这里要有一个地方分开bfs
 
-    const objMap = {}
-    const objHit = {}
+    const objMap = {};
+    const objHit = {};
 
-    Object.entries(dataFormatAndCheckQueueDataToBeConsumed.coverage).forEach(([path,value]:any)=>{
-      objMap[path] = {
-        fnMap: value.fnMap,
-        branchMap: value.branchMap,
-        statementMap: value.statementMap
-      }
-      objHit[path] = {
-        f:value.f,
-        b:value.b,
-        s:value.s
-      }
-    })
+    Object.entries(dataFormatAndCheckQueueDataToBeConsumed.coverage).forEach(
+      ([path, value]: any) => {
+        objMap[path] = {
+          fnMap: value.fnMap,
+          branchMap: value.branchMap,
+          statementMap: value.statementMap,
+        };
+        objHit[path] = {
+          f: value.f,
+          b: value.b,
+          s: value.s,
+        };
+      },
+    );
 
     await this.coveragediskService.pushQueue({
       ...dataFormatAndCheckQueueDataToBeConsumed,
-      coverage: objHit
+      coverage: objHit,
     });
     await this.prisma.covMapTest.createMany({
-      data: Object.entries(objMap).map(([path,value])=>{
-        const {projectID,sha} = dataFormatAndCheckQueueDataToBeConsumed
+      data: Object.entries(objMap).map(([path, value]) => {
+        const { projectID, sha } = dataFormatAndCheckQueueDataToBeConsumed;
         return {
           id: `__${projectID}__${sha}__${path}__`,
           mapJsonStr: JSON.stringify(value), //???没删除bfs
           projectID: projectID,
           sha: sha,
-          path: path
-        }
+          path: path,
+        };
       }),
       skipDuplicates: true,
-    })
-    await this.coverageLogModel.create({
-      key: cov.key,
-      sha: cov.sha,
-      projectID: cov.projectID,
-      reportID: cov.reportID,
-      covType: 'normal',
-      tag: JSON.stringify(cov.tag),
-      instrumentCwd: cov.instrumentCwd,
-      createdAt: new Date(),
     });
     return {
-      msg: 'ok',
-      coverageId: '',
-      dataFormatAndCheckTime: '',
-      coverageInsertDbTime: '',
+      msg: "ok",
+      coverageId: "",
+      dataFormatAndCheckTime: "",
+      coverageInsertDbTime: "",
     };
   }
 
@@ -171,9 +155,9 @@ export class CoverageClientService {
       where: {
         id: {
           contains: coverageClientDto.projectID,
-          mode: 'insensitive', // Ignore case sensitivity
+          mode: "insensitive", // Ignore case sensitivity
           not: {
-            contains: '-ut',
+            contains: "-ut",
           },
         },
       },
@@ -230,7 +214,7 @@ export class CoverageClientService {
     // 针对windows电脑，把反斜杠替换成正斜杠
     // 做数据过滤，去除 \u0000 字符
     for (const coverageKey in coverage) {
-      if (!coverageKey.includes('\u0000')) {
+      if (!coverageKey.includes("\u0000")) {
         obj[coverageKey] = coverage[coverageKey];
       }
     }

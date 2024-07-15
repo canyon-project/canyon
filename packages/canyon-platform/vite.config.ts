@@ -1,4 +1,4 @@
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import * as path from 'path';
 import AutoImport from 'unplugin-auto-import/vite';
 import AntdResolver from 'unplugin-auto-import-antd';
@@ -8,20 +8,7 @@ const resolve = (p: string) => path.resolve(__dirname, p);
 export default defineConfig({
   plugins: [
     react({
-      babel: {
-        plugins:
-          process.env.NODE_ENV === 'development'
-            ? []
-            : [
-                'istanbul',
-                [
-                  'canyon',
-                  {
-                    instrumentCwd: resolve('../..'),
-                  },
-                ],
-              ],
-      },
+      plugins: [['swc-plugin-coverage-instrument', {}]],
     }),
     AutoImport({
       imports: ['react', 'react-i18next', 'react-router-dom'],

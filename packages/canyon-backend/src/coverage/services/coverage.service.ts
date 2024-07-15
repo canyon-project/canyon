@@ -1,17 +1,14 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CoverageSummary } from '../models/coverage-summary';
-import { genSummaryMapByCoverageMap } from '@canyon/data';
-import { CoverageDataAdapterService } from './common/coverage-data-adapter.service';
-import { TestExcludeService } from './common/test-exclude.service';
-import {decompressedData} from "../../utils/zstd";
-import {removeNullKeys} from "../../utils/utils";
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
+import { CoverageSummary } from "../models/coverage-summary";
+import { genSummaryMapByCoverageMap } from "@canyon/data";
+import { TestExcludeService } from "./common/test-exclude.service";
+import { removeNullKeys } from "../../utils/utils";
 
 @Injectable()
 export class CoverageService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly coverageDataAdapterService: CoverageDataAdapterService,
     private readonly testExcludeService: TestExcludeService,
   ) {}
 
@@ -24,15 +21,15 @@ export class CoverageService {
       where: {
         sha: sha,
         projectID,
-        covType: 'agg',
-        NOT:{
-          projectID:{
-            contains:'-ut'
-          }
-        }
+        covType: "agg",
+        NOT: {
+          projectID: {
+            contains: "-ut",
+          },
+        },
       },
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
     });
     if (coverages.length === 0) {
@@ -65,55 +62,67 @@ export class CoverageService {
       projectID,
       commitSha,
       reportID,
-      filepath
+      filepath,
     );
     return JSON.stringify(coverageData[filepath]);
   }
 
   // 私有方法
-  private async getCoverageDataFromAdapter(projectID, sha, reportID,filepath=null) {
+  private async getCoverageDataFromAdapter(
+    projectID,
+    sha,
+    reportID,
+    filepath = null,
+  ) {
     const { id } = await this.prisma.coverage.findFirst({
       where: {
         projectID,
         sha: sha,
-        covType: reportID === '' ? 'all' : 'agg',
-        reportID: reportID === '' ? undefined : reportID,
+        covType: reportID === "" ? "all" : "agg",
+        reportID: reportID === "" ? undefined : reportID,
       },
     });
-    const maps = [this.prisma.covHit.findFirst({
-      where:{
-        id:`__${id}__`
-      }
-    }).then(res=>{
-      return JSON.parse(res.mapJsonStr)
-    }),this.prisma.covMapTest.findMany({
-      where:removeNullKeys({
-        projectID,
-        sha,
-        path:filepath
-      })
-    }).then(res=>{
-      return res.reduce((acc,cur)=>{
-        acc[cur.path] = JSON.parse(cur.mapJsonStr)
-        return acc
-      },{})
-    })]
+    const maps = [
+      this.prisma.covHit
+        .findFirst({
+          where: {
+            id: `__${id}__`,
+          },
+        })
+        .then((res) => {
+          return JSON.parse(res.mapJsonStr);
+        }),
+      this.prisma.covMapTest
+        .findMany({
+          where: removeNullKeys({
+            projectID,
+            sha,
+            path: filepath,
+          }),
+        })
+        .then((res) => {
+          return res.reduce((acc, cur) => {
+            acc[cur.path] = JSON.parse(cur.mapJsonStr);
+            return acc;
+          }, {});
+        }),
+    ];
 
     // this.prisma.covMap
-    const time = Date.now()
-    const [hit,map] = await Promise.all(maps)
-    const obj = {}
+    const time = Date.now();
+    const [hit, map] = await Promise.all(maps);
+    const obj = {};
 
-    Object.entries(hit).forEach(([key,value]:any)=>{
-      if (map[key]){
+    Object.entries(hit).forEach(([key, value]: any) => {
+      if (map[key]) {
         obj[key] = {
-          path:key,
+          path: key,
           ...value,
-          ...map[key]
-        }
+          ...map[key],
+        };
       }
-    })
+    });
 
-    return obj
+    return obj;
   }
 }
