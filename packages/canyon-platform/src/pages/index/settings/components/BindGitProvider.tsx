@@ -1,7 +1,7 @@
 import { useRequest } from 'ahooks';
 import { ConfigProvider, Table } from 'antd';
 import axios from 'axios';
-import { CanyonCardPrimary } from 'canyon-ui-old';
+import { CanyonCardPrimary } from '../../../../components/old-ui';
 import {genOAuthUrl} from "../../../../helpers/gitprovider/genOAuthUrl.ts";
 // const gitProviderList = [
 //   {

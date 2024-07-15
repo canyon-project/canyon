@@ -9,7 +9,7 @@ import Icon, {
 import { useQuery } from '@apollo/client';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
-import { CanyonLayoutBase, CanyonModalGlobalSearch } from 'canyon-ui-old';
+import { CanyonLayoutBase, CanyonModalGlobalSearch } from '../components/old-ui';
 import { useTranslation } from 'react-i18next';
 
 import book from '../assets/book.svg';
@@ -85,7 +85,7 @@ function Index() {
   window.canyonModalGlobalSearchRef = useRef(null);
   return (
     <>
-      <GlobaScreenWidthLimitModal />
+      {/*<GlobaScreenWidthLimitModal />*/}
       <CanyonLayoutBase
         breadcrumb={
           <div>

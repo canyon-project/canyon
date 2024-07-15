@@ -9,7 +9,7 @@ import { useMutation, useQuery } from '@apollo/client';
 import { Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { TextTypography } from 'canyon-ui';
-import { CanyonCardPrimary } from 'canyon-ui-old';
+import { CanyonCardPrimary } from '../../../components/old-ui';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';

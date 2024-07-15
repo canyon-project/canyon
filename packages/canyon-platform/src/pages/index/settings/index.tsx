@@ -1,6 +1,6 @@
 import { SettingOutlined } from '@ant-design/icons';
 import { TextTypography } from 'canyon-ui';
-import { CanyonCardPrimary } from 'canyon-ui-old';
+import { CanyonCardPrimary } from '../../../components/old-ui';
 import copy from 'copy-to-clipboard';
 import { useTranslation } from 'react-i18next';
 

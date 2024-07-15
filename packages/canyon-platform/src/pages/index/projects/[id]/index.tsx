@@ -144,6 +144,7 @@ const ProjectOverviewPage = () => {
       ),
       dataIndex: 'branch',
       ellipsis: true,
+      width: '110px',
     },
     {
       title: (
@@ -178,7 +179,7 @@ const ProjectOverviewPage = () => {
         </div>
       ),
       dataIndex: 'statements',
-      width: '140px',
+      width: '148px',
       render(_, { sha }) {
         return (
           <Link
@@ -249,7 +250,7 @@ const ProjectOverviewPage = () => {
     },
     {
       title: t('common.option'),
-      width: '110px',
+      width: '120px',
       render(_): JSX.Element {
         return (
           <div>

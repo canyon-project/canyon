@@ -4,7 +4,7 @@ import axios from "axios";
 import {Select, Space, Table} from "antd";
 import {useQuery} from "@apollo/client";
 import {GetProjectsBuOptionsDocument} from "../../helpers/backend/gen/graphql.ts";
-import {CanyonCardPrimary} from "canyon-ui-old";
+import {CanyonCardPrimary} from "../../components/old-ui";
 import dayjs from "dayjs";
 
 const {RangePicker} = DatePicker
