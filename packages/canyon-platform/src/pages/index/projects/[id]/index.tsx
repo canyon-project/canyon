@@ -1,4 +1,9 @@
-import Icon, { BranchesOutlined, EditOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import Icon, {
+  AimOutlined,
+  BranchesOutlined,
+  EditOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
 import { Divider, TourProps } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -7,6 +12,7 @@ import ReactECharts from 'echarts-for-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+
 // import im from '../../../../assets/img.png'
 import ProjectRecordDetailDrawer from '../../../../components/app/ProjectRecordDetailDrawer.tsx';
 import MaterialSymbolsCommitSharp from '../../../../components/sha.tsx';
@@ -35,8 +41,12 @@ const ProjectOverviewPage = () => {
   const [pageSize, setPageSize] = useState(10);
   const [open, setOpen] = useState(false);
   const [sha, setSha] = useState('');
-  const initDefaultBranchOnly = Boolean(localStorage.getItem('defaultBranchOnly'));
-  const [defaultBranchOnly, setDefaultBranchOnly] = useState(initDefaultBranchOnly);
+  const initDefaultBranchOnly = Boolean(
+    localStorage.getItem('defaultBranchOnly'),
+  );
+  const [defaultBranchOnly, setDefaultBranchOnly] = useState(
+    initDefaultBranchOnly,
+  );
   const onClose = () => {
     setOpen(false);
   };
@@ -72,15 +82,15 @@ const ProjectOverviewPage = () => {
     },
   );
 
-  const { data: projectCompartmentDataData, loading: projectCompartmentDataLoading } = useQuery(
-    GetProjectCompartmentDataDocument,
-    {
-      variables: {
-        projectID: pam.id as string,
-      },
-      fetchPolicy: 'no-cache',
+  const {
+    data: projectCompartmentDataData,
+    loading: projectCompartmentDataLoading,
+  } = useQuery(GetProjectCompartmentDataDocument, {
+    variables: {
+      projectID: pam.id as string,
     },
-  );
+    fetchPolicy: 'no-cache',
+  });
   const [deleteProjectRecord] = useMutation(DeleteProjectRecordDocument);
   const ref1 = useRef(null);
   const ref2 = useRef(null);
@@ -119,7 +129,7 @@ const ProjectOverviewPage = () => {
       width: '100px',
       render(_, { webUrl }): JSX.Element {
         return (
-          <a href={webUrl} target={'_blank'} rel='noreferrer'>
+          <a href={webUrl} target={'_blank'} rel="noreferrer">
             {_?.slice(0, 7)}
           </a>
         );
@@ -136,12 +146,17 @@ const ProjectOverviewPage = () => {
       ellipsis: true,
     },
     {
-      title: t('projects.compare_target'),
+      title: (
+        <>
+          <AimOutlined className={'mr-2'} />
+          {t('projects.compare_target')}
+        </>
+      ),
       dataIndex: 'compareTarget',
       width: '150px',
       render(_, { compareUrl }): JSX.Element {
         return (
-          <a href={compareUrl} target={'_blank'} rel='noreferrer'>
+          <a href={compareUrl} target={'_blank'} rel="noreferrer">
             {_.length === 40 ? _.slice(0, 7) : _}
           </a>
         );
@@ -249,8 +264,8 @@ const ProjectOverviewPage = () => {
             <Divider type={'vertical'} />
 
             <Popconfirm
-              title='Delete the project record'
-              description='Are you sure to delete this project record?'
+              title="Delete the project record"
+              description="Are you sure to delete this project record?"
               onConfirm={() => {
                 deleteProjectRecord({
                   variables: {
@@ -268,10 +283,12 @@ const ProjectOverviewPage = () => {
               onCancel={() => {
                 console.log('cancel');
               }}
-              okText='Yes'
-              cancelText='No'
+              okText="Yes"
+              cancelText="No"
             >
-              <a className={'text-red-500 hover:text-red-600'}>{t('common.delete')}</a>
+              <a className={'text-red-500 hover:text-red-600'}>
+                {t('common.delete')}
+              </a>
             </Popconfirm>
           </div>
         );
@@ -296,19 +313,24 @@ const ProjectOverviewPage = () => {
     },
     xAxis: {
       type: 'category',
-      data: projectChartData?.getProjectChartData.map(({ sha }) => sha.slice(0, 7)) || [],
+      data:
+        projectChartData?.getProjectChartData.map(({ sha }) =>
+          sha.slice(0, 7),
+        ) || [],
     },
     yAxis: {
       type: 'value',
     },
-    series: [t('projects.statements'), t('projects.newlines')].map((_, index) => ({
-      name: _,
-      data:
-        projectChartData?.getProjectChartData.map(({ statements, newlines }) =>
-          index === 0 ? statements : newlines,
-        ) || [],
-      type: 'line',
-    })),
+    series: [t('projects.statements'), t('projects.newlines')].map(
+      (_, index) => ({
+        name: _,
+        data:
+          projectChartData?.getProjectChartData.map(
+            ({ statements, newlines }) => (index === 0 ? statements : newlines),
+          ) || [],
+        type: 'line',
+      }),
+    ),
   };
   const nav = useNavigate();
   return (
@@ -329,34 +351,38 @@ const ProjectOverviewPage = () => {
 
         <div>
           <Text type={'secondary'}>
-            {t('projects.config.project.id')}: {projectByIdData?.getProjectByID.id}
+            {t('projects.config.project.id')}:{' '}
+            {projectByIdData?.getProjectByID.id}
           </Text>
           <Text className={'ml-6'} type={'secondary'}>
             {t('common.language')}: {projectByIdData?.getProjectByID.language}
           </Text>
           <Text className={'ml-6'} type={'secondary'}>
-            {t('projects.default.branch')}: {projectByIdData?.getProjectByID.defaultBranch}
+            {t('projects.default.branch')}:{' '}
+            {projectByIdData?.getProjectByID.defaultBranch}
           </Text>
         </div>
-        {(projectByIdData?.getProjectByID.tags||[]).length > 0 && (
+        {(projectByIdData?.getProjectByID.tags || []).length > 0 && (
           <div className={'pt-5'}>
             <Text className={'mr-3'} type={'secondary'}>
               {t('projects.config.tag')}:
             </Text>
-            {projectByIdData?.getProjectByID.tags.map(({ color, name, link }, index) => (
-              <Tag
-                style={{ cursor: link ? 'pointer' : 'default' }}
-                key={index}
-                color={color}
-                onClick={() => {
-                  if (link) {
-                    window.open(link);
-                  }
-                }}
-              >
-                {name}
-              </Tag>
-            ))}
+            {projectByIdData?.getProjectByID.tags.map(
+              ({ color, name, link }, index) => (
+                <Tag
+                  style={{ cursor: link ? 'pointer' : 'default' }}
+                  key={index}
+                  color={color}
+                  onClick={() => {
+                    if (link) {
+                      window.open(link);
+                    }
+                  }}
+                >
+                  {name}
+                </Tag>
+              ),
+            )}
           </div>
         )}
       </div>
@@ -376,23 +402,25 @@ const ProjectOverviewPage = () => {
           <div
             className={`[list-style:none] grid grid-cols-[repeat(2,_215px)] grid-rows-[repeat(2,_1fr)] gap-[16px] h-full mr-[16px]`}
           >
-            {(projectCompartmentDataData?.getProjectCompartmentData || []).map((item, index) => {
-              return (
-                <div
-                  className={
-                    'p-[20px] h-[150px] flex justify-between flex-col bg-white dark:bg-[#0C0D0E]'
-                  }
-                  style={{
-                    border: `1px solid ${token.colorBorder}`,
-                    borderRadius: `${token.borderRadius}px`,
-                  }}
-                  key={index}
-                >
-                  <Text type={'secondary'}>{t(item.label)}</Text>
-                  <Text className={'text-xl'}>{item.value}</Text>
-                </div>
-              );
-            })}
+            {(projectCompartmentDataData?.getProjectCompartmentData || []).map(
+              (item, index) => {
+                return (
+                  <div
+                    className={
+                      'p-[20px] h-[150px] flex justify-between flex-col bg-white dark:bg-[#0C0D0E]'
+                    }
+                    style={{
+                      border: `1px solid ${token.colorBorder}`,
+                      borderRadius: `${token.borderRadius}px`,
+                    }}
+                    key={index}
+                  >
+                    <Text type={'secondary'}>{t(item.label)}</Text>
+                    <Text className={'text-xl'}>{item.value}</Text>
+                  </div>
+                );
+              },
+            )}
           </div>
         </Spin>
 
@@ -409,7 +437,11 @@ const ProjectOverviewPage = () => {
                 <Title level={5} style={{ marginBottom: '0' }}>
                   {t('projects.trends_in_coverage')}
                 </Title>
-                <Text type={'secondary'} className={'ml-2'} style={{ fontSize: 12 }}>
+                <Text
+                  type={'secondary'}
+                  className={'ml-2'}
+                  style={{ fontSize: 12 }}
+                >
                   {t('projects.trends.tooltip')}
                 </Text>
               </div>
@@ -421,7 +453,7 @@ const ProjectOverviewPage = () => {
                         color: ['#287DFA', '#FFB400'],
                       }
                 }
-                style={{ height: '250px' }}
+                style={{ height: '254px' }}
                 option={option}
               />
             </div>
@@ -432,8 +464,10 @@ const ProjectOverviewPage = () => {
       <Text className={'block mb-3'} style={{ fontWeight: 500, fontSize: 16 }}>
         {t('projects.records')}
       </Text>
-      <div className={'flex'}  style={{ marginBottom: '16px',justifyContent:'space-between' }}>
-
+      <div
+        className={'flex'}
+        style={{ marginBottom: '16px', justifyContent: 'space-between' }}
+      >
         <div className={'flex items-center gap-5'}>
           <Input.Search
             defaultValue={keyword}
@@ -445,9 +479,13 @@ const ProjectOverviewPage = () => {
             style={{ width: '500px' }}
           />
           <Space>
-            <Text type={'secondary'}>{t('projects.only.default.branch')}: </Text>
+            <Text type={'secondary'}>
+              {t('projects.only.default.branch')}:{' '}
+            </Text>
             <Switch
-              defaultChecked={Boolean(localStorage.getItem('defaultBranchOnly'))}
+              defaultChecked={Boolean(
+                localStorage.getItem('defaultBranchOnly'),
+              )}
               onChange={(v) => {
                 if (v) {
                   localStorage.setItem('defaultBranchOnly', '1');
@@ -460,22 +498,24 @@ const ProjectOverviewPage = () => {
           </Space>
         </div>
 
-        <div className={'flex gap-2'} style={{display:'none'}}>
-          {
-            ['#1f77b4','#ff7f0e','#2ca02c'].map((item, index) => {
-              return <div className={'flex items-center gap-1'}>
-                <span className={'block w-[20px] h-[12px] rounded-sm'} style={{backgroundColor:item}}></span>
-                <span className={'text-sm'}>{
-                  {
-                    0:'手工测试',
-                    1:'UI自动化测试',
-                    2:'单元测试',
-                  }[index] || 'unknown'
-
-                }</span>
+        <div className={'flex gap-2'} style={{ display: 'none' }}>
+          {['#1f77b4', '#ff7f0e', '#2ca02c'].map((item, index) => {
+            return (
+              <div className={'flex items-center gap-1'} key={index}>
+                <span
+                  className={'block w-[20px] h-[12px] rounded-sm'}
+                  style={{ backgroundColor: item }}
+                ></span>
+                <span className={'text-sm'}>
+                  {{
+                    0: '手工测试',
+                    1: 'UI自动化测试',
+                    2: '单元测试',
+                  }[index] || 'unknown'}
+                </span>
               </div>
-            })
-          }
+            );
+          })}
         </div>
       </div>
       {/*div*/}

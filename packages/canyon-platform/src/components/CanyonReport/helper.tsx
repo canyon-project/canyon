@@ -6,19 +6,22 @@ export function annotateStatements(fileCoverage: any) {
   const statementMeta = fileCoverage.statementMap;
   Object.entries(statementStats).forEach(([stName, count]: any) => {
     const meta = statementMeta[stName];
-    const type = count > 0 ? 'yes' : 'no';
-    const startCol = meta.start.column;
-    const endCol = meta.end.column + 1;
-    const startLine = meta.start.line;
-    const endLine = meta.end.line;
-    if (type === 'no') {
-      annotateStatementsList.push({
-        startLine,
-        endLine,
-        startCol,
-        endCol,
-        type,
-      });
+    // TODO可能是错位等问题导致的map和hit数据对不上
+    if (meta) {
+      const type = count > 0 ? 'yes' : 'no';
+      const startCol = meta.start.column;
+      const endCol = meta.end.column + 1;
+      const startLine = meta.start.line;
+      const endLine = meta.end.line;
+      if (type === 'no') {
+        annotateStatementsList.push({
+          startLine,
+          endLine,
+          startCol,
+          endCol,
+          type,
+        });
+      }
     }
   });
   return annotateStatementsList;
@@ -170,7 +173,9 @@ export function coreFn(
   for (let i = 0; i < rows.length; i++) {
     if (numberOfRows.find((n) => Number(n.lineNumber) === i + 1)) {
       lines.push({
-        executionNumber: numberOfRows.find((n) => Number(n.lineNumber) === i + 1).count,
+        executionNumber: numberOfRows.find(
+          (n) => Number(n.lineNumber) === i + 1,
+        ).count,
       });
     } else {
       lines.push({
