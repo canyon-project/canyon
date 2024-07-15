@@ -3,6 +3,16 @@ import { useRoutes } from 'react-router-dom';
 
 import routes from '~react-pages';
 import zhCN from "antd/es/locale/zh_CN";
+import enUS from 'antd/es/locale/en_US';
+import jaJP from 'antd/es/locale/ja_JP'
+
+const languages = {
+  cn: zhCN,
+  en: enUS,
+  ja: jaJP
+}
+
+const lng= (localStorage.getItem('language') || 'cn') as keyof typeof languages;
 
 const { darkAlgorithm } = theme;
 const App = () => {
@@ -10,7 +20,7 @@ const App = () => {
   return (
     <div className={'dark:text-white dark:text-opacity-85'}>
       <ConfigProvider
-        locale={zhCN}
+        locale={languages[lng]}
         theme={{
           token: {
             colorPrimary: '#0071c2',
