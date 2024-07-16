@@ -173,7 +173,7 @@ const ProjectOverviewPage = () => {
         return (
           <>
             {record.buildID !== '-' ? (
-              <a href={record.buildURL}>
+              <a href={record.buildURL} target={'_blank'}>
                 <img
                   src={`/gitproviders/${record.buildProvider === '-' ? 'gitlab' : record.buildProvider}.svg`}
                   alt=''
