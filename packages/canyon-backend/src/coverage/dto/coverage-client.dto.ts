@@ -22,6 +22,16 @@ export class CoverageClientDto {
   @IsOptional({ message: 'branch 可以为空' })
   branch: string;
 
+  @IsString()
+  @MinLength(1, { message: 'buildID长度最小为1' })
+  @IsOptional({ message: 'buildID 可以为空' })
+  buildID: string;
+
+  @IsString()
+  @MinLength(1, { message: 'buildProvider长度最小为1' })
+  @IsOptional({ message: 'buildProvider 可以为空' })
+  buildProvider: string;
+
   // 允许为空，但是最小长度为1
   @IsString()
   @MinLength(1, { message: 'compareTarget长度最小为1' })

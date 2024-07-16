@@ -115,6 +115,15 @@ type ProjectRecordsModel {
   """branch"""
   branch: String!
 
+  """buildURL"""
+  buildURL: String!
+
+  """buildID"""
+  buildID: String!
+
+  """buildProvider"""
+  buildProvider: String!
+
   """Compare Url"""
   compareUrl: String!
 

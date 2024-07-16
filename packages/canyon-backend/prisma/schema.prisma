@@ -51,6 +51,8 @@ model Coverage {
   branch        String
   compareTarget String   @map("compare_target")
   provider      String
+  buildProvider String   @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID       String   @map("build_id")
   projectID     String   @map("project_id")
   instrumentCwd String   @map("instrument_cwd")
   reporter      String

@@ -64,6 +64,21 @@ export class ProjectRecordsModel {
   branch: string;
 
   @Field(() => String, {
+    description: 'buildURL',
+  })
+  buildURL: string;
+
+  @Field(() => String, {
+    description: 'buildID',
+  })
+  buildID: string;
+
+  @Field(() => String, {
+    description: 'buildProvider',
+  })
+  buildProvider: string;
+
+  @Field(() => String, {
     description: 'Compare Url',
   })
   compareUrl: string;

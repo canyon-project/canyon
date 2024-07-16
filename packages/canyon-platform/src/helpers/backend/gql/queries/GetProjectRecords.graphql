@@ -14,6 +14,9 @@ query GetProjectRecords($projectID: String!, $current: Int!, $pageSize: Int!, $k
       statements
       lastReportTime
       times
+      buildProvider
+      buildURL
+      buildID
     }
     total
   }

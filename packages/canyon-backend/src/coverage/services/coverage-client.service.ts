@@ -1,9 +1,9 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
-import { PrismaService } from "../../prisma/prisma.service";
-import { CoverageClientDto } from "../dto/coverage-client.dto";
-import { Coverage } from "@prisma/client";
-import { CoveragediskService } from "./core/coveragedisk.service";
-import { formatReportObject } from "../../utils/coverage";
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CoverageClientDto } from '../dto/coverage-client.dto';
+import { Coverage } from '@prisma/client';
+import { CoveragediskService } from './core/coveragedisk.service';
+import { formatReportObject } from '../../utils/coverage';
 /**
  * 上传覆盖率，十分重要的服务
  */
@@ -45,10 +45,10 @@ export class CoverageClientService {
       });
       if (isRepeated) {
         return {
-          msg: "ok",
-          coverageId: "isRepeated",
-          dataFormatAndCheckTime: "",
-          coverageInsertDbTime: "",
+          msg: 'ok',
+          coverageId: 'isRepeated',
+          dataFormatAndCheckTime: '',
+          coverageInsertDbTime: '',
         };
       }
     }
@@ -56,12 +56,12 @@ export class CoverageClientService {
     coverageClientDto.sha = coverageClientDto.commitSha;
 
     // 注意这里还是小驼峰
-    if (!coverageClientDto.reportID || coverageClientDto.reportID === "-") {
+    if (!coverageClientDto.reportID || coverageClientDto.reportID === '-') {
       coverageClientDto.reportID = coverageClientDto.sha;
     }
     if (
       !coverageClientDto.compareTarget ||
-      coverageClientDto.compareTarget === "-"
+      coverageClientDto.compareTarget === '-'
     ) {
       coverageClientDto.compareTarget = coverageClientDto.sha;
     }
@@ -74,21 +74,23 @@ export class CoverageClientService {
     // ******************************************************
     const coverageReport = coverageClientDto;
     const cov: Coverage & { coverage: any } = {
-      id: "",
-      key: coverageReport.key || "",
+      id: '',
+      key: coverageReport.key || '',
       sha: coverageReport.sha,
-      branch: coverageReport.branch || "-",
+      branch: coverageReport.branch || '-',
       compareTarget: coverageReport.compareTarget,
-      provider: "gitlab",
+      provider: 'gitlab',
+      buildProvider: coverageReport.buildProvider || 'gitlab',
+      buildID: coverageReport.buildID || '-',
       projectID: coverageReport.projectID,
       instrumentCwd: coverageReport.instrumentCwd,
       reporter: currentUser,
       reportID: coverageReport.reportID,
-      covType: "normal",
+      covType: 'normal',
       // rule: 'auto', //没有就是手工
       summary: {},
       tag: coverageReport.tags || {},
-      relationID: "",
+      relationID: '',
       createdAt: new Date(),
       updatedAt: new Date(),
       //后加的
@@ -143,10 +145,10 @@ export class CoverageClientService {
       skipDuplicates: true,
     });
     return {
-      msg: "ok",
-      coverageId: "",
-      dataFormatAndCheckTime: "",
-      coverageInsertDbTime: "",
+      msg: 'ok',
+      coverageId: '',
+      dataFormatAndCheckTime: '',
+      coverageInsertDbTime: '',
     };
   }
 
@@ -155,9 +157,9 @@ export class CoverageClientService {
       where: {
         id: {
           contains: coverageClientDto.projectID,
-          mode: "insensitive", // Ignore case sensitivity
+          mode: 'insensitive', // Ignore case sensitivity
           not: {
-            contains: "-ut",
+            contains: '-ut',
           },
         },
       },
@@ -214,7 +216,7 @@ export class CoverageClientService {
     // 针对windows电脑，把反斜杠替换成正斜杠
     // 做数据过滤，去除 \u0000 字符
     for (const coverageKey in coverage) {
-      if (!coverageKey.includes("\u0000")) {
+      if (!coverageKey.includes('\u0000')) {
         obj[coverageKey] = coverage[coverageKey];
       }
     }
