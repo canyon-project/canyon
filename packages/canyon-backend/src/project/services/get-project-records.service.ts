@@ -99,7 +99,7 @@ export class GetProjectRecordsService {
         buildProvider: coverage.buildProvider,
         buildURL:
           coverage.buildProvider === 'mpaas'
-            ? `${process.env.MPAAS_URL}?appId=${coverage.buildID.split('|')[0]}&module=${coverage.buildID.split('|')[1]}&filters={buildId:${coverage.buildID.split('|')[2]}}`
+            ? `${process.env.MPAAS_URL}?appId=${coverage.buildID.split('|')[0]}&module=${coverage.buildID.split('|')[1]}&filters={"buildId":"${coverage.buildID.split('|')[2]}"}`
             : `${process.env.GITLAB_URL}/${project.pathWithNamespace}/-/jobs/${coverage.buildID}`,
       };
       rows.push(data);
