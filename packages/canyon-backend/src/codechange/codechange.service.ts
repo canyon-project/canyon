@@ -6,17 +6,19 @@ export class CodechangeService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getCodechange(sha, filepath) {
-    const { compareTarget } = await this.prisma.coverage.findFirst({
-      where: {
-        sha: sha,
-        covType: 'all',
-        projectID:{
-          not:{
-            contains:'-ut'
-          }
-        }
-      },
-    });
+    const { compareTarget } = await this.prisma.coverage
+      .findFirst({
+        where: {
+          sha: sha,
+          covType: 'all',
+          projectID: {
+            not: {
+              contains: '-ut',
+            },
+          },
+        },
+      })
+      .then((res) => res || { compareTarget: sha });
     return this.prisma.codechange
       .findFirst({
         where: {

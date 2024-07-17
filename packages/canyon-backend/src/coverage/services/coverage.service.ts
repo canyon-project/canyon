@@ -22,11 +22,11 @@ export class CoverageService {
         sha: sha,
         projectID,
         covType: 'agg',
-        NOT: {
-          projectID: {
-            contains: '-ut',
-          },
-        },
+        // NOT: {
+        //   projectID: {
+        //     contains: '-ut',
+        //   },
+        // },
       },
       orderBy: {
         updatedAt: 'desc',
