@@ -1,7 +1,7 @@
 import * as libCoverage from 'istanbul-lib-coverage';
 import * as libSourceMaps from 'istanbul-lib-source-maps';
-import {mergeCoverageMap as mergeCoverageMapOfCanyonData} from "@canyon/data";
-import {merge_coverage_json_str} from "canyon-data";
+import { mergeCoverageMap as mergeCoverageMapOfCanyonData } from '@canyon/data';
+import { merge_coverage_json_str } from 'canyon-data';
 function parseInstrumentCwd(instrumentCwd) {
   if (instrumentCwd.includes('=>')) {
     const instrumentCwdSplit = instrumentCwd.split('=>');
@@ -80,17 +80,30 @@ function getJsonSize(jsonObj) {
   const encodedJson = encoder.encode(jsonString);
 
   // 返回字节数组的长度
-  return encodedJson.length/1024/1024;
+  return encodedJson.length / 1024 / 1024;
 }
-
 
 export const mergeCoverageMap = (cov1: any, cov2: any) => {
   // 超过2M的数据用js合并
   const size = getJsonSize(cov1);
-  if (size > 0){
+  if (size > 0) {
     // console.log(`size of cov1: ${size}M`);
-    return mergeCoverageMapOfCanyonData(cov1, cov2)
+    return mergeCoverageMapOfCanyonData(cov1, cov2);
   } else {
-    return JSON.parse(merge_coverage_json_str(JSON.stringify(cov1), JSON.stringify(cov2)));
+    return JSON.parse(
+      merge_coverage_json_str(JSON.stringify(cov1), JSON.stringify(cov2)),
+    );
   }
-}
+};
+
+export const filterStatementMap = (statementMap: any) => {
+  const obj = {};
+  Object.entries(statementMap).forEach(([key, value]: any) => {
+    obj[key] = {
+      start: {
+        line: value.start.line,
+      },
+    };
+  });
+  return obj;
+};

@@ -3,7 +3,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { CoverageClientDto } from '../dto/coverage-client.dto';
 import { Coverage } from '@prisma/client';
 import { CoveragediskService } from './core/coveragedisk.service';
-import { formatReportObject } from '../../utils/coverage';
+import { filterStatementMap, formatReportObject } from '../../utils/coverage';
 /**
  * 上传覆盖率，十分重要的服务
  */
@@ -127,22 +127,25 @@ export class CoverageClientService {
       },
     );
 
-    await this.coveragediskService.pushQueue({
-      ...dataFormatAndCheckQueueDataToBeConsumed,
-      coverage: objHit,
-    });
     await this.prisma.covMapTest.createMany({
-      data: Object.entries(objMap).map(([path, value]) => {
+      data: Object.entries(objMap).map(([path, value]: any) => {
         const { projectID, sha } = dataFormatAndCheckQueueDataToBeConsumed;
         return {
           id: `__${projectID}__${sha}__${path}__`,
           mapJsonStr: JSON.stringify(value), //???没删除bfs
+          mapJsonStatementMapStartLine: JSON.stringify(
+            filterStatementMap(value.statementMap),
+          ),
           projectID: projectID,
           sha: sha,
           path: path,
         };
       }),
       skipDuplicates: true,
+    });
+    await this.coveragediskService.pushQueue({
+      ...dataFormatAndCheckQueueDataToBeConsumed,
+      coverage: objHit,
     });
     return {
       msg: 'ok',

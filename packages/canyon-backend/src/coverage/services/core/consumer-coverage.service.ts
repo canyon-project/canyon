@@ -117,8 +117,41 @@ export class ConsumerCoverageService {
         })
         .then((res) => JSON.parse(res.mapJsonStr));
 
-      // const newcoverage = JSON.parse(merge_coverage_json_str(JSON.stringify(queueDataToBeConsumed.coverage), JSON.stringify(cov)));
       const newcoverage = mergeCoverageMap(queueDataToBeConsumed.coverage, cov);
+
+      const map = await this.prisma.covMapTest
+        .findMany({
+          where: {
+            projectID: queueDataToBeConsumed.projectID,
+            sha: queueDataToBeConsumed.sha,
+          },
+          select: {
+            path: true,
+            mapJsonStatementMapStartLine: true,
+          },
+        })
+        .then((res) => {
+          return res.reduce((acc, cur) => {
+            if (cur.mapJsonStatementMapStartLine) {
+              acc[cur.path] = {
+                statementMap: JSON.parse(cur.mapJsonStatementMapStartLine),
+              };
+            }
+            return acc;
+          }, {});
+        });
+
+      const obj = {};
+
+      Object.entries(newcoverage).forEach(([key, value]: any) => {
+        if (map[key]) {
+          obj[key] = {
+            path: key,
+            ...value,
+            ...map[key],
+          };
+        }
+      });
 
       await this.prisma.coverage.update({
         where: {
@@ -130,7 +163,7 @@ export class ConsumerCoverageService {
             genSummaryMapByCoverageMap(
               await this.testExcludeService.invoke(
                 queueDataToBeConsumed.projectID,
-                newcoverage,
+                obj,
               ),
               codechanges,
             ),
@@ -149,6 +182,44 @@ export class ConsumerCoverageService {
       });
     } else {
       // 创建新的agg
+
+      // TODO: 这里需要修改，每次都拉取map，成本很大，这里只需要拉取语句map来计算行覆盖率
+      const map = await this.prisma.covMapTest
+        .findMany({
+          where: {
+            projectID: queueDataToBeConsumed.projectID,
+            sha: queueDataToBeConsumed.sha,
+          },
+          select: {
+            path: true,
+            mapJsonStatementMapStartLine: true,
+          },
+        })
+        .then((res) => {
+          return res.reduce((acc, cur) => {
+            if (cur.mapJsonStatementMapStartLine) {
+              acc[cur.path] = {
+                statementMap: JSON.parse(cur.mapJsonStatementMapStartLine),
+              };
+            }
+            return acc;
+          }, {});
+        });
+
+      const obj = {};
+
+      Object.entries(queueDataToBeConsumed.coverage).forEach(
+        ([key, value]: any) => {
+          if (map[key]) {
+            obj[key] = {
+              path: key,
+              ...value,
+              ...map[key],
+            };
+          }
+        },
+      );
+
       const newAgg = await this.prisma.coverage.create({
         data: {
           covType: covType,
@@ -158,7 +229,7 @@ export class ConsumerCoverageService {
             genSummaryMapByCoverageMap(
               await this.testExcludeService.invoke(
                 queueDataToBeConsumed.projectID,
-                queueDataToBeConsumed.coverage,
+                obj,
               ),
               codechanges,
             ),

@@ -73,11 +73,12 @@ model CovMap {
 }
 
 model CovMapTest {
-  id         String @id
-  mapJsonStr String @map("map_json_str")
-  projectID  String @map("project_id")
-  sha        String
-  path       String
+  id                           String @id
+  mapJsonStr                   String @map("map_json_str")
+  mapJsonStatementMapStartLine String @map("map_json_statement_map_start_line")
+  projectID                    String @map("project_id")
+  sha                          String
+  path                         String
 }
 
 model CovHit {
