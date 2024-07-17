@@ -134,7 +134,7 @@ export class CoverageClientService {
           id: `__${projectID}__${sha}__${path}__`,
           mapJsonStr: JSON.stringify(value), //???没删除bfs
           mapJsonStatementMapStartLine: JSON.stringify(
-            filterStatementMap(value.statementMap),
+            filterStatementMap(value.statementMap || {}),
           ),
           projectID: projectID,
           sha: sha,
