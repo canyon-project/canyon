@@ -150,6 +150,11 @@ export class ConsumerCoverageService {
             ...value,
             ...map[key],
           };
+        } else {
+          obj[key] = {
+            path: key,
+            ...value,
+          };
         }
       });
 
@@ -215,6 +220,11 @@ export class ConsumerCoverageService {
               path: key,
               ...value,
               ...map[key],
+            };
+          } else {
+            obj[key] = {
+              path: key,
+              ...value,
             };
           }
         },
