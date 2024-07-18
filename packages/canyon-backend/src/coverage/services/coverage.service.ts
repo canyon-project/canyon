@@ -82,6 +82,47 @@ export class CoverageService {
         reportID: reportID === '' ? undefined : reportID,
       },
     });
+    const promise = filepath
+      ? this.prisma.covMapTest
+          .findMany({
+            where: removeNullKeys({
+              projectID,
+              sha,
+              path: filepath,
+            }),
+            select: {
+              path: true,
+              mapJsonStr: true,
+            },
+          })
+          .then((res) => {
+            return res.reduce((acc, cur) => {
+              acc[cur.path] = JSON.parse(cur.mapJsonStr);
+              return acc;
+            }, {});
+          })
+      : this.prisma.covMapTest
+          .findMany({
+            where: removeNullKeys({
+              projectID,
+              sha,
+              path: filepath,
+            }),
+            select: {
+              path: true,
+              mapJsonStatementMapStartLine: true,
+            },
+          })
+          .then((res) => {
+            return res.reduce((acc, cur) => {
+              acc[cur.path] = {
+                statementMap: JSON.parse(
+                  cur.mapJsonStatementMapStartLine || '{}',
+                ),
+              };
+              return acc;
+            }, {});
+          });
     const maps = [
       this.prisma.covHit
         .findFirst({
@@ -92,20 +133,7 @@ export class CoverageService {
         .then((res) => {
           return JSON.parse(res.mapJsonStr);
         }),
-      this.prisma.covMapTest
-        .findMany({
-          where: removeNullKeys({
-            projectID,
-            sha,
-            path: filepath,
-          }),
-        })
-        .then((res) => {
-          return res.reduce((acc, cur) => {
-            acc[cur.path] = JSON.parse(cur.mapJsonStr);
-            return acc;
-          }, {});
-        }),
+      promise,
     ];
 
     const [hit, map] = await Promise.all(maps);
