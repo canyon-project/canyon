@@ -35,4 +35,3 @@ pnpm-lock.yaml
 .env
 
 db/sql
-schema.gql
