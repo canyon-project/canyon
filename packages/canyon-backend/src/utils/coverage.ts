@@ -1,7 +1,7 @@
 import * as libCoverage from 'istanbul-lib-coverage';
 import * as libSourceMaps from 'istanbul-lib-source-maps';
 import { mergeCoverageMap as mergeCoverageMapOfCanyonData } from '@canyon/data';
-import { merge_coverage_json_str } from 'canyon-data';
+// import { merge_coverage_json_str } from 'canyon-data';
 function parseInstrumentCwd(instrumentCwd) {
   if (instrumentCwd.includes('=>')) {
     const instrumentCwdSplit = instrumentCwd.split('=>');
@@ -90,9 +90,10 @@ export const mergeCoverageMap = (cov1: any, cov2: any) => {
     // console.log(`size of cov1: ${size}M`);
     return mergeCoverageMapOfCanyonData(cov1, cov2);
   } else {
-    return JSON.parse(
-      merge_coverage_json_str(JSON.stringify(cov1), JSON.stringify(cov2)),
-    );
+    return mergeCoverageMapOfCanyonData(cov1, cov2);
+    // return JSON.parse(
+    //   merge_coverage_json_str(JSON.stringify(cov1), JSON.stringify(cov2)),
+    // );
   }
 };
 
