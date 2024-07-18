@@ -26,3 +26,5 @@ dist-ssr
 pnpm-lock.yaml
 
 src/helpers/backend/gen
+
+src/auto-imports.d.ts
