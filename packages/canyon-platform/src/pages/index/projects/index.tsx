@@ -9,12 +9,12 @@ import { useMutation, useQuery } from '@apollo/client';
 import { Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { TextTypography } from 'canyon-ui';
-import { CanyonCardPrimary } from '../../../components/old-ui';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
+import { CanyonCardPrimary } from '../../../components/old-ui';
 import {
   DeleteProjectDocument,
   FavorProjectDocument,
@@ -89,8 +89,6 @@ const ProjectPage = () => {
         return (
           <div className={'flex gap-1'}>
             <div>
-              {/*<img src={`/langs/${record.language}.svg`} alt='' className={'w-[16px]'} />*/}
-              {/*<span style={{ width: '4px', display: 'inline-block' }}></span>*/}
               <img src='/gitproviders/gitlab.svg' alt='' className={'w-[16px]'} />
             </div>
 
@@ -200,22 +198,10 @@ const ProjectPage = () => {
       return [];
     }
   })();
-  const initLang = (() => {
-    try {
-      if (JSON.parse(localStorage.getItem('langcondition') || '[]') instanceof Array) {
-        return JSON.parse(localStorage.getItem('langcondition') || '["JavaScript"]');
-      } else {
-        return ['JavaScript'];
-      }
-    } catch (e) {
-      return ['JavaScript'];
-    }
-  })();
   const initFavorOnly = Boolean(localStorage.getItem('favorOnlyFilter'));
   const [keyword, setKeyword] = useState('');
   const [favorOnly, setFavorOnly] = useState(initFavorOnly);
   const [bu, setBu] = useState<string[]>(initBu);
-  const [lang, setLang] = useState<string[]>(initLang);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [sorter, setSorter] = useState<any>({});
@@ -234,7 +220,7 @@ const ProjectPage = () => {
       pageSize: pageSize,
       keyword: keyword,
       bu: bu,
-      lang: lang,
+      lang: ['JavaScript'],
       field: sorter.field || '',
       order: sorter.order || '',
       favorOnly: favorOnly,
@@ -273,19 +259,6 @@ const ProjectPage = () => {
                 value: bu,
               }))}
             />
-
-            {/*<Select*/}
-            {/*  defaultValue={initLang}*/}
-            {/*  mode='multiple'*/}
-            {/*  onChange={(v) => {*/}
-            {/*    setLang(v);*/}
-            {/*    localStorage.setItem('langcondition', JSON.stringify(v));*/}
-            {/*  }}*/}
-            {/*  placeholder={'Language'}*/}
-            {/*  className={'w-[200px] mr-2'}*/}
-            {/*  options={[{ label: 'JavaScript', value: 'JavaScript' }]}*/}
-            {/*/>*/}
-
             <Input.Search
               placeholder={t('projects.search_keywords')}
               className={'w-[420px] mb-3'}

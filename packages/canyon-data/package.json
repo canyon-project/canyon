@@ -18,14 +18,14 @@
     "@types/istanbul-lib-coverage": "^2.0.5",
     "@types/istanbul-lib-source-maps": "^4.0.4",
     "@types/node": "^20.3.1",
-    "@vitest/coverage-v8": "^1.2.2",
-    "typescript": "^5.0.2",
-    "vite": "^4.4.5",
+    "@vitest/coverage-v8": "^2.0.3",
+    "typescript": "^5.5.3",
+    "vite": "^5.3.4",
     "vite-plugin-dts": "^3.5.3",
-    "vitest": "^1.2.2"
+    "vitest": "^2.0.3"
   },
   "dependencies": {
-    "istanbul-lib-coverage": "^3.2.0",
+    "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-source-maps": "^4.0.1"
   }
 }
