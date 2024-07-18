@@ -1,5 +1,4 @@
 import { Editor } from '@monaco-editor/react';
-import * as monaco from 'monaco-editor';
 
 import { getViewLineHeight } from '../../helpers/utils/getViewLineHeight.tsx';
 import { annotateFunctions, annotateStatements, coreFn } from './helper.tsx';
@@ -41,6 +40,7 @@ const CanyonReportCoverageDetail = ({ data, theme }) => {
       editor?.deltaDecorations?.(
         [], // oldDecorations 每次清空上次标记的
         decorations.map(({ inlineClassName, startLine, startCol, endLine, endCol }) => ({
+          // @ts-ignore
           range: new monaco.Range(startLine, startCol, endLine, endCol),
           options: {
             isWholeLine: false,
