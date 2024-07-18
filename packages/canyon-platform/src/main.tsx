@@ -6,7 +6,6 @@ import './index.css';
 
 import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client';
 import { onError } from '@apollo/client/link/error';
-import { message } from 'antd';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 

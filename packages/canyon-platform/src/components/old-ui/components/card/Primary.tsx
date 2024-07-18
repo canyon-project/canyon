@@ -1,4 +1,3 @@
-import { theme } from 'antd';
 import { FC } from 'react';
 
 const { useToken } = theme;

@@ -1,5 +1,4 @@
 import { useRequest } from 'ahooks';
-import { Alert } from 'antd';
 import axios from 'axios';
 import { CanyonPageLogin } from '../../components/old-ui';
 import { useTranslation } from 'react-i18next';

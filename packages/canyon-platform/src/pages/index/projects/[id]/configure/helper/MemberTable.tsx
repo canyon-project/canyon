@@ -1,7 +1,5 @@
-import { PlusOutlined, TagOutlined, UsergroupAddOutlined } from '@ant-design/icons';
+import { UsergroupAddOutlined } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { createId } from '@paralleldrive/cuid2';
-import { Button, Select, Space, Table } from 'antd';
 
 import {
   ListUserDocument,

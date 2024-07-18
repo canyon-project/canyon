@@ -1,5 +1,4 @@
 import { SearchOutlined } from '@ant-design/icons';
-import { Space, Tag } from 'antd';
 import { useParams } from 'react-router-dom';
 
 const { useToken } = theme;

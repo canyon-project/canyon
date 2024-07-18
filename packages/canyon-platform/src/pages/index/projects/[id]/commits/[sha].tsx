@@ -1,6 +1,5 @@
 import { useQuery } from '@apollo/client';
 import { useRequest } from 'ahooks';
-import { Divider } from 'antd';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import CanyonReport from '../../../../../components/CanyonReport';

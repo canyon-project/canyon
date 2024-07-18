@@ -1,5 +1,4 @@
 import Icon from '@ant-design/icons';
-import { Divider, Tabs, Typography } from 'antd';
 import { FC } from 'react';
 
 import { EpTopRight } from '../../../../../assets/icons/EpTopRight.tsx';

@@ -1,4 +1,3 @@
-import { Button } from 'antd';
 import { FC } from 'react';
 
 import github from '../../../../../assets/img/github.svg';

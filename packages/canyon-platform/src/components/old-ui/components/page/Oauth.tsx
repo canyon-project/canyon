@@ -1,4 +1,3 @@
-import { message, Spin } from 'antd';
 import { useEffect } from 'react';
 
 const CanyonPageOauth = ({ URLSearchParams, onOauthFail }) => {

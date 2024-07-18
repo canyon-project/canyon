@@ -1,4 +1,3 @@
-import { ConfigProvider } from 'antd';
 import Highlighter from 'react-highlight-words';
 
 import { getCOlor, percent } from '../../helpers/utils/common.ts';

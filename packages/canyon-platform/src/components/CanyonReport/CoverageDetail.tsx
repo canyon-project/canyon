@@ -1,5 +1,4 @@
 import { Editor } from '@monaco-editor/react';
-import { Spin } from 'antd';
 import * as monaco from 'monaco-editor';
 
 import { getViewLineHeight } from '../../helpers/utils/getViewLineHeight.tsx';

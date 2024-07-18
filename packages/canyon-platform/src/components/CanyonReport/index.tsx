@@ -1,5 +1,4 @@
 import { genSummaryTreeItem } from '@canyon/data';
-import { Spin } from 'antd';
 
 import CanyonReportControl from './Control.tsx';
 import CanyonReportCoverageDetail from './CoverageDetail.tsx';

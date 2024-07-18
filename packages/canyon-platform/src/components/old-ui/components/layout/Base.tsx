@@ -1,5 +1,4 @@
 import { MoreOutlined, SearchOutlined } from '@ant-design/icons';
-import { Avatar, Button, Dropdown, Menu, MenuProps, Select, theme, Typography } from 'antd';
 import { FC, ReactNode } from 'react';
 
 import { CanyonCardPrimary } from '../card';

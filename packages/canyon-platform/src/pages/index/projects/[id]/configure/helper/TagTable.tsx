@@ -1,8 +1,6 @@
 import { ExperimentOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useMutation } from '@apollo/client';
 import { createId } from '@paralleldrive/cuid2';
-import { Button, Divider, Drawer, Space, Table, Tag } from 'antd';
-import { ColorPicker, theme } from 'antd';
 import { useParams } from 'react-router-dom';
 
 import { UpdateProjectDocument } from '../../../../../../helpers/backend/gen/graphql.ts';

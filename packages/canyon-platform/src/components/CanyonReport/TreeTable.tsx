@@ -1,5 +1,4 @@
 import { FileOutlined, FolderFilled } from '@ant-design/icons';
-import { ConfigProvider, Space } from 'antd';
 
 import { getCOlor, percent } from '../../helpers/utils/common.ts';
 import { checkSuffix } from './helper.tsx';

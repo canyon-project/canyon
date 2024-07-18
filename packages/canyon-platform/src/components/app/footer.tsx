@@ -1,4 +1,3 @@
-import { Typography } from 'antd';
 const { Text } = Typography;
 import app from './app.json';
 const AppFooter = () => {

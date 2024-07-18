@@ -2,7 +2,6 @@ import 'highlight.js/styles/atom-one-dark.css';
 import './CopyCode.css';
 
 import { CopyOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
 import hljs from 'highlight.js';
 import { FC, useEffect } from 'react';
 // @ts-ignore

@@ -1,5 +1,4 @@
 import { CopyOutlined, ShareAltOutlined } from '@ant-design/icons';
-import { Button } from 'antd';
 // @ts-ignore
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { useSearchParams } from 'react-router-dom';

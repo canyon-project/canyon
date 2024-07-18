@@ -1,4 +1,3 @@
-import { theme } from 'antd';
 import { FC, ReactNode, useEffect, useState } from 'react';
 const { useToken } = theme;
 

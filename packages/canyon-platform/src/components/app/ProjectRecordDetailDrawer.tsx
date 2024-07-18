@@ -1,5 +1,4 @@
 import { useQuery } from '@apollo/client';
-import { Avatar, Drawer, Table, Typography } from 'antd';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';

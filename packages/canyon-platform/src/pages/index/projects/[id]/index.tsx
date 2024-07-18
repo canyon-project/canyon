@@ -6,7 +6,6 @@ import Icon, {
   QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Divider, Tooltip, TourProps } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';

@@ -6,7 +6,6 @@ import {
   QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
-import { Space } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { TextTypography } from 'canyon-ui';
 import dayjs from 'dayjs';
