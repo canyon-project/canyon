@@ -6,7 +6,7 @@ import { Link, useParams } from 'react-router-dom';
 import { GetProjectRecordDetailByShaDocument } from '../../helpers/backend/gen/graphql.ts';
 const { Text } = Typography;
 
-const ProjectRecordDetailDrawer = ({ open, onClose, sha }) => {
+const ProjectRecordDetailDrawer = ({ open, onClose, sha }: any) => {
   const pam = useParams();
   const { data, loading } = useQuery(GetProjectRecordDetailByShaDocument, {
     variables: {

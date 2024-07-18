@@ -6,6 +6,7 @@ import Icon, {
   QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client';
+import { TourProps } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
@@ -172,7 +173,7 @@ const ProjectOverviewPage = () => {
         return (
           <>
             {record.buildID !== '-' ? (
-              <a href={record.buildURL} target={'_blank'}>
+              <a href={record.buildURL} target={'_blank'} rel='noreferrer'>
                 <img
                   className={'w-[16px]'}
                   src={`/gitproviders/${record.buildProvider === '-' ? 'gitlab' : record.buildProvider}.svg`}
