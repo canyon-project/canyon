@@ -1,23 +1,20 @@
-import Icon, {
-  ArrowRightOutlined, BarChartOutlined,
-  CreditCardOutlined,
+import {
+  ArrowRightOutlined,
+  BarChartOutlined,
   FolderOutlined,
-  LineChartOutlined,
   LogoutOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
-import { CanyonLayoutBase, CanyonModalGlobalSearch } from '../components/old-ui';
 import { useTranslation } from 'react-i18next';
 
 import book from '../assets/book.svg';
-import UilUsersAlt from '../assets/users-icon.tsx';
+import { CanyonLayoutBase, CanyonModalGlobalSearch } from '../components/old-ui';
 import { MeDocument } from '../helpers/backend/gen/graphql.ts';
 import { genBreadcrumbItems } from '../layouts/genBreadcrumbItems.tsx';
 import { genTitle } from '../layouts/genTitle.ts';
-import GlobaScreenWidthLimitModal from "../components/GlobaScreenWidthLimitModal.tsx";
 const theme = localStorage.getItem('theme') || 'light';
 // console.log(theme, 'theme');
 function Index() {
@@ -162,27 +159,7 @@ function Index() {
             key: 'settings',
             icon: <SettingOutlined />,
           },
-        ].concat(
-          meData?.me.username === 'tzhangm123'
-            ? [
-                {
-                  label: t('menus.usage'),
-                  key: 'usage',
-                  icon: <LineChartOutlined />,
-                },
-                {
-                  label: t('menus.billing'),
-                  key: 'billing',
-                  icon: <CreditCardOutlined />,
-                },
-                {
-                  label: t('menus.members'),
-                  key: 'members',
-                  icon: <Icon component={UilUsersAlt} style={{ fontSize: '15px' }} />,
-                },
-              ]
-            : [],
-        )}
+        ]}
         renderMainContent={<Outlet />}
         search={false}
         account={false}
