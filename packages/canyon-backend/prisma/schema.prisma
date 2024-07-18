@@ -67,11 +67,6 @@ model Coverage {
   @@map("coverage")
 }
 
-model CovMap {
-  id             String @id
-  mapJsonStrZstd String @map("map_json_str_zstd")
-}
-
 model CovMapTest {
   id                           String @id
   mapJsonStr                   String @map("map_json_str")
