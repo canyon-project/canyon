@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CoverageSummary } from '../models/coverage-summary';
-import { genSummaryMapByCoverageMap } from '@canyon/data';
+import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { TestExcludeService } from './common/test-exclude.service';
 import { removeNullKeys } from '../../utils/utils';
 

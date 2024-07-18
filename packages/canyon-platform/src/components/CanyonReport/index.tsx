@@ -1,4 +1,4 @@
-import { genSummaryTreeItem } from '@canyon/data';
+import { genSummaryTreeItem } from 'canyon-data';
 
 import CanyonReportControl from './Control.tsx';
 import CanyonReportCoverageDetail from './CoverageDetail.tsx';

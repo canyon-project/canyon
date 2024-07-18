@@ -1,6 +1,6 @@
 import * as libCoverage from 'istanbul-lib-coverage';
 import * as libSourceMaps from 'istanbul-lib-source-maps';
-import { mergeCoverageMap as mergeCoverageMapOfCanyonData } from '@canyon/data';
+import { mergeCoverageMap as mergeCoverageMapOfCanyonData } from 'canyon-data';
 // import { merge_coverage_json_str } from 'canyon-data';
 function parseInstrumentCwd(instrumentCwd) {
   if (instrumentCwd.includes('=>')) {

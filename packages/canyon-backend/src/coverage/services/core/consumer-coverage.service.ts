@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
-import { genSummaryMapByCoverageMap, getSummaryByPath } from '@canyon/data';
+import { genSummaryMapByCoverageMap, getSummaryByPath } from 'canyon-data';
 import { mergeCoverageMap } from '../../../utils/coverage';
 import { percent, removeNullKeys } from '../../../utils/utils';
 import { PullChangeCodeAndInsertDbService } from '../common/pull-change-code-and-insert-db.service';

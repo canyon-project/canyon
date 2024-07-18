@@ -14,7 +14,7 @@
     "@ant-design/colors": "^7.0.2",
     "@ant-design/icons": "^5.3.7",
     "@apollo/client": "^3.10.8",
-    "@canyon/data": "workspace:^",
+    "canyon-data": "0.1.1-alpha.6",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@monaco-editor/react": "^4.6.0",
     "@paralleldrive/cuid2": "^2.2.2",
