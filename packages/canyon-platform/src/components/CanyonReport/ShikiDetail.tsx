@@ -102,14 +102,14 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
     .then((res) => {
       setContent(res);
     })
-    .catch(() => {
-      console.log('覆盖率着色失败');
-      // codeToHtml(defaultValue, {
-      //   lang: 'javascript',
-      //   theme: theme === 'light' ? 'light-plus' : 'tokyo-night',
-      // }).then((r) => {
-      //   setContent(r);
-      // });
+    .catch((err) => {
+      console.log('覆盖率着色失败', err);
+      codeToHtml(defaultValue, {
+        lang: 'javascript',
+        theme: theme === 'light' ? 'light-plus' : 'tokyo-night',
+      }).then((r) => {
+        setContent(r);
+      });
     });
   return (
     <div className={'px-[12px] overflow-x-auto w-full'}>
