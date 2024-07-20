@@ -1,10 +1,10 @@
 import './CopyCode.css';
 
 import { CopyOutlined } from '@ant-design/icons';
+import { codeToHtml } from 'https://esm.sh/shiki@1.0.0';
 import { FC, useEffect } from 'react';
 // @ts-ignore
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { codeToHtml } from 'shiki';
 
 const CopyCode: FC<{ code: string }> = ({ code }) => {
   const fileContent = code;

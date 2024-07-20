@@ -1,4 +1,3 @@
-import { getViewLineHeight } from '../../helpers/utils/getViewLineHeight.tsx';
 import { coreFn } from './helper.tsx';
 import LineCoverage from './line/coverage.tsx';
 import LineNew from './line/new.tsx';
@@ -6,7 +5,6 @@ import LineNumber from './line/number.tsx';
 import ShikiDetail from './ShikiDetail.tsx';
 
 const CanyonReportCoverageDetail = ({ data, theme }: any) => {
-  const viewLineHeight = getViewLineHeight();
   const code = data.sourcecode;
   const { lines } = coreFn(data.coverage, code);
   return (
@@ -16,8 +14,7 @@ const CanyonReportCoverageDetail = ({ data, theme }: any) => {
         style={{
           display: 'flex',
           fontSize: '12px',
-          lineHeight: '14px',
-          visibility: viewLineHeight > 0 ? 'visible' : 'hidden',
+          lineHeight: '14px'
           // backgroundColor: theme === 'dark' ? '#1a1b26' : 'white',
         }}
       >
@@ -46,7 +43,6 @@ const CanyonReportCoverageDetail = ({ data, theme }: any) => {
         />
         <ShikiDetail defaultValue={data?.sourcecode} filecoverage={data.coverage} theme={theme} />
       </div>
-      {viewLineHeight === 0 && <Spin spinning={viewLineHeight === 0} />}
     </>
   );
 };

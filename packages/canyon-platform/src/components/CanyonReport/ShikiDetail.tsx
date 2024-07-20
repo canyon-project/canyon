@@ -1,4 +1,4 @@
-import { codeToHtml } from 'shiki';
+import { codeToHtml } from 'https://esm.sh/shiki@1.0.0';
 
 import { mergeIntervals } from './helper.tsx';
 
@@ -104,12 +104,12 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
     })
     .catch(() => {
       console.log('覆盖率着色失败');
-      codeToHtml(defaultValue, {
-        lang: 'javascript',
-        theme: theme === 'light' ? 'light-plus' : 'tokyo-night',
-      }).then((r) => {
-        setContent(r);
-      });
+      // codeToHtml(defaultValue, {
+      //   lang: 'javascript',
+      //   theme: theme === 'light' ? 'light-plus' : 'tokyo-night',
+      // }).then((r) => {
+      //   setContent(r);
+      // });
     });
   return (
     <div className={'px-[12px] overflow-x-auto w-full'}>
