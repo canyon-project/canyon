@@ -4,7 +4,8 @@ export const getViewLineHeight = () => {
     let count = 0;
     const timer = setInterval(() => {
       count++;
-      const h = (document.querySelector('.view-line') as HTMLElement)?.offsetHeight || 0;
+      // const h = (document.querySelector('.line') as HTMLElement)?.offsetHeight || 0;
+      const h = 20;
       if (h > 0 || count > 50) {
         // 超过30秒还没获取到高度，就不再获取
         setHight(h);

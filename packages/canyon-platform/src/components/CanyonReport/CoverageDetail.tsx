@@ -1,60 +1,14 @@
-import { Editor } from '@monaco-editor/react';
-
 import { getViewLineHeight } from '../../helpers/utils/getViewLineHeight.tsx';
-import { annotateFunctions, annotateStatements, coreFn } from './helper.tsx';
+import { coreFn } from './helper.tsx';
 import LineCoverage from './line/coverage.tsx';
 import LineNew from './line/new.tsx';
 import LineNumber from './line/number.tsx';
+import ShikiDetail from './ShikiDetail.tsx';
 
-const CanyonReportCoverageDetail = ({ data, theme }) => {
+const CanyonReportCoverageDetail = ({ data, theme }: any) => {
   const viewLineHeight = getViewLineHeight();
   const code = data.sourcecode;
   const { lines } = coreFn(data.coverage, code);
-  const decorations = useMemo(() => {
-    if (data) {
-      const annotateFunctionsList = annotateFunctions(data.coverage, data.sourcecode);
-      const annotateStatementsList = annotateStatements(data.coverage);
-      return [...annotateStatementsList, ...annotateFunctionsList].map((i) => {
-        return {
-          inlineClassName: 'content-class-found',
-          startLine: i.startLine,
-          startCol: i.startCol,
-          endLine: i.endLine,
-          endCol: i.endCol,
-        };
-      });
-    } else {
-      return [];
-    }
-  }, [data]);
-
-  const [editor, setEditor] = useState<any>(false);
-  const editorRef = useRef(null);
-
-  function handleEditorDidMount(editor: any) {
-    editorRef.current = editor;
-    setEditor(editor);
-  }
-  useEffect(() => {
-    if (editor) {
-      editor?.deltaDecorations?.(
-        [], // oldDecorations 每次清空上次标记的
-        decorations.map(({ inlineClassName, startLine, startCol, endLine, endCol }) => ({
-          // @ts-ignore
-          range: new monaco.Range(startLine, startCol, endLine, endCol),
-          options: {
-            isWholeLine: false,
-            inlineClassName: inlineClassName,
-          },
-        })),
-      );
-      // 监听编辑器的滚动事件
-      editor.onDidScrollChange(function (e) {
-        console.log(e);
-        // e.preventDefault(); // 阻止默认行为
-      });
-    }
-  }, [editor, decorations]);
   return (
     <>
       <div
@@ -90,22 +44,7 @@ const CanyonReportCoverageDetail = ({ data, theme }) => {
             }
           })}
         />
-        <Editor
-          theme={theme === 'light' ? 'light' : 'vs-dark'}
-          height={`${code.split('\n').length * viewLineHeight + viewLineHeight}px`}
-          language='typescript'
-          onMount={handleEditorDidMount}
-          defaultValue={data?.sourcecode}
-          options={{
-            lineNumbers: 'off',
-            readOnly: true,
-            folding: false,
-            minimap: { enabled: false },
-            scrollBeyondLastLine: false,
-            showUnused: false,
-            fontFamily: 'IBMPlexMono',
-          }}
-        />
+        <ShikiDetail defaultValue={data?.sourcecode} filecoverage={data.coverage} theme={theme} />
       </div>
       {viewLineHeight === 0 && <Spin spinning={viewLineHeight === 0} />}
     </>

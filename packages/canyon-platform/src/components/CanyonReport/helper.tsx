@@ -173,9 +173,7 @@ export function coreFn(
   for (let i = 0; i < rows.length; i++) {
     if (numberOfRows.find((n) => Number(n.lineNumber) === i + 1)) {
       lines.push({
-        executionNumber: numberOfRows.find(
-          (n) => Number(n.lineNumber) === i + 1,
-        ).count,
+        executionNumber: numberOfRows.find((n) => Number(n.lineNumber) === i + 1).count,
       });
     } else {
       lines.push({
@@ -275,4 +273,34 @@ export function checkSuffix(path) {
     path.includes('.ts') ||
     path.includes('.tsx')
   );
+}
+
+export function mergeIntervals(intervals) {
+  // 如果输入为空，直接返回空列表
+  if (intervals.length === 0) {
+    return [];
+  }
+
+  // 将所有线段按起始位置进行排序
+  intervals.sort((a, b) => a[0] - b[0]);
+
+  // 初始化结果列表
+  const merged = [];
+  let [currentStart, currentEnd] = intervals[0];
+
+  for (const [start, end] of intervals.slice(1)) {
+    if (start <= currentEnd) {
+      // 当前线段与前一个线段有重叠
+      currentEnd = Math.max(currentEnd, end); // 更新结束位置
+    } else {
+      // 当前线段与前一个线段没有重叠
+      merged.push([currentStart, currentEnd]); // 将前一个线段加入结果列表
+      [currentStart, currentEnd] = [start, end]; // 更新当前线段的起始和结束位置
+    }
+  }
+
+  // 添加最后一个线段
+  merged.push([currentStart, currentEnd]);
+
+  return merged;
 }

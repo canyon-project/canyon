@@ -9,6 +9,11 @@
   font-style: normal;
 }
 
+.shiki>code{
+  font-size: 12px;
+  font-family: 'IBMPlexMono';
+  line-height: 20px;
+}
 
 .fullscreen-modal {
   position: fixed;
