@@ -1,6 +1,5 @@
-import { ExperimentOutlined, PlusOutlined, TagOutlined } from '@ant-design/icons';
+import { PlusOutlined, TagOutlined } from '@ant-design/icons';
 import { useMutation } from '@apollo/client';
-import { createId } from '@paralleldrive/cuid2';
 import { useParams } from 'react-router-dom';
 
 import { UpdateProjectDocument } from '../../../../../../helpers/backend/gen/graphql.ts';
@@ -170,12 +169,11 @@ const TagTable = ({ tags }) => {
                   variables: {
                     projectID: prm.id as string,
                     coverage: '__null__',
-                    tag: '__null__',
                     description: '__null__',
                     defaultBranch: '__null__',
                     tags: dataSource,
                   },
-                }).then((r) => {
+                }).then(() => {
                   message.success('保存成功');
                 });
               }}
@@ -187,7 +185,7 @@ const TagTable = ({ tags }) => {
               onClick={() => {
                 setDataSource(
                   dataSource.concat({
-                    id: createId(),
+                    id: String(Math.random()),
                     name: 'tagname',
                     link: '',
                     color: '#0071c2',
@@ -211,15 +209,7 @@ const TagTable = ({ tags }) => {
           form.submit();
         }}
       >
-        <Form
-          form={form}
-          name='basic'
-          layout={'vertical'}
-          // initialValues={dataSource.find((i) => {
-          //   return i.id === activeID;
-          // })}
-          onFinish={onFinish}
-        >
+        <Form form={form} name='basic' layout={'vertical'} onFinish={onFinish}>
           <Form.Item<FieldType> label='ID' name='id'>
             <Input disabled />
           </Form.Item>
