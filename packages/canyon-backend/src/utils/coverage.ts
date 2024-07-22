@@ -29,7 +29,7 @@ export async function formatReportObject(c: any) {
     JSON.parse(JSON.stringify(x).replace(/\\\\/g, '/'));
   const coverage = removeSlash(await remapCoverage(c.coverage));
   const instrumentCwd = removeSlash(c.instrumentCwd);
-  const projectInstrumentCwd = removeSlash(c.projectInstrumentCwd);
+  const projectInstrumentCwd = removeSlash(c.projectInstrumentCwd || '');
   const reversePath = (p: string) => {
     const a = convertInstrumentCwd({
       path: p,
