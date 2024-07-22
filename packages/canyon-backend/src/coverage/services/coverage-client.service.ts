@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CoverageClientDto } from '../dto/coverage-client.dto';
 import { Coverage } from '@prisma/client';
@@ -53,6 +57,20 @@ export class CoverageClientService {
       }
     }
 
+    // 3.检验 project 是否存在
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id: coverageClientDto.projectID,
+      },
+      select: {
+        instrumentCwd: true,
+      },
+    });
+    if (!project) {
+      //   返回错误，项目不存在
+      throw new HttpException('project not found', 400);
+    }
+
     coverageClientDto.sha = coverageClientDto.commitSha;
 
     // 注意这里还是小驼峰
@@ -96,14 +114,6 @@ export class CoverageClientService {
       //后加的
       coverage: coverageReport.coverage,
     };
-    const project = await this.prisma.project.findFirst({
-      where: {
-        id: cov.projectID,
-      },
-      select: {
-        instrumentCwd: true,
-      },
-    });
     const dataFormatAndCheckQueueDataToBeConsumed =
       await this.dataFormatAndCheck(cov, project?.instrumentCwd);
 
