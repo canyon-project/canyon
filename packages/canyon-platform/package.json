@@ -60,7 +60,7 @@
     "prettier": "^3.3.2",
     "swc-plugin-coverage-instrument": "^0.0.24",
     "tailwindcss": "^3.4.6",
-    "typescript": "^5.5.3",
+    "typescript": "^5.5.4",
     "unplugin-auto-import": "^0.17.6",
     "unplugin-auto-import-antd": "^0.0.1",
     "vite": "^5.3.4",
