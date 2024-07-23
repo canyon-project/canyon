@@ -34,7 +34,7 @@
     "report_times": "次数",
     "report_time": "上报时间",
     "max_coverage": "最大覆盖率",
-    "latest_report_time": "最近上报时间",
+    "latest_report_time": "最近上报",
     "latest_report_coverage": "最近上报覆盖率",
     "no_data": "{{msg}}个项目没数据",
     "total_times": "总次数",

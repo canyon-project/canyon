@@ -358,7 +358,7 @@ const ProjectOverviewPage = () => {
           <Title level={2}>
             {projectByIdData?.getProjectByID.pathWithNamespace}
             <EditOutlined
-              className={'ml-3 cursor-pointer'}
+              className={'ml-3 cursor-pointer text-[#0071c2]'}
               style={{ fontSize: '20px' }}
               onClick={() => {
                 nav(`/projects/${pam.id}/configure`);
@@ -370,9 +370,6 @@ const ProjectOverviewPage = () => {
         <div>
           <Text type={'secondary'}>
             {t('projects.config.project.id')}: {projectByIdData?.getProjectByID.id}
-          </Text>
-          <Text className={'ml-6'} type={'secondary'}>
-            {t('common.language')}: {projectByIdData?.getProjectByID.language}
           </Text>
           <Text className={'ml-6'} type={'secondary'}>
             {t('projects.default.branch')}: {projectByIdData?.getProjectByID.defaultBranch}
