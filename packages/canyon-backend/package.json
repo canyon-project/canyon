@@ -10,7 +10,7 @@
     "preinstall": "prisma generate && nest build"
   },
   "dependencies": {
-    "canyon-data": "0.1.1-alpha.6",
+    "canyon-data": "0.1.1-alpha.7",
     "@nestjs/apollo": "^12.1.0",
     "@nestjs/common": "^10.3.9",
     "@nestjs/config": "^3.2.2",
