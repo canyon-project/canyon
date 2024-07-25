@@ -20,7 +20,7 @@ model User {
   favor        String
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
-  @@map("user")
+  @@map("reactor_user")
 }
 
 model Git {
@@ -32,6 +32,8 @@ model Git {
   providerAccessToken  String
   providerScope        String
   loggedIn             DateTime @default(now()) @db.Timestamp(3)
+
+  @@map("reactor_git")
 }
 
 model GitProvider {
@@ -42,29 +44,40 @@ model GitProvider {
   type         String
   name         String
   disabled     Boolean
+
+  @@map("reactor_git_provider")
 }
 
 model Coverage {
-  id            String   @id @default(cuid())
-  key           String // 防止重复插入
-  sha           String   @map("sha")
-  branch        String
-  compareTarget String   @map("compare_target")
-  provider      String
-  buildProvider String   @map("build_provider") // 通过侦测CI环境变量来判断
-  buildID       String   @map("build_id")
-  projectID     String   @map("project_id")
-  instrumentCwd String   @map("instrument_cwd")
-  reporter      String
-  reportID      String   @map("report_id") // 未来聚合的一句，区分case
-  covType       String   @map("cov_type") // 普通类型，默认normal
-  relationID    Json     @map("relation_id") // 关联ID，八位，{'0':'xxx','1':'xxx}
-  summary       Json
-  tag           Json // 存点额外的信息
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-  updatedAt     DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+  id                String   @id @default(cuid())
+  key               String // 防止重复插入
+  sha               String   @map("sha")
+  branch            String
+  compareTarget     String   @map("compare_target")
+  provider          String
+  buildProvider     String   @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID           String   @map("build_id")
+  projectID         String   @map("project_id")
+  reporter          String
+  reportID          String   @map("report_id") // 未来聚合的一句，区分case
+  covType           String   @map("cov_type") // 普通类型，all、method、agg
+  method            String // UI自动化 auto，手动 manual，ut 单元测试
+  // 代码覆盖率
+  branchesTotal     Int      @map("branches_total")
+  branchesCovered   Int      @map("branches_covered")
+  functionsTotal    Int      @map("functions_total")
+  functionsCovered  Int      @map("functions_covered")
+  linesTotal        Int      @map("lines_total")
+  linesCovered      Int      @map("lines_covered")
+  statementsTotal   Int      @map("statements_total")
+  statementsCovered Int      @map("statements_covered")
+  newlinesTotal     Int      @map("newlines_total")
+  newlinesCovered   Int      @map("newlines_covered")
+  // 通用
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
 
-  @@map("coverage")
+  @@map("reactor_coverage")
 }
 
 model CovMapTest {
@@ -74,11 +87,15 @@ model CovMapTest {
   projectID                    String @map("project_id")
   sha                          String
   path                         String
+
+  @@map("reactor_cov_map_test")
 }
 
 model CovHit {
   id         String @id
   mapJsonStr String @map("map_json_str")
+
+  @@map("reactor_cov_hit")
 }
 
 model Project {
@@ -95,7 +112,7 @@ model Project {
   instrumentCwd     String   @map("instrument_cwd")
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
-  @@map("project")
+  @@map("reactor_project")
 }
 
 model Codechange {
@@ -114,7 +131,7 @@ model Codechange {
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
-  @@map("codechange")
+  @@map("reactor_codechange")
 }
 
 model Filepath {
@@ -123,7 +140,7 @@ model Filepath {
   sha       String @map("sha")
   path      String
 
-  @@map("filepath")
+  @@map("reactor_filepath")
 }
 
 model Distributedlock {
@@ -132,5 +149,5 @@ model Distributedlock {
   lockTimestamp  DateTime?
   lockExpiration DateTime?
 
-  @@map("distributedlock")
+  @@map("reactor_distributedlock")
 }
