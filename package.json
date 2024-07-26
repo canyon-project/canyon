@@ -12,7 +12,8 @@
     "build": "pnpm -r do-build",
     "rm": "find ./ -type d \\( -name \"dist\" -o -name \"node_modules\" \\) -exec rm -rf {} +",
     "preinstall": "node ./scripts/check.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "migrate": "pnpm dlx prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.2.1",

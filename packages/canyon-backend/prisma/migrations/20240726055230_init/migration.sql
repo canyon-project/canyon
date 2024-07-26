@@ -79,10 +79,12 @@ CREATE TABLE "project" (
     "path_with_namespace" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "bu" TEXT NOT NULL,
-    "tag" TEXT NOT NULL,
     "tags" JSONB NOT NULL,
+    "members" JSONB NOT NULL,
     "coverage" TEXT NOT NULL,
+    "language" TEXT NOT NULL,
     "default_branch" TEXT NOT NULL,
+    "instrument_cwd" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "project_pkey" PRIMARY KEY ("id")
@@ -100,6 +102,16 @@ CREATE TABLE "codechange" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "codechange_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "filepath" (
+    "id" TEXT NOT NULL,
+    "project_id" TEXT NOT NULL,
+    "sha" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
+
+    CONSTRAINT "filepath_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
