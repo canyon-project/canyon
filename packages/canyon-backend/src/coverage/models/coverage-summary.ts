@@ -1,5 +1,5 @@
-import { Field, ObjectType } from '@nestjs/graphql';
-import { Statistics2 } from './common.model';
+import { Field, ObjectType } from "@nestjs/graphql";
+import { Statistics2 } from "./common.model";
 
 @ObjectType()
 export class CoverageSummary {

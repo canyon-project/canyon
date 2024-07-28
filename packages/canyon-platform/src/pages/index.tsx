@@ -4,26 +4,29 @@ import {
   FolderOutlined,
   LogoutOutlined,
   SettingOutlined,
-} from '@ant-design/icons';
-import { useQuery } from '@apollo/client';
-import { useRequest } from 'ahooks';
-import axios from 'axios';
-import { useTranslation } from 'react-i18next';
+} from "@ant-design/icons";
+import { useQuery } from "@apollo/client";
+import { useRequest } from "ahooks";
+import axios from "axios";
+import { useTranslation } from "react-i18next";
 
-import book from '../assets/book.svg';
-import { CanyonLayoutBase, CanyonModalGlobalSearch } from '../components/old-ui';
-import { MeDocument } from '../helpers/backend/gen/graphql.ts';
-import { genBreadcrumbItems } from '../layouts/genBreadcrumbItems.tsx';
-import { genTitle } from '../layouts/genTitle.ts';
-const theme = localStorage.getItem('theme') || 'light';
+import book from "../assets/book.svg";
+import {
+  CanyonLayoutBase,
+  CanyonModalGlobalSearch,
+} from "../components/old-ui";
+import { MeDocument } from "../helpers/backend/gen/graphql.ts";
+import { genBreadcrumbItems } from "../layouts/genBreadcrumbItems.tsx";
+import { genTitle } from "../layouts/genTitle.ts";
+const theme = localStorage.getItem("theme") || "light";
 // console.log(theme, 'theme');
 function Index() {
   const { t } = useTranslation();
   useEffect(() => {
-    if (localStorage.getItem('token') === null) {
+    if (localStorage.getItem("token") === null) {
       localStorage.clear();
-      localStorage.setItem('callback', window.location.href);
-      nav('/login');
+      localStorage.setItem("callback", window.location.href);
+      nav("/login");
     }
   }, []);
 
@@ -31,20 +34,20 @@ function Index() {
   const nav = useNavigate();
 
   useEffect(() => {
-    if (loc.pathname === '/') {
-      nav('/projects');
+    if (loc.pathname === "/") {
+      nav("/projects");
     }
     document.title = genTitle(loc.pathname);
 
     try {
       // @ts-ignore
-      if (meData?.me.username && meData?.me.username !== 'tzhangm') {
+      if (meData?.me.username && meData?.me.username !== "tzhangm") {
         // @ts-ignore
         fetch(window.__canyon__.dsn, {
-          method: 'POST',
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({
             // @ts-ignore
@@ -68,16 +71,19 @@ function Index() {
   }, [loc.pathname]);
 
   useEffect(() => {
-    setMenuSelectedKey(loc.pathname.replace('/', ''));
+    setMenuSelectedKey(loc.pathname.replace("/", ""));
   }, [loc.pathname]);
   const { data: meData } = useQuery(MeDocument);
-  const { data: baseData } = useRequest(() => axios.get('/api/base').then(({ data }) => data), {
-    onSuccess(data) {
-      // @ts-ignore
-      window.GITLAB_URL = data.GITLAB_URL;
+  const { data: baseData } = useRequest(
+    () => axios.get("/api/base").then(({ data }) => data),
+    {
+      onSuccess(data) {
+        // @ts-ignore
+        window.GITLAB_URL = data.GITLAB_URL;
+      },
     },
-  });
-  const [menuSelectedKey, setMenuSelectedKey] = useState<string>('projects');
+  );
+  const [menuSelectedKey, setMenuSelectedKey] = useState<string>("projects");
   // @ts-ignore
   window.canyonModalGlobalSearchRef = useRef(null);
   return (
@@ -87,20 +93,23 @@ function Index() {
         breadcrumb={
           <div>
             {/*榜单mark*/}
-            <Breadcrumb className={'py-3'} items={genBreadcrumbItems(loc.pathname)} />
+            <Breadcrumb
+              className={"py-3"}
+              items={genBreadcrumbItems(loc.pathname)}
+            />
           </div>
         }
         itemsDropdown={[
           {
             label: (
-              <div className={'text-red-500'}>
-                <LogoutOutlined className={'mr-2'} />
+              <div className={"text-red-500"}>
+                <LogoutOutlined className={"mr-2"} />
                 Logout
               </div>
             ),
             onClick: () => {
               localStorage.clear();
-              window.location.href = '/login';
+              window.location.href = "/login";
             },
           },
         ]}
@@ -109,10 +118,10 @@ function Index() {
           // @ts-ignore
           window.canyonModalGlobalSearchRef.current.report();
         }}
-        title={'Canyon'}
+        title={"Canyon"}
         logo={
           <div>
-            <img src={`/${theme}-logo.svg?a=1`} alt='' className={'w-[28px]'} />
+            <img src={`/${theme}-logo.svg?a=1`} alt="" className={"w-[28px]"} />
           </div>
         }
         mainTitleRightNode={
@@ -120,16 +129,16 @@ function Index() {
             <Tooltip
               title={
                 <div>
-                  <span>{t('menus.docs')}</span>
+                  <span>{t("menus.docs")}</span>
                   <ArrowRightOutlined />
                 </div>
               }
             >
               <a
                 href={baseData?.SYSTEM_QUESTION_LINK}
-                target={'_blank'}
-                rel='noreferrer'
-                className={'ml-2'}
+                target={"_blank"}
+                rel="noreferrer"
+                className={"ml-2"}
               >
                 {/* eslint-disable-next-line jsx-a11y/alt-text */}
                 <img src={book} />
@@ -145,18 +154,18 @@ function Index() {
         }}
         menuItems={[
           {
-            label: t('menus.projects'),
-            key: 'projects',
+            label: t("menus.projects"),
+            key: "projects",
             icon: <FolderOutlined />,
           },
           {
-            label: t('报表'),
-            key: 'reports',
+            label: t("报表"),
+            key: "reports",
             icon: <BarChartOutlined />,
           },
           {
-            label: t('menus.settings'),
-            key: 'settings',
+            label: t("menus.settings"),
+            key: "settings",
             icon: <SettingOutlined />,
           },
         ]}

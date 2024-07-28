@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { Project } from '../project.model';
-import { getProjectByID } from 'src/adapter/gitlab.adapter';
-import { projectMembers, projectTags } from '../project.zod';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { Project } from "../project.model";
+import { getProjectByID } from "src/adapter/gitlab.adapter";
+import { projectMembers, projectTags } from "../project.zod";
 
 // import { getProjectByID } from '../adapter/gitlab.adapter';
 function parseGitLabUrl(gitLabUrl) {
@@ -14,8 +14,8 @@ function parseGitLabUrl(gitLabUrl) {
 
   if (match) {
     // 提取匹配的组和仓库名
-    const groupAndRepo = match[2].split('/');
-    const groupName = groupAndRepo.slice(0, -1).join('/');
+    const groupAndRepo = match[2].split("/");
+    const groupName = groupAndRepo.slice(0, -1).join("/");
     const repositoryName = groupAndRepo.slice(-1)[0];
     return { groupName, repositoryName };
   } else {
@@ -28,7 +28,7 @@ function parseGitLabUrl(gitLabUrl) {
 export class ProjectService {
   constructor(private readonly prisma: PrismaService) {}
   async checkProjectUrl(user, projectUrl) {
-    let project = '';
+    let project = "";
     if (isNaN(Number(projectUrl))) {
       project = `${parseGitLabUrl(projectUrl).groupName}%2F${
         parseGitLabUrl(projectUrl).repositoryName
@@ -39,36 +39,36 @@ export class ProjectService {
 
     const { path_with_namespace, name, id, description } = await getProjectByID(
       project,
-      'accessToken',
+      "accessToken",
     );
 
     return {
       id: String(id),
       pathWithNamespace: path_with_namespace,
       name: name,
-      description: description || '',
+      description: description || "",
     };
   }
 
   async createProject(user, projectID, language) {
     // console.log(projectID.split('-'))
     const { path_with_namespace, description, name, bu } = await getProjectByID(
-      projectID.split('-')[1],
-      'accessToken',
+      projectID.split("-")[1],
+      "accessToken",
     );
     return this.prisma.project.create({
       data: {
         id: String(projectID),
         pathWithNamespace: path_with_namespace,
         name: name,
-        description: description || '',
-        bu: bu || '默认',
-        coverage: '',
-        defaultBranch: '-',
+        description: description || "",
+        bu: bu || "默认",
+        coverage: "",
+        defaultBranch: "-",
         tags: [],
         members: [],
         language: language,
-        instrumentCwd: '',
+        instrumentCwd: "",
       },
     });
   }
@@ -84,7 +84,7 @@ export class ProjectService {
   async getProjectByID(projectID): Promise<Project> {
     const branchOptions = await this.prisma.coverage
       .groupBy({
-        by: ['branch'],
+        by: ["branch"],
         where: {
           projectID: projectID,
         },
@@ -145,7 +145,7 @@ export class ProjectService {
   async getProjectsBuOptions() {
     return this.prisma.project
       .groupBy({
-        by: ['bu'],
+        by: ["bu"],
         _count: true,
       })
       .then((res) => {

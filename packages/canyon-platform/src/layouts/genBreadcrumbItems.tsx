@@ -1,10 +1,10 @@
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 function matchPattern(str: string) {
   if (
-    str.includes('projects') &&
-    str.split('/').length === 3 &&
-    !['new'].includes(str.split('/')[2])
+    str.includes("projects") &&
+    str.split("/").length === 3 &&
+    !["new"].includes(str.split("/")[2])
   ) {
     return true;
   }
@@ -18,25 +18,27 @@ export function genBreadcrumbItems(pathname: string) {
   if (matchPattern(pathname)) {
     return [
       {
-        title: <span className={'cursor-pointer'}>{t('menus.projects')}</span>,
+        title: <span className={"cursor-pointer"}>{t("menus.projects")}</span>,
         onClick() {
-          nav('/projects');
+          nav("/projects");
         },
       },
       {
-        title: t('projects.overview'),
+        title: t("projects.overview"),
       },
     ];
-  } else if (pathname.includes('commits')) {
+  } else if (pathname.includes("commits")) {
     return [
       {
-        title: <span className={'cursor-pointer'}>{t('menus.projects')}</span>,
+        title: <span className={"cursor-pointer"}>{t("menus.projects")}</span>,
         onClick() {
-          nav('/projects');
+          nav("/projects");
         },
       },
       {
-        title: <span className={'cursor-pointer'}>{t('projects.overview')}</span>,
+        title: (
+          <span className={"cursor-pointer"}>{t("projects.overview")}</span>
+        ),
         onClick() {
           const regex = /\/projects\/(.+?)\//;
           // const regex = /\/projects\/(\d+)\//;
@@ -45,25 +47,27 @@ export function genBreadcrumbItems(pathname: string) {
             const projectId = match[1];
             nav(`/projects/${projectId}`);
           } else {
-            console.log('未找到匹配的项目ID');
+            console.log("未找到匹配的项目ID");
           }
         },
       },
       {
-        title: t('projects.coverage_details'),
+        title: t("projects.coverage_details"),
         // title: 'Coverage Details',
       },
     ];
-  } else if (pathname.includes('configure')) {
+  } else if (pathname.includes("configure")) {
     return [
       {
-        title: <span className={'cursor-pointer'}>{t('menus.projects')}</span>,
+        title: <span className={"cursor-pointer"}>{t("menus.projects")}</span>,
         onClick() {
-          nav('/projects');
+          nav("/projects");
         },
       },
       {
-        title: <span className={'cursor-pointer'}>{t('projects.overview')}</span>,
+        title: (
+          <span className={"cursor-pointer"}>{t("projects.overview")}</span>
+        ),
         onClick() {
           const regex = /\/projects\/(.+?)\//;
           // const regex = /\/projects\/(\d+)\//;
@@ -72,12 +76,12 @@ export function genBreadcrumbItems(pathname: string) {
             const projectId = match[1];
             nav(`/projects/${projectId}`);
           } else {
-            console.log('未找到匹配的项目ID');
+            console.log("未找到匹配的项目ID");
           }
         },
       },
       {
-        title: '项目配置',
+        title: "项目配置",
         // title: 'Coverage Details',
       },
     ];

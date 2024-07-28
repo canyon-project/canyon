@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { getCommits } from '../../adapter/gitlab.adapter';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { getCommits } from "../../adapter/gitlab.adapter";
 @Injectable()
 export class GetProjectRecordsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -18,7 +18,7 @@ export class GetProjectRecordsService {
     });
     const whereCondition = {
       projectID,
-      covType: 'all',
+      covType: "all",
       branch: project.defaultBranch,
       OR: [
         // { description: { contains: keyword } },
@@ -30,13 +30,13 @@ export class GetProjectRecordsService {
       ],
       NOT: {
         summary: {
-          path: ['statements', 'covered'],
+          path: ["statements", "covered"],
           equals: 0,
         },
       },
     };
 
-    if (Boolean(onlyDefault) && project.defaultBranch !== '-') {
+    if (Boolean(onlyDefault) && project.defaultBranch !== "-") {
     } else {
       delete whereCondition.branch;
     }
@@ -49,15 +49,15 @@ export class GetProjectRecordsService {
       skip: (current - 1) * pageSize,
       take: pageSize,
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
     });
     const commits = await getCommits(
       {
-        projectID: projectID.split('-')[1],
+        projectID: projectID.split("-")[1],
         commitShas: coverages.map((item) => item.sha),
       },
-      'accessToken',
+      "accessToken",
     );
     const rows = [];
 
@@ -67,10 +67,10 @@ export class GetProjectRecordsService {
           where: {
             projectID,
             sha: coverage.sha,
-            covType: 'agg',
+            covType: "agg",
           },
           orderBy: {
-            updatedAt: 'desc',
+            updatedAt: "desc",
           },
         }),
       ),
@@ -84,22 +84,22 @@ export class GetProjectRecordsService {
       const data = {
         ...coverage,
         compareUrl: `${process.env.GITLAB_URL}/${project.pathWithNamespace}/-/compare/${coverage.compareTarget}...${coverage.sha}`,
-        webUrl: commits.find(({ id }) => id === coverage.sha)?.web_url || '???',
+        webUrl: commits.find(({ id }) => id === coverage.sha)?.web_url || "???",
         message:
-          commits.find(({ id }) => id === coverage.sha)?.message || '???',
-        newlines: coverage.summary['newlines']['pct'],
-        statements: coverage.summary['statements']['pct'],
-        functions: coverage.summary['functions']['pct'],
-        branches: coverage.summary['branches']['pct'],
-        lines: coverage.summary['lines']['pct'],
+          commits.find(({ id }) => id === coverage.sha)?.message || "???",
+        newlines: coverage.summary["newlines"]["pct"],
+        statements: coverage.summary["statements"]["pct"],
+        functions: coverage.summary["functions"]["pct"],
+        branches: coverage.summary["branches"]["pct"],
+        lines: coverage.summary["lines"]["pct"],
         lastReportTime: cs[0]?.updatedAt || coverage.createdAt, //没有agg类型的时候就用all的创建时间
         times: cs.length,
         logs: [],
         buildID: coverage.buildID,
         buildProvider: coverage.buildProvider,
         buildURL:
-          coverage.buildProvider === 'mpaas'
-            ? `${process.env.MPAAS_URL}?appId=${coverage.buildID.split('|')[0]}&module=${coverage.buildID.split('|')[1]}&filters={"buildId":"${coverage.buildID.split('|')[2]}"}`
+          coverage.buildProvider === "mpaas"
+            ? `${process.env.MPAAS_URL}?appId=${coverage.buildID.split("|")[0]}&module=${coverage.buildID.split("|")[1]}&filters={"buildId":"${coverage.buildID.split("|")[2]}"}`
             : `${process.env.GITLAB_URL}/${project.pathWithNamespace}/-/jobs/${coverage.buildID}`,
       };
       rows.push(data);

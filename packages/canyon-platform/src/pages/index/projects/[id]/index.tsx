@@ -4,19 +4,19 @@ import Icon, {
   BuildOutlined,
   EditOutlined,
   QuestionCircleOutlined,
-} from '@ant-design/icons';
-import { useMutation, useQuery } from '@apollo/client';
-import { TourProps } from 'antd';
-import { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
-import ReactECharts from 'echarts-for-react';
-import { useEffect, useRef, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+} from "@ant-design/icons";
+import { useMutation, useQuery } from "@apollo/client";
+import { TourProps } from "antd";
+import { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
+import ReactECharts from "echarts-for-react";
+import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 // import im from '../../../../assets/img.png'
-import ProjectRecordDetailDrawer from '../../../../components/app/ProjectRecordDetailDrawer.tsx';
-import MaterialSymbolsCommitSharp from '../../../../components/sha.tsx';
+import ProjectRecordDetailDrawer from "../../../../components/app/ProjectRecordDetailDrawer.tsx";
+import MaterialSymbolsCommitSharp from "../../../../components/sha.tsx";
 import {
   // DeleteProjectDocument,
   DeleteProjectRecordDocument,
@@ -25,7 +25,7 @@ import {
   GetProjectCompartmentDataDocument,
   GetProjectRecordsDocument,
   ProjectRecordsModel,
-} from '../../../../helpers/backend/gen/graphql.ts';
+} from "../../../../helpers/backend/gen/graphql.ts";
 
 const { useToken } = theme;
 const { Title, Text } = Typography;
@@ -37,13 +37,17 @@ const { Title, Text } = Typography;
 const ProjectOverviewPage = () => {
   const { token } = useToken();
   const { t } = useTranslation();
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = useState("");
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [open, setOpen] = useState(false);
-  const [sha, setSha] = useState('');
-  const initDefaultBranchOnly = Boolean(localStorage.getItem('defaultBranchOnly'));
-  const [defaultBranchOnly, setDefaultBranchOnly] = useState(initDefaultBranchOnly);
+  const [sha, setSha] = useState("");
+  const initDefaultBranchOnly = Boolean(
+    localStorage.getItem("defaultBranchOnly"),
+  );
+  const [defaultBranchOnly, setDefaultBranchOnly] = useState(
+    initDefaultBranchOnly,
+  );
   const onClose = () => {
     setOpen(false);
   };
@@ -58,14 +62,14 @@ const ProjectOverviewPage = () => {
       keyword: keyword,
       onlyDefault: defaultBranchOnly,
     },
-    fetchPolicy: 'no-cache',
+    fetchPolicy: "no-cache",
   });
 
   const { data: projectByIdData } = useQuery(GetProjectByIdDocument, {
     variables: {
       projectID: pam.id as string,
     },
-    fetchPolicy: 'no-cache',
+    fetchPolicy: "no-cache",
   });
 
   const { data: projectChartData, loading: projectChartDataLoading } = useQuery(
@@ -73,43 +77,43 @@ const ProjectOverviewPage = () => {
     {
       variables: {
         projectID: pam.id as string,
-        branch: '-',
+        branch: "-",
       },
-      fetchPolicy: 'no-cache',
+      fetchPolicy: "no-cache",
     },
   );
 
-  const { data: projectCompartmentDataData, loading: projectCompartmentDataLoading } = useQuery(
-    GetProjectCompartmentDataDocument,
-    {
-      variables: {
-        projectID: pam.id as string,
-      },
-      fetchPolicy: 'no-cache',
+  const {
+    data: projectCompartmentDataData,
+    loading: projectCompartmentDataLoading,
+  } = useQuery(GetProjectCompartmentDataDocument, {
+    variables: {
+      projectID: pam.id as string,
     },
-  );
+    fetchPolicy: "no-cache",
+  });
   const [deleteProjectRecord] = useMutation(DeleteProjectRecordDocument);
   const ref1 = useRef(null);
   const ref2 = useRef(null);
   const [tourOpen, setTourOpen] = useState(false);
-  const steps: TourProps['steps'] = [
+  const steps: TourProps["steps"] = [
     {
-      title: t('projects.statements_tour_title'),
-      description: t('projects.statements_tour_description'),
+      title: t("projects.statements_tour_title"),
+      description: t("projects.statements_tour_description"),
       target: () => ref1.current,
     },
     {
-      title: t('projects.newlines_tour_title'),
-      description: t('projects.newlines_tour_description'),
+      title: t("projects.newlines_tour_title"),
+      description: t("projects.newlines_tour_description"),
       target: () => ref2.current,
     },
   ];
 
   useEffect(() => {
-    if (!localStorage.getItem('touropen')) {
+    if (!localStorage.getItem("touropen")) {
       setTimeout(() => {
         setTourOpen(true);
-        localStorage.setItem('touropen', 'true');
+        localStorage.setItem("touropen", "true");
       }, 2000);
     }
   }, []);
@@ -118,15 +122,15 @@ const ProjectOverviewPage = () => {
     {
       title: (
         <div>
-          <Icon component={MaterialSymbolsCommitSharp} className={'mr-2'} />
+          <Icon component={MaterialSymbolsCommitSharp} className={"mr-2"} />
           Sha
         </div>
       ),
-      dataIndex: 'sha',
-      width: '100px',
+      dataIndex: "sha",
+      width: "100px",
       render(_, { webUrl }): JSX.Element {
         return (
-          <a href={webUrl} target={'_blank'} rel='noreferrer'>
+          <a href={webUrl} target={"_blank"} rel="noreferrer">
             {_?.slice(0, 7)}
           </a>
         );
@@ -135,26 +139,26 @@ const ProjectOverviewPage = () => {
     {
       title: (
         <>
-          <BranchesOutlined className={'mr-2'} />
-          {t('projects.branch')}
+          <BranchesOutlined className={"mr-2"} />
+          {t("projects.branch")}
         </>
       ),
-      dataIndex: 'branch',
+      dataIndex: "branch",
       ellipsis: true,
-      width: '150px',
+      width: "150px",
     },
     {
       title: (
         <>
-          <AimOutlined className={'mr-2'} />
-          {t('projects.compare_target')}
+          <AimOutlined className={"mr-2"} />
+          {t("projects.compare_target")}
         </>
       ),
-      dataIndex: 'compareTarget',
-      width: '110px',
+      dataIndex: "compareTarget",
+      width: "110px",
       render(_, { compareUrl }): JSX.Element {
         return (
-          <a href={compareUrl} target={'_blank'} rel='noreferrer'>
+          <a href={compareUrl} target={"_blank"} rel="noreferrer">
             {_.length === 40 ? _.slice(0, 7) : _}
           </a>
         );
@@ -163,21 +167,21 @@ const ProjectOverviewPage = () => {
     {
       title: (
         <>
-          <BuildOutlined className={'mr-2'} />
-          {t('Build')}
+          <BuildOutlined className={"mr-2"} />
+          {t("Build")}
         </>
       ),
-      align: 'center',
-      width: '110px',
+      align: "center",
+      width: "110px",
       render(_, record) {
         return (
           <>
-            {record.buildID !== '-' ? (
-              <a href={record.buildURL} target={'_blank'} rel='noreferrer'>
+            {record.buildID !== "-" ? (
+              <a href={record.buildURL} target={"_blank"} rel="noreferrer">
                 <img
-                  className={'w-[16px]'}
-                  src={`/gitproviders/${record.buildProvider === '-' ? 'gitlab' : record.buildProvider}.svg`}
-                  alt=''
+                  className={"w-[16px]"}
+                  src={`/gitproviders/${record.buildProvider === "-" ? "gitlab" : record.buildProvider}.svg`}
+                  alt=""
                 />
               </a>
             ) : (
@@ -188,21 +192,21 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: t('projects.message'),
-      dataIndex: 'message',
-      width: '160px',
+      title: t("projects.message"),
+      dataIndex: "message",
+      width: "160px",
       ellipsis: true,
     },
     {
       title: (
         <div ref={ref1}>
-          <Tooltip title={t('projects.statements_tooltip')} className={'mr-2'}>
+          <Tooltip title={t("projects.statements_tooltip")} className={"mr-2"}>
             <QuestionCircleOutlined />
           </Tooltip>
-          {t('projects.statements')}
+          {t("projects.statements")}
         </div>
       ),
-      dataIndex: 'statements',
+      dataIndex: "statements",
       // width: '148px',
       render(_, { sha }) {
         return (
@@ -239,13 +243,13 @@ const ProjectOverviewPage = () => {
     {
       title: (
         <div ref={ref2}>
-          <Tooltip title={t('projects.newlines_tooltip')} className={'mr-2'}>
+          <Tooltip title={t("projects.newlines_tooltip")} className={"mr-2"}>
             <QuestionCircleOutlined />
           </Tooltip>
-          {t('projects.newlines')}
+          {t("projects.newlines")}
         </div>
       ),
-      dataIndex: 'newlines',
+      dataIndex: "newlines",
       // width: '130px',
       render(_, { sha }) {
         return (
@@ -260,21 +264,21 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: t('projects.report_times'),
-      dataIndex: 'times',
-      width: '80px',
+      title: t("projects.report_times"),
+      dataIndex: "times",
+      width: "80px",
     },
     {
-      title: t('projects.latest_report_time'),
-      dataIndex: 'lastReportTime',
-      width: '130px',
+      title: t("projects.latest_report_time"),
+      dataIndex: "lastReportTime",
+      width: "130px",
       render(_) {
-        return <span>{dayjs(_).format('MM-DD HH:mm')}</span>;
+        return <span>{dayjs(_).format("MM-DD HH:mm")}</span>;
       },
     },
     {
-      title: t('common.option'),
-      width: '120px',
+      title: t("common.option"),
+      width: "120px",
       render(_): JSX.Element {
         return (
           <div>
@@ -284,13 +288,13 @@ const ProjectOverviewPage = () => {
                 setSha(_.sha);
               }}
             >
-              {t('projects.reported_details')}
+              {t("projects.reported_details")}
             </a>
-            <Divider type={'vertical'} />
+            <Divider type={"vertical"} />
 
             <Popconfirm
-              title='Delete the project record'
-              description='Are you sure to delete this project record?'
+              title="Delete the project record"
+              description="Are you sure to delete this project record?"
               onConfirm={() => {
                 deleteProjectRecord({
                   variables: {
@@ -306,12 +310,14 @@ const ProjectOverviewPage = () => {
                   });
               }}
               onCancel={() => {
-                console.log('cancel');
+                console.log("cancel");
               }}
-              okText='Yes'
-              cancelText='No'
+              okText="Yes"
+              cancelText="No"
             >
-              <a className={'text-red-500 hover:text-red-600'}>{t('common.delete')}</a>
+              <a className={"text-red-500 hover:text-red-600"}>
+                {t("common.delete")}
+              </a>
             </Popconfirm>
           </div>
         );
@@ -320,46 +326,51 @@ const ProjectOverviewPage = () => {
   ];
 
   const option = {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
     grid: {
-      top: '30px',
-      left: '30px',
-      right: '10px',
-      bottom: '20px',
+      top: "30px",
+      left: "30px",
+      right: "10px",
+      bottom: "20px",
     },
     tooltip: {
-      trigger: 'axis',
+      trigger: "axis",
     },
     legend: {
-      x: 'right',
-      data: [t('projects.statements'), t('projects.newlines')],
+      x: "right",
+      data: [t("projects.statements"), t("projects.newlines")],
     },
     xAxis: {
-      type: 'category',
-      data: projectChartData?.getProjectChartData.map(({ sha }) => sha.slice(0, 7)) || [],
+      type: "category",
+      data:
+        projectChartData?.getProjectChartData.map(({ sha }) =>
+          sha.slice(0, 7),
+        ) || [],
     },
     yAxis: {
-      type: 'value',
+      type: "value",
     },
-    series: [t('projects.statements'), t('projects.newlines')].map((_, index) => ({
-      name: _,
-      data:
-        projectChartData?.getProjectChartData.map(({ statements, newlines }) =>
-          index === 0 ? statements : newlines,
-        ) || [],
-      type: 'line',
-    })),
+    series: [t("projects.statements"), t("projects.newlines")].map(
+      (_, index) => ({
+        name: _,
+        data:
+          projectChartData?.getProjectChartData.map(
+            ({ statements, newlines }) => (index === 0 ? statements : newlines),
+          ) || [],
+        type: "line",
+      }),
+    ),
   };
   const nav = useNavigate();
   return (
-    <div className={''}>
-      <div className={'mb-10'}>
-        <div className={'flex'}>
+    <div className={""}>
+      <div className={"mb-10"}>
+        <div className={"flex"}>
           <Title level={2}>
             {projectByIdData?.getProjectByID.pathWithNamespace}
             <EditOutlined
-              className={'ml-3 cursor-pointer text-[#0071c2]'}
-              style={{ fontSize: '20px' }}
+              className={"ml-3 cursor-pointer text-[#0071c2]"}
+              style={{ fontSize: "20px" }}
               onClick={() => {
                 nav(`/projects/${pam.id}/configure`);
               }}
@@ -368,38 +379,42 @@ const ProjectOverviewPage = () => {
         </div>
 
         <div>
-          <Text type={'secondary'}>
-            {t('projects.config.project.id')}: {projectByIdData?.getProjectByID.id}
+          <Text type={"secondary"}>
+            {t("projects.config.project.id")}:{" "}
+            {projectByIdData?.getProjectByID.id}
           </Text>
-          <Text className={'ml-6'} type={'secondary'}>
-            {t('projects.default.branch')}: {projectByIdData?.getProjectByID.defaultBranch}
+          <Text className={"ml-6"} type={"secondary"}>
+            {t("projects.default.branch")}:{" "}
+            {projectByIdData?.getProjectByID.defaultBranch}
           </Text>
         </div>
         {(projectByIdData?.getProjectByID.tags || []).length > 0 && (
-          <div className={'pt-5'}>
-            <Text className={'mr-3'} type={'secondary'}>
-              {t('projects.config.tag')}:
+          <div className={"pt-5"}>
+            <Text className={"mr-3"} type={"secondary"}>
+              {t("projects.config.tag")}:
             </Text>
-            {projectByIdData?.getProjectByID.tags.map(({ color, name, link }, index) => (
-              <Tag
-                style={{ cursor: link ? 'pointer' : 'default' }}
-                key={index}
-                color={color}
-                onClick={() => {
-                  if (link) {
-                    window.open(link);
-                  }
-                }}
-              >
-                {name}
-              </Tag>
-            ))}
+            {projectByIdData?.getProjectByID.tags.map(
+              ({ color, name, link }, index) => (
+                <Tag
+                  style={{ cursor: link ? "pointer" : "default" }}
+                  key={index}
+                  color={color}
+                  onClick={() => {
+                    if (link) {
+                      window.open(link);
+                    }
+                  }}
+                >
+                  {name}
+                </Tag>
+              ),
+            )}
           </div>
         )}
       </div>
 
-      <Text className={'block mb-3'} style={{ fontWeight: 500, fontSize: 16 }}>
-        {t('projects.overview')}
+      <Text className={"block mb-3"} style={{ fontWeight: 500, fontSize: 16 }}>
+        {t("projects.overview")}
       </Text>
       <Tour
         open={tourOpen}
@@ -408,57 +423,63 @@ const ProjectOverviewPage = () => {
         }}
         steps={steps}
       />
-      <div className={'flex mb-10'}>
+      <div className={"flex mb-10"}>
         <Spin spinning={projectCompartmentDataLoading}>
           <div
             className={`[list-style:none] grid grid-cols-[repeat(2,_215px)] grid-rows-[repeat(2,_1fr)] gap-[16px] h-full mr-[16px]`}
           >
-            {(projectCompartmentDataData?.getProjectCompartmentData || []).map((item, index) => {
-              return (
-                <div
-                  className={
-                    'p-[20px] h-[150px] flex justify-between flex-col bg-white dark:bg-[#0C0D0E]'
-                  }
-                  style={{
-                    border: `1px solid ${token.colorBorder}`,
-                    borderRadius: `${token.borderRadius}px`,
-                  }}
-                  key={index}
-                >
-                  <Text type={'secondary'}>{t(item.label)}</Text>
-                  <Text className={'text-xl'}>{item.value}</Text>
-                </div>
-              );
-            })}
+            {(projectCompartmentDataData?.getProjectCompartmentData || []).map(
+              (item, index) => {
+                return (
+                  <div
+                    className={
+                      "p-[20px] h-[150px] flex justify-between flex-col bg-white dark:bg-[#0C0D0E]"
+                    }
+                    style={{
+                      border: `1px solid ${token.colorBorder}`,
+                      borderRadius: `${token.borderRadius}px`,
+                    }}
+                    key={index}
+                  >
+                    <Text type={"secondary"}>{t(item.label)}</Text>
+                    <Text className={"text-xl"}>{item.value}</Text>
+                  </div>
+                );
+              },
+            )}
           </div>
         </Spin>
 
         <div style={{ flex: 1 }}>
           <Spin spinning={projectChartDataLoading}>
             <div
-              className={'p-[18px] bg-white dark:bg-[#0C0D0E]'}
+              className={"p-[18px] bg-white dark:bg-[#0C0D0E]"}
               style={{
                 border: `1px solid ${token.colorBorder}`,
                 borderRadius: `${token.borderRadius}px`,
               }}
             >
-              <div className={'flex items-center'}>
-                <Title level={5} style={{ marginBottom: '0' }}>
-                  {t('projects.trends_in_coverage')}
+              <div className={"flex items-center"}>
+                <Title level={5} style={{ marginBottom: "0" }}>
+                  {t("projects.trends_in_coverage")}
                 </Title>
-                <Text type={'secondary'} className={'ml-2'} style={{ fontSize: 12 }}>
-                  {t('projects.trends.tooltip')}
+                <Text
+                  type={"secondary"}
+                  className={"ml-2"}
+                  style={{ fontSize: 12 }}
+                >
+                  {t("projects.trends.tooltip")}
                 </Text>
               </div>
               <ReactECharts
                 theme={
-                  localStorage.getItem('theme') === 'dark'
-                    ? 'dark'
+                  localStorage.getItem("theme") === "dark"
+                    ? "dark"
                     : {
-                        color: ['#287DFA', '#FFB400'],
+                        color: ["#287DFA", "#FFB400"],
                       }
                 }
-                style={{ height: '254px' }}
+                style={{ height: "254px" }}
                 option={option}
               />
             </div>
@@ -466,29 +487,36 @@ const ProjectOverviewPage = () => {
         </div>
       </div>
 
-      <Text className={'block mb-3'} style={{ fontWeight: 500, fontSize: 16 }}>
-        {t('projects.records')}
+      <Text className={"block mb-3"} style={{ fontWeight: 500, fontSize: 16 }}>
+        {t("projects.records")}
       </Text>
-      <div className={'flex'} style={{ marginBottom: '16px', justifyContent: 'space-between' }}>
-        <div className={'flex items-center gap-5'}>
+      <div
+        className={"flex"}
+        style={{ marginBottom: "16px", justifyContent: "space-between" }}
+      >
+        <div className={"flex items-center gap-5"}>
           <Input.Search
             defaultValue={keyword}
-            placeholder={t('projects.overview_search_keywords')}
+            placeholder={t("projects.overview_search_keywords")}
             onSearch={(value) => {
               setKeyword(value);
               setCurrent(1);
             }}
-            style={{ width: '500px' }}
+            style={{ width: "500px" }}
           />
           <Space>
-            <Text type={'secondary'}>{t('projects.only.default.branch')}: </Text>
+            <Text type={"secondary"}>
+              {t("projects.only.default.branch")}:{" "}
+            </Text>
             <Switch
-              defaultChecked={Boolean(localStorage.getItem('defaultBranchOnly'))}
+              defaultChecked={Boolean(
+                localStorage.getItem("defaultBranchOnly"),
+              )}
               onChange={(v) => {
                 if (v) {
-                  localStorage.setItem('defaultBranchOnly', '1');
+                  localStorage.setItem("defaultBranchOnly", "1");
                 } else {
-                  localStorage.removeItem('defaultBranchOnly');
+                  localStorage.removeItem("defaultBranchOnly");
                 }
                 setDefaultBranchOnly(v);
               }}
@@ -496,20 +524,20 @@ const ProjectOverviewPage = () => {
           </Space>
         </div>
 
-        <div className={'flex gap-2'} style={{ display: 'none' }}>
-          {['#1f77b4', '#ff7f0e', '#2ca02c'].map((item, index) => {
+        <div className={"flex gap-2"} style={{ display: "none" }}>
+          {["#1f77b4", "#ff7f0e", "#2ca02c"].map((item, index) => {
             return (
-              <div className={'flex items-center gap-1'} key={index}>
+              <div className={"flex items-center gap-1"} key={index}>
                 <span
-                  className={'block w-[20px] h-[12px] rounded-sm'}
+                  className={"block w-[20px] h-[12px] rounded-sm"}
                   style={{ backgroundColor: item }}
                 ></span>
-                <span className={'text-sm'}>
+                <span className={"text-sm"}>
                   {{
-                    0: '手工测试',
-                    1: 'UI自动化测试',
-                    2: '单元测试',
-                  }[index] || 'unknown'}
+                    0: "手工测试",
+                    1: "UI自动化测试",
+                    2: "单元测试",
+                  }[index] || "unknown"}
                 </span>
               </div>
             );
@@ -524,11 +552,11 @@ const ProjectOverviewPage = () => {
           borderRadius: `${token.borderRadius}px`,
         }}
         bordered={false}
-        rowKey={'sha'}
+        rowKey={"sha"}
         // @ts-ignore
         columns={columns}
         pagination={{
-          showTotal: (total) => t('common.total_items', { total }),
+          showTotal: (total) => t("common.total_items", { total }),
           total: projectsData?.getProjectRecords?.total,
           current,
           pageSize,

@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class GetProjectsNoDataService {
@@ -12,7 +12,7 @@ export class GetProjectsNoDataService {
         where: {
           projectID: projects[i].id,
           covType: {
-            in: ['all', 'agg'],
+            in: ["all", "agg"],
           },
         },
       });

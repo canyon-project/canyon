@@ -1,7 +1,7 @@
-import { Module } from '@nestjs/common';
-import { CodechangeService } from './codechange.service';
-import { CodechangeController } from './codechange.controller';
-import { PrismaService } from '../prisma/prisma.service';
+import { Module } from "@nestjs/common";
+import { CodechangeService } from "./codechange.service";
+import { CodechangeController } from "./codechange.controller";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Module({
   controllers: [CodechangeController],

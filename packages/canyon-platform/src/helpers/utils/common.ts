@@ -2,21 +2,21 @@
 export function getDecode(str: string) {
   return decodeURIComponent(
     atob(str)
-      .split('')
+      .split("")
       .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
       })
-      .join(''),
+      .join(""),
   );
 }
 
 export function getCOlor(num) {
   if (num >= 80) {
-    return 'rgb(33,181,119)';
+    return "rgb(33,181,119)";
   } else if (num >= 50) {
-    return 'rgb(244,176,27)';
+    return "rgb(244,176,27)";
   } else {
-    return 'rgb(245,32,32)';
+    return "rgb(245,32,32)";
   }
 }
 

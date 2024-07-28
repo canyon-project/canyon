@@ -3,15 +3,15 @@
 @tailwind utilities;
 
 @font-face {
-  font-family: 'IBMPlexMono';
-  src: url('./assets/IBMPlexMono-Regular.woff2');
+  font-family: "IBMPlexMono";
+  src: url("./assets/IBMPlexMono-Regular.woff2");
   font-weight: normal;
   font-style: normal;
 }
 
-.shiki>code{
+.shiki > code {
   font-size: 12px;
-  font-family: 'IBMPlexMono';
+  font-family: "IBMPlexMono";
   line-height: 20px;
 }
 
@@ -28,29 +28,27 @@
   z-index: 1000;
 }
 
-
-
-.ant-menu-light.ant-menu-root.ant-menu-vertical{
-  border-inline-end:none !important;
+.ant-menu-light.ant-menu-root.ant-menu-vertical {
+  border-inline-end: none !important;
 }
-.ant-table-thead >tr>th{
+.ant-table-thead > tr > th {
   /*background-color: white !important;*/
 }
-a{
+a {
   color: #0071c2;
 }
-a:hover{
+a:hover {
   color: #0071c2;
-  opacity: .8;
-  text-decoration:underline;
+  opacity: 0.8;
+  text-decoration: underline;
 }
 
 /*账单那边*/
-.ant-collapse-content-box{
+.ant-collapse-content-box {
   padding: 0 !important;
 }
 /*登陆页面*/
-.ant-tabs-nav{
+.ant-tabs-nav {
   padding-left: 40px !important;
 }
 
@@ -58,37 +56,35 @@ a:hover{
 /*  border-bottom: none !important;*/
 /*}*/
 
-.ant-table-wrapper .ant-table-pagination.ant-pagination{
+.ant-table-wrapper .ant-table-pagination.ant-pagination {
   margin-right: 16px;
 }
 
-.ant-collapse-header{
+.ant-collapse-header {
   background-color: #f8f9fa !important;
   padding: 24px 20px !important;
 }
 
-.ant-collapse-item{
+.ant-collapse-item {
   margin-bottom: 0 !important;
 }
 
 /*收藏的project的样式*/
-.ant-table-row-level-0 .favor-heart{
+.ant-table-row-level-0 .favor-heart {
   visibility: hidden;
   cursor: pointer;
 }
 
-.ant-table-row-level-0:hover .favor-heart{
-  visibility:unset;
+.ant-table-row-level-0:hover .favor-heart {
+  visibility: unset;
 }
 
-
-
 .content-class-no-found {
-  background: #F6C6CE
+  background: #f6c6ce;
 }
 
 .content-class-found {
-  background: #F6C6CE
+  background: #f6c6ce;
 }
 
 .dark .content-class-no-found {
@@ -99,25 +95,19 @@ a:hover{
   background: rgb(122, 84, 116);
 }
 
-
 /*thead tr:nth-child(2){*/
 /*  display: none !important;*/
 /*}*/
 
-.highlight{
+.highlight {
   color: red !important;
 }
-
 
 .YourHighlightClass {
   padding: 0 !important;
   color: white !important;
-  background: rgb(244,176,27) !important;
+  background: rgb(244, 176, 27) !important;
 }
-
-
-
-
 
 .editable-cell {
   position: relative;

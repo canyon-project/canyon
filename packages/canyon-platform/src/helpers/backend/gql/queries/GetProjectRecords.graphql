@@ -1,5 +1,17 @@
-query GetProjectRecords($projectID: String!, $current: Int!, $pageSize: Int!, $keyword: String!,$onlyDefault:Boolean) {
-  getProjectRecords(projectID:$projectID,current:$current, pageSize:$pageSize, keyword:$keyword, onlyDefault:$onlyDefault) {
+query GetProjectRecords(
+  $projectID: String!
+  $current: Int!
+  $pageSize: Int!
+  $keyword: String!
+  $onlyDefault: Boolean
+) {
+  getProjectRecords(
+    projectID: $projectID
+    current: $current
+    pageSize: $pageSize
+    keyword: $keyword
+    onlyDefault: $onlyDefault
+  ) {
     data {
       message
       sha

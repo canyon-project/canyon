@@ -1,4 +1,4 @@
-query GetProjectsNoData{
+query GetProjectsNoData {
   getProjectsNoData {
     id
     pathWithNamespace

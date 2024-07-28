@@ -1,5 +1,5 @@
-mutation FavorProject($projectID: ID!,$favored: Boolean!) {
-  favorProject(projectID: $projectID,favored: $favored) {
+mutation FavorProject($projectID: ID!, $favored: Boolean!) {
+  favorProject(projectID: $projectID, favored: $favored) {
     id
     username
     password

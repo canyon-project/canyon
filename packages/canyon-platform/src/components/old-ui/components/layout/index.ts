@@ -1,1 +1,1 @@
-export { default as CanyonLayoutBase } from './Base.tsx';
+export { default as CanyonLayoutBase } from "./Base.tsx";

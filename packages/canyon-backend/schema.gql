@@ -63,95 +63,153 @@ type ProjectPagesModel {
 }
 
 type ProjectChartDataModel {
-  """整体覆盖率"""
+  """
+  整体覆盖率
+  """
   statements: Float!
 
-  """New Lines"""
+  """
+  New Lines
+  """
   newlines: Float!
 
-  """sha"""
+  """
+  sha
+  """
   sha: String!
 }
 
 type Log {
-  """ID"""
+  """
+  ID
+  """
   id: String!
 
-  """Commit Sha"""
+  """
+  Commit Sha
+  """
   commitSha: String!
 
-  """上报ID"""
+  """
+  上报ID
+  """
   reportID: String!
 
-  """关系ID"""
+  """
+  关系ID
+  """
   relationID: String!
 
-  """创建时间"""
+  """
+  创建时间
+  """
   createdAt: DateTime!
 
-  """上报人"""
+  """
+  上报人
+  """
   reporterUsername: String!
 
-  """上报人头像"""
+  """
+  上报人头像
+  """
   reporterAvatar: String!
 
-  """新增"""
+  """
+  新增
+  """
   newlines: Float!
 
-  """全量"""
+  """
+  全量
+  """
   statements: Float!
 }
 
 type ProjectRecordsModel {
-  """commit信息"""
+  """
+  commit信息
+  """
   message: String!
 
-  """commit sha"""
+  """
+  commit sha
+  """
   sha: String!
 
-  """Compare Target"""
+  """
+  Compare Target
+  """
   compareTarget: String!
 
-  """branch"""
+  """
+  branch
+  """
   branch: String!
 
-  """buildURL"""
+  """
+  buildURL
+  """
   buildURL: String!
 
-  """buildID"""
+  """
+  buildID
+  """
   buildID: String!
 
-  """buildProvider"""
+  """
+  buildProvider
+  """
   buildProvider: String!
 
-  """Compare Url"""
+  """
+  Compare Url
+  """
   compareUrl: String!
 
-  """web url"""
+  """
+  web url
+  """
   webUrl: String!
 
-  """新增"""
+  """
+  新增
+  """
   newlines: Float!
 
-  """全量"""
+  """
+  全量
+  """
   statements: Float!
 
-  """分支覆盖率"""
+  """
+  分支覆盖率
+  """
   branches: Float!
 
-  """函数覆盖率"""
+  """
+  函数覆盖率
+  """
   functions: Float!
 
-  """行覆盖率"""
+  """
+  行覆盖率
+  """
   lines: Float!
 
-  """最近一次上报"""
+  """
+  最近一次上报
+  """
   lastReportTime: DateTime!
 
-  """上报次数"""
+  """
+  上报次数
+  """
   times: Float!
 
-  """上报日志"""
+  """
+  上报日志
+  """
   logs: [Log!]!
 }
 
@@ -161,47 +219,73 @@ type ProjectRecordsPagesModel {
 }
 
 type ProjectCompartmentDataModel {
-  """label"""
+  """
+  label
+  """
   label: String!
 
-  """value"""
+  """
+  value
+  """
   value: String!
 }
 
 type ProjectRecordDetailModel {
-  """ID"""
+  """
+  ID
+  """
   id: String!
 
-  """Commit Sha"""
+  """
+  Commit Sha
+  """
   sha: String!
 
-  """上报ID"""
+  """
+  上报ID
+  """
   reportID: String!
 
-  """关系ID"""
+  """
+  关系ID
+  """
   relationID: String!
 
-  """创建时间"""
+  """
+  创建时间
+  """
   createdAt: DateTime!
 
-  """最近一次上报时间"""
+  """
+  最近一次上报时间
+  """
   lastReportTime: DateTime!
 
-  """上报人"""
+  """
+  上报人
+  """
   reporterUsername: String!
 
-  """上报人头像"""
+  """
+  上报人头像
+  """
   reporterAvatar: String!
 
-  """新增"""
+  """
+  新增
+  """
   newlines: Float!
 
-  """全量"""
+  """
+  全量
+  """
   statements: Float!
 }
 
 type DeleModel {
-  """删除数量"""
+  """
+  删除数量
+  """
   count: Float!
 }
 
@@ -213,68 +297,118 @@ type Project2 {
 }
 
 type Query {
-  """提供执行此查询的用户的详细信息（通过授权 Bearer 标头）"""
+  """
+  提供执行此查询的用户的详细信息（通过授权 Bearer 标头）
+  """
   me: User!
 
-  """列出所有用户"""
+  """
+  列出所有用户
+  """
   listUser: [User!]!
 
-  """获取Project"""
+  """
+  获取Project
+  """
   getProjects(
     keyword: String!
     lang: [String!]!
     bu: [String!]!
 
-    """当前页码"""
+    """
+    当前页码
+    """
     current: Int!
 
-    """每页数量"""
+    """
+    每页数量
+    """
     pageSize: Int!
 
-    """排序字段名称"""
+    """
+    排序字段名称
+    """
     field: String!
 
-    """升序或降序"""
+    """
+    升序或降序
+    """
     order: String!
     favorOnly: Boolean!
   ): ProjectPagesModel!
 
-  """获取没有数据的项目"""
+  """
+  获取没有数据的项目
+  """
   getProjectsNoData: [Project!]!
 
-  """获取Projects部门选项"""
+  """
+  获取Projects部门选项
+  """
   getProjectsBuOptions: [BuOption!]!
 
-  """获取Project图表"""
-  getProjectChartData(projectID: String!, branch: String!): [ProjectChartDataModel!]!
+  """
+  获取Project图表
+  """
+  getProjectChartData(
+    projectID: String!
+    branch: String!
+  ): [ProjectChartDataModel!]!
 
-  """获取Project宫格"""
+  """
+  获取Project宫格
+  """
   getProjectCompartmentData(projectID: String!): [ProjectCompartmentDataModel!]!
 
-  """获取Project记录"""
-  getProjectRecords(projectID: String!, current: Int!, pageSize: Int!, keyword: String!, onlyDefault: Boolean): ProjectRecordsPagesModel!
+  """
+  获取Project记录
+  """
+  getProjectRecords(
+    projectID: String!
+    current: Int!
+    pageSize: Int!
+    keyword: String!
+    onlyDefault: Boolean
+  ): ProjectRecordsPagesModel!
   getProjectByID(projectID: ID!): Project!
 
-  """获取Project记录的详细通过sha"""
-  getProjectRecordDetailBySha(projectID: ID!, sha: String!): [ProjectRecordDetailModel!]!
+  """
+  获取Project记录的详细通过sha
+  """
+  getProjectRecordDetailBySha(
+    projectID: ID!
+    sha: String!
+  ): [ProjectRecordDetailModel!]!
 }
 
 type Mutation {
-  """关注项目"""
+  """
+  关注项目
+  """
   favorProject(projectID: ID!, favored: Boolean!): User!
 
-  """检查输入的gitlab链接"""
+  """
+  检查输入的gitlab链接
+  """
   checkProjectUrl(projectUrl: String!): Project2!
 
-  """创建项目"""
+  """
+  创建项目
+  """
   createProject(projectID: String!, language: String!): Project2!
 
-  """删除项目"""
+  """
+  删除项目
+  """
   deleteProject(projectID: String!): Project2!
 
-  """更新项目"""
+  """
+  更新项目
+  """
   updateProject(
-    """Project ID"""
+    """
+    Project ID
+    """
     projectID: ID!
     description: String
     instrumentCwd: String
@@ -284,7 +418,9 @@ type Mutation {
     members: [MemberInput!]
   ): Project2!
 
-  """删除sha记录"""
+  """
+  删除sha记录
+  """
   deleteProjectRecord(projectID: ID!, sha: String!): DeleModel!
 }
 

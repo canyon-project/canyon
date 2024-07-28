@@ -1,7 +1,7 @@
-import { useRequest } from 'ahooks';
-import { FC } from 'react';
+import { useRequest } from "ahooks";
+import { FC } from "react";
 const onFinishFailed = (errorInfo: any) => {
-  console.log('Failed:', errorInfo);
+  console.log("Failed:", errorInfo);
 };
 
 type FieldType = {
@@ -16,9 +16,9 @@ const LoginForm: FC<{
   const { run } = useRequest(
     ({ username, password, companyname }) =>
       fetch(`/api/login`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: username,
@@ -36,9 +36,9 @@ const LoginForm: FC<{
         }),
     {
       onSuccess: (data) => {
-        message.success('登录成功');
+        message.success("登录成功");
         onLoginSuccess();
-        localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
       },
       onError: (error) => {
         console.log(error);
@@ -49,7 +49,7 @@ const LoginForm: FC<{
   );
   const [form] = Form.useForm();
   const onFinish = (values: any) => {
-    console.log('Success:', values);
+    console.log("Success:", values);
     run({
       companyname: String(values.companyname),
       username: String(values.username),
@@ -59,30 +59,30 @@ const LoginForm: FC<{
   return (
     <Form
       form={form}
-      name='basic'
-      layout={'vertical'}
-      className={'flex-1 pr-5'}
+      name="basic"
+      layout={"vertical"}
+      className={"flex-1 pr-5"}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
     >
       <Form.Item<FieldType>
-        label='Username'
-        name='username'
-        rules={[{ required: true, message: 'Please input your username!' }]}
+        label="Username"
+        name="username"
+        rules={[{ required: true, message: "Please input your username!" }]}
       >
-        <Input placeholder={'Username or Email'} />
+        <Input placeholder={"Username or Email"} />
       </Form.Item>
 
       <Form.Item<FieldType>
-        label='Password'
-        name='password'
-        rules={[{ required: true, message: 'Please input your password!' }]}
+        label="Password"
+        name="password"
+        rules={[{ required: true, message: "Please input your password!" }]}
       >
-        <Input.Password placeholder={'Password'} />
+        <Input.Password placeholder={"Password"} />
       </Form.Item>
 
       <Form.Item>
-        <Button type='primary' htmlType='submit'>
+        <Button type="primary" htmlType="submit">
           Continue
         </Button>
       </Form.Item>

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC } from "react";
 
 const { useToken } = theme;
 const CanyonCardPrimary: FC<{
@@ -9,7 +9,7 @@ const CanyonCardPrimary: FC<{
   const { token } = useToken();
   return (
     <div
-      className={'rounded-[8px] overflow-hidden'}
+      className={"rounded-[8px] overflow-hidden"}
       style={{
         border: `1px solid ${token.colorBorder}`,
         boxShadow: `${token.boxShadowTertiary}`,

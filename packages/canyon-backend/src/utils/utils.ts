@@ -1,4 +1,4 @@
-import * as dayjs from 'dayjs';
+import * as dayjs from "dayjs";
 
 export function percent(covered, total) {
   let tmp;
@@ -50,7 +50,7 @@ export const within30days = (time) => {
   // 获取item的更新日期
   const updatedAt = dayjs(time);
   // 计算当前日期和更新日期之间的天数差
-  const differenceInDays = currentDate.diff(updatedAt, 'day');
+  const differenceInDays = currentDate.diff(updatedAt, "day");
   // 判断是否在30天以内
   return differenceInDays <= 30;
 };

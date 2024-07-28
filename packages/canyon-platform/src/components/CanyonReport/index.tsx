@@ -1,11 +1,11 @@
-import { genSummaryTreeItem } from 'canyon-data';
+import { genSummaryTreeItem } from "canyon-data";
 
-import CanyonReportControl from './Control.tsx';
-import CanyonReportCoverageDetail from './CoverageDetail.tsx';
-import { checkSuffix } from './helper.tsx';
-import CanyonReportListTable from './ListTable.tsx';
-import CanyonReportOverview from './Overview.tsx';
-import CanyonReportTreeTable from './TreeTable.tsx';
+import CanyonReportControl from "./Control.tsx";
+import CanyonReportCoverageDetail from "./CoverageDetail.tsx";
+import { checkSuffix } from "./helper.tsx";
+import CanyonReportListTable from "./ListTable.tsx";
+import CanyonReportOverview from "./Overview.tsx";
+import CanyonReportTreeTable from "./TreeTable.tsx";
 
 function checkSummaryOnlyChange(item, onlyChange) {
   // 如果只看改变的为false，就返回全部
@@ -35,20 +35,22 @@ const CanyonReport = ({
   mainData,
   theme,
 }) => {
-  console.log(mainData, 'mainData', theme);
+  console.log(mainData, "mainData", theme);
   // 几个状态
   // 1.展示模式//tree||list
-  const [showMode, setShowMode] = useState('tree');
+  const [showMode, setShowMode] = useState("tree");
   // 2.当前是文件还是文件夹
   const fMode = useMemo(() => {
     // return 获取当前path，判断是否含有 .
-    return activatedPath.includes('.') && checkSuffix(activatedPath) ? 'file' : 'folder';
+    return activatedPath.includes(".") && checkSuffix(activatedPath)
+      ? "file"
+      : "folder";
   }, [activatedPath]);
   // 3.是否只展示变更文件
   // 4.其他的放在各自的状态里
 
   // 5.文件路径关键字搜索
-  const [keywords, setKeywords] = useState('');
+  const [keywords, setKeywords] = useState("");
   const [onlyChange, setOnlyChange] = useState(false);
 
   // useEffect(()=>{
@@ -57,16 +59,21 @@ const CanyonReport = ({
 
   const coverageSummaryMapDataFiltered = useMemo(() => {
     return coverageSummaryMapData.filter(
-      (item) => checkSummaryOnlyChange(item, onlyChange) && checkSummaryKeywords(item, keywords),
+      (item) =>
+        checkSummaryOnlyChange(item, onlyChange) &&
+        checkSummaryKeywords(item, keywords),
     );
   }, [coverageSummaryMapData, onlyChange, keywords]);
 
-  const summary = coverageSummaryMapDataFiltered.reduce((acc: any, cur: any) => {
-    acc[cur.path] = cur;
-    return acc;
-  }, {});
+  const summary = coverageSummaryMapDataFiltered.reduce(
+    (acc: any, cur: any) => {
+      acc[cur.path] = cur;
+      return acc;
+    },
+    {},
+  );
   const summaryTreeItem = genSummaryTreeItem(activatedPath, summary);
-  console.log(summaryTreeItem, 'summaryTreeItem');
+  console.log(summaryTreeItem, "summaryTreeItem");
   function onChangeOnlyChangeKeywords(v) {
     setKeywords(v.target.value);
   }
@@ -83,7 +90,9 @@ const CanyonReport = ({
       <CanyonReportControl
         showMode={showMode}
         numberFiles={
-          coverageSummaryMapDataFiltered.filter((item) => item.path.includes(activatedPath)).length
+          coverageSummaryMapDataFiltered.filter((item) =>
+            item.path.includes(activatedPath),
+          ).length
         }
         keywords={keywords}
         onlyChange={onlyChange}
@@ -91,14 +100,14 @@ const CanyonReport = ({
         onChangeOnlyChangeKeywords={onChangeOnlyChangeKeywords}
         onChangeShowMode={onChangeShowMode}
       />
-      <Divider style={{ margin: '0', marginBottom: '10px' }} />
+      <Divider style={{ margin: "0", marginBottom: "10px" }} />
       <CanyonReportOverview
         summaryTreeItem={summaryTreeItem}
         activatedPath={activatedPath}
         pathWithNamespace={pathWithNamespace}
         onSelect={onSelect}
       />
-      {showMode === 'tree' && fMode === 'folder' && (
+      {showMode === "tree" && fMode === "folder" && (
         <CanyonReportTreeTable
           onlyChange={onlyChange}
           dataSource={summaryTreeItem.children}
@@ -107,7 +116,7 @@ const CanyonReport = ({
           onSelect={onSelect}
         />
       )}
-      {showMode === 'list' && fMode === 'folder' && (
+      {showMode === "list" && fMode === "folder" && (
         <CanyonReportListTable
           onlyChange={onlyChange}
           onSelect={onSelect}
@@ -118,8 +127,8 @@ const CanyonReport = ({
           )}
         />
       )}
-      <Spin spinning={!mainData && fMode === 'file'}>
-        {fMode === 'file' && mainData && (
+      <Spin spinning={!mainData && fMode === "file"}>
+        {fMode === "file" && mainData && (
           <CanyonReportCoverageDetail
             theme={theme}
             data={{

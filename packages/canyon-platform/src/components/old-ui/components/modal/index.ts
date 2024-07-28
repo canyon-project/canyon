@@ -1,1 +1,1 @@
-export { default as CanyonModalGlobalSearch } from './GlobalSearch.tsx';
+export { default as CanyonModalGlobalSearch } from "./GlobalSearch.tsx";

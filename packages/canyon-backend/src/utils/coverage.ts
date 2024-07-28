@@ -1,24 +1,24 @@
-import * as libCoverage from 'istanbul-lib-coverage';
-import * as libSourceMaps from 'istanbul-lib-source-maps';
-import { mergeCoverageMap as mergeCoverageMapOfCanyonData } from 'canyon-data';
+import * as libCoverage from "istanbul-lib-coverage";
+import * as libSourceMaps from "istanbul-lib-source-maps";
+import { mergeCoverageMap as mergeCoverageMapOfCanyonData } from "canyon-data";
 // import { merge_coverage_json_str } from 'canyon-data';
 function parseInstrumentCwd(instrumentCwd) {
-  if (instrumentCwd.includes('=>')) {
-    const instrumentCwdSplit = instrumentCwd.split('=>');
+  if (instrumentCwd.includes("=>")) {
+    const instrumentCwdSplit = instrumentCwd.split("=>");
     return [instrumentCwdSplit[0], instrumentCwdSplit[1]];
   } else {
-    return [instrumentCwd, ''];
+    return [instrumentCwd, ""];
   }
 }
 function convertInstrumentCwd({ path, instrumentCwd, projectInstrumentCwd }) {
   if (!projectInstrumentCwd) {
-    return path.replace(instrumentCwd, '');
+    return path.replace(instrumentCwd, "");
   } else {
     // 这里需要解析一下instrumentCwd，如果包含"=>"，则需要替换。
     const [leftInstrumentCwd, rightInstrumentCwd] =
       parseInstrumentCwd(projectInstrumentCwd);
     return path
-      .replace(instrumentCwd, '')
+      .replace(instrumentCwd, "")
       .replace(leftInstrumentCwd, rightInstrumentCwd);
   }
 }
@@ -26,22 +26,22 @@ function convertInstrumentCwd({ path, instrumentCwd, projectInstrumentCwd }) {
 export async function formatReportObject(c: any) {
   // 去除斜杠\\
   const removeSlash = (x: any) =>
-    JSON.parse(JSON.stringify(x).replace(/\\\\/g, '/'));
+    JSON.parse(JSON.stringify(x).replace(/\\\\/g, "/"));
   const coverage = removeSlash(await remapCoverage(c.coverage));
   const instrumentCwd = removeSlash(c.instrumentCwd);
-  const projectInstrumentCwd = removeSlash(c.projectInstrumentCwd || '');
+  const projectInstrumentCwd = removeSlash(c.projectInstrumentCwd || "");
   const reversePath = (p: string) => {
     const a = convertInstrumentCwd({
       path: p,
       instrumentCwd,
       projectInstrumentCwd,
     });
-    let b = '';
+    let b = "";
     // 从第二个字符开始
     for (let i = 1; i < a.length; i++) {
       b += a[i];
     }
-    return '~/' + b;
+    return "~/" + b;
   };
   const obj: any = {};
   for (const coverageKey in coverage) {
@@ -63,7 +63,7 @@ async function remapCoverage(obj: any) {
   const { data: data_1 } = res;
   const obj_1: any = {};
   for (const dataKey in data_1) {
-    const x = data_1[dataKey]['data'];
+    const x = data_1[dataKey]["data"];
     obj_1[x.path] = x;
   }
   return obj_1;

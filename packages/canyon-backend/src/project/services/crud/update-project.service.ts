@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../prisma/prisma.service";
 function removeEmptyValues(obj) {
   for (const key in obj) {
     if (
       obj[key] === undefined ||
       obj[key] === null ||
-      obj[key] === '__null__'
+      obj[key] === "__null__"
     ) {
       delete obj[key];
     }

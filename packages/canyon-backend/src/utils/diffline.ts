@@ -1,5 +1,5 @@
-import * as Diff from 'diff';
-import { Change } from 'diff';
+import * as Diff from "diff";
+import { Change } from "diff";
 interface DiffLine {
   repoID: string;
   baseCommitSha?: string;
@@ -60,20 +60,20 @@ function calculateNewRows(
 function getDecode(str: string) {
   return decodeURIComponent(
     atob(str)
-      .split('')
+      .split("")
       .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
       })
-      .join(''),
+      .join(""),
   );
 }
 export async function diffLine({
   repoID,
   baseCommitSha = undefined,
   compareCommitSha,
-  includesFileExtensions = ['ts', 'tsx', 'jsx', 'vue', 'js'],
-  gitlabUrl = 'https://gitlab.com',
-  token = 'default_token',
+  includesFileExtensions = ["ts", "tsx", "jsx", "vue", "js"],
+  gitlabUrl = "https://gitlab.com",
+  token = "default_token",
 }: DiffLine): Promise<
   { path: string; additions: number[]; deletions: number[] }[]
 > {
@@ -83,7 +83,7 @@ export async function diffLine({
   const gitlabApiUrlCommitResponse = await fetch(gitlabApiUrlCommit, {
     headers: {
       // Authorization: 'Bearer ' + token, // 在请求头中使用 GitLab API token
-      'private-token': process.env.PRIVATE_TOKEN,
+      "private-token": process.env.PRIVATE_TOKEN,
     },
   })
     .then((res) => res.json())
@@ -108,7 +108,7 @@ export async function diffLine({
       {
         headers: {
           // Authorization: 'Bearer ' + token, // 在请求头中使用 GitLab API token
-          'private-token': process.env.PRIVATE_TOKEN,
+          "private-token": process.env.PRIVATE_TOKEN,
         },
       },
     )
@@ -142,7 +142,7 @@ export async function diffLine({
     const isMatchingExtension = (
       includesFileExtensions: string[],
       pathname: string,
-    ) => includesFileExtensions.some((ext) => pathname.endsWith('.' + ext));
+    ) => includesFileExtensions.some((ext) => pathname.endsWith("." + ext));
 
     const gitDiffsFiltered = gitDiffs.filter((gitDiff) =>
       isMatchingExtension(includesFileExtensions, gitDiff.new_path),
@@ -158,9 +158,9 @@ export async function diffLine({
             {
               headers: {
                 // Authorization: 'Bearer ' + token, // 在请求头中使用 GitLab API token
-                'private-token': process.env.PRIVATE_TOKEN,
+                "private-token": process.env.PRIVATE_TOKEN,
               },
-              method: 'GET',
+              method: "GET",
             },
           )
             .then((res) => res.json())
@@ -168,7 +168,7 @@ export async function diffLine({
               return getDecode(r.content);
             })
             .catch(() => {
-              return '';
+              return "";
             });
         }),
       );

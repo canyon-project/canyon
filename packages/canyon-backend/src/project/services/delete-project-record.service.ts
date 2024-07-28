@@ -1,5 +1,5 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
 @Injectable()
 export class DeleteProjectRecordService {
   constructor(private readonly prisma: PrismaService) {}
@@ -20,7 +20,7 @@ export class DeleteProjectRecordService {
       throw new HttpException(
         {
           statusCode: HttpStatus.UNAUTHORIZED,
-          message: '没有权限删除',
+          message: "没有权限删除",
         },
         HttpStatus.UNAUTHORIZED,
       );

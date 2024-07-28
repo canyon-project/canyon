@@ -1,13 +1,16 @@
 // src/context/GlobalContext.js
 
-import { ConfigProvider } from 'antd';
-import enUS from 'antd/es/locale/en_US';
-import zhCN from 'antd/es/locale/zh_CN';
-import { createContext, useEffect, useReducer } from 'react';
+import { ConfigProvider } from "antd";
+import enUS from "antd/es/locale/en_US";
+import zhCN from "antd/es/locale/zh_CN";
+import { createContext, useEffect, useReducer } from "react";
 
 const getSystemTheme = () =>
-  window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-const getSystemLocale = () => (navigator.language.startsWith('zh') ? zhCN : enUS);
+  window.matchMedia?.("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+const getSystemLocale = () =>
+  navigator.language.startsWith("zh") ? zhCN : enUS;
 
 const initialState = {
   theme: getSystemTheme(),
@@ -18,17 +21,17 @@ const GlobalContext = createContext();
 
 const globalReducer = (state, action) => {
   switch (action.type) {
-    case 'TOGGLE_THEME':
+    case "TOGGLE_THEME":
       return {
         ...state,
-        theme: state.theme === 'light' ? 'dark' : 'light',
+        theme: state.theme === "light" ? "dark" : "light",
       };
-    case 'SET_THEME':
+    case "SET_THEME":
       return {
         ...state,
         theme: action.payload,
       };
-    case 'SET_LOCALE':
+    case "SET_LOCALE":
       return {
         ...state,
         locale: action.payload,
@@ -48,37 +51,39 @@ const GlobalProvider = ({ children }) => {
 
     // }
 
-    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const darkModeMediaQuery = window.matchMedia(
+      "(prefers-color-scheme: dark)",
+    );
 
     const handleSystemThemeChange = (e) => {
-      console.log('?????');
+      console.log("?????");
 
-      const newTheme = e.matches ? 'dark' : 'light';
-      if (newTheme === 'dark') {
-        document.documentElement.classList.add('dark');
+      const newTheme = e.matches ? "dark" : "light";
+      if (newTheme === "dark") {
+        document.documentElement.classList.add("dark");
         // document.body.style.backgroundColor = "black";
       } else {
-        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.remove("dark");
         // document.body.style.backgroundColor = "white";
       }
 
-      dispatch({ type: 'SET_THEME', payload: newTheme });
+      dispatch({ type: "SET_THEME", payload: newTheme });
     };
 
-    handleSystemThemeChange({ matches: initialState.theme === 'dark' });
+    handleSystemThemeChange({ matches: initialState.theme === "dark" });
 
-    darkModeMediaQuery.addEventListener('change', handleSystemThemeChange);
+    darkModeMediaQuery.addEventListener("change", handleSystemThemeChange);
 
     const handleSystemLocaleChange = () => {
-      const newLocale = navigator.language.startsWith('zh') ? zhCN : enUS;
+      const newLocale = navigator.language.startsWith("zh") ? zhCN : enUS;
       console.log(newLocale);
-      dispatch({ type: 'SET_LOCALE', payload: newLocale });
+      dispatch({ type: "SET_LOCALE", payload: newLocale });
     };
-    window.addEventListener('languagechange', handleSystemLocaleChange);
+    window.addEventListener("languagechange", handleSystemLocaleChange);
 
     return () => {
-      darkModeMediaQuery.removeEventListener('change', handleSystemThemeChange);
-      window.removeEventListener('languagechange', handleSystemLocaleChange);
+      darkModeMediaQuery.removeEventListener("change", handleSystemThemeChange);
+      window.removeEventListener("languagechange", handleSystemLocaleChange);
     };
   }, []);
 
@@ -88,9 +93,9 @@ const GlobalProvider = ({ children }) => {
         locale={state.locale}
         theme={{
           token: {
-            colorPrimary: '#0071c2',
+            colorPrimary: "#0071c2",
           },
-          algorithm: state.theme === 'dark' ? [darkAlgorithm] : [],
+          algorithm: state.theme === "dark" ? [darkAlgorithm] : [],
         }}
       >
         {children}

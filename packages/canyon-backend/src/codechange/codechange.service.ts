@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class CodechangeService {
@@ -10,10 +10,10 @@ export class CodechangeService {
       .findFirst({
         where: {
           sha: sha,
-          covType: 'all',
+          covType: "all",
           projectID: {
             not: {
-              contains: '-ut',
+              contains: "-ut",
             },
           },
         },
@@ -24,7 +24,7 @@ export class CodechangeService {
         where: {
           compareTarget,
           sha: sha,
-          path: filepath.replace('~/', ''),
+          path: filepath.replace("~/", ""),
         },
       })
       .then((r) => {
@@ -32,11 +32,11 @@ export class CodechangeService {
           return r;
         } else {
           return {
-            id: '',
-            projectID: '',
+            id: "",
+            projectID: "",
             compareTarget: compareTarget,
             sha: sha,
-            path: filepath.replace('~/', ''),
+            path: filepath.replace("~/", ""),
             additions: [],
             deletions: [],
           };

@@ -1,10 +1,10 @@
-import { CopyOutlined, ShareAltOutlined } from '@ant-design/icons';
+import { CopyOutlined, ShareAltOutlined } from "@ant-design/icons";
 // @ts-ignore
-import { CopyToClipboard } from 'react-copy-to-clipboard';
-import { useSearchParams } from 'react-router-dom';
+import { CopyToClipboard } from "react-copy-to-clipboard";
+import { useSearchParams } from "react-router-dom";
 
-import { getCOlor } from '../../helpers/utils/common.ts';
-import { capitalizeFirstLetter } from './helper.tsx';
+import { getCOlor } from "../../helpers/utils/common.ts";
+import { capitalizeFirstLetter } from "./helper.tsx";
 const obj = {
   statements: 0,
   branches: 1,
@@ -13,77 +13,86 @@ const obj = {
   newlines: 4,
 };
 const { Text } = Typography;
-const CanyonReportOverview = ({ activatedPath, pathWithNamespace, onSelect, summaryTreeItem }) => {
+const CanyonReportOverview = ({
+  activatedPath,
+  pathWithNamespace,
+  onSelect,
+  summaryTreeItem,
+}) => {
   const [sprm] = useSearchParams();
   const { t } = useTranslation();
   return (
     <div>
       {/*<span>{JSON.stringify(summaryTreeItem.summary)}</span>*/}
-      <div className={'mb-2'} style={{ fontSize: '16px', fontWeight: 'bold' }}>
+      <div className={"mb-2"} style={{ fontSize: "16px", fontWeight: "bold" }}>
         <a
-          className={'cursor-pointer'}
+          className={"cursor-pointer"}
           onClick={() => {
-            onSelect({ path: '' });
+            onSelect({ path: "" });
           }}
         >
           {pathWithNamespace}
         </a>
         {/*<span> / </span>*/}
-        {activatedPath?.split('/').map((i, index, arr) => {
+        {activatedPath?.split("/").map((i, index, arr) => {
           return (
             <>
-              {activatedPath !== '' ? <span> / </span> : null}
+              {activatedPath !== "" ? <span> / </span> : null}
               <a
-                className={'cursor-pointer'}
+                className={"cursor-pointer"}
                 onClick={() => {
                   const newpath = arr
                     .filter((i, index3) => index3 < index + 1)
                     .reduce((c, p, index) => {
-                      return c + (index === 0 ? '' : '/') + p;
-                    }, '');
+                      return c + (index === 0 ? "" : "/") + p;
+                    }, "");
                   onSelect({ path: newpath });
                 }}
               >
-                {i.replace('~', pathWithNamespace)}
+                {i.replace("~", pathWithNamespace)}
               </a>
             </>
           );
         })}
-        <Divider type={'vertical'} className={'ml-3 mr-3'} />
+        <Divider type={"vertical"} className={"ml-3 mr-3"} />
         <CopyToClipboard
           text={activatedPath}
           onCopy={() => {
-            message.success('复制路径成功');
+            message.success("复制路径成功");
           }}
         >
-          <a className={'cursor-pointer mr-2'}>
-            <CopyOutlined style={{ fontSize: '14px', fontWeight: 'bold' }} />
+          <a className={"cursor-pointer mr-2"}>
+            <CopyOutlined style={{ fontSize: "14px", fontWeight: "bold" }} />
           </a>
         </CopyToClipboard>
 
         <CopyToClipboard
           text={location.href}
           onCopy={() => {
-            message.success('复制分享链接成功');
+            message.success("复制分享链接成功");
           }}
         >
-          <a className={'cursor-pointer'}>
-            <ShareAltOutlined style={{ fontSize: '14px', fontWeight: 'bold' }} />
+          <a className={"cursor-pointer"}>
+            <ShareAltOutlined
+              style={{ fontSize: "14px", fontWeight: "bold" }}
+            />
           </a>
         </CopyToClipboard>
       </div>
 
-      <div className={'flex gap-2 mb-3'}>
+      <div className={"flex gap-2 mb-3"}>
         {Object.entries(summaryTreeItem.summary)
           .sort((a, b) => {
             return obj[a[0]] - obj[b[0]];
           })
           .map(([key, value]) => {
             return (
-              <div className={'flex gap-1 items-center'}>
-                <span style={{ fontWeight: '600', fontSize: '14px' }}>{value.pct}%</span>
-                <Text style={{ fontSize: '14px' }} type={'secondary'}>
-                  {t('projects.' + key)}:
+              <div className={"flex gap-1 items-center"}>
+                <span style={{ fontWeight: "600", fontSize: "14px" }}>
+                  {value.pct}%
+                </span>
+                <Text style={{ fontSize: "14px" }} type={"secondary"}>
+                  {t("projects." + key)}:
                 </Text>
                 <Tag bordered={false}>
                   {value.covered}/{value.total}
@@ -96,7 +105,7 @@ const CanyonReportOverview = ({ activatedPath, pathWithNamespace, onSelect, summ
         style={{
           backgroundColor: getCOlor(summaryTreeItem.summary.statements.pct),
         }}
-        className={'w-full h-[10px] mb-3'}
+        className={"w-full h-[10px] mb-3"}
       ></div>
     </div>
   );

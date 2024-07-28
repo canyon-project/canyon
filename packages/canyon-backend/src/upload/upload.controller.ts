@@ -7,26 +7,26 @@ import {
   Body,
   UseInterceptors,
   Req,
-} from '@nestjs/common';
-import { RawBodyMiddleware } from './raw-body.middleware';
-import { uploadAnalyze } from './helpers/uploadAnalyze';
-import axios from 'axios';
-import * as process from 'process';
-import { UploadService } from './upload.service';
+} from "@nestjs/common";
+import { RawBodyMiddleware } from "./raw-body.middleware";
+import { uploadAnalyze } from "./helpers/uploadAnalyze";
+import axios from "axios";
+import * as process from "process";
+import { UploadService } from "./upload.service";
 
-@Controller('upload')
+@Controller("upload")
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
-  @Post('v4')
+  @Post("v4")
   @HttpCode(200)
   test(@Query() q, @Body() b, @Req() req) {
     // TODO: 需要一个唯一id在post和put之间传递
     // 第一个参数 resultURL
     // 第二个参数 putURL
-    return `${process.env.UPLOAD_URL || ''}/upload/query
-    ${process.env.UPLOAD_URL || ''}${req.originalUrl}`;
+    return `${process.env.UPLOAD_URL || ""}/upload/query
+    ${process.env.UPLOAD_URL || ""}${req.originalUrl}`;
   }
-  @Put('v4')
+  @Put("v4")
   @HttpCode(200)
   @UseInterceptors(RawBodyMiddleware)
   async test1(@Query() query, @Body() buffer: Buffer) {
@@ -39,14 +39,14 @@ export class UploadController {
         {
           headers: {
             // 我自己的token
-            'PRIVATE-TOKEN': 'dpxTutmZv_wPogCkpCmc',
+            "PRIVATE-TOKEN": "dpxTutmZv_wPogCkpCmc",
           },
         },
       )
       .then((res) => {
         return res.data.id;
       });
-    const url = process.env.APP_URI || '';
+    const url = process.env.APP_URI || "";
     await axios
       .post(
         `${url}/coverage/client`,
@@ -66,6 +66,6 @@ export class UploadController {
       .then((res) => {
         console.log(res.data.message);
       });
-    return 'ok';
+    return "ok";
   }
 }

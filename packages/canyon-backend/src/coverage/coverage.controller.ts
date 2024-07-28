@@ -6,15 +6,15 @@ import {
   Query,
   Request,
   UseGuards,
-} from '@nestjs/common';
-import { CoverageClientService } from './services/coverage-client.service';
-import { CoverageClientDto } from './dto/coverage-client.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { CoverageService } from './services/coverage.service';
-import { RetrieveCoverageTreeSummaryService } from './services/retrieve-coverage-tree-summary.service';
-import { PrismaService } from '../prisma/prisma.service';
-import { ConsumerCoverageService } from './services/core/consumer-coverage.service';
-import { CoverageReportsService } from './services/coverage-reports.service';
+} from "@nestjs/common";
+import { CoverageClientService } from "./services/coverage-client.service";
+import { CoverageClientDto } from "./dto/coverage-client.dto";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { CoverageService } from "./services/coverage.service";
+import { RetrieveCoverageTreeSummaryService } from "./services/retrieve-coverage-tree-summary.service";
+import { PrismaService } from "../prisma/prisma.service";
+import { ConsumerCoverageService } from "./services/core/consumer-coverage.service";
+import { CoverageReportsService } from "./services/coverage-reports.service";
 
 @Controller()
 export class CoverageController {
@@ -31,7 +31,7 @@ export class CoverageController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('coverage/client')
+  @Post("coverage/client")
   async coverageClient(
     @Body() coverageClientDto: CoverageClientDto,
     @Request() req: any,
@@ -45,13 +45,13 @@ export class CoverageController {
     );
   }
 
-  @Get('api/coverage/summary/map')
+  @Get("api/coverage/summary/map")
   async coverageSummary(@Query() query): Promise<any> {
     const { projectID, sha, reportID } = query;
     return this.coverageService.getCoverageSummaryMap(projectID, sha, reportID);
   }
 
-  @Get('api/coverage/map')
+  @Get("api/coverage/map")
   async coverageMap(@Query() query): Promise<any> {
     const { projectID, sha, reportID, filepath } = query;
     return this.coverageService.getCoverageData(
@@ -62,14 +62,14 @@ export class CoverageController {
     );
   }
 
-  @Get('api/coverage/reports')
+  @Get("api/coverage/reports")
   async coverageReports(@Query() query): Promise<any> {
     const { bu, start, end } = query;
     return this.coverageReportsService.invoke({ bu, start, end });
   }
 
   // 获取概览，重要！！！！！
-  @Get('coverage/treesummary')
+  @Get("coverage/treesummary")
   async coverageTreeSummary(
     @Query()
     params: {
@@ -88,18 +88,18 @@ export class CoverageController {
     if (params.projectID && params.branch) {
       const coverage = await this.prisma.coverage.findFirst({
         orderBy: {
-          createdAt: 'desc',
+          createdAt: "desc",
         },
         where: {
           projectID: params.projectID,
           branch: params.branch,
-          covType: 'all',
+          covType: "all",
         },
       });
       if (coverage) {
         params.sha = coverage.sha;
       } else {
-        params.sha = 'sha_not_found';
+        params.sha = "sha_not_found";
       }
     }
     return this.retrieveCoverageTreeSummaryService.invoke({
@@ -113,23 +113,23 @@ export class CoverageController {
     });
   }
 
-  @Get('coverage/aggstatus')
+  @Get("coverage/aggstatus")
   listAggStatus() {
     return {
       code: 2,
-      msg: '聚合完成',
+      msg: "聚合完成",
     };
   }
 
   // 触发覆盖率聚合方法
   // 传 reportId 和 reporterId 都可以
-  @Post('coverage/triggeragg')
+  @Post("coverage/triggeragg")
   triggeragg() {
     return {
-      msg: '报告聚合中',
+      msg: "报告聚合中",
       data: [],
       code: -1,
-      reportID: 'reportID',
+      reportID: "reportID",
     };
   }
 }

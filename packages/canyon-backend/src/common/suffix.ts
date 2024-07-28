@@ -1,4 +1,4 @@
 export const suffixMap = {
-  Java: ['java', 'kt', 'groovy'],
-  JavaScript: ['js', 'jsx', 'ts', 'tsx', 'vue'],
+  Java: ["java", "kt", "groovy"],
+  JavaScript: ["js", "jsx", "ts", "tsx", "vue"],
 };

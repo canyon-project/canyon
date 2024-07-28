@@ -1,1 +1,1 @@
-export { default as CanyonCardPrimary } from './Primary';
+export { default as CanyonCardPrimary } from "./Primary";

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
-import * as TestExclude from 'test-exclude';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../prisma/prisma.service";
+import * as TestExclude from "test-exclude";
 @Injectable()
 export class TestExcludeService {
   constructor(private readonly prisma: PrismaService) {}
@@ -16,16 +16,16 @@ export class TestExcludeService {
 
     try {
       // Attempt to parse project?.coverage
-      matchRule = JSON.parse(project?.coverage || '{}');
+      matchRule = JSON.parse(project?.coverage || "{}");
     } catch (error) {
       // console.error('Error parsing coverage:', error);
       // Log the error or handle it as needed
       // You can also return an empty object or any default value
     }
     const exclude = new TestExclude({
-      cwd: '~',
+      cwd: "~",
       include: matchRule.include,
-      exclude: (matchRule.exclude || []).concat(['var/*', 'builds/*']),
+      exclude: (matchRule.exclude || []).concat(["var/*", "builds/*"]),
       extension: matchRule.extensions,
     });
 

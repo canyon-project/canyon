@@ -1,4 +1,4 @@
-import { forwardRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useImperativeHandle, useState } from "react";
 
 const { Search } = Input;
 const CanyonModalGlobalSearch = (props, ref) => {

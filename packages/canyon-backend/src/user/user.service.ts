@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { User } from './user.model';
-import { User as DbUser } from '@prisma/client';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
+import { User } from "./user.model";
+import { User as DbUser } from "@prisma/client";
 @Injectable()
 export class UserService {
   constructor(private prisma: PrismaService) {}
@@ -29,7 +29,7 @@ export class UserService {
           id: user.id,
         },
       })
-      .then((r) => r.favor.split(',').filter((item) => item !== ''));
+      .then((r) => r.favor.split(",").filter((item) => item !== ""));
 
     let favors = [];
     if (favored) {
@@ -42,7 +42,7 @@ export class UserService {
         id: user.id,
       },
       data: {
-        favor: favors.join(','),
+        favor: favors.join(","),
       },
     });
   }

@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { removeNullKeys } from '../../utils/utils';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { removeNullKeys } from "../../utils/utils";
 // import { getProjectByID } from '../adapter/gitlab.adapter';
 @Injectable()
 export class GetProjectChartDataService {
@@ -14,17 +14,17 @@ export class GetProjectChartDataService {
     const allCovTypeCoverages = await this.prisma.coverage.findMany({
       where: removeNullKeys({
         projectID: projectID,
-        covType: 'all',
-        branch: defaultBranch === '-' ? null : defaultBranch,
+        covType: "all",
+        branch: defaultBranch === "-" ? null : defaultBranch,
         NOT: {
           summary: {
-            path: ['statements','covered'],
+            path: ["statements", "covered"],
             equals: 0,
           },
         },
       }),
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
     });
 
@@ -32,8 +32,8 @@ export class GetProjectChartDataService {
       .map((item) => {
         return {
           sha: item.sha,
-          statements: item.summary['statements']['pct'],
-          newlines: item.summary['newlines']['pct'],
+          statements: item.summary["statements"]["pct"],
+          newlines: item.summary["newlines"]["pct"],
         };
       })
       .reverse();
