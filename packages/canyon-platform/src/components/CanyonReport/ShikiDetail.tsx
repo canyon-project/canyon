@@ -93,7 +93,14 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
     theme: theme === "light" ? "light-plus" : "tokyo-night",
     decorations: mergeIntervals(
       [...statementDecorations, ...fnDecorations].filter((item) => {
-        return item[0] < item[1];
+        // defaultValue
+        if (item[0] >= item[1]) {
+          return false;
+        } else if (item[1] > defaultValue.length) {
+          return false;
+        } else {
+          return item[0] < item[1];
+        }
       }),
     ).map(([start, end]) => {
       return {
