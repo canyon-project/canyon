@@ -21,7 +21,9 @@ module.exports = {
   },
   // Base config
   extends: ["eslint:recommended", "plugin:prettier/recommended", "prettier"],
-
+  "rules": {
+    "react/jsx-no-undef": "off"
+  },
   overrides: [
     // React
     {
