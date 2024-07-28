@@ -21,18 +21,6 @@ model User {
   @@map("reactor_user")
 }
 
-model GitProvider {
-  id           String  @id
-  url          String
-  clientID     String
-  clientSecret String
-  type         String
-  name         String
-  disabled     Boolean
-
-  @@map("reactor_git_provider")
-}
-
 model Coverage {
   // projectID、sha、covType、reportID作为唯一联合索引
   id                String   @id @default(cuid())
@@ -100,31 +88,16 @@ model Project {
 }
 
 model Codechange {
-  id        String @id @default(cuid())
-  projectID String @map("project_id")
-
-  compareTarget String @map("compare_target")
-
-  sha String @map("sha")
-
-  path String
-
-  additions Int[]
-
-  deletions Int[]
-
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  id            String   @id @default(cuid())
+  projectID     String   @map("project_id")
+  compareTarget String   @map("compare_target")
+  sha           String   @map("sha")
+  path          String
+  additions     Int[]
+  deletions     Int[]
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
   @@map("reactor_codechange")
-}
-
-model Filepath {
-  id        String @id @default(cuid())
-  projectID String @map("project_id")
-  sha       String @map("sha")
-  path      String
-
-  @@map("reactor_filepath")
 }
 
 model Distributedlock {
