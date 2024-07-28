@@ -33,8 +33,5 @@
   "rules": {
     "react/jsx-no-undef": "off"
   },
-  "ignorePatterns": [
-    "**/*.css",
-    "**/*.md"
-  ]
+  "ignorePatterns": ["**/*.css", "**/*.md"]
 }
