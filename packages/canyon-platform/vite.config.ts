@@ -24,9 +24,9 @@ export default defineConfig({
       exclude: ['**/helper/**', '**/components/**'],
     }),
   ],
-  // build: {
-  //   sourcemap: true,
-  // },
+  build: {
+    sourcemap: true,
+  },
   server: {
     port: 8000,
     host: '0.0.0.0',
