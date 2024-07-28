@@ -1,8 +1,8 @@
-import { PlusOutlined, TagOutlined } from '@ant-design/icons';
-import { useMutation } from '@apollo/client';
-import { useParams } from 'react-router-dom';
+import { PlusOutlined, TagOutlined } from "@ant-design/icons";
+import { useMutation } from "@apollo/client";
+import { useParams } from "react-router-dom";
 
-import { UpdateProjectDocument } from '../../../../../../helpers/backend/gen/graphql.ts';
+import { UpdateProjectDocument } from "../../../../../../helpers/backend/gen/graphql.ts";
 type FieldType = {
   id?: string;
   name?: string;
@@ -11,7 +11,7 @@ type FieldType = {
 };
 
 const gridStyle: any = {
-  width: '100%',
+  width: "100%",
 };
 function setDByeky(key, item, list) {
   const newList = JSON.parse(JSON.stringify(list));
@@ -22,7 +22,7 @@ function setDByeky(key, item, list) {
       ...item,
     };
   } else {
-    console.log('什么也不做');
+    console.log("什么也不做");
   }
   return newList;
 }
@@ -43,7 +43,7 @@ const CanyonColorPicker = ({ value, onChange }) => {
 };
 
 const TagTable = ({ tags }) => {
-  const [activeID, setActiveID] = useState('');
+  const [activeID, setActiveID] = useState("");
   const [dataSource, setDataSource] = useState([]);
   const [open, setOpen] = useState(false);
   const { t } = useTranslation();
@@ -61,31 +61,31 @@ const TagTable = ({ tags }) => {
   }, [tags]);
   const columns = [
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      title: "ID",
+      dataIndex: "id",
+      key: "id",
       render(text) {
-        return <span className={'block w-[100px]'}>{text}</span>;
+        return <span className={"block w-[100px]"}>{text}</span>;
       },
     },
     {
-      title: t('projects.config.name'),
-      dataIndex: 'name',
-      key: 'name',
+      title: t("projects.config.name"),
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: t('projects.config.link'),
-      dataIndex: 'link',
-      key: 'link',
-      width: '300px',
+      title: t("projects.config.link"),
+      dataIndex: "link",
+      key: "link",
+      width: "300px",
       render(text) {
         return (
           <a
             href={text}
-            target='_blank'
-            className={'w-[200px] block'}
-            style={{ textWrap: 'wrap' }}
-            rel='noreferrer'
+            target="_blank"
+            className={"w-[200px] block"}
+            style={{ textWrap: "wrap" }}
+            rel="noreferrer"
           >
             {text}
           </a>
@@ -93,15 +93,15 @@ const TagTable = ({ tags }) => {
       },
     },
     {
-      title: t('projects.config.color'),
-      dataIndex: 'color',
-      key: 'color',
+      title: t("projects.config.color"),
+      dataIndex: "color",
+      key: "color",
       render(text, record) {
         return <Tag color={text}>{record.name}</Tag>;
       },
     },
     {
-      title: t('common.option'),
+      title: t("common.option"),
       render(text, record) {
         return (
           <>
@@ -111,17 +111,17 @@ const TagTable = ({ tags }) => {
                 setOpen(true);
               }}
             >
-              {t('common.edit')}
+              {t("common.edit")}
             </a>
 
-            <Divider type={'vertical'} />
+            <Divider type={"vertical"} />
             <a
-              className={'text-red-500 hover:text-red-500'}
+              className={"text-red-500 hover:text-red-500"}
               onClick={() => {
                 setDataSource(dataSource.filter((i) => i.id !== record.id));
               }}
             >
-              {t('common.delete')}
+              {t("common.delete")}
             </a>
           </>
         );
@@ -146,9 +146,9 @@ const TagTable = ({ tags }) => {
     <div>
       <Card
         title={
-          <div className={'flex items-center'}>
-            <TagOutlined className={'text-[#687076] mr-2 text-[16px]'} />
-            <span>{t('projects.config.tag')}</span>
+          <div className={"flex items-center"}>
+            <TagOutlined className={"text-[#687076] mr-2 text-[16px]"} />
+            <span>{t("projects.config.tag")}</span>
           </div>
         }
       >
@@ -158,27 +158,27 @@ const TagTable = ({ tags }) => {
             columns={columns}
             bordered={true}
             pagination={false}
-            size={'small'}
+            size={"small"}
           />
-          <div className={'h-5'}></div>
+          <div className={"h-5"}></div>
           <Space>
             <Button
-              type={'primary'}
+              type={"primary"}
               onClick={() => {
                 updateProject({
                   variables: {
                     projectID: prm.id as string,
-                    coverage: '__null__',
-                    description: '__null__',
-                    defaultBranch: '__null__',
+                    coverage: "__null__",
+                    description: "__null__",
+                    defaultBranch: "__null__",
                     tags: dataSource,
                   },
                 }).then(() => {
-                  message.success('保存成功');
+                  message.success("保存成功");
                 });
               }}
             >
-              {t('projects.config.save.changes')}
+              {t("projects.config.save.changes")}
             </Button>
             <Button
               icon={<PlusOutlined />}
@@ -186,43 +186,43 @@ const TagTable = ({ tags }) => {
                 setDataSource(
                   dataSource.concat({
                     id: String(Math.random()),
-                    name: 'tagname',
-                    link: '',
-                    color: '#0071c2',
+                    name: "tagname",
+                    link: "",
+                    color: "#0071c2",
                   }),
                 );
               }}
             >
-              {t('common.add')}
+              {t("common.add")}
             </Button>
           </Space>
         </Card.Grid>
       </Card>
 
       <Drawer
-        title={t('projects.config.edit.tag')}
+        title={t("projects.config.edit.tag")}
         destroyOnClose={true}
-        width={'35%'}
+        width={"35%"}
         open={open}
         onClose={() => {
           setOpen(false);
           form.submit();
         }}
       >
-        <Form form={form} name='basic' layout={'vertical'} onFinish={onFinish}>
-          <Form.Item<FieldType> label='ID' name='id'>
+        <Form form={form} name="basic" layout={"vertical"} onFinish={onFinish}>
+          <Form.Item<FieldType> label="ID" name="id">
             <Input disabled />
           </Form.Item>
 
-          <Form.Item<FieldType> label={t('projects.config.name')} name='name'>
+          <Form.Item<FieldType> label={t("projects.config.name")} name="name">
             <Input />
           </Form.Item>
 
-          <Form.Item<FieldType> label={t('projects.config.link')} name='link'>
-            <Input placeholder={t('projects.config.link.placeholder')} />
+          <Form.Item<FieldType> label={t("projects.config.link")} name="link">
+            <Input placeholder={t("projects.config.link.placeholder")} />
           </Form.Item>
 
-          <Form.Item<FieldType> label={t('projects.config.color')} name='color'>
+          <Form.Item<FieldType> label={t("projects.config.color")} name="color">
             <CanyonColorPicker />
           </Form.Item>
         </Form>

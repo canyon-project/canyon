@@ -1,14 +1,14 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { type CodegenConfig } from '@graphql-codegen/cli';
+import { type CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
-  schema: '../../packages/canyon-backend/*.gql',
-  documents: ['src/**/*.graphql'],
+  schema: "../../packages/canyon-backend/*.gql",
+  documents: ["src/**/*.graphql"],
   generates: {
-    './src/helpers/backend/gen/': {
-      preset: 'client',
+    "./src/helpers/backend/gen/": {
+      preset: "client",
       presetConfig: {
-        persistedDocuments: 'string',
+        persistedDocuments: "string",
       },
     },
   },

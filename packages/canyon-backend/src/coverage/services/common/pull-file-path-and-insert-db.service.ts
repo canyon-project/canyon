@@ -1,6 +1,6 @@
-import axios from 'axios';
-import * as process from 'node:process';
-import { suffixMap } from '../../../common/suffix';
+import axios from "axios";
+import * as process from "node:process";
+import { suffixMap } from "../../../common/suffix";
 
 export class PullFilePathAndInsertDbService {
   async invoke(projectID, sha, prisma) {
@@ -19,13 +19,13 @@ export class PullFilePathAndInsertDbService {
         })
         .then((project) => (project ? suffixMap[project.language] : []));
       // 配置
-      const accessToken = process.env['PRIVATE_TOKEN']; // 替换为你的访问令牌
-      const projectId = projectID.split('-')[1]; // 替换为你的项目ID或URL编码的项目路径
-      const baseUrl = `${process.env['GITLAB_URL']}/api/v4/projects/${projectId}/repository/tree`;
+      const accessToken = process.env["PRIVATE_TOKEN"]; // 替换为你的访问令牌
+      const projectId = projectID.split("-")[1]; // 替换为你的项目ID或URL编码的项目路径
+      const baseUrl = `${process.env["GITLAB_URL"]}/api/v4/projects/${projectId}/repository/tree`;
 
       // 初始请求参数
       const headers = {
-        'PRIVATE-TOKEN': accessToken,
+        "PRIVATE-TOKEN": accessToken,
         ref: sha,
       };
       const params = {
@@ -53,13 +53,13 @@ export class PullFilePathAndInsertDbService {
       const items = response.data;
 
       for (const item of items) {
-        if (item.type === 'blob') {
+        if (item.type === "blob") {
           // 文件
 
           if (suffix.some((suffix) => item.path.endsWith(suffix))) {
             files.push(item.path);
           }
-        } else if (item.type === 'tree') {
+        } else if (item.type === "tree") {
           // 目录
           // 递归调用以获取目录中的文件
           const newParams = { ...params, path: item.path };

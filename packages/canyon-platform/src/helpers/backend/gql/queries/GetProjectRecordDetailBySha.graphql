@@ -1,6 +1,6 @@
 query GetProjectRecordDetailBySha($projectID: ID!, $sha: String!) {
-  getProjectRecordDetailBySha(projectID:$projectID,sha:$sha) {
-#    message
+  getProjectRecordDetailBySha(projectID: $projectID, sha: $sha) {
+    #    message
     id
     sha
     relationID
@@ -9,13 +9,13 @@ query GetProjectRecordDetailBySha($projectID: ID!, $sha: String!) {
     reporterUsername
     createdAt
     lastReportTime
-#    compareTarget
-#    branch
-#    compareUrl
-#    webUrl
+    #    compareTarget
+    #    branch
+    #    compareUrl
+    #    webUrl
     newlines
     statements
-#    lastReportTime
-#    times
+    #    lastReportTime
+    #    times
   }
 }

@@ -1,9 +1,9 @@
-import { MoreOutlined, SearchOutlined } from '@ant-design/icons';
-import { FC, ReactNode } from 'react';
+import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
+import { FC, ReactNode } from "react";
 
-import { CanyonCardPrimary } from '../card';
-import Footer from './footer.tsx';
-import ScrollBasedLayout from './ScrollBasedLayout.tsx';
+import { CanyonCardPrimary } from "../card";
+import Footer from "./footer.tsx";
+import ScrollBasedLayout from "./ScrollBasedLayout.tsx";
 
 const { useToken } = theme;
 const { Text, Title } = Typography;
@@ -13,7 +13,7 @@ interface CanyonLayoutBaseProps {
   mainTitleRightNode?: ReactNode;
   menuSelectedKey?: string;
   onSelectMenu?: (selectInfo: { key: string }) => void;
-  menuItems: MenuProps['items'];
+  menuItems: MenuProps["items"];
   renderMainContent?: ReactNode;
   onClickGlobalSearch?: () => void;
   MeData: any;
@@ -24,10 +24,10 @@ interface CanyonLayoutBaseProps {
   footerName?: string;
 }
 const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
-  title = 'Canyon',
+  title = "Canyon",
   logo,
   mainTitleRightNode,
-  menuSelectedKey = '',
+  menuSelectedKey = "",
   onSelectMenu,
   menuItems,
   renderMainContent,
@@ -37,7 +37,7 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
   search,
   account,
   breadcrumb,
-  footerName = 'CANYON',
+  footerName = "CANYON",
 }) => {
   const { token } = useToken();
 
@@ -47,22 +47,23 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
         <ScrollBasedLayout
           sideBar={
             <div
-              className={'w-[260px] h-[100vh] overflow-hidden flex flex-col'}
+              className={"w-[260px] h-[100vh] overflow-hidden flex flex-col"}
               style={{ borderRight: `1px solid ${token.colorBorder}` }}
             >
-              <div
-                className={'px-3 py-[16px]'}
-              >
-                <div className={'flex items-center justify-between'}>
+              <div className={"px-3 py-[16px]"}>
+                <div className={"flex items-center justify-between"}>
                   <div
-                    className={'cursor-pointer flex items-center'}
+                    className={"cursor-pointer flex items-center"}
                     style={{ marginBottom: 0 }}
                     onClick={() => {
-                      window.location.href = '/';
+                      window.location.href = "/";
                     }}
                   >
                     {logo}
-                    <span className={'ml-[8px]'} style={{ fontSize: '18px', fontWeight: 'bolder' }}>
+                    <span
+                      className={"ml-[8px]"}
+                      style={{ fontSize: "18px", fontWeight: "bolder" }}
+                    >
                       {title}
                     </span>
                   </div>
@@ -71,24 +72,24 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                 </div>
               </div>
               {search && (
-                <div className={'px-2'}>
+                <div className={"px-2"}>
                   <CanyonCardPrimary>
                     <Button
-                      type='text'
-                      className={'w-full'}
+                      type="text"
+                      className={"w-full"}
                       onClick={() => {
                         onClickGlobalSearch?.();
                       }}
                     >
-                      <div className={'flex justify-between'}>
+                      <div className={"flex justify-between"}>
                         <SearchOutlined />
                         <Text>Search</Text>
 
-                        <div className={'inline-block'}>
-                          <kbd className='px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500'>
+                        <div className={"inline-block"}>
+                          <kbd className="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
                             ⌘
                           </kbd>
-                          <kbd className='px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500'>
+                          <kbd className="px-2 py-1.5 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500">
                             K
                           </kbd>
                         </div>
@@ -99,26 +100,26 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
               )}
 
               {account && (
-                <div className={'px-2 flex flex-col mb-3'}>
-                  <Text type={'secondary'} style={{ fontSize: '10px' }}>
+                <div className={"px-2 flex flex-col mb-3"}>
+                  <Text type={"secondary"} style={{ fontSize: "10px" }}>
                     Account
                   </Text>
                   <CanyonCardPrimary>
                     <Select
-                      variant={'borderless'}
-                      defaultValue='lucy'
-                      style={{ width: '100%' }}
+                      variant={"borderless"}
+                      defaultValue="lucy"
+                      style={{ width: "100%" }}
                       options={[
                         {
-                          label: 'Personal account',
+                          label: "Personal account",
                           options: [
-                            { label: 'Jack', value: 'jack' },
-                            { label: 'Lucy', value: 'lucy' },
+                            { label: "Jack", value: "jack" },
+                            { label: "Lucy", value: "lucy" },
                           ],
                         },
                         {
-                          label: 'Organizations',
-                          options: [{ label: 'yiminghe', value: 'Yiminghe' }],
+                          label: "Organizations",
+                          options: [{ label: "yiminghe", value: "Yiminghe" }],
                         },
                       ]}
                     />
@@ -127,7 +128,7 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
               )}
 
               <div
-                className={'mb-1'}
+                className={"mb-1"}
                 style={{
                   borderBottom: `1px solid ${token.colorBorder}`,
                 }}
@@ -139,8 +140,8 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                 }}
                 selectedKeys={[menuSelectedKey]}
                 items={menuItems}
-                className={'dark:bg-[#151718] px-1'}
-                style={{ flex: '1' }}
+                className={"dark:bg-[#151718] px-1"}
+                style={{ flex: "1" }}
               />
 
               <Dropdown
@@ -151,31 +152,37 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
               >
                 <div
                   className={
-                    'h-[77px] py-[16px] px-[16px] flex items-center justify-between cursor-pointer'
+                    "h-[77px] py-[16px] px-[16px] flex items-center justify-between cursor-pointer"
                   }
                   style={{ borderTop: `1px solid ${token.colorBorder}` }}
                 >
                   <Avatar src={MeData?.me.avatar}></Avatar>
-                  <div className={'flex flex-col'}>
-                    <Text ellipsis className={'w-[150px]'}>
+                  <div className={"flex flex-col"}>
+                    <Text ellipsis className={"w-[150px]"}>
                       {MeData?.me.nickname}
                     </Text>
-                    <Text ellipsis className={'w-[150px]'} type={'secondary'}>
-                      {MeData?.me.email || ''}
+                    <Text ellipsis className={"w-[150px]"} type={"secondary"}>
+                      {MeData?.me.email || ""}
                     </Text>
                   </div>
-                  <MoreOutlined className={'dark:text-[#fff]'} />
+                  <MoreOutlined className={"dark:text-[#fff]"} />
                 </div>
               </Dropdown>
             </div>
           }
           mainContent={
-            <div className={'flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] min-h-[100vh]'}>
-              <div className={'m-auto max-w-[1200px] min-w-[1000px] px-[12px]'}>{breadcrumb}</div>
-              <div className={'m-auto max-w-[1200px] min-w-[1000px] p-[12px]'}>{renderMainContent}</div>
+            <div
+              className={"flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] min-h-[100vh]"}
+            >
+              <div className={"m-auto max-w-[1200px] min-w-[1000px] px-[12px]"}>
+                {breadcrumb}
+              </div>
+              <div className={"m-auto max-w-[1200px] min-w-[1000px] p-[12px]"}>
+                {renderMainContent}
+              </div>
             </div>
           }
-          footer={<Footer name={footerName} corp={'Trip.com'} />}
+          footer={<Footer name={footerName} corp={"Trip.com"} />}
         />
       </>
     </div>

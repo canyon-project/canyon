@@ -1,7 +1,7 @@
 // import { data } from 'autoprefixer';
-import axios from 'axios';
+import axios from "axios";
 
-import { getDecode } from '../../../../../../helpers/utils/common.ts';
+import { getDecode } from "../../../../../../helpers/utils/common.ts";
 
 interface HandleSelectFile {
   projectID: string;
@@ -10,7 +10,12 @@ interface HandleSelectFile {
   reportID: string;
   mode: string;
 }
-export function handleSelectFile({ projectID, sha, filepath, reportID }: HandleSelectFile) {
+export function handleSelectFile({
+  projectID,
+  sha,
+  filepath,
+  reportID,
+}: HandleSelectFile) {
   // coverage/map
   // codechange
   // sourcecode
@@ -45,32 +50,34 @@ export function handleSelectFile({ projectID, sha, filepath, reportID }: HandleS
     })
     .then(({ data }) => data);
   // commitSha, reportID, filepath
-  return Promise.all([fileContentRequest, fileCoverageRequest, fileCodeChangeRequest]).then(
-    ([fileContent, fileCoverage, fileCodeChange]) => {
-      return {
-        fileContent: getDecode(fileContent.content),
-        fileCoverage: fileCoverage,
-        fileCodeChange: fileCodeChange.additions || [],
-      };
-    },
-  );
+  return Promise.all([
+    fileContentRequest,
+    fileCoverageRequest,
+    fileCodeChangeRequest,
+  ]).then(([fileContent, fileCoverage, fileCodeChange]) => {
+    return {
+      fileContent: getDecode(fileContent.content),
+      fileCoverage: fileCoverage,
+      fileCodeChange: fileCodeChange.additions || [],
+    };
+  });
 }
 
 export const getCoverageSummaryMapService = ({ projectID, sha, reportID }) =>
   axios({
-    url: '/api/coverage/summary/map',
-    method: 'GET',
+    url: "/api/coverage/summary/map",
+    method: "GET",
     params: {
-      reportID: reportID || '',
-      sha: sha || '',
-      projectID: projectID || '',
+      reportID: reportID || "",
+      sha: sha || "",
+      projectID: projectID || "",
     },
   })
     .then(({ data }) => data)
     .then((r) =>
       r.map((i) => ({
         ...i,
-        path: i.path.replace('~/', ''),
+        path: i.path.replace("~/", ""),
       })),
     )
     .then((r) => {

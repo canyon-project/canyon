@@ -1,5 +1,5 @@
-import { Field, ID, ObjectType, Resolver } from '@nestjs/graphql';
-import { BuOption, Project } from '../project.model';
+import { Field, ID, ObjectType, Resolver } from "@nestjs/graphql";
+import { BuOption, Project } from "../project.model";
 
 @ObjectType()
 export class ProjectPagesModel {

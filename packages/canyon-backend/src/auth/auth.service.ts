@@ -1,7 +1,7 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import axios from 'axios';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import axios from "axios";
+import { PrismaService } from "../prisma/prisma.service";
 const {
   GITLAB_CLIENT_ID: clientId,
   GITLAB_CLIENT_SECRET: clientSecret,
@@ -75,10 +75,10 @@ export class AuthService {
       refreshToken,
       username,
       nickname,
-      avatar: avatar || '/default-avatar.png',
+      avatar: avatar || "/default-avatar.png",
       email,
-      password: '123456',
-      favor: '',
+      password: "123456",
+      favor: "",
       createdAt: new Date(),
     };
 

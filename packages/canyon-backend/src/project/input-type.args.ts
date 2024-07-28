@@ -1,4 +1,4 @@
-import { ArgsType, Field, ID, InputType } from '@nestjs/graphql';
+import { ArgsType, Field, ID, InputType } from "@nestjs/graphql";
 
 @InputType() // 定义规则输入类型
 class TagInput {
@@ -23,7 +23,7 @@ class MemberInput {
 @ArgsType()
 export class UpdateProjectArgs {
   @Field(() => ID, {
-    description: 'Project ID',
+    description: "Project ID",
   })
   projectID: string;
 

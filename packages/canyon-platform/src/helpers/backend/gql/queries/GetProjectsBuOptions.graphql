@@ -1,6 +1,6 @@
 query GetProjectsBuOptions {
   getProjectsBuOptions {
-    bu,
+    bu
     count
   }
 }

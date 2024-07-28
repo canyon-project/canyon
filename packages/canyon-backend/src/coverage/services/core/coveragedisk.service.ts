@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CoveragediskEntity } from '../../entity/coveragedisk.entity';
-import { Repository } from 'typeorm';
-import {mergeCoverageMap} from "../../../utils/coverage";
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { CoveragediskEntity } from "../../entity/coveragedisk.entity";
+import { Repository } from "typeorm";
+import { mergeCoverageMap } from "../../../utils/coverage";
 // import {merge_coverage_json_str} from 'canyon-data'
 
 @Injectable()
@@ -27,7 +27,7 @@ export class CoveragediskService {
         pid: String(process.pid),
       },
       order: {
-        createdAt: 'ASC',
+        createdAt: "ASC",
       },
       select: {
         pid: true,

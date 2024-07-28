@@ -1,5 +1,5 @@
-import { PlusOutlined } from '@ant-design/icons';
-import { FC, useState } from 'react';
+import { PlusOutlined } from "@ant-design/icons";
+import { FC, useState } from "react";
 
 /**
  * noop is a helper function that does nothing
@@ -37,7 +37,7 @@ const CrudTable: FC<CrudTableProps> = ({
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
   function onFinish(values) {
-    if (values.mode === 'create') {
+    if (values.mode === "create") {
       if (values.userID && values.role) {
         onCreate(values);
       }
@@ -58,7 +58,7 @@ const CrudTable: FC<CrudTableProps> = ({
   function add() {
     setVisible(true);
     form.setFieldsValue({
-      mode: 'create',
+      mode: "create",
       emails: [],
     });
   }
@@ -67,20 +67,20 @@ const CrudTable: FC<CrudTableProps> = ({
     setVisible(true);
     form.setFieldsValue({
       ...record,
-      mode: 'update',
+      mode: "update",
     });
   }
 
   return (
-    <div className={''}>
+    <div className={""}>
       <Table
         bordered={true}
         pagination={false}
-        size={'small'}
-        rowKey={'id'}
+        size={"small"}
+        rowKey={"id"}
         dataSource={dataSource}
         columns={columns.concat({
-          title: '操作',
+          title: "操作",
           render: (text, record) => {
             return (
               <div>
@@ -92,10 +92,10 @@ const CrudTable: FC<CrudTableProps> = ({
                   编辑
                 </a>
 
-                <Divider type={'vertical'} />
+                <Divider type={"vertical"} />
 
-                <a className={'text-red-500'} onClick={() => onDelete(record)}>
-                  {'删除'}
+                <a className={"text-red-500"} onClick={() => onDelete(record)}>
+                  {"删除"}
                 </a>
               </div>
             );
@@ -103,10 +103,10 @@ const CrudTable: FC<CrudTableProps> = ({
         })}
         loading={loading}
       />
-      <div className={'h-2'}></div>
+      <div className={"h-2"}></div>
 
       <Space>
-        <Button type={'primary'} onClick={onSave}>
+        <Button type={"primary"} onClick={onSave}>
           保存更改
         </Button>
         <Button onClick={add}>
@@ -114,12 +114,17 @@ const CrudTable: FC<CrudTableProps> = ({
           添加
         </Button>
       </Space>
-      <Drawer title={form.getFieldValue('mode')} open={visible} width={'45%'} onClose={closeDrawer}>
-        <Form form={form} onFinish={onFinish} layout={'vertical'}>
-          <Form.Item label='mode' name={'mode'} style={{ display: 'none' }}>
+      <Drawer
+        title={form.getFieldValue("mode")}
+        open={visible}
+        width={"45%"}
+        onClose={closeDrawer}
+      >
+        <Form form={form} onFinish={onFinish} layout={"vertical"}>
+          <Form.Item label="mode" name={"mode"} style={{ display: "none" }}>
             <Input />
           </Form.Item>
-          {formItems(form.getFieldValue('mode'))}
+          {formItems(form.getFieldValue("mode"))}
         </Form>
       </Drawer>
     </div>

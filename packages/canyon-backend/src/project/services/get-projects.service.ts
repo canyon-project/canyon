@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { Prisma } from '@prisma/client';
-import { removeNullKeys, within30days } from '../../utils/utils';
-import * as dayjs from 'dayjs';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { Prisma } from "@prisma/client";
+import { removeNullKeys, within30days } from "../../utils/utils";
+import * as dayjs from "dayjs";
 @Injectable()
 export class GetProjectsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -23,20 +23,20 @@ export class GetProjectsService {
           id: userID,
         },
       })
-      .then((r) => r.favor.split(',').filter((item) => item !== ''));
+      .then((r) => r.favor.split(",").filter((item) => item !== ""));
     // 2.根据项目ID再查询到对应的项目信息，使用promise.all
     const whereCondition: any = {
       OR: [
         {
           pathWithNamespace: {
             contains: keyword,
-            mode: 'insensitive', // Ignore case sensitivity
+            mode: "insensitive", // Ignore case sensitivity
           },
         },
         {
           id: {
             contains: keyword,
-            mode: 'insensitive', // Ignore case sensitivity
+            mode: "insensitive", // Ignore case sensitivity
           },
         },
       ],
@@ -64,7 +64,7 @@ export class GetProjectsService {
     });
     const cov = await this.prisma.coverage.findMany({
       where: {
-        covType: 'all',
+        covType: "all",
         projectID: {
           in: pro.map(({ id }) => id),
         },
@@ -106,13 +106,13 @@ export class GetProjectsService {
                 ? covs.sort((a, b) =>
                     dayjs(b.updatedAt).isBefore(a.updatedAt) ? -1 : 1,
                   )[0].updatedAt
-                : new Date('1970-01-01T00:00:00Z'),
+                : new Date("1970-01-01T00:00:00Z"),
             maxCoverage:
               covs.filter((item) => within30days(item.updatedAt)).length > 0
                 ? Math.max(
                     ...covs
                       .filter((item) => within30days(item.updatedAt))
-                      .map((item) => item.summary['statements']['pct']),
+                      .map((item) => item.summary["statements"]["pct"]),
                   )
                 : 0,
             reportTimes: covs.length,
@@ -121,22 +121,22 @@ export class GetProjectsService {
           });
         }
       }
-      field = field || 'lastReportTime';
+      field = field || "lastReportTime";
       return reslut.sort((a, b) => {
-        if (field === 'lastReportTime') {
-          return order === 'ascend'
+        if (field === "lastReportTime") {
+          return order === "ascend"
             ? dayjs(a.lastReportTime).isBefore(b.lastReportTime)
               ? -1
               : 1
             : dayjs(a.lastReportTime).isBefore(b.lastReportTime)
               ? 1
               : -1;
-        } else if (field === 'maxCoverage') {
-          return order === 'ascend'
+        } else if (field === "maxCoverage") {
+          return order === "ascend"
             ? a.maxCoverage - b.maxCoverage
             : b.maxCoverage - a.maxCoverage;
-        } else if (field === 'reportTimes') {
-          return order === 'ascend'
+        } else if (field === "reportTimes") {
+          return order === "ascend"
             ? a.reportTimes - b.reportTimes
             : b.reportTimes - a.reportTimes;
         }

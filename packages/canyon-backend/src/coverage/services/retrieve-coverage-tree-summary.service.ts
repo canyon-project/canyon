@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { removeNullKeys } from '../../utils/utils';
-import { emptyStatistics } from '../../constant';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { removeNullKeys } from "../../utils/utils";
+import { emptyStatistics } from "../../constant";
 
 @Injectable()
 export class RetrieveCoverageTreeSummaryService {
@@ -15,11 +15,11 @@ export class RetrieveCoverageTreeSummaryService {
         where: removeNullKeys({
           reportID: params.reportID,
           sha: params.sha,
-          covType: 'agg',
+          covType: "agg",
           projectID: {
-            mode: 'insensitive', // Ignore case sensitivity
+            mode: "insensitive", // Ignore case sensitivity
             not: {
-              contains: '-ut',
+              contains: "-ut",
             },
           },
         }),
@@ -31,9 +31,9 @@ export class RetrieveCoverageTreeSummaryService {
           reportID: params.reportID,
           sha: params.sha,
           projectID: {
-            mode: 'insensitive', // Ignore case sensitivity
+            mode: "insensitive", // Ignore case sensitivity
             not: {
-              contains: '-ut',
+              contains: "-ut",
             },
           },
         }),
@@ -45,12 +45,12 @@ export class RetrieveCoverageTreeSummaryService {
       });
       if (!sha) {
         return {
-          status: 'pending',
+          status: "pending",
           reportIDs: [],
-          sha: noCommitShaWithCoverage?.sha || '',
+          sha: noCommitShaWithCoverage?.sha || "",
           statistics: emptyStatistics,
-          projectID: noCommitShaWithCoverage?.projectID || '',
-          projectPathWithNamespace: project?.pathWithNamespace || '',
+          projectID: noCommitShaWithCoverage?.projectID || "",
+          projectPathWithNamespace: project?.pathWithNamespace || "",
         };
       }
 
@@ -59,11 +59,11 @@ export class RetrieveCoverageTreeSummaryService {
       const coverageAggs = await this.prisma.coverage.findMany({
         where: {
           sha,
-          covType: 'agg',
+          covType: "agg",
           projectID: {
-            mode: 'insensitive', // Ignore case sensitivity
+            mode: "insensitive", // Ignore case sensitivity
             not: {
-              contains: '-ut',
+              contains: "-ut",
             },
           },
         },
@@ -75,7 +75,7 @@ export class RetrieveCoverageTreeSummaryService {
           reporter: Number(coverageAgg.reporter),
           reporterUsername:
             users.find((user) => user.id === Number(coverageAgg.reporter))
-              ?.username || '',
+              ?.username || "",
           reporterTime: coverageAgg.updatedAt,
           statistics: coverageAgg.summary,
         };
@@ -84,33 +84,33 @@ export class RetrieveCoverageTreeSummaryService {
       const coverageAll = await this.prisma.coverage.findFirst({
         where: {
           sha,
-          covType: 'all',
+          covType: "all",
           projectID: {
-            mode: 'insensitive', // Ignore case sensitivity
+            mode: "insensitive", // Ignore case sensitivity
             not: {
-              contains: '-ut',
+              contains: "-ut",
             },
           },
         },
       });
 
       return {
-        status: 'success',
+        status: "success",
         reportIDs: reportIDs,
-        reportUrl: `${(redirectUri || '').replace('/oauth', '')}/projects/${coverageAggs[0]?.projectID || ''}/commits/${sha}`,
+        reportUrl: `${(redirectUri || "").replace("/oauth", "")}/projects/${coverageAggs[0]?.projectID || ""}/commits/${sha}`,
         sha: sha,
         statistics: coverageAll.summary,
-        projectID: coverageAggs[0]?.projectID || '',
+        projectID: coverageAggs[0]?.projectID || "",
         projectPathWithNamespace: project.pathWithNamespace,
       };
     } catch (e) {
       return {
-        status: 'success',
+        status: "success",
         reportIDs: [],
-        sha: params.sha || '',
+        sha: params.sha || "",
         statistics: emptyStatistics,
-        projectID: '',
-        projectPathWithNamespace: '',
+        projectID: "",
+        projectPathWithNamespace: "",
       };
     }
   }

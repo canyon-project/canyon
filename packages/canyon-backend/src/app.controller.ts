@@ -1,10 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
-import { PrismaService } from './prisma/prisma.service';
+import { Controller, Get } from "@nestjs/common";
+import { PrismaService } from "./prisma/prisma.service";
 
 @Controller()
 export class AppController {
   constructor(private readonly prisma: PrismaService) {}
-  @Get('vi/health')
+  @Get("vi/health")
   async viHealth() {
     // const ids = await this.prisma.project.findMany({
     //   where: {},
@@ -26,17 +26,17 @@ export class AppController {
     //   console.log(res);
     // }
 
-    return '230614';
+    return "230614";
   }
 
-  @Get('/api/gitprovider')
+  @Get("/api/gitprovider")
   gitprovider() {
     return this.prisma.gitProvider.findMany({
       where: {},
     });
   }
 
-  @Get('/api/base')
+  @Get("/api/base")
   async base() {
     return {
       SYSTEM_QUESTION_LINK: process.env.SYSTEM_QUESTION_LINK,

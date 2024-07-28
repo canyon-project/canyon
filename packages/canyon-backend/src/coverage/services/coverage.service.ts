@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { CoverageSummary } from '../models/coverage-summary';
-import { genSummaryMapByCoverageMap } from 'canyon-data';
-import { TestExcludeService } from './common/test-exclude.service';
-import { removeNullKeys } from '../../utils/utils';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "src/prisma/prisma.service";
+import { CoverageSummary } from "../models/coverage-summary";
+import { genSummaryMapByCoverageMap } from "canyon-data";
+import { TestExcludeService } from "./common/test-exclude.service";
+import { removeNullKeys } from "../../utils/utils";
 
 @Injectable()
 export class CoverageService {
@@ -21,7 +21,7 @@ export class CoverageService {
       where: {
         sha: sha,
         projectID,
-        covType: 'agg',
+        covType: "agg",
         // NOT: {
         //   projectID: {
         //     contains: '-ut',
@@ -29,7 +29,7 @@ export class CoverageService {
         // },
       },
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
     });
     if (coverages.length === 0) {
@@ -78,8 +78,8 @@ export class CoverageService {
       where: {
         projectID,
         sha: sha,
-        covType: reportID === '' ? 'all' : 'agg',
-        reportID: reportID === '' ? undefined : reportID,
+        covType: reportID === "" ? "all" : "agg",
+        reportID: reportID === "" ? undefined : reportID,
       },
     });
     const promise = filepath
@@ -117,7 +117,7 @@ export class CoverageService {
             return res.reduce((acc, cur) => {
               acc[cur.path] = {
                 statementMap: JSON.parse(
-                  cur.mapJsonStatementMapStartLine || '{}',
+                  cur.mapJsonStatementMapStartLine || "{}",
                 ),
               };
               return acc;

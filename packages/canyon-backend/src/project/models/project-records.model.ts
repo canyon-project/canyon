@@ -1,43 +1,43 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
 class Log {
   @Field(() => String, {
-    description: 'ID',
+    description: "ID",
   })
   id: string;
   @Field(() => String, {
-    description: 'Commit Sha',
+    description: "Commit Sha",
   })
   commitSha: string;
   @Field(() => String, {
-    description: '上报ID',
+    description: "上报ID",
   })
   reportID: string;
   @Field(() => String, {
-    description: '关系ID',
+    description: "关系ID",
   })
   relationID: string;
   @Field(() => Date, {
-    description: '创建时间',
+    description: "创建时间",
   })
   createdAt: string;
   @Field(() => String, {
-    description: '上报人',
+    description: "上报人",
   })
   reporterUsername: string;
   @Field(() => String, {
-    description: '上报人头像',
+    description: "上报人头像",
   })
   reporterAvatar: string;
 
   @Field(() => Number, {
-    description: '新增',
+    description: "新增",
   })
   newlines: number;
 
   @Field(() => Number, {
-    description: '全量',
+    description: "全量",
   })
   statements: number;
 }
@@ -45,84 +45,84 @@ class Log {
 @ObjectType()
 export class ProjectRecordsModel {
   @Field(() => String, {
-    description: 'commit信息',
+    description: "commit信息",
   })
   message: string;
   @Field(() => String, {
-    description: 'commit sha',
+    description: "commit sha",
   })
   sha: string;
 
   @Field(() => String, {
-    description: 'Compare Target',
+    description: "Compare Target",
   })
   compareTarget: string;
 
   @Field(() => String, {
-    description: 'branch',
+    description: "branch",
   })
   branch: string;
 
   @Field(() => String, {
-    description: 'buildURL',
+    description: "buildURL",
   })
   buildURL: string;
 
   @Field(() => String, {
-    description: 'buildID',
+    description: "buildID",
   })
   buildID: string;
 
   @Field(() => String, {
-    description: 'buildProvider',
+    description: "buildProvider",
   })
   buildProvider: string;
 
   @Field(() => String, {
-    description: 'Compare Url',
+    description: "Compare Url",
   })
   compareUrl: string;
 
   @Field(() => String, {
-    description: 'web url',
+    description: "web url",
   })
   webUrl: string;
 
   @Field(() => Number, {
-    description: '新增',
+    description: "新增",
   })
   newlines: number;
 
   @Field(() => Number, {
-    description: '全量',
+    description: "全量",
   })
   statements: number;
 
   @Field(() => Number, {
-    description: '分支覆盖率',
+    description: "分支覆盖率",
   })
   branches: number;
 
   @Field(() => Number, {
-    description: '函数覆盖率',
+    description: "函数覆盖率",
   })
   functions: number;
 
   @Field(() => Number, {
-    description: '行覆盖率',
+    description: "行覆盖率",
   })
   lines: number;
 
   @Field(() => Date, {
-    description: '最近一次上报',
+    description: "最近一次上报",
   })
   lastReportTime: string;
   @Field(() => Number, {
-    description: '上报次数',
+    description: "上报次数",
   })
   times: number;
   @Field(() => [Log], {
-    description: '上报日志',
+    description: "上报日志",
   })
   logs: Log[];
 }

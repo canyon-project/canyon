@@ -1,5 +1,5 @@
-import { CanyonPageOauth } from '../../components/old-ui';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { CanyonPageOauth } from "../../components/old-ui";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const Oauth = () => {
   const [URLSearchParams] = useSearchParams();
@@ -10,7 +10,7 @@ const Oauth = () => {
         URLSearchParams={URLSearchParams}
         onOauthFail={() => {
           localStorage.clear();
-          nav('/login');
+          nav("/login");
         }}
       />
     </div>

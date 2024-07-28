@@ -1,5 +1,5 @@
-mutation CreateProject($projectID: String!,$language: String!) {
-  createProject(projectID: $projectID,language: $language) {
+mutation CreateProject($projectID: String!, $language: String!) {
+  createProject(projectID: $projectID, language: $language) {
     id
     name
     pathWithNamespace

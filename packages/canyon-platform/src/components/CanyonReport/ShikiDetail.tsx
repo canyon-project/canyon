@@ -1,14 +1,14 @@
-import { codeToHtml } from 'https://esm.sh/shiki@1.0.0';
+import { codeToHtml } from "https://esm.sh/shiki@1.0.0";
 
-import { mergeIntervals } from './helper.tsx';
+import { mergeIntervals } from "./helper.tsx";
 
 const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState("");
 
   const statementStats = filecoverage.s;
   const statementMeta = filecoverage.statementMap;
   const structuredText = defaultValue
-    .split('\n')
+    .split("\n")
     .reduce((previousValue, currentValue, currentIndex) => {
       return {
         ...previousValue,
@@ -20,13 +20,13 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
   Object.entries(statementStats).forEach(([stName, count]) => {
     const meta = statementMeta[stName];
     if (meta) {
-      const type = count > 0 ? 'yes' : 'no';
+      const type = count > 0 ? "yes" : "no";
       const startCol = meta.start.column;
       let endCol = meta.end.column + 1;
       const startLine = meta.start.line;
       const endLine = meta.end.line;
 
-      if (type === 'no' && structuredText[startLine]) {
+      if (type === "no" && structuredText[startLine]) {
         if (endLine !== startLine) {
           endCol = structuredText[startLine].length;
         }
@@ -55,7 +55,7 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
   Object.entries(fnStats).forEach(([fName, count]) => {
     const meta = fnMeta[fName];
     if (meta) {
-      const type = count > 0 ? 'yes' : 'no';
+      const type = count > 0 ? "yes" : "no";
       // Some versions of the instrumenter in the wild populate 'func'
       // but not 'decl':
       const decl = meta.decl || meta.loc;
@@ -64,7 +64,7 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
       const startLine = decl.start.line;
       const endLine = decl.end.line;
 
-      if (type === 'no' && structuredText[startLine]) {
+      if (type === "no" && structuredText[startLine]) {
         if (endLine !== startLine) {
           endCol = structuredText[startLine].length;
         }
@@ -89,8 +89,8 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
   });
 
   codeToHtml(defaultValue, {
-    lang: 'javascript',
-    theme: theme === 'light' ? 'light-plus' : 'tokyo-night',
+    lang: "javascript",
+    theme: theme === "light" ? "light-plus" : "tokyo-night",
     decorations: mergeIntervals(
       [...statementDecorations, ...fnDecorations].filter((item) => {
         return item[0] < item[1];
@@ -99,7 +99,7 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
       return {
         start,
         end,
-        properties: { class: 'content-class-no-found' },
+        properties: { class: "content-class-no-found" },
       };
     }),
   })
@@ -107,16 +107,16 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
       setContent(res);
     })
     .catch((err) => {
-      console.log('覆盖率着色失败', err);
+      console.log("覆盖率着色失败", err);
       codeToHtml(defaultValue, {
-        lang: 'javascript',
-        theme: theme === 'light' ? 'light-plus' : 'tokyo-night',
+        lang: "javascript",
+        theme: theme === "light" ? "light-plus" : "tokyo-night",
       }).then((r) => {
         setContent(r);
       });
     });
   return (
-    <div className={'px-[12px] overflow-x-auto w-full'}>
+    <div className={"px-[12px] overflow-x-auto w-full"}>
       <div dangerouslySetInnerHTML={{ __html: content }}></div>
     </div>
   );

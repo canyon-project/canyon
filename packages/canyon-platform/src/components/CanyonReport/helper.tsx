@@ -24,12 +24,12 @@ export function coreFn(
 
   const content = fileDetail;
   // 1.转换成数组
-  const rows = [''];
+  const rows = [""];
   let index = 0;
   for (let i = 0; i < content.length; i++) {
-    if (content[i] === '\n') {
+    if (content[i] === "\n") {
       index += 1;
-      rows.push('');
+      rows.push("");
     } else {
       rows[index] += content[i];
     }
@@ -73,7 +73,9 @@ export function coreFn(
   for (let i = 0; i < rows.length; i++) {
     if (numberOfRows.find((n) => Number(n.lineNumber) === i + 1)) {
       lines.push({
-        executionNumber: numberOfRows.find((n) => Number(n.lineNumber) === i + 1).count,
+        executionNumber: numberOfRows.find(
+          (n) => Number(n.lineNumber) === i + 1,
+        ).count,
       });
     } else {
       lines.push({
@@ -90,7 +92,7 @@ export function coreFn(
 }
 
 export function genDecorationsLv2Array(code, startends) {
-  const lines = code.split('\n');
+  const lines = code.split("\n");
   function convertRanges(arr) {
     const result = [];
     arr.forEach((data) => {
@@ -167,11 +169,11 @@ export function capitalizeFirstLetter(string) {
 export function checkSuffix(path) {
   //   只要path里含有vue、js、jsx等就返回true
   return (
-    path.includes('.vue') ||
-    path.includes('.js') ||
-    path.includes('.jsx') ||
-    path.includes('.ts') ||
-    path.includes('.tsx')
+    path.includes(".vue") ||
+    path.includes(".js") ||
+    path.includes(".jsx") ||
+    path.includes(".ts") ||
+    path.includes(".tsx")
   );
 }
 

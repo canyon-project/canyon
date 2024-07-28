@@ -3,10 +3,10 @@
  */
 export type GQLError<T extends string> =
   | {
-      type: 'network_error';
+      type: "network_error";
       error: Error;
     }
   | {
-      type: 'gql_error';
+      type: "gql_error";
       error: T;
     };

@@ -1,67 +1,69 @@
-import { UsergroupAddOutlined } from '@ant-design/icons';
-import { useMutation, useQuery } from '@apollo/client';
+import { UsergroupAddOutlined } from "@ant-design/icons";
+import { useMutation, useQuery } from "@apollo/client";
 
 import {
   ListUserDocument,
   UpdateProjectDocument,
-} from '../../../../../../helpers/backend/gen/graphql.ts';
-import CrudTable from './crud.tsx';
+} from "../../../../../../helpers/backend/gen/graphql.ts";
+import CrudTable from "./crud.tsx";
 const { Text } = Typography;
 const options = [
   {
     label: (
-      <div className={'flex gap-1 flex-col'}>
+      <div className={"flex gap-1 flex-col"}>
         <Text>所有者</Text>
-        <Text type={'secondary'} style={{ fontSize: '12px' }}>
+        <Text type={"secondary"} style={{ fontSize: "12px" }}>
           所有者可以编辑和删除项目、上报记录及团队成员。
         </Text>
       </div>
     ),
-    value: 'owner',
+    value: "owner",
   },
   {
     label: (
-      <div className={'flex gap-1 flex-col'}>
+      <div className={"flex gap-1 flex-col"}>
         <Text>编辑者</Text>
-        <Text type={'secondary'} style={{ fontSize: '12px' }}>
+        <Text type={"secondary"} style={{ fontSize: "12px" }}>
           编辑者可以编辑和删除项目、上报记录。
         </Text>
       </div>
     ),
-    value: 'editor',
+    value: "editor",
   },
   {
     label: (
-      <div className={'flex gap-1 flex-col'}>
+      <div className={"flex gap-1 flex-col"}>
         <Text>查看者</Text>
-        <Text type={'secondary'} style={{ fontSize: '12px' }}>
+        <Text type={"secondary"} style={{ fontSize: "12px" }}>
           查看者只可查看项目、上报记录。
         </Text>
       </div>
     ),
-    value: 'viewer',
+    value: "viewer",
   },
 ];
 
 const roleMap = {
-  owner: '所有者',
-  editor: '编辑者',
-  viewer: '查看者',
+  owner: "所有者",
+  editor: "编辑者",
+  viewer: "查看者",
 };
 
 // Filter `option.label` match the user type `input`
-const filterOption = (input: string, option?: { label: string; value: string }) =>
-  (option?.label ?? '').toLowerCase().includes(input.toLowerCase());
+const filterOption = (
+  input: string,
+  option?: { label: string; value: string },
+) => (option?.label ?? "").toLowerCase().includes(input.toLowerCase());
 
 const MemberTable = ({ members }) => {
   const columns = [
     {
-      title: '成员',
-      dataIndex: 'userID',
-      key: 'userID',
+      title: "成员",
+      dataIndex: "userID",
+      key: "userID",
       render: (text) => {
         const find = (userOptions?.listUser || []).find((i) => i.id === text);
-        if (find){
+        if (find) {
           return `${find.nickname} <${find.email}>`;
         } else {
           return text;
@@ -69,9 +71,9 @@ const MemberTable = ({ members }) => {
       },
     },
     {
-      title: '角色',
-      dataIndex: 'role',
-      key: 'role',
+      title: "角色",
+      dataIndex: "role",
+      key: "role",
       render: (text) => {
         return roleMap[text];
       },
@@ -122,8 +124,8 @@ const MemberTable = ({ members }) => {
           role,
         })),
       },
-    }).then(res=>{
-      message.success('保存成功');
+    }).then((res) => {
+      message.success("保存成功");
     });
   };
 
@@ -131,8 +133,10 @@ const MemberTable = ({ members }) => {
     <div>
       <Card
         title={
-          <div className={'flex items-center'}>
-            <UsergroupAddOutlined className={'text-[#687076] mr-2 text-[16px]'} />
+          <div className={"flex items-center"}>
+            <UsergroupAddOutlined
+              className={"text-[#687076] mr-2 text-[16px]"}
+            />
             <span>成员</span>
           </div>
         }
@@ -148,30 +152,30 @@ const MemberTable = ({ members }) => {
           onSave={onSave}
           formItems={(mode) => (
             <>
-
-              <Form.Item label='成员' name='userID'>
+              <Form.Item label="成员" name="userID">
                 <Select
-                  disabled={mode === 'update' ? true : false}
-                  placeholder={'请选择成员'}
+                  disabled={mode === "update" ? true : false}
+                  placeholder={"请选择成员"}
                   showSearch={true}
                   filterOption={filterOption}
-                  options={(userOptions?.listUser || []).map(({ email, id, nickname }) => ({
-                    label: `${nickname} <${email}>`,
-                    value: id,
-                  }))}
+                  options={(userOptions?.listUser || []).map(
+                    ({ email, id, nickname }) => ({
+                      label: `${nickname} <${email}>`,
+                      value: id,
+                    }),
+                  )}
                 />
               </Form.Item>
 
-              <Form.Item label='角色' name='role'>
+              <Form.Item label="角色" name="role">
                 <Select
                   options={options}
-                  placeholder={'请选择角色'}
+                  placeholder={"请选择角色"}
                   labelRender={({ value }) => {
                     return <Text>{roleMap[value]}</Text>;
                   }}
                 />
               </Form.Item>
-
             </>
           )}
         />

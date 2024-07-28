@@ -1,4 +1,4 @@
-import * as t from 'io-ts';
+import * as t from "io-ts";
 
 interface TeamNameBrand {
   readonly TeamName: unique symbol;
@@ -7,7 +7,7 @@ interface TeamNameBrand {
 export const TeamNameCodec = t.brand(
   t.string,
   (x): x is t.Branded<string, TeamNameBrand> => x.trim().length >= 6,
-  'TeamName'
+  "TeamName",
 );
 
 export type TeamName = t.TypeOf<typeof TeamNameCodec>;

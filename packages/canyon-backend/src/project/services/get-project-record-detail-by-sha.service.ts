@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { percent } from '../../utils/utils';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { percent } from "../../utils/utils";
 @Injectable()
 export class GetProjectRecordDetailByShaService {
   constructor(private readonly prisma: PrismaService) {}
@@ -11,12 +11,12 @@ export class GetProjectRecordDetailByShaService {
       where: {
         projectID,
         sha,
-        covType: 'agg',
+        covType: "agg",
       },
       skip: (current - 1) * pageSize,
       take: pageSize,
       orderBy: {
-        updatedAt: 'desc',
+        updatedAt: "desc",
       },
     });
 
@@ -29,15 +29,15 @@ export class GetProjectRecordDetailByShaService {
       const coverage = coverages[i];
       const data = {
         ...coverage,
-        relationID: '',
-        compareUrl: '',
-        webUrl: '',
-        newlines: coverage.summary['newlines']['pct'],
-        statements: coverage.summary['statements']['pct'],
+        relationID: "",
+        compareUrl: "",
+        webUrl: "",
+        newlines: coverage.summary["newlines"]["pct"],
+        statements: coverage.summary["statements"]["pct"],
         lastReportTime: coverage.updatedAt,
         times: 0,
         logs: [],
-        message: '',
+        message: "",
         reporterUsername: users.find(({ id: uId }) => {
           return String(uId) === coverage.reporter;
         })?.nickname,

@@ -1,13 +1,19 @@
-import Highlighter from 'react-highlight-words';
+import Highlighter from "react-highlight-words";
 
-import { getCOlor, percent } from '../../helpers/utils/common.ts';
-const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyChange }) => {
+import { getCOlor, percent } from "../../helpers/utils/common.ts";
+const CanyonReportListTable = ({
+  dataSource,
+  loading,
+  keywords,
+  onSelect,
+  onlyChange,
+}) => {
   const { t } = useTranslation();
   const newlinesColumns = onlyChange
     ? [
         {
-          title: t('projects.newlines'),
-          width: '240px',
+          title: t("projects.newlines"),
+          width: "240px",
           sorter: (a, b) => {
             return (
               percent(a.newlines.covered, a.newlines.total) -
@@ -15,20 +21,25 @@ const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyCh
             );
           },
           // key: 'total',
-          dataIndex: ['newlines', 'total'],
+          dataIndex: ["newlines", "total"],
           render(text, record) {
             return (
               <Space>
                 <Progress
-                  percent={percent(record.newlines.covered, record.newlines.total)}
-                  strokeLinecap='butt'
-                  size={'small'}
-                  style={{ width: '100px' }}
-                  strokeColor={getCOlor(percent(record.newlines.covered, record.newlines.total))}
-                  className={'pr-5'}
-                  status={'normal'}
+                  percent={percent(
+                    record.newlines.covered,
+                    record.newlines.total,
+                  )}
+                  strokeLinecap="butt"
+                  size={"small"}
+                  style={{ width: "100px" }}
+                  strokeColor={getCOlor(
+                    percent(record.newlines.covered, record.newlines.total),
+                  )}
+                  className={"pr-5"}
+                  status={"normal"}
                 />
-                <span style={{ fontSize: '10px' }}>
+                <span style={{ fontSize: "10px" }}>
                   ({record.newlines.covered}/{record.newlines.total})
                 </span>
               </Space>
@@ -51,26 +62,26 @@ const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyCh
           },
         }}
       >
-        {' '}
+        {" "}
         <Table
           bordered={true}
           pagination={{
             defaultPageSize: 15,
           }}
           // pagination={false}
-          size={'small'}
+          size={"small"}
           dataSource={dataSource}
           loading={loading}
           columns={[
             {
-              title: t('projects.detail.files'),
-              key: 'path',
-              dataIndex: 'path',
+              title: t("projects.detail.files"),
+              key: "path",
+              dataIndex: "path",
               // width: '200px',
               render(text) {
                 return (
                   <a
-                    className={'block break-words w-[420px]'}
+                    className={"block break-words w-[420px]"}
                     onClick={() => {
                       onSelect({
                         path: text,
@@ -78,7 +89,7 @@ const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyCh
                     }}
                   >
                     <Highlighter
-                      highlightClassName='YourHighlightClass'
+                      highlightClassName="YourHighlightClass"
                       searchWords={[keywords]}
                       autoEscape={true}
                       textToHighlight={text}
@@ -88,17 +99,17 @@ const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyCh
               },
             },
             {
-              title: t('common.total'),
-              key: 'total',
-              dataIndex: ['statements', 'total'],
+              title: t("common.total"),
+              key: "total",
+              dataIndex: ["statements", "total"],
               sorter(a, b) {
                 return a.statements.total - b.statements.total;
               },
             },
             {
-              title: t('common.covered'),
-              key: 'covered',
-              dataIndex: ['statements', 'covered'],
+              title: t("common.covered"),
+              key: "covered",
+              dataIndex: ["statements", "covered"],
               sorter(a, b) {
                 return a.statements.covered - b.statements.covered;
               },
@@ -107,22 +118,22 @@ const CanyonReportListTable = ({ dataSource, loading, keywords, onSelect, onlyCh
             .concat(newlinesColumns)
             .concat([
               {
-                title: t('projects.config.coverage') + ' %',
-                width: '300px',
-                key: 'c',
+                title: t("projects.config.coverage") + " %",
+                width: "300px",
+                key: "c",
                 sorter: (a, b) => {
                   return a.statements.pct - b.statements.pct;
                 },
-                dataIndex: ['statements', 'pct'],
+                dataIndex: ["statements", "pct"],
                 render(text) {
                   return (
                     <Progress
                       percent={text}
-                      strokeLinecap='butt'
-                      size={'small'}
+                      strokeLinecap="butt"
+                      size={"small"}
                       strokeColor={getCOlor(text)}
-                      className={'pr-5'}
-                      status={'normal'}
+                      className={"pr-5"}
+                      status={"normal"}
                     />
                   );
                 },

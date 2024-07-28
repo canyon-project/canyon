@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 interface FileInfo {
   file_name: string;
@@ -142,7 +142,7 @@ export const getFileInfo = async (
         },
         headers: {
           // Authorization: `Bearer ${token}`,
-          'private-token': process.env.PRIVATE_TOKEN,
+          "private-token": process.env.PRIVATE_TOKEN,
         },
       },
     )
@@ -160,7 +160,7 @@ export const getCommits = async (
           {
             headers: {
               // Authorization: `Bearer ${token}`,
-              'private-token': process.env.PRIVATE_TOKEN,
+              "private-token": process.env.PRIVATE_TOKEN,
             },
           },
         )
@@ -168,8 +168,8 @@ export const getCommits = async (
         .catch(() => {
           return {
             id: commitSha,
-            message: '???',
-            web_url: '???',
+            message: "???",
+            web_url: "???",
           };
         });
     }),
@@ -181,7 +181,7 @@ export async function getProjectByID(projectID: string, token: string) {
     .get<ProjectInfo>(`${GITLAB_URL}/api/v4/projects/${projectID}`, {
       headers: {
         // Authorization: `Bearer ${token}`,
-        'private-token': process.env.PRIVATE_TOKEN,
+        "private-token": process.env.PRIVATE_TOKEN,
       },
     })
     .then(({ data }) => data);

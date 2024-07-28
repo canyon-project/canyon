@@ -1,15 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 const CanyonPageOauth = ({ URLSearchParams, onOauthFail }) => {
   const fetcher = (url: string) =>
     fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        code: URLSearchParams.get('code'),
-        redirectUri: location.origin + '/oauth',
+        code: URLSearchParams.get("code"),
+        redirectUri: location.origin + "/oauth",
       }),
     })
       .then((res) => res.json())
@@ -19,12 +19,12 @@ const CanyonPageOauth = ({ URLSearchParams, onOauthFail }) => {
           localStorage.clear();
           onOauthFail();
         } else {
-          localStorage.setItem('token', res.token);
-          window.location.href = localStorage.getItem('callback') || '/';
+          localStorage.setItem("token", res.token);
+          window.location.href = localStorage.getItem("callback") || "/";
         }
       });
   useEffect(() => {
-    fetcher('/api/oauth/token');
+    fetcher("/api/oauth/token");
   }, []);
 
   return <Spin spinning={true}>logging in...</Spin>;

@@ -1,4 +1,4 @@
-import { diffLine } from '../../../utils/diffline';
+import { diffLine } from "../../../utils/diffline";
 
 export class PullChangeCodeAndInsertDbService {
   async invoke(projectID, commitSha, compareTarget, accessToken, prisma) {

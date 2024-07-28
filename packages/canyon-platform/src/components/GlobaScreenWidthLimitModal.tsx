@@ -12,10 +12,10 @@ const useWindowSize = () => {
       });
     };
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -26,21 +26,21 @@ const GlobaScreenWidthLimitModal = () => {
 
   useEffect(() => {
     if (width < 1424) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     }
     // 在组件卸载时恢复滚动
     return () => {
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = "auto";
     };
   }, [width]);
 
   return (
     <>
       {false ? (
-        <div className={'fullscreen-modal'}>
+        <div className={"fullscreen-modal"}>
           <Result
-            className={'bg-white dark:bg-black rounded-lg'}
-            title='你的窗口太小了，请调大一点'
+            className={"bg-white dark:bg-black rounded-lg"}
+            title="你的窗口太小了，请调大一点"
           />
         </div>
       ) : null}

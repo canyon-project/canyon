@@ -1,5 +1,23 @@
-query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$lang: [String!]!,$bu: [String!]!,$field: String!,$order: String!,$favorOnly: Boolean!) {
-  getProjects(current:$current, pageSize:$pageSize, keyword:$keyword,lang:$lang,bu:$bu,field:$field,order:$order,favorOnly:$favorOnly) {
+query GetProjects(
+  $current: Int!
+  $pageSize: Int!
+  $keyword: String!
+  $lang: [String!]!
+  $bu: [String!]!
+  $field: String!
+  $order: String!
+  $favorOnly: Boolean!
+) {
+  getProjects(
+    current: $current
+    pageSize: $pageSize
+    keyword: $keyword
+    lang: $lang
+    bu: $bu
+    field: $field
+    order: $order
+    favorOnly: $favorOnly
+  ) {
     total
     data {
       id
@@ -8,7 +26,7 @@ query GetProjects($current: Int!, $pageSize: Int!, $keyword: String!,$lang: [Str
       bu
       reportTimes
       lastReportTime
-      maxCoverage,
+      maxCoverage
       favored
       language
     }
