@@ -1,7 +1,7 @@
 import Icon, { AppstoreOutlined, ExperimentOutlined } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/client";
 import { Editor } from "@monaco-editor/react";
-import { FormRegion, TextTypography } from "canyon-ui";
+import { FormRegion, TextTypography } from "../../../../../components/ui";
 
 import {
   GetProjectByIdDocument,

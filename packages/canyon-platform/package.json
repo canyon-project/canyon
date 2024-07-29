@@ -20,7 +20,6 @@
     "antd": "5.14.1",
     "axios": "^1.7.2",
     "canyon-data": "0.1.1-alpha.6",
-    "canyon-ui": "0.0.10-alpha.20",
     "copy-to-clipboard": "^3.3.3",
     "dayjs": "^1.11.12",
     "echarts": "^5.5.1",

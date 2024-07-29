@@ -7,7 +7,7 @@ import {
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/client";
 import { ColumnsType } from "antd/es/table";
-import { TextTypography } from "canyon-ui";
+import { TextTypography } from "../../../components/ui";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
