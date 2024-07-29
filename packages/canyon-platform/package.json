@@ -7,7 +7,6 @@
     "dev-platform": "vite",
     "do-build": "node --max_old_space_size=16384 ./node_modules/vite/bin/vite.js build",
     "preview": "vite preview",
-    "postinstall": "npm run codegen",
     "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
@@ -22,7 +21,7 @@
     "antd": "5.14.1",
     "axios": "^1.7.2",
     "canyon-ui": "0.0.10-alpha.20",
-    "canyon-ui-old": "0.0.9",
+    "canyon-ui-old": "workspace:^",
     "copy-to-clipboard": "^3.3.3",
     "dayjs": "^1.11.11",
     "echarts": "^5.5.1",
