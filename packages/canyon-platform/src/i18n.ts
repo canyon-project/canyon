@@ -8,7 +8,7 @@ import kor from "../locales/kor.json";
 import fra from "../locales/fra.json";
 import spa from "../locales/spa.json";
 import th from "../locales/th.json";
-import ara from "../locales/ara.json";
+// import ara from "../locales/ara.json";
 import ru from "../locales/ru.json";
 import pt from "../locales/pt.json";
 import de from "../locales/de.json";
@@ -50,9 +50,9 @@ const resources = {
   th: {
     translation: th,
   },
-  ara: {
-    translation: ara,
-  },
+  // ara: {
+  //   translation: ara,
+  // },
   ru: {
     translation: ru,
   },
