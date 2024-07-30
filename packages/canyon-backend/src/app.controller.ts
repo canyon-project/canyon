@@ -30,6 +30,7 @@ export class AppController {
     return [
       {
         month: 0,
+        year: 2024,
         uiTestBranchCoverage: 50.59,
         uiTestLineCoverage: 66.08,
         uiTestChangedLineCoverage: 100.0,
@@ -38,6 +39,7 @@ export class AppController {
       },
       {
         month: 1,
+        year: 2024,
         uiTestBranchCoverage: 51.45,
         uiTestLineCoverage: 67.18,
         uiTestChangedLineCoverage: 93.76,
@@ -46,6 +48,7 @@ export class AppController {
       },
       {
         month: 2,
+        year: 2024,
         uiTestBranchCoverage: 50.05,
         uiTestLineCoverage: 64.81,
         uiTestChangedLineCoverage: 93.95,
@@ -54,6 +57,7 @@ export class AppController {
       },
       {
         month: 3,
+        year: 2024,
         uiTestBranchCoverage: 55.15,
         uiTestLineCoverage: 68.7,
         uiTestChangedLineCoverage: 95.49,
@@ -62,6 +66,7 @@ export class AppController {
       },
       {
         month: 4,
+        year: 2024,
         uiTestBranchCoverage: 57.84,
         uiTestLineCoverage: 71.82,
         uiTestChangedLineCoverage: 95.1,
@@ -70,6 +75,7 @@ export class AppController {
       },
       {
         month: 5,
+        year: 2024,
         uiTestBranchCoverage: 62.84,
         uiTestLineCoverage: 76.37,
         uiTestChangedLineCoverage: 96.13,
@@ -78,6 +84,7 @@ export class AppController {
       },
       {
         month: 6,
+        year: 2024,
         uiTestBranchCoverage: 63.22,
         uiTestLineCoverage: 77.66,
         uiTestChangedLineCoverage: 95.35,
