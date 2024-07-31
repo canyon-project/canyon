@@ -11,10 +11,8 @@ import { IsValidCoverage } from "../valids/is-valid-coverage";
 export class CoverageClientDto {
   // git仓库相关
   @IsString()
-  @Matches(/^[a-f0-9]{40}$/i, { message: "commitSha格式不正确" })
-  @IsNotEmpty({ message: "commitSha 不能为空" })
-  commitSha: string;
-
+  @Matches(/^[a-f0-9]{40}$/i, { message: "sha格式不正确" })
+  @IsNotEmpty({ message: "sha 不能为空" })
   sha: string;
 
   @IsString()

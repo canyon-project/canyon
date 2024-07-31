@@ -29,7 +29,7 @@ export class CoverageClientService {
     private coveragediskService: CoveragediskService,
   ) {}
 
-  async oldInvoke(currentUser, coverageClientDto: CoverageClientDto, ip) {
+  async invoke(currentUser, coverageClientDto: CoverageClientDto) {
     // 1.检验 user 是否存在
     const currentUserDb = await this.prisma.user.findFirst({
       where: {
@@ -38,23 +38,6 @@ export class CoverageClientService {
     });
     if (!currentUserDb) {
       throw new UnauthorizedException();
-    }
-
-    // 2.防止插入重复key
-    if (coverageClientDto.key) {
-      const isRepeated = await this.prisma.coverage.findFirst({
-        where: {
-          key: coverageClientDto.key,
-        },
-      });
-      if (isRepeated) {
-        return {
-          msg: "ok",
-          coverageId: "isRepeated",
-          dataFormatAndCheckTime: "",
-          coverageInsertDbTime: "",
-        };
-      }
     }
 
     // 3.检验 project 是否存在
@@ -70,8 +53,6 @@ export class CoverageClientService {
       //   返回错误，项目不存在
       throw new HttpException("project not found", 400);
     }
-
-    coverageClientDto.sha = coverageClientDto.commitSha;
 
     // 注意这里还是小驼峰
     if (!coverageClientDto.reportID || coverageClientDto.reportID === "-") {
@@ -165,37 +146,6 @@ export class CoverageClientService {
     };
   }
 
-  async invoke(currentUser, coverageClientDto: CoverageClientDto, ip) {
-    const projects = await this.prisma.project.findMany({
-      where: {
-        id: {
-          contains: coverageClientDto.projectID,
-          mode: "insensitive", // Ignore case sensitivity
-          not: {
-            contains: "-ut",
-          },
-        },
-      },
-    });
-    if (projects.length > 0) {
-      const resList = [];
-      for (let i = 0; i < projects.length; i++) {
-        resList.push(
-          await this.oldInvoke(
-            currentUser,
-            {
-              ...coverageClientDto,
-              projectID: projects[i].id,
-            },
-            ip,
-          ),
-        );
-      }
-      return resList[0];
-    } else {
-      return this.oldInvoke(currentUser, coverageClientDto, ip);
-    }
-  }
   async dataFormatAndCheck(data, projectInstrumentCwd): Promise<any> {
     data = this.regularData(data);
     const instrumentCwd = data.instrumentCwd;
