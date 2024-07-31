@@ -99,20 +99,14 @@ model Project {
 }
 
 model Codechange {
-  id        String @id @default(cuid())
-  projectID String @map("project_id")
-
-  compareTarget String @map("compare_target")
-
-  sha String @map("sha")
-
-  path String
-
-  additions Int[]
-
-  deletions Int[]
-
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  id            String   @id @default(cuid())
+  projectID     String   @map("project_id")
+  compareTarget String   @map("compare_target")
+  sha           String   @map("sha")
+  path          String
+  additions     Int[]
+  deletions     Int[]
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
   @@map("codechange")
 }
