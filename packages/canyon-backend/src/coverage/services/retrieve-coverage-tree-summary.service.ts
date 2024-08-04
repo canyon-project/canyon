@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import { removeNullKeys } from "../../utils/utils";
+import { percent, removeNullKeys } from "../../utils/utils";
 import { emptyStatistics } from "../../constant";
 
 @Injectable()
@@ -23,6 +23,9 @@ export class RetrieveCoverageTreeSummaryService {
             },
           },
         }),
+        select: {
+          sha: true,
+        },
       });
 
       const sha = summaryFindFirst?.sha;
@@ -37,6 +40,10 @@ export class RetrieveCoverageTreeSummaryService {
             },
           },
         }),
+        select: {
+          sha: true,
+          projectID: true,
+        },
       });
       const project = await this.prisma.project.findFirst({
         where: {
@@ -67,6 +74,20 @@ export class RetrieveCoverageTreeSummaryService {
             },
           },
         },
+        select: {
+          reportID: true,
+          reporter: true,
+          updatedAt: true,
+          linesTotal: true,
+          linesCovered: true,
+          functionsTotal: true,
+          functionsCovered: true,
+          branchesTotal: true,
+          branchesCovered: true,
+          statementsTotal: true,
+          statementsCovered: true,
+          projectID: true,
+        },
       });
 
       const reportIDs = coverageAggs.map((coverageAgg) => {
@@ -77,7 +98,37 @@ export class RetrieveCoverageTreeSummaryService {
             users.find((user) => user.id === Number(coverageAgg.reporter))
               ?.username || "",
           reporterTime: coverageAgg.updatedAt,
-          statistics: {},
+          statistics: {
+            lines: {
+              total: coverageAgg.linesTotal,
+              covered: coverageAgg.linesCovered,
+              pct: percent(coverageAgg.linesCovered, coverageAgg.linesTotal),
+            },
+            functions: {
+              total: coverageAgg.functionsTotal,
+              covered: coverageAgg.functionsCovered,
+              pct: percent(
+                coverageAgg.functionsCovered,
+                coverageAgg.functionsTotal,
+              ),
+            },
+            branches: {
+              total: coverageAgg.branchesTotal,
+              covered: coverageAgg.branchesCovered,
+              pct: percent(
+                coverageAgg.branchesCovered,
+                coverageAgg.branchesTotal,
+              ),
+            },
+            statements: {
+              total: coverageAgg.statementsTotal,
+              covered: coverageAgg.statementsCovered,
+              pct: percent(
+                coverageAgg.statementsCovered,
+                coverageAgg.statementsTotal,
+              ),
+            },
+          },
         };
       });
 
@@ -92,6 +143,16 @@ export class RetrieveCoverageTreeSummaryService {
             },
           },
         },
+        select: {
+          linesTotal: true,
+          linesCovered: true,
+          functionsTotal: true,
+          functionsCovered: true,
+          branchesTotal: true,
+          branchesCovered: true,
+          statementsTotal: true,
+          statementsCovered: true,
+        },
       });
 
       return {
@@ -99,7 +160,40 @@ export class RetrieveCoverageTreeSummaryService {
         reportIDs: reportIDs,
         reportUrl: `${(redirectUri || "").replace("/oauth", "")}/projects/${coverageAggs[0]?.projectID || ""}/commits/${sha}`,
         sha: sha,
-        statistics: {},
+        statistics: {
+          lines: {
+            total: coverageAll?.linesTotal || 0,
+            covered: coverageAll?.linesCovered || 0,
+            pct: percent(
+              coverageAll?.linesCovered || 0,
+              coverageAll?.linesTotal || 0,
+            ),
+          },
+          functions: {
+            total: coverageAll?.functionsTotal || 0,
+            covered: coverageAll?.functionsCovered || 0,
+            pct: percent(
+              coverageAll?.functionsCovered || 0,
+              coverageAll?.functionsTotal || 0,
+            ),
+          },
+          branches: {
+            total: coverageAll?.branchesTotal || 0,
+            covered: coverageAll?.branchesCovered || 0,
+            pct: percent(
+              coverageAll?.branchesCovered || 0,
+              coverageAll?.branchesTotal || 0,
+            ),
+          },
+          statements: {
+            total: coverageAll?.statementsTotal || 0,
+            covered: coverageAll?.statementsCovered || 0,
+            pct: percent(
+              coverageAll?.statementsCovered || 0,
+              coverageAll?.statementsTotal || 0,
+            ),
+          },
+        },
         projectID: coverageAggs[0]?.projectID || "",
         projectPathWithNamespace: project.pathWithNamespace,
       };
