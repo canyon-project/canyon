@@ -19,15 +19,18 @@ export class GetProjectRecordDetailByShaService {
         updatedAt: "desc",
       },
       select: {
+        id: true,
+        sha: true,
+        reportID: true,
         statementsCovered: true,
         statementsTotal: true,
         newlinesCovered: true,
         newlinesTotal: true,
+        createdAt: true,
         updatedAt: true,
         reporter: true,
       },
     });
-
     const users = await this.prisma.user.findMany({
       where: {},
     });
@@ -61,5 +64,3 @@ export class GetProjectRecordDetailByShaService {
     return rows;
   }
 }
-
-//get-project-record-detail-by-sha.service.ts
