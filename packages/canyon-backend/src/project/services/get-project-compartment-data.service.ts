@@ -23,6 +23,11 @@ export class GetProjectCompartmentDataService {
       orderBy: {
         updatedAt: "desc",
       },
+      select: {
+        statementsCovered: true,
+        statementsTotal: true,
+        updatedAt: true,
+      },
     });
     if (coverages.length > 0) {
       return [
@@ -33,8 +38,11 @@ export class GetProjectCompartmentDataService {
         {
           label: "projects.max_coverage",
           value:
-            Math.max(...coverages.map((c) => c.summary["statements"]["pct"])) +
-            "%",
+            Math.max(
+              ...coverages.map((c) =>
+                percent(c.statementsCovered, c.statementsTotal),
+              ),
+            ) + "%",
         },
         {
           label: "projects.latest_report_time",
@@ -42,7 +50,11 @@ export class GetProjectCompartmentDataService {
         },
         {
           label: "projects.latest_report_coverage",
-          value: coverages[0].summary["statements"]["pct"] + "%",
+          value:
+            percent(
+              coverages[0].statementsCovered,
+              coverages[0].statementsTotal,
+            ) + "%",
         },
       ];
     } else {

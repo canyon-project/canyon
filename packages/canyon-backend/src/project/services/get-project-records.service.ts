@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { getCommits } from "../../adapter/gitlab.adapter";
+import { percent } from "../../utils/utils";
 @Injectable()
 export class GetProjectRecordsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -29,10 +30,11 @@ export class GetProjectRecordsService {
         // { message: { contains: keyword } },
       ],
       NOT: {
-        summary: {
-          path: ["statements", "covered"],
-          equals: 0,
-        },
+        // 老的逻辑，不再使用
+        // summary: {
+        //   path: ["statements", "covered"],
+        //   equals: 0,
+        // },
       },
     };
 
@@ -50,6 +52,25 @@ export class GetProjectRecordsService {
       take: pageSize,
       orderBy: {
         updatedAt: "desc",
+      },
+      select: {
+        sha: true,
+        compareTarget: true,
+        branch: true,
+        buildID: true,
+        buildProvider: true,
+        createdAt: true,
+        updatedAt: true,
+        statementsCovered: true,
+        statementsTotal: true,
+        functionsCovered: true,
+        functionsTotal: true,
+        branchesCovered: true,
+        branchesTotal: true,
+        linesCovered: true,
+        linesTotal: true,
+        newlinesCovered: true,
+        newlinesTotal: true,
       },
     });
     const commits = await getCommits(
@@ -69,6 +90,10 @@ export class GetProjectRecordsService {
             sha: coverage.sha,
             covType: "agg",
           },
+          select: {
+            createdAt: true,
+            updatedAt: true,
+          },
           orderBy: {
             updatedAt: "desc",
           },
@@ -87,11 +112,18 @@ export class GetProjectRecordsService {
         webUrl: commits.find(({ id }) => id === coverage.sha)?.web_url || "???",
         message:
           commits.find(({ id }) => id === coverage.sha)?.message || "???",
-        newlines: coverage.summary["newlines"]["pct"],
-        statements: coverage.summary["statements"]["pct"],
-        functions: coverage.summary["functions"]["pct"],
-        branches: coverage.summary["branches"]["pct"],
-        lines: coverage.summary["lines"]["pct"],
+        statements: percent(
+          coverage.statementsCovered,
+          coverage.statementsTotal,
+        ),
+        functions: percent(coverage.functionsCovered, coverage.functionsTotal),
+        branches: percent(coverage.branchesCovered, coverage.branchesTotal),
+        lines: percent(coverage.linesCovered, coverage.linesTotal),
+        newlines: percent(coverage.newlinesCovered, coverage.newlinesTotal),
+        // statements: coverage.summary["statements"]["pct"],
+        // functions: coverage.summary["functions"]["pct"],
+        // branches: coverage.summary["branches"]["pct"],
+        // lines: coverage.summary["lines"]["pct"],
         lastReportTime: cs[0]?.updatedAt || coverage.createdAt, //没有agg类型的时候就用all的创建时间
         times: cs.length,
         logs: [],

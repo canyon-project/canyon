@@ -19,7 +19,6 @@ import {
 } from "./models/project-record-detail.model";
 import { Project2 } from "./models/project2.model";
 import { PaginationArgs, SorterArgs } from "../types/input-types.args";
-import { GetProjectsNoDataService } from "./services/get-projects-no-data.service";
 import { GetProjectsService } from "./services/get-projects.service";
 import { User } from "../user/user.model";
 import { UpdateProjectArgs } from "./input-type.args";
@@ -35,7 +34,6 @@ export class ProjectResolver {
     private readonly getProjectCompartmentDataService: GetProjectCompartmentDataService,
     private readonly getProjectRecordDetailByShaService: GetProjectRecordDetailByShaService,
     private readonly getProjectsService: GetProjectsService,
-    private readonly getProjectsNoDataService: GetProjectsNoDataService,
     private readonly deleteProjectRecordService: DeleteProjectRecordService,
     private readonly updateProjectService: UpdateProjectService,
   ) {}
@@ -63,13 +61,6 @@ export class ProjectResolver {
       sorterArgs.order,
       favorOnly,
     );
-  }
-
-  @Query(() => [Project], {
-    description: "获取没有数据的项目",
-  })
-  getProjectsNoData(): Promise<Project[]> {
-    return this.getProjectsNoDataService.invoke();
   }
 
   @Query(() => [BuOption], {

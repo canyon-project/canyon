@@ -18,6 +18,14 @@ export class GetProjectRecordDetailByShaService {
       orderBy: {
         updatedAt: "desc",
       },
+      select: {
+        statementsCovered: true,
+        statementsTotal: true,
+        newlinesCovered: true,
+        newlinesTotal: true,
+        updatedAt: true,
+        reporter: true,
+      },
     });
 
     const users = await this.prisma.user.findMany({
@@ -32,8 +40,11 @@ export class GetProjectRecordDetailByShaService {
         relationID: "",
         compareUrl: "",
         webUrl: "",
-        newlines: coverage.summary["newlines"]["pct"],
-        statements: coverage.summary["statements"]["pct"],
+        statements: percent(
+          coverage.statementsCovered,
+          coverage.statementsTotal,
+        ),
+        newlines: percent(coverage.newlinesCovered, coverage.newlinesCovered),
         lastReportTime: coverage.updatedAt,
         times: 0,
         logs: [],

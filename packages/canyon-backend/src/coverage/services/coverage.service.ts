@@ -4,6 +4,7 @@ import { CoverageSummary } from "../models/coverage-summary";
 import { genSummaryMapByCoverageMap } from "canyon-data";
 import { TestExcludeService } from "./common/test-exclude.service";
 import { removeNullKeys } from "../../utils/utils";
+import { decompressedData } from "../../utils/zstd";
 
 @Injectable()
 export class CoverageService {
@@ -30,6 +31,10 @@ export class CoverageService {
       },
       orderBy: {
         updatedAt: "desc",
+      },
+      select: {
+        projectID: true,
+        compareTarget: true,
       },
     });
     if (coverages.length === 0) {
@@ -74,81 +79,24 @@ export class CoverageService {
     reportID,
     filepath = null,
   ) {
-    const { id } = await this.prisma.coverage.findFirst({
-      where: {
+    const cov = await this.prisma.coverage.findFirst({
+      where: removeNullKeys({
+        sha,
         projectID,
-        sha: sha,
-        covType: reportID === "" ? "all" : "agg",
-        reportID: reportID === "" ? undefined : reportID,
-      },
+        covType: reportID || null ? "agg" : "all",
+        reportID: reportID || null,
+      }),
     });
-    const promise = filepath
-      ? this.prisma.covMapTest
-          .findMany({
-            where: removeNullKeys({
-              projectID,
-              sha,
-              path: filepath,
-            }),
-            select: {
-              path: true,
-              mapJsonStr: true,
-            },
-          })
-          .then((res) => {
-            return res.reduce((acc, cur) => {
-              acc[cur.path] = JSON.parse(cur.mapJsonStr);
-              return acc;
-            }, {});
-          })
-      : this.prisma.covMapTest
-          .findMany({
-            where: removeNullKeys({
-              projectID,
-              sha,
-              path: filepath,
-            }),
-            select: {
-              path: true,
-              mapJsonStatementMapStartLine: true,
-            },
-          })
-          .then((res) => {
-            return res.reduce((acc, cur) => {
-              acc[cur.path] = {
-                statementMap: JSON.parse(
-                  cur.mapJsonStatementMapStartLine || "{}",
-                ),
-              };
-              return acc;
-            }, {});
-          });
-    const maps = [
-      this.prisma.covHit
-        .findFirst({
-          where: {
-            id: `__${id}__`,
-          },
-        })
-        .then((res) => {
-          return JSON.parse(res.mapJsonStr);
-        }),
-      promise,
-    ];
-
-    const [hit, map] = await Promise.all(maps);
+    const hit = JSON.parse(await decompressedData(cov.hit));
+    const map = JSON.parse(await decompressedData(cov.map));
     const obj = {};
-
     Object.entries(hit).forEach(([key, value]: any) => {
-      if (map[key]) {
-        obj[key] = {
-          path: key,
-          ...value,
-          ...map[key],
-        };
-      }
+      obj["~/" + key] = {
+        ...value,
+        ...map[key],
+        path: "~/" + key,
+      };
     });
-
     return obj;
   }
 }

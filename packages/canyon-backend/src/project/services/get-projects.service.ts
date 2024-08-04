@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { Prisma } from "@prisma/client";
-import { removeNullKeys, within30days } from "../../utils/utils";
+import { percent, removeNullKeys, within30days } from "../../utils/utils";
 import * as dayjs from "dayjs";
 @Injectable()
 export class GetProjectsService {
@@ -77,7 +77,9 @@ export class GetProjectsService {
         // report: true,
         createdAt: true,
         updatedAt: true,
-        summary: true,
+        statementsCovered: true,
+        statementsTotal: true,
+        // summary: true,
       },
     });
 
@@ -112,7 +114,9 @@ export class GetProjectsService {
                 ? Math.max(
                     ...covs
                       .filter((item) => within30days(item.updatedAt))
-                      .map((item) => item.summary["statements"]["pct"]),
+                      .map((item) =>
+                        percent(item.statementsCovered, item.statementsTotal),
+                      ),
                   )
                 : 0,
             reportTimes: covs.length,

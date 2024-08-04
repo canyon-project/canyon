@@ -13,7 +13,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { CoverageService } from "./services/coverage.service";
 import { RetrieveCoverageTreeSummaryService } from "./services/retrieve-coverage-tree-summary.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { ConsumerCoverageService } from "./services/core/consumer-coverage.service";
+// import { ConsumerCoverageService } from "./services/core/consumer-coverage.service";
 import { CoverageReportsService } from "./services/coverage-reports.service";
 
 @Controller()
@@ -25,9 +25,9 @@ export class CoverageController {
     private readonly coverageClientService: CoverageClientService,
     private readonly retrieveCoverageTreeSummaryService: RetrieveCoverageTreeSummaryService,
     private prisma: PrismaService,
-    private consumerCoverageService: ConsumerCoverageService,
+    // private consumerCoverageService: ConsumerCoverageService,
   ) {
-    this.consumerCoverageService.invoke();
+    // this.consumerCoverageService.invoke();
   }
 
   @UseGuards(JwtAuthGuard)
@@ -88,6 +88,9 @@ export class CoverageController {
           projectID: params.projectID,
           branch: params.branch,
           covType: "all",
+        },
+        select: {
+          sha: true,
         },
       });
       if (coverage) {

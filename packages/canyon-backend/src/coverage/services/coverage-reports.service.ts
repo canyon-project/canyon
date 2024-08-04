@@ -42,14 +42,11 @@ export class CoverageReportsService {
       const projectID = `${covs[i].projectID.split("-")[1]}-${covs[i].projectID.includes("-ut") ? "ut" : "auto"}`;
       if (obj[projectID] === undefined) {
         obj[projectID] = {
-          maxCoverage: covs[i].summary["statements"]["pct"],
+          maxCoverage: 0,
           projectID: covs[i].projectID.split("-")[1],
         };
       } else {
-        obj[projectID].maxCoverage = Math.max(
-          obj[projectID].maxCoverage,
-          covs[i].summary["statements"]["pct"],
-        );
+        obj[projectID].maxCoverage = Math.max(obj[projectID].maxCoverage, 0);
       }
     }
     const rows = [];

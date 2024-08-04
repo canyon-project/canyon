@@ -239,9 +239,6 @@ type Query {
     favorOnly: Boolean!
   ): ProjectPagesModel!
 
-  """获取没有数据的项目"""
-  getProjectsNoData: [Project!]!
-
   """获取Projects部门选项"""
   getProjectsBuOptions: [BuOption!]!
 

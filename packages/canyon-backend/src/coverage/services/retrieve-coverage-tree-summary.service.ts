@@ -77,7 +77,7 @@ export class RetrieveCoverageTreeSummaryService {
             users.find((user) => user.id === Number(coverageAgg.reporter))
               ?.username || "",
           reporterTime: coverageAgg.updatedAt,
-          statistics: coverageAgg.summary,
+          statistics: {},
         };
       });
 
@@ -99,7 +99,7 @@ export class RetrieveCoverageTreeSummaryService {
         reportIDs: reportIDs,
         reportUrl: `${(redirectUri || "").replace("/oauth", "")}/projects/${coverageAggs[0]?.projectID || ""}/commits/${sha}`,
         sha: sha,
-        statistics: coverageAll.summary,
+        statistics: {},
         projectID: coverageAggs[0]?.projectID || "",
         projectPathWithNamespace: project.pathWithNamespace,
       };
