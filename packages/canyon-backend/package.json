@@ -11,6 +11,7 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@mongodb-js/zstd": "^1.2.0",
     "@nestjs/apollo": "^12.2.0",
     "@nestjs/common": "^10.3.10",
     "@nestjs/config": "^3.2.3",
