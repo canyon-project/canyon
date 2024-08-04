@@ -30,159 +30,115 @@ export class CoverageClientService {
   ) {}
 
   async invoke(currentUser, coverageClientDto: CoverageClientDto) {
-    return {};
+    // 1.检验 user 是否存在
+    const currentUserDb = await this.prisma.user.findFirst({
+      where: {
+        id: checkUserID(currentUser),
+      },
+    });
+    if (!currentUserDb) {
+      throw new UnauthorizedException();
+    }
 
-    // // 1.检验 user 是否存在
-    // const currentUserDb = await this.prisma.user.findFirst({
-    //   where: {
-    //     id: checkUserID(currentUser),
-    //   },
-    // });
-    // if (!currentUserDb) {
-    //   throw new UnauthorizedException();
-    // }
-    //
-    // // 3.检验 project 是否存在
-    // const project = await this.prisma.project.findFirst({
-    //   where: {
-    //     id: coverageClientDto.projectID,
-    //   },
-    //   select: {
-    //     instrumentCwd: true,
-    //   },
-    // });
-    // if (!project) {
-    //   //   返回错误，项目不存在
-    //   throw new HttpException("project not found", 400);
-    // }
-    //
-    // // 注意这里还是小驼峰
-    // if (!coverageClientDto.reportID || coverageClientDto.reportID === "-") {
-    //   coverageClientDto.reportID = coverageClientDto.sha;
-    // }
-    // if (
-    //   !coverageClientDto.compareTarget ||
-    //   coverageClientDto.compareTarget === "-"
-    // ) {
-    //   coverageClientDto.compareTarget = coverageClientDto.sha;
-    // }
-    // // ******************************************************
-    // // ******************************************************
-    // // ******************************************************
-    // // 重要方法，数据格式化和检查
-    // // ******************************************************
-    // // ******************************************************
-    // // ******************************************************
-    // const coverageReport = coverageClientDto;
-    // const cov: Coverage & { coverage: any } = {
-    //   id: "",
-    //   key: coverageReport.key || "",
-    //   sha: coverageReport.sha,
-    //   branch: coverageReport.branch || "-",
-    //   compareTarget: coverageReport.compareTarget,
-    //   provider: "gitlab",
-    //   buildProvider: coverageReport.buildProvider || "gitlab",
-    //   buildID: coverageReport.buildID || "-",
-    //   projectID: coverageReport.projectID,
-    //   instrumentCwd: coverageReport.instrumentCwd,
-    //   reporter: currentUser,
-    //   reportID: coverageReport.reportID,
-    //   covType: "normal",
-    //   // rule: 'auto', //没有就是手工
-    //   summary: {},
-    //   tag: coverageReport.tags || {},
-    //   relationID: "",
-    //   createdAt: new Date(),
-    //   updatedAt: new Date(),
-    //   //后加的
-    //   coverage: coverageReport.coverage,
-    // };
-    // const dataFormatAndCheckQueueDataToBeConsumed =
-    //   await this.dataFormatAndCheck(cov, project?.instrumentCwd);
-    //
-    // // 这里要有一个地方分开bfs
-    //
-    // const objMap = {};
-    // const objHit = {};
-    //
-    // // getLineCoverage() {
-    // //   const statementMap = this.data.statementMap;
-    // //   const statements = this.data.s;
-    // //   const lineMap = Object.create(null);
-    // //
-    // //   Object.entries(statements).forEach(([st, count]) => {
-    // //     /* istanbul ignore if: is this even possible? */
-    // //     if (!statementMap[st]) {
-    // //       return;
-    // //     }
-    // //     const { line } = statementMap[st].start;
-    // //     const prevVal = lineMap[line];
-    // //     if (prevVal === undefined || prevVal < count) {
-    // //       lineMap[line] = count;
-    // //     }
-    // //   });
-    // //   return lineMap;
-    // // }
-    //
-    // // TODO: Hit表多存一个statementMap，这里可以大大减少消费时候的计算量
-    //
-    // // TODO: 存一张表里，coverage-data，hit、map
-    //
-    // // TODO: 写一个job，做数据库迁移了。
-    //
-    // // 查询的时候支持tag查询，要把ut排除掉了
-    //
-    // function fn(sMap) {
-    //   // 只保留start
-    //   const obj = {};
-    //   Object.entries(sMap).forEach(([key, value]) => {
-    //     obj[key] = value.start.line;
-    //   });
-    //   return obj;
-    // }
-    //
-    // Object.entries(dataFormatAndCheckQueueDataToBeConsumed.coverage).forEach(
-    //   ([path, value]: any) => {
-    //     objMap[path] = {
-    //       fnMap: value.fnMap,
-    //       branchMap: value.branchMap,
-    //       statementMap: value.statementMap,
-    //     };
-    //     objHit[path] = {
-    //       f: value.f,
-    //       b: value.b,
-    //       s: value.s,
-    //       statementStartLineMap: fn(value.statementMap),
-    //     };
-    //   },
-    // );
-    //
-    // await this.prisma.covMapTest.createMany({
-    //   data: Object.entries(objMap).map(([path, value]: any) => {
-    //     const { projectID, sha } = dataFormatAndCheckQueueDataToBeConsumed;
-    //     return {
-    //       id: `__${projectID}__${sha}__${path}__`,
-    //       mapJsonStr: JSON.stringify(value), //???没删除bfs
-    //       mapJsonStatementMapStartLine: JSON.stringify(
-    //         filterStatementMap(value.statementMap || {}),
-    //       ),
-    //       projectID: projectID,
-    //       sha: sha,
-    //       path: path,
-    //     };
-    //   }),
-    //   skipDuplicates: true,
-    // });
+    // 3.检验 project 是否存在
+    const project = await this.prisma.project.findFirst({
+      where: {
+        id: coverageClientDto.projectID,
+      },
+      select: {
+        instrumentCwd: true,
+      },
+    });
+    if (!project) {
+      //   返回错误，项目不存在
+      throw new HttpException("project not found", 400);
+    }
+
+    // 注意这里还是小驼峰
+    if (!coverageClientDto.reportID || coverageClientDto.reportID === "-") {
+      coverageClientDto.reportID = coverageClientDto.sha;
+    }
+    if (
+      !coverageClientDto.compareTarget ||
+      coverageClientDto.compareTarget === "-"
+    ) {
+      coverageClientDto.compareTarget = coverageClientDto.sha;
+    }
+    // ******************************************************
+    // ******************************************************
+    // ******************************************************
+    // 重要方法，数据格式化和检查
+    // ******************************************************
+    // ******************************************************
+    // ******************************************************
+    const coverageReport = coverageClientDto;
+    const cov: Coverage & { coverage: any } = {
+      id: "",
+      sha: coverageReport.sha,
+      branch: coverageReport.branch || "-",
+      compareTarget: coverageReport.compareTarget,
+      provider: "gitlab",
+      buildProvider: coverageReport.buildProvider || "gitlab",
+      buildID: coverageReport.buildID || "-",
+      projectID: coverageReport.projectID,
+      reporter: currentUser,
+      reportID: coverageReport.reportID,
+      covType: "normal",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      //后加的
+    };
+    const dataFormatAndCheckQueueDataToBeConsumed =
+      await this.dataFormatAndCheck(cov, project?.instrumentCwd);
+
+    // 这里要有一个地方分开bfs
+
+    const objMap = {};
+    const objHit = {};
+
+    // TODO: Hit表多存一个statementMap，这里可以大大减少消费时候的计算量
+
+    // TODO: 存一张表里，coverage-data，hit、map
+
+    // TODO: 写一个job，做数据库迁移了。
+
+    // 查询的时候支持tag查询，要把ut排除掉了
+
+    function fn(sMap) {
+      // 只保留start
+      const obj = {};
+      Object.entries(sMap).forEach(([key, value]: any) => {
+        obj[key] = value.start.line;
+      });
+      return obj;
+    }
+
+    Object.entries(dataFormatAndCheckQueueDataToBeConsumed.coverage).forEach(
+      ([path, value]: any) => {
+        objMap[path] = {
+          fnMap: value.fnMap,
+          branchMap: value.branchMap,
+          statementMap: value.statementMap,
+        };
+        objHit[path] = {
+          f: value.f,
+          b: value.b,
+          s: value.s,
+          statementStartLineMap: fn(value.statementMap),
+        };
+      },
+    );
+
     // await this.coveragediskService.pushQueue({
     //   ...dataFormatAndCheckQueueDataToBeConsumed,
     //   coverage: objHit,
     // });
-    // return {
-    //   msg: "ok",
-    //   coverageId: "",
-    //   dataFormatAndCheckTime: "",
-    //   coverageInsertDbTime: "",
-    // };
+    return {
+      msg: "ok",
+      coverageId: "",
+      dataFormatAndCheckTime: "",
+      coverageInsertDbTime: "",
+    };
   }
 
   async dataFormatAndCheck(data, projectInstrumentCwd): Promise<any> {
