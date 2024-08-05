@@ -23,7 +23,7 @@
     "@nestjs/schedule": "^4.1.0",
     "@nestjs/serve-static": "^4.0.2",
     "@nestjs/typeorm": "^10.0.2",
-    "adm-zip": "^0.5.14",
+    "adm-zip": "^0.5.15",
     "axios": "^1.7.3",
     "better-sqlite3": "^11.1.2",
     "body-parser": "^1.20.2",
