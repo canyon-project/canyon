@@ -45,7 +45,6 @@ model GitProvider {
 }
 
 model Coverage {
-  // projectID、sha、covType、reportID作为唯一联合索引
   id                String   @id @default(cuid())
   sha               String   @map("sha")
   branch            String
@@ -70,7 +69,6 @@ model Coverage {
   newlinesCovered   Int      @map("newlines_covered")
   // 代码覆盖率详情
   hit               String
-  map               String
   // 通用
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
   updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
@@ -78,18 +76,14 @@ model Coverage {
   @@map("new_coverage")
 }
 
-model CovMapTest {
-  id                           String @id
-  mapJsonStr                   String @map("map_json_str")
-  mapJsonStatementMapStartLine String @map("map_json_statement_map_start_line")
-  projectID                    String @map("project_id")
-  sha                          String
-  path                         String
-}
+model CoverageMap {
+  id        String @id @default(cuid())
+  projectID String @map("project_id")
+  sha       String @map("sha")
+  path      String
+  map       String
 
-model CovHit {
-  id         String @id
-  mapJsonStr String @map("map_json_str")
+  @@map("new_coverage_map")
 }
 
 model Project {
@@ -120,15 +114,6 @@ model Codechange {
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
   @@map("codechange")
-}
-
-model Filepath {
-  id        String @id @default(cuid())
-  projectID String @map("project_id")
-  sha       String @map("sha")
-  path      String
-
-  @@map("filepath")
 }
 
 model Distributedlock {

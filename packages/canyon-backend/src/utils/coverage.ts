@@ -41,7 +41,7 @@ export async function formatReportObject(c: any) {
     for (let i = 1; i < a.length; i++) {
       b += a[i];
     }
-    return "~/" + b;
+    return "" + b;
   };
   const obj: any = {};
   for (const coverageKey in coverage) {

@@ -8,6 +8,7 @@ import { CoverageClientDto } from "../dto/coverage-client.dto";
 import { Coverage } from "@prisma/client";
 import { CoveragediskService } from "./core/coveragedisk.service";
 import { filterStatementMap, formatReportObject } from "../../utils/coverage";
+import { compressedData } from "../../utils/zstd";
 /**
  * 上传覆盖率，十分重要的服务
  */
@@ -72,7 +73,7 @@ export class CoverageClientService {
     // ******************************************************
     // ******************************************************
     const coverageReport = coverageClientDto;
-    const cov: Coverage & { coverage: any } = {
+    const cov: Coverage & { coverage: any; instrumentCwd: string } = {
       id: "",
       sha: coverageReport.sha,
       branch: coverageReport.branch || "-",
@@ -86,6 +87,20 @@ export class CoverageClientService {
       covType: "normal",
       createdAt: new Date(),
       updatedAt: new Date(),
+      branchesCovered: 0,
+      branchesTotal: 0,
+      functionsCovered: 0,
+      functionsTotal: 0,
+      linesCovered: 0,
+      linesTotal: 0,
+      statementsCovered: 0,
+      statementsTotal: 0,
+      newlinesCovered: 0,
+      newlinesTotal: 0,
+      hit: "",
+      coverage: coverageReport.coverage,
+      instrumentCwd: coverageReport.instrumentCwd,
+
       //后加的
     };
     const dataFormatAndCheckQueueDataToBeConsumed =
@@ -129,10 +144,33 @@ export class CoverageClientService {
       },
     );
 
-    // await this.coveragediskService.pushQueue({
-    //   ...dataFormatAndCheckQueueDataToBeConsumed,
-    //   coverage: objHit,
-    // });
+    const arr = await Promise.all(
+      Object.entries(objMap).map(([path, value]: any) => {
+        return compressedData(JSON.stringify(value)).then((r) => ({
+          path: path,
+          map: r,
+        }));
+      }),
+    );
+
+    await this.prisma.coverageMap.createMany({
+      data: arr.map(({ path, map }: any) => {
+        const { projectID, sha } = dataFormatAndCheckQueueDataToBeConsumed;
+        return {
+          id: `__${projectID}__${sha}__${path}__`,
+          map: map, //???没删除bfs
+          projectID: projectID,
+          sha: sha,
+          path: path,
+        };
+      }),
+      skipDuplicates: true,
+    });
+
+    await this.coveragediskService.pushQueue({
+      ...dataFormatAndCheckQueueDataToBeConsumed,
+      coverage: objHit,
+    });
     return {
       msg: "ok",
       coverageId: "",

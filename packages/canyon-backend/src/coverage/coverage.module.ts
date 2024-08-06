@@ -4,7 +4,7 @@ import { CoverageClientService } from "./services/coverage-client.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CoverageController } from "./coverage.controller";
 import { CoverageService } from "./services/coverage.service";
-// import { ConsumerCoverageService } from "./services/core/consumer-coverage.service";
+import { ConsumerCoverageService } from "./services/core/consumer-coverage.service";
 import { PullChangeCodeAndInsertDbService } from "./services/common/pull-change-code-and-insert-db.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CoveragediskEntity } from "./entity/coveragedisk.entity";
@@ -21,7 +21,7 @@ import { CoverageReportsService } from "./services/coverage-reports.service";
     CoverageClientService,
     RetrieveCoverageTreeSummaryService,
     CoverageService,
-    // ConsumerCoverageService,
+    ConsumerCoverageService,
     PullChangeCodeAndInsertDbService,
     PullFilePathAndInsertDbService,
     CoveragediskService,

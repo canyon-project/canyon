@@ -61,7 +61,8 @@ export class CoverageService {
     });
   }
 
-  async getCoverageData(projectID, commitSha, reportID, filepath) {
+  async getCoverageData(projectID, commitSha, reportID, _filepath) {
+    const filepath = _filepath ? _filepath.replaceAll("~/", "") : null;
     // 获取单个需要优化
     const coverageData = await this.getCoverageDataFromAdapter(
       projectID,
@@ -88,13 +89,34 @@ export class CoverageService {
       }),
     });
     const hit = JSON.parse(await decompressedData(cov.hit));
-    const map = JSON.parse(await decompressedData(cov.map));
+
+    const coverageMaps = await this.prisma.coverageMap.findMany({
+      where: removeNullKeys({
+        sha,
+        projectID,
+        path: filepath,
+      }),
+    });
+
+    // console.log(coverageMaps.length)
+
+    const coverageJsonMaps = await Promise.all(
+      coverageMaps.map((coverageMap) => {
+        return decompressedData(coverageMap.map).then((map) => {
+          return {
+            ...coverageMap,
+            ...JSON.parse(map),
+          };
+        });
+      }),
+    );
+    // console.log(filepath,'filepath')
     const obj = {};
-    Object.entries(hit).forEach(([key, value]: any) => {
-      obj["~/" + key] = {
-        ...value,
-        ...map[key],
-        path: "~/" + key,
+    coverageJsonMaps.forEach((item) => {
+      obj[item.path] = {
+        ...item,
+        ...hit[item.path],
+        path: item.path,
       };
     });
     return obj;
