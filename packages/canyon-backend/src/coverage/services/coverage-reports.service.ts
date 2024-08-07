@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import * as dayjs from "dayjs";
+import { percent } from "../../utils/utils";
 @Injectable()
 export class CoverageReportsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -36,17 +37,28 @@ export class CoverageReportsService {
           lte: dayjs(end).toDate(),
         },
       },
+      select: {
+        projectID: true,
+        statementsCovered: true,
+        statementsTotal: true,
+      },
     });
     const obj = {};
     for (let i = 0; i < covs.length; i++) {
       const projectID = `${covs[i].projectID.split("-")[1]}-${covs[i].projectID.includes("-ut") ? "ut" : "auto"}`;
       if (obj[projectID] === undefined) {
         obj[projectID] = {
-          maxCoverage: 0,
+          maxCoverage: percent(
+            covs[i].statementsCovered,
+            covs[i].statementsTotal,
+          ),
           projectID: covs[i].projectID.split("-")[1],
         };
       } else {
-        obj[projectID].maxCoverage = Math.max(obj[projectID].maxCoverage, 0);
+        obj[projectID].maxCoverage = Math.max(
+          obj[projectID].maxCoverage,
+          percent(covs[i].statementsCovered, covs[i].statementsTotal),
+        );
       }
     }
     const rows = [];
