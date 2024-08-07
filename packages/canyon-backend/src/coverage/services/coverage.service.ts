@@ -98,8 +98,6 @@ export class CoverageService {
       }),
     });
 
-    // console.log(coverageMaps.length)
-
     const coverageJsonMaps = await Promise.all(
       coverageMaps.map((coverageMap) => {
         return decompressedData(coverageMap.map).then((map) => {
@@ -113,21 +111,22 @@ export class CoverageService {
     // console.log(filepath,'filepath')
     const obj = {};
     coverageJsonMaps.forEach((item) => {
-      const o = {
-        ...hit[item.path],
-        ...item,
-        path: item.path,
-      };
-
-      obj[item.path] = {
-        path: o.path,
-        b: o.b || {},
-        f: o.f || {},
-        s: o.s || {},
-        branchMap: o.branchMap || {},
-        fnMap: o.fnMap || {},
-        statementMap: o.statementMap || {},
-      };
+      if (hit[item.path]) {
+        const o = {
+          ...hit[item.path],
+          ...item,
+          path: item.path,
+        };
+        obj[item.path] = {
+          path: o.path,
+          b: o.b || {},
+          f: o.f || {},
+          s: o.s || {},
+          branchMap: o.branchMap || {},
+          fnMap: o.fnMap || {},
+          statementMap: o.statementMap || {},
+        };
+      }
     });
     return obj;
   }
