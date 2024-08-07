@@ -47,7 +47,7 @@ export class GetProjectRecordDetailByShaService {
           coverage.statementsCovered,
           coverage.statementsTotal,
         ),
-        newlines: percent(coverage.newlinesCovered, coverage.newlinesCovered),
+        newlines: percent(coverage.newlinesCovered, coverage.newlinesTotal),
         lastReportTime: coverage.updatedAt,
         times: 0,
         logs: [],

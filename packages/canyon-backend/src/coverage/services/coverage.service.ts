@@ -56,7 +56,7 @@ export class CoverageService {
       return {
         path: key,
         ...value,
-        change: codechanges.map(({ path }) => `~/${path}`).includes(key),
+        change: codechanges.map(({ path }) => `${path}`).includes(key),
       };
     });
   }
