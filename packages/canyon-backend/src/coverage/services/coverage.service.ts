@@ -127,7 +127,6 @@ export class CoverageService {
         branchMap: o.branchMap || {},
         fnMap: o.fnMap || {},
         statementMap: o.statementMap || {},
-        ...o,
       };
     });
     return obj;
