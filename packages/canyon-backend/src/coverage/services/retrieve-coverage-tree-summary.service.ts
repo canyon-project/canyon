@@ -162,6 +162,8 @@ export class RetrieveCoverageTreeSummaryService {
           branchesCovered: true,
           statementsTotal: true,
           statementsCovered: true,
+          newlinesTotal: true,
+          newlinesCovered: true,
         },
       });
 
@@ -171,6 +173,14 @@ export class RetrieveCoverageTreeSummaryService {
         reportUrl: `${(redirectUri || "").replace("/oauth", "")}/projects/${coverageAggs[0]?.projectID || ""}/commits/${sha}`,
         sha: sha,
         statistics: {
+          newlines: {
+            total: coverageAll?.newlinesTotal || 0,
+            covered: coverageAll?.newlinesCovered || 0,
+            pct: percent(
+              coverageAll?.newlinesCovered || 0,
+              coverageAll?.newlinesTotal || 0,
+            ),
+          },
           lines: {
             total: coverageAll?.linesTotal || 0,
             covered: coverageAll?.linesCovered || 0,
