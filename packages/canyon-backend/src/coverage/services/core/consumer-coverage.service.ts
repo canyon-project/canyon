@@ -127,8 +127,6 @@ export class ConsumerCoverageService {
         ),
       );
 
-      console.log(sum, "sum");
-
       const hit = await compressedData(JSON.stringify(newcoverage));
       await this.prisma.coverage.update({
         where: {
@@ -164,7 +162,7 @@ export class ConsumerCoverageService {
         ),
       );
       const hit = await compressedData(JSON.stringify(newcoverage));
-      const newAgg = await this.prisma.coverage.create({
+      await this.prisma.coverage.create({
         data: {
           hit: hit,
           covType: covType,
@@ -193,7 +191,6 @@ export class ConsumerCoverageService {
           buildProvider: queueDataToBeConsumed.buildProvider,
         },
       });
-      console.log(newAgg);
     }
   }
   async pullChangeCode(coverage) {
