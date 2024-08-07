@@ -63,7 +63,19 @@ export class CoverageClientService {
       !coverageClientDto.compareTarget ||
       coverageClientDto.compareTarget === "-"
     ) {
-      coverageClientDto.compareTarget = coverageClientDto.sha;
+      const initCoverage = await this.prisma.coverage.findFirst({
+        where: {
+          covType: "all",
+          projectID: coverageClientDto.projectID,
+          sha: coverageClientDto.sha,
+        },
+        select: {
+          compareTarget: true,
+        },
+      });
+      coverageClientDto.compareTarget = initCoverage
+        ? initCoverage.compareTarget
+        : coverageClientDto.sha;
     }
     // ******************************************************
     // ******************************************************
