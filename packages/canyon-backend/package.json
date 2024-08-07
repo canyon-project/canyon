@@ -27,7 +27,7 @@
     "axios": "^1.7.3",
     "better-sqlite3": "^11.1.2",
     "body-parser": "^1.20.2",
-    "canyon-data": "0.1.1-alpha.7",
+    "canyon-data": "0.1.1-alpha.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
