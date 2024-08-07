@@ -86,6 +86,8 @@ export class RetrieveCoverageTreeSummaryService {
           branchesCovered: true,
           statementsTotal: true,
           statementsCovered: true,
+          newlinesTotal: true,
+          newlinesCovered: true,
           projectID: true,
         },
       });
@@ -99,6 +101,14 @@ export class RetrieveCoverageTreeSummaryService {
               ?.username || "",
           reporterTime: coverageAgg.updatedAt,
           statistics: {
+            newlines: {
+              total: coverageAgg.newlinesTotal,
+              covered: coverageAgg.newlinesCovered,
+              pct: percent(
+                coverageAgg.newlinesCovered,
+                coverageAgg.newlinesTotal,
+              ),
+            },
             lines: {
               total: coverageAgg.linesTotal,
               covered: coverageAgg.linesCovered,
