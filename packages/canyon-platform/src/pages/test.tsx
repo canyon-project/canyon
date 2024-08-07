@@ -1,7 +1,9 @@
 import EChartsReact from "echarts-for-react";
 const data = {
   Month: ["1月", "2月", "3月", "4月", "5月", "6月"],
-  "Branch Coverage (%)": [66.08, 67.18, 64.81, 68.7, 71.82, 76.37],
+  // "Branch Coverage (%)": [66.08, 67.18, 64.81, 68.7, 71.82, 76.37],
+  // "Line Coverage (%)": [56.08, 59.19, 63.23, 66.47, 71.61, 77.23],
+  "Branch Coverage (%)": [50.59, 51.45, 50.05, 55.15, 57.84, 62.84],
   "Line Coverage (%)": [56.08, 59.19, 63.23, 66.47, 71.61, 77.23],
   "Changed Line Coverage (%)": [null, 93.76, 93.95, 95.49, 95.1, 96.13],
 };
@@ -57,7 +59,7 @@ const option = {
       //   线上加文字
       label: {
         show: true,
-        position: "top",
+        position: "bottom",
       },
     },
     {
@@ -67,7 +69,7 @@ const option = {
       //   线上加文字
       label: {
         show: true,
-        position: "bottom",
+        position: "top",
       },
     },
     {
