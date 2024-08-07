@@ -123,7 +123,11 @@ export class CoverageClientService {
       // 只保留start
       const obj = {};
       Object.entries(sMap).forEach(([key, value]: any) => {
-        obj[key] = value.start.line;
+        obj[key] = {
+          start: {
+            line: value.start.line,
+          },
+        };
       });
       return obj;
     }
@@ -139,7 +143,7 @@ export class CoverageClientService {
           f: value.f,
           b: value.b,
           s: value.s,
-          statementStartLineMap: fn(value.statementMap),
+          statementMap: fn(value.statementMap),
         };
       },
     );
