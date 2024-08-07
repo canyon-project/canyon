@@ -1,6 +1,6 @@
 import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
 import { FC, ReactNode } from "react";
-
+import { ErrorBoundary } from "react-error-boundary";
 import { CanyonCardPrimary } from "../card";
 import Footer from "./footer.tsx";
 import ScrollBasedLayout from "./ScrollBasedLayout.tsx";
@@ -178,7 +178,9 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                 {breadcrumb}
               </div>
               <div className={"m-auto max-w-[1200px] min-w-[1000px] p-[12px]"}>
-                {renderMainContent}
+                <ErrorBoundary fallback={<p>⚠️Something went wrong</p>}>
+                  {renderMainContent}
+                </ErrorBoundary>
               </div>
             </div>
           }

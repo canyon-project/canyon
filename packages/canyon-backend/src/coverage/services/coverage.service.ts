@@ -113,10 +113,21 @@ export class CoverageService {
     // console.log(filepath,'filepath')
     const obj = {};
     coverageJsonMaps.forEach((item) => {
-      obj[item.path] = {
-        ...item,
+      const o = {
         ...hit[item.path],
+        ...item,
         path: item.path,
+      };
+
+      obj[item.path] = {
+        path: o.path,
+        b: o.b || {},
+        f: o.f || {},
+        s: o.s || {},
+        branchMap: o.branchMap || {},
+        fnMap: o.fnMap || {},
+        statementMap: o.statementMap || {},
+        ...o,
       };
     });
     return obj;
