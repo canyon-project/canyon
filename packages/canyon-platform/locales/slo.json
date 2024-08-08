@@ -36,7 +36,7 @@
     "max_coverage": "Max Coverage",
     "latest_report_time": "Last Reported",
     "latest_report_coverage": "Latest Report Coverage",
-    "no_data": "{{msg}} projekti nimajo podatkov",
+    "no_data": "{{msg}} projects have no data",
     "total_times": "Total Times",
     "trends_in_coverage": "Trends in coverage",
     "records": "Records",
