@@ -56,7 +56,7 @@ const CanyonReportOverview = ({
         })}
         <Divider type={"vertical"} className={"ml-3 mr-3"} />
         <CopyToClipboard
-          text={activatedPath}
+          text={activatedPath || "null"}
           onCopy={() => {
             message.success("复制路径成功");
           }}
