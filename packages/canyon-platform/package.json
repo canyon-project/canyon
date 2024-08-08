@@ -59,7 +59,7 @@
     "postcss": "^8.4.41",
     "prettier": "^3.3.3",
     "swc-plugin-coverage-instrument": "^0.0.24",
-    "tailwindcss": "^3.4.8",
+    "tailwindcss": "^3.4.9",
     "typescript": "^5.5.4",
     "unplugin-auto-import": "^0.18.2",
     "unplugin-auto-import-antd": "^0.0.2",
