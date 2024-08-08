@@ -7,7 +7,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { CoverageClientDto } from "../dto/coverage-client.dto";
 import { Coverage } from "@prisma/client";
 import { CoveragediskService } from "./core/coveragedisk.service";
-import { filterStatementMap, formatReportObject } from "../../utils/coverage";
+import { formatReportObject } from "../../utils/coverage";
 import { compressedData } from "../../utils/zstd";
 /**
  * 上传覆盖率，十分重要的服务
@@ -97,8 +97,6 @@ export class CoverageClientService {
       reporter: currentUser,
       reportID: coverageReport.reportID,
       covType: "normal",
-      createdAt: new Date(),
-      updatedAt: new Date(),
       branchesCovered: 0,
       branchesTotal: 0,
       functionsCovered: 0,
@@ -112,6 +110,8 @@ export class CoverageClientService {
       hit: "",
       coverage: coverageReport.coverage,
       instrumentCwd: coverageReport.instrumentCwd,
+      createdAt: coverageReport.createdAt || new Date(),
+      updatedAt: coverageReport.updatedAt || new Date(),
 
       //后加的
     };

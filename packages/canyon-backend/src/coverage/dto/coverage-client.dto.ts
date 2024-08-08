@@ -63,4 +63,7 @@ export class CoverageClientDto {
 
   @IsOptional({ message: "tags 可以为空" })
   tags: any;
+
+  createdAt: Date;
+  updatedAt: Date;
 }

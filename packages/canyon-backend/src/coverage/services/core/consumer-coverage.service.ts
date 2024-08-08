@@ -144,7 +144,7 @@ export class ConsumerCoverageService {
           branchesTotal: sum.branches.total,
           linesCovered: sum.lines.covered,
           linesTotal: sum.lines.total,
-          updatedAt: new Date(),
+          updatedAt: queueDataToBeConsumed.updatedAt,
           compareTarget: queueDataToBeConsumed.compareTarget,
         },
       }); // 更新时间
@@ -189,6 +189,8 @@ export class ConsumerCoverageService {
           // tag: queueDataToBeConsumed.tag,
           buildID: queueDataToBeConsumed.buildID,
           buildProvider: queueDataToBeConsumed.buildProvider,
+          createdAt: queueDataToBeConsumed.createdAt,
+          updatedAt: queueDataToBeConsumed.updatedAt,
         },
       });
     }
