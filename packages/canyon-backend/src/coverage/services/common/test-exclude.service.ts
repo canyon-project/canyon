@@ -23,7 +23,7 @@ export class TestExcludeService {
       // You can also return an empty object or any default value
     }
     const exclude = new TestExclude({
-      cwd: "~",
+      cwd: "",
       include: matchRule.include,
       exclude: (matchRule.exclude || []).concat(["var/*", "builds/*"]),
       extension: matchRule.extensions,
