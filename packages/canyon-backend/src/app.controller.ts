@@ -19,7 +19,9 @@ export class AppController {
   @Get("/api/base")
   async base() {
     return {
-      SYSTEM_QUESTION_LINK: process.env.SYSTEM_QUESTION_LINK,
+      SYSTEM_QUESTION_LINK:
+        process.env.SYSTEM_QUESTION_LINK ||
+        "https://docs.canyoncov.com/getting-started/first-coverage",
       GITLAB_URL: process.env.GITLAB_URL,
       GITLAB_CLIENT_ID: process.env.GITLAB_CLIENT_ID,
     };
