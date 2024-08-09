@@ -23,17 +23,6 @@ model User {
   @@map("user")
 }
 
-model Git {
-  id                   String   @id @default(cuid())
-  userID               String
-  provider             String
-  providerAccountId    String
-  providerRefreshToken String
-  providerAccessToken  String
-  providerScope        String
-  loggedIn             DateTime @default(now()) @db.Timestamp(3)
-}
-
 model GitProvider {
   id           String  @id
   url          String
