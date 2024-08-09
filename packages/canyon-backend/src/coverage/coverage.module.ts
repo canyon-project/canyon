@@ -1,5 +1,4 @@
 import { Module } from "@nestjs/common";
-import { RetrieveCoverageTreeSummaryService } from "./services/retrieve-coverage-tree-summary.service";
 import { CoverageClientService } from "./services/coverage-client.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CoverageController } from "./coverage.controller";
@@ -19,7 +18,6 @@ import { CoverageReportsService } from "./services/coverage-reports.service";
   providers: [
     PrismaService,
     CoverageClientService,
-    RetrieveCoverageTreeSummaryService,
     CoverageService,
     ConsumerCoverageService,
     PullChangeCodeAndInsertDbService,

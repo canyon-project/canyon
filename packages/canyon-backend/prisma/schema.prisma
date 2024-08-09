@@ -26,11 +26,12 @@ model User {
 model GitProvider {
   id           String  @id
   url          String
-  clientID     String
-  clientSecret String
+  clientID     String  @map("client_id")
+  clientSecret String  @map("client_secret")
   type         String
   name         String
   disabled     Boolean
+  privateToken String  @map("private_token")
 
   @@map("git_provider")
 }

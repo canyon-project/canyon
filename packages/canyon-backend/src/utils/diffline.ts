@@ -83,7 +83,7 @@ export async function diffLine({
   const gitlabApiUrlCommitResponse = await fetch(gitlabApiUrlCommit, {
     headers: {
       // Authorization: 'Bearer ' + token, // 在请求头中使用 GitLab API token
-      "private-token": process.env.PRIVATE_TOKEN,
+      "private-token": token,
     },
   })
     .then((res) => res.json())
@@ -108,7 +108,7 @@ export async function diffLine({
       {
         headers: {
           // Authorization: 'Bearer ' + token, // 在请求头中使用 GitLab API token
-          "private-token": process.env.PRIVATE_TOKEN,
+          "private-token": token,
         },
       },
     )
@@ -158,7 +158,7 @@ export async function diffLine({
             {
               headers: {
                 // Authorization: 'Bearer ' + token, // 在请求头中使用 GitLab API token
-                "private-token": process.env.PRIVATE_TOKEN,
+                "private-token": token,
               },
               method: "GET",
             },

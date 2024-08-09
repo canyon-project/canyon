@@ -1,4 +1,5 @@
 import { diffLine } from "../../../utils/diffline";
+import * as url from "node:url";
 
 export class PullChangeCodeAndInsertDbService {
   async invoke(projectID, commitSha, compareTarget, accessToken, prisma) {
@@ -9,13 +10,18 @@ export class PullChangeCodeAndInsertDbService {
         compareTarget,
       },
     });
+    const gitProvider = await prisma.gitProvider.findFirst({
+      where: {
+        disabled: false,
+      },
+    });
     if (codechanges.length === 0) {
       const diffLineData = await diffLine({
         repoID: projectID,
         baseCommitSha: compareTarget,
         compareCommitSha: commitSha,
-        token: accessToken,
-        gitlabUrl: process.env.GITLAB_URL,
+        token: gitProvider?.privateToken,
+        gitlabUrl: gitProvider?.url,
       });
       const data = diffLineData.map(({ path, additions, deletions }) => {
         return {

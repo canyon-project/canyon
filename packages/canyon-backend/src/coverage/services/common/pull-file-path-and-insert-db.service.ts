@@ -19,9 +19,9 @@ export class PullFilePathAndInsertDbService {
         })
         .then((project) => (project ? suffixMap[project.language] : []));
       // 配置
-      const accessToken = process.env["PRIVATE_TOKEN"]; // 替换为你的访问令牌
+      const accessToken = "accessToken"; // 替换为你的访问令牌
       const projectId = projectID.split("-")[1]; // 替换为你的项目ID或URL编码的项目路径
-      const baseUrl = `${process.env["GITLAB_URL"]}/api/v4/projects/${projectId}/repository/tree`;
+      const baseUrl = `${"GITLAB_URL"}/api/v4/projects/${projectId}/repository/tree`;
 
       // 初始请求参数
       const headers = {

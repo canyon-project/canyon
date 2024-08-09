@@ -2,11 +2,7 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import axios from "axios";
 import { PrismaService } from "../prisma/prisma.service";
-const {
-  GITLAB_CLIENT_ID: clientId,
-  GITLAB_CLIENT_SECRET: clientSecret,
-  GITLAB_URL: gitlabUrl,
-} = process.env;
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -36,10 +32,16 @@ export class AuthService {
   }
 
   async oauthToken(params) {
+    const gitProvider = await this.prisma.gitProvider.findFirst({
+      where: {
+        disabled: false,
+      },
+    });
+    // gitProvider.url()
     const { access_token: accessToken, refresh_token: refreshToken } =
       await axios
         .post(
-          `${gitlabUrl}/oauth/token?client_id=${clientId}&client_secret=${clientSecret}&code=${params.code}&grant_type=authorization_code&redirect_uri=${params.redirectUri}`,
+          `${gitProvider?.url}/oauth/token?client_id=${gitProvider?.clientID}&client_secret=${gitProvider?.clientSecret}&code=${params.code}&grant_type=authorization_code&redirect_uri=${params.redirectUri}`,
         )
         .then((res) => {
           return res.data;
@@ -56,7 +58,7 @@ export class AuthService {
       email,
       id: id,
     } = await axios
-      .get(`${gitlabUrl}/api/v4/user`, {
+      .get(`${gitProvider?.url}/api/v4/user`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

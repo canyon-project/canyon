@@ -36,10 +36,15 @@ export class ProjectService {
     } else {
       project = projectUrl;
     }
-
+    const gitProvider = await this.prisma.gitProvider.findFirst({
+      where: {
+        disabled: false,
+      },
+    });
     const { path_with_namespace, name, id, description } = await getProjectByID(
       project,
-      "accessToken",
+      gitProvider?.privateToken,
+      gitProvider?.url,
     );
 
     return {
@@ -51,10 +56,15 @@ export class ProjectService {
   }
 
   async createProject(user, projectID, language) {
-    // console.log(projectID.split('-'))
+    const gitProvider = await this.prisma.gitProvider.findFirst({
+      where: {
+        disabled: false,
+      },
+    });
     const { path_with_namespace, description, name, bu } = await getProjectByID(
       projectID.split("-")[1],
-      "accessToken",
+      gitProvider?.privateToken,
+      gitProvider?.url,
     );
     return this.prisma.project.create({
       data: {

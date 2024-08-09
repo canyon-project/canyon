@@ -24,13 +24,19 @@ export class SourcecodeService {
       //   );
       return "";
     }
+    const gitProvider = await this.prisma.gitProvider.findFirst({
+      where: {
+        disabled: false,
+      },
+    });
     return getFileInfo(
       {
         projectID: projectID.split("-")[1],
         filepath: encodeURIComponent(filepath.replace("~/", "")),
         commitSha: sha,
       },
-      "accessToken",
+      gitProvider?.privateToken,
+      gitProvider?.url,
     );
   }
 }

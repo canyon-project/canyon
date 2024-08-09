@@ -18,12 +18,17 @@ export class AppController {
 
   @Get("/api/base")
   async base() {
+    const gitProvider = await this.prisma.gitProvider.findFirst({
+      where: {
+        disabled: false,
+      },
+    });
     return {
       SYSTEM_QUESTION_LINK:
         process.env.SYSTEM_QUESTION_LINK ||
         "https://docs.canyoncov.com/getting-started/first-coverage",
-      GITLAB_URL: process.env.GITLAB_URL,
-      GITLAB_CLIENT_ID: process.env.GITLAB_CLIENT_ID,
+      GITLAB_URL: gitProvider.url,
+      GITLAB_CLIENT_ID: gitProvider.clientID,
     };
   }
 

@@ -124,7 +124,6 @@ export interface ProjectInfo {
   autoclose_referenced_issues: boolean;
 }
 
-const { GITLAB_URL } = process.env;
 export const getFileInfo = async (
   {
     projectID,
@@ -132,17 +131,18 @@ export const getFileInfo = async (
     commitSha,
   }: { projectID: string; filepath: string; commitSha: string },
   token: string,
+  gitProviderUrl: string,
 ) => {
   return await axios
     .get<FileInfo>(
-      `${GITLAB_URL}/api/v4/projects/${projectID}/repository/files/${filepath}`,
+      `${gitProviderUrl}/api/v4/projects/${projectID}/repository/files/${filepath}`,
       {
         params: {
           ref: commitSha,
         },
         headers: {
           // Authorization: `Bearer ${token}`,
-          "private-token": process.env.PRIVATE_TOKEN,
+          "private-token": token,
         },
       },
     )
@@ -151,16 +151,17 @@ export const getFileInfo = async (
 export const getCommits = async (
   { projectID, commitShas }: { projectID: string; commitShas: string[] },
   token: string,
+  gitProviderUrl: string,
 ) => {
   return await Promise.all(
     commitShas.map((commitSha) => {
       return axios
         .get<Commit>(
-          `${GITLAB_URL}/api/v4/projects/${projectID}/repository/commits/${commitSha}`,
+          `${gitProviderUrl}/api/v4/projects/${projectID}/repository/commits/${commitSha}`,
           {
             headers: {
               // Authorization: `Bearer ${token}`,
-              "private-token": process.env.PRIVATE_TOKEN,
+              "private-token": token,
             },
           },
         )
@@ -176,12 +177,16 @@ export const getCommits = async (
   );
 };
 
-export async function getProjectByID(projectID: string, token: string) {
+export async function getProjectByID(
+  projectID: string,
+  token: string,
+  gitProviderUrl: string,
+) {
   return await axios
-    .get<ProjectInfo>(`${GITLAB_URL}/api/v4/projects/${projectID}`, {
+    .get<ProjectInfo>(`${gitProviderUrl}/api/v4/projects/${projectID}`, {
       headers: {
         // Authorization: `Bearer ${token}`,
-        "private-token": process.env.PRIVATE_TOKEN,
+        "private-token": token,
       },
     })
     .then(({ data }) => data);

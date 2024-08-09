@@ -73,12 +73,18 @@ export class GetProjectRecordsService {
         newlinesTotal: true,
       },
     });
+    const gitProvider = await this.prisma.gitProvider.findFirst({
+      where: {
+        disabled: false,
+      },
+    });
     const commits = await getCommits(
       {
         projectID: projectID.split("-")[1],
         commitShas: coverages.map((item) => item.sha),
       },
-      "accessToken",
+      gitProvider?.privateToken,
+      gitProvider?.url,
     );
     const rows = [];
 
@@ -108,7 +114,7 @@ export class GetProjectRecordsService {
 
       const data = {
         ...coverage,
-        compareUrl: `${process.env.GITLAB_URL}/${project.pathWithNamespace}/-/compare/${coverage.compareTarget}...${coverage.sha}`,
+        compareUrl: `${gitProvider?.url}/${project.pathWithNamespace}/-/compare/${coverage.compareTarget}...${coverage.sha}`,
         webUrl: commits.find(({ id }) => id === coverage.sha)?.web_url || "???",
         message:
           commits.find(({ id }) => id === coverage.sha)?.message || "???",
@@ -131,8 +137,8 @@ export class GetProjectRecordsService {
         buildProvider: coverage.buildProvider,
         buildURL:
           coverage.buildProvider === "mpaas"
-            ? `${process.env.MPAAS_URL || "??"}?appId=${coverage.buildID.split("|")[0]}&module=${coverage.buildID.split("|")[1]}&filters={"buildId":"${coverage.buildID.split("|")[2]}"}`
-            : `${process.env.GITLAB_URL}/${project.pathWithNamespace}/-/jobs/${coverage.buildID}`,
+            ? `${atob("aHR0cHM6Ly9tcGFhcy5jdHJpcGNvcnAuY29tL3NwcmluZy9tY2R2Mi9wYWNrYWdlUHVibGlzaFYyL1JlYWN0TmF0aXZl") || "??"}?appId=${coverage.buildID.split("|")[0]}&module=${coverage.buildID.split("|")[1]}&filters={"buildId":"${coverage.buildID.split("|")[2]}"}`
+            : `${gitProvider?.url}/${project.pathWithNamespace}/-/jobs/${coverage.buildID}`,
       };
       rows.push(data);
     }
