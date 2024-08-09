@@ -15,7 +15,6 @@ import { SourcecodeService } from "./sourcecode/sourcecode.service";
 import { SourcecodeModule } from "./sourcecode/sourcecode.module";
 import { join } from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
-import { UploadModule } from "./upload/upload.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CoveragediskEntity } from "./coverage/entity/coveragedisk.entity";
 
@@ -35,7 +34,6 @@ import { CoveragediskEntity } from "./coverage/entity/coveragedisk.entity";
     CoverageModule,
     CodechangeModule,
     SourcecodeModule,
-    UploadModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "../../canyon-platform", "dist"),
       exclude: ["/graphql/(.*)"],
