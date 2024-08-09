@@ -31,6 +31,8 @@ model GitProvider {
   type         String
   name         String
   disabled     Boolean
+
+  @@map("git_provider")
 }
 
 model Coverage {
@@ -62,7 +64,7 @@ model Coverage {
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
   updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
 
-  @@map("new_coverage")
+  @@map("coverage")
 }
 
 model CoverageMap {
@@ -72,7 +74,7 @@ model CoverageMap {
   path      String
   map       String
 
-  @@map("new_coverage_map")
+  @@map("coverage_map")
 }
 
 model Project {
