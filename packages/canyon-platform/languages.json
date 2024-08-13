@@ -1,0 +1,20 @@
+[
+  {
+    "code": "cn",
+    "file": "cn.json",
+    "iso": "cn",
+    "name": "中文"
+  },
+  {
+    "code": "en",
+    "file": "en.json",
+    "iso": "en",
+    "name": "英语"
+  },
+  {
+    "code": "ja",
+    "file": "ja.json",
+    "iso": "ja",
+    "name": "日语"
+  }
+]

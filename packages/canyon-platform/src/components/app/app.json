@@ -1,0 +1,56 @@
+{
+  "footer": [
+    {
+      "title": "Product",
+      "children": [
+        {
+          "label": "Canyon on GitHub",
+          "link": "https://github.com/canyon-project/canyon"
+        },
+        {
+          "label": "Star Us on GitHub",
+          "link": "https://github.com/canyon-project/canyon"
+        }
+      ]
+    },
+    {
+      "title": "Resources",
+      "children": [
+        {
+          "label": "Docs",
+          "link": "https://github.com/canyon-project/canyon"
+        },
+        {
+          "label": "Changelog",
+          "link": "https://github.com/canyon-project/canyon"
+        }
+      ]
+    },
+    {
+      "title": "Company",
+      "children": [
+        {
+          "label": "Home",
+          "link": "https://github.com/canyon-project/canyon"
+        },
+        {
+          "label": "Pricing",
+          "link": "https://github.com/canyon-project/canyon"
+        }
+      ]
+    },
+    {
+      "title": "Legal",
+      "children": [
+        {
+          "label": "Terms of service",
+          "link": "https://github.com/canyon-project/canyon"
+        },
+        {
+          "label": "Guidelines",
+          "link": "https://github.com/canyon-project/canyon"
+        }
+      ]
+    }
+  ]
+}

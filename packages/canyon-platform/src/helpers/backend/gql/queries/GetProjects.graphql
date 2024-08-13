@@ -1,0 +1,34 @@
+query GetProjects(
+  $current: Int!
+  $pageSize: Int!
+  $keyword: String!
+  $lang: [String!]!
+  $bu: [String!]!
+  $field: String!
+  $order: String!
+  $favorOnly: Boolean!
+) {
+  getProjects(
+    current: $current
+    pageSize: $pageSize
+    keyword: $keyword
+    lang: $lang
+    bu: $bu
+    field: $field
+    order: $order
+    favorOnly: $favorOnly
+  ) {
+    total
+    data {
+      id
+      pathWithNamespace
+      description
+      bu
+      reportTimes
+      lastReportTime
+      maxCoverage
+      favored
+      language
+    }
+  }
+}
