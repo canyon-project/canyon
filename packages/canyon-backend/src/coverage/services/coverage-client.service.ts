@@ -44,15 +44,20 @@ export class CoverageClientService {
     // 3.检验 project 是否存在
     const project = await this.prisma.project.findFirst({
       where: {
-        id: coverageClientDto.projectID,
+        id: {
+          contains: coverageClientDto.projectID,
+        },
       },
       select: {
         instrumentCwd: true,
+        id: true,
       },
     });
     if (!project) {
       //   返回错误，项目不存在
       throw new HttpException("project not found", 400);
+    } else {
+      coverageClientDto.projectID = project.id;
     }
 
     // 注意这里还是小驼峰
