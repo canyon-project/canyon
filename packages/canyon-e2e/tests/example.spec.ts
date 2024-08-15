@@ -11,7 +11,4 @@ test('has title', async ({ page }) => {
   await page.waitForTimeout(1000);
   const h2 =await page.locator('h2').textContent()
   expect(h2).toBe('创建项目');
-  // 期待h2元素的文本是"Create a new project"
-  // Expect a title "to contain" a substring.
-  // await expect(page).toHaveTitle(/Playwright/);
 });
