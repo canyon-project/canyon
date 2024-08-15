@@ -13,15 +13,13 @@ jobs:
           node-version: lts/*
       - name: Install dependencies
         run: npm install -g pnpm && pnpm install
-#        切换pnpm下的playwright目录
-      - name: Change directory
-        run: cd packages/canyon-e2e
       - name: Install Playwright Browsers
-        run: cd packages/canyon-e2e && ls && pnpm exec playwright install --with-deps
+        run: cd packages/canyon-e2e && pnpm exec playwright install --with-deps
       - name: Run Playwright tests
-        run: pnpm exec playwright test
+        run: cd packages/canyon-e2e && pnpm exec playwright test
       - name: Upload coverage reports to Canyon
         run: |
+          cd packages/canyon-e2e
           curl -LOs https://github.com/canyon-project/uploader/releases/download/v0.0.1/uploader
           chmod +x uploader
           ./uploader
