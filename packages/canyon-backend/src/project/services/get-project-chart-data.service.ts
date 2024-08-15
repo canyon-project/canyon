@@ -16,6 +16,14 @@ export class GetProjectChartDataService {
         projectID: projectID,
         covType: "all",
         branch: defaultBranch === "-" ? null : defaultBranch,
+        NOT: {
+          statementsCovered: 0,
+          // 老的逻辑，不再使用
+          // summary: {
+          //   path: ["statements", "covered"],
+          //   equals: 0,
+          // },
+        },
         // NOT: {
         //   summary: {
         //     path: ["statements", "covered"],
