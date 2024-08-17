@@ -1,5 +1,6 @@
 import { Controller, Get } from "@nestjs/common";
 import { PrismaService } from "./prisma/prisma.service";
+import { convertSystemSettingsFromTheDatabase } from "./utils/sys";
 
 @Controller()
 export class AppController {
@@ -18,17 +19,14 @@ export class AppController {
 
   @Get("/api/base")
   async base() {
-    const gitProvider = await this.prisma.gitProvider.findFirst({
-      where: {
-        disabled: false,
-      },
-    });
+    const { gitlabServer, gitlabClientID, docsLink } =
+      await this.prisma.sysSetting
+        .findMany({})
+        .then((res) => convertSystemSettingsFromTheDatabase(res));
     return {
-      SYSTEM_QUESTION_LINK:
-        process.env.SYSTEM_QUESTION_LINK ||
-        "https://docs.canyoncov.com/getting-started/first-coverage",
-      GITLAB_URL: gitProvider.url,
-      GITLAB_CLIENT_ID: gitProvider.clientID,
+      SYSTEM_QUESTION_LINK: docsLink,
+      GITLAB_URL: gitlabServer,
+      GITLAB_CLIENT_ID: gitlabClientID,
     };
   }
 

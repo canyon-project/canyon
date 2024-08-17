@@ -2,13 +2,33 @@ import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import axios from "axios";
 import { PrismaService } from "../prisma/prisma.service";
+import { convertSystemSettingsFromTheDatabase } from "../utils/sys";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
-  ) {}
+  ) {
+    this.prisma.user.upsert({
+      where: {
+        id: 1,
+      },
+      update: {},
+      create: {
+        id: 1,
+        username: "anonymous",
+        password: "123456",
+        nickname: "anonymous",
+        email: "a@anonymous.com",
+        avatar: "/default-avatar.png",
+        favor: "",
+        createdAt: new Date(),
+        accessToken: "",
+        refreshToken: "",
+      },
+    });
+  }
   async validateUser(username: string, password: string): Promise<any> {
     return (
       (await this.prisma.user.findFirst({
@@ -32,21 +52,26 @@ export class AuthService {
   }
 
   async oauthToken(params) {
-    const gitProvider = await this.prisma.gitProvider.findFirst({
-      where: {
-        disabled: false,
-      },
-    });
-    // gitProvider.url()
+    const { gitlabServer, gitlabClientID, gitlabClientSecret } =
+      await this.prisma.sysSetting
+        .findMany({})
+        .then((res) => convertSystemSettingsFromTheDatabase(res));
     const { access_token: accessToken, refresh_token: refreshToken } =
       await axios
-        .post(
-          `${gitProvider?.url}/oauth/token?client_id=${gitProvider?.clientID}&client_secret=${gitProvider?.clientSecret}&code=${params.code}&grant_type=authorization_code&redirect_uri=${params.redirectUri}`,
-        )
+        .post(`${gitlabServer}/oauth/token`, undefined, {
+          params: {
+            client_id: gitlabClientID,
+            client_secret: gitlabClientSecret,
+            code: params.code,
+            grant_type: "authorization_code",
+            redirect_uri: params.redirectUri,
+          },
+        })
         .then((res) => {
           return res.data;
         })
-        .catch(() => {
+        .catch((err) => {
+          console.log(err);
           // 如果没兑换到就抛异常
           throw new UnauthorizedException();
         });
@@ -58,7 +83,7 @@ export class AuthService {
       email,
       id: id,
     } = await axios
-      .get(`${gitProvider?.url}/api/v4/user`, {
+      .get(`${gitlabServer}/api/v4/user`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -67,11 +92,6 @@ export class AuthService {
         return res.data;
       });
     // 3.通过gitlab userId到db中查找
-    const userFindDB = await this.prisma.user.findFirst({
-      where: {
-        id: Number(id),
-      },
-    });
     const user = {
       accessToken,
       refreshToken,
@@ -84,28 +104,20 @@ export class AuthService {
       createdAt: new Date(),
     };
 
-    if (userFindDB) {
-      await this.prisma.user.update({
-        where: { id: userFindDB.id },
-        data: {
-          accessToken,
-          refreshToken,
-        },
-      });
-    } else {
-      await this.prisma.user.create({
-        data: {
-          id,
-          ...user,
-        },
-      });
-    }
-    const isHasUser = await this.prisma.user.findFirst({
-      where: { id: Number(id) },
+    const userFindDB = await this.prisma.user.upsert({
+      where: {
+        id,
+      },
+      update: user,
+      create: {
+        id,
+        ...user,
+      },
     });
+
     return this.login({
-      username: isHasUser.username,
-      id: isHasUser.id,
+      username: user.username,
+      id: userFindDB.id,
     });
   }
 
