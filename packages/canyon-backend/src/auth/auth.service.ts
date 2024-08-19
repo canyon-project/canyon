@@ -17,10 +17,10 @@ export class AuthService {
       update: {},
       create: {
         id: 1,
-        username: "anonymous",
+        username: "canyon",
         password: "123456",
-        nickname: "anonymous",
-        email: "a@anonymous.com",
+        nickname: "canyon",
+        email: "canyon@canyon.com",
         avatar: "/default-avatar.png",
         favor: "",
         createdAt: new Date(),
@@ -108,7 +108,10 @@ export class AuthService {
       where: {
         id,
       },
-      update: user,
+      update: {
+        accessToken,
+        refreshToken,
+      },
       create: {
         id,
         ...user,

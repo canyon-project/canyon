@@ -5,25 +5,7 @@ import { getFileInfo } from "../adapter/gitlab.adapter";
 @Injectable()
 export class SourcecodeService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async getsourcecode(projectID, sha, filepath, mode): Promise<any> {
-    // 如果是模糊查询，就从发filepath里检索
-    if (mode === "blurred") {
-      // filepath = await this.prisma.filepath
-      //   .findMany({
-      //     where: {
-      //       projectID: projectID,
-      //       sha: sha,
-      //       path: {
-      //         contains: filepath.replace("~/", ""),
-      //       },
-      //     },
-      //   })
-      //   .then((res) =>
-      //     res.length > 0 ? res[0].path : filepath.replace("~/", ""),
-      //   );
-      return "";
-    }
+  async getsourcecode(projectID, sha, filepath): Promise<any> {
     const gitProvider = await this.prisma.gitProvider.findFirst({
       where: {
         id: projectID.split("-")[0],
