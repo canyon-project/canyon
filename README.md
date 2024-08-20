@@ -22,39 +22,6 @@
 [uploader-package]: https://github.com/canyon-project/uploader/releases
 [canyon-extension-package]: https://chrome.google.com/webstore/detail/canyon/omnpafdjidgpdmlimbangcjjaaodbeof
 
-## Features
-
-**Bundling:** Support for various bundling ecosystems.
-
-- `vite` - vite-plugin-istanbul
-- `babel` - babel-plugin-istanbul
-- `swc` - swc-coverage-instrument
-
-**React Native:** Support for collecting coverage data in React Native.
-
-**File:** Supports multiple file types, such as js, jsx, ts, and tsx.
-
-**Source Traceback:** Enable the sourceMap option to trace back to the original source code coverage information.
-
-**CI:** Provides coverage interfaces for easy integration with CI tools.
-
-**Changed Code:** Configure the baseline commit SHA or branch name you want to compare, filter the coverage of changed files, and calculate the overall coverage of newly added lines.
-
-**Reporting Component:** Build a minimal native JavaScript npm package, providing a modern frontend reporting hydration solution to replace traditional istanbul reports.
-
-**Browser Plugin:** Provide a browser plugin for developers to detect application coverage details in real-time.
-
-Canyon is a JavaScript code coverage collection platform. We address the difficulties developers and QA engineers encounter in collecting test case code coverage during end-to-end testing. It consists of three main parts:
-
-- A Babel plugin responsible for adapting to various CI tools and reading environment variables.
-
-- A backend service responsible for collecting and processing coverage data, and providing coverage reporting interfaces.
-
-- A frontend service responsible for displaying coverage reports.
-
-
-[Read the Docs to Learn More.](https://docs.canyoncov.com)
-
 ## Architecture
 
 ![](./screenshots/architecture.png)
