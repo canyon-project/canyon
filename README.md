@@ -22,6 +22,19 @@
 [uploader-package]: https://github.com/canyon-project/uploader/releases
 [canyon-extension-package]: https://chrome.google.com/webstore/detail/canyon/omnpafdjidgpdmlimbangcjjaaodbeof
 
+## Project Structure
+
+Canyon is a JavaScript code coverage collection platform. We address the difficulties developers and QA engineers encounter in collecting test case code coverage during end-to-end testing. It consists of three main parts:
+
+- A Babel plugin responsible for adapting to various CI tools and reading environment variables.
+
+- A backend service responsible for collecting and processing coverage data, and providing coverage reporting interfaces.
+
+- A frontend service responsible for displaying coverage reports.
+
+
+[Read the Docs to Learn More.](https://docs.canyoncov.com)
+
 ## Architecture
 
 ![](./screenshots/architecture.png)
