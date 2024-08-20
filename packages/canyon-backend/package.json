@@ -30,7 +30,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
-    "dayjs": "^1.11.12",
+    "dayjs": "^1.11.13",
     "diff": "^5.2.0",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
