@@ -55,7 +55,7 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 
 [Read the Docs to Learn More.](https://docs.canyoncov.com)
 
-## Architecture overview
+## Architecture
 
 ![](./screenshots/architecture.png)
 
