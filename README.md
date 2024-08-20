@@ -4,6 +4,23 @@
 
 ![](./screenshots/coverage-report.jpg)
 
+## Ecosystem
+
+| Project               | Status                                                       | Description                                     |
+| --------------------- | ------------------------------------------------------------ |-------------------------------------------------|
+| [babel-plugin-canyon]          | [![babel-plugin-canyon-status]][babel-plugin-canyon-package]                   | Detecting environment variables in the pipeline |
+| [uploader]                | [![uploader-status]][uploader-package]                               | Coverage data uploader          |
+| [canyon-extension]             | [![canyon-extension-status]][canyon-extension-package]                         | Chrome plugin for coverage reporting of manual tests                           |
+
+[babel-plugin-canyon]: https://github.com/canyon-project/babel-plugin-canyon
+[uploader]: https://github.com/canyon-project/uploader
+[canyon-extension]: https://github.com/canyon-project/canyon-extension
+[babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
+[uploader-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
+[canyon-extension-status]: https://img.shields.io/chrome-web-store/v/omnpafdjidgpdmlimbangcjjaaodbeof.svg
+[babel-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
+[uploader-package]: https://github.com/canyon-project/uploader/releases
+[canyon-extension-package]: https://chrome.google.com/webstore/detail/canyon/omnpafdjidgpdmlimbangcjjaaodbeof
 
 ## Features
 
@@ -41,24 +58,6 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 ## Architecture overview
 
 ![](./screenshots/architecture.png)
-
-## Ecosystem
-
-| Project               | Status                                                       | Description                                     |
-| --------------------- | ------------------------------------------------------------ |-------------------------------------------------|
-| [babel-plugin-canyon]          | [![babel-plugin-canyon-status]][babel-plugin-canyon-package]                   | Detecting environment variables in the pipeline |
-| [uploader]                | [![uploader-status]][uploader-package]                               | Coverage data uploader          |
-| [canyon-extension]             | [![canyon-extension-status]][canyon-extension-package]                         | Chrome plugin for coverage reporting of manual tests                           |
-
-[babel-plugin-canyon]: https://github.com/vuejs/vue-router
-[uploader]: https://github.com/vuejs/vuex
-[canyon-extension]: https://github.com/vuejs/vue-cli
-[babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
-[uploader-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=Release
-[canyon-extension-status]: https://img.shields.io/chrome-web-store/v/omnpafdjidgpdmlimbangcjjaaodbeof.svg
-[babel-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
-[uploader-package]: https://github.com/vuejs/vuex
-[canyon-extension-package]: https://github.com/vuejs/vue-cli
 
 ## WeChat Group
 
