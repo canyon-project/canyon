@@ -110,9 +110,38 @@ export class ConsumerCoverageService {
             },
           });
     if (coverage) {
-      const cov = await decompressedData(coverage.hit).then((r) =>
-        JSON.parse(r),
-      );
+      const cov = await (async () => {
+        const cov0 = await decompressedData(coverage.hit).then((r) =>
+          JSON.parse(r),
+        );
+        // 在agg类型聚合的时候，把init的数据也聚合进去
+        if (
+          covType === "agg" &&
+          queueDataToBeConsumed.reportID !== "initial_coverage_data"
+        ) {
+          const initCoverage = await this.prisma.coverage.findFirst({
+            where: {
+              sha: queueDataToBeConsumed.sha,
+              projectID: queueDataToBeConsumed.projectID,
+              covType: "agg",
+              reportID: "initial_coverage_data",
+            },
+          });
+          if (initCoverage) {
+            const initCov = await decompressedData(initCoverage.hit).then((r) =>
+              JSON.parse(r),
+            );
+            const cov1 = await decompressedData(coverage.hit).then((r) =>
+              JSON.parse(r),
+            );
+            return mergeCoverageMap(initCov, cov1);
+          } else {
+            return cov0;
+          }
+        } else {
+          return cov0;
+        }
+      })();
 
       const newcoverage = mergeCoverageMap(queueDataToBeConsumed.coverage, cov);
 
