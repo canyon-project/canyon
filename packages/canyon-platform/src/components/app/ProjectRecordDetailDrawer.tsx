@@ -21,10 +21,6 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }: any) => {
   // const pam = useParams();
   const columns = [
     {
-      title: t("projects.coverage_id"),
-      dataIndex: "id",
-    },
-    {
       title: t("projects.report_id"),
       dataIndex: "reportID",
       render(_: any): JSX.Element {
