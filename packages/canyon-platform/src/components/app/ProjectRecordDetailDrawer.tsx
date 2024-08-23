@@ -5,7 +5,9 @@ import { Link, useParams } from "react-router-dom";
 
 import { GetProjectRecordDetailByShaDocument } from "../../helpers/backend/gen/graphql.ts";
 const { Text } = Typography;
-
+import { useRequest } from "ahooks";
+import axios from "axios";
+console.log(useRequest, axios);
 const ProjectRecordDetailDrawer = ({ open, onClose, sha }: any) => {
   const pam = useParams();
   const { data, loading } = useQuery(GetProjectRecordDetailByShaDocument, {
