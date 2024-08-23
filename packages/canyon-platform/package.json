@@ -18,7 +18,7 @@
     "@monaco-editor/react": "^4.6.0",
     "ahooks": "^3.8.1",
     "antd": "^5.20.2",
-    "axios": "^1.7.4",
+    "axios": "^1.7.5",
     "canyon-data": "^0.1.1-alpha.8",
     "copy-to-clipboard": "^3.3.3",
     "dayjs": "^1.11.13",
