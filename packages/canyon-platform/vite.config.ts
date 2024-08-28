@@ -1,21 +1,27 @@
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import * as path from "path";
 import AutoImport from "unplugin-auto-import/vite";
 import AntdResolver from "unplugin-auto-import-antd";
 import { defineConfig } from "vite";
-import vitePluginCanyon from "vite-plugin-canyon";
 import Pages from "vite-plugin-pages";
 const resolve = (p: string) => path.resolve(__dirname, p);
 export default defineConfig({
   plugins: [
     react({
-      plugins:
-        process.env.NODE_ENV === "development"
-          ? []
-          : [["swc-plugin-coverage-instrument", {}]],
-    }),
-    vitePluginCanyon({
-      instrumentCwd: resolve("../.."),
+      babel: {
+        plugins:
+          process.env.NODE_ENV === "development"
+            ? []
+            : [
+                "istanbul",
+                [
+                  "canyon",
+                  {
+                    instrumentCwd: resolve("../.."),
+                  },
+                ],
+              ],
+      },
     }),
     AutoImport({
       imports: ["react", "react-i18next", "react-router-dom"],

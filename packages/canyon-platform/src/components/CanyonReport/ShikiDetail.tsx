@@ -1,5 +1,6 @@
 import { codeToHtml } from "https://esm.sh/shiki@1.0.0";
-
+// 打开下面的注释，注释掉上面的代码，即可纯粹的使用本地代码
+// import { codeToHtml } from "shiki";
 import { mergeIntervals } from "./helper.tsx";
 
 const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
