@@ -98,7 +98,7 @@ export async function diffLine({
   // 只关心 50000 行以内的更改
   if (
     gitlabApiUrlCommitResponse.parent_ids.length > 0 &&
-    gitlabApiUrlCommitResponse.stats.additions < 50000
+    gitlabApiUrlCommitResponse.stats.additions < 500000
   ) {
     // 声明realBaseCommitSha，如果baseCommitSha存在，则使用baseCommitSha，否则使用gitlabApiUrlCommitResponse.parent_ids[0]
     const realBaseCommitSha =
