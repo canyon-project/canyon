@@ -26,3 +26,6 @@ dist-ssr
 pnpm-lock.yaml
 
 src/helpers/backend/gen
+
+
+.canyon_output
