@@ -1,9 +1,7 @@
 import "./CopyCode.css";
 
 import { CopyOutlined } from "@ant-design/icons";
-import { codeToHtml } from "https://esm.sh/shiki@1.0.0";
-// 打开下面的注释，注释掉上面的代码，即可纯粹的使用本地代码
-// import { codeToHtml } from "shiki";
+import { codeToHtml } from "shiki";
 import { FC, useEffect } from "react";
 // @ts-ignore
 import { CopyToClipboard } from "react-copy-to-clipboard";
