@@ -36,7 +36,7 @@
     "react-highlight-words": "^0.20.0",
     "react-i18next": "^15.0.1",
     "react-router-dom": "^6.26.1",
-    "shiki": "^1.15.2"
+    "shiki": "^1.16.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^5.0.2",
