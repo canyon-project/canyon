@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev-platform": "vite",
-    "do-build": "node --max_old_space_size=16384 ./node_modules/vite/bin/vite.js build",
+    "do-build": "node --max_old_space_size=16384 ./node_modules/vite/bin/vite.js build && node uploader.js",
     "postinstall": "npm run codegen",
     "codegen": "graphql-codegen --config codegen.ts",
     "format": "prettier --write ."
@@ -51,6 +51,7 @@
     "autoprefixer": "^10.4.20",
     "babel-plugin-canyon": "^1.8.69",
     "babel-plugin-istanbul": "^7.0.0",
+    "canyon-uploader3": "^1.0.9",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
