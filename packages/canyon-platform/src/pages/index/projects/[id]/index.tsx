@@ -1,7 +1,6 @@
 import Icon, {
   AimOutlined,
   BranchesOutlined,
-  BuildOutlined,
   EditOutlined,
   QuestionCircleOutlined,
 } from "@ant-design/icons";
@@ -14,11 +13,9 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
-// import im from '../../../../assets/img.png'
 import ProjectRecordDetailDrawer from "../../../../components/app/ProjectRecordDetailDrawer.tsx";
-import MaterialSymbolsCommitSharp from "../../../../components/sha.tsx";
+import MaterialSymbolsCommitSharp from "../../../../components/icons/MaterialSymbolsCommitSharp.tsx";
 import {
-  // DeleteProjectDocument,
   DeleteProjectRecordDocument,
   GetProjectByIdDocument,
   GetProjectChartDataDocument,
