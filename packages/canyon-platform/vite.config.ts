@@ -12,7 +12,7 @@ const babelConfig = {
       : [
           "istanbul",
           [
-            "canyon",
+            "canyon3",
             {
               instrumentCwd: path.resolve(__dirname, "../.."),
             },
