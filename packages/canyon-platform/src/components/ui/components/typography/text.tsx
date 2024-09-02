@@ -1,5 +1,6 @@
 import { Space } from "antd";
 import type { CSSProperties, FC, ReactNode } from "react";
+import { cn } from "@/lib/utils.ts";
 interface TextTypographyProps {
   title: string;
   icon: ReactNode;
@@ -13,7 +14,10 @@ const TextTypography: FC<TextTypographyProps> = ({
   style,
 }) => {
   return (
-    <div style={style} className={"flex justify-between items-center mb-5"}>
+    <div
+      style={style}
+      className={cn("flex", "justify-between", "items-center", "mb-5")}
+    >
       <Space style={{ fontSize: "25px", fontWeight: 500 }}>
         <span className={"text-[#687076] text-[32px]"}>{icon}</span>
         {title}

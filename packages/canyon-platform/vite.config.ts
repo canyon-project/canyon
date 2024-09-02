@@ -4,24 +4,26 @@ import AutoImport from "unplugin-auto-import/vite";
 import AntdResolver from "unplugin-auto-import-antd";
 import { defineConfig } from "vite";
 import Pages from "vite-plugin-pages";
-const resolve = (p: string) => path.resolve(__dirname, p);
+
+const babelConfig = {
+  plugins:
+    process.env.NODE_ENV === "development"
+      ? []
+      : [
+          "istanbul",
+          [
+            "canyon",
+            {
+              instrumentCwd: path.resolve(__dirname, "../.."),
+            },
+          ],
+        ],
+};
+
 export default defineConfig({
   plugins: [
     react({
-      babel: {
-        plugins:
-          process.env.NODE_ENV === "development"
-            ? []
-            : [
-                "istanbul",
-                [
-                  "canyon",
-                  {
-                    instrumentCwd: resolve("../.."),
-                  },
-                ],
-              ],
-      },
+      babel: babelConfig,
     }),
     AutoImport({
       imports: ["react", "react-i18next", "react-router-dom"],
@@ -32,6 +34,11 @@ export default defineConfig({
       exclude: ["**/helper/**", "**/components/**"],
     }),
   ],
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   build: {
     sourcemap: true,
   },
