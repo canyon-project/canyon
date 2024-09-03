@@ -68,7 +68,7 @@
     "typescript": "^5.5.4",
     "unplugin-auto-import": "^0.18.2",
     "unplugin-auto-import-antd": "^0.0.2",
-    "vite": "^5.4.2",
+    "vite": "^5.4.3",
     "vite-plugin-pages": "^0.32.3"
   }
 }
