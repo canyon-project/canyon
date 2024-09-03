@@ -26,7 +26,15 @@ export class TestExcludeService {
       cwd: "",
       include: matchRule.include,
       exclude: matchRule.exclude || [],
-      extension: matchRule.extensions,
+      extension: matchRule.extensions || [
+        ".js",
+        ".cjs",
+        ".mjs",
+        ".ts",
+        ".tsx",
+        ".jsx",
+        ".vue",
+      ],
     });
 
     const filterCoverage = {};
