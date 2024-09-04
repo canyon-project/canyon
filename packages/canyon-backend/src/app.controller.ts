@@ -99,11 +99,11 @@ export class AppController {
       {
         month: 7,
         year: 2024,
-        uiTestBranchCoverage: 62.73,
-        uiTestLineCoverage: 77.12,
-        uiTestChangedLineCoverage: 93.61,
-        utBranchCoverage: 63.1,
-        utLineCoverage: 67.83,
+        uiTestBranchCoverage: 63.43,
+        uiTestLineCoverage: 77.92,
+        uiTestChangedLineCoverage: 95.61,
+        utBranchCoverage: 67.1,
+        utLineCoverage: 69.83,
       },
     ];
   }
