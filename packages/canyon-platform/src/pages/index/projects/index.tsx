@@ -19,6 +19,7 @@ import {
   FavorProjectDocument,
   GetProjectsBuOptionsDocument,
   GetProjectsDocument,
+  GetProjectsTagOptionsDocument,
   Project,
 } from "../../../helpers/backend/gen/graphql.ts";
 
@@ -215,16 +216,28 @@ const ProjectPage = () => {
       return [];
     }
   })();
+
+  const initTag = (() => {
+    return localStorage.getItem("tag") || "";
+  })();
   const initFavorOnly = Boolean(localStorage.getItem("favorOnlyFilter"));
   const [keyword, setKeyword] = useState("");
   const [favorOnly, setFavorOnly] = useState(initFavorOnly);
   const [bu, setBu] = useState<string[]>(initBu);
+  const [tag, setTag] = useState<string>(initTag);
   const [current, setCurrent] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [sorter, setSorter] = useState<any>({});
 
   const { data: projectsBuOptionsData } = useQuery(
     GetProjectsBuOptionsDocument,
+    {
+      fetchPolicy: "no-cache",
+    },
+  );
+
+  const { data: projectsTagOptionsData } = useQuery(
+    GetProjectsTagOptionsDocument,
     {
       fetchPolicy: "no-cache",
     },
@@ -240,6 +253,7 @@ const ProjectPage = () => {
       pageSize: pageSize,
       keyword: keyword,
       bu: bu,
+      tag: tag,
       lang: ["JavaScript"],
       field: sorter.field || "",
       order: sorter.order || "",
@@ -281,6 +295,23 @@ const ProjectPage = () => {
                 }),
               )}
             />
+
+            <Select
+              defaultValue={initTag}
+              onChange={(v) => {
+                setTag(v);
+                localStorage.setItem("tag", v);
+              }}
+              placeholder={"Tag"}
+              className={"w-[200px] mr-2"}
+              options={(
+                projectsTagOptionsData?.getProjectsTagOptions || []
+              ).map(({ name }) => ({
+                label: name,
+                value: name,
+              }))}
+            />
+
             <Input.Search
               placeholder={t("projects.search_keywords")}
               className={"w-[420px] mb-3"}

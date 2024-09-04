@@ -12,6 +12,7 @@ export class GetProjectsService {
     keyword,
     lang,
     bu,
+    tag,
     field,
     order,
     favorOnly,
@@ -49,6 +50,15 @@ export class GetProjectsService {
     if (lang.length > 0) {
       whereCondition.language = {
         in: lang,
+      };
+    }
+    if (tag) {
+      whereCondition.tags = {
+        array_contains: [
+          {
+            name: tag,
+          },
+        ],
       };
     }
     const pro = await this.prisma.project.findMany({

@@ -3,7 +3,7 @@ import { GqlAuthGuard } from "../guards/gql-auth.guard";
 import { UseGuards } from "@nestjs/common";
 import { GqlUser } from "../decorators/gql-user.decorator";
 import { AuthUser } from "../types/AuthUser";
-import { BuOption, Project } from "./project.model";
+import {BuOption, Project, TagOption} from "./project.model";
 import { ProjectPagesModel } from "./models/project-pages.model";
 import { ProjectService } from "./services/project.service";
 import { GetProjectChartDataService } from "./services/get-project-chart-data.service";
@@ -46,6 +46,7 @@ export class ProjectResolver {
     @Args("keyword", { type: () => String }) keyword: string,
     @Args("lang", { type: () => [String] }) lang: string[],
     @Args("bu", { type: () => [String] }) bu: string[],
+    @Args("tag", { type: () => String }) tag: string,
     @Args() paginationArgs: PaginationArgs,
     @Args() sorterArgs: SorterArgs,
     @Args("favorOnly", { type: () => Boolean }) favorOnly: boolean,
@@ -57,6 +58,7 @@ export class ProjectResolver {
       keyword,
       lang,
       bu,
+      tag,
       sorterArgs.field,
       sorterArgs.order,
       favorOnly,
@@ -68,6 +70,13 @@ export class ProjectResolver {
   })
   getProjectsBuOptions(): Promise<BuOption[]> {
     return this.projectService.getProjectsBuOptions();
+  }
+
+  @Query(() => [TagOption], {
+    description: "获取Projects标签选项",
+  })
+  getProjectsTagOptions(): Promise<TagOption[]> {
+    return this.projectService.getProjectsTagOptions();
   }
 
   @Query(() => [ProjectChartDataModel], {

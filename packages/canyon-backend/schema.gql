@@ -57,6 +57,10 @@ type BuOption {
   count: Float!
 }
 
+type TagOption {
+  name: String!
+}
+
 type ProjectPagesModel {
   data: [Project!]!
   total: Float!
@@ -224,6 +228,7 @@ type Query {
     keyword: String!
     lang: [String!]!
     bu: [String!]!
+    tag: String!
 
     """当前页码"""
     current: Int!
@@ -241,6 +246,9 @@ type Query {
 
   """获取Projects部门选项"""
   getProjectsBuOptions: [BuOption!]!
+
+  """获取Projects标签选项"""
+  getProjectsTagOptions: [TagOption!]!
 
   """获取Project图表"""
   getProjectChartData(projectID: String!, branch: String!): [ProjectChartDataModel!]!

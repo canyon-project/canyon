@@ -4,6 +4,7 @@ query GetProjects(
   $keyword: String!
   $lang: [String!]!
   $bu: [String!]!
+  $tag: String!
   $field: String!
   $order: String!
   $favorOnly: Boolean!
@@ -14,6 +15,7 @@ query GetProjects(
     keyword: $keyword
     lang: $lang
     bu: $bu
+    tag: $tag
     field: $field
     order: $order
     favorOnly: $favorOnly

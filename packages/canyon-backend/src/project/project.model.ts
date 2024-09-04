@@ -87,3 +87,11 @@ export class BuOption {
   @Field(() => Number)
   count: number;
 }
+
+// TagOption
+
+@ObjectType()
+export class TagOption {
+  @Field(() => String)
+  name: string;
+}

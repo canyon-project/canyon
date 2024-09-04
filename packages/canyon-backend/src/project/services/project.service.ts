@@ -167,4 +167,21 @@ export class ProjectService {
         });
       });
   }
+
+  async getProjectsTagOptions() {
+    const projects = await this.prisma.project.findMany({
+      where: {},
+      select: {
+        tags: true,
+      },
+    });
+    const allTags = projects.reduce((acc, { tags }) => {
+      return acc.concat(tags);
+    }, []);
+    return [...new Set(allTags.map(({ name }) => name))]
+      .sort((a, b) => a.length - b.length)
+      .map((name) => ({
+        name,
+      }));
+  }
 }
