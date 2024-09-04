@@ -297,7 +297,7 @@ const ProjectPage = () => {
             />
 
             <Select
-              defaultValue={initTag}
+              defaultValue={initTag || undefined}
               onChange={(v) => {
                 setTag(v);
                 localStorage.setItem("tag", v);
