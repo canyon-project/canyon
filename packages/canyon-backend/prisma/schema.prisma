@@ -122,3 +122,15 @@ model Distributedlock {
 
   @@map("distributedlock")
 }
+
+model CoverageLog {
+  id        Int      @id @default(autoincrement())
+  projectID String   @map("project_id")
+  sha       String   @map("sha")
+  reportID  String   @map("report_id") // 未来聚合的一句，区分case
+  size      Int
+  coverage  String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("coverage_log")
+}

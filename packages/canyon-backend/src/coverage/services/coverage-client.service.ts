@@ -82,6 +82,24 @@ export class CoverageClientService {
         ? initCoverage.compareTarget
         : coverageClientDto.sha;
     }
+
+    // ******************************************************
+    // ******************************************************
+    // ******************************************************
+    // coverage log
+    // ******************************************************
+    // ******************************************************
+    // ******************************************************
+    await this.prisma.coverageLog.create({
+      data: {
+        projectID: coverageClientDto.projectID,
+        sha: coverageClientDto.sha,
+        reportID: coverageClientDto.reportID,
+        size: JSON.stringify(coverageClientDto.coverage).length,
+        createdAt: new Date(),
+        coverage: "",
+      },
+    });
     // ******************************************************
     // ******************************************************
     // ******************************************************
