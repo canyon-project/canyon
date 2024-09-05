@@ -76,13 +76,6 @@ const BasicForms: FC<{ data: any }> = ({ data }, ref) => {
         >
           <TextArea autoSize={{ minRows: 3, maxRows: 3 }} />
         </Form.Item>
-        <Form.Item<any>
-          label={"覆盖率插桩路径转换"}
-          name="instrumentCwd"
-          tooltip={"用于扭转发生错位的情况，通常不需要配置。"}
-        >
-          <Input placeholder={"/source/coverage/path=>/replace/path"} />
-        </Form.Item>
       </Form>
     );
   } else {
