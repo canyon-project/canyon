@@ -297,10 +297,11 @@ const ProjectPage = () => {
             />
 
             <Select
+              allowClear={true}
               defaultValue={initTag || undefined}
               onChange={(v) => {
-                setTag(v);
-                localStorage.setItem("tag", v);
+                setTag(v || "");
+                localStorage.setItem("tag", v || "");
               }}
               placeholder={"Tag"}
               className={"w-[200px] mr-2"}
