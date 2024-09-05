@@ -1,5 +1,6 @@
 import Reports from "./index/reports.tsx";
 import { ArrowLeftOutlined } from "@ant-design/icons";
+import LineChart from "@/components/LineChart.tsx";
 
 const OpenReports = () => {
   return (
@@ -11,6 +12,8 @@ const OpenReports = () => {
             回到Canyon主页
           </a>
         </div>
+        <LineChart />
+        <div className={"h-5"}></div>
         <Reports />
       </div>
     </div>
