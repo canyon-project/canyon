@@ -34,7 +34,7 @@ const PrepareProdFn: React.FC = () => {
       axios
         .post(
           atob(`aHR0cHM6Ly90cmlwY2FueW9uLmZ3cy5xYS5udC5jdHJpcGNvcnAuY29t`) +
-            "/api/task/triggerPullTrafficByFn",
+            "/flytest-api-ctrip-coffeebean-transfer/api/task/triggerPullTrafficByFn",
           data,
         )
         .then(({ data }) => data),
