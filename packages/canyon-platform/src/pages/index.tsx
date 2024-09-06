@@ -74,6 +74,9 @@ function Index() {
     setMenuSelectedKey(loc.pathname.replace("/", ""));
   }, [loc.pathname]);
   const { data: meData } = useQuery(MeDocument);
+  useEffect(() => {
+    localStorage.setItem("username", meData?.me.username || "");
+  }, [meData]);
   const { data: baseData } = useRequest(
     () => axios.get("/api/base").then(({ data }) => data),
     {

@@ -1,5 +1,6 @@
 import { SearchOutlined } from "@ant-design/icons";
 import { useParams } from "react-router-dom";
+import PrepareProdFn from "@/components/CanyonReport/PrepareProdFn.tsx";
 
 const { useToken } = theme;
 
@@ -39,6 +40,8 @@ const CanyonReportControl = ({
               {/*<span className={'mr-2'}>{numberFiles}</span>*/}
               {t("projects.detail.total.files", { msg: numberFiles })}
               {/*覆盖率提升优先级列表*/}
+              {/*转换生产流量为测试用例*/}
+              <PrepareProdFn />
             </span>
           </Space>
         </div>
