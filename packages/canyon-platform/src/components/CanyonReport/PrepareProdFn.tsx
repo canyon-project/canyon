@@ -41,7 +41,7 @@ const PrepareProdFn: React.FC = () => {
     {
       manual: true,
       onSuccess() {
-        message.success("转换成功，请留意Flybirds消息推送");
+        message.success("开始转换，请留意后续Flybirds消息推送");
       },
     },
   );
