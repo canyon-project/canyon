@@ -11,9 +11,8 @@ const PrepareProdFn: React.FC = () => {
     () =>
       axios
         .post(
-          atob(
-            `aHR0cDovL3RyaXBjYW55b24uZndzLnFhLm50LmN0cmlwY29ycC5jb20vYXBpL2NvdmVyYWdlL3ByZXBhcmVQcm9kRm4=`,
-          ),
+          atob(`aHR0cHM6Ly90cmlwY2FueW9uLmZ3cy5xYS5udC5jdHJpcGNvcnAuY29t`) +
+            "/api/coverage/prepareProdFn",
           {
             projectID: prm.id,
             sha: prm.sha,
@@ -34,9 +33,8 @@ const PrepareProdFn: React.FC = () => {
     () =>
       axios
         .post(
-          atob(
-            `aHR0cDovL2ZseXRlc3QuZmxpZ2h0LnFhLm50LmN0cmlwY29ycC5jb206ODA5NS9mbHl0ZXN0LWFwaS1jdHJpcC1jb2ZmZWViZWFuLXRyYW5zZmVyL2FwaS90YXNrL3RyaWdnZXJQdWxsVHJhZmZpY0J5Rm4=`,
-          ),
+          atob(`aHR0cHM6Ly90cmlwY2FueW9uLmZ3cy5xYS5udC5jdHJpcGNvcnAuY29t`) +
+            "/api/task/triggerPullTrafficByFn",
           data,
         )
         .then(({ data }) => data),
