@@ -30,6 +30,9 @@ export class CoverageReportsService {
         projectID: {
           in: projects.map((item) => item.id),
         },
+        statementsTotal: {
+          not: 0,
+        },
         // updatedAt:{}
         // 根据updatedAt的一个范围
         updatedAt: {
