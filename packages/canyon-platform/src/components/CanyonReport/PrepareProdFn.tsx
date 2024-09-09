@@ -62,7 +62,11 @@ const PrepareProdFn: React.FC = () => {
 
   return (
     <>
-      {["tripgl-37885-auto", "tripgl-62594-auto"].includes(prm.id || "") && (
+      {[
+        "tripgl-37885-auto",
+        "tripgl-62594-auto",
+        "tripgl-108960-auto",
+      ].includes(prm.id || "") && (
         <Button type="primary" onClick={showDrawer} size={"small"}>
           转换生产流量为测试用例
         </Button>
