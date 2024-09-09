@@ -77,6 +77,9 @@ export class GetProjectsService {
         projectID: {
           in: pro.map(({ id }) => id),
         },
+        statementsTotal: {
+          not: 0,
+        },
       },
       select: {
         projectID: true,
