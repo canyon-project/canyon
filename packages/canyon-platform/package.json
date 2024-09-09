@@ -37,7 +37,7 @@
     "react-highlight-words": "^0.20.0",
     "react-i18next": "^15.0.1",
     "react-router-dom": "^6.26.2",
-    "shiki": "^1.16.2",
+    "shiki": "^1.16.3",
     "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
@@ -45,8 +45,8 @@
     "@graphql-codegen/client-preset": "^4.3.3",
     "@types/react": "^18.3.5",
     "@types/react-dom": "^18.3.0",
-    "@typescript-eslint/eslint-plugin": "^8.4.0",
-    "@typescript-eslint/parser": "^8.4.0",
+    "@typescript-eslint/eslint-plugin": "^8.5.0",
+    "@typescript-eslint/parser": "^8.5.0",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.20",
     "babel-plugin-canyon": "^1.8.75",
