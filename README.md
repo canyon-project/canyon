@@ -33,7 +33,7 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 - A frontend service responsible for displaying coverage reports.
 
 
-[Read the Docs to Learn More.](https://docs.canyoncov.com)
+[Read the Docs to Learn More.](https://docs.canyonjs.org)
 
 ## Architecture
 
