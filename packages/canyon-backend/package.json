@@ -33,7 +33,7 @@
     "dayjs": "^1.11.13",
     "diff": "^7.0.0",
     "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "express": "^4.20.0",
     "graphql": "^16.9.0",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-report": "^3.0.1",
