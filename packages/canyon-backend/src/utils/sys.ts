@@ -3,6 +3,7 @@ const obj = {
   GITLAB_CLIENT_SECRET: "gitlabClientSecret",
   GITLAB_SERVER: "gitlabServer",
   DOCS_LINK: "docsLink",
+  CANYON_SERVER: "canyonServer",
 };
 export const convertSystemSettingsFromTheDatabase = (
   settings,
@@ -11,12 +12,14 @@ export const convertSystemSettingsFromTheDatabase = (
   gitlabClientID: string;
   gitlabServer: string;
   docsLink: string;
+  canyonServer: string;
 } => {
   const map = {
     gitlabClientSecret: "",
     gitlabClientID: "",
     gitlabServer: "",
     docsLink: "",
+    canyonServer: "",
   };
   settings.forEach((setting) => {
     map[obj[setting.key]] = setting.value;

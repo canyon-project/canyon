@@ -19,7 +19,7 @@ export class AppController {
 
   @Get("/api/base")
   async base() {
-    const { gitlabServer, gitlabClientID, docsLink } =
+    const { gitlabServer, gitlabClientID, docsLink, canyonServer } =
       await this.prisma.sysSetting
         .findMany({})
         .then((res) => convertSystemSettingsFromTheDatabase(res));
@@ -27,6 +27,7 @@ export class AppController {
       SYSTEM_QUESTION_LINK: docsLink,
       GITLAB_URL: gitlabServer,
       GITLAB_CLIENT_ID: gitlabClientID,
+      CANYON_SERVER: canyonServer,
     };
   }
 
