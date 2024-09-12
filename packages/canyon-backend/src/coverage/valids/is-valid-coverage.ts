@@ -44,7 +44,7 @@ export class IsValidCoverage implements ValidatorConstraintInterface {
     // if (Object.keys(coverage).length === 0) {
     //   return false;
     // }
-    return Object.values(coverage).every((item) => {
+    return Object.values(coverage || {}).every((item) => {
       return isValidCoverage(item);
     });
   }
