@@ -66,4 +66,6 @@ export class CoverageClientDto {
 
   createdAt: Date;
   updatedAt: Date;
+  userAgent: string;
+  ip: string;
 }

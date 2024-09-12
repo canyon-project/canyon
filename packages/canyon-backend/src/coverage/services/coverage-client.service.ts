@@ -30,7 +30,12 @@ export class CoverageClientService {
     private coveragediskService: CoveragediskService,
   ) {}
 
-  async invoke(currentUser, coverageClientDto: CoverageClientDto) {
+  async invoke(
+    currentUser,
+    coverageClientDto: CoverageClientDto,
+    ip,
+    userAgent,
+  ) {
     // 1.检验 user 是否存在
     const currentUserDb = await this.prisma.user.findFirst({
       where: {
@@ -98,7 +103,9 @@ export class CoverageClientService {
         size: JSON.stringify(coverageClientDto.coverage).length,
         createdAt: new Date(),
         coverage: "",
-        // tags: coverageClientDto.tags, //key、value的数组，需要zod校验强类型
+        tags: coverageClientDto.tags, //key、value的数组，需要zod校验强类型
+        ip: coverageClientDto.ip || ip,
+        userAgent: coverageClientDto.userAgent || userAgent,
       },
     });
     // ******************************************************

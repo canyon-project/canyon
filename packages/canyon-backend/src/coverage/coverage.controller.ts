@@ -35,7 +35,16 @@ export class CoverageController {
     @Body() coverageClientDto: CoverageClientDto,
     @Request() req: any,
   ): Promise<any> {
-    return this.coverageClientService.invoke(req.user.id, coverageClientDto);
+    const userAgent = req.headers["user-agent"]; // 获取 User-Agent
+    const ip =
+      req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress; // 获取 IP 地址
+
+    return this.coverageClientService.invoke(
+      req.user.id,
+      coverageClientDto,
+      ip,
+      userAgent,
+    );
   }
 
   @Get("api/coverage/summary/map")

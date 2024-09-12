@@ -131,10 +131,10 @@ model CoverageLog {
   size      Int
   coverage  String
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-  // tags      Json
+  tags      Json?
   // 读取参数，没有才从req里取
-  // ip        String
-  // userAgent String   @map("user_agent")
+  ip        String?
+  userAgent String?  @map("user_agent")
   // secondaryReportID String @map("secondary_report_id")
 
   @@map("coverage_log")
