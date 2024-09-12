@@ -59,4 +59,11 @@ export class CoverageController {
     const { bu, start, end } = query;
     return this.coverageReportsService.invoke({ bu, start, end });
   }
+
+  // /api/coverage
+  @Post("api/coverage/recalculation")
+  async recalculation(@Body() body): Promise<any> {
+    // return this.coverageService.recalculation(body);
+    return {};
+  }
 }
