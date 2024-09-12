@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../prisma/prisma.service";
 import { genSummaryMapByCoverageMap, getSummaryByPath } from "canyon-data";
-import { mergeCoverageMap } from "../../../utils/coverage";
+import { mergeCoverageMap, resetCoverageData } from "../../../utils/coverage";
 import { removeNullKeys } from "../../../utils/utils";
 import { PullChangeCodeAndInsertDbService } from "../common/pull-change-code-and-insert-db.service";
 import { logger } from "../../../logger";
@@ -109,54 +109,43 @@ export class ConsumerCoverageService {
               compareTarget: queueDataToBeConsumed.compareTarget,
             },
           });
-    if (coverage) {
-      const cov = await (async () => {
-        const cov0 = await decompressedData(coverage.hit).then((r) =>
+
+    const cov = await (async () => {
+      const cov0 = coverage
+        ? await decompressedData(coverage.hit).then((r) => JSON.parse(r))
+        : {};
+      // 在agg类型聚合的时候，把init的数据也聚合进去
+      const initCoverage = await this.prisma.coverage.findFirst({
+        where: {
+          sha: queueDataToBeConsumed.sha,
+          projectID: queueDataToBeConsumed.projectID,
+          covType: "all",
+        },
+      });
+      if (initCoverage) {
+        const initCov = await decompressedData(initCoverage.hit).then((r) =>
           JSON.parse(r),
         );
-        // 在agg类型聚合的时候，把init的数据也聚合进去
-        if (
-          covType === "agg" &&
-          queueDataToBeConsumed.reportID !== "initial_coverage_data"
-        ) {
-          const initCoverage = await this.prisma.coverage.findFirst({
-            where: {
-              sha: queueDataToBeConsumed.sha,
-              projectID: queueDataToBeConsumed.projectID,
-              covType: "agg",
-              reportID: "initial_coverage_data",
-            },
-          });
-          if (initCoverage) {
-            const initCov = await decompressedData(initCoverage.hit).then((r) =>
-              JSON.parse(r),
-            );
-            const cov1 = await decompressedData(coverage.hit).then((r) =>
-              JSON.parse(r),
-            );
-            return mergeCoverageMap(initCov, cov1);
-          } else {
-            return cov0;
-          }
-        } else {
-          return cov0;
-        }
-      })();
+        return mergeCoverageMap(resetCoverageData(initCov), cov0);
+      } else {
+        return cov0;
+      }
+    })();
 
-      const newcoverage = mergeCoverageMap(queueDataToBeConsumed.coverage, cov);
-
-      const sum: any = getSummaryByPath(
-        "",
-        genSummaryMapByCoverageMap(
-          await this.testExcludeService.invoke(
-            queueDataToBeConsumed.projectID,
-            newcoverage,
-          ),
-          codechanges,
+    const newcoverage = mergeCoverageMap(queueDataToBeConsumed.coverage, cov);
+    const sum: any = getSummaryByPath(
+      "",
+      genSummaryMapByCoverageMap(
+        await this.testExcludeService.invoke(
+          queueDataToBeConsumed.projectID,
+          newcoverage,
         ),
-      );
+        codechanges,
+      ),
+    );
 
-      const hit = await compressedData(JSON.stringify(newcoverage));
+    const hit = await compressedData(JSON.stringify(newcoverage));
+    if (coverage) {
       await this.prisma.coverage.update({
         where: {
           id: coverage.id,
@@ -178,19 +167,7 @@ export class ConsumerCoverageService {
         },
       }); // 更新时间
     } else {
-      const newcoverage = queueDataToBeConsumed.coverage;
       // 创建新的agg
-      const sum: any = getSummaryByPath(
-        "",
-        genSummaryMapByCoverageMap(
-          await this.testExcludeService.invoke(
-            queueDataToBeConsumed.projectID,
-            newcoverage,
-          ),
-          codechanges,
-        ),
-      );
-      const hit = await compressedData(JSON.stringify(newcoverage));
       await this.prisma.coverage.create({
         data: {
           hit: hit,

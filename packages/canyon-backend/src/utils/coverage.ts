@@ -96,3 +96,27 @@ export const mergeCoverageMap = (cov1: any, cov2: any) => {
     // );
   }
 };
+
+export function resetCoverageData(coverageData) {
+  return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
+    acc[key] = {
+      ...value,
+      s: Object.entries(value.s).reduce((accInside, [keyInside]) => {
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      f: Object.entries(value.f).reduce((accInside, [keyInside]) => {
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      b: Object.entries(value.b).reduce(
+        (accInside, [keyInside, valueInside]: any) => {
+          accInside[keyInside] = Array(valueInside.length).fill(0);
+          return accInside;
+        },
+        {},
+      ),
+    };
+    return acc;
+  }, {});
+}
