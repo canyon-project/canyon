@@ -98,6 +98,7 @@ export class CoverageClientService {
         size: JSON.stringify(coverageClientDto.coverage).length,
         createdAt: new Date(),
         coverage: "",
+        // tags: coverageClientDto.tags, //key、value的数组，需要zod校验强类型
       },
     });
     // ******************************************************

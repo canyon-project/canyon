@@ -179,28 +179,13 @@ const ProjectPage = () => {
             {t("common.detail")}
           </Link>
           <Divider type={"vertical"} />
-          <Popconfirm
-            title="Delete the project"
-            description="Are you sure to delete this project?"
-            onConfirm={() => {
-              deleteProject({
-                variables: {
-                  projectID: id,
-                },
-              }).then(() => {
-                refetch();
-              });
+          <Link
+            to={{
+              pathname: `/projects/${id}/configure`,
             }}
-            onCancel={() => {
-              console.log("cancel");
-            }}
-            okText="Yes"
-            cancelText="No"
           >
-            <a className={"text-red-500 hover:text-red-600"}>
-              {t("common.delete")}
-            </a>
-          </Popconfirm>
+            {t("common.configure")}
+          </Link>
         </>
       ),
     },

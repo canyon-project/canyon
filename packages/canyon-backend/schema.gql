@@ -2,6 +2,25 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type CoverageLogTag {
+  label: String!
+  value: String!
+}
+
+type GetCoverageLogsResponseModel {
+  id: String!
+  projectID: String!
+  sha: String!
+  reportID: String!
+  size: Float!
+  tags: [CoverageLogTag!]!
+}
+
+type GetCoverageLogsPageModel {
+  data: [GetCoverageLogsResponseModel!]!
+  total: Float!
+}
+
 type User {
   id: ID!
   username: String!
@@ -262,6 +281,9 @@ type Query {
 
   """获取Project记录的详细通过sha"""
   getProjectRecordDetailBySha(projectID: ID!, sha: String!): [ProjectRecordDetailModel!]!
+
+  """查询覆盖率上报日志"""
+  getCoverageLogs: GetCoverageLogsPageModel!
 }
 
 type Mutation {
