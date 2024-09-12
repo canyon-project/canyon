@@ -65,7 +65,7 @@
     "tailwindcss": "^3.4.11",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "^5.6.2",
-    "unplugin-auto-import": "^0.18.2",
+    "unplugin-auto-import": "^0.18.3",
     "unplugin-auto-import-antd": "^0.0.2",
     "vite": "^5.4.4",
     "vite-plugin-pages": "^0.32.3"
