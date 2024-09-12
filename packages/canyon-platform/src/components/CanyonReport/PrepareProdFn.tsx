@@ -7,6 +7,7 @@ import axios from "axios";
 const PrepareProdFn: React.FC = () => {
   const [open, setOpen] = useState(false);
   const prm = useParams();
+  const [spams] = useSearchParams();
   const { data, loading, run } = useRequest(
     () =>
       axios
@@ -17,6 +18,7 @@ const PrepareProdFn: React.FC = () => {
             projectID: prm.id,
             sha: prm.sha,
             username: localStorage.getItem("username"),
+            path: spams.get("path"),
           },
         )
         .then(({ data }) => data),
