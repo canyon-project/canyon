@@ -24,7 +24,6 @@
     "@nestjs/serve-static": "^4.0.2",
     "@nestjs/typeorm": "^10.0.2",
     "axios": "^1.7.7",
-    "better-sqlite3": "^11.3.0",
     "body-parser": "^1.20.3",
     "canyon-data": "0.1.1-alpha.8",
     "class-transformer": "^0.5.1",
@@ -45,6 +44,7 @@
     "prisma": "5.16.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "sqlite3": "^5.1.7",
     "test-exclude": "^7.0.1",
     "typeorm": "^0.3.20",
     "zod": "^3.23.8"

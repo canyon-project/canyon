@@ -21,7 +21,7 @@ import { CoveragediskEntity } from "./coverage/entity/coveragedisk.entity";
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: "better-sqlite3",
+      type: "sqlite",
       database: "db/sql",
       synchronize: true,
       entities: [CoveragediskEntity],
