@@ -1,8 +1,13 @@
 import fs from 'fs/promises';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const sourceFilePath = path.join(new URL('.', import.meta.url).pathname, '../.env.example');
-const destinationFilePath = path.join(new URL('.', import.meta.url).pathname, '../.env');
+// Convert the URL to a file path
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const sourceFilePath = path.join(__dirname, '../.env.example');
+const destinationFilePath = path.join(__dirname, '../.env');
 
 (async () => {
   try {
