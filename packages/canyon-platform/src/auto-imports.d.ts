@@ -34,6 +34,7 @@ declare global {
   const Result: (typeof import("antd"))["Result"]
   const Route: typeof import('react-router-dom')['Route']
   const Routes: typeof import('react-router-dom')['Routes']
+  const Segmented: typeof import('antd')['Segmented']
   const Select: typeof import('antd')['Select']
   const Space: typeof import('antd')['Space']
   const Spin: typeof import('antd')['Spin']

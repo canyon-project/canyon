@@ -1,6 +1,6 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { useParams } from "react-router-dom";
+import Icon, { BarsOutlined, SearchOutlined } from "@ant-design/icons";
 import PrepareProdFn from "@/components/CanyonReport/PrepareProdFn.tsx";
+import PhTreeView from "@/components/CanyonReport/PhTreeView.tsx";
 
 const { useToken } = theme;
 
@@ -13,29 +13,32 @@ const CanyonReportControl = ({
   onChangeShowMode,
   showMode,
 }) => {
-  const { token } = useToken();
-  const prm = useParams();
   const { t } = useTranslation();
   return (
     <>
       <div className={"flex mb-2 justify-between"}>
         <div className={"flex gap-2 flex-col"}>
           <Space>
-            <Radio.Group
-              size={"small"}
+            <Segmented
+              value={showMode}
               defaultValue={showMode}
-              buttonStyle="solid"
               onChange={(v) => {
-                onChangeShowMode(v.target.value);
+                onChangeShowMode(v);
               }}
-            >
-              <Radio.Button value="tree">
-                {t("projects.detail.code.tree")}
-              </Radio.Button>
-              <Radio.Button value="list">
-                {t("projects.detail.file.list")}
-              </Radio.Button>
-            </Radio.Group>
+              options={[
+                {
+                  label: t("projects.detail.code.tree"),
+                  value: "tree",
+                  icon: <Icon component={PhTreeView} />,
+                },
+                {
+                  label: t("projects.detail.file.list"),
+                  value: "list",
+                  icon: <BarsOutlined />,
+                },
+              ]}
+            />
+
             <span style={{ fontSize: "14px" }}>
               {/*<span className={'mr-2'}>{numberFiles}</span>*/}
               {t("projects.detail.total.files", { msg: numberFiles })}
