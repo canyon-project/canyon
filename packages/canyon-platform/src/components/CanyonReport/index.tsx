@@ -22,6 +22,9 @@ function checkSummaryOnlyChange(item, onlyChange) {
 function checkSummaryKeywords(item, keywords) {
   return item.path.toLowerCase().includes(keywords.toLowerCase());
 }
+function checkSummaryRange(item, range) {
+  return item.pct >= range[0] && item.pct <= range[1];
+}
 
 // 1.summary最主要的数据，有外面传入
 // 2.当前默认defaultPath = sprm.get('path')，锚点
@@ -35,7 +38,6 @@ const CanyonReport = ({
   mainData,
   theme,
 }) => {
-  console.log(mainData, "mainData", theme);
   // 几个状态
   // 1.展示模式//tree||list
   const [showMode, setShowMode] = useState("tree");
@@ -61,7 +63,8 @@ const CanyonReport = ({
     return coverageSummaryMapData.filter(
       (item) =>
         checkSummaryOnlyChange(item, onlyChange) &&
-        checkSummaryKeywords(item, keywords),
+        checkSummaryKeywords(item, keywords) &&
+        checkSummaryRange(item, range),
     );
   }, [coverageSummaryMapData, onlyChange, keywords]);
 
@@ -73,7 +76,7 @@ const CanyonReport = ({
     {},
   );
   const summaryTreeItem = genSummaryTreeItem(activatedPath, summary);
-  console.log(summaryTreeItem, "summaryTreeItem");
+  const [range, setRange] = useState([0, 100]);
   function onChangeOnlyChangeKeywords(v) {
     setKeywords(v.target.value);
   }
@@ -85,6 +88,9 @@ const CanyonReport = ({
   function onChangeShowMode(mode) {
     setShowMode(mode);
   }
+  function onChangeRange(va) {
+    setRange(va);
+  }
   return (
     <div>
       <CanyonReportControl
@@ -95,10 +101,12 @@ const CanyonReport = ({
           ).length
         }
         keywords={keywords}
+        range={range}
         onlyChange={onlyChange}
         onChangeOnlyChange={onChangeOnlyChange}
         onChangeOnlyChangeKeywords={onChangeOnlyChangeKeywords}
         onChangeShowMode={onChangeShowMode}
+        onChangeRange={onChangeRange}
       />
       <Divider style={{ margin: "0", marginBottom: "10px" }} />
       <CanyonReportOverview
