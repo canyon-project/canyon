@@ -23,7 +23,8 @@ function checkSummaryKeywords(item, keywords) {
   return item.path.toLowerCase().includes(keywords.toLowerCase());
 }
 function checkSummaryRange(item, range) {
-  return item.pct >= range[0] && item.pct <= range[1];
+  const pct = item.statements.pct;
+  return pct >= range[0] && pct <= range[1];
 }
 
 // 1.summary最主要的数据，有外面传入
@@ -54,6 +55,7 @@ const CanyonReport = ({
   // 5.文件路径关键字搜索
   const [keywords, setKeywords] = useState("");
   const [onlyChange, setOnlyChange] = useState(false);
+  const [range, setRange] = useState([0, 100]);
 
   // useEffect(()=>{
   //   document.querySelector("#nihao").scrollIntoView(true);
@@ -66,7 +68,7 @@ const CanyonReport = ({
         checkSummaryKeywords(item, keywords) &&
         checkSummaryRange(item, range),
     );
-  }, [coverageSummaryMapData, onlyChange, keywords]);
+  }, [coverageSummaryMapData, onlyChange, keywords, range]);
 
   const summary = coverageSummaryMapDataFiltered.reduce(
     (acc: any, cur: any) => {
@@ -76,7 +78,6 @@ const CanyonReport = ({
     {},
   );
   const summaryTreeItem = genSummaryTreeItem(activatedPath, summary);
-  const [range, setRange] = useState([0, 100]);
   function onChangeOnlyChangeKeywords(v) {
     setKeywords(v.target.value);
   }

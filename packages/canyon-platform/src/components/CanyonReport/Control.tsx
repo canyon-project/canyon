@@ -5,8 +5,16 @@ import { Divider, SliderSingleProps } from "antd";
 import { getCOlor } from "@/helpers/utils/common.ts";
 
 const marks: SliderSingleProps["marks"] = {
-  50: "50",
+  50: {
+    style: {
+      fontSize: "10px",
+    },
+    label: <>50</>,
+  },
   80: {
+    style: {
+      fontSize: "10px",
+    },
     label: <>80</>,
   },
 };
@@ -40,7 +48,7 @@ const CanyonReportControl = ({
   // const [range, setRange] = useState([0, 100]);
   return (
     <>
-      <div className={"flex mb-2 justify-between"}>
+      <div className={"flex mb-2 justify-between items-center"}>
         <div className={"flex gap-2 flex-col"}>
           <Space>
             <Segmented
@@ -90,7 +98,8 @@ const CanyonReportControl = ({
             <Typography.Text type={"secondary"} style={{ fontSize: "12px" }}>
               范围：
             </Typography.Text>
-            <div style={{ transform: "translateY(10px)" }}>
+            {/*style={{ transform: "translateY(10px)" }}*/}
+            <div style={{ height: "30px", transform: "translateY(-2px)" }}>
               <Slider
                 className={"w-[160px]"}
                 range
