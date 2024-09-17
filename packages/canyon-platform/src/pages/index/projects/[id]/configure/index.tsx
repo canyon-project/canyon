@@ -57,12 +57,6 @@ const ProjectConfigure = () => {
         />
       </FormRegion>
       <div className={"h-5"}></div>
-      <MemberTable
-        members={GetProjectByIdDocumentData?.getProjectByID.members}
-      />
-      <div className={"h-5"}></div>
-      <TagTable tags={GetProjectByIdDocumentData?.getProjectByID.tags} />
-      <div className={"h-5"}></div>
       <Card
         title={
           <div className={"flex items-center"}>
@@ -187,6 +181,12 @@ const ProjectConfigure = () => {
           </Button>
         </Card.Grid>
       </Card>
+      <div className={"h-5"}></div>
+      <MemberTable
+        members={GetProjectByIdDocumentData?.getProjectByID.members}
+      />
+      <div className={"h-5"}></div>
+      <TagTable tags={GetProjectByIdDocumentData?.getProjectByID.tags} />
       <div className={"h-5"}></div>
     </div>
   );
