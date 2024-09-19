@@ -122,7 +122,7 @@ export class AppController {
         uiTestChangedLineCoverage: 96.13,
         utBranchCoverage: 65.21,
         utLineCoverage: 68.91,
-        codeChangeNum: 0,
+        codeChangeNum: 730591,
       },
       {
         month: 6,
@@ -132,7 +132,7 @@ export class AppController {
         uiTestChangedLineCoverage: 95.35,
         utBranchCoverage: 66.81,
         utLineCoverage: 69.34,
-        codeChangeNum: 0,
+        codeChangeNum: 988195,
       },
       {
         month: 7,
@@ -142,7 +142,7 @@ export class AppController {
         uiTestChangedLineCoverage: 95.61,
         utBranchCoverage: 67.1,
         utLineCoverage: 69.83,
-        codeChangeNum: 3633873,
+        codeChangeNum: 940460,
       },
     ];
   }
