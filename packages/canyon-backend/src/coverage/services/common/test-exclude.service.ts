@@ -40,6 +40,7 @@ export class TestExcludeService {
     const filterCoverage = {};
 
     for (const filterCoverageKey of Object.keys(coverage)) {
+      // TODO 当过滤条件特别多的时候，性能会很差，大概能达到3s的计算时间，所以得在消费的时候就落库概览数据，summarys
       if (exclude.shouldInstrument(filterCoverageKey)) {
         filterCoverage[filterCoverageKey] = coverage[filterCoverageKey];
       }
