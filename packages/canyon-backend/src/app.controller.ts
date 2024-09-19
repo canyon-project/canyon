@@ -33,6 +33,36 @@ export class AppController {
 
   @Get("/api/monthly-coverage-trend")
   async monthlyCoverageTrend() {
+    // const projects = await this.prisma.project.findMany({
+    //   where: {
+    //     tags: {
+    //       array_contains: [
+    //         {
+    //           name: "Auto Statistic",
+    //         },
+    //       ],
+    //     },
+    //   },
+    // });
+    // const ids = projects.map((item) => item.id.split("-")[1]);
+    //
+    // const codechanges = await this.prisma.codechange.findMany({
+    //   where: {
+    //     projectID: {
+    //       in: ids,
+    //     },
+    //     createdAt: {
+    //       gte: new Date("2024-08-01"),
+    //       lte: new Date("2024-09-01"),
+    //     },
+    //   },
+    // });
+    //
+    // let num = 0;
+    // codechanges.forEach((item) => {
+    //   num += item.additions.length + item.deletions.length;
+    // });
+
     return [
       {
         month: 0,
@@ -42,6 +72,7 @@ export class AppController {
         uiTestChangedLineCoverage: 100.0,
         utBranchCoverage: 64.96,
         utLineCoverage: 62.56,
+        codeChangeNum: 0,
       },
       {
         month: 1,
@@ -51,6 +82,7 @@ export class AppController {
         uiTestChangedLineCoverage: 93.76,
         utBranchCoverage: 64.74,
         utLineCoverage: 64.0,
+        codeChangeNum: 0,
       },
       {
         month: 2,
@@ -60,6 +92,7 @@ export class AppController {
         uiTestChangedLineCoverage: 93.95,
         utBranchCoverage: 64.68,
         utLineCoverage: 64.38,
+        codeChangeNum: 0,
       },
       {
         month: 3,
@@ -69,6 +102,7 @@ export class AppController {
         uiTestChangedLineCoverage: 95.49,
         utBranchCoverage: 64.62,
         utLineCoverage: 65.61,
+        codeChangeNum: 0,
       },
       {
         month: 4,
@@ -78,6 +112,7 @@ export class AppController {
         uiTestChangedLineCoverage: 95.1,
         utBranchCoverage: 64.69,
         utLineCoverage: 66.15,
+        codeChangeNum: 0,
       },
       {
         month: 5,
@@ -87,6 +122,7 @@ export class AppController {
         uiTestChangedLineCoverage: 96.13,
         utBranchCoverage: 65.21,
         utLineCoverage: 68.91,
+        codeChangeNum: 0,
       },
       {
         month: 6,
@@ -96,6 +132,7 @@ export class AppController {
         uiTestChangedLineCoverage: 95.35,
         utBranchCoverage: 66.81,
         utLineCoverage: 69.34,
+        codeChangeNum: 0,
       },
       {
         month: 7,
@@ -105,6 +142,7 @@ export class AppController {
         uiTestChangedLineCoverage: 95.61,
         utBranchCoverage: 67.1,
         utLineCoverage: 69.83,
+        codeChangeNum: 3633873,
       },
     ];
   }
