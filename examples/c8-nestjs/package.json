@@ -8,7 +8,7 @@
   "scripts": {
     "build": "nest build",
     "start:prod": "NODE_V8_COVERAGE=./coverage/tmp node dist/main",
-    "generate report": "c8 report --reporter=html --reporter=text"
+    "generate-report": "c8 report --reporter=html --reporter=text"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
