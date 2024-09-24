@@ -139,6 +139,7 @@ export class CoverageClientService {
       newlinesCovered: 0,
       newlinesTotal: 0,
       hit: "",
+      summary: "",
       coverage: coverageReport.coverage,
       instrumentCwd: coverageReport.instrumentCwd,
       createdAt: coverageReport.createdAt || new Date(),

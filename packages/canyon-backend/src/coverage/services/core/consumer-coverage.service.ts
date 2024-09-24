@@ -133,16 +133,15 @@ export class ConsumerCoverageService {
     })();
 
     const newcoverage = mergeCoverageMap(queueDataToBeConsumed.coverage, cov);
-    const sum: any = getSummaryByPath(
-      "",
-      genSummaryMapByCoverageMap(
-        await this.testExcludeService.invoke(
-          queueDataToBeConsumed.projectID,
-          newcoverage,
-        ),
-        codechanges,
+    const summary = genSummaryMapByCoverageMap(
+      await this.testExcludeService.invoke(
+        queueDataToBeConsumed.projectID,
+        newcoverage,
       ),
+      codechanges,
     );
+    const sum: any = getSummaryByPath("", summary);
+    const summaryZstd = await compressedData(JSON.stringify(summary));
 
     const hit = await compressedData(JSON.stringify(newcoverage));
     if (coverage) {
@@ -162,6 +161,7 @@ export class ConsumerCoverageService {
           branchesTotal: sum.branches.total,
           linesCovered: sum.lines.covered,
           linesTotal: sum.lines.total,
+          summary: summaryZstd,
           updatedAt: queueDataToBeConsumed.updatedAt,
           compareTarget: queueDataToBeConsumed.compareTarget,
         },
@@ -182,6 +182,7 @@ export class ConsumerCoverageService {
           branchesTotal: sum.branches.total,
           linesCovered: sum.lines.covered,
           linesTotal: sum.lines.total,
+          summary: summaryZstd,
           //以下都读的是queueDataToBeConsumed
           // key: queueDataToBeConsumed.key,
           branch: queueDataToBeConsumed.branch,

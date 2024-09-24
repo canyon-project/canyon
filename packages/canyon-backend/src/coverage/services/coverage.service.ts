@@ -40,19 +40,45 @@ export class CoverageService {
     if (coverages.length === 0) {
       return [];
     }
-    const coverageData = await this.getCoverageDataFromAdapter(
-      projectID,
-      sha,
-      reportID,
-    ).then((r) => this.testExcludeService.invoke(coverages[0].projectID, r));
+
     const codechanges = await this.prisma.codechange.findMany({
       where: {
         compareTarget: coverages[0].compareTarget,
         sha: sha,
       },
     });
-    const covSummary = genSummaryMapByCoverageMap(coverageData, codechanges);
-    return Object.entries(covSummary).map(([key, value]) => {
+
+    let covSummary = await this.prisma.coverage
+      .findFirst({
+        where: removeNullKeys({
+          sha,
+          projectID,
+          reportID: reportID || null,
+          covType: reportID ? "agg" : "all",
+        }),
+      })
+      .then((cov) => {
+        if (cov && cov.summary) {
+          // zstd解压
+          return decompressedData(cov.summary).then((summary) => {
+            return JSON.parse(summary);
+          });
+        } else {
+          return null;
+        }
+      });
+
+    if (!covSummary) {
+      const coverageData = await this.getCoverageDataFromAdapter(
+        projectID,
+        sha,
+        reportID,
+      ).then((r) => this.testExcludeService.invoke(coverages[0].projectID, r));
+
+      covSummary = genSummaryMapByCoverageMap(coverageData, codechanges);
+    }
+
+    return Object.entries(covSummary).map(([key, value]: any) => {
       return {
         path: key,
         ...value,
@@ -108,7 +134,6 @@ export class CoverageService {
         });
       }),
     );
-    // console.log(filepath,'filepath')
     const obj = {};
     coverageJsonMaps.forEach((item) => {
       if (hit[item.path]) {

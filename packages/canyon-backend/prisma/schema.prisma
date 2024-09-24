@@ -65,6 +65,7 @@ model Coverage {
   statementsCovered Int      @map("statements_covered")
   newlinesTotal     Int      @map("newlines_total")
   newlinesCovered   Int      @map("newlines_covered")
+  summary           String?
   // 代码覆盖率详情
   hit               String
   // 通用
