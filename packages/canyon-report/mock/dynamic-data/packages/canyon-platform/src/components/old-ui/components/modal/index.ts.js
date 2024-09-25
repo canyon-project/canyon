@@ -1,0 +1,1 @@
+window["packages/canyon-platform/src/components/old-ui/components/modal/index.ts"] = {"content":"export { default as CanyonModalGlobalSearch } from \"./GlobalSearch.tsx\";\n","coverage":{"name":"zt"}}

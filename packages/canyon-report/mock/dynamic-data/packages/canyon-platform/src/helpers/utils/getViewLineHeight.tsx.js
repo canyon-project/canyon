@@ -1,0 +1,1 @@
+window["packages/canyon-platform/src/helpers/utils/getViewLineHeight.tsx"] = {"content":"export const getViewLineHeight = () => {\n  return 20;\n};\n","coverage":{"name":"zt"}}

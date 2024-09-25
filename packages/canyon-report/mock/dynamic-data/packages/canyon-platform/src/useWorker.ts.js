@@ -1,0 +1,1 @@
+window["packages/canyon-platform/src/useWorker.ts"] = {"content":"import { loader } from \"@monaco-editor/react\";\nimport * as monaco from \"monaco-editor\";\nloader.config({\n  monaco: monaco,\n});\n","coverage":{"name":"zt"}}

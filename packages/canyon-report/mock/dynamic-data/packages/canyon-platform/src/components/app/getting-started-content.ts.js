@@ -1,0 +1,1 @@
+window["packages/canyon-platform/src/components/app/getting-started-content.ts"] = {"content":"export const gettingStartedContent = {\n  babel: `npm i babel-plugin-istanbul babel-plugin-canyon -D  `,\n  webpack: `{\n  \"plugins\": [\n    \"istanbul\",\n    \"canyon\"\n  ]\n}  `,\n};\n","coverage":{"name":"zt"}}

@@ -1,0 +1,1 @@
+window["packages/canyon-platform/src/components/old-ui/components/index.ts"] = {"content":"export * from \"./card\";\nexport * from \"./layout\";\nexport * from \"./modal\";\nexport * from \"./page\";\n","coverage":{"name":"zt"}}
