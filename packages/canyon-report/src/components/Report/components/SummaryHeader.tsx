@@ -1,5 +1,7 @@
 // @ts-nocheck
 import React from "react";
+import { Tag,Typography } from "antd";
+const { Text } = Typography;
 const SummaryNav = ({ value, onClick }) => {
   console.log(value, "value");
   return (
@@ -30,7 +32,37 @@ const SummaryNav = ({ value, onClick }) => {
 };
 
 const SummaryMetric = () => {
-  return <div>SummaryMetric</div>;
+  const t = (key) => key;
+  const summaryTreeItem = {
+    summary: {
+      files: { total: 1, covered: 1, pct: 100 },
+      functions: { total: 1, covered: 1, pct: 100 },
+      lines: { total: 1, covered: 1, pct: 100 },
+      branches: { total: 1, covered: 1, pct: 100 },
+    },
+  };
+
+  return (
+    <div>
+      <div className={"flex gap-2 mb-3"}>
+        {Object.entries(summaryTreeItem.summary).map(([key, value]) => {
+          return (
+            <div className={"flex gap-1 items-center"}>
+              <span style={{ fontWeight: "600", fontSize: "14px" }}>
+                {value.pct}%
+              </span>
+              <Text style={{ fontSize: "14px" }} type={"secondary"}>
+                {t("projects." + key)}:
+              </Text>
+              <Tag bordered={false}>
+                {value.covered}/{value.total}
+              </Tag>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
 };
 
 const SummaryBar = () => {};

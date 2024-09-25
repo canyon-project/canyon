@@ -18,12 +18,12 @@ const TopControl = () => {
               // }}
               options={[
                 {
-                  label: t("projects.detail.code.tree"),
+                  label: "Code tree",
                   value: "tree",
                   // icon: <Icon component={PhTreeView}/>,
                 },
                 {
-                  label: t("projects.detail.file.list"),
+                  label: "File list",
                   value: "list",
                   icon: <BarsOutlined />,
                 },
@@ -31,8 +31,7 @@ const TopControl = () => {
             />
 
             <span style={{ fontSize: "14px" }}>
-              899
-              {/*<span className={'mr-2'}>{numberFiles}</span>*/}
+              <span className={"mr-2"}>899 total files</span>
               {/*{t("projects.detail.total.files", {msg: numberFiles})}*/}
               {/*覆盖率提升优先级列表*/}
               {/*转换生产流量为测试用例*/}
@@ -43,7 +42,7 @@ const TopControl = () => {
 
         <div className={"flex items-center"}>
           <Input
-            value={"keywords"}
+            value={""}
             addonBefore={<SearchOutlined />}
             // placeholder={t("projects.detail.search.placeholder")}
             className={"w-[240px]"}
@@ -52,6 +51,7 @@ const TopControl = () => {
           />
         </div>
       </div>
+      <Divider style={{ margin: "0", marginBottom: "10px" }} />
     </div>
   );
 };

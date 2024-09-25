@@ -9,7 +9,7 @@ const FileCoverageDetail = ({ fileContent }) => {
   useEffect(() => {
     codeToHtml(fileContent || "", {
       lang: "javascript",
-      theme: "vitesse-dark",
+      theme: "light-plus",
     }).then((r) => {
       console.log(r);
       setHtmlContent(r);

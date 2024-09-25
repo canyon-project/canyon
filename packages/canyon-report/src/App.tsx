@@ -36,7 +36,6 @@ const dynamicLoadingSource = (val) => {
 };
 
 function App() {
-  // 当前激活的路径，默认值是哈希值
   const [value, setValue] = useState(window.location.hash.slice(1));
   const onSelect = (val) => {
     setValue(val);
@@ -45,8 +44,7 @@ function App() {
   };
 
   return (
-    <div>
-      当前激活的路径：{value}
+    <div className={"m-5 shadow p-5"}>
       <Report dataSource={dataSource} onSelect={onSelect} value={value} />
     </div>
   );
