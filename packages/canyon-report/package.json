@@ -1,12 +1,13 @@
 {
   "name": "canyon-report7",
-  "version": "0.0.8-beta-19",
+  "version": "0.0.8-beta-20",
   "description": "My webpack project",
   "main": "./lib/index.js",
   "bin": "./lib/cli.js",
   "files": [
     "dist",
-    "lib"
+    "lib",
+    "html-spa.js"
   ],
   "scripts": {
     "test": "node ./lib/cli.js ccr",
