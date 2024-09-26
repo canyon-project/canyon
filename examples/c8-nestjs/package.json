@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "start:prod": "NODE_V8_COVERAGE=./coverage/tmp node dist/main",
+    "start:prod": "nest build && NODE_V8_COVERAGE=./coverage/tmp node dist/main",
     "generate-report": "c8 report --reporter=html --reporter=text"
   },
   "dependencies": {

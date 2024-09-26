@@ -15,8 +15,6 @@ export class AppController {
   @Get()
   getHello(): string {
     test(1, 2);
-    v8.takeCoverage();
-    v8.stopCoverage();
     return this.appService.getHello();
   }
 }

@@ -1,0 +1,18 @@
+{
+  "name": "jest-report",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "dependencies": {
+    "canyon-report7": "^0.0.8-beta-18",
+    "istanbul-lib-report": "^3.0.1"
+  }
+}
