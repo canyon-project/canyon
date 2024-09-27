@@ -1,6 +1,6 @@
 {
   "collectCoverage": true,
   "coverageDirectory": "coverage",
-  "coverageReporters": ["html"],
+  "coverageReporters": ["html","xml","lcov","json"],
   "roots": ["<rootDir>/testfn"]
 }
