@@ -35,3 +35,6 @@ pnpm-lock.yaml
 .env
 
 db/sql
+
+
+coverage

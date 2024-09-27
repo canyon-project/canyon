@@ -1,0 +1,6 @@
+{
+  "collectCoverage": true,
+  "coverageDirectory": "coverage",
+  "coverageReporters": ["html"],
+  "roots": ["<rootDir>/testfn"]
+}
