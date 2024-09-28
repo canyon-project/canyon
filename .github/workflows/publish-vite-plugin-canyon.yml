@@ -1,4 +1,4 @@
-name: Publish babel-plugin-canyon
+name: Publish vite-plugin-canyon
 
 on:
   push:
