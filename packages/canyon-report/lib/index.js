@@ -39,11 +39,8 @@ class CoverageReport {
         return '{}';
       }
     })()
-
     // 5. 核心，动态生成dynamic-data数据
-
     generateDynamicData({coverage:cov})
-
     // 3. 复制dist目录到当前工作目录
     copyDirectory(sourceDir, targetDir);
     // 4. 生成html文件，注入coverage-final.json的数据，需要一个summary列表

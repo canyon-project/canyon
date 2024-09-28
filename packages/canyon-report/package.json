@@ -1,6 +1,6 @@
 {
-  "name": "canyon-report7",
-  "version": "0.0.8-beta-20",
+  "name": "canyon-report",
+  "version": "0.0.8-beta-21",
   "description": "My webpack project",
   "main": "./lib/index.js",
   "bin": "./lib/cli.js",

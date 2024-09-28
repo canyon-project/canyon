@@ -5,8 +5,6 @@ function getDirectoryFromPath(filePath) {
   return filePath.substring(0, filePath.lastIndexOf("/"));
 }
 
-// path.join(process.cwd(), "coverage")
-
 const generateDynamicData = ({coverage}) => {
   for (const key in JSON.parse(coverage)) {;
     // 示例

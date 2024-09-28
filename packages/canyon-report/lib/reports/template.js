@@ -1,8 +1,6 @@
 const libCoverage = require('istanbul-lib-coverage');
 
-
 const generateHtml = ({coverage}) => {
-
   var map = libCoverage.createCoverageMap(JSON.parse(coverage));
   const obj = {}
   map.files().forEach(function(f) {
