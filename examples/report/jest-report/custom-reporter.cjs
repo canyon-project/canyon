@@ -1,6 +1,6 @@
 // custom-reporter.cjs
 const { ReportBase } = require('istanbul-lib-report')
-const CCR = require('canyon-report7')
+const CCR = require('canyon-report')
 const fs = require('fs')
 module.exports = class CustomReporter extends ReportBase {
     constructor(opts) {

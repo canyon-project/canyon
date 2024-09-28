@@ -1,4 +1,4 @@
-name: Npm Publish canyon-report
+name: Publish babel-plugin-canyon
 
 on:
   push:
@@ -17,7 +17,6 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
-      - run: pnpm run build
-      - run: pnpm --filter=canyon-report7 publish -f --no-git-checks --access=public --filter
+      - run: pnpm --filter=canyon-report publish -f --no-git-checks --access=public --filter
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}

@@ -1,0 +1,42 @@
+{
+  "name": "vite-plugin-canyon",
+  "version": "0.0.1-alpha.13",
+  "license": "MIT",
+  "files": [
+    "dist/*"
+  ],
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "dev": "unbuild --stub",
+    "build": "unbuild",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "vite",
+    "babel",
+    "plugin",
+    "istanbul",
+    "nyc",
+    "canyon"
+  ],
+  "dependencies": {
+    "picocolors": "^1.0.0"
+  },
+  "peerDependencies": {
+    "vite": ">=2.9.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3",
+    "unbuild": "^2.0.0"
+  }
+}

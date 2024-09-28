@@ -7,7 +7,6 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "jest",
     "build": "pnpm -r do-build",
     "rm": "node ./scripts/rm.js",
     "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma",
@@ -18,7 +17,6 @@
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "husky": "^9.1.6",
-    "prisma": "5.16.1",
-    "jest": "*"
+    "prisma": "5.16.1"
   }
 }

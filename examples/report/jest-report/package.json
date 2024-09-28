@@ -12,7 +12,7 @@
     "jest": "^29.7.0"
   },
   "dependencies": {
-    "canyon-report7": "^0.0.8-beta-18",
+    "canyon-report": "^0.0.8-beta-18",
     "istanbul-lib-report": "^3.0.1"
   }
 }

@@ -1,0 +1,53 @@
+{
+  "name": "babel-plugin-canyon",
+  "version": "1.8.78",
+  "description": "",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "release": "node scripts/gen-template.js && babel src --out-dir lib",
+    "pretest": "npm run release",
+    "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=json mocha --timeout 5000 test/*.js",
+    "prepublishOnly": "npm run release"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "standard": {
+    "ignore": [
+      "fixtures/*.js"
+    ]
+  },
+  "nyc": {
+    "include": [
+      "src/*.js",
+      "fixtures"
+    ],
+    "require": [
+      "@babel/register"
+    ],
+    "sourceMap": false,
+    "instrument": false
+  },
+  "dependencies": {
+    "@babel/helper-plugin-utils": "^7.0.0",
+    "@babel/generator": "^7.25.6"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.24.1",
+    "@babel/core": "^7.24.1",
+    "@babel/plugin-transform-modules-commonjs": "^7.24.1",
+    "@babel/register": "^7.23.7",
+    "babel-plugin-istanbul": "6.1.1",
+    "chai": "^4.2.0",
+    "cross-env": "^7.0.3",
+    "mocha": "^6.2.2",
+    "nyc": "^15.0.0",
+    "standard": "^14.3.1"
+  },
+  "peerDependencies": {
+    "axios": "*"
+  }
+}
