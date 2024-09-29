@@ -3,7 +3,7 @@
     "allowSyntheticDefaultImports": true,
     "noImplicitAny": true,
     "module": "es6",
-    "target": "es5",
+    "target": "ES2021",
     "allowJs": true,
     "jsx": "react",
     "esModuleInterop": true,
