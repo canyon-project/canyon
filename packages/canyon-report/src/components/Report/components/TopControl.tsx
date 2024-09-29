@@ -1,9 +1,8 @@
-// @ts-nocheck
 import React from "react";
-import Icon, { BarsOutlined, SearchOutlined } from "@ant-design/icons";
+import { BarsOutlined, SearchOutlined } from "@ant-design/icons";
 import { Divider, Space, Segmented, Input } from "antd";
 
-const TopControl = ({total}) => {
+const TopControl = ({ total, showMode, onChangeShowMode }) => {
   const t = (msg) => msg;
   return (
     <div>
@@ -11,11 +10,11 @@ const TopControl = ({total}) => {
         <div className={"flex gap-2 flex-col"}>
           <Space>
             <Segmented
-              // value={showMode}
-              // defaultValue={showMode}
-              // onChange={(v) => {
-              //   onChangeShowMode(v);
-              // }}
+              value={showMode}
+              defaultValue={showMode}
+              onChange={(v) => {
+                onChangeShowMode(v);
+              }}
               options={[
                 {
                   label: "Code tree",
@@ -32,10 +31,6 @@ const TopControl = ({total}) => {
 
             <span style={{ fontSize: "14px" }}>
               <span className={"mr-2"}>{total} total files</span>
-              {/*{t("projects.detail.total.files", {msg: numberFiles})}*/}
-              {/*覆盖率提升优先级列表*/}
-              {/*转换生产流量为测试用例*/}
-              {/*<PrepareProdFn/>*/}
             </span>
           </Space>
         </div>
@@ -44,10 +39,8 @@ const TopControl = ({total}) => {
           <Input
             value={""}
             addonBefore={<SearchOutlined />}
-            // placeholder={t("projects.detail.search.placeholder")}
             className={"w-[240px]"}
             size={"small"}
-            // onChange={onChangeOnlyChangeKeywords}
           />
         </div>
       </div>

@@ -1,30 +1,30 @@
-// @ts-nocheck
-import React from "react";
+import React, { FC } from "react";
 import { Tag, Typography } from "antd";
-import {getColor} from "../../helpers";
+import { getColor } from "../../helpers";
 const { Text } = Typography;
-const SummaryNav = ({ value, onClick }) => {
+const SummaryNav: FC<{
+  value: string;
+  onClick: (value: string) => void;
+}> = ({ value, onClick }) => {
   console.log(value, "value");
   return (
-    <div className={"flex"}>
-      {value.split("/").map((item, index) => {
+    <div
+      className={"flex gap-1"}
+      style={{ fontSize: "16px", fontWeight: "bold" }}
+    >
+      {("canyon/" + value).split("/").map((item, index) => {
         return (
-          <div>
-            <a
-              className={"text-blue-500 cursor-pointer"}
+          <div key={index} className={"flex gap-1"}>
+            <button
+              className={"text-blue-500 cursor-pointer hover:underline"}
               key={index}
               onClick={() => {
-                onClick(
-                  value
-                    .split("/")
-                    .slice(0, index + 1)
-                    .join("/"),
-                );
+                onClick(value.split("/").slice(0, index).join("/"));
               }}
             >
               {item}
-            </a>
-            <span>/</span>
+            </button>
+            {index === value.split("/").length ? null : <span>/</span>}
           </div>
         );
       })}
@@ -48,7 +48,7 @@ const SummaryMetric = () => {
       <div className={"flex gap-2 mb-3"}>
         {Object.entries(summaryTreeItem.summary).map(([key, value]) => {
           return (
-            <div className={"flex gap-1 items-center"}>
+            <div className={"flex gap-1 items-center"} key={key}>
               <span style={{ fontWeight: "600", fontSize: "14px" }}>
                 {value.pct}%
               </span>

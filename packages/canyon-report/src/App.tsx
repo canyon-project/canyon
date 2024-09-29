@@ -44,7 +44,7 @@ function App() {
   };
 
   return (
-    <div className={"m-5 shadow p-5"}>
+    <div className={'p-2'}>
       <Report dataSource={dataSource} onSelect={onSelect} value={value} />
     </div>
   );

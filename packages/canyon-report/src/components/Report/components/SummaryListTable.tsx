@@ -1,5 +1,4 @@
-// @ts-nocheck
-import { Table, Progress } from "antd";
+import { Table, Progress, ConfigProvider } from "antd";
 import React from "react";
 import Highlighter from "react-highlight-words";
 import { getColor } from "../../helpers";
@@ -8,7 +7,13 @@ import { getColor } from "../../helpers";
 const t = (msg) => msg;
 const SummaryListTable = ({ dataSource, onSelect, value }) => {
   return (
-    <div>
+    <ConfigProvider
+      theme={{
+        token: {
+          borderRadius: 0,
+        },
+      }}
+    >
       <Table
         bordered={true}
         pagination={{
@@ -83,7 +88,7 @@ const SummaryListTable = ({ dataSource, onSelect, value }) => {
           },
         ])}
       />
-    </div>
+    </ConfigProvider>
   );
 };
 

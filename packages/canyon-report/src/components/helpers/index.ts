@@ -7,3 +7,7 @@ export const getColor = (pct: number) => {
     return "rgb(245,32,32)";
   }
 };
+
+export const convertTreeDataSource = (dataSource) => {
+  return dataSource;
+};
