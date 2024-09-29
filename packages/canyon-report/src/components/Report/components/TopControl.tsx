@@ -3,7 +3,7 @@ import React from "react";
 import Icon, { BarsOutlined, SearchOutlined } from "@ant-design/icons";
 import { Divider, Space, Segmented, Input } from "antd";
 
-const TopControl = () => {
+const TopControl = ({total}) => {
   const t = (msg) => msg;
   return (
     <div>
@@ -31,7 +31,7 @@ const TopControl = () => {
             />
 
             <span style={{ fontSize: "14px" }}>
-              <span className={"mr-2"}>899 total files</span>
+              <span className={"mr-2"}>{total} total files</span>
               {/*{t("projects.detail.total.files", {msg: numberFiles})}*/}
               {/*覆盖率提升优先级列表*/}
               {/*转换生产流量为测试用例*/}

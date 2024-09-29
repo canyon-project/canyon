@@ -1,18 +1,17 @@
 // @ts-nocheck
 import React from "react";
-// import { codeToHtml } from 'https://esm.sh/shiki@1.0.0'
 import { useEffect, useState } from "react";
-import { codeToHtml } from "shiki";
+import { createHighlighterCoreInstance } from "../../helpers/loadShiki";
+
 const FileCoverageDetail = ({ fileContent }) => {
-  // console.log(fileContent);
   const [htmlContent, setHtmlContent] = useState("");
   useEffect(() => {
-    codeToHtml(fileContent || "", {
-      lang: "javascript",
-      theme: "light-plus",
-    }).then((r) => {
-      console.log(r);
-      setHtmlContent(r);
+    createHighlighterCoreInstance().then((highlighter) => {
+      const html = highlighter.codeToHtml(fileContent || "", {
+        lang: "javascript",
+        theme: "light-plus",
+      });
+      setHtmlContent(html);
     });
   }, [fileContent]);
   return (

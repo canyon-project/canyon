@@ -29,6 +29,7 @@
     "shiki": "^1.18.0"
   },
   "devDependencies": {
+    "@types/istanbul-lib-coverage": "^2.0.6",
     "@types/react": "^18.3.8",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^8.7.0",

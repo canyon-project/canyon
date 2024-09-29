@@ -2,10 +2,11 @@
 import { Table, Progress } from "antd";
 import React from "react";
 import Highlighter from "react-highlight-words";
+import { getColor } from "../../helpers";
 
 // import { getCOlor, percent } from "../helper";
 const t = (msg) => msg;
-const SummaryListTable = ({ dataSource, onSelect }) => {
+const SummaryListTable = ({ dataSource, onSelect, value }) => {
   return (
     <div>
       <Table
@@ -14,13 +15,14 @@ const SummaryListTable = ({ dataSource, onSelect }) => {
           defaultPageSize: 15,
         }}
         size={"small"}
-        dataSource={dataSource}
+        dataSource={dataSource.filter((item) => {
+          return item.path.startsWith(value);
+        })}
         columns={[
           {
-            title: t("projects.detail.files"),
+            title: t("Files"),
             key: "path",
             dataIndex: "path",
-            // width: '200px',
             render(text) {
               return (
                 <a
@@ -42,7 +44,7 @@ const SummaryListTable = ({ dataSource, onSelect }) => {
             },
           },
           {
-            title: t("common.total"),
+            title: t("Total"),
             key: "total",
             dataIndex: ["statements", "total"],
             sorter(a, b) {
@@ -50,7 +52,7 @@ const SummaryListTable = ({ dataSource, onSelect }) => {
             },
           },
           {
-            title: t("common.covered"),
+            title: t("Covered"),
             key: "covered",
             dataIndex: ["statements", "covered"],
             sorter(a, b) {
@@ -59,7 +61,7 @@ const SummaryListTable = ({ dataSource, onSelect }) => {
           },
         ].concat([
           {
-            title: t("projects.config.coverage") + " %",
+            title: t("Coverage") + " %",
             width: "300px",
             key: "c",
             sorter: (a, b) => {
@@ -72,7 +74,7 @@ const SummaryListTable = ({ dataSource, onSelect }) => {
                   percent={text}
                   strokeLinecap="butt"
                   size={"small"}
-                  strokeColor={"green"}
+                  strokeColor={getColor(text)}
                   className={"pr-5"}
                   status={"normal"}
                 />

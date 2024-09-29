@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React from "react";
-import { Tag,Typography } from "antd";
+import { Tag, Typography } from "antd";
+import {getColor} from "../../helpers";
 const { Text } = Typography;
 const SummaryNav = ({ value, onClick }) => {
   console.log(value, "value");
@@ -52,7 +53,7 @@ const SummaryMetric = () => {
                 {value.pct}%
               </span>
               <Text style={{ fontSize: "14px" }} type={"secondary"}>
-                {t("projects." + key)}:
+                {t(key)}:
               </Text>
               <Tag bordered={false}>
                 {value.covered}/{value.total}
@@ -65,7 +66,16 @@ const SummaryMetric = () => {
   );
 };
 
-const SummaryBar = () => {};
+const SummaryBar = () => {
+  return (
+    <div
+      style={{
+        backgroundColor: getColor(75),
+      }}
+      className={"w-full h-[10px] mb-3"}
+    />
+  );
+};
 
 const SummaryHeader = ({ value, onSelect }) => {
   console.log(value, "value");

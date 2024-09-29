@@ -1,10 +1,10 @@
 import "./CopyCode.css";
 
 import { CopyOutlined } from "@ant-design/icons";
-import { codeToHtml } from "shiki";
 import { FC, useEffect } from "react";
 // @ts-ignore
 import { CopyToClipboard } from "react-copy-to-clipboard";
+import { createHighlighterCoreInstance } from "@/components/CanyonReport/loadShiki.ts";
 
 const CopyCode: FC<{ code: string }> = ({ code }) => {
   const fileContent = code;
@@ -12,11 +12,12 @@ const CopyCode: FC<{ code: string }> = ({ code }) => {
 
   useEffect(() => {
     if (fileContent) {
-      codeToHtml(fileContent, {
-        lang: "json",
-        theme: "tokyo-night",
-      }).then((r) => {
-        setContent(r);
+      createHighlighterCoreInstance().then(({ codeToHtml }) => {
+        const html = codeToHtml(fileContent, {
+          lang: "json",
+          theme: "tokyo-night",
+        });
+        setContent(html);
       });
     }
   }, [fileContent]);
