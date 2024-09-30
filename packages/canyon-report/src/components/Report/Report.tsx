@@ -8,6 +8,7 @@ import { ReportProps } from "./types";
 import { FileCoverageData } from "istanbul-lib-coverage";
 import CanyonReportTreeTable from "./components/SummaryTreeTable";
 import { genSummaryTreeItem } from "canyon-data";
+import { Spin } from "antd";
 const Report: FC<ReportProps> = ({
   dataSource,
   value,
@@ -16,6 +17,7 @@ const Report: FC<ReportProps> = ({
 }) => {
   // 1.展示模式//tree||list
   const [showMode, setShowMode] = useState("tree");
+  const [loading, setLoading] = useState(false);
 
   const isFile = useMemo(() => {
     return value.includes(".");
@@ -33,9 +35,11 @@ const Report: FC<ReportProps> = ({
   const [fileContent, setFileContent] = useState<string>("");
 
   function newonSelect(val: string) {
+    setLoading(true);
     return onSelect(val).then((res) => {
       setFileContent(res.fileContent);
       setFileCoverage(res.fileCoverage);
+      setLoading(false);
       return res;
     });
   }
@@ -89,7 +93,9 @@ const Report: FC<ReportProps> = ({
       />
 
       {isFile ? (
-        <FileCoverageDetail fileContent={fileContent} />
+        <Spin spinning={loading}>
+          {!loading && <FileCoverageDetail fileContent={fileContent} />}
+        </Spin>
       ) : showMode === "tree" ? (
         <CanyonReportTreeTable
           dataSource={treeDataSource}

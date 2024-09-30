@@ -1,6 +1,6 @@
 {
   "name": "canyon-report",
-  "version": "0.0.8-beta-32",
+  "version": "0.0.8-beta-33",
   "description": "Canyon's Coverage Reporting Toolkit",
   "main": "./lib/index.js",
   "bin": "./lib/cli.js",

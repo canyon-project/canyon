@@ -17,7 +17,7 @@ const SummaryNav: FC<{
       {(reportName + "/" + value).split("/").map((item, index) => {
         return (
           <div key={index} className={"flex gap-1"}>
-            <button
+            <a
               className={"text-blue-500 cursor-pointer hover:underline"}
               key={index}
               onClick={() => {
@@ -25,7 +25,7 @@ const SummaryNav: FC<{
               }}
             >
               {item}
-            </button>
+            </a>
             {index === value.split("/").length || !value ? null : (
               <span>/</span>
             )}
