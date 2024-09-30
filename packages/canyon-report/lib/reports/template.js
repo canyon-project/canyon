@@ -15,7 +15,7 @@ const getCommonPathPrefix = (paths) => {
   }
   return commonPrefix.join('/');
 };
-const generateHtml = ({coverage,name,_instrumentCwd}) => {
+const generateHtml = ({coverage,reportName,_instrumentCwd}) => {
   const commonPath = getCommonPathPrefix(Object.keys(JSON.parse(coverage)));
   const instrumentCwd = _instrumentCwd || commonPath;
   var map = libCoverage.createCoverageMap(JSON.parse(coverage));
@@ -41,7 +41,7 @@ const generateHtml = ({coverage,name,_instrumentCwd}) => {
   <meta charset="utf-8" />
   <title>Webpack App</title>
   <script>
-  window.name="${name}"
+  window.reportName="${reportName}"
     window.data = ${JSON.stringify(su)};
   </script>
   <script defer="defer" src="asset/main.js"></script>

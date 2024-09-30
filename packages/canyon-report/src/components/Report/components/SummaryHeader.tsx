@@ -4,16 +4,17 @@ import { getColor } from "../../helpers";
 import { CoverageSummaryData } from "istanbul-lib-coverage";
 const { Text } = Typography;
 const SummaryNav: FC<{
+  reportName: string;
   value: string;
   onClick: (value: string) => void;
-}> = ({ value, onClick }) => {
+}> = ({ value, onClick, reportName }) => {
   console.log(value, "value");
   return (
     <div
       className={"flex gap-1"}
       style={{ fontSize: "16px", fontWeight: "bold" }}
     >
-      {("canyon/" + value).split("/").map((item, index) => {
+      {(reportName + "/" + value).split("/").map((item, index) => {
         return (
           <div key={index} className={"flex gap-1"}>
             <button
@@ -85,10 +86,11 @@ const SummaryHeader: FC<{
   value: string;
   onSelect: (value: string) => void;
   data: CoverageSummaryData & { path: string };
-}> = ({ value, onSelect, data }) => {
+  reportName: string;
+}> = ({ value, onSelect, data, reportName }) => {
   return (
     <div>
-      <SummaryNav value={value} onClick={onSelect} />
+      <SummaryNav reportName={reportName} value={value} onClick={onSelect} />
       <SummaryMetric data={data} />
       <SummaryBar pct={data.statements.pct} />
     </div>

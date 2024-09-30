@@ -8,7 +8,12 @@ import { ReportProps } from "./types";
 import { FileCoverageData } from "istanbul-lib-coverage";
 import CanyonReportTreeTable from "./components/SummaryTreeTable";
 import { genSummaryTreeItem } from "canyon-data";
-const Report: FC<ReportProps> = ({ dataSource, value, onSelect }) => {
+const Report: FC<ReportProps> = ({
+  dataSource,
+  value,
+  onSelect,
+  reportName,
+}) => {
   // 1.展示模式//tree||list
   const [showMode, setShowMode] = useState("tree");
 
@@ -77,6 +82,7 @@ const Report: FC<ReportProps> = ({ dataSource, value, onSelect }) => {
         }
       />
       <SummaryHeader
+        reportName={reportName}
         data={rootDataSource}
         value={value || ""}
         onSelect={newonSelect}

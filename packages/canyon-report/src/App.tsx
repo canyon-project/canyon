@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 // 加载summary数据
 // @ts-ignore
 const dataSource = window.data;
+const reportName = window.reportName;
 
 // 重要
 // 通过动态引入js文件的方式加载数据，避免全量覆盖率source文件的加载导致内存占用过大。加载完成后，删除全局变量
@@ -45,7 +46,12 @@ function App() {
 
   return (
     <div className={"p-2"}>
-      <Report dataSource={dataSource} onSelect={onSelect} value={value} />
+      <Report
+        reportName={reportName}
+        dataSource={dataSource}
+        onSelect={onSelect}
+        value={value}
+      />
     </div>
   );
 }
