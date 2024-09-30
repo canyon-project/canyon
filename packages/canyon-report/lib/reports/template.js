@@ -1,6 +1,23 @@
 const libCoverage = require('istanbul-lib-coverage');
+const getCommonPathPrefix = (paths) => {
+  if (paths.length === 0) return '';
+  const splitPaths = paths.map(path => path.split('/'));
+  const minLength = Math.min(...splitPaths.map(p => p.length));
 
-const generateHtml = ({coverage,name}) => {
+  let commonPrefix = [];
+  for (let i = 0; i < minLength; i++) {
+    const segment = splitPaths[0][i];
+    if (splitPaths.every(path => path[i] === segment)) {
+      commonPrefix.push(segment);
+    } else {
+      break;
+    }
+  }
+  return commonPrefix.join('/');
+};
+const generateHtml = ({coverage,name,_instrumentCwd}) => {
+  const commonPath = getCommonPathPrefix(Object.keys(JSON.parse(coverage)));
+  const instrumentCwd = _instrumentCwd || commonPath;
   var map = libCoverage.createCoverageMap(JSON.parse(coverage));
   const obj = {}
   map.files().forEach(function(f) {
@@ -12,7 +29,7 @@ const generateHtml = ({coverage,name}) => {
   const su = Object.keys(obj).reduce((acc, cur) => {
     acc.push({
       ...obj[cur],
-      path: cur,
+      path: cur.replaceAll(instrumentCwd+'/', ""),
     })
     return acc;
   }, [])
