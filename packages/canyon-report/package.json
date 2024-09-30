@@ -1,7 +1,7 @@
 {
   "name": "canyon-report",
-  "version": "0.0.8-beta-29",
-  "description": "My webpack project",
+  "version": "0.0.8-beta-30",
+  "description": "Canyon's Coverage Reporting Toolkit",
   "main": "./lib/index.js",
   "bin": "./lib/cli.js",
   "files": [

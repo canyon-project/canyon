@@ -41,7 +41,7 @@ const generateHtml = ({coverage,name,_instrumentCwd}) => {
   <meta charset="utf-8" />
   <title>Webpack App</title>
   <script>
-  window.name=${name}
+  window.name="${name}"
     window.data = ${JSON.stringify(su)};
   </script>
   <script defer="defer" src="asset/main.js"></script>
