@@ -12,10 +12,8 @@ const version = require('../package.json').version;
 const executeCommand = async (command, cliOptions) => {
   console.log(command,cliOptions)
   const ccr = CCR({
-    name: 'My Coverage Report - 2024-02-28',
-    outputDir: './coverage-reports',
-    reports: ["v8", "console-details"],
-    cleanCache: true
+    name: command.name,
+    instrumentCwd:command.instrumentCwd,
   });
   await ccr.add({});
   await ccr.generate();

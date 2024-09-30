@@ -40,11 +40,11 @@ class CoverageReport {
       }
     })()
     // 5. 核心，动态生成dynamic-data数据
-    generateDynamicData({coverage:cov})
+    generateDynamicData({coverage:cov,instrumentCwd:this.options.instrumentCwd||''});
     // 3. 复制dist目录到当前工作目录
     copyDirectory(sourceDir, targetDir);
     // 4. 生成html文件，注入coverage-final.json的数据，需要一个summary列表
-    const html = generateHtml({coverage:cov});
+    const html = generateHtml({coverage:cov,name:this.options.name||'All files'});
     fs.writeFileSync(path.join(targetDir, "index.html"), html);
     return {};
   }

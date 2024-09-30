@@ -26,10 +26,6 @@ module.exports = class CustomReporter extends ReportBase {
     }
 
     const ccr = CCR({
-      name: "My Coverage Report - 2024-02-28",
-      outputDir: "./coverage-reports",
-      reports: ["v8", "console-details"],
-      cleanCache: true,
     });
     await ccr.add({});
     await ccr.generate();
