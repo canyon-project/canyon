@@ -45,7 +45,7 @@ const generateDynamicData = ({coverage,_instrumentCwd}) => {
       },
     };
     fs.writeFileSync(
-      path.join(process.cwd(), `coverage/dynamic-data/${key}.js`),
+      path.join(process.cwd(), `coverage/dynamic-data/${key.replaceAll(instrumentCwd+'/', "")}.js`),
       `window["${key.replaceAll(instrumentCwd+'/', "")}"] = ${JSON.stringify(jsonData,null,2)}`,
     );
   }
