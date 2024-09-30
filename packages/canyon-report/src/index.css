@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import 'antd/dist/reset.css';
 
 .shiki > code {
   font-size: 12px;
