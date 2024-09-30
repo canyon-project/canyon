@@ -6,3 +6,8 @@
   font-size: 12px;
   line-height: 20px;
 }
+
+a{
+  color: #3182ce;
+  /*text-decoration: none;*/
+}

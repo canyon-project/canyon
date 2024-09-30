@@ -1,9 +1,8 @@
-// @ts-nocheck
-import React from "react";
+import React, { FC } from "react";
 import { useEffect, useState } from "react";
 import { createHighlighterCoreInstance } from "../../helpers/loadShiki";
 
-const FileCoverageDetail = ({ fileContent }) => {
+const FileCoverageDetail: FC<{ fileContent: string }> = ({ fileContent }) => {
   const [htmlContent, setHtmlContent] = useState("");
   useEffect(() => {
     createHighlighterCoreInstance().then((highlighter) => {

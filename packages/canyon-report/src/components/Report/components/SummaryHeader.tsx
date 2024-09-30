@@ -1,6 +1,7 @@
 import React, { FC } from "react";
 import { Tag, Typography } from "antd";
 import { getColor } from "../../helpers";
+import { CoverageSummaryData } from "istanbul-lib-coverage";
 const { Text } = Typography;
 const SummaryNav: FC<{
   value: string;
@@ -24,7 +25,9 @@ const SummaryNav: FC<{
             >
               {item}
             </button>
-            {index === value.split("/").length ? null : <span>/</span>}
+            {index === value.split("/").length || !value ? null : (
+              <span>/</span>
+            )}
           </div>
         );
       })}
@@ -32,58 +35,62 @@ const SummaryNav: FC<{
   );
 };
 
-const SummaryMetric = () => {
-  const t = (key) => key;
+const SummaryMetric: FC<{
+  data: CoverageSummaryData & { path: string };
+}> = ({ data }) => {
+  const t = (key: string) => key;
   const summaryTreeItem = {
-    summary: {
-      files: { total: 1, covered: 1, pct: 100 },
-      functions: { total: 1, covered: 1, pct: 100 },
-      lines: { total: 1, covered: 1, pct: 100 },
-      branches: { total: 1, covered: 1, pct: 100 },
-    },
+    summary: data,
   };
 
   return (
     <div>
       <div className={"flex gap-2 mb-3"}>
-        {Object.entries(summaryTreeItem.summary).map(([key, value]) => {
-          return (
-            <div className={"flex gap-1 items-center"} key={key}>
-              <span style={{ fontWeight: "600", fontSize: "14px" }}>
-                {value.pct}%
-              </span>
-              <Text style={{ fontSize: "14px" }} type={"secondary"}>
-                {t(key)}:
-              </Text>
-              <Tag bordered={false}>
-                {value.covered}/{value.total}
-              </Tag>
-            </div>
-          );
-        })}
+        {Object.entries(summaryTreeItem.summary)
+          .filter(([key]) =>
+            ["statements", "branches", "functions", "lines"].includes(key),
+          )
+          .map(([key, value]) => {
+            return (
+              <div className={"flex gap-1 items-center"} key={key}>
+                <span style={{ fontWeight: "600", fontSize: "14px" }}>
+                  {value.pct}%
+                </span>
+                <Text style={{ fontSize: "14px" }} type={"secondary"}>
+                  {t(key)}:
+                </Text>
+                <Tag bordered={false}>
+                  {value.covered}/{value.total}
+                </Tag>
+              </div>
+            );
+          })}
       </div>
     </div>
   );
 };
 
-const SummaryBar = () => {
+const SummaryBar: FC<{ pct: number }> = ({ pct }) => {
   return (
     <div
       style={{
-        backgroundColor: getColor(75),
+        backgroundColor: getColor(pct),
       }}
       className={"w-full h-[10px] mb-3"}
     />
   );
 };
 
-const SummaryHeader = ({ value, onSelect }) => {
-  console.log(value, "value");
+const SummaryHeader: FC<{
+  value: string;
+  onSelect: (value: string) => void;
+  data: CoverageSummaryData & { path: string };
+}> = ({ value, onSelect, data }) => {
   return (
     <div>
       <SummaryNav value={value} onClick={onSelect} />
-      <SummaryMetric />
-      <SummaryBar />
+      <SummaryMetric data={data} />
+      <SummaryBar pct={data.statements.pct} />
     </div>
   );
 };

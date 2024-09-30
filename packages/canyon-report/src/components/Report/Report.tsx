@@ -7,7 +7,6 @@ import FileCoverageDetail from "./components/FileCoverageDetail";
 import { ReportProps } from "./types";
 import { FileCoverageData } from "istanbul-lib-coverage";
 import CanyonReportTreeTable from "./components/SummaryTreeTable";
-import { convertTreeDataSource } from "../helpers";
 import { genSummaryTreeItem } from "canyon-data";
 const Report: FC<ReportProps> = ({ dataSource, value, onSelect }) => {
   // 1.展示模式//tree||list
@@ -40,12 +39,15 @@ const Report: FC<ReportProps> = ({ dataSource, value, onSelect }) => {
     newonSelect(value);
   }, []);
 
-  const { treeDataSource } = useMemo(() => {
-    const summary = dataSource.reduce((acc: any, cur: any) => {
+  const { treeDataSource, rootDataSource } = useMemo(() => {
+    // @ts-ignore
+    const summary = dataSource.reduce((acc: never, cur: never) => {
+      // @ts-ignore
       acc[cur.path] = cur;
       return acc;
     }, {});
 
+    // @ts-ignore
     const aaaa = genSummaryTreeItem(value, summary);
     return {
       treeDataSource: aaaa.children.map((item) => {
@@ -54,6 +56,10 @@ const Report: FC<ReportProps> = ({ dataSource, value, onSelect }) => {
           ...item.summary,
         };
       }),
+      rootDataSource: {
+        path: aaaa.path,
+        ...aaaa.summary,
+      },
     };
   }, [dataSource, value]);
 
@@ -70,7 +76,11 @@ const Report: FC<ReportProps> = ({ dataSource, value, onSelect }) => {
           }).length
         }
       />
-      <SummaryHeader value={value || ""} onSelect={newonSelect} />
+      <SummaryHeader
+        data={rootDataSource}
+        value={value || ""}
+        onSelect={newonSelect}
+      />
 
       {isFile ? (
         <FileCoverageDetail fileContent={fileContent} />

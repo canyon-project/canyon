@@ -1,11 +1,15 @@
 import { Table, Progress, ConfigProvider } from "antd";
-import React from "react";
+import React, { FC } from "react";
 import Highlighter from "react-highlight-words";
 import { getColor } from "../../helpers";
+import { CoverageSummaryData } from "istanbul-lib-coverage";
 
-// import { getCOlor, percent } from "../helper";
-const t = (msg) => msg;
-const SummaryListTable = ({ dataSource, onSelect, value }) => {
+const t = (msg: string) => msg;
+const SummaryListTable: FC<{
+  dataSource: (CoverageSummaryData & { path: string })[];
+  onSelect: (path: string) => void;
+  value: string;
+}> = ({ dataSource, onSelect, value }) => {
   return (
     <ConfigProvider
       theme={{
@@ -33,9 +37,7 @@ const SummaryListTable = ({ dataSource, onSelect, value }) => {
                 <a
                   className={"block break-words w-[420px]"}
                   onClick={() => {
-                    onSelect(text).then((res) => {
-                      console.log(res);
-                    });
+                    onSelect(text);
                   }}
                 >
                   <Highlighter
@@ -64,7 +66,6 @@ const SummaryListTable = ({ dataSource, onSelect, value }) => {
               return a.statements.covered - b.statements.covered;
             },
           },
-        ].concat([
           {
             title: t("Coverage") + " %",
             width: "300px",
@@ -86,7 +87,7 @@ const SummaryListTable = ({ dataSource, onSelect, value }) => {
               );
             },
           },
-        ])}
+        ]}
       />
     </ConfigProvider>
   );

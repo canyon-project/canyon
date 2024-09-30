@@ -1,18 +1,19 @@
-import React from "react";
+import React, { FC } from "react";
 import { FileOutlined, FolderFilled } from "@ant-design/icons";
-import { ConfigProvider, Progress, Space, Table } from "antd";
+import { ConfigProvider, Progress, Table } from "antd";
 import { getColor } from "../../helpers";
+import { CoverageSummaryData } from "istanbul-lib-coverage";
 
-function checkSuffix() {
+function checkSuffix(str: string) {
+  console.log(str);
   return true;
 }
 
-const CanyonReportTreeTable = ({
-  dataSource,
-  loading,
-  onSelect,
-}) => {
-  const t = (res) => res;
+const CanyonReportTreeTable: FC<{
+  dataSource: (CoverageSummaryData & { path: string })[];
+  onSelect: (path: string) => void;
+}> = ({ dataSource, onSelect }) => {
+  const t = (res: string) => res;
   return (
     <div>
       <ConfigProvider
@@ -23,7 +24,6 @@ const CanyonReportTreeTable = ({
         }}
       >
         <Table
-          loading={loading}
           bordered={true}
           pagination={false}
           size={"small"}
@@ -33,7 +33,7 @@ const CanyonReportTreeTable = ({
               title: t("Files"),
               key: "path",
               dataIndex: "path",
-              render(text, record) {
+              render(text) {
                 return (
                   <a
                     className={"flex gap-1"}
@@ -68,7 +68,6 @@ const CanyonReportTreeTable = ({
                 return a.statements.covered - b.statements.covered;
               },
             },
-          ].concat([
             {
               title: t("Coverage") + " %",
               width: "300px",
@@ -90,7 +89,7 @@ const CanyonReportTreeTable = ({
                 );
               },
             },
-          ])}
+          ]}
         />
       </ConfigProvider>
     </div>
