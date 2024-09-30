@@ -87,7 +87,6 @@ const Report: FC<ReportProps> = ({ dataSource, value, onSelect }) => {
       ) : showMode === "tree" ? (
         <CanyonReportTreeTable
           dataSource={treeDataSource}
-          loading={false}
           onSelect={newonSelect}
         />
       ) : (

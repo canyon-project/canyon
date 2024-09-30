@@ -11,3 +11,9 @@ a{
   color: #3182ce;
   /*text-decoration: none;*/
 }
+
+.YourHighlightClass{
+  padding: 0 !important;
+  color: white !important;
+  background: rgb(244, 176, 27) !important;
+}
