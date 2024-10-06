@@ -15,7 +15,8 @@ const Report: FC<ReportProps> = ({
   onSelect,
   reportName,
 }) => {
-  // 1.展示模式//tree||list
+  const [keywords,setKeywords] = useState('');
+  const [range,setRange] = useState([0,100]);
   const [showMode, setShowMode] = useState("tree");
   const [loading, setLoading] = useState(false);
 
