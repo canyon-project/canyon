@@ -9,6 +9,9 @@ import { FileCoverageData } from "istanbul-lib-coverage";
 import CanyonReportTreeTable from "./components/SummaryTreeTable";
 import { genSummaryTreeItem } from "canyon-data";
 import { Spin } from "antd";
+import { genFileDetailLines, ggggggfn } from "../helpers/file";
+// import { genFileDetailLines } from "../helpers";
+
 const Report: FC<ReportProps> = ({
   dataSource,
   value,
@@ -24,7 +27,7 @@ const Report: FC<ReportProps> = ({
     return value.includes(".");
   }, [value]);
 
-  const [, setFileCoverage] = useState<FileCoverageData>({
+  const [fileCoverage, setFileCoverage] = useState<FileCoverageData>({
     path: "",
     statementMap: {},
     fnMap: {},
@@ -107,7 +110,13 @@ const Report: FC<ReportProps> = ({
 
       {isFile ? (
         <Spin spinning={loading}>
-          {!loading && <FileCoverageDetail fileContent={fileContent} />}
+          {!loading && (
+            <FileCoverageDetail
+              dsss={ggggggfn(fileCoverage, fileContent)}
+              fileContent={fileContent}
+              lines={genFileDetailLines(fileCoverage, fileContent)}
+            />
+          )}
         </Spin>
       ) : showMode === "tree" ? (
         <CanyonReportTreeTable
