@@ -87,41 +87,43 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
     }
   });
 
-  createHighlighterCoreInstance().then(({ codeToHtml }) => {
-    try {
-      const res = codeToHtml(defaultValue, {
-        lang: "javascript",
-        theme: theme === "light" ? "light-plus" : "tokyo-night",
-        decorations: mergeIntervals(
-          [...statementDecorations, ...fnDecorations].filter((item) => {
-            // defaultValue
-            if (item[0] >= item[1]) {
-              return false;
-            } else if (item[1] > defaultValue.length) {
-              return false;
-            } else {
-              return item[0] < item[1];
-            }
+  useEffect(() => {
+    createHighlighterCoreInstance().then(({ codeToHtml }) => {
+      try {
+        const res = codeToHtml(defaultValue, {
+          lang: "javascript",
+          theme: theme === "light" ? "light-plus" : "tokyo-night",
+          decorations: mergeIntervals(
+            [...statementDecorations, ...fnDecorations].filter((item) => {
+              // defaultValue
+              if (item[0] >= item[1]) {
+                return false;
+              } else if (item[1] > defaultValue.length) {
+                return false;
+              } else {
+                return item[0] < item[1];
+              }
+            }),
+          ).map(([start, end]) => {
+            return {
+              start,
+              end,
+              properties: { class: "content-class-no-found" },
+            };
           }),
-        ).map(([start, end]) => {
-          return {
-            start,
-            end,
-            properties: { class: "content-class-no-found" },
-          };
-        }),
-      });
-      setContent(res);
-    } catch (err) {
-      console.log("覆盖率着色失败", err);
-      const r = codeToHtml(defaultValue, {
-        lang: "javascript",
-        theme: theme === "light" ? "light-plus" : "tokyo-night",
-      });
+        });
+        setContent(res);
+      } catch (err) {
+        console.log("覆盖率着色失败", err);
+        const r = codeToHtml(defaultValue, {
+          lang: "javascript",
+          theme: theme === "light" ? "light-plus" : "tokyo-night",
+        });
 
-      setContent(r);
-    }
-  });
+        setContent(r);
+      }
+    });
+  }, []);
 
   return (
     <div className={"px-[12px] overflow-x-auto w-full"}>

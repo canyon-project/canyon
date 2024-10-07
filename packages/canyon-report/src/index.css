@@ -5,7 +5,11 @@
 
 .shiki > code {
   font-size: 12px;
-  line-height: 20px;
+  line-height: 24px;
+}
+
+.line{
+  /*background-color: #0071c2;*/
 }
 
 a{

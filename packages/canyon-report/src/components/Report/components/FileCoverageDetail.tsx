@@ -13,12 +13,29 @@ const FileCoverageDetail: FC<{ fileContent: string }> = ({ fileContent }) => {
       setHtmlContent(html);
     });
   }, [fileContent]);
+
+  const lines = fileContent.split("\n");
   return (
-    <div
-      dangerouslySetInnerHTML={{
-        __html: htmlContent,
-      }}
-    ></div>
+    <div className={"flex"}>
+      <div>
+        {lines.map((lin, index) => {
+          return (
+            <div
+              className={"h-[24px]"}
+              style={{ lineHeight: "24px", fontSize: "12px" }}
+            >
+              {index + 1}
+            </div>
+          );
+        })}
+      </div>
+
+      <div
+        dangerouslySetInnerHTML={{
+          __html: htmlContent,
+        }}
+      />
+    </div>
   );
 };
 

@@ -8,7 +8,6 @@ const SummaryNav: FC<{
   value: string;
   onClick: (value: string) => void;
 }> = ({ value, onClick, reportName }) => {
-  console.log(value, "value");
   return (
     <div
       className={"flex gap-1"}

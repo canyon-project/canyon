@@ -6,8 +6,16 @@ import PhTreeViewIcon from "../icons/PhTreeView";
 const TopControl: FC<{
   total: number;
   showMode: string;
-  onChangeShowMode: (v: string) => void;
-}> = ({ total, showMode, onChangeShowMode }) => {
+  filenameKeywords: string;
+  onChangeShowMode: (mode: string) => void;
+  onChangeKeywords: (word: string) => void;
+}> = ({
+  total,
+  showMode,
+  onChangeShowMode,
+  onChangeKeywords,
+  filenameKeywords,
+}) => {
   return (
     <div>
       <div className={"flex mb-2 justify-between items-center"}>
@@ -42,10 +50,13 @@ const TopControl: FC<{
 
         <div className={"flex items-center"}>
           <Input
-            value={""}
+            value={filenameKeywords}
             addonBefore={<SearchOutlined />}
             className={"w-[240px]"}
             size={"small"}
+            onChange={(val) => {
+              onChangeKeywords(val.target.value);
+            }}
           />
         </div>
       </div>

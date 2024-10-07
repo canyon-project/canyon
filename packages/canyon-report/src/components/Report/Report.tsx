@@ -15,8 +15,8 @@ const Report: FC<ReportProps> = ({
   onSelect,
   reportName,
 }) => {
-  const [keywords,setKeywords] = useState('');
-  const [range,setRange] = useState([0,100]);
+  const [filenameKeywords, setFilenameKeywords] = useState("");
+  const [range, setRange] = useState([0, 100]);
   const [showMode, setShowMode] = useState("tree");
   const [loading, setLoading] = useState(false);
 
@@ -49,13 +49,20 @@ const Report: FC<ReportProps> = ({
     newonSelect(value);
   }, []);
 
-  const { treeDataSource, rootDataSource } = useMemo(() => {
+  const { treeDataSource, rootDataSource, listDataSource } = useMemo(() => {
+    // 1.过滤
+
+    const listDataSource = dataSource.filter((item) =>
+      item.path.toLowerCase().includes(filenameKeywords.toLowerCase()),
+    );
     // @ts-ignore
-    const summary = dataSource.reduce((acc: never, cur: never) => {
+    const summary = listDataSource
       // @ts-ignore
-      acc[cur.path] = cur;
-      return acc;
-    }, {});
+      .reduce((acc: never, cur: never) => {
+        // @ts-ignore
+        acc[cur.path] = cur;
+        return acc;
+      }, {});
 
     // @ts-ignore
     const aaaa = genSummaryTreeItem(value, summary);
@@ -70,12 +77,14 @@ const Report: FC<ReportProps> = ({
         path: aaaa.path,
         ...aaaa.summary,
       },
+      listDataSource: listDataSource,
     };
-  }, [dataSource, value]);
+  }, [dataSource, value, filenameKeywords]);
 
   return (
     <div className={""}>
       <TopControl
+        filenameKeywords={filenameKeywords}
         showMode={showMode}
         onChangeShowMode={(val) => {
           setShowMode(val);
@@ -85,6 +94,9 @@ const Report: FC<ReportProps> = ({
             return item.path.startsWith(value);
           }).length
         }
+        onChangeKeywords={(val) => {
+          setFilenameKeywords(val);
+        }}
       />
       <SummaryHeader
         reportName={reportName}
@@ -104,8 +116,9 @@ const Report: FC<ReportProps> = ({
         />
       ) : (
         <SummaryListTable
+          filenameKeywords={filenameKeywords}
           value={value}
-          dataSource={dataSource}
+          dataSource={listDataSource}
           onSelect={newonSelect}
         />
       )}

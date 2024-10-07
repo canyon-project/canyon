@@ -24,6 +24,7 @@ const CanyonReportTreeTable: FC<{
         }}
       >
         <Table
+          rowKey={"path"}
           bordered={true}
           pagination={false}
           size={"small"}

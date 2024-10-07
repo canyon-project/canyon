@@ -9,7 +9,8 @@ const SummaryListTable: FC<{
   dataSource: (CoverageSummaryData & { path: string })[];
   onSelect: (path: string) => void;
   value: string;
-}> = ({ dataSource, onSelect, value }) => {
+  filenameKeywords: string;
+}> = ({ dataSource, onSelect, value, filenameKeywords }) => {
   return (
     <ConfigProvider
       theme={{
@@ -27,6 +28,7 @@ const SummaryListTable: FC<{
         dataSource={dataSource.filter((item) => {
           return item.path.startsWith(value);
         })}
+        rowKey={"path"}
         columns={[
           {
             title: t("Files"),
@@ -42,7 +44,7 @@ const SummaryListTable: FC<{
                 >
                   <Highlighter
                     highlightClassName="YourHighlightClass"
-                    searchWords={["keywords"]}
+                    searchWords={[filenameKeywords]}
                     autoEscape={true}
                     textToHighlight={text}
                   />
