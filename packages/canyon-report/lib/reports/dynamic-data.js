@@ -40,7 +40,7 @@ const generateDynamicData = ({coverage,_instrumentCwd}) => {
     const jsonData = {
       content: data,
       coverage: {
-        ...coverage[key],
+        ...JSON.parse(coverage)[key],
         path: key.replaceAll(instrumentCwd+'/', ""),
       },
     };
