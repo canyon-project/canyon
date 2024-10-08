@@ -85,38 +85,8 @@ const Sha = () => {
   return (
     <>
       <div
-        className="p-2 rounded-md bg-white dark:bg-[#151718] flex "
-        style={{
-          boxShadow: `${token.boxShadowTertiary}`,
-          display: "none",
-        }}
-      >
-        <div>
-          <div>Ant Design Title 1</div>
-          <div>
-            sign, a design language for background applications, is refined by
-          </div>
-        </div>
-        <Divider type={"vertical"} style={{ height: "60px" }} />
-        <div>
-          <div>Ant Design Title 1</div>
-          <div>
-            sign, a design language for background applications, is refined by
-          </div>
-        </div>
-        <Divider type={"vertical"} style={{ height: "60px" }} />
-        <div>
-          <div>Ant Design Title 1</div>
-          <div>
-            sign, a design language for background applications, is refined by
-          </div>
-        </div>
-      </div>
-      <div className={"h-[10px]"}></div>
-      <div
         className="p-2 rounded-md bg-white dark:bg-[#151718]"
         style={{
-          // border: `1px solid ${token.colorBorder}`,
           boxShadow: `${token.boxShadowTertiary}`,
         }}
       >
