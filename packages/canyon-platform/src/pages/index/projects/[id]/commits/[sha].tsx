@@ -7,9 +7,10 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
-import CanyonReport from "../../../../../components/CanyonReport";
-import { GetProjectByIdDocument } from "../../../../../helpers/backend/gen/graphql.ts";
+// import CanyonReport from "../../../../../components/CanyonReport";
+import { GetProjectByIdDocument } from "@/helpers/backend/gen/graphql.ts";
 import { getCoverageSummaryMapService, handleSelectFile } from "./helper";
+import Report from "canyon-report/src/components";
 const { useToken } = theme;
 
 const Sha = () => {
@@ -44,8 +45,6 @@ const Sha = () => {
   );
 
   const [activatedPath, setActivatedPath] = useState(sprm.get("path") || "");
-  const [mainData, setMainData] = useState<any>(false);
-
   useEffect(() => {
     const params = new URLSearchParams();
     if (sprm.get("report_id")) {
@@ -58,28 +57,7 @@ const Sha = () => {
 
     // 将参数拼接到路径中
     const pathWithParams = `${currentPathname}?${params.toString()}${location.hash}`;
-
     nav(pathWithParams);
-
-    if (activatedPath.includes(".")) {
-      handleSelectFile({
-        filepath: activatedPath,
-        reportID: sprm.get("report_id") || "",
-        sha: prm.sha || "",
-        projectID: prm.id || "",
-        mode: sprm.get("mode") || "",
-      }).then((r) => {
-        if (r.fileCoverage) {
-          // console.log(r)
-          setMainData(r);
-        } else {
-          setMainData(false);
-        }
-      });
-    } else {
-      // console.log('设么也不做');
-      setMainData(false);
-    }
   }, [activatedPath]);
 
   return (
@@ -91,20 +69,27 @@ const Sha = () => {
         }}
       >
         <>
-          {getProjectByIdDocumentData?.getProjectByID.language ===
-            "JavaScript" && (
-            <CanyonReport
-              theme={localStorage.getItem("theme") || "light"}
-              mainData={mainData}
-              pathWithNamespace={pathWithNamespace}
-              activatedPath={activatedPath}
-              coverageSummaryMapData={coverageSummaryMapData || []}
-              loading={loading}
-              onSelect={(v: any) => {
-                setActivatedPath(v.path);
-              }}
-            />
-          )}
+          <Report
+            reportName={pathWithNamespace}
+            dataSource={coverageSummaryMapData || []}
+            onSelect={(val) => {
+              setActivatedPath(val);
+              return handleSelectFile({
+                filepath: val,
+                reportID: sprm.get("report_id") || "",
+                sha: prm.sha || "",
+                projectID: prm.id || "",
+                mode: sprm.get("mode") || "",
+              }).then((res) => {
+                console.log(res);
+                return {
+                  fileCoverage: res.fileCoverage,
+                  fileContent: res.fileContent,
+                };
+              });
+            }}
+            value={activatedPath}
+          />
         </>
       </div>
     </>
