@@ -34,7 +34,7 @@ import { CoveragediskEntity } from "./coverage/entity/coveragedisk.entity";
     CodechangeModule,
     SourcecodeModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "../../canyon-platform", "dist"),
+      rootPath: join(__dirname, "..", "public"),
       exclude: ["/graphql/(.*)"],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
