@@ -14,7 +14,6 @@ import { CoverageService } from "./services/coverage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CoverageReportsService } from "./services/coverage-reports.service";
 import { ConsumerCoverageService } from "./services/core/consumer-coverage.service";
-import { undefined } from "zod";
 
 @Controller()
 export class CoverageController {
