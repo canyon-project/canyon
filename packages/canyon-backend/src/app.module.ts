@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
 import { PrismaModule } from "./prisma/prisma.module";
 import { CoverageModule } from "./coverage/coverage.module";
 import { ScheduleModule } from "@nestjs/schedule";
@@ -44,6 +43,6 @@ import { CoveragediskEntity } from "./coverage/entity/coveragedisk.entity";
     }),
   ],
   controllers: [AppController, SourcecodeController],
-  providers: [AppService, SourcecodeService],
+  providers: [SourcecodeService],
 })
 export class AppModule {}

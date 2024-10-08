@@ -54,3 +54,7 @@ export const within30days = (time) => {
   // 判断是否在30天以内
   return differenceInDays <= 30;
 };
+
+export function resolveProjectID(projectID) {
+  return projectID.split("-")[1] || projectID;
+}

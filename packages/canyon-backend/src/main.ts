@@ -3,7 +3,7 @@ import { json } from "express";
 import { ValidationPipe } from "@nestjs/common";
 import * as dotenv from "dotenv";
 import * as path from "node:path";
-import { GlobalExceptionFilter } from "./global-exception.filter";
+import { GlobalExceptionFilter } from "./filter/global-exception.filter";
 
 dotenv.config({
   path: path.resolve(__dirname, "../../../.env"),

@@ -2,12 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../prisma/prisma.service";
 import { genSummaryMapByCoverageMap, getSummaryByPath } from "canyon-data";
 import { mergeCoverageMap, resetCoverageData } from "../../../utils/coverage";
-import { removeNullKeys } from "../../../utils/utils";
+import { removeNullKeys, resolveProjectID } from "../../../utils/utils";
 import { PullChangeCodeAndInsertDbService } from "../common/pull-change-code-and-insert-db.service";
 import { logger } from "../../../logger";
 import { CoveragediskService } from "./coveragedisk.service";
 import { TestExcludeService } from "../common/test-exclude.service";
-import { resolveProjectID } from "../../../utils";
 import { PullFilePathAndInsertDbService } from "../common/pull-file-path-and-insert-db.service";
 import { compressedData, decompressedData } from "../../../utils/zstd";
 
