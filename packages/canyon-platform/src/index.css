@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+/*canyon-report的样式*/
+
 @font-face {
   font-family: "IBMPlexMono";
   src: url("./assets/IBMPlexMono-Regular.woff2");
@@ -12,8 +14,37 @@
 .shiki > code {
   font-size: 12px;
   font-family: "IBMPlexMono";
-  line-height: 20px;
+  line-height: 21px;
 }
+
+.content-class-no-found {
+  background: #f6c6ce;
+}
+
+.content-class-found {
+  background: #f6c6ce;
+}
+
+.dark .content-class-no-found {
+  background: rgb(122, 84, 116);
+}
+
+.dark .content-class-found {
+  background: rgb(122, 84, 116);
+}
+
+.highlight {
+  color: red !important;
+}
+
+.YourHighlightClass {
+  padding: 0 !important;
+  color: white !important;
+  background: rgb(244, 176, 27) !important;
+}
+
+/*canyon-report的样式*/
+
 
 .fullscreen-modal {
   position: fixed;
@@ -79,35 +110,6 @@ a:hover {
   visibility: unset;
 }
 
-.content-class-no-found {
-  background: #f6c6ce;
-}
-
-.content-class-found {
-  background: #f6c6ce;
-}
-
-.dark .content-class-no-found {
-  background: rgb(122, 84, 116);
-}
-
-.dark .content-class-found {
-  background: rgb(122, 84, 116);
-}
-
-/*thead tr:nth-child(2){*/
-/*  display: none !important;*/
-/*}*/
-
-.highlight {
-  color: red !important;
-}
-
-.YourHighlightClass {
-  padding: 0 !important;
-  color: white !important;
-  background: rgb(244, 176, 27) !important;
-}
 
 .editable-cell {
   position: relative;

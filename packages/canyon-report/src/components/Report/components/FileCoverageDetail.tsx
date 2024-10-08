@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { useEffect, useState } from "react";
 import { createHighlighterCoreInstance } from "../../helpers/loadShiki";
 
-function jisuanColor(coun) {
+function jisuanColor(coun: number) {
   if (coun === 0) {
     return "rgba(255, 0, 0, 0.5)";
   }
@@ -40,8 +40,8 @@ const FileCoverageDetail: FC<{
           return (
             <div
               key={index}
-              className={"h-[24px] text-right text-[#0071c2]"}
-              style={{ lineHeight: "24px", fontSize: "12px" }}
+              className={"h-[21px] text-right text-[#0071c2]"}
+              style={{ lineHeight: "21px", fontSize: "12px" }}
             >
               {index + 1}
             </div>
@@ -59,9 +59,9 @@ const FileCoverageDetail: FC<{
           return (
             <div
               key={index}
-              className={"h-[24px] px-[5px]"}
+              className={"h-[21px] px-[5px]"}
               style={{
-                lineHeight: "24px",
+                lineHeight: "21px",
                 fontSize: "12px",
                 backgroundColor: jisuanColor(lin.count),
                 color: "rgba(0, 0, 0, 0.5)",

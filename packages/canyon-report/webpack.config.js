@@ -14,8 +14,7 @@ const config = {
     filename: "asset/[name].js", // 修改这里，指定输出的 js 文件路径和名称格式
   },
   devServer: {
-    // open: true,
-    // host: "localhost",
+    port: 3030,
   },
   plugins: [
     new HtmlWebpackPlugin({

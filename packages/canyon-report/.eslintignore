@@ -3,3 +3,4 @@ coverage
 dist
 lib/
 html-spa.js
+webpack.config.js
