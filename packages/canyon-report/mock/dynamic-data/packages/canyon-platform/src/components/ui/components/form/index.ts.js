@@ -1,1 +1,0 @@
-window["packages/canyon-platform/src/components/ui/components/form/index.ts"] = {"content":"export { default as FormRegion } from \"./region\";\n","coverage":{"name":"zt"}}

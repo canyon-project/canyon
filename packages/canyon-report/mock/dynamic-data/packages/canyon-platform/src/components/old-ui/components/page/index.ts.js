@@ -1,1 +1,0 @@
-window["packages/canyon-platform/src/components/old-ui/components/page/index.ts"] = {"content":"export { default as CanyonPageLogin } from \"./login/index.tsx\";\nexport { default as CanyonPageOauth } from \"./Oauth.tsx\";\n","coverage":{"name":"zt"}}

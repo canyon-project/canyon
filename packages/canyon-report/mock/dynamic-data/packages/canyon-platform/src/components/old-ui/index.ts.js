@@ -1,1 +1,0 @@
-window["packages/canyon-platform/src/components/old-ui/index.ts"] = {"content":"export * from \"./components\";\n","coverage":{"name":"zt"}}

@@ -1,1 +1,0 @@
-window["packages/canyon-platform/src/components/old-ui/components/layout/index.ts"] = {"content":"export { default as CanyonLayoutBase } from \"./Base.tsx\";\n","coverage":{"name":"zt"}}
