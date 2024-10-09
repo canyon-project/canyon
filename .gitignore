@@ -38,3 +38,5 @@ db/sql
 
 
 coverage
+
+schema.gql
