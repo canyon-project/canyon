@@ -16,6 +16,6 @@ const copyDir = (src, dest) => {
 
 fs.rmSync('./packages/canyon-backend/public', { recursive: true, force: true })
 
-copyDir('./packages/canyon-admin/dist', './packages/canyon-backend/public/admin');
+// copyDir('./packages/canyon-admin/dist', './packages/canyon-backend/public/admin');
 
 copyDir('./packages/canyon-platform/dist', './packages/canyon-backend/public');
