@@ -1,11 +1,26 @@
-import { Outlet } from "react-router-dom";
-import Layout from "@/components/Layout.tsx";
+import { Outlet, useLocation } from "react-router-dom";
+import MainLayout from "@/components/MainLayout.tsx";
+import { useEffect, useState } from "react";
 
 const Test = () => {
+  const [activePath, setActivePath] = useState<string | null>(null);
+
+  const loc = useLocation();
+
+  useEffect(() => {
+    setActivePath(loc.pathname.replace("/", ""));
+  }, [loc.pathname]);
+
   return (
-    <Layout>
+    <MainLayout
+      activePath={activePath}
+      // onNavClick={(path) => {
+      //   setActivePath(path);
+      // }}
+    >
+      {/*{activePath}*/}
       <Outlet />
-    </Layout>
+    </MainLayout>
   );
 };
 

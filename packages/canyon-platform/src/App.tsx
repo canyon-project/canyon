@@ -4,7 +4,13 @@
 import { useRoutes } from "react-router-dom";
 
 import routes from "~react-pages";
-
+// routes
+//   .find((route) => route.path === "/")
+//   .children.push({
+//     path: "*",
+//     element: () => <div>404</div>,
+//   });
+console.log(routes);
 const App = () => {
   return (
     <div className={"dark:text-white dark:text-opacity-85"}>
