@@ -39,4 +39,6 @@ db/sql
 
 coverage
 
+
+#只忽略根目录下的schema.gql文件
 schema.gql

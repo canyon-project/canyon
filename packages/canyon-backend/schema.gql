@@ -1,0 +1,17 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type GetCoverageLogsResponseModel {
+  id: String!
+}
+
+type GetCoverageLogsPageModel {
+  data: [GetCoverageLogsResponseModel!]!
+  total: Float!
+}
+
+type Query {
+  """查询覆盖率上报日志"""
+  getCoverageLogs: GetCoverageLogsPageModel!
+}
