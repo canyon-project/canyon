@@ -8,9 +8,14 @@
     "do-build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "postinstall": "npm run codegen",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
+    "@apollo/client": "^3.11.8",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "graphql": "^16.9.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",
@@ -62,6 +67,8 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.2",
+    "@graphql-codegen/client-preset": "^4.3.3",
     "@eslint/js": "^9.11.1",
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.10",

@@ -56,10 +56,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useQuery } from "@apollo/client";
+import { GetCoverageLogsDocument } from "@/helpers/backend/gen/graphql.ts";
 const ProjectPage = () => {
+  const { data } = useQuery(GetCoverageLogsDocument);
   return (
     <div>
       <Card x-chunk="dashboard-06-chunk-0">
+        <p>{JSON.stringify(data || {})}</p>
         <CardHeader>
           <CardTitle>Products</CardTitle>
           <CardDescription>

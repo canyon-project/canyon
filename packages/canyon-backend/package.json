@@ -29,6 +29,7 @@
     "@nestjs/serve-static": "^4.0.2",
     "@prisma/client": "^5.20.0",
     "dotenv": "^16.4.5",
+    "express": "^4.21.1",
     "graphql": "^16.9.0",
     "prisma": "5.16.1",
     "reflect-metadata": "^0.2.0",

@@ -1,0 +1,8 @@
+query GetCoverageLogs {
+  getCoverageLogs {
+    total
+    data {
+      id
+    }
+  }
+}
