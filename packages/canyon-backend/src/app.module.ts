@@ -16,6 +16,7 @@ import { join } from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CoveragediskEntity } from "./coverage/entity/coveragedisk.entity";
+import { PlaygroundModule } from "./playground/playground.module";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { CoveragediskEntity } from "./coverage/entity/coveragedisk.entity";
     CoverageModule,
     CodechangeModule,
     SourcecodeModule,
+    PlaygroundModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "public"),
       exclude: ["/graphql/(.*)"],
