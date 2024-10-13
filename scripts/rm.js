@@ -9,7 +9,7 @@ function deleteNodeModules(dir) {
       const time = new Date().getTime();
       if (entry.name === 'node_modules' || entry.name === 'dist') {
         fs.rmSync(curPath, { recursive: true, force: true })
-        console.log(`正在删除: ${entry.name}，耗时:${new Date().getTime() - time}`);
+        console.log(`deleting: ${curPath}, time consuming:${new Date().getTime() - time}`);
       } else {
         deleteNodeModules(curPath);
       }
