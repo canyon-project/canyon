@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "build": "pnpm -r do-build && node ./scripts/move-build-products.js",
-    "rm": "node ./scripts/rm.js",
+    "clean": "node ./scripts/clean.js",
     "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma",
     "preinstall": "node ./scripts/check.js",
     "prepare": "husky"
