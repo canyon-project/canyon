@@ -9,7 +9,7 @@
 | Project               | Status                                                       | Description                                     |
 | --------------------- | ------------------------------------------------------------ |-------------------------------------------------|
 | [babel-plugin-canyon]          | [![babel-plugin-canyon-status]][babel-plugin-canyon-package]                   | Detecting environment variables in the pipeline |
-| [uploader]                | [![uploader-status]][uploader-package]                               | Coverage data uploader          |
+| [canyon-uploader]                | [![uploader-status]][uploader-package]                               | Coverage data uploader          |
 | [canyon-extension]             | [![canyon-extension-status]][canyon-extension-package]                         | Chrome plugin for coverage reporting of manual tests                           |
 
 [babel-plugin-canyon]: https://github.com/canyon-project/babel-plugin-canyon
