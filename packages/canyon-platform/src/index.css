@@ -2,9 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+a {
+  color: #0071c2;
+}
+a:hover {
+  color: #0071c2;
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
 @font-face {
   font-family: "IBMPlexMono";
-  src: url("./assets/IBMPlexMono-Regular.woff2");
+  src: url("assets/fonts/IBMPlexMono-Regular.woff2");
   font-weight: normal;
   font-style: normal;
 }
@@ -15,46 +24,17 @@
   line-height: 20px;
 }
 
-.fullscreen-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
+/*antd的样式*/
 
 .ant-menu-light.ant-menu-root.ant-menu-vertical {
   border-inline-end: none !important;
 }
-.ant-table-thead > tr > th {
-  /*background-color: white !important;*/
-}
-a {
-  color: #0071c2;
-}
-a:hover {
-  color: #0071c2;
-  opacity: 0.8;
-  text-decoration: underline;
-}
 
-/*账单那边*/
-.ant-collapse-content-box {
-  padding: 0 !important;
-}
 /*登陆页面*/
 .ant-tabs-nav {
   padding-left: 40px !important;
 }
 
-/*.ant-table-wrapper .ant-table-tbody >tr >td{*/
-/*  border-bottom: none !important;*/
-/*}*/
 
 .ant-table-wrapper .ant-table-pagination.ant-pagination {
   margin-right: 16px;
@@ -79,6 +59,10 @@ a:hover {
   visibility: unset;
 }
 
+
+
+
+/*额外的*/
 .content-class-no-found {
   background: #f6c6ce;
 }
@@ -94,10 +78,6 @@ a:hover {
 .dark .content-class-found {
   background: rgb(122, 84, 116);
 }
-
-/*thead tr:nth-child(2){*/
-/*  display: none !important;*/
-/*}*/
 
 .highlight {
   color: red !important;
@@ -123,7 +103,3 @@ a:hover {
   border: 1px solid #d9d9d9;
   border-radius: 2px;
 }
-
-/*.ant-breadcrumb{*/
-/*  font-size: 18px !important;*/
-/*}*/
