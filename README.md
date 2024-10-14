@@ -13,7 +13,7 @@
 | [canyon-extension]             | [![canyon-extension-status]][canyon-extension-package]                         | Chrome plugin for coverage reporting of manual tests                           |
 
 [babel-plugin-canyon]: https://github.com/canyon-project/babel-plugin-canyon
-[uploader]: https://github.com/canyon-project/uploader
+[canyon-uploader]: https://github.com/canyon-project/uploader
 [canyon-extension]: https://github.com/canyon-project/canyon-extension
 [babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
 [uploader-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
