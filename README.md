@@ -50,4 +50,4 @@ See [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 
-[MIT](LICENSE).
+This project is licensed under the [MIT License](https://opensource.org/licenses/MIT) — see the [`LICENSE`](LICENSE) file for details.
