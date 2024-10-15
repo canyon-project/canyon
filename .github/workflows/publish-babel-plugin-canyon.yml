@@ -20,3 +20,7 @@ jobs:
       - run: pnpm --filter=babel-plugin-canyon publish -f --no-git-checks --access=public --filter
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+      - run: |
+          pnpm dist-tag add babel-plugin-canyon@1.8.79 latest
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
