@@ -76,7 +76,9 @@ export default declare((api,config) => {
           path.node.body.unshift(canyon)
           // TODO: 需要删除writeCanyonToLocal
           path.node.body.unshift(writeCanyonToLocal)
-          path.node.body.unshift(injectInPagePopup)
+
+          // TODO: 测试代码
+          // path.node.body.unshift(injectInPagePopup)
 
 
           // 必须校验数据完整性
