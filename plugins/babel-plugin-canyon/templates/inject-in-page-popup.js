@@ -41,7 +41,6 @@
         modal.style.height = '100%';
         modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
         modal.style.color = 'white';
-        modal.style.display = 'flex';
         modal.style.justifyContent = 'center';
         modal.style.alignItems = 'center';
         modal.style.zIndex = 9998;
