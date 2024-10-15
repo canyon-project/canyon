@@ -1,7 +1,19 @@
 {
   "name": "babel-plugin-canyon",
-  "version": "1.8.78-alpha.6",
-  "description": "",
+  "version": "1.8.78-alpha.7",
+  "description": "A Babel plugin cooperates with istanbul to report the coverage",
+  "author": "Allen Zhang <wr_zhang25@163.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/canyon-project/canyon#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canyon-project/canyon.git",
+    "directory": "plugins/babel-plugin-canyon"
+  },
+  "bugs": "https://github.com/canyon-project/canyon/issues",
+  "keywords": [
+    "babel-plugin"
+  ],
   "main": "lib/index.js",
   "files": [
     "lib"
@@ -12,9 +24,6 @@
     "test": "cross-env NODE_ENV=test nyc --reporter=lcov --reporter=json mocha --timeout 5000 test/*.js",
     "prepublishOnly": "npm run release"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "standard": {
     "ignore": [
       "fixtures/*.js"
