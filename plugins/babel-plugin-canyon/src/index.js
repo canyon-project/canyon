@@ -6,6 +6,7 @@ import {generateInitialCoverage} from "./helpers/generate-initial-coverage";
 import {generateCanyon} from "./helpers/generate-canyon";
 const canyonTemplate = template(tep["templates/canyon.template.js"]);
 const writeCanyonToLocalTemplate = template(tep["templates/write-canyon-to-local-template.js"])
+const injectInPagePopupTemplate = template(tep["templates/inject-in-page-popup.js"])
 import packageJson from '../package.json'
 
 // 转换配置，优先级：babel配置 > 环境变量
@@ -71,9 +72,11 @@ export default declare((api,config) => {
           const writeCanyonToLocal = writeCanyonToLocalTemplate({
             JSON: 'JSON'
           })
+          const injectInPagePopup = injectInPagePopupTemplate()
           path.node.body.unshift(canyon)
           // TODO: 需要删除writeCanyonToLocal
           path.node.body.unshift(writeCanyonToLocal)
+          path.node.body.unshift(injectInPagePopup)
 
 
           // 必须校验数据完整性
