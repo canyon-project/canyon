@@ -35,7 +35,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       path: request.url,
       message:
         exception instanceof HttpException
-          ? exception.getResponse()
+          ? JSON.stringify(exception.getResponse())
           : "Internal server error",
     });
   }
