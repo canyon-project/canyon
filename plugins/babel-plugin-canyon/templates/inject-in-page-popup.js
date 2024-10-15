@@ -43,7 +43,8 @@
         modal.style.color = 'white';
         modal.style.justifyContent = 'center';
         modal.style.alignItems = 'center';
-        modal.style.zIndex = 9998;
+        modal.style.zIndex = 9999999;
+        modal.style.fontSize = '16px';
 
         // 点击关闭按钮关闭弹窗
         const close = document.createElement('div');
@@ -59,7 +60,7 @@
         close.style.color = 'white';
         close.style.border = 'none';
         close.style.cursor = 'pointer';
-
+        close.style.fontSize = '16px';
 
         // 点击关闭按钮关闭弹窗
         close.addEventListener('click', () => {
