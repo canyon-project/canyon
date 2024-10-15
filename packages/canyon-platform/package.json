@@ -19,7 +19,7 @@
     "ahooks": "^3.8.1",
     "antd": "^5.21.4",
     "axios": "^1.7.7",
-    "canyon-data": "^0.1.1-alpha.8",
+    "canyon-data": "workspace:*",
     "clsx": "^2.1.1",
     "copy-to-clipboard": "^3.3.3",
     "dayjs": "^1.11.13",

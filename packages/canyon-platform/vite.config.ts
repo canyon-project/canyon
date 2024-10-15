@@ -38,6 +38,7 @@ export default defineConfig({
     alias: {
       "@": path.resolve(__dirname, "./src"),
       "canyon-report": path.resolve(__dirname, "../canyon-report"),
+      "canyon-data": path.resolve(__dirname, "../canyon-data/src"),
     },
   },
   build: {
