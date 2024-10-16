@@ -41,7 +41,7 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 
 ## WeChat Group
 
-<img src="./screenshots/wechat7.png" style="width: 200px"/>
+<img src="./screenshots/wechat8.png" style="width: 200px"/>
 
 ## Developing
 
@@ -53,10 +53,6 @@ Please contribute using [GitHub Flow](https://guides.github.com/introduction/flo
 
 Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
 
-
-## Contribution
-
-See [Contributing Guide](CONTRIBUTING.md).
 
 ## License
 
