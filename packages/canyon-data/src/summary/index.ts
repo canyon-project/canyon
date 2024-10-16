@@ -60,7 +60,7 @@ export const getSummaryByPath = (
 ) => {
   let summaryObj = JSON.parse(JSON.stringify(emptySummary));
   const filterSummary = Object.keys(summary).reduce((pre: any, cur) => {
-    if (cur.startsWith(path+'/')||path==='') {
+    if (cur.startsWith(path+'/')||path===''||cur===path) {
       pre[cur] = summary[cur];
     }
     return pre;
@@ -88,7 +88,7 @@ export const genSummaryTreeItem = (
     if (path === '') {
       return true;
     }
-    return item.startsWith(path+'/');
+    return item.startsWith(path+'/')||item === path;
   }
 
   // 如果是文件
