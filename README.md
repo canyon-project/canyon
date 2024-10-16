@@ -43,6 +43,16 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 
 <img src="./screenshots/wechat7.png" style="width: 200px"/>
 
+## Developing
+
+Follow our [self-hosting documentation](https://docs.canyonjs.org/zh/documentation/self-host/community-edition/prerequisites) to get started with the development environment.
+
+## Contributing
+
+Please contribute using [GitHub Flow](https://guides.github.com/introduction/flow). Create a branch, add commits, and [open a pull request](https://github.com/canyon-project/canyon/compare).
+
+Please read [`CONTRIBUTING`](CONTRIBUTING.md) for details on our [`CODE OF CONDUCT`](CODE_OF_CONDUCT.md), and the process for submitting pull requests to us.
+
 
 ## Contribution
 

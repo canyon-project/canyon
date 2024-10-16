@@ -1,4 +1,4 @@
-// import libCoverage, {CoverageMapData} from "istanbul-lib-coverage";
+import libCoverage, {CoverageMapData} from "istanbul-lib-coverage";
 // import {formatCoverageData} from "../utils/formatCoverageData.ts";
 /**
  * 合并两个覆盖率数据
