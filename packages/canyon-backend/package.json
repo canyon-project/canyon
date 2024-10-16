@@ -25,7 +25,7 @@
     "@nestjs/typeorm": "^10.0.2",
     "axios": "^1.7.7",
     "body-parser": "^1.20.3",
-    "canyon-data": "^0.1.1-alpha.9",
+    "canyon-data": "^0.1.1-alpha.10",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dayjs": "^1.11.13",
