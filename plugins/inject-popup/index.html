@@ -160,6 +160,11 @@
 
 
   document.querySelector('.btn').addEventListener('click', function () {
+
+    // 状态置为上传中
+
+    document.querySelector('.result').innerHTML = 'Uploading...'
+
     fetch(canyon.dsn, {
       method: 'POST',
       body: JSON.stringify({
