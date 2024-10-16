@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <style>
+    *{
+      color: white;
+    }
+    #modal{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      font-size: 12px;
+      /*display: none;*/
+    }
+
+    #content{
+      padding: 10px;
+    }
+
+    .title{
+      font-size: 16px;
+      font-weight: bolder;
+      border-bottom: 1px solid white;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    .btn{
+      background-color: #1890ff;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      /*border-radius: 4px;*/
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      text-align: center;
+    }
+    .guanbi{
+      border: 1px solid white;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .guanbi-rwap{
+      display: flex;
+      justify-content: flex-end;
+      padding-top: 30px;
+      /*padding-top: 10px;*/
+      padding-right: 10px
+    }
+  </style>
+  <title>Document</title>
+</head>
+<body>
+
+<div id="root">
+
+<!--  全局弹窗-->
+  <div id="modal">
+
+    <div>
+<!--      关闭按钮-->
+
+      <div class="guanbi-rwap">
+        <div class="guanbi" style="">x</div>
+      </div>
+    </div>
+
+    <div id="content">
+      <div style="margin-bottom: 20px">
+        <div class="title">
+          Data
+        </div>
+
+        <div>
+
+          <div style="margin-bottom: 10px;display:flex;gap: 5px">
+            <div>Project ID:</div>
+            <div class="canyon-form-value-projectid"></div>
+          </div>
+
+          <div style="margin-bottom: 10px;display:flex;gap: 5px">
+            <div>SHA:</div>
+            <div class="canyon-form-value-sha"></div>
+          </div>
+
+          <div style="margin-bottom: 10px;display:flex;gap: 5px">
+            <div>Branch:</div>
+            <div class="canyon-form-value-branch"></div>
+          </div>
+
+          <div style="margin-bottom: 10px;display:flex;gap: 5px">
+            <div>DSN: </div>
+            <div style="word-break: break-all" class="canyon-form-value-dsn"></div>
+          </div>
+
+          <div style="margin-bottom: 10px;display:flex;gap: 5px">
+            <div>Coverage: </div>
+            <div class="canyon-form-value-coverage"></div>
+          </div>
+        </div>
+<!--        <div class="btn">关闭</div>-->
+      </div>
+
+      <div  style="margin-bottom: 20px">
+        <div class="title">Action</div>
+        <div class="btn" style="margin-bottom: 10px">Upload</div>
+        <div class="Refresh-btn btn" style="background-color: white;color: #333">Refresh</div>
+      </div>
+
+      <div style="margin-bottom: 20px">
+        <div class="title">Result</div>
+
+        <div class="result" style="display: flex;align-items:center;justify-content: center;border: 1px solid white;padding-bottom: 30px;padding-top: 30px">
+          Please upload coverage
+        </div>
+<!--        <div class="btn">结果</div>-->
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+<script>
+  window.__canyon__ = {
+    "projectID": "118075",
+    "buildID": "95743992",
+    "dsn": "https://canyontest.fat3.qa.nt.com/coverage/client",
+    "instrumentCwd": "/builds/canyon-project/canyon",
+    "reporter": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InR6aGFuZ20iLCJpZCI6ODQxNywiaWF0IjoxNzExNjAwMjA1LCJleHAiOjIwMjcxNzYyMDV9.8P2NIRv_skZvboci8TbRgiPesjlopA1cZXtG-ybhuiE",
+    "commitSha": "989c7626d130068cf51c0f2b16d70c0424db275e",
+    "sha": "989c7626d130068cf51c0f2b16d70c0424db275e",
+    "reportID": "-",
+    "compareTarget": "-",
+    "branch": "main",
+    "version": "1.8.79"
+  }
+  window.__coverage__ = {
+  }
+
+  const canyon = window.__canyon__
+  const coverage = window.__coverage__
+
+  document.querySelector('.canyon-form-value-projectid').innerHTML = canyon.projectID
+  document.querySelector('.canyon-form-value-sha').innerHTML = canyon.sha
+  document.querySelector('.canyon-form-value-branch').innerHTML = canyon.branch
+  document.querySelector('.canyon-form-value-dsn').innerHTML = canyon.dsn
+  document.querySelector('.canyon-form-value-coverage').innerHTML = String(Object.keys(coverage).length)
+
+
+
+
+  document.querySelector('.btn').addEventListener('click', function () {
+    fetch(canyon.dsn, {
+      method: 'POST',
+      body: JSON.stringify({
+        ...canyon,
+        coverage: window.__coverage__
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${canyon.reporter}`
+      }
+    }).then(res=>{
+      return res.json()
+    })
+      .then((res) => {
+        if (res.statusCode > 300) {
+          console.log(JSON.stringify(res));
+          document.querySelector('.result').innerHTML = JSON.stringify(res);
+        } else {
+          console.log('success');
+          document.querySelector('.result').innerHTML = 'Upload Success!';
+        }
+      })
+      .catch((err) => {
+        console.log(String(err));
+      });
+  })
+  document.querySelector('.Refresh-btn').addEventListener('click',function () {
+    document.querySelector('.result').innerHTML = 'Please upload coverage'
+  })
+  document.querySelector('.guanbi').addEventListener('click',function () {
+    document.querySelector('#modal').style.display = 'none'
+  })
+</script>
+<!--<script src="./index.js"></script>-->
+</html>
