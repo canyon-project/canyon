@@ -21,7 +21,7 @@
     "@ant-design/icons": "^5.5.1",
     "antd": "^5.21.4",
     "axios": "^1.7.7",
-    "canyon-data": "^0.1.1-alpha.10",
+    "canyon-data": "^0.1.1-alpha.11",
     "commander": "^12.1.0",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-report": "^3.0.1",
