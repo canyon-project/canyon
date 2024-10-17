@@ -9,8 +9,8 @@ pnpm run do-test
 ```
 
 ## 一、压缩耗时
-- **Zstd+Protobuf 压缩**：13 ms
-- **Zstd 直接压缩**：6 ms
+- **Zstd+Protobuf 压缩**：11 ms
+- **Zstd 直接压缩**：2 ms
 
 可以看出 Zstd 直接压缩在压缩耗时上更具优势。
 
