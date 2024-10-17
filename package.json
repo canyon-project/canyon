@@ -11,7 +11,8 @@
     "clean": "node ./scripts/clean.js",
     "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma",
     "preinstall": "node ./scripts/check.js",
-    "prepare": "husky"
+    "prepare": "husky",
+    "format": "pnpm -r do-test"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
