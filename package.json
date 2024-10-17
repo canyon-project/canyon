@@ -12,7 +12,7 @@
     "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma",
     "preinstall": "node ./scripts/check.js",
     "prepare": "husky",
-    "format": "pnpm -r do-test"
+    "test": "pnpm -r do-test"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",
