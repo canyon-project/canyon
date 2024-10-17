@@ -28,3 +28,7 @@ Zstd+Protobuf 压缩后的大小更小。
 - **Zstd 直接压缩**：84.53%
 
 Zstd+Protobuf 压缩的压缩率更高。
+
+备注：
+1. zstd压缩等级不生效，待解决。
+2. protobuf压缩耗时方面，待优化。一些coverageData的枚举值，可以通过数字代替，减少序列化时的字符串长度。
