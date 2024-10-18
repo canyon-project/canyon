@@ -40,3 +40,5 @@ db/sql
 coverage
 
 schema.gql
+
+target/
