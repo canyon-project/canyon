@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "swc_plugin_canyon"
+    "plugins/swc-plugin-canyon"
 ]
 
 
