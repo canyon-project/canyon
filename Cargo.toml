@@ -1,5 +1,7 @@
 [workspace]
-members = ["plugins/*"]
+members = [
+    "swc_plugin_canyon"
+]
 
 
 resolver = "2"
