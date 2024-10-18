@@ -20,6 +20,15 @@ jobs:
         with:
           submodules: true
 
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
+      - run: |
+          corepack enable
+          pnpm i
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -30,11 +39,11 @@ jobs:
         run: |
           rustup target add wasm32-wasi
 
-      - name: Setup node
-        uses: pnpm/action-setup@v4
+      - name: Create Release Pull Request or Publish to npm
+        id: changesets
+        uses: changesets/action@v1
         with:
-          version: 9
-      - run: |
-          pnpm --filter=swc-plugin-canyon publish -f --no-git-checks --access=public
+          publish: pnpm --filter=vite-plugin-canyon publish -f --no-git-checks --access=public --filter
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
