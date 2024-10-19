@@ -1,6 +1,6 @@
 {
   "name": "swc-plugin-canyon",
-  "version": "0.0.2-alpha.5",
+  "version": "0.0.2-alpha.6",
   "description": "Canyon SWC plugin, for debugging",
   "main": "swc_plugin_canyon.wasm",
   "scripts": {

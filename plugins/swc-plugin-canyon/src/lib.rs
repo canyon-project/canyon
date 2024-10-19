@@ -21,29 +21,14 @@ fn plugin(program: Program, metadata: TransformPluginProgramMetadata) -> Program
 struct AddSimpleCode;
 
 impl Fold for AddSimpleCode {
-    fn fold_module(&mut self, mut module: Module) -> Module {
-        // 构造 `(new Function('this')).__canyon__={tizhong:"123"};` 语句
-        let new_code = Expr::Lit(Lit::Str(Str {
-            value: "(new Function('this')).__canyon__={tizhong:\"123\"};".into(),
-            span: Default::default(),
-            raw: None,
-        }));
-
-        let new_item = ModuleItem::Stmt(Stmt::Expr(ExprStmt {
-            expr: Box::new(new_code),
-            span: Default::default(),
-        }));
-
-        module.body.push(new_item);
-        module
-    }
-
     fn fold_script(&mut self, mut script: Script) -> Script {
         let new_code = Expr::Lit(Lit::Str(Str {
-            value: "(new Function('this')).__canyon__={tizhong:\"123\"};".into(),
+            value: "window.__canyon__={tizhong:\"123\"};".into(),
             span: Default::default(),
             raw: None,
         }));
+
+        println!("gogogo");
 
         let new_item = Stmt::Expr(ExprStmt {
             expr: Box::new(new_code),
