@@ -18,6 +18,27 @@ Add it to `next.config.mjs` in test mode:
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     experimental: {
+      swcPlugins: process.env.CI_COMMIT_REF_NAME === 'test-coverage'? [
+        'swc-plugin-coverage-instrument', {},
+        'swc-plugin-canyon', {},
+      ]:[],
+    },
+  };
+
+export default nextConfig;
+```
+
+查看 [Example](https://github.com/canyon-project/canyon/blob/main/examples/next-swc/next.config.mjs)
+
+
+## Configuration
+
+next.config.mjs
+
+```js
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    experimental: {
       swcPlugins: [
         [
           'swc-plugin-coverage-instrument', {},
@@ -37,33 +58,6 @@ const nextConfig = {
   };
 
 export default nextConfig;
-```
-
-查看 [Example](https://github.com/canyon-project/canyon/blob/main/examples/next-swc/next.config.mjs)
-
-
-## Configuration
-
-swc.config.js
-
-```js
-module.exports = {
-  plugins:[
-    'istanbul',
-    [
-      'canyon',
-      {
-        dsn: 'http://yourdomain.com/coverage/client',
-        reporter: 'your_token',
-        projectID: '230614',
-        sha: 'xxxxxxxxx',
-        reportID: 'case_id',
-        branch: 'master',
-        compareTarget: 'develop',
-      }
-    ]
-  ]
-}
 ```
 
 | Prop      | Description                                                                                                             | Usage                                     |
