@@ -1,6 +1,6 @@
 {
   "name": "swc-plugin-canyon",
-  "version": "0.0.2-alpha.16",
+  "version": "0.0.2-alpha.17",
   "description": "A SWC plugin cooperates with istanbul to report the coverage",
   "main": "swc_plugin_canyon.wasm",
   "scripts": {
