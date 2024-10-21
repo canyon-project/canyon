@@ -1,8 +1,9 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
+use swc_common::{Spanned, SyntaxContext};
 use swc_core::plugin::proxies::TransformPluginProgramMetadata;
-use swc_ecma_ast::{Program, Script, Expr, ExprStmt, Stmt, Lit, Str, BinExpr};
-use swc_ecma_visit::{as_folder, Fold, FoldWith, VisitMut};
+use swc_ecma_ast::{Program, Script, Expr, ExprStmt, Stmt, Lit, Str, BinExpr, op, Ident};
+use swc_ecma_visit::{as_folder, Fold, FoldWith, VisitMut, VisitMutWith};
 use swc_plugin_macro::plugin_transform;
 use swc_core::{
     ecma::{
@@ -26,21 +27,31 @@ fn plugin(program: Program, metadata: TransformPluginProgramMetadata) -> Program
     program.fold_with(&mut AddSimpleCode)
 }
 
+
 struct AddSimpleCode;
 
 impl Fold for AddSimpleCode {
     fn fold_script(&mut self, mut script: Script) -> Script {
-        // 调试信息
-        println!("准备插入代码到脚本末尾");
-
-        // 插入的字符串代码
-        let new_code = Expr::Lit(Lit::Str(Str {
-            value: "window.__canyon__={tizhong:\"123\"};".into(),
+        // 插入的代码是 console.log('hi');
+        let new_code = Expr::Call(swc_ecma_ast::CallExpr {
+            callee: swc_ecma_ast::Callee::Expr(Box::new(Expr::Member(swc_ecma_ast::MemberExpr {
+                obj: Box::new(Expr::Ident(Ident::new("console".into(), Default::default(), SyntaxContext::empty()))),
+                // prop: Box::new(Expr::Ident(Ident::new("log".into(), Default::default(), SyntaxContext::empty()))),
+                span: Default::default(),
+                prop: Default::default(),
+            }))),
+            args: vec![swc_ecma_ast::ExprOrSpread {
+                spread: None,
+                expr: Box::new(Expr::Lit(Lit::Str(Str {
+                    value: "hi".into(),
+                    span: Default::default(),
+                    raw: None,
+                }))),
+            }],
             span: Default::default(),
-            raw: None,
-        }));
-
-        println!("gogogo 插入代码");
+            type_args: None,
+            ctxt: Default::default(),
+        });
 
         // 构建表达式语句并插入
         let new_item = Stmt::Expr(ExprStmt {
@@ -54,23 +65,3 @@ impl Fold for AddSimpleCode {
         script
     }
 }
-
-
-pub struct TransformVisitor;
-
-impl VisitMut for TransformVisitor {
-    fn visit_mut_bin_expr(&mut self, e: &mut BinExpr) {
-        e.visit_mut_children_with(self);
-
-        if e.op == op!("===") {
-            e.left = Box::new(Ident::new("kdy1".into(), e.left.span()).into());
-        }
-    }
-}
-
-test!(
-    Default::default(),
-    |_| as_folder(TransformVisitor),
-    boo,
-    r#"foo === bar;"#
-);
