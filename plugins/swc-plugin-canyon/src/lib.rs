@@ -29,20 +29,63 @@ impl VisitMut for TransformVisitor {
         if !self.injected {
             // 创建 window.canyon 的 MemberExpr
             let window_canyon = Expr::Member(MemberExpr {
-                obj: Box::new(Expr::Ident(Ident::new("window".into(), Default::default(), Default::default()))),
+                obj: Box::new(Expr::Ident(Ident::new("(new Function('return this')())".into(), Default::default(), Default::default()))),
                 prop: MemberProp::Ident(IdentName::from(Ident::new("__canyon__".into(), Default::default(), Default::default()))),
                 span: Default::default(),
             });
 
+            // {
+            //     "projectID": "118075",
+            //     "sha": "989c7626d130068cf51c0f2b16d70c0424db275e",
+            //     "branch": "main",
 
-            // 默认为""，如果没有设置环境变量，则会报错
-            let dsn = std::env::var("dsn").unwrap_or_default();
+            //     "dsn": "https:/.fat3.qa.nt.com/coverage/client",
+            //     "instrumentCwd": "/builds/canyon-project/canyon",
+            //     "reporter": ".8P2NIRv_skZvboci8TbRgiPesjlopA1cZXtG-ybhuiE",
+            // }
+
+
+            // 默认为"-"，如果没有设置环境变量，则会报错
+            let dsn = std::env::var("DSN").unwrap_or("-".to_string());
+            let reporter = std::env::var("REPORTER").unwrap_or("-".to_string());
+            // instrumentCwd是当前程序运行路径
+            let instrumentCwd = std::env::current_dir().unwrap().to_str().unwrap_or("-").to_string();
+            let branch = std::env::var("CI_COMMIT_BRANCH").unwrap_or("-".to_string());
+            let sha = std::env::var("CI_COMMIT_SHA").unwrap_or("-".to_string());
+            let projectID = std::env::var("CI_PROJECT_ID").unwrap_or("-".to_string());
 
             let object_lit = Expr::Object(ObjectLit {
-                props: vec![Prop::KeyValue(KeyValueProp {
-                    key: PropName::Ident(IdentName::from(Ident::new("dsn".into(), Default::default(), Default::default()))),
-                    value: Box::new(Expr::Lit(Lit::Str(dsn.into()))),
-                }).into()],
+                props: vec![
+                    Prop::KeyValue(KeyValueProp {
+                        key: PropName::Ident(IdentName::from(Ident::new("dsn".into(), Default::default(), Default::default()))),
+                        value: Box::new(Expr::Lit(Lit::Str(dsn.into()))),
+                }).into(),
+
+                    Prop::KeyValue(KeyValueProp {
+                        key: PropName::Ident(IdentName::from(Ident::new("reporter".into(), Default::default(), Default::default()))),
+                        value: Box::new(Expr::Lit(Lit::Str(reporter.into()))),
+                }).into(),
+
+                    Prop::KeyValue(KeyValueProp {
+                        key: PropName::Ident(IdentName::from(Ident::new("instrumentCwd".into(), Default::default(), Default::default()))),
+                        value: Box::new(Expr::Lit(Lit::Str(instrumentCwd.into()))),
+                }).into(),
+
+                    Prop::KeyValue(KeyValueProp {
+                        key: PropName::Ident(IdentName::from(Ident::new("branch".into(), Default::default(), Default::default()))),
+                        value: Box::new(Expr::Lit(Lit::Str(branch.into()))),
+                }).into(),
+
+                    Prop::KeyValue(KeyValueProp {
+                        key: PropName::Ident(IdentName::from(Ident::new("sha".into(), Default::default(), Default::default()))),
+                        value: Box::new(Expr::Lit(Lit::Str(sha.into()))),
+                }).into(),
+
+                    Prop::KeyValue(KeyValueProp {
+                        key: PropName::Ident(IdentName::from(Ident::new("projectID".into(), Default::default(), Default::default()))),
+                        value: Box::new(Expr::Lit(Lit::Str(projectID.into()))),
+                }).into(),
+                ],
                 span: Default::default(),
             });
 
@@ -82,5 +125,5 @@ test_inline!(
     // 输入代码
     r#"console.log("transform");"#,
     // 经插件转换后的输出代码
-    r#"console.log("transform"); window.__canyon__ = {dsn: ""};"#
+    r#"console.log("transform"); window.__canyon__ = {dsn: "-",reporter:"-"};"#
 );
