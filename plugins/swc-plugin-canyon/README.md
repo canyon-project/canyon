@@ -1,6 +1,6 @@
 # swc-plugin-canyon
 
-A swc plugin that instruments your code with Istanbul coverage. It can instantly be used with karma-coverage and mocha on Node.js (through nyc).
+A SWC plugin cooperates with istanbul to report the coverage.
 
 __Note:__ To use this plugin, it is recommended to use a branch to determine whether it is in effect or not, as he is not available for production environments.
 
@@ -9,13 +9,12 @@ __Note:__ To use this plugin, it is recommended to use a branch to determine whe
 Install it:
 
 ```sh
-npm install --save-dev swc-plugin-istanbul
+npm install --save-dev swc-plugin-canyon
 ```
 
 Add it to `next.config.mjs` in test mode:
 
 ```js
-/** @type {import('next').NextConfig} */
 const nextConfig = {
     experimental: {
       swcPlugins: process.env.CI_COMMIT_REF_NAME === 'test-coverage'? [
@@ -28,7 +27,7 @@ const nextConfig = {
 export default nextConfig;
 ```
 
-查看 [Example](https://github.com/canyon-project/canyon/blob/main/examples/next-swc/next.config.mjs)
+View [Example](https://github.com/canyon-project/canyon/blob/main/examples/next-swc/next.config.mjs)
 
 
 ## Configuration
@@ -36,7 +35,6 @@ export default nextConfig;
 next.config.mjs
 
 ```js
-/** @type {import('next').NextConfig} */
 const nextConfig = {
     experimental: {
       swcPlugins: [
