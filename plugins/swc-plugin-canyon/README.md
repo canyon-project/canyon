@@ -12,14 +12,35 @@ Install it:
 npm install --save-dev swc-plugin-istanbul
 ```
 
-Add it to `swc.config.js` in test mode:
+Add it to `next.config.mjs` in test mode:
 
 ```js
-module.exports = {
-  plugins:
-    process.env.CI_COMMIT_REF_NAME === 'test-coverage'? ['istanbul', 'canyon']:[]
-}
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+    experimental: {
+      swcPlugins: [
+        [
+          'swc-plugin-coverage-instrument', {},
+          'swc-plugin-canyon',
+          {
+            dsn: 'http://yourdomain.com/coverage/client',
+            reporter: 'your_token',
+            projectID: '230614',
+            sha: 'xxxxxxxxx',
+            reportID: 'case_id',
+            branch: 'master',
+            compareTarget: 'develop',
+          },
+        ],
+      ],
+    },
+  };
+
+export default nextConfig;
 ```
+
+查看 [Example](https://github.com/canyon-project/canyon/blob/main/examples/next-swc/next.config.mjs)
+
 
 ## Configuration
 
@@ -55,4 +76,3 @@ module.exports = {
 | reportID    | Report ID, Used to distinguish between different test cases.                                                            | Optional          |
 | branch    | Git repository branch, the plugin will detect the variables of the pipeline, which usually don't need to be configured. | Optional          |
 | compareTarget    | Compare target, used as a baseline against current sha to calculate change line coverage.                               | Optional          |
-
