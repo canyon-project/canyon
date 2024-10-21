@@ -42,3 +42,4 @@ coverage
 schema.gql
 
 target/
+Cargo.lock
