@@ -73,3 +73,14 @@ impl VisitMut for TransformVisitor {
 pub fn process_transform(program: Program, _metadata: TransformPluginProgramMetadata) -> Program {
     program.fold_with(&mut as_folder(TransformVisitor::new()))
 }
+
+// 测试插件变换
+test_inline!(
+    Default::default(),
+    |_| as_folder(TransformVisitor::new()),
+    boo,
+    // 输入代码
+    r#"console.log("transform");"#,
+    // 经插件转换后的输出代码
+    r#"console.log("transform"); window.__canyon__ = {dsn: ""};"#
+);
