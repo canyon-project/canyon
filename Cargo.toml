@@ -42,7 +42,7 @@ sourcemap                   = "9.0.0"
 swc_atoms                   = "2.0.0"
 swc_cached                  = "1.0.0"
 swc_common                  = "1.0.0"
-swc_core                    = "=0.102.0"
+swc_core                    = { version = "0.102.0" }
 swc_css_ast                 = "1.0.0"
 swc_css_codegen             = "1.0.0"
 swc_css_compat              = "1.0.0"
