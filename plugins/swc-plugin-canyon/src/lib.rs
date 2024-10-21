@@ -1,9 +1,14 @@
 #![allow(clippy::not_unsafe_ptr_arg_deref)]
 
 use swc_core::plugin::proxies::TransformPluginProgramMetadata;
-use swc_ecma_ast::{Program, Script, Expr, ExprStmt, Stmt, Lit, Str};
-use swc_ecma_visit::{Fold, FoldWith};
+use swc_ecma_ast::{Program, Script, Expr, ExprStmt, Stmt, Lit, Str, BinExpr};
+use swc_ecma_visit::{as_folder, Fold, FoldWith, VisitMut};
 use swc_plugin_macro::plugin_transform;
+use swc_core::{
+    ecma::{
+        transforms::testing::test,
+    }
+};
 
 #[plugin_transform]
 fn plugin(program: Program, metadata: TransformPluginProgramMetadata) -> Program {
@@ -49,3 +54,23 @@ impl Fold for AddSimpleCode {
         script
     }
 }
+
+
+pub struct TransformVisitor;
+
+impl VisitMut for TransformVisitor {
+    fn visit_mut_bin_expr(&mut self, e: &mut BinExpr) {
+        e.visit_mut_children_with(self);
+
+        if e.op == op!("===") {
+            e.left = Box::new(Ident::new("kdy1".into(), e.left.span()).into());
+        }
+    }
+}
+
+test!(
+    Default::default(),
+    |_| as_folder(TransformVisitor),
+    boo,
+    r#"foo === bar;"#
+);
