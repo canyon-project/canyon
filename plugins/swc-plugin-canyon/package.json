@@ -1,7 +1,7 @@
 {
   "name": "swc-plugin-canyon",
-  "version": "0.0.2-alpha.12",
-  "description": "Canyon SWC plugin, for debugging",
+  "version": "0.0.2-alpha.15",
+  "description": "A SWC plugin cooperates with istanbul to report the coverage",
   "main": "swc_plugin_canyon.wasm",
   "scripts": {
     "prepack": "cargo build --release -p swc_plugin_canyon --target wasm32-wasi && cp ../../target/wasm32-wasi/release/swc_plugin_canyon.wasm ."
