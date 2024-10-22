@@ -6,7 +6,7 @@ use swc_core::ecma::{
     transforms::testing::test_inline,
     visit::{as_folder, FoldWith, VisitMut},
 };
-use swc_core::ecma::ast::{AssignTarget, IdentName};
+use swc_core::ecma::ast::{AssignTarget};
 use swc_core::ecma::visit::VisitMutWith;
 use swc_core::plugin::{plugin_transform, proxies::TransformPluginProgramMetadata};
 
@@ -25,8 +25,8 @@ impl VisitMut for TransformVisitor {
         module.visit_mut_children_with(self);
         if !self.injected {
             let window_canyon = Expr::Member(MemberExpr {
-                obj: Box::new(Expr::Ident(Ident::new("(new Function('return this')())".into(), Default::default(), Default::default()))),
-                prop: MemberProp::Ident(IdentName::from(Ident::new("__canyon__".into(), Default::default(), Default::default()))),
+                obj: Box::new(Expr::Ident(Ident::new("(new Function('return this')())".into(), Default::default()))),
+                prop: MemberProp::Ident(Ident::from(Ident::new("__canyon__".into(), Default::default()))),
                 span: Default::default(),
             });
             let dsn = std::env::var("DSN").unwrap_or("-".to_string());
@@ -39,32 +39,32 @@ impl VisitMut for TransformVisitor {
             let object_lit = Expr::Object(ObjectLit {
                 props: vec![
                     Prop::KeyValue(KeyValueProp {
-                        key: PropName::Ident(IdentName::from(Ident::new("dsn".into(), Default::default(), Default::default()))),
+                        key: PropName::Ident(Ident::from(Ident::new("dsn".into(), Default::default()))),
                         value: Box::new(Expr::Lit(Lit::Str(dsn.into()))),
                 }).into(),
 
                     Prop::KeyValue(KeyValueProp {
-                        key: PropName::Ident(IdentName::from(Ident::new("reporter".into(), Default::default(), Default::default()))),
+                        key: PropName::Ident(Ident::from(Ident::new("reporter".into(), Default::default()))),
                         value: Box::new(Expr::Lit(Lit::Str(reporter.into()))),
                 }).into(),
 
                     Prop::KeyValue(KeyValueProp {
-                        key: PropName::Ident(IdentName::from(Ident::new("instrumentCwd".into(), Default::default(), Default::default()))),
+                        key: PropName::Ident(Ident::from(Ident::new("instrumentCwd".into(), Default::default()))),
                         value: Box::new(Expr::Lit(Lit::Str(instrumentCwd.into()))),
                 }).into(),
 
                     Prop::KeyValue(KeyValueProp {
-                        key: PropName::Ident(IdentName::from(Ident::new("branch".into(), Default::default(), Default::default()))),
+                        key: PropName::Ident(Ident::from(Ident::new("branch".into(), Default::default()))),
                         value: Box::new(Expr::Lit(Lit::Str(branch.into()))),
                 }).into(),
 
                     Prop::KeyValue(KeyValueProp {
-                        key: PropName::Ident(IdentName::from(Ident::new("sha".into(), Default::default(), Default::default()))),
+                        key: PropName::Ident(Ident::from(Ident::new("sha".into(), Default::default()))),
                         value: Box::new(Expr::Lit(Lit::Str(sha.into()))),
                 }).into(),
 
                     Prop::KeyValue(KeyValueProp {
-                        key: PropName::Ident(IdentName::from(Ident::new("projectID".into(), Default::default(), Default::default()))),
+                        key: PropName::Ident(Ident::from(Ident::new("projectID".into(), Default::default()))),
                         value: Box::new(Expr::Lit(Lit::Str(projectID.into()))),
                 }).into(),
                 ],
