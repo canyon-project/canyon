@@ -3,7 +3,9 @@ const nextConfig = {
   experimental: {
     swcPlugins: [
       [
-        'swc-plugin-coverage-instrument', {},
+        'swc-plugin-coverage-instrument', {
+      ...process.env,
+      },
       ],
     ],
   },

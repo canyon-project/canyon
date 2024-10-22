@@ -99,6 +99,10 @@ impl VisitMut for TransformVisitor {
     }
 }
 
+// https://github.com/swc-project/plugins/blob/main/packages/react-remove-properties/transform/src/lib.rs
+// 暂时方案，先一股脑把环境变量都注入，例如CI_COMMIT_BRANCH、CI_COMMIT_SHA、CI_PROJECT_ID等，
+// 可配置的是compareTarget
+
 #[plugin_transform]
 pub fn process_transform(program: Program, metadata: TransformPluginProgramMetadata) -> Program {
     // 使用TransformPluginProgramMetadata获取环境变量
@@ -108,7 +112,6 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
     println!("env: {}", env);
     println!("filename: {}", filename);
     println!("cwd: {}", cwd);
-    println!("看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我");
     program.fold_with(&mut as_folder(TransformVisitor::new()))
 }
 
