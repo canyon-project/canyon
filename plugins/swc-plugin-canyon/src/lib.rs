@@ -36,6 +36,15 @@ impl VisitMut for TransformVisitor {
             let sha = std::env::var("CI_COMMIT_SHA").unwrap_or("-".to_string());
             let projectID = std::env::var("CI_PROJECT_ID").unwrap_or("-".to_string());
 
+            // 打印出这些
+
+            println!("dsn: {}", dsn);
+            println!("reporter: {}", reporter);
+            println!("instrumentCwd: {}", instrumentCwd);
+            println!("branch: {}", branch);
+            println!("sha: {}", sha);
+            println!("projectID: {}", projectID);
+
             let object_lit = Expr::Object(ObjectLit {
                 props: vec![
                     Prop::KeyValue(KeyValueProp {
