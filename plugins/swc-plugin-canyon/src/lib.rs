@@ -9,6 +9,7 @@ use swc_core::ecma::{
 use swc_core::ecma::ast::{AssignTarget};
 use swc_core::ecma::visit::VisitMutWith;
 use swc_core::plugin::{plugin_transform, proxies::TransformPluginProgramMetadata};
+use swc_core::plugin::metadata::TransformPluginMetadataContextKind;
 
 pub struct TransformVisitor {
     injected: bool,
@@ -99,7 +100,15 @@ impl VisitMut for TransformVisitor {
 }
 
 #[plugin_transform]
-pub fn process_transform(program: Program, _metadata: TransformPluginProgramMetadata) -> Program {
+pub fn process_transform(program: Program, metadata: TransformPluginProgramMetadata) -> Program {
+    // 使用TransformPluginProgramMetadata获取环境变量
+    let env = metadata.get_context(&TransformPluginMetadataContextKind::Env).unwrap_or("-".to_string());
+    let filename = metadata.get_context(&TransformPluginMetadataContextKind::Filename).unwrap_or("-".to_string());
+    let cwd = metadata.get_context(&TransformPluginMetadataContextKind::Cwd).unwrap_or("-".to_string());
+    println!("env: {}", env);
+    println!("filename: {}", filename);
+    println!("cwd: {}", cwd);
+    println!("看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我看我");
     program.fold_with(&mut as_folder(TransformVisitor::new()))
 }
 
@@ -110,5 +119,14 @@ test_inline!(
     // 输入代码
     r#"console.log("transform");"#,
     // 经插件转换后的输出代码
-    r#"console.log("transform"); window.__canyon__ = {dsn: "-",reporter:"-"};"#
+    r#"console.log("transform");
+(new Function('return this')()).__canyon__ = {
+    dsn: "-",
+    reporter: "-",
+    instrumentCwd: "/",
+    branch: "-",
+    sha: "-",
+    projectID: "-"
+};
+"#
 );
