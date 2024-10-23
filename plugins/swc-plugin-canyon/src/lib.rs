@@ -11,13 +11,49 @@ use swc_core::ecma::visit::VisitMutWith;
 use swc_core::plugin::{plugin_transform, proxies::TransformPluginProgramMetadata};
 use swc_core::plugin::metadata::TransformPluginMetadataContextKind;
 
+// Add this to the top of your file or a relevant module
+use serde::{Deserialize, Serialize};
+
+
+
+// https://github.com/swc-project/plugins/blob/main/packages/react-remove-properties/transform/src/lib.rs
+// 暂时方案，先一股脑把环境变量都注入，例如CI_COMMIT_BRANCH、CI_COMMIT_SHA、CI_PROJECT_ID等，
+// 可配置的是compareTarget
+
+
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct Config {
+    pub dsn: Option<String>,
+    pub reporter: Option<String>,
+    pub instrumentCwd: Option<String>,
+    pub branch: Option<String>,
+    pub sha: Option<String>,
+    pub projectID: Option<String>,
+}
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            dsn: None,
+            reporter: None,
+            instrumentCwd: None,
+            branch: None,
+            sha: None,
+            projectID: None,
+        }
+    }
+}
+
 pub struct TransformVisitor {
     injected: bool,
+    config: Config,
 }
 
 impl TransformVisitor {
     pub fn new() -> Self {
-        Self { injected: false }
+        Self { injected: false,
+            config: Config::default() }
     }
 }
 
@@ -30,12 +66,19 @@ impl VisitMut for TransformVisitor {
                 prop: MemberProp::Ident(Ident::from(Ident::new("__canyon__".into(), Default::default()))),
                 span: Default::default(),
             });
-            let dsn = std::env::var("DSN").unwrap_or("-".to_string());
-            let reporter = std::env::var("REPORTER").unwrap_or("-".to_string());
-            let instrumentCwd = std::env::current_dir().unwrap().to_str().unwrap_or("-").to_string();
-            let branch = std::env::var("CI_COMMIT_BRANCH").unwrap_or("-".to_string());
-            let sha = std::env::var("CI_COMMIT_SHA").unwrap_or("-".to_string());
-            let projectID = std::env::var("CI_PROJECT_ID").unwrap_or("-".to_string());
+            // let dsn = std::env::var("DSN").unwrap_or("-".to_string());
+            // let reporter = std::env::var("REPORTER").unwrap_or("-".to_string());
+            // let instrumentCwd = std::env::current_dir().unwrap().to_str().unwrap_or("-").to_string();
+            // let branch = std::env::var("CI_COMMIT_BRANCH").unwrap_or("-".to_string());
+            // let sha = std::env::var("CI_COMMIT_SHA").unwrap_or("-".to_string());
+            // let projectID = std::env::var("CI_PROJECT_ID").unwrap_or("-".to_string());
+
+            let dsn = self.config.dsn.clone().unwrap_or("-".to_string());
+            let reporter = self.config.reporter.clone().unwrap_or("-".to_string());
+            let instrumentCwd = self.config.instrumentCwd.clone().unwrap_or("-".to_string());
+            let branch = self.config.branch.clone().unwrap_or("-".to_string());
+            let sha = self.config.sha.clone().unwrap_or("-".to_string());
+            let projectID = self.config.projectID.clone().unwrap_or("-".to_string());
 
             // 打印出这些
 
@@ -103,8 +146,26 @@ impl VisitMut for TransformVisitor {
 // 暂时方案，先一股脑把环境变量都注入，例如CI_COMMIT_BRANCH、CI_COMMIT_SHA、CI_PROJECT_ID等，
 // 可配置的是compareTarget
 
+
+
 #[plugin_transform]
 pub fn process_transform(program: Program, metadata: TransformPluginProgramMetadata) -> Program {
+
+    // 定义react_remove_properties
+
+
+
+    let config = serde_json::from_str::<Option<Config>>(
+        &metadata
+            .get_transform_plugin_config()
+            .expect("failed to get plugin config for react-remove-properties"),
+    )
+        .expect("invalid config for react-remove-properties")
+        .unwrap_or_default(); // Use default if config is None
+
+    // 打印config
+    println!("config: {:?}", config);
+
     // 使用TransformPluginProgramMetadata获取环境变量
     let env = metadata.get_context(&TransformPluginMetadataContextKind::Env).unwrap_or("-".to_string());
     let filename = metadata.get_context(&TransformPluginMetadataContextKind::Filename).unwrap_or("-".to_string());
@@ -112,7 +173,7 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
     println!("env: {}", env);
     println!("filename: {}", filename);
     println!("cwd: {}", cwd);
-    program.fold_with(&mut as_folder(TransformVisitor::new()))
+    program.fold_with(&mut as_folder(TransformVisitor { injected: false, config }))
 }
 
 test_inline!(
