@@ -30,6 +30,7 @@ pub struct Config {
     pub branch: Option<String>,
     pub sha: Option<String>,
     pub projectID: Option<String>,
+    pub compareTarget: Option<String>,
 }
 
 impl Default for Config {
@@ -41,6 +42,7 @@ impl Default for Config {
             branch: None,
             sha: None,
             projectID: None,
+            compareTarget: None,
         }
     }
 }
@@ -79,15 +81,16 @@ impl VisitMut for TransformVisitor {
             let branch = self.config.branch.clone().unwrap_or("-".to_string());
             let sha = self.config.sha.clone().unwrap_or("-".to_string());
             let projectID = self.config.projectID.clone().unwrap_or("-".to_string());
+            let compareTarget = self.config.compareTarget.clone().unwrap_or("-".to_string());
 
             // 打印出这些
 
-            println!("dsn: {}", dsn);
-            println!("reporter: {}", reporter);
-            println!("instrumentCwd: {}", instrumentCwd);
-            println!("branch: {}", branch);
-            println!("sha: {}", sha);
-            println!("projectID: {}", projectID);
+            // println!("dsn: {}", dsn);
+            // println!("reporter: {}", reporter);
+            // println!("instrumentCwd: {}", instrumentCwd);
+            // println!("branch: {}", branch);
+            // println!("sha: {}", sha);
+            // println!("projectID: {}", projectID);
 
             let object_lit = Expr::Object(ObjectLit {
                 props: vec![
@@ -120,6 +123,11 @@ impl VisitMut for TransformVisitor {
                         key: PropName::Ident(Ident::from(Ident::new("projectID".into(), Default::default()))),
                         value: Box::new(Expr::Lit(Lit::Str(projectID.into()))),
                 }).into(),
+
+                    Prop::KeyValue(KeyValueProp {
+                        key: PropName::Ident(Ident::from(Ident::new("compareTarget".into(), Default::default()))),
+                        value: Box::new(Expr::Lit(Lit::Str(compareTarget.into()))),
+                    }).into(),
                 ],
                 span: Default::default(),
             });
@@ -164,15 +172,15 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
         .unwrap_or_default(); // Use default if config is None
 
     // 打印config
-    println!("config: {:?}", config);
+    // println!("config: {:?}", config);
 
     // 使用TransformPluginProgramMetadata获取环境变量
     let env = metadata.get_context(&TransformPluginMetadataContextKind::Env).unwrap_or("-".to_string());
     let filename = metadata.get_context(&TransformPluginMetadataContextKind::Filename).unwrap_or("-".to_string());
     let cwd = metadata.get_context(&TransformPluginMetadataContextKind::Cwd).unwrap_or("-".to_string());
-    println!("env: {}", env);
-    println!("filename: {}", filename);
-    println!("cwd: {}", cwd);
+    // println!("env: {}", env);
+    // println!("filename: {}", filename);
+    // println!("cwd: {}", cwd);
     program.fold_with(&mut as_folder(TransformVisitor { injected: false, config }))
 }
 
