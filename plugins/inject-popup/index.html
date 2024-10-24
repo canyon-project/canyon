@@ -53,7 +53,6 @@
       display: flex;
       justify-content: flex-end;
       padding-top: 30px;
-      /*padding-top: 10px;*/
       padding-right: 10px
     }
   </style>
@@ -144,8 +143,40 @@
     "branch": "main",
     "version": "1.8.79"
   }
-  window.__coverage__ = {
-  }
+  // window.__coverage__ = {
+  // }
+
+
+
+  // 步骤一：连点5次打开弹窗+检查页面变量合法性
+  let clickCount = 0;
+  let clickTimeout;
+  document.addEventListener('click', () => {
+    clickCount++;
+
+    if (clickCount === 1) {
+      // 开始1秒计时
+      clickTimeout = setTimeout(() => {
+        // 1秒结束，重置计数
+        clickCount = 0;
+      }, 1000);
+    }
+
+    if (clickCount >= 5) {
+      // 1秒内点击超过6次，触发弹窗
+      clearTimeout(clickTimeout); // 清除计时器
+      clickCount = 0; // 重置计数
+
+    //   检查参数
+      if (window.__canyon__ && window.__coverage__) {
+        document.querySelector('#modal').style.display = 'block'
+      } else {
+        alert('window.__canyon__ or window.__coverage__ is not defined')
+      }
+    }
+  });
+
+
 
   const canyon = window.__canyon__
   const coverage = window.__coverage__

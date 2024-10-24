@@ -11,12 +11,3 @@
 //创建style标签，插入css
 
 // 创建一个style标签
-const styleTag = document.createElement('style');
-styleTag.textContent = `
-     body {
-       background-color: lightblue;
-       color: darkblue;
-     }
-   `;
-// 将style标签添加到head元素中
-document.head.appendChild(styleTag);
