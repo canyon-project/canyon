@@ -60,6 +60,34 @@
             display:flex;
             gap: 5px
         }
+        .canyon-form-value-reportid{
+            color: #333;
+        }
+        /* 设置未选中样式 */
+        .canyon-form-value-auto {
+            position: relative;
+            width: 15px;
+            height: 15px;
+            line-height: 15px;
+            border: 1px solid #949494;
+            /* 取消默认样式 */
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        /* 设置选中样式 */
+        .canyon-form-value-auto:checked {
+            background-color: deepskyblue;
+        }
+        .canyon-form-value-auto:checked::after {
+            content: "✓";
+            position: absolute;
+            top: 0;
+            width: 15px;
+            height: 15px;
+            color: #fff;
+            text-align: center;
+        }
     </style>
     <title>Document</title>
 </head>
@@ -215,7 +243,7 @@
 
   const uploadPromise = ()=>{
     return fetch(canyon.dsn, {
-      method: 'POST',
+      method: 'post',
       body: JSON.stringify({
         ...canyon,
         reportID: document.querySelector('.canyon-form-value-reportid').value,
