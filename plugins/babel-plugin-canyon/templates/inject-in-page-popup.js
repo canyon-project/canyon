@@ -24,71 +24,99 @@
       // 逻辑
 
 
+      //   插入一个div
+      var div = document.createElement('div');
 
+      div.innerHTML = `<div class="__canyon__modal">
+    <div class="__canyon__header">
 
-        // 点击它打开一个全屏弹窗
+    </div>
 
-        // 插入一个div
-        const modal = document.createElement('div');
-        modal.innerHTML = '全屏弹窗';
-        document.body.appendChild(modal);
-        // 添加样式
-        modal.style.display = 'none';
-        modal.style.position = 'fixed';
-        modal.style.top = 0;
-        modal.style.left = 0;
-        modal.style.width = '100%';
-        modal.style.height = '100%';
-        modal.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
-        modal.style.color = 'white';
-        modal.style.justifyContent = 'center';
-        modal.style.alignItems = 'center';
-        modal.style.zIndex = 9999999;
-        modal.style.fontSize = '16px';
+    <div class="__canyon__content">
+        <div class="__canyon__segment">
+            <div class="__canyon__title">
+                Data
+            </div>
 
-        // 点击关闭按钮关闭弹窗
-        const close = document.createElement('div');
+            <div class="__canyon__segment_content">
+                <div style="margin-bottom: 10px;display:flex;gap: 5px">
+                    <div>Project ID:</div>
+                    <div class="canyon-form-value-projectid"></div>
+                </div>
+                <div style="margin-bottom: 10px;display:flex;gap: 5px">
+                    <div>Project ID:</div>
+                    <div class="canyon-form-value-projectid"></div>
+                </div>
+                <div style="margin-bottom: 10px;display:flex;gap: 5px">
+                    <div>Project ID:</div>
+                    <div class="canyon-form-value-projectid"></div>
+                </div>
+            </div>
+        </div>
 
-        close.innerHTML = '关闭';
-        modal.appendChild(close);
-        // 添加样式
-        close.style.position = 'absolute';
-        close.style.top = '20px';
-        close.style.right = '20px';
-        close.style.padding = '10px';
-        close.style.backgroundColor = 'red';
-        close.style.color = 'white';
-        close.style.border = 'none';
-        close.style.cursor = 'pointer';
-        close.style.fontSize = '16px';
+        <div class="__canyon__segment">
+            <div class="__canyon__title">
+                Action
+            </div>
 
-        // 点击关闭按钮关闭弹窗
-        close.addEventListener('click', () => {
-          modal.style.display = 'none';
-        });
+            <div class="__canyon__segment_content">
+                <div class="__canyon__btn" style="margin-bottom: 10px">Upload</div>
+                <div class="__canyon__btn" style="background-color: white;color: #333">Refresh</div>
+            </div>
+        </div>
 
-        let clickCount = 0;
-        let clickTimeout;
-        document.addEventListener('click', () => {
-          clickCount++;
+        <div class="__canyon__segment">
+            <div class="__canyon__title">
+                Result
+            </div>
 
-          if (clickCount === 1) {
-            // 开始1秒计时
-            clickTimeout = setTimeout(() => {
-              // 1秒结束，重置计数
-              clickCount = 0;
-            }, 1000);
-          }
+            <div class="__canyon__segment_content">
+                <div class="result" style="display: flex;align-items:center;justify-content: center;border: 1px solid white;padding-bottom: 30px;padding-top: 30px">
+                    Please upload coverage
+                </div>
+            </div>
+        </div>
+    </div>
+</div>`
 
-          if (clickCount >= 5) {
-            // 1秒内点击超过6次，触发痰喘
-            clearTimeout(clickTimeout); // 清除计时器
-            clickCount = 0; // 重置计数
+        document.body.appendChild(div);
 
-            modal.style.display = 'flex';
-          }
-        });
+        //   插入一个style
+        var style = document.createElement('style');
+        style.innerHTML = `        .__canyon__modal{
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            font-size: 12px;
+            color: white;
+        }
+        .__canyon__segment{
+            margin-bottom: 20px;
+        }
+        .__canyon__content{
+            padding: 10px;
+        }
+        .__canyon__title{
+            font-size: 16px;
+            font-weight: bolder;
+            border-bottom: 1px solid white;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
 
+        .__canyon__btn{
+            background-color: #1890ff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+        }`
+        document.head.appendChild(style);
 
       //
 
