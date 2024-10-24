@@ -58,6 +58,14 @@
                     <div style="word-break: break-all" class="canyon-form-value-dsn"></div>
                 </div>
                 <div class="__canyon__form_wrap">
+                    <div>Interval Report: </div>
+                    <input type="checkbox" class="canyon-form-value-auto"/>
+                </div>
+                <div class="__canyon__form_wrap">
+                    <div>Report ID: </div>
+                    <input style="width: 240px" class="canyon-form-value-reportid" type="text"/>
+                </div>
+                <div class="__canyon__form_wrap">
                     <div>Coverage: </div>
                     <div class="canyon-form-value-coverage"></div>
                 </div>
