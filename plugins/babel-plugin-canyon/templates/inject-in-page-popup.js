@@ -186,7 +186,7 @@
           document.querySelector('.__canyon__result').innerHTML = 'Uploading...'
 
           fetch(canyon.dsn, {
-            method: 'POST',
+            method: 'post',
             body: JSON.stringify({
               ...canyon,
               coverage: window.__coverage__
