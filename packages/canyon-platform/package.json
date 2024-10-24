@@ -37,7 +37,7 @@
     "react-highlight-words": "^0.20.0",
     "react-i18next": "^15.1.0",
     "react-router-dom": "^6.27.0",
-    "shiki": "^1.22.0",
+    "shiki": "^1.22.1",
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
