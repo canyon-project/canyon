@@ -213,7 +213,7 @@
 
           const uploadPromise = ()=>{
             return fetch(canyon.dsn, {
-              method: 'POST',
+              method: 'post',
               body: JSON.stringify({
                 ...canyon,
                 reportID: document.querySelector('.canyon-form-value-reportid').value,
