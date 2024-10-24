@@ -1,33 +1,33 @@
 (function () {
-  var globalObj = undefined;
+  var globalObj = undefined
   try {
-    globalObj = new Function('return this')();
+    globalObj = new Function('return this')()
   } catch (e) {
-    if (typeof window !== "undefined") {
-      globalObj = window;
-    } else if (typeof global !== "undefined") {
-      globalObj = global;
+    if (typeof window !== 'undefined') {
+      globalObj = window
+    } else if (typeof global !== 'undefined') {
+      globalObj = global
     } else {
       //   do nothing
     }
   }
-  if (globalObj){
+  if (globalObj) {
 
     //   ***start***
 
     if (globalObj.ssssssssssssss) {
     } else {
-      globalObj.ssssssssssssss = true
-      if (globalObj.document && globalObj.document.addEventListener) {
+      if (window.__canyon__ && window.__coverage__) {
 
+        globalObj.ssssssssssssss = true
+        if (globalObj.document && globalObj.document.addEventListener) {
 
-      // 逻辑
+          // 逻辑
 
+          //   插入一个div
+          var div = document.createElement('div')
 
-      //   插入一个div
-      var div = document.createElement('div');
-
-      div.innerHTML = `<div class="__canyon__modal">
+          div.innerHTML = `<div class="__canyon__modal">
     <div class="__canyon__header">
         <div class="__canyon__close-wrap">
             <div class="__canyon__close" style="">x</div>
@@ -89,11 +89,11 @@
     </div>
 </div>`
 
-        document.body.appendChild(div);
+          document.body.appendChild(div)
 
-        //   插入一个style
-        var style = document.createElement('style');
-        style.innerHTML = `.__canyon__modal{
+          //   插入一个style
+          var style = document.createElement('style')
+          style.innerHTML = `.__canyon__modal{
             display: none;
             position: fixed;
             top: 0;
@@ -147,105 +147,90 @@
             display:flex;
             gap: 5px
         }`
-        document.head.appendChild(style);
+          document.head.appendChild(style)
 
+          //   逻辑开始
+          //
 
+          const canyon = window.__canyon__
+          const coverage = window.__coverage__
 
+          // 步骤一：连点5次打开弹窗+检查页面变量合法性
+          let clickCount = 0
+          let clickTimeout
+          document.addEventListener('click', () => {
+            clickCount++
 
-
-
-
-
-
-      //   逻辑开始
-      //
-
-
-        const canyon = window.__canyon__
-        const coverage = window.__coverage__
-
-        // 步骤一：连点5次打开弹窗+检查页面变量合法性
-        let clickCount = 0;
-        let clickTimeout;
-        document.addEventListener('click', () => {
-          clickCount++;
-
-          if (clickCount === 1) {
-            // 开始1秒计时
-            clickTimeout = setTimeout(() => {
-              // 1秒结束，重置计数
-              clickCount = 0;
-            }, 1000);
-          }
-
-          if (clickCount >= 5) {
-            // 1秒内点击超过6次，触发弹窗
-            clearTimeout(clickTimeout); // 清除计时器
-            clickCount = 0; // 重置计数
-
-            //   检查参数
-            if (window.__canyon__ && window.__coverage__) {
-              document.querySelector('.__canyon__modal').style.display = 'block'
-            } else {
-              alert('window.__canyon__ or window.__coverage__ is not defined')
+            if (clickCount === 1) {
+              // 开始1秒计时
+              clickTimeout = setTimeout(() => {
+                // 1秒结束，重置计数
+                clickCount = 0
+              }, 1000)
             }
-          }
-        });
+
+            if (clickCount >= 5) {
+              // 1秒内点击超过6次，触发弹窗
+              clearTimeout(clickTimeout) // 清除计时器
+              clickCount = 0 // 重置计数
+
+              //   检查参数
+              if (window.__canyon__ && window.__coverage__) {
+                document.querySelector('.__canyon__modal').style.display = 'block'
+              } else {
+                alert('window.__canyon__ or window.__coverage__ is not defined')
+              }
+            }
+          })
 
 //   点击关闭按钮关闭弹窗
-        document.querySelector('.__canyon__close').addEventListener('click', () => {
-          document.querySelector('.__canyon__modal').style.display = 'none'
-        })
+          document.querySelector('.__canyon__close').addEventListener('click', () => {
+            document.querySelector('.__canyon__modal').style.display = 'none'
+          })
 
-
-        document.querySelector('.canyon-form-value-projectid').innerHTML = canyon.projectID
-        document.querySelector('.canyon-form-value-sha').innerHTML = canyon.sha
-        document.querySelector('.canyon-form-value-branch').innerHTML = canyon.branch
-        document.querySelector('.canyon-form-value-dsn').innerHTML = canyon.dsn
-        document.querySelector('.canyon-form-value-coverage').innerHTML = String(Object.keys(coverage).length)
-
-
-
-
+          document.querySelector('.canyon-form-value-projectid').innerHTML = canyon.projectID
+          document.querySelector('.canyon-form-value-sha').innerHTML = canyon.sha
+          document.querySelector('.canyon-form-value-branch').innerHTML = canyon.branch
+          document.querySelector('.canyon-form-value-dsn').innerHTML = canyon.dsn
+          document.querySelector('.canyon-form-value-coverage').innerHTML = String(Object.keys(coverage).length)
 
 //   添加事件
 
-        document.querySelector('.__canyon__btn_upload').addEventListener('click', function () {
+          document.querySelector('.__canyon__btn_upload').addEventListener('click', function () {
 
-          // 状态置为上传中
+            // 状态置为上传中
 
-          document.querySelector('.__canyon__result').innerHTML = 'Uploading...'
+            document.querySelector('.__canyon__result').innerHTML = 'Uploading...'
 
-          fetch(canyon.dsn, {
-            method: 'post',
-            body: JSON.stringify({
-              ...canyon,
-              coverage: window.__coverage__
-            }),
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${canyon.reporter}`
-            }
-          }).then(res=>{
-            return res.json()
-          })
-            .then((res) => {
-              if (res.statusCode > 300) {
-                document.querySelector('.__canyon__result').innerHTML = JSON.stringify(res);
-              } else {
-                document.querySelector('.__canyon__result').innerHTML = 'Upload Success!';
+            fetch(canyon.dsn, {
+              method: 'post',
+              body: JSON.stringify({
+                ...canyon,
+                coverage: window.__coverage__
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${canyon.reporter}`
               }
+            }).then(res => {
+              return res.json()
             })
-            .catch((err) => {
-              alert(String(err));
-              document.querySelector('.__canyon__result').innerHTML = 'Upload Failed!';
-            });
-        })
-        document.querySelector('.__canyon__btn_refresh').addEventListener('click',function () {
-          document.querySelector('.__canyon__result').innerHTML = 'Please upload coverage'
-        })
-
-
+              .then((res) => {
+                if (res.statusCode > 300) {
+                  document.querySelector('.__canyon__result').innerHTML = JSON.stringify(res)
+                } else {
+                  document.querySelector('.__canyon__result').innerHTML = 'Upload Success!'
+                }
+              })
+              .catch((err) => {
+                alert(String(err))
+                document.querySelector('.__canyon__result').innerHTML = 'Upload Failed!'
+              })
+          })
+          document.querySelector('.__canyon__btn_refresh').addEventListener('click', function () {
+            document.querySelector('.__canyon__result').innerHTML = 'Please upload coverage'
+          })
+        }
       }
     }
 
