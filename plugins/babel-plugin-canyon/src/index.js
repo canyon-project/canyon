@@ -72,7 +72,9 @@ export default declare((api,config) => {
           const writeCanyonToLocal = writeCanyonToLocalTemplate({
             JSON: 'JSON'
           })
-          const injectInPagePopup = injectInPagePopupTemplate()
+          const injectInPagePopup = injectInPagePopupTemplate({
+            JSON: 'JSON'
+          })
           path.node.body.unshift(canyon)
           // TODO: 需要删除writeCanyonToLocal
           path.node.body.unshift(writeCanyonToLocal)
