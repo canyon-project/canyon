@@ -29,7 +29,9 @@
 
       div.innerHTML = `<div class="__canyon__modal">
     <div class="__canyon__header">
-
+        <div class="__canyon__close-wrap">
+            <div class="__canyon__close" style="">x</div>
+        </div>
     </div>
 
     <div class="__canyon__content">
@@ -39,17 +41,25 @@
             </div>
 
             <div class="__canyon__segment_content">
-                <div style="margin-bottom: 10px;display:flex;gap: 5px">
+                <div class="__canyon__form_wrap">
                     <div>Project ID:</div>
                     <div class="canyon-form-value-projectid"></div>
                 </div>
-                <div style="margin-bottom: 10px;display:flex;gap: 5px">
-                    <div>Project ID:</div>
-                    <div class="canyon-form-value-projectid"></div>
+                <div class="__canyon__form_wrap">
+                    <div>SHA:</div>
+                    <div class="canyon-form-value-sha"></div>
                 </div>
-                <div style="margin-bottom: 10px;display:flex;gap: 5px">
-                    <div>Project ID:</div>
-                    <div class="canyon-form-value-projectid"></div>
+                <div class="__canyon__form_wrap">
+                    <div>Branch:</div>
+                    <div class="canyon-form-value-branch"></div>
+                </div>
+                <div class="__canyon__form_wrap">
+                    <div>DSN: </div>
+                    <div style="word-break: break-all" class="canyon-form-value-dsn"></div>
+                </div>
+                <div class="__canyon__form_wrap">
+                    <div>Coverage: </div>
+                    <div class="canyon-form-value-coverage"></div>
                 </div>
             </div>
         </div>
@@ -60,8 +70,8 @@
             </div>
 
             <div class="__canyon__segment_content">
-                <div class="__canyon__btn" style="margin-bottom: 10px">Upload</div>
-                <div class="__canyon__btn" style="background-color: white;color: #333">Refresh</div>
+                <div class="__canyon__btn __canyon__btn_upload" style="margin-bottom: 10px">Upload</div>
+                <div class="__canyon__btn __canyon__btn_refresh" style="background-color: white;color: #333">Refresh</div>
             </div>
         </div>
 
@@ -71,7 +81,7 @@
             </div>
 
             <div class="__canyon__segment_content">
-                <div class="result" style="display: flex;align-items:center;justify-content: center;border: 1px solid white;padding-bottom: 30px;padding-top: 30px">
+                <div class="__canyon__result" style="display: flex;align-items:center;justify-content: center;border: 1px solid white;padding-bottom: 30px;padding-top: 30px">
                     Please upload coverage
                 </div>
             </div>
@@ -83,7 +93,8 @@
 
         //   插入一个style
         var style = document.createElement('style');
-        style.innerHTML = `        .__canyon__modal{
+        style.innerHTML = `.__canyon__modal{
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -115,6 +126,26 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             text-align: center;
+        }
+        .__canyon__close-wrap{
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 30px;
+            padding-right: 10px
+        }
+        .__canyon__close{
+            border: 1px solid white;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .__canyon__form_wrap{
+            margin-bottom: 10px;
+            display:flex;
+            gap: 5px
         }`
         document.head.appendChild(style);
 
