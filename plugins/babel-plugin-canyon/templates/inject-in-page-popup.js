@@ -100,7 +100,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.9);
             font-size: 12px;
             color: white;
         }
@@ -130,7 +130,7 @@
         .__canyon__close-wrap{
             display: flex;
             justify-content: flex-end;
-            padding-top: 30px;
+            padding-top: 45px;
             padding-right: 10px
         }
         .__canyon__close{
@@ -155,24 +155,24 @@
           const canyon = globalObj.__canyon__
           const coverage = globalObj.__coverage__
 
-          // 步骤一：连点5次打开弹窗+检查页面变量合法性
-          let clickCount = 0
-          let clickTimeout
+          // 步骤一：连点3次打开弹窗+检查页面变量合法性
+          let clickCount = 0;
+          let clickTimeout;
           document.addEventListener('click', () => {
-            clickCount++
+            clickCount++;
 
             if (clickCount === 1) {
               // 开始1秒计时
               clickTimeout = setTimeout(() => {
                 // 1秒结束，重置计数
-                clickCount = 0
-              }, 1000)
+                clickCount = 0;
+              }, 500);
             }
 
-            if (clickCount >= 5) {
+            if (clickCount >= 3) {
               // 1秒内点击超过6次，触发弹窗
-              clearTimeout(clickTimeout) // 清除计时器
-              clickCount = 0 // 重置计数
+              clearTimeout(clickTimeout); // 清除计时器
+              clickCount = 0; // 重置计数
 
               //   检查参数
               if (globalObj.__canyon__ && globalObj.__coverage__) {
@@ -181,18 +181,57 @@
                 alert('window.__canyon__ or window.__coverage__ is not defined')
               }
             }
-          })
+          });
 
 //   点击关闭按钮关闭弹窗
           document.querySelector('.__canyon__close').addEventListener('click', () => {
             document.querySelector('.__canyon__modal').style.display = 'none'
           })
 
+
           document.querySelector('.canyon-form-value-projectid').innerHTML = canyon.projectID
           document.querySelector('.canyon-form-value-sha').innerHTML = canyon.sha
           document.querySelector('.canyon-form-value-branch').innerHTML = canyon.branch
           document.querySelector('.canyon-form-value-dsn').innerHTML = canyon.dsn
           document.querySelector('.canyon-form-value-coverage').innerHTML = String(Object.keys(coverage).length)
+          document.querySelector('.canyon-form-value-auto').checked = Boolean(localStorage.getItem('canyon-auto'))
+          document.querySelector('.canyon-form-value-reportid').value = localStorage.getItem('canyon-reportid') || ''
+
+
+          document.querySelector('.canyon-form-value-auto').addEventListener('change',function () {
+            if (this.checked === true){
+              localStorage.setItem('canyon-auto','true')
+            }else{
+              localStorage.removeItem('canyon-auto')
+            }
+          })
+
+          document.querySelector('.canyon-form-value-reportid').addEventListener('change',function () {
+            localStorage.setItem('canyon-reportid',this.value)
+          })
+
+
+          const uploadPromise = ()=>{
+            return fetch(canyon.dsn, {
+              method: 'POST',
+              body: JSON.stringify({
+                ...canyon,
+                reportID: document.querySelector('.canyon-form-value-reportid').value,
+                coverage: globalObj.__coverage__
+              }),
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${canyon.reporter}`
+              }
+            })
+          }
+
+
+          setInterval(()=>{
+            if (document.querySelector('.canyon-form-value-auto').checked === true){
+              uploadPromise()
+            }
+          },2000)
 
 //   添加事件
 
@@ -202,34 +241,26 @@
 
             document.querySelector('.__canyon__result').innerHTML = 'Uploading...'
 
-            fetch(canyon.dsn, {
-              method: 'post',
-              body: JSON.stringify({
-                ...canyon,
-                coverage: globalObj.__coverage__
-              }),
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${canyon.reporter}`
-              }
-            }).then(res => {
+            uploadPromise().then(res=>{
               return res.json()
             })
               .then((res) => {
                 if (res.statusCode > 300) {
-                  document.querySelector('.__canyon__result').innerHTML = JSON.stringify(res)
+                  document.querySelector('.__canyon__result').innerHTML = JSON.stringify(res);
                 } else {
-                  document.querySelector('.__canyon__result').innerHTML = 'Upload Success!'
+                  document.querySelector('.__canyon__result').innerHTML = 'Upload Success!';
                 }
               })
               .catch((err) => {
-                alert(String(err))
-                document.querySelector('.__canyon__result').innerHTML = 'Upload Failed!'
-              })
+                alert(String(err));
+                document.querySelector('.__canyon__result').innerHTML = 'Upload Failed!';
+              });
           })
-          document.querySelector('.__canyon__btn_refresh').addEventListener('click', function () {
+          document.querySelector('.__canyon__btn_refresh').addEventListener('click',function () {
             document.querySelector('.__canyon__result').innerHTML = 'Please upload coverage'
           })
+
+          // 逻辑结束
         }
       }
     }

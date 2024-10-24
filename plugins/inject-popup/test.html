@@ -7,13 +7,13 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <style>
         .__canyon__modal{
-            /*display: none;*/
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.9);
             font-size: 12px;
             color: white;
         }
@@ -43,7 +43,7 @@
         .__canyon__close-wrap{
             display: flex;
             justify-content: flex-end;
-            padding-top: 30px;
+            padding-top: 45px;
             padding-right: 10px
         }
         .__canyon__close{
@@ -95,6 +95,14 @@
                     <div style="word-break: break-all" class="canyon-form-value-dsn"></div>
                 </div>
                 <div class="__canyon__form_wrap">
+                    <div>Interval Report: </div>
+                    <input type="checkbox" class="canyon-form-value-auto"/>
+                </div>
+                <div class="__canyon__form_wrap">
+                    <div>Report ID: </div>
+                    <input style="width: 240px" class="canyon-form-value-reportid" type="text"/>
+                </div>
+                <div class="__canyon__form_wrap">
                     <div>Coverage: </div>
                     <div class="canyon-form-value-coverage"></div>
                 </div>
@@ -144,8 +152,10 @@
   window.__coverage__ = {
   }
 
-  const canyon = window.__canyon__
-  const coverage = window.__coverage__
+  const globalObj = window
+
+  const canyon = globalObj.__canyon__
+  const coverage = globalObj.__coverage__
 
   // 步骤一：连点5次打开弹窗+检查页面变量合法性
   let clickCount = 0;
@@ -158,16 +168,16 @@
       clickTimeout = setTimeout(() => {
         // 1秒结束，重置计数
         clickCount = 0;
-      }, 1000);
+      }, 500);
     }
 
-    if (clickCount >= 5) {
+    if (clickCount >= 3) {
       // 1秒内点击超过6次，触发弹窗
       clearTimeout(clickTimeout); // 清除计时器
       clickCount = 0; // 重置计数
 
       //   检查参数
-      if (window.__canyon__ && window.__coverage__) {
+      if (globalObj.__canyon__ && globalObj.__coverage__) {
         document.querySelector('.__canyon__modal').style.display = 'block'
       } else {
         alert('window.__canyon__ or window.__coverage__ is not defined')
@@ -186,10 +196,44 @@
   document.querySelector('.canyon-form-value-branch').innerHTML = canyon.branch
   document.querySelector('.canyon-form-value-dsn').innerHTML = canyon.dsn
   document.querySelector('.canyon-form-value-coverage').innerHTML = String(Object.keys(coverage).length)
+  document.querySelector('.canyon-form-value-auto').checked = Boolean(localStorage.getItem('canyon-auto'))
+  document.querySelector('.canyon-form-value-reportid').value = localStorage.getItem('canyon-reportid') || ''
 
 
+  document.querySelector('.canyon-form-value-auto').addEventListener('change',function () {
+    if (this.checked === true){
+      localStorage.setItem('canyon-auto','true')
+    }else{
+      localStorage.removeItem('canyon-auto')
+    }
+  })
+
+  document.querySelector('.canyon-form-value-reportid').addEventListener('change',function () {
+    localStorage.setItem('canyon-reportid',this.value)
+  })
 
 
+  const uploadPromise = ()=>{
+    return fetch(canyon.dsn, {
+      method: 'POST',
+      body: JSON.stringify({
+        ...canyon,
+        reportID: document.querySelector('.canyon-form-value-reportid').value,
+        coverage: globalObj.__coverage__
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${canyon.reporter}`
+      }
+    })
+  }
+
+
+  setInterval(()=>{
+    if (document.querySelector('.canyon-form-value-auto').checked === true){
+      uploadPromise()
+    }
+  },2000)
 
 //   添加事件
 
@@ -199,17 +243,7 @@
 
     document.querySelector('.__canyon__result').innerHTML = 'Uploading...'
 
-    fetch(canyon.dsn, {
-      method: 'POST',
-      body: JSON.stringify({
-        ...canyon,
-        coverage: window.__coverage__
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${canyon.reporter}`
-      }
-    }).then(res=>{
+    uploadPromise().then(res=>{
       return res.json()
     })
       .then((res) => {
