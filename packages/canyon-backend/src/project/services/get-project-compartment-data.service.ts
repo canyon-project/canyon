@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
 import { percent, removeNullKeys } from "../../utils/utils";
 
 @Injectable()

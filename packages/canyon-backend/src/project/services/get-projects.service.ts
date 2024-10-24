@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { percent, within30days } from "../../utils/utils";
-import * as dayjs from "dayjs";
+import dayjs from "dayjs";
+
 @Injectable()
 export class GetProjectsService {
   constructor(private readonly prisma: PrismaService) {}
