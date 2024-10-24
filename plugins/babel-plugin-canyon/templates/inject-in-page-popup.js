@@ -17,7 +17,7 @@
 
     if (globalObj.ssssssssssssss) {
     } else {
-      if (window.__canyon__ && window.__coverage__) {
+      if (globalObj.__canyon__ && globalObj.__coverage__) {
 
         globalObj.ssssssssssssss = true
         if (globalObj.document && globalObj.document.addEventListener) {
@@ -152,8 +152,8 @@
           //   逻辑开始
           //
 
-          const canyon = window.__canyon__
-          const coverage = window.__coverage__
+          const canyon = globalObj.__canyon__
+          const coverage = globalObj.__coverage__
 
           // 步骤一：连点5次打开弹窗+检查页面变量合法性
           let clickCount = 0
@@ -175,7 +175,7 @@
               clickCount = 0 // 重置计数
 
               //   检查参数
-              if (window.__canyon__ && window.__coverage__) {
+              if (globalObj.__canyon__ && globalObj.__coverage__) {
                 document.querySelector('.__canyon__modal').style.display = 'block'
               } else {
                 alert('window.__canyon__ or window.__coverage__ is not defined')
@@ -206,7 +206,7 @@
               method: 'post',
               body: JSON.stringify({
                 ...canyon,
-                coverage: window.__coverage__
+                coverage: globalObj.__coverage__
               }),
               headers: {
                 'Content-Type': 'application/json',
