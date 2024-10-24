@@ -6,6 +6,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 const isProduction = process.env.NODE_ENV === "production";
 
 const stylesHandler = "style-loader";
+const swcConfig = require("./swc.config");
 
 const config = {
   entry: "./src/main.tsx",
@@ -28,20 +29,7 @@ const config = {
         test: /\.(ts|tsx)$/i,
         loader: "swc-loader",
         exclude: ["/node_modules/"],
-        options: {
-          jsc:{
-            "transform": {
-              "react": {
-                "runtime": "automatic"
-              }
-            },
-            experimental:{
-              plugins:[
-                ['swc-plugin-canyon',{}]
-              ]
-            }
-          }
-        }
+        options: swcConfig,
       },
       {
         test: /\.css$/i,
