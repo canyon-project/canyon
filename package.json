@@ -5,12 +5,11 @@
   "author": "wr_zhang25@163.com",
   "private": true,
   "license": "MIT",
-  "type": "module",
   "scripts": {
-    "build": "pnpm -r do-build && node ./scripts/move-build-products.js",
-    "clean": "node ./scripts/clean.js",
+    "build": "pnpm -r do-build && node ./scripts/move-build-products.mjs",
+    "clean": "node ./scripts/clean.mjs",
     "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma",
-    "preinstall": "node ./scripts/check.js",
+    "preinstall": "node ./scripts/check.mjs",
     "prepare": "husky",
     "test": "pnpm -r do-test"
   },

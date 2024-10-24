@@ -7,7 +7,7 @@ const isProduction = process.env.NODE_ENV === "production";
 
 const stylesHandler = "style-loader";
 const swcConfig = require("./swc.config");
-
+const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const config = {
   entry: "./src/main.tsx",
   output: {
@@ -22,6 +22,7 @@ const config = {
     new HtmlWebpackPlugin({
       template: "index.html",
     }),
+    new MonacoWebpackPlugin()
   ],
   module: {
     rules: [
