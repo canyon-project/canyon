@@ -1,29 +1,30 @@
-import react from "@vitejs/plugin-react";
+import react from "@vitejs/plugin-react-swc";
 import * as path from "path";
 import AutoImport from "unplugin-auto-import/vite";
 import AntdResolver from "unplugin-auto-import-antd";
 import { defineConfig } from "vite";
 import Pages from "vite-plugin-pages";
 
-const babelConfig = {
-  plugins:
-    process.env.NODE_ENV === "development"
-      ? []
-      : [
-          "istanbul",
-          [
-            "canyon",
-            {
-              instrumentCwd: path.resolve(__dirname, "../.."),
-            },
-          ],
-        ],
-};
-
 export default defineConfig({
   plugins: [
     react({
-      babel: babelConfig,
+      plugins:
+        process.env.NODE_ENV === "development"
+          ? []
+          : [
+              ["swc-plugin-coverage-instrument", {}],
+              [
+                "swc-plugin-canyon",
+                {
+                  projectID: process.env.CI_PROJECT_ID,
+                  sha: process.env.CI_COMMIT_SHA,
+                  dsn: process.env.DSN,
+                  reporter: process.env.REPORTER,
+                  branch: process.env.CI_COMMIT_BRANCH,
+                  instrumentCwd: path.resolve(__dirname, "../.."),
+                },
+              ],
+            ],
     }),
     AutoImport({
       imports: ["react", "react-i18next", "react-router-dom"],
