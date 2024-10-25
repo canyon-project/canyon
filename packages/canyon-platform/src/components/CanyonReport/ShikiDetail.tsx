@@ -27,7 +27,7 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
 
       if (type === "no" && structuredText[startLine]) {
         if (endLine !== startLine) {
-          endCol = structuredText[startLine].length;
+          // endCol = structuredText[startLine].length;
         }
         //     转化为字符的起始
 
@@ -65,7 +65,7 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
 
       if (type === "no" && structuredText[startLine]) {
         if (endLine !== startLine) {
-          endCol = structuredText[startLine].length;
+          // endCol = structuredText[startLine].length;
         }
 
         //     转化为字符的起始
