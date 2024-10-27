@@ -1,4 +1,4 @@
-name: Build and Publish Wasm NPM Package
+name: Publish canyon-core
 
 on:
   push:
