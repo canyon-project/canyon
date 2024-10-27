@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../prisma/prisma.service";
-import * as TestExclude from "test-exclude";
+import TestExclude from "test-exclude";
 @Injectable()
 export class TestExcludeService {
   constructor(private readonly prisma: PrismaService) {}

@@ -1,8 +1,8 @@
 import { NestFactory } from "@nestjs/core";
 import { json } from "express";
 import { ValidationPipe } from "@nestjs/common";
-import * as dotenv from "dotenv";
-import * as path from "node:path";
+import dotenv from "dotenv";
+import path from "node:path";
 import { GlobalExceptionFilter } from "./filter/global-exception.filter";
 
 dotenv.config({

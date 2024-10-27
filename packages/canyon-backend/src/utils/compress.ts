@@ -1,6 +1,6 @@
 import { compress, decompress } from "@mongodb-js/zstd";
 import {CoverageMapData} from "istanbul-lib-coverage";
-import * as protobuf from "protobufjs";
+import protobuf from "protobufjs";
 
 function formatCoverageDataToProto(coverageData) {
   // @ts-ignore

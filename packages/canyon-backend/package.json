@@ -55,6 +55,7 @@
     "@nestjs/schematics": "^10.2.2",
     "@swc/cli": "0.4.1-nightly.20240914",
     "@swc/core": "^1.7.40",
+    "@swc/jest": "^0.2.36",
     "@types/express": "^5.0.0",
     "@types/istanbul-lib-coverage": "^2.0.6",
     "@types/istanbul-lib-source-maps": "^4.0.4",
@@ -90,6 +91,9 @@
     "rootDir": "test",
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1"
+    },
+    "transform": {
+      "^.+\\.(t|j)sx?$": "@swc/jest"
     }
   }
 }
