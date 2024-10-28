@@ -12,8 +12,7 @@
     "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma",
     "preinstall": "node ./scripts/check.js",
     "prepare": "husky",
-    "test": "pnpm -r do-test",
-    "start-canyon-ut": "pnpm -r do-start-canyon-ut"
+    "test": "pnpm -r do-test"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.5.0",

@@ -8,7 +8,7 @@
     "dev": "next dev",
     "postinstall": "prisma generate",
     "lint": "next lint",
-    "do-start-canyon-ut": "next start --port 8080"
+    "start": "next start --port 8080"
   },
   "dependencies": {
     "@prisma/client": "^5.14.0",
