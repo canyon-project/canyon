@@ -52,7 +52,7 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.5",
-    "@nestjs/schematics": "^10.2.2",
+    "@nestjs/schematics": "^10.2.3",
     "@swc/cli": "0.4.1-nightly.20240914",
     "@swc/core": "^1.7.40",
     "@swc/jest": "^0.2.36",
