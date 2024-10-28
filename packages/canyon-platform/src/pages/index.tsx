@@ -55,6 +55,8 @@ function Index() {
             // @ts-ignore
             commitSha: window.__canyon__.commitSha,
             // @ts-ignore
+            sha: window.__canyon__.sha,
+            // @ts-ignore
             projectID: window.__canyon__.projectID,
             // @ts-ignore
             instrumentCwd: window.__canyon__.instrumentCwd,
