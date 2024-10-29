@@ -1,4 +1,4 @@
-import Diff from "diff";
+import * as Diff from "diff";
 import { Change } from "diff";
 interface DiffLine {
   repoID: string;
