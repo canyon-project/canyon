@@ -131,7 +131,51 @@ export class ConsumerCoverageService {
       }
     })();
 
-    const newcoverage = mergeCoverageMap(queueDataToBeConsumed.coverage, cov);
+    const hit1 = mergeCoverageMap(queueDataToBeConsumed.coverage, cov);
+
+
+
+    const coverageMaps = await this.prisma.coverageMap.findMany({
+      where: {
+        sha:queueDataToBeConsumed.sha,
+        projectID:queueDataToBeConsumed.projectID,
+      },
+    });
+
+
+    const coverageJsonMaps = await Promise.all(
+      coverageMaps.map((coverageMap) => {
+        return decompressedData(coverageMap.map).then((map) => {
+          return {
+            ...coverageMap,
+            ...JSON.parse(map),
+          };
+        });
+      }),
+    );
+    const obj = {};
+    coverageJsonMaps.forEach((item) => {
+      if (hit1[item.path]) {
+        const o = {
+          ...hit1[item.path],
+          ...item,
+          path: item.path,
+        };
+        obj[item.path] = {
+          path: o.path,
+          b: o.b || {},
+          f: o.f || {},
+          s: o.s || {},
+          branchMap: o.branchMap || {},
+          fnMap: o.fnMap || {},
+          statementMap: o.statementMap || {},
+        };
+      }
+    });
+
+    const newcoverage = obj;
+
+
     const summary = genSummaryMapByCoverageMap(
       await this.testExcludeService.invoke(
         queueDataToBeConsumed.projectID,

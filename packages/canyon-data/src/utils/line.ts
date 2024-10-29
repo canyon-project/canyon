@@ -1,6 +1,17 @@
 import {FileCoverageData, Range} from "istanbul-lib-coverage";
 import {percent} from "./percent.ts";
 
+function getLinesFromRanges(ranges) {
+  const lines = [];
+  for (const range of ranges) {
+    for (let lineNumber = range.startLine; lineNumber <= range.endLine; lineNumber++) {
+      lines.push(lineNumber);
+    }
+  }
+  return [...new Set(lines)];
+}
+
+
 /**
  * returns computed line coverage from statement coverage.
  * This is a map of hits keyed by line number in the source.
@@ -26,67 +37,46 @@ function getLineCoverage(statementMap:{ [key: string]: Range },s:{ [key: string]
 export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData, newLine:number[]) {
 
 /*  变更行覆盖率计算
-1. 遍历变更行，判断是否在s、f、b中
-2. 如果在其中，只统计这部分行的覆盖率
-3. 在其中，且他们的hit大于0，就是覆盖的
+1. 遍历s，f，b，找出没有覆盖的行
+2. 看哪些新增行在没有覆盖的行中
 */
+  const noCovered: { startLine: number; endLine: number; }[] = []
+  Object.entries(coverage.s).forEach(([key, count]) => {
+    if (coverage.statementMap[key] && count===0){
+      noCovered.push({
+        startLine: coverage.statementMap[key].start.line,
+        endLine: coverage.statementMap[key].end.line
+      })
+    }
+  })
+  Object.entries(coverage.f).forEach(([key, count]) => {
+    if (coverage.fnMap[key] && count===0){
+      noCovered.push({
+        startLine: coverage.fnMap[key].decl.start.line,
+        endLine: coverage.fnMap[key].decl.end.line
+      })
+    }
+  })
 
 
-  const newLineResult = []
-  for (let i = 0; i < newLine.length; i++) {
-    const line = newLine[i];
-
-    let isCovered = false
-    let isLand = false
-
-    Object.keys(coverage.statementMap).forEach((key) => {
-      const statementRange = coverage.statementMap[key];
-      if (statementRange.start.line <= line && (statementRange.end?.line||statementRange.start.line) >= line) {
-        isLand = true
-        if ( coverage.s[key] > 0){
-          isCovered = true
-        }
+  Object.keys(coverage.branchMap).forEach((key) => {
+    const branchRange = coverage.branchMap[key];
+    branchRange.locations.forEach((location,index) => {
+      if (coverage.b[key][index] === 0){
+        noCovered.push({
+          startLine: location.start.line,
+          endLine: location.end.line
+        })
       }
     });
+  });
 
-    Object.keys(coverage.fnMap).forEach((key) => {
-      const fnRange = coverage.fnMap[key];
-      if (fnRange.decl.start.line <= line && (fnRange.decl.end?.line||fnRange.decl.start.line) >= line) {
-        isLand = true
-        if (coverage.f[key] > 0) {
-          isCovered = true
-        }
-      }
-    });
+  const noCoveredLines = getLinesFromRanges(noCovered);
 
-    Object.keys(coverage.branchMap).forEach((key) => {
-      const branchRange = coverage.branchMap[key];
-      branchRange.locations.forEach((location,index) => {
-        if (location.start.line <= line && (location.end?.line||location.start.line) >= line) {
-          isLand = true
-          if (coverage.b[key][index] > 0){
-            isCovered = true
-          }
-        }
-      });
-    });
-    newLineResult.push({
-      line,
-      covered: isCovered,
-      isLand
-    })
-  }
-
-  const newLineResultIsLand = newLineResult.filter((l) => l.isLand)
-  if(coverage.path ==='src/pages/flightList/index.tsx'){
-    console.log(newLine)
-    console.log(newLineResultIsLand)
-  }
-  const result = {
-    total: newLineResultIsLand.length,
-    covered: newLineResultIsLand.filter((l) => l.covered).length,
+  return {
+    total: newLine.length,
+    covered: newLine.filter((line) => !noCoveredLines.includes(line)).length,
     skipped: 0,
-    pct: percent(newLineResultIsLand.filter((l) => l.covered).length, newLineResultIsLand.length)
+    pct: percent(newLine.filter((line) => !noCoveredLines.includes(line)).length, newLine.length)
   }
-  return result
 }
