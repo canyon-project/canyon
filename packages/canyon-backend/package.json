@@ -4,7 +4,7 @@
   "description": "",
   "private": true,
   "scripts": {
-    "do-build": "nest build",
+    "do-build": "prisma generate && nest build",
     "start": "nest start",
     "dev-backend": "nest start --watch",
     "preinstall": "prisma generate && nest build",
