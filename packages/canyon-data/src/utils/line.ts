@@ -37,8 +37,9 @@ function getLineCoverage(statementMap:{ [key: string]: Range },s:{ [key: string]
 export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData, newLine:number[]) {
 
 /*  变更行覆盖率计算
-1. 遍历s，f，b，找出没有覆盖的行
-2. 看哪些新增行在没有覆盖的行中
+1. 遍历所有未语句、函数、分支，找到所有未覆盖行
+2. git diff 找到新增的代码行
+3. 找到新增代码行中哪些属于未覆盖行
 */
   const noCovered: { startLine: number; endLine: number; }[] = []
   Object.entries(coverage.s).forEach(([key, count]) => {
