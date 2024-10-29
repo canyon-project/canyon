@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "do-build": "next build",
+    "build": "next build",
     "dev": "next dev --port 16888",
     "postinstall": "prisma generate",
     "lint": "next lint",
