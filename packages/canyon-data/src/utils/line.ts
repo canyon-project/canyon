@@ -31,6 +31,7 @@ export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData,
 3. 在其中，且他们的hit大于0，就是覆盖的
 */
 
+
   const newLineResult = []
   for (let i = 0; i < newLine.length; i++) {
     const line = newLine[i];
@@ -40,7 +41,7 @@ export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData,
 
     Object.keys(coverage.statementMap).forEach((key) => {
       const statementRange = coverage.statementMap[key];
-      if (statementRange.start.line <= line && statementRange.end.line >= line) {
+      if (statementRange.start.line <= line && (statementRange.end?.line||statementRange.start.line) >= line) {
         isLand = true
         if ( coverage.s[key] > 0){
           isCovered = true
@@ -50,7 +51,7 @@ export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData,
 
     Object.keys(coverage.fnMap).forEach((key) => {
       const fnRange = coverage.fnMap[key];
-      if (fnRange.decl.start.line <= line && fnRange.decl.end.line >= line) {
+      if (fnRange.decl.start.line <= line && (fnRange.decl.end?.line||fnRange.decl.start.line) >= line) {
         isLand = true
         if (coverage.f[key] > 0) {
           isCovered = true
@@ -61,7 +62,7 @@ export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData,
     Object.keys(coverage.branchMap).forEach((key) => {
       const branchRange = coverage.branchMap[key];
       branchRange.locations.forEach((location,index) => {
-        if (location.start.line <= line && location.end.line >= line) {
+        if (location.start.line <= line && (location.end?.line||location.start.line) >= line) {
           isLand = true
           if (coverage.b[key][index] > 0){
             isCovered = true
@@ -77,7 +78,10 @@ export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData,
   }
 
   const newLineResultIsLand = newLineResult.filter((l) => l.isLand)
-
+  if(coverage.path ==='src/pages/flightList/index.tsx'){
+    console.log(newLine)
+    console.log(newLineResultIsLand)
+  }
   const result = {
     total: newLineResultIsLand.length,
     covered: newLineResultIsLand.filter((l) => l.covered).length,
