@@ -4,6 +4,12 @@ import zhCN from "antd/es/locale/zh_CN";
 import { useRoutes } from "react-router-dom";
 
 import routes from "~react-pages";
+import Sha from "@/pages/index/projects/[id]/commits/[sha].tsx";
+
+routes.push({
+  element: <Sha />,
+  path: "/open-projects/:id/commits/:sha",
+});
 
 const languages = {
   cn: zhCN,
