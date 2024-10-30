@@ -21,7 +21,7 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
     if (meta) {
       const type = count > 0 ? "yes" : "no";
       const startCol = meta.start.column;
-      let endCol = meta.end.column + 1;
+      const endCol = meta.end.column + 1;
       const startLine = meta.start.line;
       const endLine = meta.end.line;
 
@@ -59,7 +59,7 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
       // but not 'decl':
       const decl = meta.decl || meta.loc;
       const startCol = decl.start.column;
-      let endCol = decl.end.column + 1;
+      const endCol = decl.end.column + 1;
       const startLine = decl.start.line;
       const endLine = decl.end.line;
 
@@ -87,6 +87,42 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
     }
   });
 
+  const branchStats = filecoverage.b;
+  const branchMeta = filecoverage.branchMap;
+
+  const branchDecorations = [];
+
+  Object.entries(branchStats).forEach(([bName, counts]) => {
+    const meta = branchMeta[bName];
+    if (meta) {
+      Object.entries(meta.locations).forEach(([index, location]) => {
+        const count = counts[index];
+        if (count === 0) {
+          const startCol = location.start.column;
+          const endCol = location.end.column + 1;
+          const startLine = location.start.line;
+          const endLine = location.end.line;
+
+          //     转化为字符的起始
+
+          let start = 0;
+          let end = 0;
+
+          for (let i = 0; i < startLine - 1; i++) {
+            start += structuredText[i].length + 1;
+          }
+          for (let i = 0; i < endLine - 1; i++) {
+            end += structuredText[i].length + 1;
+          }
+
+          start += startCol;
+          end += endCol;
+          branchDecorations.push([start, end]);
+        }
+      });
+    }
+  });
+
   useEffect(() => {
     createHighlighterCoreInstance().then(({ codeToHtml }) => {
       try {
@@ -94,7 +130,11 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
           lang: "javascript",
           theme: theme === "light" ? "light-plus" : "tokyo-night",
           decorations: mergeIntervals(
-            [...statementDecorations, ...fnDecorations].filter((item) => {
+            [
+              ...statementDecorations,
+              ...fnDecorations,
+              ...branchDecorations,
+            ].filter((item) => {
               // defaultValue
               if (item[0] >= item[1]) {
                 return false;
