@@ -14,6 +14,7 @@ import { CoverageService } from "./services/coverage.service";
 import { PrismaService } from "../prisma/prisma.service";
 import { CoverageReportsService } from "./services/coverage-reports.service";
 import { ConsumerCoverageService } from "./services/core/consumer-coverage.service";
+import {HtmlBody} from "../html-body.decorator";
 
 @Controller()
 export class CoverageController {
@@ -44,6 +45,32 @@ export class CoverageController {
       ip,
       userAgent,
     );
+  }
+
+  // 测试navigator.sendBeacon
+  @Post("api/coverage/collect")
+  async coverageCollect(@HtmlBody() data: string) {
+    try {
+      const coverageClientDto = JSON.parse(data);
+      return await this.prisma.coverageLog.create({
+        data:{
+          projectID: coverageClientDto.projectID,
+          sha: coverageClientDto.sha,
+          reportID: coverageClientDto.reportID||"",
+          size: JSON.stringify(coverageClientDto.coverage).length||0,
+          createdAt: new Date(),
+          coverage: "",
+          tags: coverageClientDto.tags||'', //key、value的数组，需要zod校验强类型
+          ip: '999999999',
+          userAgent: '',
+          instrumentCwd: coverageClientDto.instrumentCwd||'',
+        }
+      })
+    } catch (e) {
+      return {
+        success: false,
+      }
+    }
   }
 
   @Get("api/coverage/summary/map")
