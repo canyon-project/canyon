@@ -128,17 +128,18 @@ model Distributedlock {
 }
 
 model CoverageLog {
-  id        Int      @id @default(autoincrement())
-  projectID String   @map("project_id")
-  sha       String   @map("sha")
-  reportID  String   @map("report_id") // 未来聚合的一句，区分case
-  size      Int
-  coverage  String
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-  tags      Json?
+  id            Int      @id @default(autoincrement())
+  projectID     String   @map("project_id")
+  sha           String   @map("sha")
+  reportID      String   @map("report_id") // 未来聚合的一句，区分case
+  size          Int
+  coverage      String
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  tags          Json?
   // 读取参数，没有才从req里取
-  ip        String?
-  userAgent String?  @map("user_agent")
+  ip            String?
+  userAgent     String?  @map("user_agent")
+  instrumentCwd String?  @map("instrument_cwd")
   // secondaryReportID String @map("secondary_report_id")
 
   @@map("coverage_log")

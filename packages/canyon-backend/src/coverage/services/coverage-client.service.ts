@@ -106,6 +106,7 @@ export class CoverageClientService {
         tags: coverageClientDto.tags, //key、value的数组，需要zod校验强类型
         ip: coverageClientDto.ip || ip,
         userAgent: coverageClientDto.userAgent || userAgent,
+        instrumentCwd: coverageClientDto.instrumentCwd,
       },
     });
     // ******************************************************
