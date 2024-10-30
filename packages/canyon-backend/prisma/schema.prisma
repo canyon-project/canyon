@@ -82,6 +82,9 @@ model CoverageMap {
   path      String
   map       String
 
+  // 再添加一个path索引
+  @@index(fields: [path])
+  @@index([projectID, sha]) // 联合索引
   @@map("coverage_map")
 }
 
