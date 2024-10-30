@@ -38,7 +38,8 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
           start += structuredText[i].length + 1;
         }
         for (let i = 0; i < endLine - 1; i++) {
-          end += structuredText[i].length + 1;
+          // TODO: 这里有问题，可能是源码编译前有代码格式化
+          end += (structuredText[i]?.length || 0) + 1;
         }
 
         start += startCol;
