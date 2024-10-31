@@ -186,7 +186,8 @@ export class ConsumerCoverageService {
     const sum: any = getSummaryByPath("", summary);
     const summaryZstd = await compressedData(JSON.stringify(summary));
 
-    const hit = await compressedData(JSON.stringify(newcoverage));
+    // 实际存储不能用全量数据，大10倍
+    const hit = await compressedData(JSON.stringify(hit1));
     if (coverage) {
       await this.prisma.coverage.update({
         where: {
