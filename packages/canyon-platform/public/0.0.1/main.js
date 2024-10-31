@@ -10,7 +10,7 @@ if (window.__coverage__ && window.__canyon__analytics__dsn__) {
         acc[path] = {b, f, s};
         return acc;
       })),
-      canyonID:'canyon-platform',
+      canyonID:'canyon-platform-test1',
       addInfo:{
         // 时机
         timing: timing,
@@ -38,5 +38,4 @@ if (window.__coverage__ && window.__canyon__analytics__dsn__) {
       collectCoverageData("visibilitychange");
     }
   });
-
 }
