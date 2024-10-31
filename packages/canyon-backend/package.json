@@ -60,7 +60,7 @@
     "@types/istanbul-lib-coverage": "^2.0.6",
     "@types/istanbul-lib-source-maps": "^4.0.4",
     "@types/jest": "^29.5.14",
-    "@types/node": "^22.8.4",
+    "@types/node": "^22.8.5",
     "@types/test-exclude": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
