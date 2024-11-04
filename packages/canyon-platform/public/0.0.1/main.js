@@ -1,23 +1,39 @@
 setTimeout(()=>{
   if (window.__coverage__ && window.__canyon__analytics__dsn__) {
     function collectCoverageData(timing) {
-      const data = {
-        coverage: JSON.stringify(Object.entries(window.__coverage__).map(([path, {b,f,s}]) => ({
-          path,
-          b,
-          f,
-          s,
-        })).reduce((acc, {path, b, f, s}) => {
-          acc[path] = {b, f, s};
-          return acc;
-        }, {})),
-        projectID:window.__canyon__.projectID,
-        sha:window.__canyon__.sha,
-        timing: timing,
-      }
+      // const data = {
+      //   coverage: JSON.stringify(Object.entries(window.__coverage__).map(([path, {b,f,s}]) => ({
+      //     path,
+      //     b,
+      //     f,
+      //     s,
+      //   })).reduce((acc, {path, b, f, s}) => {
+      //     acc[path] = {b, f, s};
+      //     return acc;
+      //   }, {})),
+      //   projectID:window.__canyon__.projectID,
+      //   sha:window.__canyon__.sha,
+      //   timing: timing,
+      // }
+
+      const data = new FormData();
+
+      data.append('coverage',JSON.stringify(Object.entries(window.__coverage__).map(([path, {b,f,s}]) => ({
+        path,
+        b,
+        f,
+        s,
+      })).reduce((acc, {path, b, f, s}) => {
+        acc[path] = {b, f, s};
+        return acc;
+      }, {})))
+      data.append('projectID',window.__canyon__.projectID)
+      data.append('sha',window.__canyon__.sha)
+      data.append('timing',timing)
+
       navigator.sendBeacon(
         window.__canyon__analytics__dsn__,
-        JSON.stringify(data),
+        data,
       );
     }
 
