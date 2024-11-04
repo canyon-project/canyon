@@ -35,6 +35,8 @@ import { PlaygroundModule } from "./playground/playground.module";
     CodechangeModule,
     SourcecodeModule,
     PlaygroundModule,
+
+    PrismaModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "public"),
       exclude: ["/graphql/(.*)"],
