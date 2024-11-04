@@ -29,7 +29,7 @@ setTimeout(()=>{
       }, {})))
       data.append('projectID',window.__canyon__.projectID)
       data.append('sha',window.__canyon__.sha)
-      data.append('timing',timing)
+      data.append('timing',`${timing}|${localStorage.getItem('username')||'unknown'}`)
 
       navigator.sendBeacon(
         window.__canyon__analytics__dsn__,
