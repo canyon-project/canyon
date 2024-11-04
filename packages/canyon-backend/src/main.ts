@@ -3,8 +3,10 @@ import { json } from "express";
 import { ValidationPipe } from "@nestjs/common";
 import dotenv from "dotenv";
 import path from "node:path";
+import fs from "node:fs";
 import { GlobalExceptionFilter } from "./filter/global-exception.filter";
-
+// 勿删
+console.log(fs);
 dotenv.config({
   path: path.resolve(__dirname, "../../../.env"),
 });
