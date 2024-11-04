@@ -11,11 +11,9 @@ setTimeout(()=>{
           acc[path] = {b, f, s};
           return acc;
         }, {})),
-        canyonID:'canyon-platform-test1',
-        addInfo:{
-          // 时机
-          timing: timing,
-        }
+        projectID:window.__canyon__.projectID,
+        sha:window.__canyon__.sha,
+        timing: timing,
       }
       navigator.sendBeacon(
         window.__canyon__analytics__dsn__,
