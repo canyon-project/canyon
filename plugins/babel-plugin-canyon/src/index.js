@@ -64,46 +64,40 @@ export default declare((api,config) => {
 
           // 生成初始覆盖率数据
           const initialCoverageDataForTheCurrentFile = generateInitialCoverage(generate(path.node).code)
-          if (generate(path.node).code.includes('coverageData')) {
 
 
-            const t = api.types;
-            // 遍历 Program 中的所有节点
-            path.traverse({
-              VariableDeclarator(variablePath) {
-                // 检查是否是 coverageData
-                if (
-                  t.isIdentifier(variablePath.node.id, { name: "coverageData" }) &&
-                  t.isObjectExpression(variablePath.node.init)
-                ) {
-                  // 查找插桩后的字段
-                  const hasInstrumentation = variablePath.node.init.properties.some((prop) =>
-                    t.isIdentifier(prop.key, { name: "_coverageSchema" }) || // 确保是已插桩的字段
-                    t.isIdentifier(prop.key, { name: "s" }) ||
-                    t.isIdentifier(prop.key, { name: "f" })
-                  );
+          const t = api.types;
+          // 遍历 Program 中的所有节点
+          path.traverse({
+            VariableDeclarator(variablePath) {
+              // 直接判断对象的属性是否存在，是否是coverageData
+              if (variablePath.node?.init?.properties?.some) {
+                // 查找插桩后的字段
+                const hasInstrumentation = variablePath.node.init.properties.some((prop) =>
+                  t.isIdentifier(prop.key, { name: "_coverageSchema" }) || // 确保是已插桩的字段
+                  t.isIdentifier(prop.key, { name: "s" }) ||
+                  t.isIdentifier(prop.key, { name: "f" })
+                );
+                if (hasInstrumentation) {
+                  // 获取 coverageData 对象的 properties
+                  const properties = variablePath.node.init.properties;
 
-                  if (hasInstrumentation) {
-                    // 获取 coverageData 对象的 properties
-                    const properties = variablePath.node.init.properties;
+                  // 删除 statementMap、fnMap 和 branchMap 属性
+                  const keysToRemove = ["statementMap", "fnMap", "branchMap","inputSourceMap"];
 
-                    // 删除 statementMap、fnMap 和 branchMap 属性
-                    const keysToRemove = ["statementMap", "fnMap", "branchMap","inputSourceMap"];
+                  keysToRemove.forEach(key => {
+                    const index = properties.findIndex(prop =>
+                      t.isIdentifier(prop.key, { name: key })
+                    );
 
-                    keysToRemove.forEach(key => {
-                      const index = properties.findIndex(prop =>
-                        t.isIdentifier(prop.key, { name: key })
-                      );
-
-                      if (index !== -1) {
-                        properties.splice(index, 1); // 删除属性
-                      }
-                    });
-                  }
+                    if (index !== -1) {
+                      properties.splice(index, 1); // 删除属性
+                    }
+                  });
                 }
-              }})
-          }
-          // generateCanyon(__canyon__)
+              }
+            }})
+
 
           // 生成canyon代码
           const canyon = canyonTemplate(__canyon__);
