@@ -65,14 +65,13 @@ export default declare((api,config) => {
           // 生成初始覆盖率数据
           const initialCoverageDataForTheCurrentFile = generateInitialCoverage(generate(path.node).code)
           if (generate(path.node).code.includes('coverageData')) {
-            // console.log(path.node)
 
 
             const t = api.types;
             // 遍历 Program 中的所有节点
             path.traverse({
               VariableDeclarator(variablePath) {
-// 检查是否是 coverageData
+                // 检查是否是 coverageData
                 if (
                   t.isIdentifier(variablePath.node.id, { name: "coverageData" }) &&
                   t.isObjectExpression(variablePath.node.init)
@@ -85,13 +84,11 @@ export default declare((api,config) => {
                   );
 
                   if (hasInstrumentation) {
-                    console.log("发现已插桩的 coverageData 节点，进行进一步修改...");
-
                     // 获取 coverageData 对象的 properties
                     const properties = variablePath.node.init.properties;
 
                     // 删除 statementMap、fnMap 和 branchMap 属性
-                    const keysToRemove = ["statementMap", "fnMap", "branchMap"];
+                    const keysToRemove = ["statementMap", "fnMap", "branchMap","inputSourceMap"];
 
                     keysToRemove.forEach(key => {
                       const index = properties.findIndex(prop =>
@@ -100,17 +97,11 @@ export default declare((api,config) => {
 
                       if (index !== -1) {
                         properties.splice(index, 1); // 删除属性
-                        console.log(`已删除 ${key} 属性。`);
                       }
                     });
-
-                    // 打印修改后的代码
-                    const newCode = generate(variablePath.node).code;
-                    console.log("修改后的代码：", newCode);
                   }
                 }
               }})
-
           }
           // generateCanyon(__canyon__)
 
