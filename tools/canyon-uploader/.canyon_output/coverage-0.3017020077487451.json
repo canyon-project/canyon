@@ -1,0 +1,136 @@
+{
+  "/Users/zhangtao/Desktop/vite-project/src/App.tsx": {
+    "path": "/Users/zhangtao/Desktop/vite-project/src/App.tsx",
+    "statementMap": {
+      "0": {
+        "start": {
+          "line": 7,
+          "column": 28
+        },
+        "end": {
+          "line": 7,
+          "column": 39
+        }
+      },
+      "1": {
+        "start": {
+          "line": 9,
+          "column": 2
+        },
+        "end": {
+          "line": 32,
+          "column": 3
+        }
+      },
+      "2": {
+        "start": {
+          "line": 21,
+          "column": 31
+        },
+        "end": {
+          "line": 21,
+          "column": 61
+        }
+      },
+      "3": {
+        "start": {
+          "line": 21,
+          "column": 51
+        },
+        "end": {
+          "line": 21,
+          "column": 60
+        }
+      }
+    },
+    "fnMap": {
+      "0": {
+        "name": "App",
+        "decl": {
+          "start": {
+            "line": 6,
+            "column": 9
+          },
+          "end": {
+            "line": 6,
+            "column": 12
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 6,
+            "column": 15
+          },
+          "end": {
+            "line": 33,
+            "column": 1
+          }
+        },
+        "line": 6
+      },
+      "1": {
+        "name": "(anonymous_1)",
+        "decl": {
+          "start": {
+            "line": 21,
+            "column": 25
+          },
+          "end": {
+            "line": 21,
+            "column": 26
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 31
+          },
+          "end": {
+            "line": 21,
+            "column": 61
+          }
+        },
+        "line": 21
+      },
+      "2": {
+        "name": "(anonymous_2)",
+        "decl": {
+          "start": {
+            "line": 21,
+            "column": 40
+          },
+          "end": {
+            "line": 21,
+            "column": 41
+          }
+        },
+        "loc": {
+          "start": {
+            "line": 21,
+            "column": 51
+          },
+          "end": {
+            "line": 21,
+            "column": 60
+          }
+        },
+        "line": 21
+      }
+    },
+    "branchMap": {},
+    "s": {
+      "0": 0,
+      "1": 0,
+      "2": 0,
+      "3": 0
+    },
+    "f": {
+      "0": 0,
+      "1": 0,
+      "2": 0
+    },
+    "b": {},
+    "_coverageSchema": "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    "hash": "9882e1ec417f426de7396755c741dc01d0ad782d"
+  }
+}

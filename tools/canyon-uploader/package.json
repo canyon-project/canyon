@@ -1,0 +1,25 @@
+{
+  "name": "canyon-uploader",
+  "version": "0.0.1",
+  "type": "module",
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "bin": {
+    "canyon-uploader": "bin/canyon-uploader"
+  },
+  "scripts": {
+    "build": "rolldown -c",
+    "format": "biome check --write --unsafe ./src",
+    "prepublishOnly": "rolldown -c"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "rolldown": "nightly"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0"
+  }
+}
