@@ -1,4 +1,4 @@
-name: Publish canyon-data
+name: Publish canyon-uploader
 
 on:
   push:
