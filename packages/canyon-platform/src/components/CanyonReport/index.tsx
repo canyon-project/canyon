@@ -38,6 +38,7 @@ const CanyonReport = ({
   onSelect,
   mainData,
   theme,
+  defaultOnlyShowChanged = false,
 }) => {
   // 几个状态
   // 1.展示模式//tree||list
@@ -54,7 +55,7 @@ const CanyonReport = ({
 
   // 5.文件路径关键字搜索
   const [keywords, setKeywords] = useState("");
-  const [onlyChange, setOnlyChange] = useState(false);
+  const [onlyChange, setOnlyChange] = useState(Boolean(defaultOnlyShowChanged));
   const [range, setRange] = useState([0, 100]);
 
   // useEffect(()=>{

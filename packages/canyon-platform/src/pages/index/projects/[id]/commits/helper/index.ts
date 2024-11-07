@@ -8,7 +8,7 @@ interface HandleSelectFile {
   sha: string;
   filepath: string;
   reportID: string;
-  mode: string;
+  // mode: string;
 }
 export function handleSelectFile({
   projectID,

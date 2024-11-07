@@ -67,7 +67,7 @@ const Sha = () => {
         reportID: sprm.get("report_id") || "",
         sha: prm.sha || "",
         projectID: prm.id || "",
-        mode: sprm.get("mode") || "",
+        // mode: sprm.get("mode") || "",
       }).then((r) => {
         if (r.fileCoverage) {
           // console.log(r)
@@ -94,6 +94,7 @@ const Sha = () => {
           {getProjectByIdDocumentData?.getProjectByID.language ===
             "JavaScript" && (
             <CanyonReport
+              defaultOnlyShowChanged={sprm.get("mode")}
               theme={localStorage.getItem("theme") || "light"}
               mainData={mainData}
               pathWithNamespace={pathWithNamespace}
