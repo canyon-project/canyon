@@ -1,7 +1,6 @@
 {
   "name": "canyon-uploader",
-  "version": "0.0.1",
-  "type": "module",
+  "version": "0.0.1-beta.1",
   "files": [
     "bin",
     "dist"
@@ -10,12 +9,14 @@
     "canyon-uploader": "bin/canyon-uploader"
   },
   "scripts": {
-    "build": "rolldown -c",
+    "build": "swc ./rolldown.config.ts -o dist/rolldown.config.mjs && rolldown -c dist/rolldown.config.mjs",
     "format": "biome check --write --unsafe ./src",
-    "prepublishOnly": "rolldown -c"
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "@swc/cli": "0.4.1-nightly.20240914",
+    "@swc/core": "1.7.40",
     "rolldown": "nightly"
   },
   "dependencies": {
