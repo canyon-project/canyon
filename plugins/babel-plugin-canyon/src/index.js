@@ -38,6 +38,14 @@ function newAtob() {
 }
 const newatob = newAtob()
 
+function analyzeIntervalTime (intervalTime) {
+  if (!isNaN(Number(intervalTime))){
+    return String(intervalTime)
+  } else {
+    return '0'
+  }
+}
+
 export default declare((api,config) => {
   api.assertVersion(7)
   return {
@@ -58,46 +66,14 @@ export default declare((api,config) => {
             BRANCH: config.branch || '-',
             REPORT_ID: config.reportID || '-',
             COMPARE_TARGET: config.compareTarget || '-',
+            INTERVAL_TIME: analyzeIntervalTime(config.intervalTime),
             VERSION: packageJson.version || '-'
           }
 
 
           // 生成初始覆盖率数据
           const initialCoverageDataForTheCurrentFile = generateInitialCoverage(generate(path.node).code)
-
-
-          const t = api.types;
-          // 遍历 Program 中的所有节点
-          path.traverse({
-            VariableDeclarator(variablePath) {
-              // 直接判断对象的属性是否存在，是否是coverageData
-              if (variablePath.node?.init?.properties?.some) {
-                // 查找插桩后的字段
-                const hasInstrumentation = variablePath.node.init.properties.some((prop) =>
-                  t.isIdentifier(prop.key, { name: "_coverageSchema" }) || // 确保是已插桩的字段
-                  t.isIdentifier(prop.key, { name: "s" }) ||
-                  t.isIdentifier(prop.key, { name: "f" })
-                );
-                if (hasInstrumentation) {
-                  // 获取 coverageData 对象的 properties
-                  const properties = variablePath.node.init.properties;
-
-                  // 删除 statementMap、fnMap 和 branchMap 属性
-                  const keysToRemove = ["statementMap", "fnMap", "branchMap","inputSourceMap"];
-
-                  keysToRemove.forEach(key => {
-                    const index = properties.findIndex(prop =>
-                      t.isIdentifier(prop.key, { name: key })
-                    );
-
-                    if (index !== -1) {
-                      properties.splice(index, 1); // 删除属性
-                    }
-                  });
-                }
-              }
-            }})
-
+          // generateCanyon(__canyon__)
 
           // 生成canyon代码
           const canyon = canyonTemplate(__canyon__);

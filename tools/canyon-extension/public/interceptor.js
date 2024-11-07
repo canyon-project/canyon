@@ -17,7 +17,7 @@ window.addEventListener('message', function (e) {
           canyon: {
             ...window.__canyon__,
             reportID: localStorage.getItem('__canyon__report__id__') || undefined,
-            intervalTime: localStorage.getItem('__canyon__interval__time__') || undefined,
+            intervalTime: localStorage.getItem('__canyon__interval__time__') || window.__canyon__.intervalTime,
             reporter: localStorage.getItem('__canyon__reporter__') || window.__canyon__.reporter,
           },
           coverage: window.__coverage__,
@@ -28,28 +28,33 @@ window.addEventListener('message', function (e) {
   }
 });
 
-if (!isNaN(Number(localStorage.getItem('__canyon__interval__time__')))) {
-  const num = Number(localStorage.getItem('__canyon__interval__time__'));
-  if (num > 0) {
-    setInterval(() => {
-      if (window.__canyon__ && window.__coverage__) {
-        fetch(window.__canyon__.dsn, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${window.__canyon__.reporter}`,
-          },
-          body: JSON.stringify({
-            coverage: window.__coverage__,
-            ...window.__canyon__,
-            reportID: localStorage.getItem('__canyon__report__id__') || undefined,
-          }),
-        }).then(() => {
-          console.log('report coverage success');
-        });
-      } else {
-        console.log('coverage or canyon data is not ready');
-      }
-    }, num * 1000);
+// 1s后再去获取尝试间隔上报
+setTimeout(()=>{
+  // 先尝试本地获取，如果没有再去获取window上的数据
+  const __canyon__interval__time__ = Number(localStorage.getItem('__canyon__interval__time__')) || Number(window?.__canyon__?.intervalTime);
+  if (!isNaN(__canyon__interval__time__)) {
+    const num = __canyon__interval__time__;
+    if (num > 0) {
+      setInterval(() => {
+        if (window.__canyon__ && window.__coverage__) {
+          fetch(window.__canyon__.dsn, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${window.__canyon__.reporter}`,
+            },
+            body: JSON.stringify({
+              coverage: window.__coverage__,
+              ...window.__canyon__,
+              reportID: localStorage.getItem('__canyon__report__id__') || undefined,
+            }),
+          }).then(() => {
+            console.log('report coverage success');
+          });
+        } else {
+          console.log('coverage or canyon data is not ready');
+        }
+      }, num * 1000);
+    }
   }
-}
+},1000)

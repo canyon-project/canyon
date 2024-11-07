@@ -1,5 +1,4 @@
 export function extractCoverageData(scriptContent) {
-  // console.log(scriptContent)
     const reg0 = /var\s+coverageData\s*=\s*({[\s\S]*?});/;
     const reg1 = /var\s+(\w+)\s*=\s*function\s*\(\)\s*\{([\s\S]*?)\}\(\);/
     try {

@@ -111,6 +111,7 @@
             background: rgba(0,0,0,0.9);
             font-size: 12px;
             color: white;
+            z-index: 1000000;
         }
         .__canyon__segment{
             margin-bottom: 20px;
@@ -154,34 +155,6 @@
             margin-bottom: 10px;
             display:flex;
             gap: 5px
-        }
-        .canyon-form-value-reportid{
-            color: #333;
-        }
-        /* 设置未选中样式 */
-        .canyon-form-value-auto {
-            position: relative;
-            width: 15px;
-            height: 15px;
-            line-height: 15px;
-            border: 1px solid #949494;
-            /* 取消默认样式 */
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
-        /* 设置选中样式 */
-        .canyon-form-value-auto:checked {
-            background-color: deepskyblue;
-        }
-        .canyon-form-value-auto:checked::after {
-            content: "✓";
-            position: absolute;
-            top: 0;
-            width: 15px;
-            height: 15px;
-            color: #fff;
-            text-align: center;
         }`
           document.head.appendChild(style)
 

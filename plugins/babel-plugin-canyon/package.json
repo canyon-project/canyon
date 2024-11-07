@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-canyon",
-  "version": "1.8.78-beta.22",
+  "version": "1.8.86",
   "description": "A Babel plugin cooperates with istanbul to report the coverage",
   "author": "Allen Zhang <wr_zhang25@163.com>",
   "license": "MIT",

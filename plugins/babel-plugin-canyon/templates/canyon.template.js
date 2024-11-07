@@ -27,6 +27,7 @@
             compareTarget: 'COMPARE_TARGET',
             branch: 'BRANCH',
             version: 'VERSION',
+            intervalTime: 'INTERVAL_TIME'
         }
 
 
