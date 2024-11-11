@@ -148,6 +148,7 @@ const Reports = () => {
             buttonStyle="solid"
           />
           <Select
+            disabled
             className={"w-[200px]"}
             value={bu}
             options={

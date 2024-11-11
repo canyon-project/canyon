@@ -1,4 +1,4 @@
-import { MoreOutlined, SearchOutlined } from "@ant-design/icons";
+import {BarChartOutlined, LinkOutlined, MoreOutlined, SearchOutlined} from "@ant-design/icons";
 import { FC, ReactNode } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { CanyonCardPrimary } from "../card";
@@ -139,11 +139,22 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                   onSelectMenu?.(selectInfo);
                 }}
                 selectedKeys={[menuSelectedKey]}
-                items={menuItems}
+                items={menuItems.concat({
+                  key: "open-reports",
+                  icon: <BarChartOutlined />,
+                  label: (
+                    <a
+                      href="/open-reports"
+                      // target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      报表
+                    </a>
+                  ),
+                })}
                 className={"dark:bg-[#151718] px-1"}
                 style={{ flex: "1" }}
               />
-
               <Dropdown
                 menu={{
                   items: itemsDropdown,

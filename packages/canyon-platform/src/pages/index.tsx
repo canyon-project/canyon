@@ -163,11 +163,11 @@ function Index() {
             key: "projects",
             icon: <FolderOutlined />,
           },
-          {
-            label: t("报表"),
-            key: "reports",
-            icon: <BarChartOutlined />,
-          },
+          // {
+          //   label: t("报表"),
+          //   key: "reports",
+          //   icon: <BarChartOutlined />,
+          // },
           {
             label: t("menus.settings"),
             key: "settings",
