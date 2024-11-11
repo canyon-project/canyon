@@ -44,6 +44,8 @@ program
 program
 	.command("hit")
 	.option("--dsn <dsn>", "dsn of the canyon server")
+	.option("--project_id <project_id>", "id of the project")
+	.option("--commit_sha <commit_sha>", "commit sha of the project")
 	.allowExcessArguments(false)
 	.allowUnknownOption(false)
 	.description("modify react native project code to adapt to canyon")
