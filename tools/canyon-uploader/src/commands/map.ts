@@ -18,8 +18,8 @@ export async function mapCommand(params, options) {
     };
   }
   await axios.post(dsn, {
-    projectID: projectID||process.env.CI_COMMIT_SHA,
-    sha: sha||process.env.CI_PROJECT_ID,
+    projectID: projectID||process.env.CI_PROJECT_ID,
+    sha: sha||process.env.CI_COMMIT_SHA,
     instrumentCwd: process.cwd(),
     coverage: JSON.stringify(data),
   });
