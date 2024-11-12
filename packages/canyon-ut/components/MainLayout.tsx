@@ -1,19 +1,8 @@
 import {
   Book,
-  ChevronLeft,
   Folder,
-  Home,
-  LifeBuoy,
-  LineChart,
-  Package,
-  Package2,
-  PanelLeft,
-  PlusCircle,
   Search,
   Settings,
-  ShoppingCart,
-  Upload,
-  Users2,
 } from "lucide-react";
 
 import {
