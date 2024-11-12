@@ -89,7 +89,7 @@ const MainLayout = ({ children, activePath }) => {
         <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-4">
           <Tooltip>
             <TooltipTrigger asChild>
-              <a href="https://docs.canyonjs.org/" target={"_blank"}>
+              <a href="https://docs.canyoncov.com/" target={"_blank"}>
                 <Button
                   variant="ghost"
                   size="icon"
