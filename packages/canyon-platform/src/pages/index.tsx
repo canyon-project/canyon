@@ -126,7 +126,7 @@ function Index() {
         title={"Canyon"}
         logo={
           <div>
-            <img src={`/${theme}-logo.svg?a=1`} alt="" className={"w-[28px]"} />
+            <img src={`/${theme}-logo.svg?a=1`} alt="" className={"w-[32px]"} />
           </div>
         }
         mainTitleRightNode={

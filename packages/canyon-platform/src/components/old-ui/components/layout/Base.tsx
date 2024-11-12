@@ -61,7 +61,7 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                   >
                     {logo}
                     <span
-                      className={"ml-[8px]"}
+                      className={"ml-[6px]"}
                       style={{ fontSize: "18px", fontWeight: "bolder" }}
                     >
                       {title}
