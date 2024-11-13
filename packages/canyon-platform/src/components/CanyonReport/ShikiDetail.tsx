@@ -93,8 +93,12 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
 
   const branchDecorations = [];
 
-  function specialLogicByIf(branchRange) {
-    if (branchRange.type === "if" && branchRange.locations.length > 1) {
+  function specialLogicByIf(branchRange, index) {
+    if (
+      branchRange.type === "if" &&
+      branchRange.locations.length > 1 &&
+      Number(index) === 0
+    ) {
       return false;
     } else {
       return true;
