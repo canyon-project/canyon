@@ -93,12 +93,20 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
 
   const branchDecorations = [];
 
+  function specialLogicByIf(branchRange) {
+    if (branchRange.type === "if" && branchRange.locations.length > 1) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   Object.entries(branchStats).forEach(([bName, counts]) => {
     const meta = branchMeta[bName];
     if (meta) {
       Object.entries(meta.locations).forEach(([index, location]) => {
         const count = counts[index];
-        if (count === 0) {
+        if (count === 0 && specialLogicByIf(meta)) {
           const startCol = location.start.column;
           const endCol = location.end.column + 1;
           const startLine = location.start.line;

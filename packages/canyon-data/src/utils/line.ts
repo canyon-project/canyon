@@ -33,6 +33,13 @@ function getLineCoverage(statementMap:{ [key: string]: Range },s:{ [key: string]
   return lineMap;
 }
 
+function specialLogicByIf(branchRange) {
+  if (branchRange.type==='if' && branchRange.locations.length>1){
+    return false;
+  } else {
+    return true;
+  }
+}
 
 export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData, newLine:number[]) {
 
@@ -63,7 +70,8 @@ export function calculateNewLineCoverageForSingleFile(coverage:FileCoverageData,
   Object.keys(coverage.branchMap).forEach((key) => {
     const branchRange = coverage.branchMap[key];
     branchRange.locations.forEach((location,index) => {
-      if (coverage.b[key][index] === 0){
+      // branch类型是if，并且有多个分支的，第一个if的location范围是整个分支的范围，所以如果它未覆盖，会导致标注的时候整个分支红色，先剔除。
+      if (coverage.b[key][index] === 0 && specialLogicByIf(branchRange)){
         noCovered.push({
           startLine: location.start.line,
           endLine: location.end.line
