@@ -67,7 +67,7 @@
     "@swc/core": "1.7.40",
     "tailwindcss": "^3.4.14",
     "typescript": "^5.6.3",
-    "unplugin-auto-import": "^0.18.3",
+    "unplugin-auto-import": "^0.18.4",
     "unplugin-auto-import-antd": "^0.0.2",
     "vite": "^5.4.11",
     "vite-plugin-pages": "^0.32.3"
