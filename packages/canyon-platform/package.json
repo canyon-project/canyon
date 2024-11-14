@@ -65,7 +65,7 @@
     "swc-plugin-canyon": "0.0.2-alpha.25",
     "swc-plugin-coverage-instrument": "^0.0.25",
     "@swc/core": "1.7.40",
-    "tailwindcss": "^3.4.14",
+    "tailwindcss": "^3.4.15",
     "typescript": "^5.6.3",
     "unplugin-auto-import": "^0.18.4",
     "unplugin-auto-import-antd": "^0.0.2",
