@@ -1,7 +1,7 @@
 import { test, expect } from './baseFixtures';
 
 test('has title', async ({ page }) => {
-  await page.goto('https://app.canyoncov.com/login');
+  await page.goto('https://app.canyonjs.org/login');
   // 填写账号密码
   await page.fill('#basic_username', 'wr_zhang25');
   await page.fill('#basic_password', '123456');

@@ -17,8 +17,8 @@ window.addEventListener('message', function (e) {
           canyon: {
             ...window.__canyon__,
             reportID: localStorage.getItem('__canyon__report__id__') || undefined,
-            intervalTime: localStorage.getItem('__canyon__interval__time__') || window.__canyon__.intervalTime,
-            reporter: localStorage.getItem('__canyon__reporter__') || window.__canyon__.reporter,
+            intervalTime: localStorage.getItem('__canyon__interval__time__') || window.__canyon__?.intervalTime,
+            reporter: localStorage.getItem('__canyon__reporter__') || window.__canyon__?.reporter,
           },
           coverage: window.__coverage__,
         },
