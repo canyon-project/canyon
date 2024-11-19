@@ -162,6 +162,8 @@ const removeStartEndNull = (coverage) => {
         ...item,
         branchMap: newBranchMap,
       };
+    } else {
+      obj[key] = item;
     }
   });
   // fs.writeFileSync('./coverage.json', JSON.stringify(obj));
