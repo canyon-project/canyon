@@ -51,7 +51,7 @@ export async function formatReportObject(c: any) {
     };
   }
   return {
-    coverage: obj,
+    coverage: removeStartEndNull(obj),
     instrumentCwd,
   };
 }
@@ -120,3 +120,50 @@ export function resetCoverageData(coverageData) {
     return acc;
   }, {});
 }
+
+
+// TODO：在覆盖率map数据上来的时候，有必要做一次过滤，去掉start和end为空的情况。然后再交由zod进行校验，这里需要非常严格的校验。
+const removeStartEndNull = (coverage) => {
+  const obj = {};
+  Object.keys(coverage).forEach((key) => {
+    const item = coverage[key];
+
+    // 创建一个新的branchMap，用于存储处理后的结果
+    const newBranchMap = {};
+
+    Object.keys(item.branchMap).forEach((statementKey) => {
+      const locations = item.branchMap[statementKey].locations;
+      const newLocations = [];
+
+      for (let i = 0; i < locations.length; i++) {
+        const location = locations[i];
+
+        // 如果start和end都不为空对象，则保留该位置信息
+        if (
+          Object.keys(location.start).length !== 0 ||
+          Object.keys(location.end).length !== 0
+        ) {
+          newLocations.push(location);
+        }
+      }
+
+      // 将处理后的新位置信息存入新的branchMap
+      if (newLocations.length > 0) {
+        newBranchMap[statementKey] = {
+          ...item.branchMap[statementKey],
+          locations: newLocations,
+        };
+      }
+    });
+
+    // 如果新的branchMap有数据，则将其存入处理后的对象
+    if (Object.keys(newBranchMap).length > 0) {
+      obj[key] = {
+        ...item,
+        branchMap: newBranchMap,
+      };
+    }
+  });
+  // fs.writeFileSync('./coverage.json', JSON.stringify(obj));
+  return obj;
+};
