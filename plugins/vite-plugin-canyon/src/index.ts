@@ -42,7 +42,7 @@ function instrumentedData(args: canyonPluginOptions): string {
     // 自动获取
     instrumentCwd: args.instrumentCwd || process.cwd(),
   }
-  return `(new Function("return this")()).__canyon__ = ${JSON.stringify(canyon)}`;
+  return `(function () {var isBrowser = typeof window!== 'undefined';var globalObj = isBrowser? window : global;return globalObj})().__canyon__ = ${JSON.stringify(canyon)}`;
 }
 
 export default function canyonPlugin(opts: canyonPluginOptions = {}): Plugin {
