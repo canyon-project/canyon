@@ -24,6 +24,9 @@ function resolveFilename(id: string): string {
 }
 
 function shouldInstrument(filename: string) {
+  if (filename.includes('node_modules')) {
+    return false;
+  }
   return DEFAULT_EXTENSION.some(ext => filename.endsWith(ext));
 }
 
