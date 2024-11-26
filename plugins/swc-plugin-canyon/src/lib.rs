@@ -16,6 +16,28 @@ use serde::Deserialize;
 pub struct TransformVisitor {
 }
 impl TransformVisitor {
+    // 处理对象字面量属性的函数
+    fn process_coverage_data_object(&mut self, obj: &mut ObjectLit) {
+        let excluded_keys = ["statementMap", "fnMap", "branchMap", "inputSourceMap"];
+
+        // 过滤掉指定的属性
+        obj.props.retain(|prop| {
+            match prop {
+                PropOrSpread::Prop(prop) => {
+                    if let Prop::KeyValue(KeyValueProp {
+                                              key: PropName::Ident(IdentName { sym, .. }),
+                                              ..
+                                          }) = &**prop {
+                        // 排除指定的属性名
+                        !excluded_keys.contains(&sym.as_ref())
+                    } else {
+                        true
+                    }
+                }
+                _ => true,
+            }
+        });
+    }
 }
 
 impl VisitMut for TransformVisitor {
@@ -34,25 +56,30 @@ impl VisitMut for TransformVisitor {
     fn visit_mut_object_lit(&mut self, obj: &mut ObjectLit) {
         // 定义一个字符串数组，包含需要排除的属性名
         let excluded_keys = ["statementMap", "fnMap", "branchMap","inputSourceMap"];
+        let required_keys = ["statementMap", "fnMap", "branchMap"];
 
-        obj.props.retain(|prop| {
-            match prop {
-                PropOrSpread::Prop(prop) => {
-                    // 解引用 Box<Prop>，并匹配 KeyValueProp
+        // 定义需要同时包含的属性
+        let required_keys = ["statementMap", "fnMap", "branchMap"];
+
+        // 检查对象字面量是否同时包含这些属性
+        let contains_required_keys = required_keys.iter().all(|&key| {
+            obj.props.iter().any(|prop| {
+                if let PropOrSpread::Prop(ref prop) = prop {
                     if let Prop::KeyValue(KeyValueProp {
-                                              key: PropName::Ident(IdentName { sym, .. }), // 使用 Ident 类型
+                                              key: PropName::Ident(IdentName { sym, .. }),
                                               ..
-                                          }) = &**prop
-                    {
-                        // 使用 as_ref() 将 JsWord 转换为 &str 进行比较
-                        return !excluded_keys.contains(&sym.as_ref());
+                                          }) = &**prop {
+                        return sym.as_ref() == key;
                     }
-                    // 对于其他类型的属性，保留它们
-                    true
                 }
-                _ => true, // 对于其他类型的属性，保留
-            }
+                false
+            })
         });
+
+        // 只有在同时包含所有指定属性时才进行处理
+        if contains_required_keys {
+            self.process_coverage_data_object(obj);
+        }
     }
 }
 
@@ -66,7 +93,7 @@ test_inline!(
     |_| as_folder(TransformVisitor { }),
     boo,
     // 输入代码
-    r#"const coverageData={fnMap:"nihao"};"#,
+    r#"const coverageData={fnMap:"nihao",statementMap:"",branchMap:"sss"};"#,
     // 经插件转换后的输出代码
     r#"const coverageData={};"#
 );
