@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+
+</body>
+<script>
+
+  async function compressDataWithStream (data) {
+    const textEncoder = new TextEncoder()
+    const input = textEncoder.encode(data)
+
+    const compressionStream = new CompressionStream('gzip')
+    const writer = compressionStream.writable.getWriter()
+    writer.write(input)
+    writer.close()
+
+    const compressedData = []
+    const reader = compressionStream.readable.getReader()
+    let result
+    while (!(result = await reader.read()).done) {
+      compressedData.push(result.value)
+    }
+    return new Blob(compressedData) // 压缩后的数据为 Blob
+  }
+
+  compressDataWithStream(JSON.stringify({name:'zt'})).then(r=>{
+    const fd = new FormData();
+    fd.append('coverage', r);
+    // const blob = new Blob([JSON.stringify({name:'zt'})], { type: "application/json" });
+    // fd.append('coverage',blob);
+    fd.append('projectID', '5f7f3f3b7f3f3f3f3f3f3f3f');
+    fd.append('sha', 'b4a881edbb28e3f678d2cb5571a1a0a12da56b70');
+    fd.append('instrumentCwd','instrumentCwd')
+    fetch(`http://localhost:8080/coverage/client`, {
+      method: 'POST',
+      headers: {
+        // 'Content-Type': 'application/json',
+      },
+      body: fd
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  })
+
+
+</script>
+</html>

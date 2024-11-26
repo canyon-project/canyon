@@ -11,3 +11,10 @@ dist/
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+screenshots
+
+test-results
+
+.canyon_output
+.nyc_output

@@ -1,6 +1,0 @@
-query GetProjectsBuOptions {
-  getProjectsBuOptions {
-    bu
-    count
-  }
-}

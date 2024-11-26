@@ -1,0 +1,231 @@
+"use client";
+import ScrollBasedLayout from "@/components/scroll-based-layout";
+import {
+  Avatar,
+  Breadcrumb,
+  Button,
+  Dropdown,
+  Menu,
+  theme,
+  Typography,
+} from "antd";
+import Image from "next/image";
+import { usePathname } from "next/navigation";
+import React, { useEffect } from "react";
+// import Link from "next/link";
+// import CIcon from "@/components/c-icon";
+import AppFooter from "@/components/app-footer";
+
+const menuItems = [
+  {
+    label: "Projects",
+    key: "projects",
+    // icon: <FolderOutlined />,
+  },
+  // {
+  //   label: t("报表"),
+  //   key: "reports",
+  //   icon: <BarChartOutlined />,
+  // },
+  {
+    label: "Settings",
+    key: "settings",
+    // icon: <SettingOutlined />,
+  },
+];
+const { Text, Title } = Typography;
+const itemsDropdown: any = [
+  {
+    label: (
+      <div className={"text-red-500"}>
+        {/*<LogoutOutlined className={"mr-2"} />*/}
+        Logout
+      </div>
+    ),
+    onClick: () => {
+      localStorage.clear();
+      window.location.href = "/login";
+    },
+  },
+];
+
+const MeData = {
+  me: {
+    nickname: "admin",
+    email: "zzz@trip.com",
+    avatar: "https://avatars.githubusercontent.com/u/20411648?v=4",
+  },
+};
+const { useToken } = theme;
+const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
+  const routeName = usePathname();
+  const { token } = useToken();
+  const onSelectMenu = (selectInfo: any) => {
+    console.log(selectInfo);
+    window.location.href = `/${selectInfo.key}`;
+  };
+
+  const selectedKey = usePathname().split("/")[1];
+
+  return (
+    <ScrollBasedLayout
+      sideBar={
+        <div
+          className={"w-[240px] h-[100vh] overflow-hidden flex flex-col"}
+          style={{ borderRight: "1px solid #d9d9d9" }}
+        >
+          <div className={"px-3 py-[14px]"}>
+            <div className={"flex items-center justify-between"}>
+              <div
+                className={"cursor-pointer flex items-center"}
+                style={{ marginBottom: 0 }}
+              >
+                <Image src={"/logo.svg"} alt={"logo"} width={30} height={30} />
+                <span
+                  className={"ml-[6px]"}
+                  style={{ fontSize: "18px", fontWeight: "bolder" }}
+                >
+                  {"Canyon"}
+                </span>
+              </div>
+
+              {/*<Link href={"https://docs.canyonjs.org/"} target={"_blank"}>*/}
+              {/*  /!*<span className="icon-[nrk--media-programguide]"/>*!/*/}
+              {/*  /!*<CIcon name={"nrk--media-programguide"} />*!/*/}
+              {/*</Link>*/}
+            </div>
+          </div>
+
+          <div
+            className={"mb-1"}
+            style={{
+              borderBottom: `1px solid ${"#d9d9d9"}`,
+            }}
+          />
+          <Menu
+            // activeKey={"projects"}
+            onSelect={(selectInfo) => {
+              onSelectMenu?.(selectInfo);
+            }}
+            selectedKeys={[routeName.split("/")[1]]}
+            items={menuItems}
+            className={"dark:bg-[#151718] px-1"}
+            style={{ flex: "1" }}
+          />
+
+          <div className={"px-[8px] flex gap-2 flex-col mb-6"}>
+            <Button
+              size={"small"}
+              style={{
+                justifyContent: "flex-start",
+                fontSize: "13px",
+              }}
+              className={"w-[100%]"}
+              color="default"
+              variant="text"
+              icon={<span className="icon-[proicons--book]"></span>}
+            >
+              Documentation
+            </Button>
+            <Button
+              size={"small"}
+              style={{
+                justifyContent: "flex-start",
+                fontSize: "13px",
+              }}
+              className={"w-[100%]"}
+              color="default"
+              variant="text"
+              icon={<span className="icon-[heroicons-outline--support]"></span>}
+            >
+              Support
+            </Button>
+          </div>
+          <Dropdown
+            menu={{
+              items: itemsDropdown,
+              onClick: () => {},
+            }}
+          >
+            <div
+              className={
+                "h-[70px] py-[14px] px-[14px] flex items-center justify-between cursor-pointer"
+              }
+              style={{ borderTop: `1px solid ${token.colorBorder}` }}
+            >
+              <Avatar src={MeData?.me.avatar}></Avatar>
+              <div className={"flex flex-col"}>
+                <Text ellipsis className={"w-[150px]"}>
+                  {MeData?.me.nickname}
+                </Text>
+                <Text ellipsis className={"w-[150px]"} type={"secondary"}>
+                  {MeData?.me.email || ""}
+                </Text>
+              </div>
+              {/*<CIcon name={"nrk--more"} />*/}
+              <span className="icon-[nrk--more]"></span>
+              {/*<MoreOutlined className={"dark:text-[#fff]"} />*/}
+            </div>
+          </Dropdown>
+        </div>
+      }
+      mainContent={
+        <div className={"flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] min-h-[100vh]"}>
+          <div
+            className={
+              "m-auto max-w-[1200px] min-w-[1000px] px-[12px] py-[12px]"
+            }
+          >
+            <Breadcrumb
+              items={[
+                // {
+                //   title: "Projects",
+                // },
+                {
+                  title: <a href="">Projects</a>,
+                },
+                {
+                  title: <a href="">Overview</a>,
+                },
+                {
+                  title: "Coverage Details",
+                },
+              ]}
+            />
+          </div>
+          <div className={"m-auto max-w-[1200px] min-w-[1000px] p-[12px]"}>
+            {children}
+          </div>
+        </div>
+      }
+      footer={<AppFooter name={`Trip.com`} corp={"Trip.com"} />}
+    />
+  );
+};
+const MainBox = ({ children }: React.PropsWithChildren) => {
+  // const routeName = true
+  const routeName = usePathname();
+  // console.log(router,'router')
+  // const routeName = 'router.pathname';
+  const whiteList = ["/login"];
+
+  // useEffect(()=>{
+  //   console.log(routeName)
+  //   if (routeName === '/') {
+  //     console.log('login')
+  //     window.location.href = '/projects'
+  //   }
+  // },[routeName])
+
+  return (
+    <div>
+      {whiteList.some((i) => routeName.startsWith(i)) ? (
+        <div>{children}</div>
+      ) : (
+        <MainBoxWrap>{children}</MainBoxWrap>
+      )}
+    </div>
+  );
+};
+
+export default MainBox;

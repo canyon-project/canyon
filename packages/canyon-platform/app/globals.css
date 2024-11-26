@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
+
+/*antd的样式*/
+
+.ant-menu-light.ant-menu-root.ant-menu-vertical {
+  border-inline-end: none !important;
+}
+
+
+a {
+  color: #0071c2;
+}
+a:hover {
+  color: #0071c2;
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.shiki > code {
+  font-size: 12px;
+  font-family: "IBMPlexMono";
+  line-height: 20px;
+}
+
+@font-face {
+  font-family: "IBMPlexMono";
+  src: url("./fonts/IBMPlexMono-Regular.woff2");
+  font-weight: normal;
+  font-style: normal;
+}

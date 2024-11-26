@@ -1,5 +1,0 @@
-query GetProjectsTagOptions {
-  getProjectsTagOptions {
-    name
-  }
-}

@@ -1,7 +1,0 @@
-query GetProjectChartData($projectID: String!, $branch: String!) {
-  getProjectChartData(projectID: $projectID, branch: $branch) {
-    sha
-    newlines
-    statements
-  }
-}

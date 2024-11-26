@@ -129,3 +129,7 @@ demo/
 .idea/
 
 pnpm-lock.yaml
+
+dist-test
+
+.canyon_output

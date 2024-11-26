@@ -1,12 +1,8 @@
-'use strict'
-
 module.exports = {
-  plugins: [
-    '@babel/plugin-transform-modules-commonjs'
+  presets: [
+    "@babel/preset-typescript"
   ],
-  env: {
-    test: {
-      plugins: ['./lib']
-    }
-  }
+  plugins: [
+    '@babel/plugin-transform-modules-commonjs',
+  ]
 }

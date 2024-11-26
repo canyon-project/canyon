@@ -1,0 +1,83 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+}
+
+model Coverage {
+  id                String   @id @default(cuid())
+  sha               String
+  branch            String
+  compareTarget     String   @map("compare_target")
+  instrumentCwd     String   @map("instrument_cwd") //是build时的路径，因为要与sourceMap对应
+  provider          String
+  buildProvider     String   @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID           String   @map("build_id")
+  projectID         String   @map("project_id")
+  reporter          String
+  reportID          String   @map("report_id") // 未来聚合的一句，区分case
+  covType           String   @map("cov_type") // 普通类型，all、agg
+  // 代码覆盖率
+  statementsTotal   Int      @map("statements_total")
+  statementsCovered Int      @map("statements_covered")
+  summary           Bytes
+  // 代码覆盖率详情
+  hit               Bytes
+  // 特殊逻辑，必须要有map数据，才能上报hit，并且存在cov_type上。
+  map               Bytes
+  // 通用
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("canyon_v2_coverage")
+}
+
+model CoverageOld {
+  id                String   @id @default(cuid())
+  sha               String   @map("sha")
+  branch            String
+  compareTarget     String   @map("compare_target")
+  provider          String
+  buildProvider     String   @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID           String   @map("build_id")
+  projectID         String   @map("project_id")
+  reporter          String
+  reportID          String   @map("report_id") // 未来聚合的一句，区分case
+  covType           String   @map("cov_type") // 普通类型，all、agg
+  // 代码覆盖率
+  branchesTotal     Int      @map("branches_total")
+  branchesCovered   Int      @map("branches_covered")
+  functionsTotal    Int      @map("functions_total")
+  functionsCovered  Int      @map("functions_covered")
+  linesTotal        Int      @map("lines_total")
+  linesCovered      Int      @map("lines_covered")
+  statementsTotal   Int      @map("statements_total")
+  statementsCovered Int      @map("statements_covered")
+  newlinesTotal     Int      @map("newlines_total")
+  newlinesCovered   Int      @map("newlines_covered")
+  summary           String?
+  // 代码覆盖率详情
+  hit               String
+  // 通用
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("coverage")
+}
+
+model CoverageMap {
+  id        String @id @default(cuid())
+  projectID String @map("project_id")
+  sha       String @map("sha")
+  path      String
+  map       String
+
+  // 再添加一个path索引
+  @@index(fields: [path])
+  @@index([projectID, sha]) // 联合索引
+  @@map("coverage_map")
+}

@@ -30,7 +30,7 @@ dist-ssr
 .pnpm-store
 
 
-pnpm-lock.yaml
+#pnpm-lock.yaml
 
 .env
 
@@ -42,4 +42,9 @@ coverage
 schema.gql
 
 target/
-#Cargo.lock
+Cargo.lock
+
+.turbo
+
+
+pnpm-lock.yaml

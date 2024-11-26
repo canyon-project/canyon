@@ -1,6 +1,6 @@
 {
   "name": "vite-plugin-canyon",
-  "version": "0.0.1-alpha.15",
+  "version": "0.0.1-beta.3",
   "license": "MIT",
   "files": [
     "dist/*"
@@ -18,7 +18,8 @@
   "scripts": {
     "dev": "unbuild --stub",
     "build": "unbuild",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "vite build"
   },
   "keywords": [
     "vite",
@@ -29,7 +30,11 @@
     "canyon"
   ],
   "dependencies": {
-    "picocolors": "^1.0.0"
+    "picocolors": "^1.0.0",
+    "@babel/generator": "^7.26.2",
+    "@babel/parser": "^7.26.2",
+    "@babel/traverse": "^7.25.9",
+    "@babel/types": "^7.26.0"
   },
   "peerDependencies": {
     "vite": ">=2.9.1"
@@ -37,6 +42,8 @@
   "devDependencies": {
     "@types/node": "^20.10.6",
     "typescript": "^5.3.3",
-    "unbuild": "^2.0.0"
+    "unbuild": "^2.0.0",
+    "vite": "latest",
+    "vite-plugin-istanbul": "latest"
   }
 }

@@ -3,7 +3,7 @@ name: Npm Publish swc-plugin-canyon
 on:
   push:
     branches:
-      - main
+      - dev
       - ci
 
 env:

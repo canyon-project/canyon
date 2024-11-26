@@ -63,6 +63,9 @@ program
 program
 	.command("map")
 	.option("--dsn <dsn>", "dsn of the canyon server")
+	.option("--project_id <project_id>", "id of the project")
+	.option("--sha <commit_sha>", "commit sha of the project")
+	.option("--instrument_cwd <coverage>", "instrument_cwd")
 	.allowExcessArguments(false)
 	.allowUnknownOption(false)
 	.description("modify react native project code to adapt to canyon")

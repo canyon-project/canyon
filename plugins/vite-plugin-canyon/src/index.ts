@@ -1,69 +1,73 @@
-import {Plugin, createLogger} from 'vite';
-import picocolors from 'picocolors';
+import { parse } from '@babel/parser';
+// @ts-ignore
+import _traverse from '@babel/traverse';
+// @ts-ignore
+import _generator from '@babel/generator';
 
-const {green} = picocolors;
+import {visitorProgramExit} from "./visitor-program-exit";
+import {detectProvider} from "./helpers/provider";
 
-export interface canyonPluginOptions {
-  commitSha?: string;
-  projectID?: string;
-  compareTarget?: string;
-  dsn?: string;
-  reporter?: string;
-  instrumentCwd?: string;
-  branch?: string;
-}
-
-// Custom extensions to include .vue files
-const DEFAULT_EXTENSION = ['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx', '.vue'];
-const PLUGIN_NAME = 'vite:canyon';
+const { default: traverse } = _traverse;
+const { default: generate } = _generator;
 
 function resolveFilename(id: string): string {
   // To remove the annoying query parameters from the filename
   const [filename] = id.split('?vue');
-  return filename;
+  return id;
 }
 
-function shouldInstrument(filename: string) {
-  if (filename.includes('node_modules')) {
-    return false;
-  }
-  return DEFAULT_EXTENSION.some(ext => filename.endsWith(ext));
-}
-
-function instrumentedData(args: canyonPluginOptions): string {
-  const canyon = {
-    // gitlab流水线自带
-    projectID: args.projectID || process.env['CI_PROJECT_ID'] || '',
-    commitSha: args.commitSha || process.env['CI_COMMIT_SHA'] || '',
-    sha: args.commitSha || process.env['CI_COMMIT_SHA'] || '',
-    branch: args.branch || process.env['CI_COMMIT_BRANCH'] || process.env['CI_COMMIT_REF_NAME'] ||'',
-    // 自己配置
-    dsn: args.dsn || process.env['DSN'] || '',
-    reporter: args.reporter || process.env['REPORTER'] || '',
-    // 可选
-    compareTarget: args.compareTarget,
-    // 自动获取
-    instrumentCwd: args.instrumentCwd || process.cwd(),
-  }
-  return `(function () {var isBrowser = typeof window!== 'undefined';var globalObj = isBrowser? window : global;return globalObj})().__canyon__ = ${JSON.stringify(canyon)}`;
-}
-
-export default function canyonPlugin(opts: canyonPluginOptions = {}): Plugin {
-  const logger = createLogger('info', {prefix: 'vite-plugin-canyon'});
-  const canyonStr = instrumentedData(opts);
-  // logger.warn(`${PLUGIN_NAME}> ${green(`instrumented data: ${canyonStr}`)}`);
+export default function VitePluginInstrumentation() {
   return {
-    name: PLUGIN_NAME,
+    name: 'vite-plugin-instrumentation',
     enforce: 'post',
-    transform(srcCode, id, options) {
-      const newCode = `${canyonStr}\n${srcCode}`
-      const filename = resolveFilename(id);
-      if (shouldInstrument(filename)) {
-        return {
-          code: newCode,
-          map: null,
-        };
-      }
+    // @ts-ignore
+    transform(code, id) {
+      // 解析代码为 AST
+      const ast = parse(code, {
+        sourceType: 'module',
+        plugins: ['typescript'],
+      });
+
+      // 侦测流水线
+      // 优先级：手动设置 > CI/CD提供商
+      // hit需要打到__coverage__中，因为ui自动化测试工具部署地方不确定
+      // map就不需要，写到本地时，可以侦测本地流水线变量，直接上报上来
+      // 他的职责只是寻找到项目，和插桩路径
+      const serviceParams = detectProvider({
+        envs: process.env,
+        // @ts-ignore
+        args: {
+          // projectID: config.projectID,
+          // sha: config.sha,
+          // instrumentCwd: config.instrumentCwd,
+          // branch: config.branch,
+        }
+      })
+
+      // console.log(serviceParams,'serviceParams')
+      // 遍历和修改 AST
+      traverse(ast, {
+        Program: {
+          // @ts-ignore
+          exit(path) {
+            // 在 Program 节点的退出时执行
+            visitorProgramExit(undefined, path, {
+              projectID: serviceParams.slug||'-',
+              sha: serviceParams.commit||'-',
+              instrumentCwd: process.cwd(),
+              dsn: process.env['DSN']||'-'
+            });
+          },
+        },
+      });
+
+      // 将修改后的 AST 转换回代码
+      const output = generate(ast, {}, code);
+
+      return {
+        code: output.code,
+        // map: output.map, // 如果需要 Source Map，可以启用
+      };
     },
   };
 }

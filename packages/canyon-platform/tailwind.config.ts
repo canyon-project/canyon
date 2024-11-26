@@ -1,19 +1,15 @@
 import type { Config } from "tailwindcss";
-
-const config = {
-  darkMode: "class",
+import tailwindcssAnimate from "tailwindcss-animate";
+import { addDynamicIconSelectors } from "@iconify/tailwind";
+// import s from '../canyon-report/src'
+export default {
+  darkMode: ["class"],
   content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-    "../canyon-report/src/**/*.{js,ts,jsx,tsx}",
+    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "../canyon-report/src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
-  corePlugins: {
-    preflight: false,
-  },
+  theme: {},
+  plugins: [tailwindcssAnimate, addDynamicIconSelectors({})],
 } satisfies Config;
-
-export default config;

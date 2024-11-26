@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/*@import 'antd/dist/reset.css';*/
+
+.shiki > code {
+  font-size: 12px;
+  line-height: 24px;
+}
+
+a{
+  color: #3182ce;
+}
+
+.YourHighlightClass{
+  padding: 0 !important;
+  color: white !important;
+  background: rgb(244, 176, 27) !important;
+}
+
+.content-class-no-found{
+  background: #f6c6ce;
+}
