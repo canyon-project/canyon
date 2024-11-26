@@ -4,6 +4,8 @@
 
 ![](./screenshots/coverage-report.jpg)
 
+> **!!! Canyon is currently transitioning to version v2. If you need to use it, please switch to the 2024.11.26 branch.**
+
 ## Ecosystem
 
 | Project               | Status                                                       | Description                                     |
