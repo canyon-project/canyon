@@ -252,19 +252,19 @@ const ProjectOverviewPage = () => {
           />
           <Space>
             <span type={"secondary"}>{"only.default.branch"}: </span>
-            <Switch
-              defaultChecked={Boolean(
-                localStorage.getItem("defaultBranchOnly"),
-              )}
-              onChange={(v) => {
-                if (v) {
-                  localStorage.setItem("defaultBranchOnly", "1");
-                } else {
-                  localStorage.removeItem("defaultBranchOnly");
-                }
-                // setDefaultBranchOnly(v);
-              }}
-            />
+            {/*<Switch*/}
+            {/*  defaultChecked={Boolean(*/}
+            {/*    localStorage.getItem("defaultBranchOnly"),*/}
+            {/*  )}*/}
+            {/*  onChange={(v) => {*/}
+            {/*    if (v) {*/}
+            {/*      localStorage.setItem("defaultBranchOnly", "1");*/}
+            {/*    } else {*/}
+            {/*      localStorage.removeItem("defaultBranchOnly");*/}
+            {/*    }*/}
+            {/*    // setDefaultBranchOnly(v);*/}
+            {/*  }}*/}
+            {/*/>*/}
           </Space>
         </div>
       </div>
