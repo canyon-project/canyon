@@ -1,21 +1,31 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { IstanbulHitMapSchema } from '../../../zod/istanbul.zod';
-import { compressedData, decompressedData } from '../../../utils/zstd';
+import { decompressedData } from '../../../utils/zstd';
+import { formatReportObject, regularData } from '../../../utils/coverage';
+import { CoveragediskService } from './core/coveragedisk.service';
 import {
-  formatReportObject,
-  regularData,
-  remapCoverage,
-} from '../../../utils/coverage';
-import { genSummaryMapByCoverageMap, mergeCoverageMap } from 'canyon-data';
+  remapCoverage123,
+  reorganizeCompleteCoverageObjects,
+} from '../../../data/coverage';
 
+// 此代码重中之重、核心中的核心！！！
 @Injectable()
 export class CoverageClientService {
-  constructor(private readonly prisma: PrismaService) {}
-  async invoke({ sha, projectID, coverage, instrumentCwd }) {
-    // 1. 检查是否上传map
-    // coverage
-    const coverageDb = await this.prisma.coverage.findFirst({
+  constructor(
+    private readonly prisma: PrismaService,
+    private coveragediskService: CoveragediskService,
+  ) {}
+  async invoke({
+    sha,
+    projectID,
+    coverage,
+    instrumentCwd,
+    reportID: _reportID,
+  }) {
+    const reportID = _reportID || sha;
+    // #region == Step x: 检查map是否存在
+    const coverageFromDatabase = await this.prisma.coverage.findFirst({
       where: {
         projectID: projectID,
         sha: sha,
@@ -23,97 +33,46 @@ export class CoverageClientService {
       },
     });
 
-    if (!coverageDb) {
+    if (!coverageFromDatabase) {
       throw new HttpException('coverage map not found', 400);
     }
+    // #endregion
 
-    const coverageObject =
+    // #region == Step x: 解析出上报上来的覆盖率数据
+    const CoverageFromExternalReport =
       typeof coverage === 'string' ? JSON.parse(coverage) : coverage;
+    // #endregion
 
-    const coverageDbMap = await decompressedData(coverageDb.map);
+    // #region == Step x: db查找出对应的map数据
+    const map = await decompressedData(coverageFromDatabase.map);
+    // #endregion
 
-    // 初始的hit是空的
-    const coverageDbHit =
-      coverageDb.hit.length > 0 ? await decompressedData(coverageDb.hit) : {};
-    // 流程需要改一下
-    // 1. 不反map
-    // 2. 在消费的时候再反map
-
-    // 测一下有map的
-    // 暂时解决方案，需要解决sourceMap问题
-    // ********
-    // map要存，而且build时候的路径要存，不然回不去********
-    // ********
+    // #region == Step x: 格式化上报的覆盖率对象
     const { coverage: formartCOv } = await formatReportObject({
-      coverage: regularData(coverageObject),
+      coverage: regularData(CoverageFromExternalReport),
       instrumentCwd: instrumentCwd,
     });
 
-    const formatCoverageHit = IstanbulHitMapSchema.parse(formartCOv);
+    // 未经过reMapCoverage的数据
+    const originalHit = IstanbulHitMapSchema.parse(formartCOv);
+    // #endregion
 
-    // ********* 合并
-    const mergeCoveHit = mergeCoverageMap(coverageDbHit, formatCoverageHit);
-    // *********
+    const chongzu = reorganizeCompleteCoverageObjects(map, originalHit);
 
-    // update
-    // mergeCoveHit
-    const hitBuffer = await compressedData(mergeCoveHit);
-
-    // ********* 生成summary
-    // 生成summary
-    // ********* 生成summary
-
-    const obj = {};
-
-    for (const key in coverageDbMap) {
-      // TODO
-      if (mergeCoveHit[key]) {
-        obj[key] = {
-          ...coverageDbMap[key],
-          ...mergeCoveHit[key],
-          path: key,
-        };
-      }
-    }
-    function addInstrumentCwd(cov) {
-      const o = {};
-      for (const key in cov) {
-        o[coverageDb.instrumentCwd + '/' + key] = {
-          ...cov[key],
-          path: coverageDb.instrumentCwd + '/' + key,
-        };
-      }
-      return o;
-    }
-    const { coverage: mapAndHitCoverage } = await remapCoverage(
-      addInstrumentCwd(obj),
-    ).then((r) =>
-      formatReportObject({
-        coverage: r,
-        instrumentCwd: coverageDb.instrumentCwd,
-      }),
+    // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
+    const hit = await remapCoverage123(
+      chongzu,
+      coverageFromDatabase.instrumentCwd,
     );
+    // #endregion
 
-    // 直接存summary，数组形式
-    const summary = Object.entries(
-      genSummaryMapByCoverageMap(mapAndHitCoverage, []),
-    ).map(([key, value]) => ({
-      path: key,
-      ...value,
-    }));
+    //   放到本地消息队列里
 
-    const summaryBuffer = await compressedData(summary);
-
-    return this.prisma.coverage.updateMany({
-      where: {
-        projectID: projectID,
-        sha: sha,
-        covType: 'all',
-      },
-      data: {
-        hit: hitBuffer,
-        summary: summaryBuffer,
-      },
+    await this.coveragediskService.pushQueue({
+      projectID,
+      sha,
+      reportID,
+      coverage: hit,
     });
   }
 }

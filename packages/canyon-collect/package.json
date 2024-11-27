@@ -29,7 +29,10 @@
     "prisma": "5.16.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "@nestjs/typeorm": "^10.0.2",
+    "typeorm": "^0.3.20",
+    "sqlite3": "^5.1.7"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

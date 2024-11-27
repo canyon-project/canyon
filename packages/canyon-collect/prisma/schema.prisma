@@ -33,51 +33,14 @@ model Coverage {
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
   updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
 
-  @@map("canyon_v2_coverage")
+  @@map("canyon_v3_coverage")
 }
 
-model CoverageOld {
-  id                String   @id @default(cuid())
-  sha               String   @map("sha")
-  branch            String
-  compareTarget     String   @map("compare_target")
-  provider          String
-  buildProvider     String   @map("build_provider") // 通过侦测CI环境变量来判断
-  buildID           String   @map("build_id")
-  projectID         String   @map("project_id")
-  reporter          String
-  reportID          String   @map("report_id") // 未来聚合的一句，区分case
-  covType           String   @map("cov_type") // 普通类型，all、agg
-  // 代码覆盖率
-  branchesTotal     Int      @map("branches_total")
-  branchesCovered   Int      @map("branches_covered")
-  functionsTotal    Int      @map("functions_total")
-  functionsCovered  Int      @map("functions_covered")
-  linesTotal        Int      @map("lines_total")
-  linesCovered      Int      @map("lines_covered")
-  statementsTotal   Int      @map("statements_total")
-  statementsCovered Int      @map("statements_covered")
-  newlinesTotal     Int      @map("newlines_total")
-  newlinesCovered   Int      @map("newlines_covered")
-  summary           String?
-  // 代码覆盖率详情
-  hit               String
-  // 通用
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+model Distributedlock {
+  lockName       String    @id
+  isLocked       Boolean   @default(false)
+  lockTimestamp  DateTime?
+  lockExpiration DateTime?
 
-  @@map("coverage")
-}
-
-model CoverageMap {
-  id        String @id @default(cuid())
-  projectID String @map("project_id")
-  sha       String @map("sha")
-  path      String
-  map       String
-
-  // 再添加一个path索引
-  @@index(fields: [path])
-  @@index([projectID, sha]) // 联合索引
-  @@map("coverage_map")
+  @@map("canyon_v3_distributedlock")
 }

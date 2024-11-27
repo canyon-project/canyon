@@ -17,5 +17,12 @@ export async function GET(request: NextRequest) {
 
   // coverage.summary
   const summary = await decompressedData(coverage.summary);
-  return Response.json(summary);
+  return Response.json(
+    Object.entries(summary).map(([key, value]) => {
+      return {
+        ...value,
+        path: key,
+      };
+    }),
+  );
 }

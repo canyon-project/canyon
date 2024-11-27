@@ -72,3 +72,27 @@ export function formatReportObject(c: any) {
     instrumentCwd,
   };
 }
+
+
+export const reorganizeCompleteCoverageObjects = (
+  map: {
+    [key: string]: object;
+  },
+  hit: {
+    [key: string]: object;
+  },
+) => {
+  // istanbul数据结构
+  const obj = {};
+  for (const objKey in hit) {
+    const item = hit[objKey];
+    const mapItem = map[objKey];
+    obj[objKey] = {
+      ...item,
+      ...mapItem,
+      path: objKey,
+    };
+  }
+  return obj;
+  // return {};
+};

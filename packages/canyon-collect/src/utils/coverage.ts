@@ -156,6 +156,6 @@ export const removeStartEndNull = (coverage) => {
     }
   });
   // fs.writeFileSync('./coverage.json', JSON.stringify(obj));
-  console.log(Object.keys(obj), 'obj');
+  // console.log(Object.keys(obj), 'obj');
   return obj;
 };
