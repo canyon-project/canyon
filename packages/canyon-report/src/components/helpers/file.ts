@@ -20,7 +20,7 @@ export const genFileDetailLines = (fileCoverage, fileContent) => {
   // console.log(coverage)
   const totalLines = fileContent.split("\n").length;
   const lineStats = getLineCoverage(fileCoverage);
-  console.log(lineStats);
+  // console.log(lineStats); 很奇怪，打开nextjs会报错
   return Array.from({ length: totalLines }, (_, index) => {
     return {
       count: lineStats[index + 1],

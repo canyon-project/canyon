@@ -15,6 +15,9 @@ import { ColumnsType } from "antd/es/table";
 // import { AimOutlined, BranchesOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import MainBox from "@/components/main-box";
+import useSWR from "swr";
+import axios from "axios";
+import { useParams } from "next/navigation";
 const getProjectCompartmentData = [
   {
     label: "name",
@@ -33,9 +36,30 @@ const getProjectCompartmentData = [
     value: "100",
   },
 ];
+const fetcher = ({ url, params }: { url: string; params: any }) =>
+  axios
+    .get(url, {
+      params: params,
+    })
+    .then((res) => res.data);
+
 const { useToken } = theme;
 const t = (msg) => msg;
 const ProjectOverviewPage = () => {
+  const { filepath, id, sha } = useParams(); // 获取动态路由参数
+  // console.log(id)
+  // 非常重要的一步，获取整体覆盖率数据
+  const { data: record } = useSWR(
+    {
+      url: `/api/project/${id}/record`,
+      params: {
+        project_id: "id",
+        sha: "sha",
+      },
+    },
+    fetcher,
+  );
+
   const { token } = useToken();
   const columns: ColumnsType<any> = [
     {
@@ -49,9 +73,7 @@ const ProjectOverviewPage = () => {
       width: "100px",
       render(_, { webUrl }): JSX.Element {
         return (
-          <a href={webUrl} target={"_blank"} rel="noreferrer">
-            {_?.slice(0, 7)}
-          </a>
+          <Link href={`/projects/${id}/commits/${_}`}>{_?.slice(0, 7)}</Link>
         );
       },
     },
@@ -59,7 +81,7 @@ const ProjectOverviewPage = () => {
       title: (
         <>
           {/*<BranchesOutlined className={"mr-1"} />*/}
-          {"projects.branch"}
+          {"Branch"}
         </>
       ),
       dataIndex: "branch",
@@ -67,46 +89,7 @@ const ProjectOverviewPage = () => {
       width: "120px",
     },
     {
-      title: (
-        <>
-          {/*<AimOutlined className={"mr-1"} />*/}
-          {"projects.compare_target"}
-        </>
-      ),
-      dataIndex: "compareTarget",
-      width: "120px",
-      render(_, { compareUrl }): JSX.Element {
-        return (
-          <a href={compareUrl} target={"_blank"} rel="noreferrer">
-            {_.length === 40 ? _.slice(0, 7) : _}
-          </a>
-        );
-      },
-    },
-    {
-      title: <>{"Build"}</>,
-      align: "center",
-      width: "70px",
-      render(_, record) {
-        return (
-          <>
-            {record.buildID !== "-" ? (
-              <a href={record.buildURL} target={"_blank"} rel="noreferrer">
-                <img
-                  className={"w-[16px]"}
-                  src={`/gitproviders/${record.buildProvider === "-" ? "gitlab" : record.buildProvider}.svg`}
-                  alt=""
-                />
-              </a>
-            ) : (
-              <span>-</span>
-            )}
-          </>
-        );
-      },
-    },
-    {
-      title: t("projects.message"),
+      title: t("Message"),
       dataIndex: "message",
       width: "160px",
       ellipsis: true,
@@ -114,10 +97,10 @@ const ProjectOverviewPage = () => {
     {
       title: (
         <div>
-          {/*<Tooltip title={t("projects.statements_tooltip")} className={"mr-2"}>*/}
+          {/*<Tooltip title={t("statements_tooltip")} className={"mr-2"}>*/}
           {/*  <QuestionCircleOutlined />*/}
           {/*</Tooltip>*/}
-          {"projects.statements"}
+          {"Statements"}
         </div>
       ),
       dataIndex: "statements",
@@ -125,50 +108,7 @@ const ProjectOverviewPage = () => {
       render(_, { sha }) {
         return (
           <Link
-            to={{
-              pathname: `/projects/${"pam.id"}/commits/${sha}`,
-            }}
-          >
-            {_}%
-          </Link>
-        );
-      },
-      // width: '150px',
-      // render(_, { sha }) {
-      //   return (
-      //     <div className={'flex'}>
-      //       <Link
-      //         // style={{border:'1px solid #000'}}
-      //         className={'block w-[60px]'}
-      //         to={{
-      //           pathname: `/projects/${pam.id}/commits/${sha}`,
-      //         }}
-      //       >
-      //         {_}%
-      //       </Link>
-      //       <Popover content={content} title="Title">
-      //         <img src={im} alt='coverage'/>
-      //       </Popover>
-      //
-      //     </div>
-      //   );
-      // },
-    },
-    {
-      title: (
-        <div>
-          {/*<Tooltip title={t("projects.newlines_tooltip")} className={"mr-2"}>*/}
-          {/*  <QuestionCircleOutlined />*/}
-          {/*</Tooltip>*/}
-          {"projects.newlines"}
-        </div>
-      ),
-      dataIndex: "newlines",
-      // width: '130px',
-      render(_, { sha }) {
-        return (
-          <Link
-            to={{
+            href={{
               pathname: `/projects/${"pam.id"}/commits/${sha}`,
             }}
           >
@@ -178,20 +118,20 @@ const ProjectOverviewPage = () => {
       },
     },
     {
-      title: "projects.report_times",
+      title: "Report Times",
       dataIndex: "times",
-      width: "80px",
+      // width: "80px",
     },
     {
-      title: "projects.latest_report_time",
+      title: "Latest Report Time",
       dataIndex: "lastReportTime",
-      width: "135px",
+      // width: "135px",
       render(_) {
         return <span>{"MM-DD HH:mm"}</span>;
       },
     },
     {
-      title: "common.option",
+      title: "Option",
       width: "125px",
       render(_): JSX.Element {
         return (
@@ -202,24 +142,8 @@ const ProjectOverviewPage = () => {
                 // setSha(_.sha);
               }}
             >
-              {"projects.reported_details"}
+              {"Details"}
             </a>
-            <Divider type={"vertical"} />
-
-            <Popconfirm
-              title="Delete the project record"
-              description="Are you sure to delete this project record?"
-              onConfirm={() => {}}
-              onCancel={() => {
-                console.log("cancel");
-              }}
-              okText="Yes"
-              cancelText="No"
-            >
-              <a className={"text-red-500 hover:text-red-600"}>
-                {"common.delete"}
-              </a>
-            </Popconfirm>
           </div>
         );
       },
@@ -236,7 +160,7 @@ const ProjectOverviewPage = () => {
         <div>
           项目Id
           <span className={"ml-6"}>
-            {"projects.default.branch"}: {"main"}
+            {"default.branch"}: {"main"}
           </span>
         </div>
 
@@ -244,7 +168,7 @@ const ProjectOverviewPage = () => {
       </div>
 
       <span className={"block mb-3"} style={{ fontWeight: 500, fontSize: 16 }}>
-        {"projects.overview"}
+        {"overview"}
       </span>
 
       <div className={"flex mb-10"}>
@@ -283,14 +207,14 @@ const ProjectOverviewPage = () => {
             >
               <div className={"flex items-center"}>
                 <span level={5} style={{ marginBottom: "0" }}>
-                  {"projects.trends_in_coverage"}
+                  {"trends_in_coverage"}
                 </span>
                 <span
                   type={"secondary"}
                   className={"ml-2"}
                   style={{ fontSize: 12 }}
                 >
-                  {"projects.trends.tooltip"}
+                  {"trends.tooltip"}
                 </span>
               </div>
               {/*<ReactECharts*/}
@@ -310,7 +234,7 @@ const ProjectOverviewPage = () => {
       </div>
 
       <span className={"block mb-3"} style={{ fontWeight: 500, fontSize: 16 }}>
-        {"projects.records"}
+        {"records"}
       </span>
       <div
         className={"flex"}
@@ -319,7 +243,7 @@ const ProjectOverviewPage = () => {
         <div className={"flex items-center gap-5"}>
           <Input.Search
             defaultValue={"keyword"}
-            placeholder={"projects.overview_search_keywords"}
+            placeholder={"overview_search_keywords"}
             onSearch={(value) => {
               // setKeyword(value);
               // setCurrent(1);
@@ -327,7 +251,7 @@ const ProjectOverviewPage = () => {
             style={{ width: "600px" }}
           />
           <Space>
-            <span type={"secondary"}>{"projects.only.default.branch"}: </span>
+            <span type={"secondary"}>{"only.default.branch"}: </span>
             <Switch
               defaultChecked={Boolean(
                 localStorage.getItem("defaultBranchOnly"),
@@ -364,7 +288,7 @@ const ProjectOverviewPage = () => {
             // pageSize: projectsData?.getProjects?.pageSize,
           }
         }
-        dataSource={[]}
+        dataSource={record}
         onChange={(val) => {
           // setCurrent(val.current || 1);
           // setPageSize(val.pageSize || 10);

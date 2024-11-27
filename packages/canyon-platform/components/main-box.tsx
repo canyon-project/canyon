@@ -10,11 +10,12 @@ import {
   Typography,
 } from "antd";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
-import React, { useEffect } from "react";
+import { useParams, usePathname } from "next/navigation";
+import React, { useEffect, useMemo } from "react";
 // import Link from "next/link";
 // import CIcon from "@/components/c-icon";
 import AppFooter from "@/components/app-footer";
+import Link from "next/link";
 
 const menuItems = [
   {
@@ -59,6 +60,7 @@ const MeData = {
 const { useToken } = theme;
 const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
   const routeName = usePathname();
+  const { id, sha } = useParams(); // 获取动态路由参数
   const { token } = useToken();
   const onSelectMenu = (selectInfo: any) => {
     console.log(selectInfo);
@@ -66,6 +68,36 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
   };
 
   const selectedKey = usePathname().split("/")[1];
+
+  // const BreadcrumbItems = []
+
+  const breadcrumbItems = useMemo(() => {
+    // return []
+    if (id && !sha) {
+      return [
+        {
+          title: <Link href={`/projects`}>Projects</Link>,
+        },
+        {
+          title: "Overview",
+        },
+      ];
+    } else if (id && sha) {
+      return [
+        {
+          title: <Link href={`/projects`}>Projects</Link>,
+        },
+        {
+          title: <Link href={`/projects/${id}`}>Overview</Link>,
+        },
+        {
+          title: "Coverage Details",
+        },
+      ];
+    } else {
+      return [];
+    }
+  }, [id, sha]);
 
   return (
     <ScrollBasedLayout
@@ -176,22 +208,7 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
               "m-auto max-w-[1200px] min-w-[1000px] px-[12px] py-[12px]"
             }
           >
-            <Breadcrumb
-              items={[
-                // {
-                //   title: "Projects",
-                // },
-                {
-                  title: <a href="">Projects</a>,
-                },
-                {
-                  title: <a href="">Overview</a>,
-                },
-                {
-                  title: "Coverage Details",
-                },
-              ]}
-            />
+            <Breadcrumb items={breadcrumbItems} />
           </div>
           <div className={"m-auto max-w-[1200px] min-w-[1000px] p-[12px]"}>
             {children}
