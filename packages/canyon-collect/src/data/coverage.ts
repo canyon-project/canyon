@@ -15,8 +15,8 @@ export const reorganizeCompleteCoverageObjects = (
     const item = hit[objKey];
     const mapItem = map[objKey];
     obj[objKey] = {
-      ...item,
       ...mapItem,
+      ...item,
       path: objKey,
     };
   }

@@ -96,6 +96,30 @@ export function resetCoverageData(coverageData) {
   }, {});
 }
 
+export function resetCoverageDataMap(coverageData) {
+  return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
+    acc[key] = {
+      ...value,
+      s: Object.entries(value.statementMap).reduce((accInside, [keyInside]) => {
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      f: Object.entries(value.fnMap).reduce((accInside, [keyInside]) => {
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      b: Object.entries(value.branchMap).reduce(
+        (accInside, [keyInside, valueInside]: any) => {
+          accInside[keyInside] = Array(valueInside.length).fill(0);
+          return accInside;
+        },
+        {},
+      ),
+    };
+    return acc;
+  }, {});
+}
+
 export function regularData(data: any) {
   const obj = {};
   const coverage = data;

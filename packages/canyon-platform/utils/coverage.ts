@@ -73,7 +73,6 @@ export function formatReportObject(c: any) {
   };
 }
 
-
 export const reorganizeCompleteCoverageObjects = (
   map: {
     [key: string]: object;
@@ -88,11 +87,65 @@ export const reorganizeCompleteCoverageObjects = (
     const item = hit[objKey];
     const mapItem = map[objKey];
     obj[objKey] = {
-      ...item,
       ...mapItem,
+      // 一定要在下面!!!
+      ...item,
       path: objKey,
     };
   }
   return obj;
   // return {};
+};
+
+export function resetCoverageDataMap(coverageData) {
+  return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
+    acc[key] = {
+      ...value,
+      s: Object.entries(value.statementMap).reduce((accInside, [keyInside]) => {
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      f: Object.entries(value.fnMap).reduce((accInside, [keyInside]) => {
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      b: Object.entries(value.branchMap).reduce(
+        (accInside, [keyInside, valueInside]: any) => {
+          accInside[keyInside] = Array(valueInside.length).fill(0);
+          return accInside;
+        },
+        {},
+      ),
+    };
+    return acc;
+  }, {});
+}
+
+
+// 重要方法，回溯源码覆盖率数据
+export const remapCoverage123 = async (noReMap, inser) => {
+  // 如果来自的插桩路径不同，要预处理！！！
+  const obj = {};
+  for (const key in noReMap) {
+    const newKey = inser + '/' + key;
+    const item = noReMap[key];
+    obj[newKey] = {
+      ...item,
+      path: newKey,
+    };
+  }
+
+  const reMapedCov = await remapCoverage(obj);
+
+  const obj222: any = {};
+  for (const coverageKey in reMapedCov) {
+    const newKey = coverageKey.replace(inser + '/', '');
+    obj222[newKey] = {
+      ...reMapedCov[coverageKey],
+      path: newKey,
+    };
+  }
+
+  // 再把inser去掉
+  return obj222;
 };
