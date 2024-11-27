@@ -5,9 +5,9 @@ import { decompressedData } from '../../../utils/zstd';
 import { formatReportObject, regularData } from '../../../utils/coverage';
 import { CoveragediskService } from './core/coveragedisk.service';
 import {
-  remapCoverage123,
+  remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
-} from '../../../data/coverage';
+} from 'canyon-data2';
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -60,7 +60,7 @@ export class CoverageClientService {
     const chongzu = reorganizeCompleteCoverageObjects(map, originalHit);
 
     // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
-    const hit = await remapCoverage123(
+    const hit = await remapCoverageWithInstrumentCwd(
       chongzu,
       coverageFromDatabase.instrumentCwd,
     );

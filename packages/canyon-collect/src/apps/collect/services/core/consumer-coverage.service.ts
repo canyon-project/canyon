@@ -1,33 +1,18 @@
 import { Injectable } from '@nestjs/common';
-// import { PrismaService } from '../../../prisma/prisma.service';
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
-  // mergeCoverageMap,
 } from '../../../../canyon-data/src';
-// import { mergeCoverageMap, resetCoverageData } from '../../../utils/coverage';
-// import { removeNullKeys, resolveProjectID } from '../../../utils/utils';
-// import { PullChangeCodeAndInsertDbService } from '../common/pull-change-code-and-insert-db.service';
-// import { logger } from "../../../logger";
+
 import { CoveragediskService } from './coveragedisk.service';
-// import { TestExcludeService } from '../common/test-exclude.service';
-// import { PullFilePathAndInsertDbService } from '../common/pull-file-path-and-insert-db.service';
-// import { compressedData, decompressedData } from '../../../utils/zstd';
-// import { logger } from '../../../../logger';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { removeNullKeys } from '../../../../utils/utils';
 import { compressedData, decompressedData } from '../../../../utils/zstd';
-import {
-  remapCoverage123,
-  reorganizeCompleteCoverageObjects,
-} from '../../../../data/coverage';
 import { coverageObj } from '../../models/coverage.model';
-import fs from 'node:fs';
-import {
-  removeStartEndNull,
-  resetCoverageData, resetCoverageDataMap,
-} from '../../../../utils/coverage';
+
+import { resetCoverageDataMap } from '../../../../utils/coverage';
 import { mergeCoverageMap } from 'canyon-data';
+import {remapCoverageWithInstrumentCwd, reorganizeCompleteCoverageObjects} from "canyon-data2";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -144,7 +129,7 @@ export class ConsumerCoverageService {
 
     // map不参与exclude过滤，需要保留完整的
 
-    const reMapMap = await remapCoverage123(
+    const reMapMap = await remapCoverageWithInstrumentCwd(
       resetCoverageDataMap(map),
       instrumentCwd,
     );

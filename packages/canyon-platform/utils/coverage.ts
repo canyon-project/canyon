@@ -1,19 +1,6 @@
-import libCoverage from "istanbul-lib-coverage";
-import libSourceMaps from "istanbul-lib-source-maps";
 
-// 覆盖率回溯，在覆盖率存储之前转换
-export async function remapCoverage(obj: any) {
-  const res = await libSourceMaps
-    .createSourceMapStore()
-    .transformCoverage(libCoverage.createCoverageMap(obj));
-  const { data: data_1 } = res;
-  const obj_1: any = {};
-  for (const dataKey in data_1) {
-    const x = data_1[dataKey]["data"];
-    obj_1[x.path] = x;
-  }
-  return obj_1;
-}
+
+
 
 function parseInstrumentCwd(instrumentCwd) {
   if (instrumentCwd.includes("=>")) {
@@ -73,30 +60,6 @@ export function formatReportObject(c: any) {
   };
 }
 
-export const reorganizeCompleteCoverageObjects = (
-  map: {
-    [key: string]: object;
-  },
-  hit: {
-    [key: string]: object;
-  },
-) => {
-  // istanbul数据结构
-  const obj = {};
-  for (const objKey in hit) {
-    const item = hit[objKey];
-    const mapItem = map[objKey];
-    obj[objKey] = {
-      ...mapItem,
-      // 一定要在下面!!!
-      ...item,
-      path: objKey,
-    };
-  }
-  return obj;
-  // return {};
-};
-
 export function resetCoverageDataMap(coverageData) {
   return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
     acc[key] = {
@@ -121,31 +84,4 @@ export function resetCoverageDataMap(coverageData) {
   }, {});
 }
 
-
 // 重要方法，回溯源码覆盖率数据
-export const remapCoverage123 = async (noReMap, inser) => {
-  // 如果来自的插桩路径不同，要预处理！！！
-  const obj = {};
-  for (const key in noReMap) {
-    const newKey = inser + '/' + key;
-    const item = noReMap[key];
-    obj[newKey] = {
-      ...item,
-      path: newKey,
-    };
-  }
-
-  const reMapedCov = await remapCoverage(obj);
-
-  const obj222: any = {};
-  for (const coverageKey in reMapedCov) {
-    const newKey = coverageKey.replace(inser + '/', '');
-    obj222[newKey] = {
-      ...reMapedCov[coverageKey],
-      path: newKey,
-    };
-  }
-
-  // 再把inser去掉
-  return obj222;
-};
