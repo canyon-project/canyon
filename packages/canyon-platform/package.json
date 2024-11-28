@@ -24,7 +24,8 @@
     "react-dom": "19.0.0-rc-66855b96-20241106",
     "recharts": "^2.13.3",
     "shiki": "^1.22.1",
-    "swr": "^2.2.5"
+    "swr": "^2.2.5",
+    "canyon-data2": "workspace:^"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.242",

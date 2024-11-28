@@ -1,11 +1,17 @@
 import prisma from "@/lib/prisma";
 import { decompressedData } from "@/utils/zstd";
 import {
-  formatReportObject,
-  remapCoverage,
-  reorganizeCompleteCoverageObjects,
+  // formatReportObject,
+  // remapCoverage,
+  // remapCoverageWithInstrumentCwd,
+  // reorganizeCompleteCoverageObjects,
+  resetCoverageDataMap,
 } from "@/utils/coverage";
 import { NextRequest } from "next/server";
+import {
+  remapCoverageWithInstrumentCwd,
+  reorganizeCompleteCoverageObjects,
+} from "canyon-data2";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;
@@ -28,11 +34,16 @@ export async function GET(request: NextRequest) {
     },
   });
 
-  const d = await decompressedData(data.map);
+  const map = await decompressedData(data.map);
 
-  const c = await decompressedData(hitdata.hit);
+  const hit = await decompressedData(hitdata.hit);
 
-  const obj = reorganizeCompleteCoverageObjects(d, c);
+  const reMapMap = await remapCoverageWithInstrumentCwd(
+    resetCoverageDataMap(map),
+    hitdata.instrumentCwd,
+  );
+
+  const obj = reorganizeCompleteCoverageObjects(reMapMap, hit);
 
   return Response.json(
     Object.entries(obj)

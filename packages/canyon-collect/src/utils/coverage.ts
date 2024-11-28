@@ -58,20 +58,6 @@ export function formatReportObject(c: any) {
   };
 }
 
-// 覆盖率回溯，在覆盖率存储之前转换
-export async function remapCoverage(obj: any) {
-  const res = await libSourceMaps
-    .createSourceMapStore()
-    .transformCoverage(libCoverage.createCoverageMap(obj));
-  const { data: data_1 } = res;
-  const obj_1: any = {};
-  for (const dataKey in data_1) {
-    const x = data_1[dataKey]['data'];
-    obj_1[x.path] = x;
-  }
-  return obj_1;
-}
-
 export function resetCoverageData(coverageData) {
   return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
     acc[key] = {
@@ -85,6 +71,30 @@ export function resetCoverageData(coverageData) {
         return accInside;
       }, {}),
       b: Object.entries(value.b).reduce(
+        (accInside, [keyInside, valueInside]: any) => {
+          accInside[keyInside] = Array(valueInside.length).fill(0);
+          return accInside;
+        },
+        {},
+      ),
+    };
+    return acc;
+  }, {});
+}
+
+export function resetCoverageDataMap(coverageData) {
+  return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
+    acc[key] = {
+      ...value,
+      s: Object.entries(value.statementMap).reduce((accInside, [keyInside]) => {
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      f: Object.entries(value.fnMap).reduce((accInside, [keyInside]) => {
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      b: Object.entries(value.branchMap).reduce(
         (accInside, [keyInside, valueInside]: any) => {
           accInside[keyInside] = Array(valueInside.length).fill(0);
           return accInside;

@@ -1,26 +1,18 @@
 import { Injectable } from '@nestjs/common';
-// import { PrismaService } from '../../../prisma/prisma.service';
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
-  mergeCoverageMap,
 } from '../../../../canyon-data/src';
-// import { mergeCoverageMap, resetCoverageData } from '../../../utils/coverage';
-// import { removeNullKeys, resolveProjectID } from '../../../utils/utils';
-// import { PullChangeCodeAndInsertDbService } from '../common/pull-change-code-and-insert-db.service';
-// import { logger } from "../../../logger";
+
 import { CoveragediskService } from './coveragedisk.service';
-// import { TestExcludeService } from '../common/test-exclude.service';
-// import { PullFilePathAndInsertDbService } from '../common/pull-file-path-and-insert-db.service';
-// import { compressedData, decompressedData } from '../../../utils/zstd';
-// import { logger } from '../../../../logger';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { removeNullKeys } from '../../../../utils/utils';
 import { compressedData, decompressedData } from '../../../../utils/zstd';
-import { reorganizeCompleteCoverageObjects } from '../../../../data/coverage';
 import { coverageObj } from '../../models/coverage.model';
-import fs from 'node:fs';
-import { removeStartEndNull } from '../../../../utils/coverage';
+
+import { resetCoverageDataMap } from '../../../../utils/coverage';
+import { mergeCoverageMap } from 'canyon-data';
+import {remapCoverageWithInstrumentCwd, reorganizeCompleteCoverageObjects} from "canyon-data2";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -109,7 +101,7 @@ export class ConsumerCoverageService {
         reportID: covType === 'agg' ? queueDataToBeConsumed.reportID : null,
       }),
     });
-    const map = await this.prisma.coverage
+    const { map, instrumentCwd } = await this.prisma.coverage
       .findFirst({
         where: {
           sha: queueDataToBeConsumed.sha,
@@ -117,7 +109,13 @@ export class ConsumerCoverageService {
           covType: 'all',
         },
       })
-      .then((res) => decompressedData(res.map));
+      .then(async (res) => {
+        const map = await decompressedData(res.map);
+        return {
+          map: map,
+          instrumentCwd: res.instrumentCwd,
+        };
+      });
     const codechanges = [];
 
     // TODO cov应该是全量的，应该是find出来的hit，因为已经合并过了，避免重复
@@ -131,11 +129,14 @@ export class ConsumerCoverageService {
 
     // map不参与exclude过滤，需要保留完整的
 
-    const newCoverage = removeStartEndNull(
-      reorganizeCompleteCoverageObjects(
-        map, //
-        mergedHit,
-      ),
+    const reMapMap = await remapCoverageWithInstrumentCwd(
+      resetCoverageDataMap(map),
+      instrumentCwd,
+    );
+
+    const newCoverage = reorganizeCompleteCoverageObjects(
+      reMapMap, //
+      mergedHit,
     );
 
     const summary = genSummaryMapByCoverageMap(

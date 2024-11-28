@@ -1,0 +1,36 @@
+{
+  "name": "canyon-data2",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rslib build",
+    "preinstall": "rslib build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@rslib/core": "^0.0.18",
+    "@types/istanbul-lib-coverage": "^2.0.6",
+    "@types/istanbul-lib-source-maps": "^4.0.4"
+  },
+  "dependencies": {
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-source-maps": "^5.0.6"
+  }
+}
