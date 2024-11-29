@@ -7,18 +7,16 @@ import { NextRequest } from "next/server";
 export async function GET(request: NextRequest) {
   const { pathname } = request.nextUrl;
   // const projectID = searchParams.get("project_id");
-  prisma.coverage.findFirst({
-    where:{
-      id:{
-        c
-      }
-    }
-  })
+  // prisma.coverage.findFirst({
+  //   where:{
+  //     id:{
+  //       c
+  //     }
+  //   }
+  // })
   const p = await prisma.project.findFirst({
     where: {
-      id: {
-        con,
-      },
+      // id:
     },
   });
   return Response.json(p);
