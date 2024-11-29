@@ -16,7 +16,7 @@ import {
 @Injectable()
 export class CoverageMapClientService {
   constructor(private readonly prisma: PrismaService) {}
-  async invoke({ sha, projectID, coverage, instrumentCwd }) {
+  async invoke({ projectID, sha, coverage, instrumentCwd }) {
     const exist = await this.prisma.coverage.findFirst({
       where: {
         sha: sha,
@@ -24,13 +24,13 @@ export class CoverageMapClientService {
         covType: "all",
       },
     });
-    // originCoverage 是替换掉了instrumentCwd的coverage，未经reMap的
-    const originCoverage = await this.convertTheReportedMap({
+    // originCoverage 是替换掉了instrumentCwd的coverage，未经reMap的，没有fbs
+    // coverage也是未处理过了的
+    const formatCoverageMap = await this.convertTheReportedMap({
       coverage,
       instrumentCwd,
     });
 
-    const formatCoverageMap = IstanbulMapMapSchema.parse(originCoverage);
     if (exist) {
       return await this.updateMap({
         newMap: formatCoverageMap,
@@ -47,14 +47,13 @@ export class CoverageMapClientService {
   }
   async updateMap({ exist, newMap }) {
     const oldMap = await decompressedData(exist.map);
-    const { hit, map, summary, statementsTotal, statementsCovered } =
-      await this.generateData({
-        newMap: {
-          ...oldMap,
-          ...newMap,
-        },
-        instrumentCwd: exist.instrumentCwd,
-      });
+    const { hit, map, summary, statementsTotal } = await this.generateData({
+      newMap: {
+        ...oldMap,
+        ...newMap,
+      },
+      instrumentCwd: exist.instrumentCwd,
+    });
 
     return this.prisma.coverage
       .update({
@@ -66,7 +65,6 @@ export class CoverageMapClientService {
           summary,
           hit,
           statementsTotal,
-          statementsCovered,
         },
       })
       .then((r) => {
@@ -121,7 +119,8 @@ export class CoverageMapClientService {
       coverage: formatCoverageData(coverageObject),
       instrumentCwd: instrumentCwd,
     });
-    return formatedCoverage;
+    // const formatCoverageMap = IstanbulMapMapSchema.parse(originCoverage);
+    return IstanbulMapMapSchema.parse(formatedCoverage);
   }
 
   // newMap是未经过reMap的数据，并且没有fbs
@@ -136,7 +135,6 @@ export class CoverageMapClientService {
       summary: summaryBuffer,
       hit: hitBuffer,
       map: mapBuffer,
-      statementsCovered: overallSummary.statements.covered,
       statementsTotal: overallSummary.statements.total,
     };
   }
