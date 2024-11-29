@@ -21,6 +21,7 @@
     "fs-extra": "^11.2.0",
     "husky": "^9.1.6",
     "turbo": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "pnpm": "latest"
   }
 }
