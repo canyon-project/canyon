@@ -6,7 +6,7 @@ import libCoverage, {
 } from "istanbul-lib-coverage";
 import { calculateNewLineCoverageForSingleFile } from "../utils/line";
 import { emptySummary } from "./helpers";
-import { formatCoverageData } from "../utils/formatCoverageData";
+import { fCoverageData } from "../utils/fCoverageData";
 export interface CodeChange {
   path: string;
   additions: number[];
@@ -48,7 +48,7 @@ export const genSummaryMapByCoverageMap = (
   codeChanges?: CodeChange[],
 ): CoverageSummaryDataMap => {
   const summaryMap: any = {};
-  const m = libCoverage.createCoverageMap(formatCoverageData(coverageMapData));
+  const m = libCoverage.createCoverageMap(fCoverageData(coverageMapData));
   m.files().forEach(function (f) {
     const fc = m.fileCoverageFor(f),
       s = fc.toSummary();

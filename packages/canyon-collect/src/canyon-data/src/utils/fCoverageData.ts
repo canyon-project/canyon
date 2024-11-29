@@ -1,4 +1,4 @@
-export const formatCoverageData = (coverageData: any): any => {
+export const fCoverageData = (coverageData: any): any => {
   const obj: any = {};
   Object.entries(coverageData).forEach(([key, value]: any) => {
     obj[key] = {
