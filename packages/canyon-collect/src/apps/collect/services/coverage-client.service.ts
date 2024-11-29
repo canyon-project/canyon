@@ -2,12 +2,14 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../prisma/prisma.service";
 import { IstanbulHitMapSchema } from "../../../zod/istanbul.zod";
 import { decompressedData } from "../../../utils/zstd";
-import { formatReportObject, regularData } from "../../../utils/coverage";
+import { formatReportObject } from "../../../utils/coverage";
 import { CoveragediskService } from "./core/coveragedisk.service";
 import {
+  formatCoverageData,
   remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
 } from "canyon-data2";
+// import {formatCoverageData} from "canyon-data2/";
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -53,7 +55,7 @@ export class CoverageClientService {
 
     // #region == Step x: 格式化上报的覆盖率对象
     const { coverage: formartCOv } = await formatReportObject({
-      coverage: regularData(CoverageFromExternalReport),
+      coverage: formatCoverageData(CoverageFromExternalReport),
       instrumentCwd: instrumentCwd,
     });
 
@@ -61,6 +63,7 @@ export class CoverageClientService {
     const originalHit = IstanbulHitMapSchema.parse(formartCOv);
     // #endregion
 
+    // @ts-ignore
     const chongzu = reorganizeCompleteCoverageObjects(map, originalHit);
 
     // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)

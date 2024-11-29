@@ -16,7 +16,7 @@ import {
 @Injectable()
 export class CoverageMapClientService {
   constructor(private readonly prisma: PrismaService) {}
-  async invoke({ sha, projectID, coverage, instrumentCwd, branch }) {
+  async invoke({ sha, projectID, coverage, instrumentCwd }) {
     const exist = await this.prisma.coverage.findFirst({
       where: {
         sha: sha,
@@ -24,6 +24,7 @@ export class CoverageMapClientService {
         covType: "all",
       },
     });
+    // originCoverage 是替换掉了instrumentCwd的coverage，未经reMap的
     const originCoverage = await this.convertTheReportedMap({
       coverage,
       instrumentCwd,
@@ -32,71 +33,86 @@ export class CoverageMapClientService {
     const formatCoverageMap = IstanbulMapMapSchema.parse(originCoverage);
     if (exist) {
       return await this.updateMap({
-        exist,
         newMap: formatCoverageMap,
+        exist,
       });
     } else {
-      const inithitMapCWanzhen = await remapCoverageWithInstrumentCwd(
-        originCoverage,
+      return await this.createMap({
+        newMap: formatCoverageMap,
+        sha,
+        projectID,
         instrumentCwd,
-      );
-
-      const inithitStr = await compressedData(inithitMapCWanzhen);
-
-      const summary = genSummaryMapByCoverageMap(inithitMapCWanzhen, []);
-      const sum: any = getSummaryByPath("", summary);
-      const summaryZstd = await compressedData(summary);
-
-      const compressedFormatCoverageStr =
-        await compressedData(formatCoverageMap);
-      return this.prisma.coverage
-        .create({
-          data: {
-            ...coverageObj,
-            branch: branch || "-",
-            compareTarget: sha,
-            provider: "github",
-            buildProvider: "github",
-            buildID: "",
-            projectID: projectID,
-            sha: sha,
-            reporter: "canyon",
-            reportID: sha,
-            covType: "all", //map都是all
-            statementsCovered: 0,
-            statementsTotal: sum.statements.total,
-            //空bytes
-            summary: summaryZstd,
-            hit: inithitStr,
-            map: compressedFormatCoverageStr,
-            instrumentCwd: instrumentCwd,
-          },
-        })
-        .then((r) => {
-          return {
-            id: r.id,
-            projectID: r.projectID,
-            sha: r.sha,
-          };
-        });
+      });
     }
   }
   async updateMap({ exist, newMap }) {
     const oldMap = await decompressedData(exist.map);
-    const map = await compressedData({
-      ...oldMap,
-      ...newMap,
-    });
-    return this.prisma.coverage.update({
-      where: {
-        id: exist.id,
-      },
-      data: {
-        map: map,
-      },
-    });
+    const { hit, map, summary, statementsTotal, statementsCovered } =
+      await this.generateData({
+        newMap: {
+          ...oldMap,
+          ...newMap,
+        },
+        instrumentCwd: exist.instrumentCwd,
+      });
+
+    return this.prisma.coverage
+      .update({
+        where: {
+          id: exist.id,
+        },
+        data: {
+          map: map,
+          summary,
+          hit,
+          statementsTotal,
+          statementsCovered,
+        },
+      })
+      .then((r) => {
+        return {
+          id: r.id,
+          projectID: r.projectID,
+          sha: r.sha,
+        };
+      });
   }
-  async createMap({ sha, projectID, coverage, instrumentCwd }) {}
+  async createMap({ sha, projectID, newMap, instrumentCwd }) {
+    const { hit, map, summary, statementsTotal } = await this.generateData({
+      newMap,
+      instrumentCwd,
+    });
+    return this.prisma.coverage
+      .create({
+        data: {
+          ...coverageObj,
+          branch: "-",
+          compareTarget: sha,
+          provider: "github",
+          buildProvider: "github",
+          buildID: "",
+          projectID: projectID,
+          sha: sha,
+          reporter: "canyon",
+          reportID: sha,
+          covType: "all", //map都是all
+          statementsCovered: 0,
+          statementsTotal,
+          //空bytes
+          summary,
+          hit,
+          map,
+          instrumentCwd,
+        },
+      })
+      .then((r) => {
+        return {
+          id: r.id,
+          projectID: r.projectID,
+          sha: r.sha,
+        };
+      });
+  }
 
   async convertTheReportedMap({ coverage, instrumentCwd }) {
     const coverageObject =
@@ -106,5 +122,22 @@ export class CoverageMapClientService {
       instrumentCwd: instrumentCwd,
     });
     return formatedCoverage;
+  }
+
+  // newMap是未经过reMap的数据，并且没有fbs
+  async generateData({ newMap, instrumentCwd }) {
+    const hit = await remapCoverageWithInstrumentCwd(newMap, instrumentCwd);
+    const hitBuffer = await compressedData(hit);
+    const summary = genSummaryMapByCoverageMap(hit, []);
+    const overallSummary: any = getSummaryByPath("", summary);
+    const summaryBuffer = await compressedData(summary);
+    const mapBuffer = await compressedData(newMap);
+    return {
+      summary: summaryBuffer,
+      hit: hitBuffer,
+      map: mapBuffer,
+      statementsCovered: overallSummary.statements.covered,
+      statementsTotal: overallSummary.statements.total,
+    };
   }
 }
