@@ -7,11 +7,15 @@ import { coverageObj } from "../models/coverage.model";
 import {
   formatCoverageData,
   remapCoverageWithInstrumentCwd,
+  resetCoverageDataMap,
 } from "canyon-data2";
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
 } from "../../../canyon-data/src";
+import { reorganizeCompleteCoverageObjects } from "canyon-data2/src";
+import { mergeCoverageMap } from "canyon-data";
+// import { resetCoverageDataMap } from "canyon-data2/src";
 
 @Injectable()
 export class CoverageMapClientService {
@@ -47,12 +51,14 @@ export class CoverageMapClientService {
   }
   async updateMap({ exist, newMap }) {
     const oldMap = await decompressedData(exist.map);
+    const oldHit = await decompressedData(exist.hit);
     const { hit, map, summary, statementsTotal } = await this.generateData({
       newMap: {
         ...oldMap,
         ...newMap,
       },
       instrumentCwd: exist.instrumentCwd,
+      oldHit,
     });
 
     return this.prisma.coverage
@@ -79,6 +85,7 @@ export class CoverageMapClientService {
     const { hit, map, summary, statementsTotal } = await this.generateData({
       newMap,
       instrumentCwd,
+      oldHit: {},
     });
     return this.prisma.coverage
       .create({
@@ -124,10 +131,18 @@ export class CoverageMapClientService {
   }
 
   // newMap是未经过reMap的数据，并且没有fbs
-  async generateData({ newMap, instrumentCwd }) {
-    const hit = await remapCoverageWithInstrumentCwd(newMap, instrumentCwd);
-    const hitBuffer = await compressedData(hit);
-    const summary = genSummaryMapByCoverageMap(hit, []);
+  async generateData({ newMap, instrumentCwd, oldHit }) {
+    const newHit = await remapCoverageWithInstrumentCwd(
+      resetCoverageDataMap(newMap),
+      instrumentCwd,
+    );
+
+    // const newHit = resetCoverageDataMap(reMapMap);
+
+    const mergedHit = mergeCoverageMap(oldHit, newHit);
+
+    const hitBuffer = await compressedData(mergedHit);
+    const summary = genSummaryMapByCoverageMap(mergedHit, []);
     const overallSummary: any = getSummaryByPath("", summary);
     const summaryBuffer = await compressedData(summary);
     const mapBuffer = await compressedData(newMap);
