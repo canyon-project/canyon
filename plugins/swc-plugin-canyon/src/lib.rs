@@ -152,9 +152,12 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
     let env = metadata.get_context(&TransformPluginMetadataContextKind::Env).unwrap_or("-".to_string());
     let filename = metadata.get_context(&TransformPluginMetadataContextKind::Filename).unwrap_or("-".to_string());
     let cwd = metadata.get_context(&TransformPluginMetadataContextKind::Cwd).unwrap_or("-".to_string());
-    println!("env: {}", env);
-    println!("filename: {}", filename);
-    println!("cwd: {}", cwd);
+
+    // Check if the file is of a specific type (e.g., .js or .ts)
+    if filename.contains("node_modules") {
+        return program; // Skip transformation for non-JS/TS files
+    }
+
     program.fold_with(&mut as_folder(TransformVisitor { config }))
 }
 
