@@ -10,17 +10,18 @@
     "start:platform": "turbo start:platform",
     "dev": "turbo dev",
     "clean": "node ./scripts/clean.mjs",
-    "preinstall": "node ./scripts/check.mjs",
+    "preinstall": "node ./scripts/check.mjs && node ./scripts/prisma.mjs",
     "format": "biome check --write --unsafe"
   },
   "packageManager": "pnpm@9.14.2",
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
-    "pnpm": "^9.14.2",
-    "turbo": "latest",
-    "typescript": "latest",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
-    "husky": "^9.1.6"
+    "fs-extra": "^11.2.0",
+    "husky": "^9.1.6",
+    "pnpm": "^9.14.2",
+    "turbo": "latest",
+    "typescript": "latest"
   }
 }

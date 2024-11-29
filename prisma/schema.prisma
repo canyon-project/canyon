@@ -1,11 +1,13 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider      = "prisma-client-js"
-  binaryTargets = ["native", "debian-openssl-1.1.x"]
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL") // uses connection pooling
 }
 
 model Coverage {
@@ -13,7 +15,6 @@ model Coverage {
   sha               String
   branch            String
   compareTarget     String   @map("compare_target")
-  instrumentCwd     String   @map("instrument_cwd") //是build时的路径，因为要与sourceMap对应
   provider          String
   buildProvider     String   @map("build_provider") // 通过侦测CI环境变量来判断
   buildID           String   @map("build_id")
@@ -29,11 +30,31 @@ model Coverage {
   hit               Bytes
   // 特殊逻辑，必须要有map数据，才能上报hit，并且存在cov_type上。
   map               Bytes
+  instrumentCwd     String   @map("instrument_cwd") //是build时的路径，因为要与sourceMap对应
   // 通用
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
   updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
 
   @@map("canyon_v3_coverage")
+}
+
+model SysSetting {
+  id    String @id @default(cuid())
+  key   String
+  value String
+
+  @@map("sys_setting")
+}
+
+model GitProvider {
+  id           String  @id
+  url          String
+  type         String
+  name         String
+  disabled     Boolean
+  privateToken String  @map("private_token")
+
+  @@map("git_provider")
 }
 
 model Distributedlock {
@@ -43,4 +64,21 @@ model Distributedlock {
   lockExpiration DateTime?
 
   @@map("canyon_v3_distributedlock")
+}
+
+model Project {
+  id                String   @id
+  name              String
+  pathWithNamespace String   @map("path_with_namespace")
+  description       String
+  bu                String
+  tags              Json
+  members           Json
+  coverage          String
+  language          String
+  defaultBranch     String   @map("default_branch")
+  instrumentCwd     String   @map("instrument_cwd")
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("project")
 }

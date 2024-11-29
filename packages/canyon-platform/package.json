@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "prisma generate && next dev --turbopack",
-    "build": "prisma generate && next build",
+    "dev": "next dev --turbopack",
+    "build": "next build",
     "start:platform": "next start --port 8080",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "preinstall": "prisma generate"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.1",

@@ -103,10 +103,13 @@ const ProjectOverviewPage = () => {
   const { data: record } = useSWR(
     {
       url: `/api/project/${id}/record`,
-      params: {
-        project_id: "id",
-        sha: "sha",
-      },
+    },
+    fetcher,
+  );
+
+  const { data: projectData } = useSWR(
+    {
+      url: `/api/project/${id}`,
     },
     fetcher,
   );
