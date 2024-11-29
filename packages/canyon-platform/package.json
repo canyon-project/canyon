@@ -9,14 +9,19 @@
     "format": "prettier --write ."
   },
   "dependencies": {
+    "@ant-design/icons": "^5.5.1",
     "@ant-design/nextjs-registry": "^1.0.1",
     "@monaco-editor/react": "^4.6.0",
     "@prisma/client": "5.16.1",
     "antd": "^5.12.8",
     "axios": "^1.7.7",
     "canyon-data": "^0.1.1-alpha.11",
+    "canyon-data2": "workspace:^",
     "canyon-report": "0.0.8-beta-49",
+    "clsx": "^2.1.1",
     "dotenv": "^16.4.5",
+    "echarts": "^5.5.1",
+    "echarts-for-react": "^3.0.2",
     "lucide-react": "^0.460.0",
     "next": "15.0.3",
     "prisma": "5.16.1",
@@ -25,7 +30,7 @@
     "recharts": "^2.13.3",
     "shiki": "^1.22.1",
     "swr": "^2.2.5",
-    "canyon-data2": "workspace:^"
+    "tailwind-merge": "^2.5.5"
   },
   "devDependencies": {
     "@iconify/json": "^2.2.242",

@@ -1,5 +1,5 @@
 "use client";
-
+import ReactECharts from "echarts-for-react";
 import {
   Divider,
   Input,
@@ -10,14 +10,18 @@ import {
   Table,
   Tag,
   theme,
+  Typography,
 } from "antd";
 import { ColumnsType } from "antd/es/table";
 // import { AimOutlined, BranchesOutlined } from "@ant-design/icons";
 import Link from "next/link";
-import MainBox from "@/components/main-box";
+import MainBox from "@/components/wget/layout/main-box";
 import useSWR from "swr";
 import axios from "axios";
 import { useParams } from "next/navigation";
+import withTheme from "@/theme";
+import { EditOutlined } from "@ant-design/icons";
+const { Title, Text } = Typography;
 const getProjectCompartmentData = [
   {
     label: "name",
@@ -36,6 +40,23 @@ const getProjectCompartmentData = [
     value: "100",
   },
 ];
+const tags = [
+  {
+    color: "red",
+    name: "tag",
+    link: "https://www.baidu.com",
+  },
+  {
+    color: "red",
+    name: "tag",
+    link: "https://www.baidu.com",
+  },
+  {
+    color: "red",
+    name: "tag",
+    link: "https://www.baidu.com",
+  },
+];
 const fetcher = ({ url, params }: { url: string; params: any }) =>
   axios
     .get(url, {
@@ -46,6 +67,36 @@ const fetcher = ({ url, params }: { url: string; params: any }) =>
 const { useToken } = theme;
 const t = (msg) => msg;
 const ProjectOverviewPage = () => {
+  const option = {
+    backgroundColor: "transparent",
+    grid: {
+      top: "30px",
+      left: "30px",
+      right: "10px",
+      bottom: "20px",
+    },
+    tooltip: {
+      trigger: "axis",
+    },
+    legend: {
+      x: "right",
+      data: [t("projects.statements"), t("projects.newlines")],
+    },
+    xAxis: {
+      type: "category",
+      data: [],
+    },
+    yAxis: {
+      type: "value",
+    },
+    series: [t("projects.statements"), t("projects.newlines")].map(
+      (_, index) => ({
+        name: _,
+        data: [],
+        type: "line",
+      }),
+    ),
+  };
   const { filepath, id, sha } = useParams(); // 获取动态路由参数
   // console.log(id)
   // 非常重要的一步，获取整体覆盖率数据
@@ -154,17 +205,48 @@ const ProjectOverviewPage = () => {
     <MainBox>
       <div className={"mb-10"}>
         <div className={"flex"}>
-          <span>biaoti</span>
+          <Title level={2}>
+            {"flight_sz/flight-h5-web"}
+            <EditOutlined
+              className={"ml-3 cursor-pointer text-[#0071c2]"}
+              style={{ fontSize: "20px", color: "#0071c2" }}
+              onClick={() => {
+                // nav(`/projects/${pam.id}/configure`);
+              }}
+            />
+          </Title>
         </div>
 
         <div>
-          项目Id
-          <span className={"ml-6"}>
-            {"default.branch"}: {"main"}
-          </span>
+          <Text type={"secondary"}>
+            {t("Project ID")}: {123456}
+          </Text>
+          <Text className={"ml-6"} type={"secondary"}>
+            {t("Default Branch")}: {"main"}
+          </Text>
         </div>
 
-        <Tag>test</Tag>
+        {(tags || []).length > 0 && (
+          <div className={"pt-5"}>
+            <Text className={"mr-3"} type={"secondary"}>
+              {t("Tag")}:
+            </Text>
+            {tags.map(({ color, name, link }, index) => (
+              <Tag
+                style={{ cursor: link ? "pointer" : "default" }}
+                key={index}
+                color={color}
+                onClick={() => {
+                  if (link) {
+                    window.open(link);
+                  }
+                }}
+              >
+                {name}
+              </Tag>
+            ))}
+          </div>
+        )}
       </div>
 
       <span className={"block mb-3"} style={{ fontWeight: 500, fontSize: 16 }}>
@@ -217,17 +299,13 @@ const ProjectOverviewPage = () => {
                   {"trends.tooltip"}
                 </span>
               </div>
-              {/*<ReactECharts*/}
-              {/*  theme={*/}
-              {/*    localStorage.getItem("theme") === "dark"*/}
-              {/*      ? "dark"*/}
-              {/*      : {*/}
-              {/*        color: ["#287DFA", "#FFB400"],*/}
-              {/*      }*/}
-              {/*  }*/}
-              {/*  style={{height: "254px"}}*/}
-              {/*  option={option}*/}
-              {/*/>*/}
+              <ReactECharts
+                theme={{
+                  color: ["#287DFA", "#FFB400"],
+                }}
+                style={{ height: "254px" }}
+                option={option}
+              />
             </div>
           </Spin>
         </div>
@@ -302,4 +380,4 @@ const ProjectOverviewPage = () => {
   );
 };
 
-export default ProjectOverviewPage;
+export default () => withTheme(<ProjectOverviewPage />);

@@ -1,4 +1,4 @@
-import MainBox from "@/components/main-box";
+import MainBox from "@/components/wget/layout/main-box";
 
 const ProjectSettingsPage = () => {
   return <MainBox>ProjectSettingsPage</MainBox>;

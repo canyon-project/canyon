@@ -30,10 +30,10 @@ body {
 
 
 a {
-  color: #0071c2;
+  color: #0071c2 !important;
 }
 a:hover {
-  color: #0071c2;
+  /*color: #0071c2 !important;*/
   opacity: 0.8;
   text-decoration: underline;
 }

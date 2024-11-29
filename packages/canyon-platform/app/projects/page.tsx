@@ -1,8 +1,12 @@
 "use client";
-import { Table, theme } from "antd";
+import { Button, Table, theme } from "antd";
 import useSWR from "swr";
 import axios from "axios";
-import MainBox from "@/components/main-box";
+import MainBox from "@/components/wget/layout/main-box";
+import { FolderOutlined, PlusOutlined } from "@ant-design/icons";
+import { TextTypography } from "@/components/wget";
+import Link from "next/link";
+import withTheme from "@/theme";
 // import prisma from "@/lib/prisma";
 // import Icon, {LeftOutlined} from "@ant-design/icons";
 
@@ -47,9 +51,17 @@ const ProjectsPage = () => {
 
   return (
     <MainBox>
-      {/*<Icon component={Rs}/>*/}
-      {/*<LeftOutlined />*/}
-      {/*<Rs></Rs>*/}
+      <TextTypography
+        title={"Projects"}
+        icon={<FolderOutlined />}
+        right={
+          <Link href={`/projects/new`}>
+            <Button type={"primary"} icon={<PlusOutlined />}>
+              Create a Project
+            </Button>
+          </Link>
+        }
+      />
       <div
         className={"rounded-[8px] overflow-hidden"}
         style={{
@@ -63,4 +75,4 @@ const ProjectsPage = () => {
   );
 };
 
-export default ProjectsPage;
+export default () => withTheme(<ProjectsPage />);

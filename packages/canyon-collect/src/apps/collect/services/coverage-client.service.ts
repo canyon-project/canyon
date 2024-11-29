@@ -31,6 +31,10 @@ export class CoverageClientService {
         sha: sha,
         covType: 'all',
       },
+      select: {
+        map: true,
+        instrumentCwd: true,
+      },
     });
 
     if (!coverageFromDatabase) {
@@ -74,5 +78,8 @@ export class CoverageClientService {
       reportID,
       coverage: hit,
     });
+    return {
+      success: true,
+    };
   }
 }

@@ -1,5 +1,5 @@
 "use client";
-import ScrollBasedLayout from "@/components/scroll-based-layout";
+import ScrollBasedLayout from "@/components/wget/layout/scroll-based-layout";
 import {
   Avatar,
   Breadcrumb,
@@ -14,7 +14,7 @@ import { useParams, usePathname } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
 // import Link from "next/link";
 // import CIcon from "@/components/c-icon";
-import AppFooter from "@/components/app-footer";
+import AppFooter from "@/components/wget/layout/app-footer";
 import Link from "next/link";
 
 const menuItems = [
@@ -111,6 +111,9 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
               <div
                 className={"cursor-pointer flex items-center"}
                 style={{ marginBottom: 0 }}
+                onClick={() => {
+                  window.location.href = "/projects";
+                }}
               >
                 <Image src={"/logo.svg"} alt={"logo"} width={30} height={30} />
                 <span
@@ -203,14 +206,10 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
       }
       mainContent={
         <div className={"flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] min-h-[100vh]"}>
-          <div
-            className={
-              "m-auto max-w-[1200px] min-w-[1000px] px-[12px] py-[12px]"
-            }
-          >
+          <div className={"m-auto max-w-[1230px] min-w-[1000px] p-[12px]"}>
             <Breadcrumb items={breadcrumbItems} />
           </div>
-          <div className={"m-auto max-w-[1200px] min-w-[1000px] p-[12px]"}>
+          <div className={"m-auto max-w-[1230px] min-w-[1000px] p-[12px]"}>
             {children}
           </div>
         </div>
