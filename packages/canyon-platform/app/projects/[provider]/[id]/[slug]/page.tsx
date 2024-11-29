@@ -66,6 +66,10 @@ const fetcher = ({ url, params }: { url: string; params: any }) =>
 
 const { useToken } = theme;
 const t = (msg) => msg;
+
+
+// http://localhost:3000/projects/tripgl/62940/auto
+
 const ProjectOverviewPage = () => {
   const option = {
     backgroundColor: "transparent",
@@ -97,7 +101,7 @@ const ProjectOverviewPage = () => {
       }),
     ),
   };
-  const { filepath, id, sha } = useParams(); // 获取动态路由参数
+  const { filepath, id, sha, provider, slug } = useParams(); // 获取动态路由参数
   // console.log(id)
   // 非常重要的一步，获取整体覆盖率数据
   const { data: record } = useSWR(
@@ -109,7 +113,7 @@ const ProjectOverviewPage = () => {
 
   const { data: projectData } = useSWR(
     {
-      url: `/api/project/${id}`,
+      url: `/api/project/${provider}-${id}-${slug}`,
     },
     fetcher,
   );
@@ -206,179 +210,187 @@ const ProjectOverviewPage = () => {
 
   return (
     <MainBox>
-      <div className={"mb-10"}>
-        <div className={"flex"}>
-          <Title level={2}>
-            {"flight_sz/flight-h5-web"}
-            <EditOutlined
-              className={"ml-3 cursor-pointer text-[#0071c2]"}
-              style={{ fontSize: "20px", color: "#0071c2" }}
-              onClick={() => {
-                // nav(`/projects/${pam.id}/configure`);
-              }}
-            />
-          </Title>
-        </div>
-
-        <div>
-          <Text type={"secondary"}>
-            {t("Project ID")}: {123456}
-          </Text>
-          <Text className={"ml-6"} type={"secondary"}>
-            {t("Default Branch")}: {"main"}
-          </Text>
-        </div>
-
-        {(tags || []).length > 0 && (
-          <div className={"pt-5"}>
-            <Text className={"mr-3"} type={"secondary"}>
-              {t("Tag")}:
-            </Text>
-            {tags.map(({ color, name, link }, index) => (
-              <Tag
-                style={{ cursor: link ? "pointer" : "default" }}
-                key={index}
-                color={color}
+      <div>
+        <div className={"mb-10"}>
+          <div className={"flex"}>
+            <Title level={2}>
+              {projectData?.pathWithNamespace}
+              <EditOutlined
+                className={"ml-3 cursor-pointer text-[#0071c2]"}
+                style={{ fontSize: "20px", color: "#0071c2" }}
                 onClick={() => {
-                  if (link) {
-                    window.open(link);
-                  }
+                  // nav(`/projects/${pam.id}/configure`);
                 }}
-              >
-                {name}
-              </Tag>
-            ))}
+              />
+            </Title>
           </div>
-        )}
-      </div>
 
-      <span className={"block mb-3"} style={{ fontWeight: 500, fontSize: 16 }}>
-        {"overview"}
-      </span>
+          <div>
+            <Text type={"secondary"}>
+              {t("Project ID")}: {projectData?.id}
+            </Text>
+            <Text className={"ml-6"} type={"secondary"}>
+              {t("Default Branch")}: {projectData?.defaultBranch}
+            </Text>
+          </div>
 
-      <div className={"flex mb-10"}>
-        <Spin spinning={false}>
-          <div
-            className={`[list-style:none] grid grid-cols-[repeat(2,_215px)] grid-rows-[repeat(2,_1fr)] gap-[16px] h-full mr-[16px]`}
-          >
-            {(getProjectCompartmentData || []).map((item, index) => {
-              return (
-                <div
-                  className={
-                    "p-[20px] h-[150px] flex justify-between flex-col bg-white dark:bg-[#0C0D0E]"
-                  }
-                  style={{
-                    border: `1px solid ${token.colorBorder}`,
-                    borderRadius: `${token.borderRadius}px`,
-                  }}
+          {(projectData?.tags || []).length > 0 && (
+            <div className={"pt-5"}>
+              <Text className={"mr-3"} type={"secondary"}>
+                {t("Tag")}:
+              </Text>
+              {projectData?.tags.map(({ color, name, link }, index) => (
+                <Tag
+                  style={{ cursor: link ? "pointer" : "default" }}
                   key={index}
+                  color={color}
+                  onClick={() => {
+                    if (link) {
+                      window.open(link);
+                    }
+                  }}
                 >
-                  <span>{item.label}</span>
-                  <span className={"text-xl"}>{item.value}</span>
-                </div>
-              );
-            })}
-          </div>
-        </Spin>
+                  {name}
+                </Tag>
+              ))}
+            </div>
+          )}
+        </div>
 
-        <div style={{ flex: 1 }}>
+        <span
+          className={"block mb-3"}
+          style={{ fontWeight: 500, fontSize: 16 }}
+        >
+          {"overview"}
+        </span>
+
+        <div className={"flex mb-10"}>
           <Spin spinning={false}>
             <div
-              className={"p-[18px] bg-white dark:bg-[#0C0D0E]"}
-              style={{
-                border: `1px solid ${token.colorBorder}`,
-                borderRadius: `${token.borderRadius}px`,
-              }}
+              className={`[list-style:none] grid grid-cols-[repeat(2,_215px)] grid-rows-[repeat(2,_1fr)] gap-[16px] h-full mr-[16px]`}
             >
-              <div className={"flex items-center"}>
-                <span level={5} style={{ marginBottom: "0" }}>
-                  {"trends_in_coverage"}
-                </span>
-                <span
-                  type={"secondary"}
-                  className={"ml-2"}
-                  style={{ fontSize: 12 }}
-                >
-                  {"trends.tooltip"}
-                </span>
-              </div>
-              <ReactECharts
-                theme={{
-                  color: ["#287DFA", "#FFB400"],
-                }}
-                style={{ height: "254px" }}
-                option={option}
-              />
+              {(getProjectCompartmentData || []).map((item, index) => {
+                return (
+                  <div
+                    className={
+                      "p-[20px] h-[150px] flex justify-between flex-col bg-white dark:bg-[#0C0D0E]"
+                    }
+                    style={{
+                      border: `1px solid ${token.colorBorder}`,
+                      borderRadius: `${token.borderRadius}px`,
+                    }}
+                    key={index}
+                  >
+                    <span>{item.label}</span>
+                    <span className={"text-xl"}>{item.value}</span>
+                  </div>
+                );
+              })}
             </div>
           </Spin>
-        </div>
-      </div>
 
-      <span className={"block mb-3"} style={{ fontWeight: 500, fontSize: 16 }}>
-        {"records"}
-      </span>
-      <div
-        className={"flex"}
-        style={{ marginBottom: "16px", justifyContent: "space-between" }}
-      >
-        <div className={"flex items-center gap-5"}>
-          <Input.Search
-            defaultValue={"keyword"}
-            placeholder={"overview_search_keywords"}
-            onSearch={(value) => {
-              // setKeyword(value);
-              // setCurrent(1);
-            }}
-            style={{ width: "600px" }}
-          />
-          <Space>
-            <span type={"secondary"}>{"only.default.branch"}: </span>
-            {/*<Switch*/}
-            {/*  defaultChecked={Boolean(*/}
-            {/*    localStorage.getItem("defaultBranchOnly"),*/}
-            {/*  )}*/}
-            {/*  onChange={(v) => {*/}
-            {/*    if (v) {*/}
-            {/*      localStorage.setItem("defaultBranchOnly", "1");*/}
-            {/*    } else {*/}
-            {/*      localStorage.removeItem("defaultBranchOnly");*/}
-            {/*    }*/}
-            {/*    // setDefaultBranchOnly(v);*/}
-            {/*  }}*/}
-            {/*/>*/}
-          </Space>
+          <div style={{ flex: 1 }}>
+            <Spin spinning={false}>
+              <div
+                className={"p-[18px] bg-white dark:bg-[#0C0D0E]"}
+                style={{
+                  border: `1px solid ${token.colorBorder}`,
+                  borderRadius: `${token.borderRadius}px`,
+                }}
+              >
+                <div className={"flex items-center"}>
+                  <span level={5} style={{ marginBottom: "0" }}>
+                    {"Trends in coverage"}
+                  </span>
+                  <span
+                    type={"secondary"}
+                    className={"ml-2"}
+                    style={{ fontSize: 12 }}
+                  >
+                    {"Tooltip"}
+                  </span>
+                </div>
+                <ReactECharts
+                  theme={{
+                    color: ["#287DFA", "#FFB400"],
+                  }}
+                  style={{ height: "254px" }}
+                  option={option}
+                />
+              </div>
+            </Spin>
+          </div>
         </div>
-      </div>
-      {/*div*/}
-      <Table
-        loading={false}
-        style={{
-          border: `1px solid ${token.colorBorder}`,
-          borderRadius: `${token.borderRadius}px`,
-        }}
-        bordered={false}
-        rowKey={"sha"}
-        columns={columns}
-        pagination={
-          {
-            // showTotal: (total) => t("common.total_items", {total}),
-            // total: projectsData?.getProjectRecords?.total,
-            // current,
-            // pageSize,
-            // current: projectsData?.getProjects?.current,
-            // pageSize: projectsData?.getProjects?.pageSize,
+
+        <span
+          className={"block mb-3"}
+          style={{ fontWeight: 500, fontSize: 16 }}
+        >
+          {"records"}
+        </span>
+        <div
+          className={"flex"}
+          style={{ marginBottom: "16px", justifyContent: "space-between" }}
+        >
+          <div className={"flex items-center gap-5"}>
+            <Input.Search
+              defaultValue={"keyword"}
+              placeholder={"overview_search_keywords"}
+              onSearch={(value) => {
+                // setKeyword(value);
+                // setCurrent(1);
+              }}
+              style={{ width: "600px" }}
+            />
+            <Space>
+              <span type={"secondary"}>{"only.default.branch"}: </span>
+              {/*<Switch*/}
+              {/*  defaultChecked={Boolean(*/}
+              {/*    localStorage.getItem("defaultBranchOnly"),*/}
+              {/*  )}*/}
+              {/*  onChange={(v) => {*/}
+              {/*    if (v) {*/}
+              {/*      localStorage.setItem("defaultBranchOnly", "1");*/}
+              {/*    } else {*/}
+              {/*      localStorage.removeItem("defaultBranchOnly");*/}
+              {/*    }*/}
+              {/*    // setDefaultBranchOnly(v);*/}
+              {/*  }}*/}
+              {/*/>*/}
+            </Space>
+          </div>
+        </div>
+        {/*div*/}
+        <Table
+          loading={false}
+          style={{
+            border: `1px solid ${token.colorBorder}`,
+            borderRadius: `${token.borderRadius}px`,
+          }}
+          bordered={false}
+          rowKey={"sha"}
+          columns={columns}
+          pagination={
+            {
+              // showTotal: (total) => t("common.total_items", {total}),
+              // total: projectsData?.getProjectRecords?.total,
+              // current,
+              // pageSize,
+              // current: projectsData?.getProjects?.current,
+              // pageSize: projectsData?.getProjects?.pageSize,
+            }
           }
-        }
-        dataSource={record}
-        onChange={(val) => {
-          // setCurrent(val.current || 1);
-          // setPageSize(val.pageSize || 10);
-          // setKeyword(keyword);
-        }}
-      />
+          dataSource={record}
+          onChange={(val) => {
+            // setCurrent(val.current || 1);
+            // setPageSize(val.pageSize || 10);
+            // setKeyword(keyword);
+          }}
+        />
 
-      {/*默太狂就共用一个*/}
-      {/*<ProjectRecordDetailDrawer open={open} onClose={onClose} sha={sha}/>*/}
+        {/*默太狂就共用一个*/}
+        {/*<ProjectRecordDetailDrawer open={open} onClose={onClose} sha={sha}/>*/}
+      </div>
     </MainBox>
   );
 };
