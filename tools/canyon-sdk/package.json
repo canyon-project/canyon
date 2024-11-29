@@ -1,9 +1,10 @@
 {
   "name": "canyon-sdk",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "files": [
     "dist"
   ],
+  "main": "dist/main.js",
   "scripts": {
     "build": "swc ./rolldown.config.ts -o dist/rolldown.config.mjs && rolldown -c dist/rolldown.config.mjs",
     "format": "biome check --write --unsafe ./src",
