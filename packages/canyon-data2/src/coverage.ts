@@ -41,11 +41,11 @@ export const reorganizeCompleteCoverageObjects = (
 };
 
 // 回溯未经过reMapCoverage的数据，但是必须得传入插装路径，因为这里的noReMap是没有插装路径的
-export const remapCoverageWithInstrumentCwd = async (noReMap:any, inser:string) => {
+export const remapCoverageWithInstrumentCwd = async (noReMap:any, instrumentCwd:string) => {
   // 如果来自的插桩路径不同，要预处理！！！
   const obj = {};
   for (const key in noReMap) {
-    const newKey = inser + "/" + key;
+    const newKey = instrumentCwd + "/" + key;
     const item = noReMap[key];
     // @ts-ignore
     obj[newKey] = {
@@ -56,17 +56,17 @@ export const remapCoverageWithInstrumentCwd = async (noReMap:any, inser:string) 
 
   const reMapedCov = await remapCoverage(obj);
 
-  const obj222: any = {};
+  const obj2: any = {};
   for (const coverageKey in reMapedCov) {
-    const newKey = coverageKey.replace(inser + "/", "");
-    obj222[newKey] = {
+    const newKey = coverageKey.replace(instrumentCwd + "/", "");
+    obj2[newKey] = {
       ...reMapedCov[coverageKey],
       path: newKey,
     };
   }
 
-  // 再把inser去掉
-  return obj222;
+  // 再把instrumentCwd去掉
+  return obj2;
 };
 
 
