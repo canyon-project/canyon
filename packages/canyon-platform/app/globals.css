@@ -20,14 +20,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-
-
 /*antd的样式*/
 
 .ant-menu-light.ant-menu-root.ant-menu-vertical {
   border-inline-end: none !important;
 }
-
 
 a {
   color: #0071c2 !important;

@@ -1,5 +1,5 @@
-import { FileCoverageData, Range } from 'istanbul-lib-coverage';
-import { percent } from './percent';
+import { FileCoverageData, Range } from "istanbul-lib-coverage";
+import { percent } from "./percent";
 
 function getLinesFromRanges(ranges) {
   const lines = [];
@@ -41,7 +41,7 @@ function getLineCoverage(
 
 function specialLogicByIf(branchRange, index) {
   if (
-    branchRange.type === 'if' &&
+    branchRange.type === "if" &&
     branchRange.locations.length > 1 &&
     Number(index) === 0
   ) {
@@ -95,7 +95,7 @@ export function calculateNewLineCoverageForSingleFile(
   });
 
   const noCoveredLines = getLinesFromRanges(noCovered);
-  console.log(noCoveredLines, 'noCoveredLines');
+  console.log(noCoveredLines, "noCoveredLines");
   return {
     total: newLine.length,
     covered: newLine.filter((line) => !noCoveredLines.includes(line)).length,

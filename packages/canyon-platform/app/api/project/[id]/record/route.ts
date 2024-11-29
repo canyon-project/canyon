@@ -27,8 +27,8 @@ export async function GET(request: NextRequest) {
         return {
           sha: item.sha,
           projectID: item.projectID,
-          times:0,
-          statements:0,
+          times: 0,
+          statements: 0,
           message: "message",
           branch: "branch",
         };

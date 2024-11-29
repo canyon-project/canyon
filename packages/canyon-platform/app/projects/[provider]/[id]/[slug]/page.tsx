@@ -67,7 +67,6 @@ const fetcher = ({ url, params }: { url: string; params: any }) =>
 const { useToken } = theme;
 const t = (msg) => msg;
 
-
 // http://localhost:3000/projects/tripgl/62940/auto
 
 const ProjectOverviewPage = () => {

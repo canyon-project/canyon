@@ -1,12 +1,12 @@
-import { percent } from '../utils/percent';
+import { percent } from "../utils/percent";
 import libCoverage, {
   CoverageMapData,
   CoverageSummaryData,
   Totals,
-} from 'istanbul-lib-coverage';
-import { calculateNewLineCoverageForSingleFile } from '../utils/line';
-import { emptySummary } from './helpers';
-import { formatCoverageData } from '../utils/formatCoverageData';
+} from "istanbul-lib-coverage";
+import { calculateNewLineCoverageForSingleFile } from "../utils/line";
+import { emptySummary } from "./helpers";
+import { formatCoverageData } from "../utils/formatCoverageData";
 export interface CodeChange {
   path: string;
   additions: number[];
@@ -24,12 +24,12 @@ export interface CoverageSummaryDataMap {
 export function mergeSummary(first: any, second: any): any {
   const ret = JSON.parse(JSON.stringify(first));
   const keys = [
-    'lines',
-    'statements',
-    'branches',
-    'functions',
-    'branchesTrue',
-    'newlines',
+    "lines",
+    "statements",
+    "branches",
+    "functions",
+    "branchesTrue",
+    "newlines",
   ];
   keys.forEach((key) => {
     if (second[key]) {
@@ -71,7 +71,7 @@ export const getSummaryByPath = (
 ) => {
   let summaryObj = JSON.parse(JSON.stringify(emptySummary));
   const filterSummary = Object.keys(summary).reduce((pre: any, cur) => {
-    if (cur.startsWith(path + '/') || path === '' || cur === path) {
+    if (cur.startsWith(path + "/") || path === "" || cur === path) {
       pre[cur] = summary[cur];
     }
     return pre;
@@ -96,10 +96,10 @@ export const genSummaryTreeItem = (
   }[];
 } => {
   function check(item: string, path: string) {
-    if (path === '') {
+    if (path === "") {
       return true;
     }
-    return item.startsWith(path + '/') || item === path;
+    return item.startsWith(path + "/") || item === path;
   }
 
   // 如果是文件
@@ -115,12 +115,12 @@ export const genSummaryTreeItem = (
   const folderLists: string[] = [];
 
   Object.keys(summary).forEach((item) => {
-    const newpath = path === '' ? item : item.replace(path + '/', '');
-    if (check(item, path) && !newpath.includes('/')) {
+    const newpath = path === "" ? item : item.replace(path + "/", "");
+    if (check(item, path) && !newpath.includes("/")) {
       fileLists.push(item);
     }
-    if (check(item, path) && newpath.includes('/')) {
-      folderLists.push((path === '' ? '' : path + '/') + newpath.split('/')[0]);
+    if (check(item, path) && newpath.includes("/")) {
+      folderLists.push((path === "" ? "" : path + "/") + newpath.split("/")[0]);
     }
   });
 

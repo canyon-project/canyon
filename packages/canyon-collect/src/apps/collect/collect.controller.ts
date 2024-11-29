@@ -4,14 +4,14 @@ import {
   Post,
   UploadedFile,
   UseInterceptors,
-} from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CoverageClientService } from './services/coverage-client.service';
-import { CoverageClientDto } from './dto/coverage-client.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { CoverageMapClientService } from './services/coverage-map-client.service';
-import { CoverageMapClientDto } from './dto/coverage-map-client.dto';
-import zlib from 'zlib';
+} from "@nestjs/common";
+import { PrismaService } from "../../prisma/prisma.service";
+import { CoverageClientService } from "./services/coverage-client.service";
+import { CoverageClientDto } from "./dto/coverage-client.dto";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { CoverageMapClientService } from "./services/coverage-map-client.service";
+import { CoverageMapClientDto } from "./dto/coverage-map-client.dto";
+import zlib from "zlib";
 // 解压 GZIP 的 Buffer 数据
 async function decompressData(buffer) {
   return new Promise((resolve, reject) => {
@@ -19,7 +19,7 @@ async function decompressData(buffer) {
       if (err) {
         return reject(err);
       }
-      resolve(decompressed.toString('utf-8')); // 转换为字符串返回
+      resolve(decompressed.toString("utf-8")); // 转换为字符串返回
     });
   });
 }
@@ -39,8 +39,8 @@ export class CollectController {
   4. 经过测试在macbookpro上compressDataWithStream压缩1600kb的数据，压缩后64kb左右，耗时8ms左右
   TODO 得调研8ms对navigator.sendBeacon有没有影响
    */
-  @UseInterceptors(FileInterceptor('coverage'))
-  @Post('coverage/client')
+  @UseInterceptors(FileInterceptor("coverage"))
+  @Post("coverage/client")
   async coverageClient(
     @UploadedFile() cov: any,
     @Body() coverageClientDto: CoverageClientDto,
@@ -50,7 +50,7 @@ export class CollectController {
       return this.coverageClientService.invoke(coverageClientDto);
     }
     let coverage = {};
-    if (cov.mimetype === 'application/octet-stream') {
+    if (cov.mimetype === "application/octet-stream") {
       coverage = await decompressData(cov.buffer).then((jsonString: any) =>
         JSON.parse(jsonString),
       );
@@ -67,7 +67,7 @@ export class CollectController {
     });
   }
 
-  @Post('coverage/map/client')
+  @Post("coverage/map/client")
   coverageMapClient(@Body() coverageMapClientDto: CoverageMapClientDto) {
     return this.coverageMapClientService.invoke(coverageMapClientDto);
   }

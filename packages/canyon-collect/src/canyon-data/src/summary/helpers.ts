@@ -1,32 +1,32 @@
-export const emptySummary =  {
-  functions:{
+export const emptySummary = {
+  functions: {
     covered: 0,
     total: 0,
     skipped: 0,
     pct: 0,
   },
-  statements:{
+  statements: {
     covered: 0,
     total: 0,
     skipped: 0,
     pct: 0,
   },
-  branches:{
+  branches: {
     covered: 0,
     total: 0,
     skipped: 0,
     pct: 0,
   },
-  lines:{
+  lines: {
     covered: 0,
     total: 0,
     skipped: 0,
     pct: 0,
   },
-  newlines:{
+  newlines: {
     covered: 0,
     total: 0,
     skipped: 0,
     pct: 0,
   },
-}
+};

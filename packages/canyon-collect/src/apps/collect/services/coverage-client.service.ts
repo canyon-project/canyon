@@ -1,13 +1,13 @@
-import { HttpException, Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../prisma/prisma.service';
-import { IstanbulHitMapSchema } from '../../../zod/istanbul.zod';
-import { decompressedData } from '../../../utils/zstd';
-import { formatReportObject, regularData } from '../../../utils/coverage';
-import { CoveragediskService } from './core/coveragedisk.service';
+import { HttpException, Injectable } from "@nestjs/common";
+import { PrismaService } from "../../../prisma/prisma.service";
+import { IstanbulHitMapSchema } from "../../../zod/istanbul.zod";
+import { decompressedData } from "../../../utils/zstd";
+import { formatReportObject, regularData } from "../../../utils/coverage";
+import { CoveragediskService } from "./core/coveragedisk.service";
 import {
   remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
-} from 'canyon-data2';
+} from "canyon-data2";
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -29,7 +29,7 @@ export class CoverageClientService {
       where: {
         projectID: projectID,
         sha: sha,
-        covType: 'all',
+        covType: "all",
       },
       select: {
         map: true,
@@ -38,13 +38,13 @@ export class CoverageClientService {
     });
 
     if (!coverageFromDatabase) {
-      throw new HttpException('coverage map not found', 400);
+      throw new HttpException("coverage map not found", 400);
     }
     // #endregion
 
     // #region == Step x: 解析出上报上来的覆盖率数据
     const CoverageFromExternalReport =
-      typeof coverage === 'string' ? JSON.parse(coverage) : coverage;
+      typeof coverage === "string" ? JSON.parse(coverage) : coverage;
     // #endregion
 
     // #region == Step x: db查找出对应的map数据

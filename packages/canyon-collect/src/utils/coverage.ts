@@ -1,22 +1,22 @@
-import libCoverage from 'istanbul-lib-coverage';
-import libSourceMaps from 'istanbul-lib-source-maps';
+import libCoverage from "istanbul-lib-coverage";
+import libSourceMaps from "istanbul-lib-source-maps";
 function parseInstrumentCwd(instrumentCwd) {
-  if (instrumentCwd.includes('=>')) {
-    const instrumentCwdSplit = instrumentCwd.split('=>');
+  if (instrumentCwd.includes("=>")) {
+    const instrumentCwdSplit = instrumentCwd.split("=>");
     return [instrumentCwdSplit[0], instrumentCwdSplit[1]];
   } else {
-    return [instrumentCwd, ''];
+    return [instrumentCwd, ""];
   }
 }
 function convertInstrumentCwd({ path, instrumentCwd, projectInstrumentCwd }) {
   if (!projectInstrumentCwd) {
-    return path.replace(instrumentCwd, '');
+    return path.replace(instrumentCwd, "");
   } else {
     // 这里需要解析一下instrumentCwd，如果包含"=>"，则需要替换。
     const [leftInstrumentCwd, rightInstrumentCwd] =
       parseInstrumentCwd(projectInstrumentCwd);
     return path
-      .replace(instrumentCwd, '')
+      .replace(instrumentCwd, "")
       .replace(leftInstrumentCwd, rightInstrumentCwd);
   }
 }
@@ -24,23 +24,23 @@ function convertInstrumentCwd({ path, instrumentCwd, projectInstrumentCwd }) {
 export function formatReportObject(c: any) {
   // 去除斜杠\\
   const removeSlash = (x: any) =>
-    JSON.parse(JSON.stringify(x).replace(/\\\\/g, '/'));
+    JSON.parse(JSON.stringify(x).replace(/\\\\/g, "/"));
   // 暂时解决方案，需要解决sourceMap问题
   const coverage = removeSlash(c.coverage);
   const instrumentCwd = removeSlash(c.instrumentCwd);
-  const projectInstrumentCwd = removeSlash(c.projectInstrumentCwd || '');
+  const projectInstrumentCwd = removeSlash(c.projectInstrumentCwd || "");
   const reversePath = (p: string) => {
     const a = convertInstrumentCwd({
       path: p,
       instrumentCwd,
       projectInstrumentCwd,
     });
-    let b = '';
+    let b = "";
     // 从第二个字符开始
     for (let i = 1; i < a.length; i++) {
       b += a[i];
     }
-    return '' + b;
+    return "" + b;
   };
   const obj: any = {};
   for (const coverageKey in coverage) {
@@ -88,7 +88,7 @@ export function regularData(data: any) {
   // 针对windows电脑，把反斜杠替换成正斜杠
   // 做数据过滤，去除 \u0000 字符
   for (const coverageKey in coverage) {
-    if (!coverageKey.includes('\u0000')) {
+    if (!coverageKey.includes("\u0000")) {
       obj[coverageKey] = coverage[coverageKey];
     }
   }

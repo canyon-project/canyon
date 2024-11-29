@@ -9,7 +9,8 @@
     "vercel-build": "prisma generate && nest build",
     "build": "prisma generate && nest build",
     "start": "prisma generate && nest start",
-    "preinstall": "prisma generate"
+    "preinstall": "prisma generate",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@mongodb-js/zstd": "^1.2.2",

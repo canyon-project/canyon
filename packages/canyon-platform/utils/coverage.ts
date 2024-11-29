@@ -1,7 +1,3 @@
-
-
-
-
 function parseInstrumentCwd(instrumentCwd) {
   if (instrumentCwd.includes("=>")) {
     const instrumentCwdSplit = instrumentCwd.split("=>");
@@ -59,6 +55,5 @@ export function formatReportObject(c: any) {
     instrumentCwd,
   };
 }
-
 
 // 重要方法，回溯源码覆盖率数据

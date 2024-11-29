@@ -1,7 +1,7 @@
 import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
-} from 'class-validator';
+} from "class-validator";
 
 /*//
 验证流水线上报的覆盖率map对象，
@@ -10,15 +10,15 @@ import {
 
 function isValidCoverageMap(coverage) {
   // 检查是否是对象
-  if (typeof coverage !== 'object' || coverage === null) {
+  if (typeof coverage !== "object" || coverage === null) {
     return false;
   }
   // 检查是否有必须的属性
   const requiredProperties = [
     // "path",
-    'statementMap',
-    'fnMap',
-    'branchMap',
+    "statementMap",
+    "fnMap",
+    "branchMap",
     // "s",
     // "f",
     // "b",
@@ -31,9 +31,9 @@ function isValidCoverageMap(coverage) {
   // 检查属性的类型和结构
   if (
     // typeof coverage.path !== "string" ||
-    typeof coverage.statementMap !== 'object' ||
-    typeof coverage.fnMap !== 'object' ||
-    typeof coverage.branchMap !== 'object'
+    typeof coverage.statementMap !== "object" ||
+    typeof coverage.fnMap !== "object" ||
+    typeof coverage.branchMap !== "object"
     // typeof coverage.s !== "object" ||
     // typeof coverage.f !== "object" ||
     // typeof coverage.b !== "object"
@@ -52,14 +52,14 @@ function safeParseJSON(json) {
     return {};
   }
 }
-@ValidatorConstraint({ name: 'isValidCoverage', async: false })
+@ValidatorConstraint({ name: "isValidCoverage", async: false })
 export class IsValidCoverage implements ValidatorConstraintInterface {
   validate(_coverage: unknown) {
     if (_coverage === null || _coverage === undefined) {
       return false;
     }
     const coverage =
-      typeof _coverage === 'string' ? safeParseJSON(_coverage) : _coverage;
+      typeof _coverage === "string" ? safeParseJSON(_coverage) : _coverage;
     if (Object.keys(coverage).length === 0) {
       return false;
     }
@@ -69,6 +69,6 @@ export class IsValidCoverage implements ValidatorConstraintInterface {
   }
 
   defaultMessage() {
-    return 'coverageMap格式不正确';
+    return "coverageMap格式不正确";
   }
 }

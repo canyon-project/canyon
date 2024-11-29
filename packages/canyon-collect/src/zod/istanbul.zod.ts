@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 const Range = z.object({
   start: z.object({ line: z.number(), column: z.number() }),

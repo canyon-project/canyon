@@ -1,21 +1,21 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
-} from '../../../../canyon-data/src';
+} from "../../../../canyon-data/src";
 
-import { CoveragediskService } from './coveragedisk.service';
-import { PrismaService } from '../../../../prisma/prisma.service';
-import { removeNullKeys } from '../../../../utils/utils';
-import { compressedData, decompressedData } from '../../../../utils/zstd';
-import { coverageObj } from '../../models/coverage.model';
-import { mergeCoverageMap } from 'canyon-data';
+import { CoveragediskService } from "./coveragedisk.service";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { removeNullKeys } from "../../../../utils/utils";
+import { compressedData, decompressedData } from "../../../../utils/zstd";
+import { coverageObj } from "../../models/coverage.model";
+import { mergeCoverageMap } from "canyon-data";
 // import { resetCoverageDataMap } from 'canyon-data2';
 import {
   remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
   resetCoverageDataMap,
-} from 'canyon-data2';
+} from "canyon-data2";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -35,7 +35,7 @@ export class ConsumerCoverageService {
   ) {}
 
   async invoke() {
-    console.log('ConsumerCoverageService start!!!');
+    console.log("ConsumerCoverageService start!!!");
     while (true) {
       try {
         // 获取将要消费的队列数据，sha和projectID相同，并且已经聚合
@@ -43,7 +43,7 @@ export class ConsumerCoverageService {
           await this.coveragediskService.getQueueWithSameShaAndProjectID();
         // 如果存在
         if (queueDataToBeConsumed) {
-          const _lockName = 'consumer_coverage';
+          const _lockName = "consumer_coverage";
           const lockName = `${_lockName}_${queueDataToBeConsumed.projectID}_${queueDataToBeConsumed.sha}`;
 
           const lockAcquired = await this.acquireLock(lockName, 1000 * 60 * 2);
@@ -65,11 +65,11 @@ export class ConsumerCoverageService {
             try {
               await this.consume(
                 dataFormatAndCheckQueueDataToBeConsumed,
-                'agg',
+                "agg",
               );
               await this.consume(
                 dataFormatAndCheckQueueDataToBeConsumed,
-                'all',
+                "all",
               );
               // 这里有需要补偿变更行覆盖率，因为一些懒加载的原因，可能导致每个agg类型的变更行数量不一样。所以每次更新后，需要更新一下所有agg的变更行覆盖率summary
               // await this.compensationChangeLineCoverageSummary(
@@ -101,7 +101,7 @@ export class ConsumerCoverageService {
         sha: queueDataToBeConsumed.sha,
         projectID: queueDataToBeConsumed.projectID,
         covType: covType,
-        reportID: covType === 'agg' ? queueDataToBeConsumed.reportID : null,
+        reportID: covType === "agg" ? queueDataToBeConsumed.reportID : null,
       }),
     });
     const { map, instrumentCwd } = await this.prisma.coverage
@@ -109,7 +109,7 @@ export class ConsumerCoverageService {
         where: {
           sha: queueDataToBeConsumed.sha,
           projectID: queueDataToBeConsumed.projectID,
-          covType: 'all',
+          covType: "all",
         },
       })
       .then(async (res) => {
@@ -150,7 +150,7 @@ export class ConsumerCoverageService {
       newCoverage,
       codechanges,
     );
-    const sum: any = getSummaryByPath('', summary);
+    const sum: any = getSummaryByPath("", summary);
     const summaryZstd = await compressedData(summary);
 
     // 实际存储不能用全量数据，大10倍
@@ -257,7 +257,7 @@ export class ConsumerCoverageService {
         return true; // 锁获取成功
       }
     } catch (error) {
-      console.error('Error acquiring lock:', error);
+      console.error("Error acquiring lock:", error);
       return false; // 锁获取失败
     }
   }

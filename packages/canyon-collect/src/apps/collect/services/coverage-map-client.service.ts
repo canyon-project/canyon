@@ -1,26 +1,26 @@
-import { PrismaService } from '../../../prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
+import { PrismaService } from "../../../prisma/prisma.service";
+import { Injectable } from "@nestjs/common";
 import {
   IstanbulHitMapSchema,
   IstanbulMapMapSchema,
-} from '../../../zod/istanbul.zod';
-import { compressedData } from '../../../utils/zstd';
+} from "../../../zod/istanbul.zod";
+import { compressedData } from "../../../utils/zstd";
 import {
   formatReportObject,
   regularData,
   removeStartEndNull,
   resetCoverageData,
-} from '../../../utils/coverage';
-import { coverageObj } from '../models/coverage.model';
+} from "../../../utils/coverage";
+import { coverageObj } from "../models/coverage.model";
 // import { resetCoverageDataMap } from 'canyon-data2';
 import {
   remapCoverageWithInstrumentCwd,
   resetCoverageDataMap,
-} from 'canyon-data2';
+} from "canyon-data2";
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
-} from '../../../canyon-data/src';
+} from "../../../canyon-data/src";
 
 @Injectable()
 export class CoverageMapClientService {
@@ -31,7 +31,7 @@ export class CoverageMapClientService {
       where: {
         sha: sha,
         projectID: projectID,
-        covType: 'all',
+        covType: "all",
       },
     });
 
@@ -46,7 +46,7 @@ export class CoverageMapClientService {
     }
 
     const coverageObject =
-      typeof coverage === 'string' ? JSON.parse(coverage) : coverage;
+      typeof coverage === "string" ? JSON.parse(coverage) : coverage;
 
     const { coverage: formatedCoverage } = await formatReportObject({
       coverage: resetCoverageData(regularData(coverageObject)),
@@ -76,7 +76,7 @@ export class CoverageMapClientService {
       inithitMapCWanzhen,
       [],
     );
-    const sum: any = getSummaryByPath('', summary);
+    const sum: any = getSummaryByPath("", summary);
     const summaryZstd = await compressedData(summary);
     //   ******************************************************
     //   ******************************************************
@@ -90,16 +90,16 @@ export class CoverageMapClientService {
       .create({
         data: {
           ...coverageObj,
-          branch: branch || '-',
+          branch: branch || "-",
           compareTarget: sha,
-          provider: 'github',
-          buildProvider: 'github',
-          buildID: '',
+          provider: "github",
+          buildProvider: "github",
+          buildID: "",
           projectID: projectID,
           sha: sha,
-          reporter: 'canyon',
+          reporter: "canyon",
           reportID: sha,
-          covType: 'all', //map都是all
+          covType: "all", //map都是all
           statementsCovered: 0,
           statementsTotal: sum.statements.total,
           //空bytes

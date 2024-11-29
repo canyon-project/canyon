@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { CoveragediskEntity } from '../../entity/coveragedisk.entity';
-import { Repository } from 'typeorm';
-import { mergeCoverageMap } from 'canyon-data';
+import { Injectable } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { CoveragediskEntity } from "../../entity/coveragedisk.entity";
+import { Repository } from "typeorm";
+import { mergeCoverageMap } from "canyon-data";
 
 /*
 开发本地覆盖率存储服务，pushQueue用于存储覆盖率数据，getQueueWithSameShaAndProjectID用于获取相同sha和projectID的覆盖率数据
@@ -35,7 +35,7 @@ export class CoveragediskService {
         pid: String(process.pid),
       },
       order: {
-        createdAt: 'ASC',
+        createdAt: "ASC",
       },
       select: {
         pid: true,
