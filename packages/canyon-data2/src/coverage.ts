@@ -68,3 +68,32 @@ export const remapCoverageWithInstrumentCwd = async (noReMap:any, inser:string) 
   // 再把inser去掉
   return obj222;
 };
+
+
+export function resetCoverageDataMap(coverageData:any) {
+  return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
+    // @ts-ignore
+    acc[key] = {
+      ...value,
+      s: Object.entries(value.statementMap).reduce((accInside, [keyInside]) => {
+        // @ts-ignore
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      f: Object.entries(value.fnMap).reduce((accInside, [keyInside]) => {
+        // @ts-ignore
+        accInside[keyInside] = 0;
+        return accInside;
+      }, {}),
+      b: Object.entries(value.branchMap).reduce(
+        (accInside, [keyInside, valueInside]: any) => {
+          // @ts-ignore
+          accInside[keyInside] = Array(valueInside.length).fill(0);
+          return accInside;
+        },
+        {},
+      ),
+    };
+    return acc;
+  }, {});
+}

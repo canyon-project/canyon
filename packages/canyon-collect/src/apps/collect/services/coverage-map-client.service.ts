@@ -1,6 +1,9 @@
 import { PrismaService } from '../../../prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { IstanbulMapMapSchema } from '../../../zod/istanbul.zod';
+import {
+  IstanbulHitMapSchema,
+  IstanbulMapMapSchema,
+} from '../../../zod/istanbul.zod';
 import { compressedData } from '../../../utils/zstd';
 import {
   formatReportObject,
@@ -9,6 +12,15 @@ import {
   resetCoverageData,
 } from '../../../utils/coverage';
 import { coverageObj } from '../models/coverage.model';
+import { resetCoverageDataMap } from 'canyon-data2';
+import {
+  remapCoverageWithInstrumentCwd,
+  reorganizeCompleteCoverageObjects,
+} from 'canyon-data2/src';
+import {
+  genSummaryMapByCoverageMap,
+  getSummaryByPath,
+} from '../../../canyon-data/src';
 
 @Injectable()
 export class CoverageMapClientService {
@@ -45,8 +57,27 @@ export class CoverageMapClientService {
       removeStartEndNull(formatedCoverage),
     );
 
-    const compressedFormatCoverageStr = await compressedData(formatCoverageMap);
+    const chongzu = resetCoverageDataMap(formatCoverageMap);
 
+    // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
+    const inithitMapCWanzhen = await remapCoverageWithInstrumentCwd(
+      chongzu,
+      instrumentCwd,
+    );
+
+    const compressedFormatCoverageStr = await compressedData(formatCoverageMap);
+    const inithitStr = await compressedData(inithitMapCWanzhen);
+
+    const summary = genSummaryMapByCoverageMap(
+      // await this.testExcludeService.invoke(
+      //   queueDataToBeConsumed.projectID,
+      //   newCoverage,
+      // ),
+      inithitMapCWanzhen,
+      [],
+    );
+    const sum: any = getSummaryByPath('', summary);
+    const summaryZstd = await compressedData(summary);
     //   ******************************************************
     //   ******************************************************
     //   ******************************************************
@@ -69,11 +100,11 @@ export class CoverageMapClientService {
           reporter: 'canyon',
           reportID: sha,
           covType: 'all', //map都是all
-          statementsTotal: 0,
           statementsCovered: 0,
+          statementsTotal: sum.statements.total,
           //空bytes
-          summary: Buffer.from([]),
-          hit: Buffer.from([]),
+          summary: summaryZstd,
+          hit: inithitStr,
           map: compressedFormatCoverageStr,
           instrumentCwd: instrumentCwd,
         },

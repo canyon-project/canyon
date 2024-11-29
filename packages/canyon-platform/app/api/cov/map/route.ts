@@ -1,16 +1,10 @@
 import prisma from "@/lib/prisma";
 import { decompressedData } from "@/utils/zstd";
-import {
-  // formatReportObject,
-  // remapCoverage,
-  // remapCoverageWithInstrumentCwd,
-  // reorganizeCompleteCoverageObjects,
-  resetCoverageDataMap,
-} from "@/utils/coverage";
 import { NextRequest } from "next/server";
 import {
   remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
+  resetCoverageDataMap,
 } from "canyon-data2";
 
 export async function GET(request: NextRequest) {

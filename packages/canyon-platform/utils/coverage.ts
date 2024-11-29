@@ -60,28 +60,5 @@ export function formatReportObject(c: any) {
   };
 }
 
-export function resetCoverageDataMap(coverageData) {
-  return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
-    acc[key] = {
-      ...value,
-      s: Object.entries(value.statementMap).reduce((accInside, [keyInside]) => {
-        accInside[keyInside] = 0;
-        return accInside;
-      }, {}),
-      f: Object.entries(value.fnMap).reduce((accInside, [keyInside]) => {
-        accInside[keyInside] = 0;
-        return accInside;
-      }, {}),
-      b: Object.entries(value.branchMap).reduce(
-        (accInside, [keyInside, valueInside]: any) => {
-          accInside[keyInside] = Array(valueInside.length).fill(0);
-          return accInside;
-        },
-        {},
-      ),
-    };
-    return acc;
-  }, {});
-}
 
 // 重要方法，回溯源码覆盖率数据
