@@ -10,8 +10,12 @@ import { removeNullKeys } from '../../../../utils/utils';
 import { compressedData, decompressedData } from '../../../../utils/zstd';
 import { coverageObj } from '../../models/coverage.model';
 import { mergeCoverageMap } from 'canyon-data';
-import { resetCoverageDataMap } from 'canyon-data2';
-import {remapCoverageWithInstrumentCwd, reorganizeCompleteCoverageObjects} from "canyon-data2";
+// import { resetCoverageDataMap } from 'canyon-data2';
+import {
+  remapCoverageWithInstrumentCwd,
+  reorganizeCompleteCoverageObjects,
+  resetCoverageDataMap,
+} from 'canyon-data2';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

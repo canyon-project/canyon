@@ -12,11 +12,11 @@ import {
   resetCoverageData,
 } from '../../../utils/coverage';
 import { coverageObj } from '../models/coverage.model';
-import { resetCoverageDataMap } from 'canyon-data2';
+// import { resetCoverageDataMap } from 'canyon-data2';
 import {
   remapCoverageWithInstrumentCwd,
-  reorganizeCompleteCoverageObjects,
-} from 'canyon-data2/src';
+  resetCoverageDataMap,
+} from 'canyon-data2';
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,

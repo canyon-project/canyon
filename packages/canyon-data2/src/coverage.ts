@@ -70,7 +70,7 @@ export const remapCoverageWithInstrumentCwd = async (noReMap:any, inser:string) 
 };
 
 
-export function resetCoverageDataMap(coverageData:any) {
+export const resetCoverageDataMap = (coverageData:any)=> {
   return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
     // @ts-ignore
     acc[key] = {
