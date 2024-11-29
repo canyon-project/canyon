@@ -101,13 +101,6 @@ impl VisitMut for TransformVisitor {
 
         // 打印出这些
 
-        println!("dsn: {}", dsn);
-        println!("reporter: {}", reporter);
-        println!("instrumentCwd: {}", instrumentCwd);
-        println!("branch: {}", branch);
-        println!("sha: {}", sha);
-        println!("projectID: {}", projectID);
-
         // 检查对象字面量是否同时包含这些属性
         let contains_required_keys = required_keys.iter().all(|&key| {
             obj.props.iter().any(|prop| {
@@ -145,8 +138,6 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
         .expect("invalid config for react-remove-properties")
         .unwrap_or_default(); // Use default if config is None
 
-    // 打印config
-    // println!("config: {:?}", config);
 
     // 使用TransformPluginProgramMetadata获取环境变量
     let env = metadata.get_context(&TransformPluginMetadataContextKind::Env).unwrap_or("-".to_string());
