@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import useSWR from "swr";
 import axios from "axios";
 import MainBox from "@/components/wget/layout/main-box";
-import { Report } from "../../../../../../../canyon-report/src/components";
+import { Report } from "../../../../../../../../../canyon-report/src/components";
 import { theme } from "antd";
 import { handleSelect } from "@/utils/handle";
 const { useToken } = theme;
