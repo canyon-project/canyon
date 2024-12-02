@@ -1,11 +1,17 @@
 import {generateInitialCoverage} from "./helpers/generate-initial-coverage";
 import generate from "@babel/generator";
+import {uploaderCoverageData} from "./helpers/uploader-coverage-data";
 
 // 关键参数 serviceParams ，它由 detectProvider 函数返回，手动设置的参数优先级高于 CI/CD 提供商
 export const visitorProgramExit = (api,path,serviceParams) => {
 // 生成初始覆盖率数据
-//   console.log(serviceParams)
-  generateInitialCoverage(generate(path.node).code)
+  const cov =  generateInitialCoverage(generate(path.node).code)
+  uploaderCoverageData(cov,{
+    DSN: serviceParams.dsn,
+    COMMIT_SHA: serviceParams.sha,
+    PROJECT_ID: serviceParams.projectID,
+    REPORTER: 'test',
+  })
   if (generate(path.node).code.includes('coverageData')) {
     const t = api.types;
     // 遍历 Program 中的所有节点
