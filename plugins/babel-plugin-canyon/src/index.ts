@@ -7,12 +7,13 @@ import {detectProvider} from "./helpers/provider";
 
 //TODO 得考虑，是否要加map post到服务器，降低接入成本。对应的map接口需要可以更新
 
-export default declare((api, config) => {
+export default declare((api, config,dirname) => {
 	api.assertVersion(7);
 	return {
 		visitor: {
 			Program: {
         exit: (path) => {
+          console.log(path.hub.file.opts.filename);
           // 侦测流水线
           // 优先级：手动设置 > CI/CD提供商
           // hit需要打到__coverage__中，因为ui自动化测试工具部署地方不确定
@@ -33,7 +34,7 @@ export default declare((api, config) => {
             projectID: config.projectID || serviceParams.slug||'-',
             sha: config.sha||serviceParams.commit||'-',
             instrumentCwd: config.instrumentCwd||process.cwd(),
-            dsn: config.dsn||process.env['DSN']
+            dsn: config.dsn||process.env['DSN']||'http://localhost:3000',
           })
         }
       },
