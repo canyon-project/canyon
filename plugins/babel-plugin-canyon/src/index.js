@@ -72,7 +72,7 @@ export default declare((api,config) => {
 
 
           // 生成初始覆盖率数据
-          const initialCoverageDataForTheCurrentFile = generateInitialCoverage(generate(path.node).code)
+          const initialCoverageDataForTheCurrentFile = generateInitialCoverage(generate(path.node).code,config.writeCovLocal)
           // generateCanyon(__canyon__)
 
           // 生成canyon代码
