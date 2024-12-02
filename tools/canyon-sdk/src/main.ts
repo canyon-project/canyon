@@ -1,3 +1,8 @@
+import {compressDataWithStream} from "./helpers/compressDataWithStream";
+import {assemblyData} from "./helpers/assemblyData";
+
+// 定义window.__coverage__数据
+
 (async () => {
   /*
   /coverage/client适配
@@ -19,57 +24,10 @@
 *
 * */
   const timeout = 500
-
-  async function compressDataWithStream (data) {
-    const textEncoder = new TextEncoder()
-    const input = textEncoder.encode(data)
-
-    const compressionStream = new CompressionStream('gzip')
-    const writer = compressionStream.writable.getWriter()
-    writer.write(input)
-    writer.close()
-
-    const compressedData = []
-    const reader = compressionStream.readable.getReader()
-    let result
-    while (!(result = await reader.read()).done) {
-      compressedData.push(result.value)
-    }
-    return new Blob(compressedData) // 压缩后的数据为 Blob
-  }
-
-  function assemblyData () {
-    // 组装数据，确保最小
-
-    const cov = Object.entries(window.__coverage__).map(([path, { b, f, s }]) => ({
-      path,
-      b,
-      f,
-      s,
-    })).reduce((acc, { path, b, f, s }) => {
-      acc[path] = { b, f, s }
-      return acc
-    },{})
-
-    // 获取meta参数
-    const { projectID, sha, instrumentCwd,dsn } = Object.values(window.__coverage__)[0]
-    return {
-      coverage: cov,
-      projectID,
-      sha,
-      instrumentCwd,
-      dsn
-    }
-  }
-
   async function collectCoverageData (timing) {
-
-    const {coverage,projectID,sha,instrumentCwd,dsn} = assemblyData()
+    const {coverage,projectID,sha,instrumentCwd,dsn} = assemblyData(window.__coverage__)
     const fd = new FormData()
-
-
     const blob = await compressDataWithStream(JSON.stringify(coverage))
-
     // 覆盖率数据
     fd.append('coverage', blob)
     // canyon数据
@@ -78,15 +36,12 @@
     fd.append('instrumentCwd', instrumentCwd)
     // 触发时机
     fd.append('timing', timing)
-
     // 要发探测数据，id客户端生成
-
     navigator.sendBeacon(
       dsn,
       fd,
     )
   }
-
   const timerHandler = () => {
     if (window.__coverage__){
       window.addEventListener('unload', () => {
@@ -99,6 +54,5 @@
       console.log('canyon: no coverage data')
     }
   }
-
-  // setTimeout(timerHandler, timeout)
+  setTimeout(timerHandler, timeout)
 })()
