@@ -35,7 +35,7 @@ export const uploaderCoverageData = (initialCoverageDataForTheCurrentFile,__cany
             Authorization: 'Bearer ' + __canyon__.REPORTER,
           },
           timeout: 15000,
-          // ...proxy
+          ...proxy
         }).catch(err=>{
           if (debug){
             console.log('Failed to post coverage data:', err)
