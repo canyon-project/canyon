@@ -25,13 +25,11 @@ export const uploaderCoverageData = (initialCoverageDataForTheCurrentFile,__cany
           coverage: {
             [initialCoverageDataForTheCurrentFile.path]: initialCoverageDataForTheCurrentFile
           },
-          commitSha: __canyon__.COMMIT_SHA,
+          sha: __canyon__.COMMIT_SHA,
           branch: __canyon__.BRANCH,
           projectID: __canyon__.PROJECT_ID,
           reportID: 'initial_coverage_data',
-          compare_target: __canyon__.COMPARE_TARGET,
           instrumentCwd: __canyon__.INSTRUMENT_CWD,
-          buildID: __canyon__.BUILD_ID,
         }, {
           headers: {
             Authorization: 'Bearer ' + __canyon__.REPORTER,

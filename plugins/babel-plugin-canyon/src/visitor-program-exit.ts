@@ -11,6 +11,7 @@ export const visitorProgramExit = (api,path,serviceParams) => {
     COMMIT_SHA: serviceParams.sha,
     PROJECT_ID: serviceParams.projectID,
     REPORTER: 'test',
+    INSTRUMENT_CWD: serviceParams.instrumentCwd,
   })
   if (generate(path.node).code.includes('coverageData')) {
     const t = api.types;
