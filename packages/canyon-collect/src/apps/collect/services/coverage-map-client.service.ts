@@ -13,10 +13,9 @@ import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
 } from "../../../canyon-data/src";
-import { reorganizeCompleteCoverageObjects } from "canyon-data2/src";
 import { mergeCoverageMap } from "canyon-data";
-// import { resetCoverageDataMap } from "canyon-data2/src";
 
+// TODO 虽然插件内未支持单个文件一个一个的上报，但是服务端支持
 @Injectable()
 export class CoverageMapClientService {
   constructor(private readonly prisma: PrismaService) {}
