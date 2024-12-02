@@ -33,7 +33,7 @@ export default declare((api, config) => {
             projectID: serviceParams.slug||'-',
             sha: serviceParams.commit||'-',
             instrumentCwd: process.cwd(),
-            dsn: process.env['DSN']||'-'
+            dsn: config.dsn||process.env['DSN']
           })
         }
       },
