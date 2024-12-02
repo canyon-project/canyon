@@ -34,5 +34,8 @@
   "dependencies": {
     "@babel/helper-plugin-utils": "^7.0.0",
     "@babel/generator": "^7.25.6"
+  },
+  "peerDependencies": {
+    "axios": "*"
   }
 }
