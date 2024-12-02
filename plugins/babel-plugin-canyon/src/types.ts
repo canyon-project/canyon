@@ -38,6 +38,7 @@ export interface UploaderArgs {
   verbose?: string // Run with verbose logging
   xcode?: string // Run with xcode support
   xcodeArchivePath?: string // Specify the xcode archive path. Likely specified as the -resultBundlePath and should end in .xcresult
+  projectID?: string // Specify the project ID manually
 }
 
 export type UploaderEnvs = NodeJS.Dict<string>

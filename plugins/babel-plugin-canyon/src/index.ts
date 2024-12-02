@@ -22,10 +22,10 @@ export default declare((api, config) => {
             envs: process.env,
             // @ts-ignore
             args: {
-              // projectID: config.projectID,
-              // sha: config.sha,
+              projectID: config.projectID,
+              sha: config.sha,
               // instrumentCwd: config.instrumentCwd,
-              // branch: config.branch,
+              branch: config.branch,
             }
           })
           // console.log(serviceParams,'serviceParams')

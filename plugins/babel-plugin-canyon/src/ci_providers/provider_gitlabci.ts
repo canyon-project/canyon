@@ -53,7 +53,7 @@ function _getSlug(inputs: UploaderInputs): string {
   //   // parseSlugFromRemoteAddr(remoteAddr) ||
   //   // ''
   // )
-  return envs.CI_PROJECT_ID
+  return args.projectID || envs.CI_PROJECT_ID
 }
 
 export function getServiceParams(inputs: UploaderInputs): IServiceParams {
