@@ -30,9 +30,9 @@ export default declare((api, config) => {
           })
           // console.log(serviceParams,'serviceParams')
           visitorProgramExit(api,path,{
-            projectID: serviceParams.slug||'-',
-            sha: serviceParams.commit||'-',
-            instrumentCwd: process.cwd(),
+            projectID: config.projectID || serviceParams.slug||'-',
+            sha: config.sha||serviceParams.commit||'-',
+            instrumentCwd: config.instrumentCwd||process.cwd(),
             dsn: config.dsn||process.env['DSN']
           })
         }
