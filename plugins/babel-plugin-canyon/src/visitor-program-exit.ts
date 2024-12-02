@@ -5,14 +5,16 @@ import {uploaderCoverageData} from "./helpers/uploader-coverage-data";
 // 关键参数 serviceParams ，它由 detectProvider 函数返回，手动设置的参数优先级高于 CI/CD 提供商
 export const visitorProgramExit = (api,path,serviceParams) => {
 // 生成初始覆盖率数据
-  const cov =  generateInitialCoverage(generate(path.node).code)
-  uploaderCoverageData(cov,{
-    DSN: serviceParams.dsn,
-    COMMIT_SHA: serviceParams.sha,
-    PROJECT_ID: serviceParams.projectID,
-    REPORTER: 'test',
-    INSTRUMENT_CWD: serviceParams.instrumentCwd,
-  })
+  generateInitialCoverage(generate(path.node).code)
+
+  // 放弃上传覆盖率数据，强制流水线上报
+  // uploaderCoverageData(cov,{
+  //   DSN: serviceParams.dsn,
+  //   COMMIT_SHA: serviceParams.sha,
+  //   PROJECT_ID: serviceParams.projectID,
+  //   REPORTER: 'test',
+  //   INSTRUMENT_CWD: serviceParams.instrumentCwd,
+  // })
   if (generate(path.node).code.includes('coverageData')) {
     const t = api.types;
     // 遍历 Program 中的所有节点
