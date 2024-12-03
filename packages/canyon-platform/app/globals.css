@@ -35,11 +35,6 @@ a:hover {
   text-decoration: underline;
 }
 
-.shiki > code {
-  font-size: 12px;
-  font-family: "IBMPlexMono";
-  line-height: 20px;
-}
 
 @font-face {
   font-family: "IBMPlexMono";
@@ -47,3 +42,22 @@ a:hover {
   font-weight: normal;
   font-style: normal;
 }
+
+
+.shiki > code {
+  font-size: 12px;
+  font-family: "IBMPlexMono";
+  line-height: 20px;
+}
+
+.YourHighlightClass{
+  padding: 0 !important;
+  color: white !important;
+  background: rgb(244, 176, 27) !important;
+}
+
+.content-class-no-found{
+  background: #f6c6ce;
+}
+
+

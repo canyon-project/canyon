@@ -1,11 +1,11 @@
 {
   "name": "canyon-report",
-  "version": "0.0.8-beta.54",
+  "version": "0.0.8-beta.55",
   "files": [
     "dist"
   ],
   "scripts": {
-    "dev": "rsbuild dev --open",
+    "dev": "rsbuild dev --open --port 3333",
     "build:report": "rsbuild build",
     "build": "rslib build",
     "playwright": "playwright test"

@@ -73,8 +73,8 @@ const FileCoverageDetail: FC<{
           );
         })}
       </div>
-      <div className={"w-[12px]"}></div>
       <div
+        className={"px-[12px] overflow-x-auto w-full"}
         dangerouslySetInnerHTML={{
           __html: htmlContent,
         }}

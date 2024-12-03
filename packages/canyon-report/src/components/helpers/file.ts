@@ -76,13 +76,13 @@ export const ggggggfn = (filecoverage, fileContent) => {
     if (meta) {
       const type = count > 0 ? "yes" : "no";
       const startCol = meta.start.column;
-      let endCol = meta.end.column + 1;
+      const endCol = meta.end.column + 1;
       const startLine = meta.start.line;
       const endLine = meta.end.line;
 
       if (type === "no" && structuredText[startLine]) {
         if (endLine !== startLine) {
-          endCol = structuredText[startLine].length;
+          // endCol = structuredText[startLine].length;
         }
         //     转化为字符的起始
 
@@ -93,7 +93,8 @@ export const ggggggfn = (filecoverage, fileContent) => {
           start += structuredText[i].length + 1;
         }
         for (let i = 0; i < endLine - 1; i++) {
-          end += structuredText[i].length + 1;
+          // TODO: 这里有问题，可能是源码编译前有代码格式化
+          end += (structuredText[i]?.length || 0) + 1;
         }
 
         start += startCol;
@@ -114,13 +115,13 @@ export const ggggggfn = (filecoverage, fileContent) => {
       // but not 'decl':
       const decl = meta.decl || meta.loc;
       const startCol = decl.start.column;
-      let endCol = decl.end.column + 1;
+      const endCol = decl.end.column + 1;
       const startLine = decl.start.line;
       const endLine = decl.end.line;
 
       if (type === "no" && structuredText[startLine]) {
         if (endLine !== startLine) {
-          endCol = structuredText[startLine].length;
+          // endCol = structuredText[startLine].length;
         }
 
         //     转化为字符的起始
@@ -142,8 +143,61 @@ export const ggggggfn = (filecoverage, fileContent) => {
     }
   });
 
+  const branchStats = filecoverage.b;
+  const branchMeta = filecoverage.branchMap;
+
+  const branchDecorations = [];
+
+  function specialLogicByIf(branchRange, index) {
+    if (
+      branchRange.type === "if" &&
+      branchRange.locations.length > 1 &&
+      Number(index) === 0
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  Object.entries(branchStats).forEach(([bName, counts]) => {
+    const meta = branchMeta[bName];
+    if (meta) {
+      Object.entries(meta.locations).forEach(([index, location]) => {
+        const count = counts[index];
+        if (count === 0 && specialLogicByIf(meta)) {
+          const startCol = location.start.column;
+          const endCol = location.end.column + 1;
+          const startLine = location.start.line;
+          const endLine = location.end.line;
+
+          //     转化为字符的起始
+
+          let start = 0;
+          let end = 0;
+
+          for (let i = 0; i < startLine - 1; i++) {
+            start += structuredText[i].length + 1;
+          }
+          for (let i = 0; i < endLine - 1; i++) {
+            end += structuredText[i].length + 1;
+          }
+
+          start += startCol;
+          end += endCol;
+          branchDecorations.push([start, end]);
+        }
+      });
+    }
+  });
+
+
   return mergeIntervals(
-    [...statementDecorations, ...fnDecorations].filter((item) => {
+    [
+      ...statementDecorations,
+      ...fnDecorations,
+      ...branchDecorations,
+    ].filter((item) => {
       // defaultValue
       if (item[0] >= item[1]) {
         return false;
@@ -159,5 +213,5 @@ export const ggggggfn = (filecoverage, fileContent) => {
       end,
       properties: { class: "content-class-no-found" },
     };
-  });
+  })
 };
