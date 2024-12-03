@@ -44,6 +44,6 @@ export async function GET() {
   }
 
   return Response.json({
-    data: rows,
+    data: rows.sort((a, b) => b.lastReportTime - a.lastReportTime),
   });
 }
