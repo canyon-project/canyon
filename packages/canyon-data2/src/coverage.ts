@@ -125,7 +125,7 @@ const removeStartEndNull = (coverage) => {
     // 创建一个新的branchMap，用于存储处理后的结果
     const newBranchMap = {};
 
-    Object.keys(item.branchMap).forEach((statementKey) => {
+    Object.keys((item.branchMap||[])).forEach((statementKey) => {
       const locations = item.branchMap[statementKey].locations;
       const newLocations = [];
 
