@@ -74,7 +74,7 @@ export default function Page() {
       >
         {summary?.length && (
           <Report
-            reportName={projectInfo.pathWithNamespace.split("/")[1]}
+            reportName={projectInfo?.pathWithNamespace.split("/")[1]}
             dataSource={summary || []}
             onSelect={onSelect}
             value={value}
