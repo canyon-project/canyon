@@ -36,9 +36,24 @@ export default function Page() {
     fetcher,
   );
 
+  const { data: projectInfo } = useSWR(
+    {
+      url: `/api/project/${id}`,
+      params: {
+        project_id: id,
+        sha,
+      },
+    },
+    fetcher,
+  );
+
   const onSelect = (val: any) => {
     // TODO 防止页面刷新，但是不能回退，是否有更好的方式？
-    history.pushState(null, "", `/projects/tripgl/${id}/auto/commits/${sha}/${val}`);
+    history.pushState(
+      null,
+      "",
+      `/projects/tripgl/${id}/auto/commits/${sha}/${val}`,
+    );
     // 设置当前选择的路径
     setValue(val);
     // 处理选择事件
@@ -59,7 +74,7 @@ export default function Page() {
       >
         {summary?.length && (
           <Report
-            reportName={"reportName"}
+            reportName={projectInfo.pathWithNamespace.split("/")[1]}
             dataSource={summary || []}
             onSelect={onSelect}
             value={value}

@@ -7,7 +7,9 @@ export async function GET(request: NextRequest) {
 
   const project = await prisma.project.findFirst({
     where: {
-      id: projectID,
+      id: {
+        contains: projectID,
+      },
     },
   });
   return Response.json(project);
