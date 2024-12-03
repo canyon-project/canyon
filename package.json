@@ -1,5 +1,6 @@
 {
   "name": "canyon",
+  "private": true,
   "version": "2.0.0",
   "description": "Canyon is a JavaScript code coverage solution",
   "author": "wr.zhang25@gmail.com",
