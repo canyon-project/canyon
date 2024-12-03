@@ -1,6 +1,7 @@
 "use client";
 import ScrollBasedLayout from "@/components/wget/layout/scroll-based-layout";
 import {
+  Alert,
   Avatar,
   Breadcrumb,
   Button,
@@ -120,7 +121,7 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
                   className={"ml-[6px]"}
                   style={{ fontSize: "18px", fontWeight: "bolder" }}
                 >
-                  {"Canyon"}
+                  {"Canyon 2"}
                 </span>
               </div>
 
@@ -219,27 +220,9 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
   );
 };
 const MainBox = ({ children }: React.PropsWithChildren) => {
-  // const routeName = true
-  const routeName = usePathname();
-  // console.log(router,'router')
-  // const routeName = 'router.pathname';
-  const whiteList = ["/login"];
-
-  // useEffect(()=>{
-  //   console.log(routeName)
-  //   if (routeName === '/') {
-  //     console.log('login')
-  //     window.location.href = '/projects'
-  //   }
-  // },[routeName])
-
   return (
     <div>
-      {whiteList.some((i) => routeName.startsWith(i)) ? (
-        <div>{children}</div>
-      ) : (
-        <MainBoxWrap>{children}</MainBoxWrap>
-      )}
+      <MainBoxWrap>{children}</MainBoxWrap>
     </div>
   );
 };
