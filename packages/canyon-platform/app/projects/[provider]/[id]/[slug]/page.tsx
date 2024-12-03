@@ -181,7 +181,7 @@ const ProjectOverviewPage = () => {
       dataIndex: "lastReportTime",
       // width: "135px",
       render(_) {
-        return <span>{dayjs(_).format("MM-DD mm:ss")}</span>;
+        return <span>{dayjs(_).format("MM-DD HH:mm")}</span>;
       },
     },
     {
