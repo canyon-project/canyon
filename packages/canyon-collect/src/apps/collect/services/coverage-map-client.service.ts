@@ -98,6 +98,7 @@ export class CoverageMapClientService {
           hit: inithitStr,
           map: compressedFormatCoverageStr,
           instrumentCwd: instrumentCwd,
+          id: `${projectID}|${sha}|all`,
         },
       })
       .then((r) => {

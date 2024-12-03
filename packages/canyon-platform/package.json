@@ -20,6 +20,7 @@
     "canyon-data2": "workspace:^",
     "canyon-report": "0.0.8-beta-49",
     "clsx": "^2.1.1",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.4.5",
     "echarts": "^5.5.1",
     "echarts-for-react": "^3.0.2",

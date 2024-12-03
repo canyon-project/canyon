@@ -1,4 +1,5 @@
 "use client";
+import dayjs from "dayjs";
 import { Button, Table, theme } from "antd";
 import useSWR from "swr";
 import axios from "axios";
@@ -32,14 +33,28 @@ const columns = [
     key: "pathWithNamespace",
   },
   {
-    title: "Org",
-    dataIndex: "address",
-    key: "address",
+    title: "Report Times",
+    dataIndex: "reportTimes",
+    key: "reportTimes",
   },
   {
     title: "Last Reported",
-    dataIndex: "address",
-    key: "address",
+    dataIndex: "lastReportTime",
+    key: "lastReportTime",
+    render: (text) => {
+      return <span>{dayjs(text).format("MM-DD HH:mm")}</span>;
+    },
+  },
+  {
+    title: "Option",
+    key: "option",
+    render: (_, { id }) => (
+      <>
+        <Link href={`/projects/${id.split("-").join("/")}`}>
+          <>Detail</>
+        </Link>
+      </>
+    ),
   },
   // Last Reported
 ];

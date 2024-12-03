@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     .findMany({
       where: {
         projectID: projectID,
+        covType: "all",
       },
       select: {
         sha: true,

@@ -88,7 +88,7 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
           title: <Link href={`/projects`}>Projects</Link>,
         },
         {
-          title: <Link href={`/projects/${id}`}>Overview</Link>,
+          title: <Link href={`/projects/tripgl/${id}/auto`}>Overview</Link>,
         },
         {
           title: "Coverage Details",

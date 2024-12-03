@@ -130,7 +130,7 @@ const ProjectOverviewPage = () => {
       width: "100px",
       render(_, { webUrl }): JSX.Element {
         return (
-          <Link href={`/projects/${id}/commits/${_}`}>{_?.slice(0, 7)}</Link>
+          <Link href={`/projects/tripgl/${id}/auto/commits/${_}`}>{_?.slice(0, 7)}</Link>
         );
       },
     },

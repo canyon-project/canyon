@@ -38,7 +38,7 @@ export default function Page() {
 
   const onSelect = (val: any) => {
     // TODO 防止页面刷新，但是不能回退，是否有更好的方式？
-    history.pushState(null, "", `/projects/gl/${id}/auto/commits/${sha}/${val}`);
+    history.pushState(null, "", `/projects/tripgl/${id}/auto/commits/${sha}/${val}`);
     // 设置当前选择的路径
     setValue(val);
     // 处理选择事件
