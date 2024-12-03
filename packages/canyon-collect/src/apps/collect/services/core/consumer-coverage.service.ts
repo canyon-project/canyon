@@ -173,7 +173,9 @@ export class ConsumerCoverageService {
           // linesCovered: sum.lines.covered,
           // linesTotal: sum.lines.total,
           summary: summaryZstd,
-          updatedAt: queueDataToBeConsumed.updatedAt,
+          // updatedAt: queueDataToBeConsumed.updatedAt,
+          // TODO 暂时
+          updatedAt: new Date(),
           compareTarget: queueDataToBeConsumed.compareTarget,
         },
       }); // 更新时间
