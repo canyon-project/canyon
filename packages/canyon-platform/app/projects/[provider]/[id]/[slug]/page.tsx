@@ -21,6 +21,7 @@ import axios from "axios";
 import { useParams } from "next/navigation";
 import withTheme from "@/theme";
 import { EditOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 const { Title, Text } = Typography;
 const getProjectCompartmentData = [
   {
@@ -130,7 +131,9 @@ const ProjectOverviewPage = () => {
       width: "100px",
       render(_, { webUrl }): JSX.Element {
         return (
-          <Link href={`/projects/tripgl/${id}/auto/commits/${_}`}>{_?.slice(0, 7)}</Link>
+          <Link href={`/projects/tripgl/${id}/auto/commits/${_}`}>
+            {_?.slice(0, 7)}
+          </Link>
         );
       },
     },
@@ -164,13 +167,7 @@ const ProjectOverviewPage = () => {
       // width: '148px',
       render(_, { sha }) {
         return (
-          <Link
-            href={{
-              pathname: `/projects/${"pam.id"}/commits/${sha}`,
-            }}
-          >
-            {_}%
-          </Link>
+          <Link href={`/projects/tripgl/${id}/auto/commits/${sha}`}>{_}%</Link>
         );
       },
     },
@@ -184,7 +181,7 @@ const ProjectOverviewPage = () => {
       dataIndex: "lastReportTime",
       // width: "135px",
       render(_) {
-        return <span>{"MM-DD HH:mm"}</span>;
+        return <span>{dayjs(_).format("MM-DD mm:ss")}</span>;
       },
     },
     {

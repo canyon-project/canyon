@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 // import {decompressedData} from "@/utils/zstd";
 
 import { NextRequest } from "next/server";
+import { percent } from "canyon-data2";
 
 export async function GET(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -21,6 +22,9 @@ export async function GET(request: NextRequest) {
       select: {
         sha: true,
         projectID: true,
+        statementsCovered: true,
+        statementsTotal: true,
+        updatedAt: true,
       },
     })
     .then((r) => {
@@ -29,9 +33,10 @@ export async function GET(request: NextRequest) {
           sha: item.sha,
           projectID: item.projectID,
           times: 0,
-          statements: 0,
+          statements: percent(item.statementsCovered, item.statementsTotal),
           message: "message",
           branch: "branch",
+          lastReportTime: item.updatedAt,
         };
       });
     });
