@@ -1,6 +1,9 @@
 import { PrismaService } from "../../../prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
-import { IstanbulMapMapSchema } from "../../../zod/istanbul.zod";
+import {
+  IstanbulHitMapSchema,
+  IstanbulMapMapSchema,
+} from "../../../zod/istanbul.zod";
 import { compressedData } from "../../../utils/zstd";
 import { formatReportObject } from "../../../utils/coverage";
 import { coverageObj } from "../models/coverage.model";
@@ -57,7 +60,9 @@ export class CoverageMapClientService {
     );
 
     const compressedFormatCoverageStr = await compressedData(formatCoverageMap);
-    const inithitStr = await compressedData(inithitMapCWanzhen);
+    const inithitStr = await compressedData(
+      IstanbulHitMapSchema.parse(inithitMapCWanzhen),
+    );
 
     const summary = genSummaryMapByCoverageMap(
       // await this.testExcludeService.invoke(

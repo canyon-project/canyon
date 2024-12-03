@@ -16,6 +16,7 @@ import {
   reorganizeCompleteCoverageObjects,
   resetCoverageDataMap,
 } from "canyon-data2";
+import { IstanbulHitMapSchema } from "../../../../zod/istanbul.zod";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -153,8 +154,10 @@ export class ConsumerCoverageService {
     const sum: any = getSummaryByPath("", summary);
     const summaryZstd = await compressedData(summary);
 
-    // 实际存储不能用全量数据，大10倍
-    const compressedHit = await compressedData(mergedHit);
+    // 实际存储不能用全量数据，大10倍，非常重要，只留下bfs的数据，体积小10倍，是reMap的
+    const compressedHit = await compressedData(
+      IstanbulHitMapSchema.parse(mergedHit),
+    );
     if (coverage) {
       await this.prisma.coverage.update({
         where: {
