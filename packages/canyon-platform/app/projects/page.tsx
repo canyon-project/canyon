@@ -8,8 +8,7 @@ import { FolderOutlined, PlusOutlined } from "@ant-design/icons";
 import { TextTypography } from "@/components/wget";
 import Link from "next/link";
 import withTheme from "@/theme";
-// import prisma from "@/lib/prisma";
-// import Icon, {LeftOutlined} from "@ant-design/icons";
+import { useTranslations } from "next-intl";
 
 const { useToken } = theme;
 const Rs = () => (
@@ -60,14 +59,12 @@ const columns = [
 ];
 const ProjectsPage = () => {
   const { token } = useToken();
-  // const users = await prisma.user.findMany();
-  // console.log(users.length);
   const { data, error, isLoading } = useSWR("/api/project", fetcher);
-
+  const t = useTranslations();
   return (
     <MainBox>
       <TextTypography
-        title={"Projects"}
+        title={t("projects.trends.tooltip")}
         icon={<FolderOutlined />}
         right={
           <Link href={`/projects/new`}>

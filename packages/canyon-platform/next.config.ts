@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 import { resolve } from "node:path";
 import { config } from "dotenv";
-
+import createNextIntlPlugin from "next-intl/plugin";
+const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 config({ path: resolve(__dirname, "../../.env") });
 
 // flag position, do not delete
@@ -24,4 +25,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

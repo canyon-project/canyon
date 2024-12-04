@@ -1,0 +1,164 @@
+{
+  "welcome": {
+    "hello": "Hello,",
+    "copywriter": "Welcome to Canyon.",
+    "desc": "You will be redirected to the source code control management system for authentication.",
+    "continue": "Continue"
+  },
+  "menus": {
+    "projects": "Projects",
+    "settings": "Settings",
+    "usage": "Usage",
+    "docs": "Docs",
+    "billing": "Billing",
+    "members": "Members",
+    "cart": "Cart"
+  },
+  "new": {
+    "step1": "Create Resource From Source Code",
+    "step2": "Check Your Project",
+    "provider": {
+      "placeholder": "Please select a service provider"
+    },
+    "repository": "Repository",
+    "check": "Check",
+    "create": "Create",
+    "language": {
+      "placeholder": "Please select language"
+    },
+    "slug": {
+      "placeholder": "Only English, numbers are supported, e.g.: auto, auto25",
+      "tooltip": "Used in conjunction with the code repository ID to generate a unique identification for the project"
+    }
+  },
+  "projects": {
+    "create": "Create a Project",
+    "desc": "View all projects related to your account",
+    "slug": "Slug",
+    "name": "Repo",
+    "report_times": "Times",
+    "report_time": "Report Time",
+    "max_coverage": "Max Coverage",
+    "latest_report_time": "Last Reported",
+    "latest_report_coverage": "Latest Report Coverage",
+    "no_data": "{{msg}} projects have no data",
+    "total_times": "Total Times",
+    "trends_in_coverage": "Trends in coverage",
+    "records": "Records",
+    "overview": "Overview",
+    "branch": "Branch",
+    "compare_target": "Compare",
+    "message": "Commit Message",
+    "functions": "Functions",
+    "branches": "Branches",
+    "statements": "Statements",
+    "lines": "Lines",
+    "newlines": "New Lines",
+    "reported_details": "Logs",
+    "reporter": "Reporter",
+    "search_keywords": "Search by project id or name",
+    "overview_search_keywords": "Enter the \"Commit Sha\" or \"Branch\" or \"Compare Target\" keyword for search",
+    "coverage_details": "Coverage Details",
+    "report_id": "Report ID",
+    "coverage_id": "Coverage ID",
+    "view_detail": "View Detail",
+    "max_coverage_tooltip": "Maximum coverage for the last 30 days",
+    "statements_tooltip": "Statement coverage is also overall coverage",
+    "newlines_tooltip": "Change code line coverage",
+    "statements_tour_title": "Statement Coverage",
+    "newlines_tour_title": "New Line Coverage",
+    "statements_tour_description": "Click on the percentage number in this column to jump to the full coverage details page.",
+    "newlines_tour_description": "Click on the percentage number in this column to jump to the changed line coverage details page.",
+    "trends": {
+      "tooltip": "Show default branch trends only"
+    },
+    "default": {
+      "branch": "Default Branch",
+      "only": {
+        "default": {
+          "branch": "Look only at the default branch"
+        }
+      },
+      "desc": "The default branch acts on the coverage trend graphs and tables in the overview page."
+    },
+    "config": {
+      "title": "Project Configuration",
+      "basic": {
+        "information": "Basic Information"
+      },
+      "coverage": "Coverage",
+      "save": {
+        "changes": "Save Changes"
+      },
+      "project": {
+        "id": "Project ID",
+        "desc": "Description"
+      },
+      "detection": {
+        "range": "Detection Range"
+      },
+      "tooltips": "Tooltips: ",
+      "minimatch": "Matching with minimatch,",
+      "view": {
+        "example": "View Example."
+      },
+      "example2": "Configure the include, exclude, and extensions fields. The include field indicates files to be detected, the exclude field indicates files not to be detected, and the extensions field indicates file suffixes to be detected.",
+      "tag": "Tag",
+      "member": "Member",
+      "name": "Name",
+      "link": {
+        "placeholder": "Please enter the link address (optional)"
+      },
+      "color": "Color",
+      "edit": {
+        "tag": "Edit Tag"
+      }
+    },
+    "detail": {
+      "code": {
+        "tree": "Code tree"
+      },
+      "file": {
+        "list": "File list"
+      },
+      "total": {
+        "files": "{{msg}} total files"
+      },
+      "only": {
+        "changed": "Only changed"
+      },
+      "search": {
+        "placeholder": "Enter the file path to search"
+      },
+      "files": "Files"
+    }
+  },
+  "settings": {
+    "desc": "Set up your account information",
+    "preference": "Preferences",
+    "user_auth_tokens": "User Authorization Tokens",
+    "copied_to_clipboard": "Copied to clipboard"
+  },
+  "common": {
+    "option": "Option",
+    "detail": "Detail",
+    "configure": "Configure",
+    "delete": "Delete",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "created_at": "Created At",
+    "total_items": "Total {{total}} Items",
+    "edit": "Edit",
+    "add": "Add",
+    "total": "Total",
+    "covered": "Covered",
+    "favor": {
+      "only": "Favor Only"
+    }
+  },
+  "app": {
+    "logout": "Logout"
+  }
+}
