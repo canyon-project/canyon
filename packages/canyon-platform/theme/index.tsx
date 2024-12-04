@@ -1,20 +1,35 @@
 "use client";
 
-import React from "react";
-import { ConfigProvider } from "antd";
+import React, { useEffect, useState } from "react";
+import { ConfigProvider, theme } from "antd";
+const { darkAlgorithm } = theme;
+const WithTheme = (node: JSX.Element) => {
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const _isDark = localStorage.getItem("theme")
+      ? localStorage.getItem("theme") === "dark"
+      : false;
+    setIsDark(_isDark);
+    if (_isDark) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  }, []);
+  return (
+    <>
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: "#0071c2",
+          },
+          algorithm: isDark ? [darkAlgorithm] : [],
+        }}
+      >
+        {node}
+      </ConfigProvider>
+    </>
+  );
+};
 
-const withTheme = (node: JSX.Element) => (
-  <>
-    <ConfigProvider
-      theme={{
-        token: {
-          colorPrimary: "#0071c2",
-        },
-      }}
-    >
-      {node}
-    </ConfigProvider>
-  </>
-);
-
-export default withTheme;
+export default WithTheme;

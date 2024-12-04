@@ -7,7 +7,7 @@ import MainBox from "@/components/wget/layout/main-box";
 import { FolderOutlined, PlusOutlined } from "@ant-design/icons";
 import { TextTypography } from "@/components/wget";
 import Link from "next/link";
-import withTheme from "@/theme";
+import WithTheme from "@/theme";
 import { useTranslations } from "next-intl";
 
 const { useToken } = theme;
@@ -64,7 +64,7 @@ const ProjectsPage = () => {
   return (
     <MainBox>
       <TextTypography
-        title={t("projects.trends.tooltip")}
+        title={t("menus.projects")}
         icon={<FolderOutlined />}
         right={
           <Link href={`/projects/new`}>
@@ -87,4 +87,4 @@ const ProjectsPage = () => {
   );
 };
 
-export default () => withTheme(<ProjectsPage />);
+export default () => WithTheme(<ProjectsPage />);

@@ -121,7 +121,7 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
                   className={"ml-[6px]"}
                   style={{ fontSize: "18px", fontWeight: "bolder" }}
                 >
-                  {"Canyon 2"}
+                  {"Canyon"}
                 </span>
               </div>
 

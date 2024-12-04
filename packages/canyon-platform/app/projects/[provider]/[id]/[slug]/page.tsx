@@ -13,13 +13,12 @@ import {
   Typography,
 } from "antd";
 import { ColumnsType } from "antd/es/table";
-// import { AimOutlined, BranchesOutlined } from "@ant-design/icons";
 import Link from "next/link";
 import MainBox from "@/components/wget/layout/main-box";
 import useSWR from "swr";
 import axios from "axios";
 import { useParams } from "next/navigation";
-import withTheme from "@/theme";
+import WithTheme from "@/theme";
 import { EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 const { Title, Text } = Typography;
@@ -391,4 +390,4 @@ const ProjectOverviewPage = () => {
   );
 };
 
-export default () => withTheme(<ProjectOverviewPage />);
+export default () => WithTheme(<ProjectOverviewPage />);
