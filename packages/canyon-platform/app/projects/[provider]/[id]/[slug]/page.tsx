@@ -257,7 +257,7 @@ const ProjectOverviewPage = () => {
           className={"block mb-3"}
           style={{ fontWeight: 500, fontSize: 16 }}
         >
-          {"overview"}
+          {"Overview"}
         </span>
 
         <div className={"flex mb-10"}>
@@ -322,7 +322,7 @@ const ProjectOverviewPage = () => {
           className={"block mb-3"}
           style={{ fontWeight: 500, fontSize: 16 }}
         >
-          {"records"}
+          {"Records"}
         </span>
         <div
           className={"flex"}
@@ -330,7 +330,7 @@ const ProjectOverviewPage = () => {
         >
           <div className={"flex items-center gap-5"}>
             <Input.Search
-              defaultValue={"keyword"}
+              defaultValue={""}
               placeholder={"overview_search_keywords"}
               onSearch={(value) => {
                 // setKeyword(value);
@@ -339,7 +339,7 @@ const ProjectOverviewPage = () => {
               style={{ width: "600px" }}
             />
             <Space>
-              <span type={"secondary"}>{"only.default.branch"}: </span>
+              <span type={"secondary"}>{"Only Default Branch"}: </span>
               {/*<Switch*/}
               {/*  defaultChecked={Boolean(*/}
               {/*    localStorage.getItem("defaultBranchOnly"),*/}

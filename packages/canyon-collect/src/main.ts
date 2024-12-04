@@ -2,8 +2,6 @@ import { NestFactory } from "@nestjs/core";
 import { json } from "express";
 import dotenv from "dotenv";
 import path from "node:path";
-import fs from "node:fs";
-console.log(fs.chmod);
 import { ValidationPipe } from "@nestjs/common";
 dotenv.config({
   path: path.resolve(__dirname, "../../../.env"),
