@@ -54,7 +54,7 @@ const itemsDropdown: any = [
 const MeData = {
   me: {
     nickname: "admin",
-    email: "zzz@trip.com",
+    email: "zzz@t.com",
     avatar: "https://avatars.githubusercontent.com/u/20411648?v=4",
   },
 };
@@ -215,7 +215,7 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
           </div>
         </div>
       }
-      footer={<AppFooter name={`Trip.com`} corp={"Trip.com"} />}
+      footer={<AppFooter name={`canyonjs.org`} corp={"canyonjs.org"} />}
     />
   );
 };
