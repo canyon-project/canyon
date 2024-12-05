@@ -11,9 +11,6 @@ export default declare((api, config,dirname) => {
 		visitor: {
 			Program: {
         exit: (path) => {
-          if (process.env.NODE_ENV !== 'production') {
-            return;
-          }
           // 侦测流水线
           // 优先级：手动设置 > CI/CD提供商
           // hit需要打到__coverage__中，因为ui自动化测试工具部署地方不确定
