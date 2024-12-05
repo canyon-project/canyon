@@ -4,6 +4,7 @@ import { declare } from "@babel/helper-plugin-utils";
 import {visitorProgramExit} from "./visitor-program-exit";
 // import providers from './ci_providers'
 import {detectProvider} from "./helpers/provider";
+import * as process from "node:process";
 
 //TODO 得考虑，是否要加map post到服务器，降低接入成本。对应的map接口需要可以更新
 
@@ -13,7 +14,7 @@ export default declare((api, config,dirname) => {
 		visitor: {
 			Program: {
         exit: (path) => {
-          console.log(path.hub.file.opts.filename);
+          console.log(process.env.NODE_ENV);
           // 侦测流水线
           // 优先级：手动设置 > CI/CD提供商
           // hit需要打到__coverage__中，因为ui自动化测试工具部署地方不确定
