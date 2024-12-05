@@ -31,7 +31,7 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 
 - A Babel plugin responsible for adapting to various CI tools and reading environment variables.
 
-- AN API service responsible for collecting and processing coverage data.
+- An API service responsible for collecting and processing coverage data.
 
 - A NextJS application responsible for displaying coverage reports.
 
