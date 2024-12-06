@@ -1,6 +1,6 @@
 {
   "name": "canyon-data2",
-  "version": "2.0.0-beta.1",
+  "version": "2.0.0-beta.2",
   "description": "",
   "type": "module",
   "exports": {
@@ -18,8 +18,7 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rslib build",
-    "preinstall": "rslib build"
+    "build": "rslib build"
   },
   "keywords": [],
   "author": "",
