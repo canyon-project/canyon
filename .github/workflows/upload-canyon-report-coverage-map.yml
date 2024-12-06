@@ -3,7 +3,7 @@ name: Build and Deploy Vite Project
 on:
   push:
     branches:
-      - *
+      - "*"
 
 jobs:
   test:
