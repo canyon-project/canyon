@@ -1,11 +1,11 @@
 {
   "name": "babel-plugin-canyon",
-  "version": "2.0.0-beta.18",
+  "version": "2.0.0-beta.19",
   "description": "",
   "scripts": {
     "release": "babel src --extensions \".ts\" --out-dir lib",
     "pretest": "npm run release",
-    "test": "babel features --config-file ./my-custom-babel-config.js --out-dir dist",
+    "test": "babel features --config-file ./test-babel-config.js --out-dir dist",
     "prepublishOnly": "npm run release",
     "format": "biome check --write --unsafe ./src"
   },

@@ -1,23 +1,12 @@
 import {generateInitialCoverage} from "./helpers/generate-initial-coverage";
 import generate from "@babel/generator";
-import {uploaderCoverageData} from "./helpers/uploader-coverage-data";
 
-// 关键参数 serviceParams ，它由 detectProvider 函数返回，手动设置的参数优先级高于 CI/CD 提供商
 export const visitorProgramExit = (api,path,serviceParams) => {
-// 生成初始覆盖率数据
+
   generateInitialCoverage(generate(path.node).code)
 
-  // 放弃上传覆盖率数据，强制流水线上报
-  // uploaderCoverageData(cov,{
-  //   DSN: serviceParams.dsn,
-  //   COMMIT_SHA: serviceParams.sha,
-  //   PROJECT_ID: serviceParams.projectID,
-  //   REPORTER: 'test',
-  //   INSTRUMENT_CWD: serviceParams.instrumentCwd,
-  // })
   if (generate(path.node).code.includes('coverageData')) {
     const t = api.types;
-    // 遍历 Program 中的所有节点
     path.traverse({
       VariableDeclarator(variablePath) {
         // 检查是否是 coverageData
@@ -25,11 +14,8 @@ export const visitorProgramExit = (api,path,serviceParams) => {
           t.isIdentifier(variablePath.node.id, { name: "coverageData" }) &&
           t.isObjectExpression(variablePath.node.init)
         ) {
-          // 查找插桩后的字段
           const hasInstrumentation = variablePath.node.init.properties.some((prop) =>
-            t.isIdentifier(prop.key, { name: "_coverageSchema" }) || // 确保是已插桩的字段
-            t.isIdentifier(prop.key, { name: "s" }) ||
-            t.isIdentifier(prop.key, { name: "f" })
+            t.isIdentifier(prop.key, { name: "_coverageSchema" })
           );
 
           if (hasInstrumentation) {
@@ -76,7 +62,5 @@ export const visitorProgramExit = (api,path,serviceParams) => {
           }
         }
       }})
-    //   end
-
   }
 }
