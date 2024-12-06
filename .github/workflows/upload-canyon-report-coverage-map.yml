@@ -1,4 +1,4 @@
-name: Build and Deploy Vite Project
+name: Upload Canyon Report Coverage Map
 
 on:
   push:
