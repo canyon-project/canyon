@@ -9,24 +9,38 @@
 
 ## Ecosystem
 
-| Project               | Status                                                       | Description                                          |
-|-----------------------|--------------------------------------------------------------|------------------------------------------------------|
-| [babel-plugin-canyon] | [![babel-plugin-canyon-status]][babel-plugin-canyon-package] | Detecting environment variables in the pipeline      |
-| [vite-plugin-canyon]  | [![vite-plugin-canyon-status]][vite-plugin-canyon-package]   | Detecting environment variables in the pipeline      |
-| [swc-plugin-canyon]   | [![swc-plugin-canyon-status]][swc-plugin-canyon-package]     | Detecting environment variables in the pipeline      |
-| [canyon-sdk]          | [![uploader-status]][canyon-sdk-package]                     | Coverage data sdk                                    |
-| [canyon-report]       | [![uploader-status]][canyon-report-package]                  | Coverage data reporter                               |
-| [canyon-uploader]     | [![uploader-status]][canyon-uploader-package]                | Coverage data uploader                               |
+| Project               | Status                                                       | Description                                        |
+|-----------------------|--------------------------------------------------------------|----------------------------------------------------|
+| [babel-plugin-canyon] | [![babel-plugin-canyon-status]][babel-plugin-canyon-package] | Detecting environment variables in the pipeline    |
+| [vite-plugin-canyon]  | [![vite-plugin-canyon-status]][vite-plugin-canyon-package]   | Detecting environment variables in the pipeline    |
+| [swc-plugin-canyon]   | [![swc-plugin-canyon-status]][swc-plugin-canyon-package]     | Detecting environment variables in the pipeline    |
+| [canyon-report]       | [![uploader-status]][canyon-report-package]                  | Coverage data report                               |
+| [canyon-sdk]          | [![uploader-status]][canyon-sdk-package]                     | Coverage data sdk                                  |
+| [canyon-uploader]     | [![uploader-status]][canyon-uploader-package]                | Coverage data uploader                             |
 | [canyon-extension]    | [![canyon-extension-status]][canyon-extension-package]       | Chrome plugin for coverage reporting of manual tests |
 
-[babel-plugin-canyon]: https://github.com/canyon-project/babel-plugin-canyon
-[canyon-uploader]: https://github.com/canyon-project/uploader
+[babel-plugin-canyon]: https://github.com/canyon-project/canyon/
+[vite-plugin-canyon]: https://github.com/canyon-project/babel-plugin-canyon
+[swc-plugin-canyon]: https://github.com/canyon-project/babel-plugin-canyon
+[canyon-report]: https://github.com/canyon-project/uploader
+[canyon-sdk]: https://github.com/canyon-project/canyon-extension
+[canyon-uploader]: https://github.com/canyon-project/canyon-extension
 [canyon-extension]: https://github.com/canyon-project/canyon-extension
+
 [babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
-[uploader-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
+[babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
+[babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
+[canyon-report-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
+[canyon-sdk-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
+[canyon-uploader-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
 [canyon-extension-status]: https://img.shields.io/chrome-web-store/v/omnpafdjidgpdmlimbangcjjaaodbeof.svg
+
 [babel-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
-[uploader-package]: https://github.com/canyon-project/uploader/releases
+[vite-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
+[swc-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
+[canyon-report-package]: https://github.com/canyon-project/uploader/releases
+[canyon-sdk-package]: https://github.com/canyon-project/uploader/releases
+[canyon-uploader-package]: https://github.com/canyon-project/uploader/releases
 [canyon-extension-package]: https://chrome.google.com/webstore/detail/canyon/omnpafdjidgpdmlimbangcjjaaodbeof
 
 ## Project Structure
