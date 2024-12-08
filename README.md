@@ -28,8 +28,8 @@
 [canyon-extension]: https://github.com/canyon-project/canyon-extension
 
 [babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
-[babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
-[babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
+[vite-plugin-canyon-status]: https://img.shields.io/npm/v/vite-plugin-canyon.svg
+[swc-plugin-canyon-status]: https://img.shields.io/npm/v/swc-plugin-canyon.svg
 [canyon-report-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
 [canyon-sdk-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
 [canyon-uploader-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
