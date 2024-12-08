@@ -19,13 +19,13 @@
 | [canyon-uploader]     | [![canyon-uploader-status]][canyon-uploader-package]         | Coverage data uploader                             |
 | [canyon-extension]    | [![canyon-extension-status]][canyon-extension-package]       | Chrome plugin for coverage reporting of manual tests |
 
-[babel-plugin-canyon]: https://github.com/canyon-project/canyon/
-[vite-plugin-canyon]: https://github.com/canyon-project/babel-plugin-canyon
-[swc-plugin-canyon]: https://github.com/canyon-project/babel-plugin-canyon
-[canyon-report]: https://github.com/canyon-project/uploader
-[canyon-sdk]: https://github.com/canyon-project/canyon-extension
-[canyon-uploader]: https://github.com/canyon-project/canyon-extension
-[canyon-extension]: https://github.com/canyon-project/canyon-extension
+[babel-plugin-canyon]: https://github.com/canyon-project/canyon/tree/main/plugins/babel-plugin-canyon
+[vite-plugin-canyon]: https://github.com/canyon-project/canyon/tree/main/plugins/vite-plugin-canyon
+[swc-plugin-canyon]: https://github.com/canyon-project/canyon/tree/main/plugins/swc-plugin-canyon
+[canyon-report]: https://github.com/canyon-project/canyon/tree/main/packages/canyon-report
+[canyon-sdk]: https://github.com/canyon-project/canyon/tree/main/tools/canyon-sdk
+[canyon-uploader]: https://github.com/canyon-project/canyon/tree/main/tools/canyon-uploader
+[canyon-extension]: https://github.com/canyon-project/canyon/tree/main/tools/canyon-extension
 
 [babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
 [vite-plugin-canyon-status]: https://img.shields.io/npm/v/vite-plugin-canyon.svg
