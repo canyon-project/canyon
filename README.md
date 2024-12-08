@@ -30,9 +30,9 @@
 [babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
 [vite-plugin-canyon-status]: https://img.shields.io/npm/v/vite-plugin-canyon.svg
 [swc-plugin-canyon-status]: https://img.shields.io/npm/v/swc-plugin-canyon.svg
-[canyon-report-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
-[canyon-sdk-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
-[canyon-uploader-status]: https://img.shields.io/github/v/release/canyon-project/uploader?label=release
+[canyon-report-status]: https://img.shields.io/npm/v/canyon-report.svg
+[canyon-sdk-status]: https://img.shields.io/github/v/canyon-sdk.svg
+[canyon-uploader-status]: https://img.shields.io/github/v/canyon-uploader.svg
 [canyon-extension-status]: https://img.shields.io/chrome-web-store/v/omnpafdjidgpdmlimbangcjjaaodbeof.svg
 
 [babel-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
