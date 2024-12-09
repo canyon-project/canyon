@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 import GitLab from "next-auth/providers/gitlab";
 import GitHub from "next-auth/providers/github";
 import prisma from "@/lib/prisma";
-
+console.log(process.env.AUTH_SECRET, "process.env.AUTH_SECRET");
 export const { handlers, auth } = NextAuth({
   providers: [
     GitLab({
@@ -12,6 +12,7 @@ export const { handlers, auth } = NextAuth({
     }),
     GitHub,
   ],
+  secret: process.env.AUTH_SECRET,
   callbacks: {
     redirect: async () => {
       return "/projects";
