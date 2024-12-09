@@ -15,9 +15,9 @@ import prisma from "@/lib/prisma";
 
 export default async function (phase: string) {
   if (
-    true
-    // phase === "phase-production-server" ||
-    // phase === "phase-development-server"
+    // true
+    phase === "phase-production-server" ||
+    phase === "phase-development-server"
   ) {
     const sysSetting = await prisma.sysSetting.findMany({
       where: {},
