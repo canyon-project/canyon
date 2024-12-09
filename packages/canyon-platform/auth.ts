@@ -3,6 +3,8 @@ import GitLab from "next-auth/providers/gitlab";
 import GitHub from "next-auth/providers/github";
 import prisma from "@/lib/prisma";
 
+console.log(process.env, "process.env|auth.ts");
+
 export const { handlers, auth } = NextAuth(() => {
   return {
     providers: [
