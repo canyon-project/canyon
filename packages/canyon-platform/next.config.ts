@@ -13,7 +13,22 @@ import prisma from "@/lib/prisma";
 
 // flag position, do not delete
 
-export default async function () {
+export default async function (phase: string) {
+  console.log(phase, "phase");
+  if (
+    true
+    // phase === "phase-production-server" ||
+    // phase === "phase-development-server"
+  ) {
+    const sysSetting = await prisma.sysSetting.findMany({
+      where: {},
+    });
+    for (let i = 0; i < sysSetting.length; i++) {
+      process.env[sysSetting[i].key] = sysSetting[i].value;
+    }
+  }
+  console.log(process.env);
+  // console.log(sysSetting);
   const nextConfig: NextConfig = {
     typescript: {
       ignoreBuildErrors: true,
