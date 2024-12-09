@@ -27,7 +27,7 @@ export default async function (phase: string) {
       process.env[sysSetting[i].key] = sysSetting[i].value;
     }
   }
-
+  console.log(process.env);
   // console.log(sysSetting);
   const nextConfig: NextConfig = {
     typescript: {
