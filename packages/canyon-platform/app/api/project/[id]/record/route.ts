@@ -26,6 +26,9 @@ export async function GET(request: NextRequest) {
         statementsTotal: true,
         updatedAt: true,
       },
+      orderBy: {
+        updatedAt: "desc",
+      },
     })
     .then((r) => {
       return r.map((item) => {
