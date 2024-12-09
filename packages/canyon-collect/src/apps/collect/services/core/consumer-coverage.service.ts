@@ -217,7 +217,7 @@ export class ConsumerCoverageService {
       });
     }
   }
-  async pullChangeCode(coverage) {}
+  // async pullChangeCode(coverage) {}
 
   async acquireLock(lockName: string, lockTimeout: number): Promise<boolean> {
     const now = new Date();

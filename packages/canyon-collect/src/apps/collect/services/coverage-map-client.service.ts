@@ -50,36 +50,20 @@ export class CoverageMapClientService {
 
     const formatCoverageMap = IstanbulMapMapSchema.parse(formatedCoverage);
 
-    const chongzu = resetCoverageDataMap(formatCoverageMap);
+    const resetCovMap = resetCoverageDataMap(formatCoverageMap);
 
     // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
-    const inithitMapCWanzhen = await remapCoverageWithInstrumentCwd(
-      chongzu,
+    const hitObject = await remapCoverageWithInstrumentCwd(
+      resetCovMap,
       instrumentCwd,
     );
 
     const compressedFormatCoverageStr = await compressedData(formatCoverageMap);
-    const inithitStr = await compressedData(
-      IstanbulHitMapSchema.parse(inithitMapCWanzhen),
-    );
+    const hit = await compressedData(IstanbulHitMapSchema.parse(hitObject));
 
-    const summary = genSummaryMapByCoverageMap(
-      // await this.testExcludeService.invoke(
-      //   queueDataToBeConsumed.projectID,
-      //   newCoverage,
-      // ),
-      inithitMapCWanzhen,
-      [],
-    );
-    const sum: any = getSummaryByPath("", summary);
-    const summaryZstd = await compressedData(summary);
-    //   ******************************************************
-    //   ******************************************************
-    //   ******************************************************
-    // 准备map数据
-    //   ******************************************************
-    //   ******************************************************
-    //   ******************************************************
+    const summaryObject = genSummaryMapByCoverageMap(hitObject, []);
+    const overallSummary: any = getSummaryByPath("", summaryObject);
+    const summary = await compressedData(summaryObject);
 
     return this.prisma.coverage
       .create({
@@ -96,10 +80,10 @@ export class CoverageMapClientService {
           reportID: sha,
           covType: "all", //map都是all
           statementsCovered: 0,
-          statementsTotal: sum.statements.total,
+          statementsTotal: overallSummary.statements.total,
           //空bytes
-          summary: summaryZstd,
-          hit: inithitStr,
+          summary: summary,
+          hit: hit,
           map: compressedFormatCoverageStr,
           instrumentCwd: instrumentCwd,
           id: `${projectID}|${sha}|all`,
