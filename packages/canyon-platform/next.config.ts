@@ -14,7 +14,7 @@ import prisma from "@/lib/prisma";
 // flag position, do not delete
 
 export default async function (phase: string) {
-  console.log(phase, "phase");
+  // console.log(phase, "phase");
   if (
     true
     // phase === "phase-production-server" ||
@@ -27,7 +27,7 @@ export default async function (phase: string) {
       process.env[sysSetting[i].key] = sysSetting[i].value;
     }
   }
-  console.log(process.env);
+  // console.log(process.env);
   // console.log(sysSetting);
   const nextConfig: NextConfig = {
     typescript: {
