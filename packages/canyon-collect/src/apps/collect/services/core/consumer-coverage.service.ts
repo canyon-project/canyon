@@ -2,20 +2,19 @@ import { Injectable } from "@nestjs/common";
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
-} from "../../../../canyon-data/src";
+  mergeCoverageMap,
+} from "canyon-data";
 
 import { CoveragediskService } from "./coveragedisk.service";
 import { PrismaService } from "../../../../prisma/prisma.service";
 import { removeNullKeys } from "../../../../utils/utils";
 import { compressedData, decompressedData } from "../../../../utils/zstd";
 import { coverageObj } from "../../models/coverage.model";
-import { mergeCoverageMap } from "canyon-data";
-// import { resetCoverageDataMap } from 'canyon-data2';
 import {
   remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
   resetCoverageDataMap,
-} from "canyon-data2";
+} from "canyon-data";
 import { IstanbulHitMapSchema } from "../../../../zod/istanbul.zod";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));

@@ -5,7 +5,7 @@ import {
   remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
   resetCoverageDataMap,
-} from "canyon-data2";
+} from "canyon-data";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;

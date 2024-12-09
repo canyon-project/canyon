@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 // import {decompressedData} from "@/utils/zstd";
 
 import { NextRequest } from "next/server";
-import { percent } from "canyon-data2";
+import { percent } from "canyon-data";
 
 export async function GET(request: NextRequest) {
   const { pathname } = request.nextUrl;

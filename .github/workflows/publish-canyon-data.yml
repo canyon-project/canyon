@@ -1,4 +1,4 @@
-name: Publish canyon-data2
+name: Publish canyon-data
 
 on:
   push:
@@ -17,6 +17,6 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
-      - run: pnpm --filter=canyon-data2 publish -f --no-git-checks --access=public --filter
+      - run: pnpm --filter=canyon-data publish -f --no-git-checks --access=public --filter
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}

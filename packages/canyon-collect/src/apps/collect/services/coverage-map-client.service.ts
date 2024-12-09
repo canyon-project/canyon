@@ -7,15 +7,14 @@ import {
 import { compressedData } from "../../../utils/zstd";
 import { formatReportObject } from "../../../utils/coverage";
 import { coverageObj } from "../models/coverage.model";
-import { resetCoverageDataMap } from "canyon-data2";
-import {
-  formatCoverageData,
-  remapCoverageWithInstrumentCwd,
-} from "canyon-data2";
+
 import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
-} from "../../../canyon-data/src";
+  formatCoverageData,
+  remapCoverageWithInstrumentCwd,
+  resetCoverageDataMap,
+} from "canyon-data";
 
 @Injectable()
 export class CoverageMapClientService {

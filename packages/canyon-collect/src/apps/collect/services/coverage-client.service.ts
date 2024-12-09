@@ -8,7 +8,7 @@ import {
   formatCoverageData,
   remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
-} from "canyon-data2";
+} from "canyon-data";
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()

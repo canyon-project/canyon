@@ -1,6 +1,6 @@
 import { FileCoverageData, Range } from "istanbul-lib-coverage";
 import { percent } from "./percent";
-
+// @ts-ignore
 function getLinesFromRanges(ranges) {
   const lines = [];
   for (const range of ranges) {
@@ -12,6 +12,7 @@ function getLinesFromRanges(ranges) {
       lines.push(lineNumber);
     }
   }
+  // @ts-ignore
   return [...new Set(lines)];
 }
 
@@ -38,7 +39,7 @@ function getLineCoverage(
   });
   return lineMap;
 }
-
+// @ts-ignore
 function specialLogicByIf(branchRange, index) {
   if (
     branchRange.type === "if" &&

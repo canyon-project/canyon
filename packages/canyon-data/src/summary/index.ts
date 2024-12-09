@@ -124,16 +124,19 @@ export const genSummaryTreeItem = (
     }
   });
 
+
   return {
     path,
     summary: getSummaryByPath(path, summary),
     children: [
+      // @ts-ignore
       ...[...new Set(fileLists)].map((item) => {
         return {
           path: item,
           summary: getSummaryByPath(item, summary),
         };
       }),
+      // @ts-ignore
       ...[...new Set(folderLists)].map((item) => {
         return {
           path: item,
