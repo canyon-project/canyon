@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
         statementsCovered: true,
         statementsTotal: true,
         updatedAt: true,
+        branch: true,
       },
       orderBy: {
         updatedAt: "desc",
@@ -38,7 +39,7 @@ export async function GET(request: NextRequest) {
           times: 0,
           statements: percent(item.statementsCovered, item.statementsTotal),
           message: "message",
-          branch: "branch",
+          branch: item.branch,
           lastReportTime: item.updatedAt,
         };
       });
