@@ -14,10 +14,11 @@ import prisma from "@/lib/prisma";
 // flag position, do not delete
 
 export default async function (phase: string) {
+  console.log(phase, "phase");
   if (
-    // true
-    phase === "phase-production-server" ||
-    phase === "phase-development-server"
+    true
+    // phase === "phase-production-server" ||
+    // phase === "phase-development-server"
   ) {
     const sysSetting = await prisma.sysSetting.findMany({
       where: {},
