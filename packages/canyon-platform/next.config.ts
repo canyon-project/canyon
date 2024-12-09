@@ -15,8 +15,9 @@ import prisma from "@/lib/prisma";
 
 export default async function (phase: string) {
   if (
-    phase === "phase-production-server" ||
-    phase === "phase-development-server"
+    true
+    // phase === "phase-production-server" ||
+    // phase === "phase-development-server"
   ) {
     const sysSetting = await prisma.sysSetting.findMany({
       where: {},
@@ -38,8 +39,8 @@ export default async function (phase: string) {
       swcPlugins:
         process.env.NODE_ENV === "production"
           ? [
-              ["swc-plugin-coverage-instrument", {}],
-              ["swc-plugin-canyon", {}],
+              // ["swc-plugin-coverage-instrument", {}],
+              // ["swc-plugin-canyon", {}],
             ]
           : [],
     },
