@@ -1,17 +1,6 @@
 "use client";
 import ReactECharts from "echarts-for-react";
-import {
-  Divider,
-  Input,
-  Popconfirm,
-  Space,
-  Spin,
-  Switch,
-  Table,
-  Tag,
-  theme,
-  Typography,
-} from "antd";
+import { Input, Space, Spin, Table, Tag, theme, Typography } from "antd";
 import { ColumnsType } from "antd/es/table";
 import Link from "next/link";
 import MainBox from "@/components/wget/layout/main-box";
@@ -21,6 +10,7 @@ import { useParams } from "next/navigation";
 import WithTheme from "@/theme";
 import { EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+
 const { Title, Text } = Typography;
 const getProjectCompartmentData = [
   {
@@ -40,23 +30,7 @@ const getProjectCompartmentData = [
     value: "100",
   },
 ];
-const tags = [
-  {
-    color: "red",
-    name: "tag",
-    link: "https://www.baidu.com",
-  },
-  {
-    color: "red",
-    name: "tag",
-    link: "https://www.baidu.com",
-  },
-  {
-    color: "red",
-    name: "tag",
-    link: "https://www.baidu.com",
-  },
-];
+
 const fetcher = ({ url, params }: { url: string; params: any }) =>
   axios
     .get(url, {
@@ -110,7 +84,7 @@ const ProjectOverviewPage = () => {
     fetcher,
   );
 
-  const { data: projectData } = useSWR(
+  const { data: projectData,isLoading } = useSWR(
     {
       url: `/api/project/${provider}-${id}-${slug}`,
     },
@@ -357,7 +331,7 @@ const ProjectOverviewPage = () => {
         </div>
         {/*div*/}
         <Table
-          loading={false}
+          loading={isLoading}
           style={{
             border: `1px solid ${token.colorBorder}`,
             borderRadius: `${token.borderRadius}px`,

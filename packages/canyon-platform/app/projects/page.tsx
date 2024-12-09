@@ -81,7 +81,11 @@ const ProjectsPage = () => {
           boxShadow: `${token.boxShadowTertiary}`,
         }}
       >
-        <Table dataSource={data?.data || []} columns={columns} />
+        <Table
+          loading={isLoading}
+          dataSource={data?.data || []}
+          columns={columns}
+        />
       </div>
     </MainBox>
   );
