@@ -26,6 +26,25 @@ body {
   border-inline-end: none !important;
 }
 
+/*登陆页面*/
+.ant-tabs-nav {
+  padding-left: 40px !important;
+}
+
+
+.ant-table-wrapper .ant-table-pagination.ant-pagination {
+  margin-right: 16px;
+}
+
+.ant-collapse-header {
+  background-color: #f8f9fa !important;
+  padding: 24px 20px !important;
+}
+
+.ant-collapse-item {
+  margin-bottom: 0 !important;
+}
+
 a {
   color: #0071c2 !important;
 }

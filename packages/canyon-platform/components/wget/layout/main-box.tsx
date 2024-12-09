@@ -17,6 +17,7 @@ import React, { useEffect, useMemo } from "react";
 // import CIcon from "@/components/c-icon";
 import AppFooter from "@/components/wget/layout/app-footer";
 import Link from "next/link";
+import useSWR from "swr";
 
 const menuItems = [
   {
@@ -59,8 +60,11 @@ const MeData = {
   },
 };
 const { useToken } = theme;
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
   const routeName = usePathname();
+  const { data, error } = useSWR("/api/user", fetcher);
   const { id, sha } = useParams(); // 获取动态路由参数
   const { token } = useToken();
   const onSelectMenu = (selectInfo: any) => {
@@ -185,17 +189,22 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
           >
             <div
               className={
-                "h-[70px] py-[14px] px-[14px] flex items-center justify-between cursor-pointer"
+                "h-[70px] py-[10px] px-[10px] flex items-center justify-between cursor-pointer"
               }
               style={{ borderTop: `1px solid ${token.colorBorder}` }}
             >
-              <Avatar src={MeData?.me.avatar}></Avatar>
+              <Avatar src={data?.image}></Avatar>
               <div className={"flex flex-col"}>
                 <Text ellipsis className={"w-[150px]"}>
-                  {MeData?.me.nickname}
+                  {data?.name}
                 </Text>
-                <Text ellipsis className={"w-[150px]"} type={"secondary"}>
-                  {MeData?.me.email || ""}
+                <Text
+                  ellipsis
+                  className={"w-[150px]"}
+                  style={{ fontSize: "12px" }}
+                  type={"secondary"}
+                >
+                  {data?.email || ""}
                 </Text>
               </div>
               {/*<CIcon name={"nrk--more"} />*/}

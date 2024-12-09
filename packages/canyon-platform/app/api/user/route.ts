@@ -1,8 +1,10 @@
 // export const dynamic = 'force-static'
-import prisma from "@/lib/prisma";
+// import prisma from "@/lib/prisma";
+import { auth } from "@/auth";
 
 export async function GET() {
   // const users = await prisma.user.findMany();
-
-  return Response.json({ data: [] });
+  const session = await auth();
+  // console.log(session.user);
+  return Response.json(session.user);
 }

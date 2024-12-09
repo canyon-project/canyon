@@ -10,6 +10,21 @@ datasource db {
   url      = env("DATABASE_URL") // uses connection pooling
 }
 
+model User {
+  id           String   @id
+  username     String
+  password     String
+  nickname     String
+  avatar       String
+  refreshToken String   @map("refresh_token")
+  accessToken  String   @map("access_token")
+  email        String
+  favor        String
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("canyon_v3_user")
+}
+
 model Coverage {
   id                String   @id @default(cuid())
   sha               String
