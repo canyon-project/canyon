@@ -5,24 +5,47 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./i18n/request.ts");
 config({ path: resolve(__dirname, "../../.env") });
 
+import prisma from "@/lib/prisma";
+
+// 只有数据库URL是必须的，其他的都从库里读
+// prisma 设置环境变量
+// gitlab nodejs
+
 // flag position, do not delete
 
-const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  experimental: {
-    swcPlugins:
-      process.env.NODE_ENV === "production"
-        ? [
-            ["swc-plugin-coverage-instrument", {}],
-            ["swc-plugin-canyon", {}],
-          ]
-        : [],
-  },
-};
+export default async function (phase: string) {
+  if (
+    phase === "phase-production-server" ||
+    phase === "phase-development-server"
+  ) {
+    const sysSetting = await prisma.sysSetting.findMany({
+      where: {},
+    });
+    for (let i = 0; i < sysSetting.length; i++) {
+      process.env[sysSetting[i].key] = sysSetting[i].value;
+    }
+  }
 
-export default withNextIntl(nextConfig);
+  // console.log(sysSetting);
+  const nextConfig: NextConfig = {
+    typescript: {
+      ignoreBuildErrors: true,
+    },
+    eslint: {
+      ignoreDuringBuilds: true,
+    },
+    experimental: {
+      swcPlugins:
+        process.env.NODE_ENV === "production"
+          ? [
+              ["swc-plugin-coverage-instrument", {}],
+              ["swc-plugin-canyon", {}],
+            ]
+          : [],
+    },
+  };
+
+  return withNextIntl(nextConfig);
+}
+
+// export default withNextIntl(nextConfig);
