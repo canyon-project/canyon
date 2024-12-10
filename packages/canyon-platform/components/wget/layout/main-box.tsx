@@ -224,7 +224,7 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
           </div>
         </div>
       }
-      footer={<AppFooter name={`canyonjs.org`} corp={"canyonjs.org"} />}
+      footer={<AppFooter name={`Trip.com`} corp={"Trip.com"} />}
     />
   );
 };
