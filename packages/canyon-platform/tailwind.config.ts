@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 import { addDynamicIconSelectors } from "@iconify/tailwind";
-// import s from '../canyon-report/src'
+
 export default {
   darkMode: ["class"],
   content: [
