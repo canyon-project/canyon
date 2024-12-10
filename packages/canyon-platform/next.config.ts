@@ -19,6 +19,7 @@ export default async function (phase: string) {
     phase === "phase-production-server" ||
     phase === "phase-development-server"
   ) {
+    // cert flag position, do not delete
     const sysSetting = await prisma.sysSetting.findMany({
       where: {},
     });
