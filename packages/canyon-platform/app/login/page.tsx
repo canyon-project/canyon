@@ -40,7 +40,7 @@ const CanyonPageLogin: FC<{
 
             <div className={"bg-white flex-1"}>
               <div className={"px-10 pt-5"}>
-                <Title level={3}>Log in and continue123</Title>
+                <Title level={3}>Log in and continue</Title>
               </div>
               <Tabs
                 tabBarExtraContent={
