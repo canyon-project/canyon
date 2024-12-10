@@ -6,11 +6,11 @@ import prisma from "@/lib/prisma";
 export const { handlers, auth } = NextAuth({
   trustHost: true,
   providers: [
-    process.env.GITLAB_SERVER
+    process.env.AUTH_GITLAB_ORIGIN
       ? GitLab({
-          authorization: `${process.env.GITLAB_SERVER}/oauth/authorize?scope=read_user`,
-          token: `${process.env.GITLAB_SERVER}/oauth/token`,
-          userinfo: `${process.env.GITLAB_SERVER}/api/v4/user`,
+          authorization: `${process.env.AUTH_GITLAB_ORIGIN}/oauth/authorize?scope=read_user`,
+          token: `${process.env.AUTH_GITLAB_ORIGIN}/oauth/token`,
+          userinfo: `${process.env.AUTH_GITLAB_ORIGIN}/api/v4/user`,
         })
       : GitLab,
     GitHub,
