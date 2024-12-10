@@ -43,7 +43,7 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: pnpm --filter=swc-plugin-canyon publish -f --no-git-checks --access=public --filter
+          publish: pnpm --filter=swc-plugin-canyon publish -f --no-git-checks --access=public --filter || echo "Version already published. Skipping."
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
