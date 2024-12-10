@@ -1,13 +1,14 @@
 // import { useRequest } from "ahooks";
 import { FC } from "react";
 import { Button, Form, Input } from "antd";
+import { signIn } from "next-auth/react";
 const onFinishFailed = (errorInfo: any) => {
   console.log("Failed:", errorInfo);
 };
 
 type FieldType = {
   companyname?: string;
-  username?: string;
+  email?: string;
   password?: string;
 };
 
@@ -19,9 +20,13 @@ const LoginForm: FC<{
     console.log("Success:", values);
     // run({
     //   companyname: String(values.companyname),
-    //   username: String(values.username),
     //   password: String(values.password),
     // });
+
+    signIn("credentials", {
+      password: values.password,
+      email: values.email,
+    });
   };
   return (
     <Form
@@ -33,11 +38,11 @@ const LoginForm: FC<{
       onFinishFailed={onFinishFailed}
     >
       <Form.Item<FieldType>
-        label="Username"
-        name="username"
-        rules={[{ required: true, message: "Please input your username!" }]}
+        label="Email"
+        name="email"
+        rules={[{ required: true, message: "Please input your email!" }]}
       >
-        <Input placeholder={"Username or Email"} />
+        <Input placeholder={"Email"} />
       </Form.Item>
 
       <Form.Item<FieldType>

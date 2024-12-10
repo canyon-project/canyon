@@ -2,10 +2,33 @@ import NextAuth from "next-auth";
 import GitLab from "next-auth/providers/gitlab";
 import GitHub from "next-auth/providers/github";
 import prisma from "@/lib/prisma";
+import Credentials from "next-auth/providers/credentials";
 
 export const { handlers, auth } = NextAuth({
+  // nginx 代理需要设置 trustHost
   trustHost: true,
   providers: [
+    // 账号密码登录，用于测试
+    Credentials({
+      credentials: {
+        password: { label: "Password", type: "password" },
+        email: { label: "Email", type: "email" },
+      },
+      async authorize(c) {
+        const u = await prisma.user.findFirst({
+          where: {
+            email: c.email as string,
+            password: c.password as string,
+          },
+        });
+        if (!u) return null;
+        return {
+          id: u.id,
+          name: u.nickname,
+          email: u.email,
+        };
+      },
+    }),
     process.env.AUTH_GITLAB_ORIGIN
       ? GitLab({
           authorization: `${process.env.AUTH_GITLAB_ORIGIN}/oauth/authorize?scope=read_user`,
@@ -21,6 +44,10 @@ export const { handlers, auth } = NextAuth({
     },
     // 登陆的时候从gitlab获取用户信息
     async signIn({ profile, account, user }) {
+      // 对于账号密码登录，不需要数据库处理
+      if (account?.provider === "credentials") {
+        return true;
+      }
       const userTest: any = {
         accessToken: "accessToken",
         refreshToken: "refreshToken",
@@ -52,8 +79,9 @@ export const { handlers, auth } = NextAuth({
     },
     jwt({ token, user, profile, account }) {
       if (user) {
-        // @ts-ignore
-        token.id = String(account.provider + "-" + profile.id);
+        token.id = profile
+          ? String(account?.provider + "-" + profile.id)
+          : user.id;
       }
       return token;
     },
