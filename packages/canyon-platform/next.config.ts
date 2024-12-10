@@ -21,7 +21,11 @@ export default async function (phase: string) {
   ) {
     // cert flag position, do not delete
     const sysSetting = await prisma.sysSetting.findMany({
-      where: {},
+      where: {
+        NOT: {
+          key: phase === "phase-development-server" ? "AUTH_URL" : undefined,
+        },
+      },
     });
     for (let i = 0; i < sysSetting.length; i++) {
       process.env[sysSetting[i].key] = sysSetting[i].value;

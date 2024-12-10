@@ -13,8 +13,8 @@ export const { handlers, auth } = NextAuth({
     // 账号密码登录，用于测试
     Credentials({
       credentials: {
-        password: { label: "Password", type: "password" },
         email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(c) {
         const u = await prisma.user.findFirst({
@@ -28,6 +28,7 @@ export const { handlers, auth } = NextAuth({
           id: u.id,
           name: u.nickname,
           email: u.email,
+          image: u.avatar,
         };
       },
     }),
