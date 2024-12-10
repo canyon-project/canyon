@@ -5,7 +5,6 @@ import prisma from "@/lib/prisma";
 
 export const { handlers, auth } = NextAuth({
   trustHost: true,
-  redirectProxyUrl: process.env.AUTH_URL,
   providers: [
     process.env.GITLAB_SERVER
       ? GitLab({
@@ -16,7 +15,6 @@ export const { handlers, auth } = NextAuth({
       : GitLab,
     GitHub,
   ],
-  // secret: process.env.AUTH_SECRET,
   callbacks: {
     redirect: async () => {
       return "/projects";
