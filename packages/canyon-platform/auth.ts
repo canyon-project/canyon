@@ -5,8 +5,10 @@ import prisma from "@/lib/prisma";
 import Credentials from "next-auth/providers/credentials";
 
 export const { handlers, auth } = NextAuth({
+  // debug: true,
   // nginx 代理需要设置 trustHost
   trustHost: true,
+  // redirectProxyUrl: "http://localhost:3000/api/auth",
   providers: [
     // 账号密码登录，用于测试
     Credentials({

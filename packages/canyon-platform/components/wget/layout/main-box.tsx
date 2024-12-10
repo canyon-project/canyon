@@ -64,11 +64,16 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
   const routeName = usePathname();
-  const { data, error } = useSWR("/api/user", fetcher);
+  const { data, error } = useSWR("/api/user", fetcher, {
+    onSuccess: (d) => {
+      if (!d.id) {
+        window.location.href = "/login";
+      }
+    },
+  });
   const { id, sha } = useParams(); // 获取动态路由参数
   const { token } = useToken();
   const onSelectMenu = (selectInfo: any) => {
-    console.log(selectInfo);
     window.location.href = `/${selectInfo.key}`;
   };
 
