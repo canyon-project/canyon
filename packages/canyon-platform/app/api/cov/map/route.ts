@@ -13,9 +13,12 @@ export async function GET(request: NextRequest) {
   const projectID = searchParams.get("project_id");
   const sha = searchParams.get("sha");
   const filepath = searchParams.get("filepath");
+
+  const [provider, id, slug] = projectID.split("-");
+
   const data = await prisma.coverage.findFirst({
     where: {
-      projectID: projectID,
+      projectID: id,
       sha: sha,
       covType: "all",
     },
@@ -23,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   const hitdata = await prisma.coverage.findFirst({
     where: {
-      projectID: projectID,
+      projectID: id,
       sha: sha,
       covType: "all",
     },

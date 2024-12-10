@@ -7,10 +7,10 @@ export async function GET(request: NextRequest) {
   const projectID = searchParams.get("project_id");
   const sha = searchParams.get("sha");
   const reportID = searchParams.get("report_id");
-
+  const [provider, id, slug] = projectID.split("-");
   const coverage = await prisma.coverage.findFirst({
     where: {
-      projectID: projectID,
+      projectID: id,
       sha: sha,
     },
   });

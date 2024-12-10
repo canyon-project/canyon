@@ -18,7 +18,7 @@ const fetcher = ({ url, params }: { url: string; params: any }) =>
 
 export default function Page() {
   const { token } = useToken();
-  const { filepath, id, sha } = useParams(); // 获取动态路由参数
+  const { filepath, id, sha, provider, slug } = useParams(); // 获取动态路由参数
   // @ts-ignore
   const defaultFilePath = filepath ? filepath.join("/") : "";
   // 当前选择的路径
@@ -29,7 +29,7 @@ export default function Page() {
     {
       url: "/api/cov/summary/map",
       params: {
-        project_id: id,
+        project_id: `${provider}-${id}-${slug}`,
         sha,
       },
     },
@@ -40,7 +40,7 @@ export default function Page() {
     {
       url: `/api/project/${id}`,
       params: {
-        project_id: id,
+        project_id: `${provider}-${id}-${slug}`,
         sha,
       },
     },
@@ -58,7 +58,7 @@ export default function Page() {
     setValue(val);
     // 处理选择事件
     return handleSelect({
-      projectID: id,
+      projectID: `${provider}-${id}-${slug}`,
       sha,
       filepath: val,
     });

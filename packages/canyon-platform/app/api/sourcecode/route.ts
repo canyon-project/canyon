@@ -12,17 +12,17 @@ export async function GET(request: NextRequest) {
   if (!projectID || !sha || !filepath) {
     return Response.error();
   }
-
+  const [provider, id, slug] = projectID.split("-");
   const gitProvider = await prisma.gitProvider.findFirst({
     where: {
-      id: projectID.split("-")[0],
+      id: provider,
     },
   });
-
   if (gitProvider) {
     const { url, privateToken } = gitProvider;
+    // TODO: 从gitlab获取文件内容，还去要判断provider type，例如github。
     const fileContent = await axios
-      .get(`${url}/api/v4/projects/${projectID}/repository/files/${filepath}`, {
+      .get(`${url}/api/v4/projects/${id}/repository/files/${filepath}`, {
         params: {
           ref: sha,
         },
@@ -32,7 +32,6 @@ export async function GET(request: NextRequest) {
         },
       })
       .then(({ data }) => data);
-
     return Response.json(fileContent);
   } else {
     return Response.error();
