@@ -6,9 +6,9 @@ import { formatReportObject } from "../../../utils/coverage";
 import { CoveragediskService } from "./core/coveragedisk.service";
 import {
   formatCoverageData,
-  remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
 } from "canyon-data";
+import { remapCoverageWithInstrumentCwd } from "canyon-map";
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()

@@ -17,6 +17,7 @@
     "antd": "^5.12.8",
     "axios": "^1.7.7",
     "canyon-data": "workspace:^",
+    "canyon-map": "workspace:^",
     "canyon-report": "0.0.8-beta-49",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",

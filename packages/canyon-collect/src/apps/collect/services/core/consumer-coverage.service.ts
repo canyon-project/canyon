@@ -11,11 +11,11 @@ import { removeNullKeys } from "../../../../utils/utils";
 import { compressedData, decompressedData } from "../../../../utils/zstd";
 import { coverageObj } from "../../models/coverage.model";
 import {
-  remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
   resetCoverageDataMap,
 } from "canyon-data";
 import { IstanbulHitMapSchema } from "../../../../zod/istanbul.zod";
+import { remapCoverageWithInstrumentCwd } from "canyon-map";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

@@ -2,10 +2,11 @@ import prisma from "@/lib/prisma";
 import { decompressedData } from "@/utils/zstd";
 import { NextRequest } from "next/server";
 import {
-  remapCoverageWithInstrumentCwd,
   reorganizeCompleteCoverageObjects,
   resetCoverageDataMap,
 } from "canyon-data";
+
+import { remapCoverageWithInstrumentCwd } from "canyon-map";
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl;

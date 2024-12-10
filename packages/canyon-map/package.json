@@ -1,6 +1,6 @@
 {
-  "name": "canyon-data",
-  "version": "2.0.0-beta.6",
+  "name": "canyon-map",
+  "version": "2.0.0-beta.1",
   "description": "",
   "type": "module",
   "exports": {

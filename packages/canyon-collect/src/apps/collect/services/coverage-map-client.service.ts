@@ -12,9 +12,9 @@ import {
   genSummaryMapByCoverageMap,
   getSummaryByPath,
   formatCoverageData,
-  remapCoverageWithInstrumentCwd,
   resetCoverageDataMap,
 } from "canyon-data";
+import { remapCoverageWithInstrumentCwd } from "canyon-map";
 
 @Injectable()
 export class CoverageMapClientService {
