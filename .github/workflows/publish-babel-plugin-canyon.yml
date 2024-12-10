@@ -17,20 +17,10 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
-      - run: |
-          # 获取当前的版本号
-          VERSION=$(jq -r '.version' package.json)
-          # 检查该版本是否已经发布
-          if npm show babel-plugin-canyon@$VERSION; then
-            echo "Version $VERSION already published. Skipping publish."
-          else
-            pnpm --filter=babel-plugin-canyon publish -f --no-git-checks --access=public
-          fi
+      - run: pnpm --filter=babel-plugin-canyon publish -f --no-git-checks --access=public --filter
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
       - run: |
-          # 如果发布成功，则添加 dist-tag
-          VERSION=$(jq -r '.version' package.json)
-          pnpm dist-tag add babel-plugin-canyon@$VERSION latest
+          pnpm dist-tag add babel-plugin-canyon@1.8.87 latest
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
