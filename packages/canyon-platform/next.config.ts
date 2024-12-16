@@ -24,7 +24,7 @@ export default async function (phase: string) {
     });
     for (let i = 0; i < sysSetting.length; i++) {
       process.env[sysSetting[i].key] = sysSetting[i].value;
-      console.log(`设置${sysSetting[i].key}为${sysSetting[i].value}`);
+      // console.log(`设置${sysSetting[i].key}为${sysSetting[i].value}`);
     }
   }
   const nextConfig: NextConfig = {

@@ -38,11 +38,7 @@ export default function Page() {
 
   const { data: projectInfo } = useSWR(
     {
-      url: `/api/project/${id}`,
-      params: {
-        project_id: `${provider}-${id}-${slug}`,
-        sha,
-      },
+      url: `/api/project/${provider}-${id}-${slug}`,
     },
     fetcher,
   );
@@ -52,7 +48,7 @@ export default function Page() {
     history.pushState(
       null,
       "",
-      `/projects/tripgl/${id}/auto/commits/${sha}/${val}`,
+      `/projects/${provider}/${id}/${slug}/commits/${sha}/${val}`,
     );
     // 设置当前选择的路径
     setValue(val);
