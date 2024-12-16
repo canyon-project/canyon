@@ -71,7 +71,7 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
       }
     },
   });
-  const { id, sha } = useParams(); // 获取动态路由参数
+  const { id, sha, provider, slug } = useParams(); // 获取动态路由参数
   const { token } = useToken();
   const onSelectMenu = (selectInfo: any) => {
     window.location.href = `/${selectInfo.key}`;
@@ -98,7 +98,9 @@ const MainBoxWrap = ({ children }: React.PropsWithChildren) => {
           title: <Link href={`/projects`}>Projects</Link>,
         },
         {
-          title: <Link href={`/projects/tripgl/${id}/auto`}>Overview</Link>,
+          title: (
+            <Link href={`/projects/${provider}/${id}/${slug}`}>Overview</Link>
+          ),
         },
         {
           title: "Coverage Details",

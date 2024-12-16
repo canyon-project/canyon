@@ -79,7 +79,7 @@ const ProjectOverviewPage = () => {
   // 非常重要的一步，获取整体覆盖率数据
   const { data: record } = useSWR(
     {
-      url: `/api/project/${id}/record`,
+      url: `/api/project/${provider}-${id}-${slug}/record`,
     },
     fetcher,
   );
@@ -104,7 +104,7 @@ const ProjectOverviewPage = () => {
       width: "100px",
       render(_, { webUrl }): JSX.Element {
         return (
-          <Link href={`/projects/tripgl/${id}/auto/commits/${_}`}>
+          <Link href={`/projects/${provider}/${id}/${slug}/commits/${_}`}>
             {_?.slice(0, 7)}
           </Link>
         );
@@ -140,7 +140,7 @@ const ProjectOverviewPage = () => {
       // width: '148px',
       render(_, { sha }) {
         return (
-          <Link href={`/projects/tripgl/${id}/auto/commits/${sha}`}>{_}%</Link>
+          <Link href={`/projects/${provider}/${id}/${slug}/commits/${sha}`}>{_}%</Link>
         );
       },
     },

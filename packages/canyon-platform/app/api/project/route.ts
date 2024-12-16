@@ -18,7 +18,7 @@ export async function GET() {
   const projects = await prisma.project.findMany({
     where: {
       id: {
-        in: dukliID.map((id) => `tripgl-${id}-auto`),
+        in: dukliID,
       },
     },
   });

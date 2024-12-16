@@ -5,14 +5,15 @@ import { percent } from "canyon-data";
 
 export async function GET(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const provider = pathname.split("/")[2];
+  // const provider = pathname.split("/")[2];
   const id = pathname.split("/")[3];
-  const slug = pathname.split("/")[4];
-  const projectID = `${provider}-${id}-${slug}`;
+  console.log("id", id);
+  // const slug = pathname.split("/")[4];
+  // const projectID = `${provider}-${id}-${slug}`;
   const coverages = await prisma.coverage
     .findMany({
       where: {
-        projectID: projectID,
+        projectID: id,
         covType: "all",
       },
       select: {
