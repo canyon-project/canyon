@@ -28,7 +28,14 @@ export class CoverageClientService {
     // #region == Step x: 检查map是否存在
     const coverageFromDatabase = await this.prisma.coverage.findFirst({
       where: {
-        projectID: projectID,
+        // tripgl-1-autoxxx
+        projectID: {
+          // 只取前两位
+          contains: projectID
+            .split("-")
+            .filter((_: any, index: number) => index < 2)
+            .join("-"),
+        },
         sha: sha,
         covType: "all",
       },

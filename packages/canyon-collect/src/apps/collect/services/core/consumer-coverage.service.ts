@@ -107,8 +107,15 @@ export class ConsumerCoverageService {
     const { map, instrumentCwd } = await this.prisma.coverage
       .findFirst({
         where: {
+          // tripgl-1-autoxxx
+          projectID: {
+            // 只取前两位
+            contains: queueDataToBeConsumed.projectID
+              .split("-")
+              .filter((_: any, index: number) => index < 2)
+              .join("-"),
+          },
           sha: queueDataToBeConsumed.sha,
-          projectID: queueDataToBeConsumed.projectID,
           covType: "all",
         },
       })

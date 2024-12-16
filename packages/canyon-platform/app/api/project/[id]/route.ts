@@ -3,13 +3,13 @@ import { NextRequest } from "next/server";
 
 export async function GET(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const projectID = pathname.split("/")[3];
+  const provider = pathname.split("/")[2];
+  const id = pathname.split("/")[3];
+  const slug = pathname.split("/")[4];
 
   const project = await prisma.project.findFirst({
     where: {
-      id: {
-        contains: projectID,
-      },
+      id: `${provider}-${id}-${slug}`,
     },
   });
   return Response.json(project);
