@@ -8,6 +8,7 @@ export async function mapCommand(params, options) {
 		project_id: projectID,
 		sha,
 		instrument_cwd: instrumentCwd,
+    branch,
 	} = params;
 	// 判断是否存在.canyon_output文件夹
 	if (!fs.existsSync(path.resolve(process.cwd(), ".canyon_output"))) {
@@ -35,7 +36,7 @@ export async function mapCommand(params, options) {
 		projectID:
 			projectID || process.env.CI_PROJECT_ID || process.env.GITHUB_REPOSITORY_ID,
 		sha: sha || process.env.CI_COMMIT_SHA || process.env.GITHUB_SHA,
-    branch: process.env.CI_COMMIT_BRANCH || process.env.GITHUB_REF,
+    branch: branch || process.env.CI_COMMIT_BRANCH || process.env.GITHUB_REF,
 		instrumentCwd: instrumentCwd || process.cwd(),
 		coverage: Object.keys(data),
 	};
