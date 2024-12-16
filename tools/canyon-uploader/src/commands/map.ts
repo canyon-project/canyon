@@ -9,6 +9,7 @@ export async function mapCommand(params, options) {
 		sha,
 		instrument_cwd: instrumentCwd,
     branch,
+    provider
 	} = params;
 	// 判断是否存在.canyon_output文件夹
 	if (!fs.existsSync(path.resolve(process.cwd(), ".canyon_output"))) {
@@ -39,12 +40,14 @@ export async function mapCommand(params, options) {
     branch: branch || process.env.CI_COMMIT_BRANCH || process.env.GITHUB_REF,
 		instrumentCwd: instrumentCwd || process.cwd(),
 		coverage: Object.keys(data),
+    provider: provider,
 	};
 	console.log(reqData);
 	await axios
 		.post(dsn, {
       ...reqData,
 			coverage: data,
+      projectID:`${reqData.provider}-${reqData.projectID}-auto`,
 		})
 		.catch((e) => {
 			// 打印错误
