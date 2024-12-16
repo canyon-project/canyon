@@ -32,9 +32,6 @@ importers:
 
   packages/canyon-collect:
     dependencies:
-      '@mongodb-js/zstd':
-        specifier: ^1.2.2
-        version: 1.2.2
       '@nestjs/common':
         specifier: ^10.0.0
         version: 10.4.15(class-transformer@0.5.1)(class-validator@0.14.1)(reflect-metadata@0.2.2)(rxjs@7.8.1)
@@ -1638,54 +1635,6 @@ packages:
       monaco-editor: '>= 0.25.0 < 1'
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
       react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
-
-  '@mongodb-js/zstd-darwin-arm64@1.2.2':
-    resolution: {integrity: sha512-hjQgub8fhn3itewwRSCSe3sl8rmnbZOFwuBHOZj4j4xu1Hde7xs+ACkfeEvvmNjUuxAzvc1MnDjHX2UwUlA7qA==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@mongodb-js/zstd-darwin-x64@1.2.2':
-    resolution: {integrity: sha512-gHSxcWgAdED/bDKyOqLhiwC0VYlhkhSyQuR0Fqcrl1CMpWSJAfu0jxhaEvM4Ncs6yH0+BPVwTp8xtHW2iJ5DuQ==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [darwin]
-
-  '@mongodb-js/zstd-linux-arm64-gnu@1.2.2':
-    resolution: {integrity: sha512-DJVSC5IU/GlY9lY4qpKML/655OstZvueN/WZeuO8hyYJ5115x/usUM1pHpp7dbZWyUUhTlRIU4peR62Tk1H3lQ==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@mongodb-js/zstd-linux-arm64-musl@1.2.2':
-    resolution: {integrity: sha512-rxTmMF2NGLLijnw+MZCs0ixiE+NylpDYvUUkJemqjyHstlmYG0Ku6i3+SzViB6L0kkktwYSRpaI4y7OG+SFt3w==}
-    engines: {node: '>= 10'}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
-  '@mongodb-js/zstd-linux-x64-gnu@1.2.2':
-    resolution: {integrity: sha512-ctz/XY6aX2THxkTjAygOYbyFp2/UYbqZIF3sB1F5Cjcbus9wfD3vPbaDegqRjQhlHBvKia3IjqJDUiC+aZxmww==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-
-  '@mongodb-js/zstd-linux-x64-musl@1.2.2':
-    resolution: {integrity: sha512-EqD271yPIRBGbkMtBJSVTLlUrukTsmi7qt1G3dh+Z9RWVXn5MXnlnEn4znfBXoaVqlniUNZhmzDEaATNIktJpw==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@mongodb-js/zstd-win32-x64-msvc@1.2.2':
-    resolution: {integrity: sha512-h3O9NGOrGtfQ7g+rFqs5Hn+GSmgF2ik+xg0/1crNUXWthcBsxcCK5woawHfDcJxWkaiijJe5PVo6/fo8Jm7qCg==}
-    engines: {node: '>= 10'}
-    cpu: [x64]
-    os: [win32]
-
-  '@mongodb-js/zstd@1.2.2':
-    resolution: {integrity: sha512-NRXiFhk2Nl8UMuIZ4pviKkGVZY/e5P37Opam1u0OtgXjEE0kO1HLapA9heTcZ1PUomArnKS426XbiRFr5iaWvw==}
-    engines: {node: '>= 10'}
 
   '@napi-rs/nice-android-arm-eabi@1.0.1':
     resolution: {integrity: sha512-5qpvOu5IGwDo7MEKVqqyAxF90I6aLj4n07OzpARdgDRfz8UbBztTByBp0RC59r3J1Ij8uzYi6jI7r5Lws7nn6w==}
@@ -8703,37 +8652,6 @@ snapshots:
       monaco-editor: 0.52.2
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
-
-  '@mongodb-js/zstd-darwin-arm64@1.2.2':
-    optional: true
-
-  '@mongodb-js/zstd-darwin-x64@1.2.2':
-    optional: true
-
-  '@mongodb-js/zstd-linux-arm64-gnu@1.2.2':
-    optional: true
-
-  '@mongodb-js/zstd-linux-arm64-musl@1.2.2':
-    optional: true
-
-  '@mongodb-js/zstd-linux-x64-gnu@1.2.2':
-    optional: true
-
-  '@mongodb-js/zstd-linux-x64-musl@1.2.2':
-    optional: true
-
-  '@mongodb-js/zstd-win32-x64-msvc@1.2.2':
-    optional: true
-
-  '@mongodb-js/zstd@1.2.2':
-    optionalDependencies:
-      '@mongodb-js/zstd-darwin-arm64': 1.2.2
-      '@mongodb-js/zstd-darwin-x64': 1.2.2
-      '@mongodb-js/zstd-linux-arm64-gnu': 1.2.2
-      '@mongodb-js/zstd-linux-arm64-musl': 1.2.2
-      '@mongodb-js/zstd-linux-x64-gnu': 1.2.2
-      '@mongodb-js/zstd-linux-x64-musl': 1.2.2
-      '@mongodb-js/zstd-win32-x64-msvc': 1.2.2
 
   '@napi-rs/nice-android-arm-eabi@1.0.1':
     optional: true
