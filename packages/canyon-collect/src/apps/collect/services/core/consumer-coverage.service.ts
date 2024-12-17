@@ -104,7 +104,7 @@ export class ConsumerCoverageService {
         reportID: covType === "agg" ? queueDataToBeConsumed.reportID : null,
       }),
     });
-    const { map, instrumentCwd } = await this.prisma.coverage
+    const { map, instrumentCwd, rawMap } = await this.prisma.coverage
       .findFirst({
         where: {
           // tripgl-1-autoxxx
@@ -124,6 +124,7 @@ export class ConsumerCoverageService {
         return {
           map: map,
           instrumentCwd: res.instrumentCwd,
+          rawMap: res.map,
         };
       });
     const codechanges = [];
@@ -216,7 +217,9 @@ export class ConsumerCoverageService {
           // instrumentCwd: queueDataToBeConsumed.instrumentCwd,
           reporter: String(queueDataToBeConsumed.reporter),
           reportID: queueDataToBeConsumed.reportID,
-          map: Buffer.from([]),
+          // 如果是auto的map，需要复制过来
+          map: rawMap,
+          instrumentCwd: instrumentCwd,
           // tag: queueDataToBeConsumed.tag,
           // buildID: queueDataToBeConsumed.buildID,
           // buildProvider: queueDataToBeConsumed.buildProvider,
