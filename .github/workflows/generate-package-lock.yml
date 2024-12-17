@@ -27,7 +27,7 @@ jobs:
 
       - name: Install dependencies and generate pnpm-lock.yaml
         run: |
-          pnpm install  # 这会自动生成 pnpm-lock.yaml
+          pnpm install --no-frozen-lockfile  # 这会自动生成 pnpm-lock.yaml
 
       - name: Commit pnpm-lock.yaml
         run: |
