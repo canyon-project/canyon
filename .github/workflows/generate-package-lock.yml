@@ -1,0 +1,38 @@
+name: Generate pnpm-lock.yaml
+
+on:
+  push:
+    branches:
+      - main  # 或者你希望触发的分支
+  pull_request:
+    branches:
+      - main  # 或者你希望触发的分支
+
+jobs:
+  install-dependencies:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'  # 设置你需要的 Node.js 版本，或者使用 .nvmrc 配置
+
+      - name: Install pnpm
+        run: |
+          npm install -g pnpm  # 安装 pnpm
+
+      - name: Install dependencies and generate pnpm-lock.yaml
+        run: |
+          pnpm install  # 这会自动生成 pnpm-lock.yaml
+
+      - name: Commit pnpm-lock.yaml
+        run: |
+          git config --global user.name "Allen Zhang"
+          git config --global user.email "wr.zhang25@gmail.com"
+          git add .
+          git commit -m "feat: update pnpm-lock.yaml" || echo "No changes to commit"
+          git push
