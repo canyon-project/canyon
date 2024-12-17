@@ -10,26 +10,9 @@ import { useParams } from "next/navigation";
 import WithTheme from "@/theme";
 import { EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useTranslations } from "next-intl";
 
 const { Title, Text } = Typography;
-const getProjectCompartmentData = [
-  {
-    label: "name",
-    value: "100",
-  },
-  {
-    label: "name",
-    value: "100",
-  },
-  {
-    label: "name",
-    value: "100",
-  },
-  {
-    label: "name",
-    value: "100",
-  },
-];
 
 const fetcher = ({ url, params }: { url: string; params: any }) =>
   axios
@@ -39,11 +22,38 @@ const fetcher = ({ url, params }: { url: string; params: any }) =>
     .then((res) => res.data);
 
 const { useToken } = theme;
-const t = (msg) => msg;
-
-// http://localhost:3000/projects/tripgl/62940/auto
 
 const ProjectOverviewPage = () => {
+  const t = useTranslations();
+  const { id, provider, slug } = useParams();
+
+  const { data: record } = useSWR(
+    {
+      url: `/api/project/${provider}-${id}-${slug}/record`,
+    },
+    fetcher,
+  );
+
+  const { data: chartData } = useSWR(
+    {
+      url: `/api/project/${provider}-${id}-${slug}/chart`,
+    },
+    fetcher,
+  );
+
+  const { data: compartmentData } = useSWR(
+    {
+      url: `/api/project/${provider}-${id}-${slug}/compartment`,
+    },
+    fetcher,
+  );
+
+  const { data: projectData, isLoading } = useSWR(
+    {
+      url: `/api/project/${provider}-${id}-${slug}`,
+    },
+    fetcher,
+  );
   const option = {
     backgroundColor: "transparent",
     grid: {
@@ -61,36 +71,17 @@ const ProjectOverviewPage = () => {
     },
     xAxis: {
       type: "category",
-      data: [],
+      data: (chartData || []).map(({ sha }) => sha.slice(0, 7)) || [],
     },
     yAxis: {
       type: "value",
     },
-    series: [t("projects.statements"), t("projects.newlines")].map(
-      (_, index) => ({
-        name: _,
-        data: [],
-        type: "line",
-      }),
-    ),
+    series: [t("projects.statements")].map((_, index) => ({
+      name: _,
+      data: (chartData || []).map(({ statements }) => statements) || [],
+      type: "line",
+    })),
   };
-  const { filepath, id, sha, provider, slug } = useParams(); // 获取动态路由参数
-  // console.log(id)
-  // 非常重要的一步，获取整体覆盖率数据
-  const { data: record } = useSWR(
-    {
-      url: `/api/project/${provider}-${id}-${slug}/record`,
-    },
-    fetcher,
-  );
-
-  const { data: projectData,isLoading } = useSWR(
-    {
-      url: `/api/project/${provider}-${id}-${slug}`,
-    },
-    fetcher,
-  );
-
   const { token } = useToken();
   const columns: ColumnsType<any> = [
     {
@@ -140,7 +131,9 @@ const ProjectOverviewPage = () => {
       // width: '148px',
       render(_, { sha }) {
         return (
-          <Link href={`/projects/${provider}/${id}/${slug}/commits/${sha}`}>{_}%</Link>
+          <Link href={`/projects/${provider}/${id}/${slug}/commits/${sha}`}>
+            {_}%
+          </Link>
         );
       },
     },
@@ -157,24 +150,24 @@ const ProjectOverviewPage = () => {
         return <span>{dayjs(_).format("MM-DD HH:mm")}</span>;
       },
     },
-    {
-      title: "Option",
-      width: "125px",
-      render(_): JSX.Element {
-        return (
-          <div>
-            <a
-              onClick={() => {
-                // setOpen(true);
-                // setSha(_.sha);
-              }}
-            >
-              {"Details"}
-            </a>
-          </div>
-        );
-      },
-    },
+    // {
+    //   title: "Option",
+    //   width: "125px",
+    //   render(_): JSX.Element {
+    //     return (
+    //       <div>
+    //         <a
+    //           onClick={() => {
+    //             // setOpen(true);
+    //             // setSha(_.sha);
+    //           }}
+    //         >
+    //           {"Details"}
+    //         </a>
+    //       </div>
+    //     );
+    //   },
+    // },
   ];
 
   return (
@@ -238,7 +231,7 @@ const ProjectOverviewPage = () => {
             <div
               className={`[list-style:none] grid grid-cols-[repeat(2,_215px)] grid-rows-[repeat(2,_1fr)] gap-[16px] h-full mr-[16px]`}
             >
-              {(getProjectCompartmentData || []).map((item, index) => {
+              {(compartmentData || []).map((item, index) => {
                 return (
                   <div
                     className={
@@ -250,8 +243,17 @@ const ProjectOverviewPage = () => {
                     }}
                     key={index}
                   >
-                    <span>{item.label}</span>
-                    <span className={"text-xl"}>{item.value}</span>
+                    {/*<span>{t(item.label)}</span>*/}
+                    {/*<span className={"text-xl"}>{item.value}</span>*/}
+                    <Text type={"secondary"}>{t(item.label)}</Text>
+                    <Text
+                      className={"text-xl"}
+                      style={{
+                        fontSize: "1.25rem",
+                      }}
+                    >
+                      {item.value}
+                    </Text>
                   </div>
                 );
               })}
@@ -268,16 +270,16 @@ const ProjectOverviewPage = () => {
                 }}
               >
                 <div className={"flex items-center"}>
-                  <span level={5} style={{ marginBottom: "0" }}>
-                    {"Trends in coverage"}
-                  </span>
-                  <span
+                  <Title level={5} style={{ marginBottom: "0" }}>
+                    {t("projects.trends_in_coverage")}
+                  </Title>
+                  <Text
                     type={"secondary"}
                     className={"ml-2"}
                     style={{ fontSize: 12 }}
                   >
-                    {"Tooltip"}
-                  </span>
+                    {t("projects.trends.tooltip")}
+                  </Text>
                 </div>
                 <ReactECharts
                   theme={{
@@ -312,7 +314,7 @@ const ProjectOverviewPage = () => {
               style={{ width: "600px" }}
             />
             <Space>
-              <span type={"secondary"}>{"Only Default Branch"}: </span>
+              <Text type={"secondary"}>{"Only Default Branch"}: </Text>
               {/*<Switch*/}
               {/*  defaultChecked={Boolean(*/}
               {/*    localStorage.getItem("defaultBranchOnly"),*/}
@@ -357,7 +359,6 @@ const ProjectOverviewPage = () => {
           }}
         />
 
-        {/*默太狂就共用一个*/}
         {/*<ProjectRecordDetailDrawer open={open} onClose={onClose} sha={sha}/>*/}
       </div>
     </MainBox>
