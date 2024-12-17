@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
         const githubResponse = await axios
           .get(
-            `${"https://api.github.com"}/repos/${githubProject.pathWithNamespace}/contents/${"packages/canyon-report/" + filepath}`,
+            `${"https://api.github.com"}/repos/${githubProject.pathWithNamespace}/contents/${filepath}`,
             {
               // 注意这里params中ref要改为branch，因为github API此处参数名是branch（假设你传入的sha对应的是分支名情况）
               params: {
