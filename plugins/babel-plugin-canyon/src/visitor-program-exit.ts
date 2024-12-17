@@ -41,13 +41,13 @@ export const visitorProgramExit = (api,path,serviceParams) => {
               t.stringLiteral(serviceParams.sha) // 键值
             );
             properties.push(shaField); // 添加新字段
-            // 增加 sha 字段
+            // 增加 projectID 字段
             const projectIDField = t.objectProperty(
               t.identifier("projectID"), // 键名
               t.stringLiteral(serviceParams.projectID) // 键值
             );
             properties.push(projectIDField); // 添加新字段
-            // 增加 sha 字段
+            // 增加 instrumentCwd 字段
             const instrumentCwdField = t.objectProperty(
               t.identifier("instrumentCwd"), // 键名
               t.stringLiteral(serviceParams.instrumentCwd) // 键值
