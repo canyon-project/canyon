@@ -35,7 +35,7 @@ export async function mapCommand(params, options) {
 	}
 	const reqData = {
 		projectID:
-			projectID || process.env.CI_PROJECT_ID || process.env.GITHUB_REPOSITORY,
+			projectID || process.env.CI_PROJECT_ID || process.env.GITHUB_REPOSITORY_ID,
 		sha: sha || process.env.CI_COMMIT_SHA || process.env.GITHUB_SHA,
     branch: branch || process.env.CI_COMMIT_BRANCH || process.env.GITHUB_REF,
 		instrumentCwd: instrumentCwd || process.cwd(),
