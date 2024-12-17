@@ -48,12 +48,12 @@ export async function GET(request: NextRequest) {
           gitProvider;
         // 对于github，其认证一般是通过Authorization头部带上token，格式为"Bearer <token>"
         console.log(
-          `${"https://api.github.com/repos"}/repos/${id}/contents/${filepath}`,
+          `${"https://api.github.com"}/repos/${id}/contents/${"packages/canyon-report/" + filepath}`,
           sha,
         );
         const githubResponse = await axios
           .get(
-            `${"https://api.github.com"}/repos/${id}/contents/${"packages/canyon-report" + filepath}`,
+            `${"https://api.github.com"}/repos/${id}/contents/${"packages/canyon-report/" + filepath}`,
             {
               // 注意这里params中ref要改为branch，因为github API此处参数名是branch（假设你传入的sha对应的是分支名情况）
               params: {
