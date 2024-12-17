@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
           gitProvider;
         const gitlabResponse = await axios
           .get(
-            `${gitlabUrl}/api/v4/projects/${id}/repository/files/${filepath}`,
+            `${gitlabUrl}/api/v4/projects/${id}/repository/files/${encodeURIComponent(filepath)}`,
             {
               params: {
                 ref: sha,
