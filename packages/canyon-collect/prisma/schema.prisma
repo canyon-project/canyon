@@ -95,7 +95,7 @@ model Project {
   bu                String
   tags              Json
   members           Json
-  nyc               String
+  coverage          String
   defaultBranch     String @map("default_branch")
 
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)

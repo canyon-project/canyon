@@ -1,0 +1,7 @@
+query ListUser {
+  listUser {
+    email
+    id
+    nickname
+  }
+}

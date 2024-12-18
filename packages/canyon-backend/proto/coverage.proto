@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+message CoverageData {
+  map<string, FileCoverageData> data = 1;
+}
+
+message FileCoverageData {
+  string path = 1;
+  map<string, Range> statementMap = 2;
+  map<string, FunctionMapping> fnMap = 3;
+  map<string, BranchMapping> branchMap = 4;
+  map<string, int32> s = 5;
+  map<string, int32> f = 6;
+  map<string, RepeatedInt32> b = 7;
+}
+
+message RepeatedInt32 {
+  repeated int32 data = 1;
+}
+
+message Range {
+  Location start = 1;
+  Location end = 2;
+}
+message Location {
+  int32 line = 1;
+  int32 column = 2;
+}
+
+message FunctionMapping {
+  string name = 1;
+  Range loc = 2;
+  Range decl = 3;
+  int32 line = 4;
+}
+
+message BranchMapping {
+  Range loc = 1;
+  string type = 2;
+  int32 line = 3;
+  repeated Range locations = 4;
+}
