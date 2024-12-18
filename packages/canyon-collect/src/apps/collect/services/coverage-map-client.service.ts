@@ -91,7 +91,7 @@ export class CoverageMapClientService {
             }),
         );
 
-        await this.prisma.coverageMap.createMany({
+        return await this.prisma.coverageMap.createMany({
             data: compressedArr.map(({ path, map }: any) => {
                 return {
                     id: `__${projectID}__${sha}__${path}__`,
