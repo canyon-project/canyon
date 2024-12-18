@@ -252,8 +252,8 @@ importers:
         specifier: 5.0.0-beta.25
         version: 5.0.0-beta.25(next@15.0.3(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       next-intl:
-        specifier: ^3.26.1
-        version: 3.26.1(next@15.0.3(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+        specifier: ^3.26.2
+        version: 3.26.2(next@15.0.3(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       prisma:
         specifier: 5.16.1
         version: 5.16.1
@@ -5296,8 +5296,8 @@ packages:
       nodemailer:
         optional: true
 
-  next-intl@3.26.1:
-    resolution: {integrity: sha512-TE4cQgXNw4jzEtVPdiYQOCmhAu+Z2qoUppCMxPkJoz8XXe8TdqiNEPhD/GtXEsI80nV6NnVAq3hyTHH5+ex6Hw==}
+  next-intl@3.26.2:
+    resolution: {integrity: sha512-fPsL5/9Y/aYNHoOf904b+PhYkm1RfZKrNMAxUvURMqFuQTA0TQAIGnY0s03yPH7oRv9qCFcutaxr6DsHq0aCzQ==}
     peerDependencies:
       next: ^10.0.0 || ^11.0.0 || ^12.0.0 || ^13.0.0 || ^14.0.0 || ^15.0.0
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || >=19.0.0-rc <19.0.0 || ^19.0.0
@@ -7202,8 +7202,8 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  use-intl@3.26.1:
-    resolution: {integrity: sha512-MZhtSBcMrDna3xs1T6O7CAXx4wRfm1eGyUYrDCCnW9qTOGZurCH5k/X6ChDl6EI4f+qYEtXQCRMkQUVOIhJWTQ==}
+  use-intl@3.26.2:
+    resolution: {integrity: sha512-H0BpBXLNFTkw6RvntLXSXr2+la4T/xilKSG5l8ND9Br9+i1hqHensWouNS288QZdiDTrfYUVswDtUIR6L39JHQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0 || >=19.0.0-rc <19.0.0 || ^19.0.0
 
@@ -12990,13 +12990,13 @@ snapshots:
       next: 15.0.3(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
 
-  next-intl@3.26.1(next@15.0.3(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
+  next-intl@3.26.2(next@15.0.3(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
     dependencies:
       '@formatjs/intl-localematcher': 0.5.9
       negotiator: 1.0.0
       next: 15.0.3(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
-      use-intl: 3.26.1(react@19.0.0)
+      use-intl: 3.26.2(react@19.0.0)
 
   next@15.0.3(@playwright/test@1.49.1)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
@@ -15434,7 +15434,7 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  use-intl@3.26.1(react@19.0.0):
+  use-intl@3.26.2(react@19.0.0):
     dependencies:
       '@formatjs/fast-memoize': 2.2.5
       intl-messageformat: 10.7.10
