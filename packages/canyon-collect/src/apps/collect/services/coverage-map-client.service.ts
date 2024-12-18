@@ -66,7 +66,7 @@ export class CoverageMapClientService {
                     reportID: sha,
                 },
             })
-            .catch((e) => {
+            .catch(() => {
                 console.log("coverage create error");
             });
 
@@ -99,6 +99,7 @@ export class CoverageMapClientService {
                     projectID: projectID,
                     sha: sha,
                     path: path,
+                    instrumentCwd: instrumentCwd,
                 };
             }),
             skipDuplicates: true,

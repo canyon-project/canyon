@@ -47,7 +47,10 @@ export class CollectController {
     ) {
         // console.log(coverageClientDto.coverage)
         if (coverageClientDto.coverage) {
-            return this.coverageClientService.invoke(coverageClientDto);
+            return this.coverageClientService.invoke({
+                ...coverageClientDto,
+                branch: "coverageClientDto.branch",
+            });
         }
         let coverage = {};
         if (cov.mimetype === "application/octet-stream") {
@@ -64,6 +67,8 @@ export class CollectController {
         return this.coverageClientService.invoke({
             ...coverageClientDto,
             coverage,
+            instrumentCwd: coverageClientDto.instrumentCwd,
+            branch: "coverageClientDto.branch",
         });
     }
 

@@ -1,5 +1,10 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../prisma/prisma.service";
+import { CoverageMapClientService } from "./coverage-map-client.service";
+import { decompressedData } from "../../../utils/zstd";
+import { formatReportObject } from "../../../utils/coverage";
+import { IstanbulHitMapSchema } from "../../../zod/istanbul.zod";
+// import { remapCoverageWithInstrumentCwd, formatCoverageData } from "canyon-map";
 // import { CoveragediskService } from "./core/coveragedisk.service";
 
 // 此代码重中之重、核心中的核心！！！
@@ -7,6 +12,7 @@ import { PrismaService } from "../../../prisma/prisma.service";
 export class CoverageClientService {
     constructor(
         private readonly prisma: PrismaService,
+        private readonly coverageMapClientService: CoverageMapClientService,
         // private coveragediskService: CoveragediskService,
     ) {}
     async invoke({
@@ -15,6 +21,7 @@ export class CoverageClientService {
         coverage,
         instrumentCwd,
         reportID: _reportID,
+        branch,
     }) {
         const reportID = _reportID || sha;
         // #region == Step x: 解析出上报上来的覆盖率数据
@@ -24,40 +31,88 @@ export class CoverageClientService {
 
         // 首先就要判断，这个是可选步骤，所以用单if
         if (true) {
-            // 插入一个all类型，不重复，就是为了插入buildID，branch等信息而已，数据也是空的
-            // await this.prisma.coverage.create({
-            //     data: {
-            //         projectID: projectID,
-            //         sha: sha,
-            //         reportID: "",
-            //         size: JSON.stringify(coverage).length,
-            //         createdAt: new Date(),
-            //         coverage: "",
-            //         tags: "",
-            //         ip: "999999999",
-            //         userAgent: "",
-            //         instrumentCwd: instrumentCwd,
-            //         branch: branch,
-            //     },
-            // });
-
-            //     判断是否包含map数据，如果包含需先存储map数据
-            const arr = Object.entries(coverage).map(([path, map]) => {
-                return { path, map };
-            });
-
-            await this.prisma.coverageMap.createMany({
-                data: arr.map(({ path, map }: any) => {
-                    return {
-                        id: `__${projectID}__${sha}__${path}__`,
-                        map: map, //???没删除bfs
-                        projectID: projectID,
-                        sha: sha,
-                        path: path,
-                    };
-                }),
-                skipDuplicates: true,
+            // 构建一个coverageMapClientService
+            await this.coverageMapClientService.invoke({
+                sha,
+                projectID,
+                coverage,
+                instrumentCwd,
+                branch: branch || "-",
             });
         }
+
+        const coverageFromDatabase = await this.prisma.coverageMap
+            .findMany({
+                where: {
+                    // tripgl-1-autoxxx
+                    projectID: {
+                        // 只取前两位
+                        contains: projectID
+                            .split("-")
+                            .filter((_: any, index: number) => index < 2)
+                            .join("-"),
+                    },
+                    sha: sha,
+                },
+            })
+            .then((coverageMaps) => {
+                // console.log(coverageMaps.length);
+                return Promise.all(
+                    coverageMaps.map((coverageMap) => {
+                        return decompressedData(coverageMap.map).then((map) => {
+                            return {
+                                [coverageMap.path]: map,
+                            };
+                        });
+                    }),
+                );
+            })
+            .then((coverageMaps) => {
+                // console.log(coverageMaps);
+                return coverageMaps.reduce((acc, cur) => {
+                    return {
+                        ...acc,
+                        ...cur,
+                    };
+                }, {});
+            });
+
+        return coverageFromDatabase;
+
+        // // #region == Step x: db查找出对应的map数据
+        // const map = await decompressedData("coverageFromDatabase.map");
+        // // #endregion
+        //
+        // // #region == Step x: 格式化上报的覆盖率对象
+        // const { coverage: formartCOv } = await formatReportObject({
+        //     coverage: formatCoverageData(coverageFromExternalReport),
+        //     instrumentCwd: instrumentCwd,
+        // });
+        //
+        // // 未经过reMapCoverage的数据
+        // const originalHit = IstanbulHitMapSchema.parse(formartCOv);
+        // // #endregion
+        //
+        // // @ts-ignore
+        // const chongzu = reorganizeCompleteCoverageObjects(map, originalHit);
+        //
+        // // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
+        // const hit = await remapCoverageWithInstrumentCwd(
+        //     chongzu,
+        //     "coverageFromDatabase.instrumentCwd",
+        // );
+        // // #endregion
+        //
+        // //   放到本地消息队列里
+        //
+        // // await this.coveragediskService.pushQueue({
+        // //     projectID,
+        // //     sha,
+        // //     reportID,
+        // //     coverage: hit,
+        // // });
+        // // return {
+        // //     success: true,
+        // // };
     }
 }
