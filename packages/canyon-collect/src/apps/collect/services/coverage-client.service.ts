@@ -4,6 +4,8 @@ import { CoverageMapClientService } from "./coverage-map-client.service";
 import { decompressedData } from "../../../utils/zstd";
 import { formatReportObject } from "../../../utils/coverage";
 import { IstanbulHitMapSchema } from "../../../zod/istanbul.zod";
+import { remapCoverageWithInstrumentCwd } from "canyon-map";
+import { formatCoverageData } from "canyon-data";
 // import { remapCoverageWithInstrumentCwd, formatCoverageData } from "canyon-map";
 // import { CoveragediskService } from "./core/coveragedisk.service";
 
@@ -77,42 +79,42 @@ export class CoverageClientService {
                 }, {});
             });
 
-        return coverageFromDatabase;
+        // return coverageFromDatabase;
 
-        // // #region == Step x: db查找出对应的map数据
-        // const map = await decompressedData("coverageFromDatabase.map");
-        // // #endregion
-        //
-        // // #region == Step x: 格式化上报的覆盖率对象
-        // const { coverage: formartCOv } = await formatReportObject({
-        //     coverage: formatCoverageData(coverageFromExternalReport),
-        //     instrumentCwd: instrumentCwd,
-        // });
-        //
-        // // 未经过reMapCoverage的数据
-        // const originalHit = IstanbulHitMapSchema.parse(formartCOv);
-        // // #endregion
-        //
-        // // @ts-ignore
-        // const chongzu = reorganizeCompleteCoverageObjects(map, originalHit);
-        //
-        // // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
-        // const hit = await remapCoverageWithInstrumentCwd(
-        //     chongzu,
-        //     "coverageFromDatabase.instrumentCwd",
-        // );
-        // // #endregion
-        //
-        // //   放到本地消息队列里
-        //
-        // // await this.coveragediskService.pushQueue({
-        // //     projectID,
-        // //     sha,
-        // //     reportID,
-        // //     coverage: hit,
-        // // });
-        // // return {
-        // //     success: true,
-        // // };
+        // #region == Step x: db查找出对应的map数据
+        const map = await decompressedData(coverageFromDatabase.map);
+        // #endregion
+
+        // #region == Step x: 格式化上报的覆盖率对象
+        const { coverage: formartCOv } = await formatReportObject({
+            coverage: formatCoverageData(coverageFromExternalReport),
+            instrumentCwd: instrumentCwd,
+        });
+
+        // 未经过reMapCoverage的数据
+        const originalHit = IstanbulHitMapSchema.parse(formartCOv);
+        // #endregion
+
+        // @ts-ignore
+        const chongzu = reorganizeCompleteCoverageObjects(map, originalHit);
+
+        // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
+        const hit = await remapCoverageWithInstrumentCwd(
+            chongzu,
+            coverageFromDatabase.instrumentCwd,
+        );
+        // #endregion
+
+        //   放到本地消息队列里
+
+        await this.coveragediskService.pushQueue({
+            projectID,
+            sha,
+            reportID,
+            coverage: hit,
+        });
+        return {
+            success: true,
+        };
     }
 }
