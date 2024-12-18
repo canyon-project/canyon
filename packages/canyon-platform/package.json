@@ -39,7 +39,7 @@
     "@iconify/json": "^2.2.285",
     "@iconify/tailwind": "^1.2.0",
     "@types/node": "^22.10.2",
-    "@types/react": "^19.0.1",
+    "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "eslint": "^8",
     "eslint-config-next": "15.0.3",
