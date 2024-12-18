@@ -7,6 +7,8 @@ dotenv.config({
     path: path.resolve(__dirname, "../../../.env"),
 });
 
+// flag position, do not delete
+
 async function bootstrap() {
     const { AppModule } = await import("./app.module");
     const app = await NestFactory.create(AppModule);

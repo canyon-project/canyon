@@ -6,7 +6,7 @@
     "private": true,
     "license": "UNLICENSED",
     "scripts": {
-        "build": "nest build",
+        "do-build": "nest build",
         "start": "nest start",
         "preinstall": "prisma generate",
         "format": "prettier --write ."
