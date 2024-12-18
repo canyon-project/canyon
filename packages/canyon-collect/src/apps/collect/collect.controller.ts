@@ -45,11 +45,9 @@ export class CollectController {
         @UploadedFile() cov: any,
         @Body() coverageClientDto: CoverageClientDto,
     ) {
-        // console.log(coverageClientDto.coverage)
         if (coverageClientDto.coverage) {
             return this.coverageClientService.invoke({
                 ...coverageClientDto,
-                branch: "coverageClientDto.branch",
             });
         }
         let coverage = {};
@@ -67,8 +65,6 @@ export class CollectController {
         return this.coverageClientService.invoke({
             ...coverageClientDto,
             coverage,
-            instrumentCwd: coverageClientDto.instrumentCwd,
-            branch: "coverageClientDto.branch",
         });
     }
 

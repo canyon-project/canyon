@@ -34,4 +34,9 @@ export class CoverageClientDto {
     // @IsNotEmpty({ message: 'coverage不能为空' })
     @Validate(IsValidCoverage)
     coverage: any;
+
+    @IsString()
+    @MinLength(1, { message: "branch长度最小为1" })
+    @IsOptional({ message: "branch 可以为空" })
+    branch: string;
 }
