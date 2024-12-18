@@ -11,6 +11,7 @@ export class SourcecodeService {
         id: projectID.split("-")[0],
       },
     });
+    // console.log(gitProvider,'gitProvider')
     return getFileInfo(
       {
         projectID: projectID.split("-")[1],

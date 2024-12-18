@@ -91,9 +91,7 @@ const Sha = () => {
         }}
       >
         <>
-          {getProjectByIdDocumentData?.getProjectByID.language ===
-            "JavaScript" && (
-            <CanyonReport
+          <CanyonReport
               defaultOnlyShowChanged={sprm.get("mode")}
               theme={localStorage.getItem("theme") || "light"}
               mainData={mainData}
@@ -104,8 +102,7 @@ const Sha = () => {
               onSelect={(v: any) => {
                 setActivatedPath(v.path);
               }}
-            />
-          )}
+          />
         </>
       </div>
     </>

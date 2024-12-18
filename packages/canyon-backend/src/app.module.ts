@@ -14,9 +14,10 @@ import { SourcecodeService } from "./sourcecode/sourcecode.service";
 import { SourcecodeModule } from "./sourcecode/sourcecode.module";
 import { join } from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
-import { TypeOrmModule } from "@nestjs/typeorm";
+// import { TypeOrmModule } from "@nestjs/typeorm";
 // import { CoveragediskEntity } from "./coverage/entity/coveragedisk.entity";
 import { PlaygroundModule } from "./playground/playground.module";
+import { CoverageModule } from "./cov/coverage.module";
 
 @Module({
   imports: [
@@ -25,7 +26,7 @@ import { PlaygroundModule } from "./playground/playground.module";
     UserModule,
     ProjectModule,
     PrismaModule,
-    // CoverageModule,
+    CoverageModule,
     CodechangeModule,
     SourcecodeModule,
     PlaygroundModule,
