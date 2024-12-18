@@ -13,7 +13,7 @@ model SysSetting {
   key   String
   value String
 
-  @@map("sys_setting")
+  @@map("canyon3_sys_setting")
 }
 
 model User {
@@ -25,7 +25,7 @@ model User {
   favor     String
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
-  @@map("user")
+  @@map("canyon3_user")
 }
 
 model GitProvider {
@@ -36,7 +36,7 @@ model GitProvider {
   disabled     Boolean
   privateToken String  @map("private_token")
 
-  @@map("git_provider")
+  @@map("canyon3_git_provider")
 }
 
 model Coverage {
@@ -69,7 +69,7 @@ model Coverage {
   createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
   updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
 
-  @@map("coverage")
+  @@map("canyon3_coverage")
 }
 
 model CoverageMap {
@@ -82,7 +82,7 @@ model CoverageMap {
   // 再添加一个path索引
   @@index(fields: [path])
   @@index([projectID, sha]) // 联合索引
-  @@map("coverage_map")
+  @@map("canyon3_coverage_map")
 }
 
 model Project {
@@ -99,7 +99,7 @@ model Project {
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
   updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
 
-  @@map("project")
+  @@map("canyon3_project")
 }
 
 model Codechange {
@@ -112,7 +112,7 @@ model Codechange {
   deletions     Int[]
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
-  @@map("codechange")
+  @@map("canyon3_codechange")
 }
 
 model Distributedlock {
@@ -121,5 +121,5 @@ model Distributedlock {
   lockTimestamp  DateTime? @map("lock_timestamp")
   lockExpiration DateTime? @map("lock_expiration")
 
-  @@map("distributedlock")
+  @@map("canyon3_distributed_lock")
 }
