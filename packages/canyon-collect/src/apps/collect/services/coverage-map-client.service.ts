@@ -1,102 +1,40 @@
 import { PrismaService } from "../../../prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
-import {
-    IstanbulHitMapSchema,
-    IstanbulMapMapSchema,
-} from "../../../zod/istanbul.zod";
-import { compressedData } from "../../../utils/zstd";
-import { formatReportObject } from "../../../utils/coverage";
-import { coverageObj } from "../models/coverage.model";
-
-import {
-    genSummaryMapByCoverageMap,
-    getSummaryByPath,
-    formatCoverageData,
-    resetCoverageDataMap,
-} from "canyon-data";
-import { remapCoverageWithInstrumentCwd } from "canyon-map";
 
 @Injectable()
 export class CoverageMapClientService {
     constructor(private readonly prisma: PrismaService) {}
     async invoke({ sha, projectID, coverage, instrumentCwd, branch }) {
-        // 先检查有没有
-        const exist = await this.prisma.coverage.findFirst({
-            where: {
-                sha: sha,
-                projectID: projectID,
-                covType: "all",
+        this.prisma.coverageMap.create({
+            data: {
+                projectID,
+                sha,
+                path: "",
+                map: Buffer.from([]),
             },
         });
 
-        // TODO 这里要改，需要在存在的时候更新，并且要把initMap更新一下
+        /*
+        这里的逻辑是每次批量插入上报的map数据，按文件存，不更新。
+        借助于数据库的id不重复，保证了数据不会重复插入。
+         // TODO 不确定对数据库的压力，是否需要优化
+         */
 
-        if (exist) {
-            return {
-                id: exist.id,
-                projectID: exist.projectID,
-                sha: exist.sha,
-                exist: true,
-            };
-        }
-
-        const coverageObject =
-            typeof coverage === "string" ? JSON.parse(coverage) : coverage;
-
-        const { coverage: formatedCoverage } = formatReportObject({
-            coverage: formatCoverageData(coverageObject),
-            instrumentCwd: instrumentCwd,
+        const arr = Object.entries(coverage).map(([path, map]) => {
+            return { path, map };
         });
 
-        const formatCoverageMap = IstanbulMapMapSchema.parse(formatedCoverage);
-
-        const resetCovMap = resetCoverageDataMap(formatCoverageMap);
-
-        // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
-        const hitObject = await remapCoverageWithInstrumentCwd(
-            resetCovMap,
-            instrumentCwd,
-        );
-
-        const compressedFormatCoverageStr =
-            await compressedData(formatCoverageMap);
-        const hit = await compressedData(IstanbulHitMapSchema.parse(hitObject));
-
-        const summaryObject = genSummaryMapByCoverageMap(hitObject, []);
-        const overallSummary: any = getSummaryByPath("", summaryObject);
-        const summary = await compressedData(summaryObject);
-
-        return this.prisma.coverage
-            .create({
-                data: {
-                    ...coverageObj,
-                    branch: branch || "-",
-                    compareTarget: sha,
-                    provider: "-",
-                    buildProvider: "-",
-                    buildID: "",
+        await this.prisma.coverageMap.createMany({
+            data: arr.map(({ path, map }: any) => {
+                return {
+                    id: `__${projectID}__${sha}__${path}__`,
+                    map: map, //???没删除bfs
                     projectID: projectID,
                     sha: sha,
-                    reporter: "-",
-                    reportID: sha,
-                    covType: "all", //map都是all
-                    statementsCovered: 0,
-                    statementsTotal: overallSummary.statements.total,
-                    //空bytes
-                    summary: summary,
-                    hit: hit,
-                    map: compressedFormatCoverageStr,
-                    instrumentCwd: instrumentCwd,
-                    id: `${projectID}|${sha}|all`,
-                },
-            })
-            .then((r) => {
-                return {
-                    id: r.id,
-                    projectID: r.projectID,
-                    sha: r.sha,
-                    exist: false,
+                    path: path,
                 };
-            });
+            }),
+            skipDuplicates: true,
+        });
     }
 }
