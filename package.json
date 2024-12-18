@@ -1,0 +1,24 @@
+{
+  "name": "canyon",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Canyon is a JavaScript code coverage solution",
+  "author": "wr.zhang25@gmail.com",
+  "license": "MIT",
+  "scripts": {
+    "build": "pnpm -r do-build",
+    "dev": "turbo dev",
+    "clean": "node ./scripts/clean.mjs",
+    "preinstall": "node ./scripts/check.mjs && node ./scripts/prisma.mjs"
+  },
+  "packageManager": "pnpm@9.14.2",
+  "devDependencies": {
+    "@commitlint/cli": "^19.5.0",
+    "@commitlint/config-conventional": "^19.5.0",
+    "fs-extra": "^11.2.0",
+    "husky": "^9.1.6",
+    "turbo": "latest",
+    "typescript": "latest",
+    "pnpm": "latest"
+  }
+}
