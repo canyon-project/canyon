@@ -1,5 +1,19 @@
 import { PrismaService } from "../../../prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
+import { coverageObj } from "../models/coverage.model";
+import { formatReportObject } from "../../../utils/coverage";
+import {
+    formatCoverageData,
+    genSummaryMapByCoverageMap,
+    getSummaryByPath,
+    resetCoverageDataMap,
+} from "canyon-data";
+import {
+    IstanbulHitMapSchema,
+    IstanbulMapMapSchema,
+} from "../../../zod/istanbul.zod";
+import { remapCoverageWithInstrumentCwd } from "canyon-map";
+import { compressedData } from "../../../utils/zstd";
 
 @Injectable()
 export class CoverageMapClientService {
@@ -9,22 +23,52 @@ export class CoverageMapClientService {
             typeof coverage === "string" ? JSON.parse(coverage) : coverage;
         // #endregion
 
-        // 提前插入
-        await this.prisma.coverage.create({
-            data: {
-                projectID: projectID,
-                sha: sha,
-                reportID: "",
-                size: JSON.stringify(coverage).length,
-                createdAt: new Date(),
-                coverage: "",
-                tags: "",
-                ip: "999999999",
-                userAgent: "",
-                instrumentCwd: instrumentCwd,
-                branch: branch,
-            },
+        // 原来的代码
+        // ************************************************************
+        const { coverage: formatedCoverage } = formatReportObject({
+            coverage: formatCoverageData(coverageFromExternalReport),
+            instrumentCwd: instrumentCwd,
         });
+
+        const formatCoverageMap = IstanbulMapMapSchema.parse(formatedCoverage);
+
+        const resetCovMap = resetCoverageDataMap(formatCoverageMap);
+
+        // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
+        const hitObject = await remapCoverageWithInstrumentCwd(
+            resetCovMap,
+            instrumentCwd,
+        );
+
+        // const compressedFormatCoverageStr =
+        //     await compressedData(formatCoverageMap);
+        const hit = await compressedData(IstanbulHitMapSchema.parse(hitObject));
+
+        const summaryObject = genSummaryMapByCoverageMap(hitObject, []);
+        const overallSummary: any = getSummaryByPath("", summaryObject);
+        const summary = await compressedData(summaryObject);
+        // ************************************************************
+        // 原来的代码
+
+        // 提前插入
+        await this.prisma.coverage
+            .create({
+                data: {
+                    ...coverageObj,
+                    id: `__${projectID}__${sha}__`,
+                    sha: sha,
+                    projectID: projectID,
+                    branch: branch,
+                    summary: summary,
+                    hit: hit,
+                    statementsCovered: 0,
+                    statementsTotal: overallSummary.statements.total,
+                    reportID: sha,
+                },
+            })
+            .catch((e) => {
+                console.log("coverage create error");
+            });
 
         /*
         这里的逻辑是每次批量插入上报的map数据，按文件存，不更新。
@@ -32,12 +76,23 @@ export class CoverageMapClientService {
          // TODO 不确定对数据库的压力，是否需要优化
          */
 
-        const arr = Object.entries(coverage).map(([path, map]) => {
+        const arr = Object.entries(formatCoverageMap).map(([path, map]) => {
             return { path, map };
         });
 
+        const compressedArr = await Promise.all(
+            arr.map((item) => {
+                return compressedData(item.map).then((map) => {
+                    return {
+                        path: item.path,
+                        map,
+                    };
+                });
+            }),
+        );
+
         await this.prisma.coverageMap.createMany({
-            data: arr.map(({ path, map }: any) => {
+            data: compressedArr.map(({ path, map }: any) => {
                 return {
                     id: `__${projectID}__${sha}__${path}__`,
                     map: map, //???没删除bfs
