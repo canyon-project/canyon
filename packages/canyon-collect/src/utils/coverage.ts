@@ -1,3 +1,5 @@
+import { decompressedData } from "./zstd";
+
 function parseInstrumentCwd(instrumentCwd) {
     if (instrumentCwd.includes("=>")) {
         const instrumentCwdSplit = instrumentCwd.split("=>");
@@ -79,3 +81,36 @@ export function resetCoverageData(coverageData) {
         return acc;
     }, {});
 }
+
+export const convertDataFromCoverageMapDatabase = async (
+    coverageMaps: {
+        projectID: string;
+        sha: string;
+        path: string;
+        instrumentCwd: string;
+        map: Buffer;
+    }[],
+): Promise<{
+    map: any;
+    instrumentCwd: string;
+}> => {
+    const decompressedCoverageMaps = await Promise.all(
+        coverageMaps.map((coverageMap) => {
+            return decompressedData(coverageMap.map).then((map) => {
+                return {
+                    ...map,
+                    path: coverageMap.path,
+                };
+            });
+        }),
+    );
+    return {
+        map: decompressedCoverageMaps.reduce((acc, cur) => {
+            return {
+                ...acc,
+                [cur.path]: cur,
+            };
+        }, {}),
+        instrumentCwd: coverageMaps[0].instrumentCwd,
+    };
+};

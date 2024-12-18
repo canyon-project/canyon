@@ -2,12 +2,18 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../prisma/prisma.service";
 import { CoverageMapClientService } from "./coverage-map-client.service";
 import { decompressedData } from "../../../utils/zstd";
-import { formatReportObject } from "../../../utils/coverage";
+import {
+    convertDataFromCoverageMapDatabase,
+    formatReportObject,
+} from "../../../utils/coverage";
 import { IstanbulHitMapSchema } from "../../../zod/istanbul.zod";
 import { remapCoverageWithInstrumentCwd } from "canyon-map";
-import { formatCoverageData } from "canyon-data";
+import {
+    formatCoverageData,
+    reorganizeCompleteCoverageObjects,
+} from "canyon-data";
 // import { remapCoverageWithInstrumentCwd, formatCoverageData } from "canyon-map";
-// import { CoveragediskService } from "./core/coveragedisk.service";
+import { CoveragediskService } from "./core/coveragedisk.service";
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -15,7 +21,7 @@ export class CoverageClientService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly coverageMapClientService: CoverageMapClientService,
-        // private coveragediskService: CoveragediskService,
+        private coveragediskService: CoveragediskService,
     ) {}
     async invoke({
         sha,
@@ -58,31 +64,13 @@ export class CoverageClientService {
                 },
             })
             .then((coverageMaps) => {
-                // console.log(coverageMaps.length);
-                return Promise.all(
-                    coverageMaps.map((coverageMap) => {
-                        return decompressedData(coverageMap.map).then((map) => {
-                            return {
-                                [coverageMap.path]: map,
-                            };
-                        });
-                    }),
-                );
-            })
-            .then((coverageMaps) => {
-                // console.log(coverageMaps);
-                return coverageMaps.reduce((acc, cur) => {
-                    return {
-                        ...acc,
-                        ...cur,
-                    };
-                }, {});
+                return convertDataFromCoverageMapDatabase(coverageMaps);
             });
 
         // return coverageFromDatabase;
 
         // #region == Step x: db查找出对应的map数据
-        const map = await decompressedData(coverageFromDatabase.map);
+        const map = coverageFromDatabase.map;
         // #endregion
 
         // #region == Step x: 格式化上报的覆盖率对象
@@ -95,7 +83,6 @@ export class CoverageClientService {
         const originalHit = IstanbulHitMapSchema.parse(formartCOv);
         // #endregion
 
-        // @ts-ignore
         const chongzu = reorganizeCompleteCoverageObjects(map, originalHit);
 
         // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)

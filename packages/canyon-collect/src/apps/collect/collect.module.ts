@@ -7,6 +7,8 @@ import { CoverageMapClientService } from "./services/coverage-map-client.service
 import { CoveragediskEntity } from "./entity/coveragedisk.entity";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { PrismaService } from "../../prisma/prisma.service";
+import { CoveragediskService } from "./services/core/coveragedisk.service";
+import { ConsumerCoverageService } from "./services/core/consumer-coverage.service";
 
 @Module({
     imports: [TypeOrmModule.forFeature([CoveragediskEntity])],
@@ -15,14 +17,14 @@ import { PrismaService } from "../../prisma/prisma.service";
         PrismaService,
         CoverageClientService,
         CoverageMapClientService,
-        // ConsumerCoverageService,
-        // CoveragediskService,
+        ConsumerCoverageService,
+        CoveragediskService,
     ],
 })
 export class CollectModule {
     constructor(
-        // private readonly consumerCoverageService: ConsumerCoverageService,
+        private readonly consumerCoverageService: ConsumerCoverageService,
     ) {
-        // this.consumerCoverageService.invoke();
+        this.consumerCoverageService.invoke();
     }
 }
