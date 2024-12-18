@@ -5,12 +5,24 @@ import { Injectable } from "@nestjs/common";
 export class CoverageMapClientService {
     constructor(private readonly prisma: PrismaService) {}
     async invoke({ sha, projectID, coverage, instrumentCwd, branch }) {
-        this.prisma.coverageMap.create({
+        const coverageFromExternalReport =
+            typeof coverage === "string" ? JSON.parse(coverage) : coverage;
+        // #endregion
+
+        // 提前插入
+        await this.prisma.coverage.create({
             data: {
-                projectID,
-                sha,
-                path: "",
-                map: Buffer.from([]),
+                projectID: projectID,
+                sha: sha,
+                reportID: "",
+                size: JSON.stringify(coverage).length,
+                createdAt: new Date(),
+                coverage: "",
+                tags: "",
+                ip: "999999999",
+                userAgent: "",
+                instrumentCwd: instrumentCwd,
+                branch: branch,
             },
         });
 
