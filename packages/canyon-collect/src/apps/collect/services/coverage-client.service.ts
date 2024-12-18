@@ -37,8 +37,8 @@ export class CoverageClientService {
             typeof coverage === "string" ? JSON.parse(coverage) : coverage;
         // #endregion
 
-        // 首先就要判断，这个是可选步骤，所以用单if
-        if (true) {
+        // 首先就要判断，这个是可选步骤，所以用单if，以statementMap来判断
+        if (Object.values(coverageFromExternalReport)[0]["statementMap"]) {
             // 构建一个coverageMapClientService
             await this.coverageMapClientService.invoke({
                 sha,
@@ -47,6 +47,20 @@ export class CoverageClientService {
                 instrumentCwd,
                 branch: branch || "-",
             });
+        }
+        const count = await this.prisma.coverageMap.count({
+            where: {
+                projectID: {
+                    contains: projectID
+                        .split("-")
+                        .filter((_, index) => index < 2)
+                        .join("-"),
+                },
+                sha: sha,
+            },
+        });
+        if (count === 0) {
+            throw new HttpException("coverage map not found", 400);
         }
 
         const coverageFromDatabase = await this.prisma.coverageMap
