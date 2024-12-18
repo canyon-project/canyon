@@ -39,7 +39,7 @@
     "@rsbuild/plugin-babel": "^1.0.3",
     "@rsbuild/plugin-react": "^1.1.0",
     "@rslib/core": "^0.1.4",
-    "@types/react": "^19.0.1",
+    "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "autoprefixer": "^10.4.20",
     "babel-plugin-canyon": "1.8.78-beta.33",
