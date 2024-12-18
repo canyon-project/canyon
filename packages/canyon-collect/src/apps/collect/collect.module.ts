@@ -9,20 +9,20 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { PrismaService } from "../../prisma/prisma.service";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([CoveragediskEntity])],
-  controllers: [CollectController],
-  providers: [
-    PrismaService,
-    CoverageClientService,
-    CoverageMapClientService,
-    ConsumerCoverageService,
-    CoveragediskService,
-  ],
+    imports: [TypeOrmModule.forFeature([CoveragediskEntity])],
+    controllers: [CollectController],
+    providers: [
+        PrismaService,
+        CoverageClientService,
+        CoverageMapClientService,
+        ConsumerCoverageService,
+        CoveragediskService,
+    ],
 })
 export class CollectModule {
-  constructor(
-    private readonly consumerCoverageService: ConsumerCoverageService,
-  ) {
-    this.consumerCoverageService.invoke();
-  }
+    constructor(
+        private readonly consumerCoverageService: ConsumerCoverageService,
+    ) {
+        this.consumerCoverageService.invoke();
+    }
 }
