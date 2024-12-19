@@ -33,7 +33,7 @@
     "typeorm": "^0.3.20",
     "sqlite3": "^5.1.7",
     "canyon-data": "^2.0.0-beta.6",
-    "canyon-map": "^2.0.0-beta.3"
+    "canyon-map": "^2.0.0-beta.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
