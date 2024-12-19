@@ -17,7 +17,7 @@
     "antd": "^5.22.5",
     "axios": "^1.7.9",
     "canyon-data": "^2.0.0-beta.6",
-    "canyon-map": "^2.0.0-beta.2",
+    "canyon-map": "^2.0.0-beta.3",
     "canyon-report": "0.0.8-beta-49",
     "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
@@ -36,7 +36,7 @@
     "swr": "^2.2.5"
   },
   "devDependencies": {
-    "@iconify/json": "^2.2.285",
+    "@iconify/json": "^2.2.286",
     "@iconify/tailwind": "^1.2.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
