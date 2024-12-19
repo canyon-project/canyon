@@ -170,8 +170,8 @@ importers:
         version: 5.0.6
     devDependencies:
       '@rslib/core':
-        specifier: ^0.1.4
-        version: 0.1.4(typescript@5.7.2)
+        specifier: ^0.1.5
+        version: 0.1.5(typescript@5.7.2)
       '@types/istanbul-lib-coverage':
         specifier: ^2.0.6
         version: 2.0.6
@@ -189,8 +189,8 @@ importers:
         version: 5.0.6
     devDependencies:
       '@rslib/core':
-        specifier: ^0.1.4
-        version: 0.1.4(typescript@5.7.2)
+        specifier: ^0.1.5
+        version: 0.1.5(typescript@5.7.2)
       '@types/istanbul-lib-coverage':
         specifier: ^2.0.6
         version: 2.0.6
@@ -380,8 +380,8 @@ importers:
         specifier: ^1.1.0
         version: 1.1.0(@rsbuild/core@1.1.10)
       '@rslib/core':
-        specifier: ^0.1.4
-        version: 0.1.4(typescript@5.7.2)
+        specifier: ^0.1.5
+        version: 0.1.5(typescript@5.7.2)
       '@types/react':
         specifier: ^19.0.2
         version: 19.0.2
@@ -2204,8 +2204,8 @@ packages:
     peerDependencies:
       '@rsbuild/core': 1.x
 
-  '@rslib/core@0.1.4':
-    resolution: {integrity: sha512-JyjSDxLTQmYg7UCASPOdjIY8VzNLsV2XR/liwdVf81nhendm2BuGB30wn76WEK0wxTkBZ1mPufwRCal0NMsjZw==}
+  '@rslib/core@0.1.5':
+    resolution: {integrity: sha512-m0OPJNy5ZZqqKDNWTdiG8GELgg++77Ndx3Op48mHMZ1aUSknqwKm59Rya/nZr/6fc3rvos1YM5FogXQ3/pt1/A==}
     engines: {node: '>=16.0.0'}
     hasBin: true
     peerDependencies:
@@ -6386,8 +6386,8 @@ packages:
     engines: {node: '>=18.0.0', npm: '>=8.0.0'}
     hasBin: true
 
-  rsbuild-plugin-dts@0.1.4:
-    resolution: {integrity: sha512-jqhkHGeswhH1Jfc/5zDX01UhrCwImquVjuZZXnAa34Cx0SEB+938WBIpAkyx3UEq7QLQDSII2z3pZ9cD/bpCTg==}
+  rsbuild-plugin-dts@0.1.5:
+    resolution: {integrity: sha512-p5xN+Cxv59Pk7dHZJk3ca6ryycPfIbyVPk0KWuanLE0/c2s2A5KNJCB/Qyc/MZTYEXhcJNS8FTKxEMXXJGYwvA==}
     engines: {node: '>=16.0.0'}
     peerDependencies:
       '@microsoft/api-extractor': ^7
@@ -9185,10 +9185,10 @@ snapshots:
       '@rspack/plugin-react-refresh': 1.0.1(react-refresh@0.16.0)
       react-refresh: 0.16.0
 
-  '@rslib/core@0.1.4(typescript@5.7.2)':
+  '@rslib/core@0.1.5(typescript@5.7.2)':
     dependencies:
       '@rsbuild/core': 1.1.10
-      rsbuild-plugin-dts: 0.1.4(@rsbuild/core@1.1.10)(typescript@5.7.2)
+      rsbuild-plugin-dts: 0.1.5(@rsbuild/core@1.1.10)(typescript@5.7.2)
       tinyglobby: 0.2.10
     optionalDependencies:
       typescript: 5.7.2
@@ -11167,7 +11167,7 @@ snapshots:
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.7.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1))(eslint@8.57.1)
-      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.1)
+      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.2(eslint@8.57.1)
       eslint-plugin-react-hooks: 5.1.0(eslint@8.57.1)
@@ -11202,7 +11202,7 @@ snapshots:
       is-glob: 4.0.3
       stable-hash: 0.0.4
     optionalDependencies:
-      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.1)
+      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -11217,7 +11217,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.1):
+  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.8
@@ -14519,7 +14519,7 @@ snapshots:
       '@rollup/rollup-win32-x64-msvc': 4.28.1
       fsevents: 2.3.3
 
-  rsbuild-plugin-dts@0.1.4(@rsbuild/core@1.1.10)(typescript@5.7.2):
+  rsbuild-plugin-dts@0.1.5(@rsbuild/core@1.1.10)(typescript@5.7.2):
     dependencies:
       '@rsbuild/core': 1.1.10
       magic-string: 0.30.15
