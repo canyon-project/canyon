@@ -1,56 +1,11 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL") // uses connection pooling
+  url      = env("DATABASE_URL")
 }
 
-model User {
-  id           String   @id
-  username     String
-  password     String
-  nickname     String
-  avatar       String
-  refreshToken String   @map("refresh_token")
-  accessToken  String   @map("access_token")
-  email        String
-  favor        String
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-
-  @@map("canyon_v3_user")
-}
-
-model Coverage {
-  id                String   @id @default(cuid())
-  sha               String
-  branch            String
-  compareTarget     String   @map("compare_target")
-  provider          String
-  buildProvider     String   @map("build_provider") // 通过侦测CI环境变量来判断
-  buildID           String   @map("build_id")
-  projectID         String   @map("project_id")
-  reporter          String
-  reportID          String   @map("report_id") // 未来聚合的一句，区分case
-  covType           String   @map("cov_type") // 普通类型，all、agg
-  // 代码覆盖率
-  statementsTotal   Int      @map("statements_total")
-  statementsCovered Int      @map("statements_covered")
-  summary           Bytes
-  // 代码覆盖率详情
-  hit               Bytes
-  // 特殊逻辑，必须要有map数据，才能上报hit，并且存在cov_type上。
-  map               Bytes
-  instrumentCwd     String   @map("instrument_cwd") //是build时的路径，因为要与sourceMap对应
-  // 通用
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
-
-  @@map("canyon_v3_coverage")
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
 }
 
 model SysSetting {
@@ -58,7 +13,19 @@ model SysSetting {
   key   String
   value String
 
-  @@map("sys_setting")
+  @@map("canyon3_sys_setting")
+}
+
+model User {
+  id        String   @id
+  email     String
+  password  String
+  nickname  String
+  avatar    String
+  favor     String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("canyon3_user")
 }
 
 model GitProvider {
@@ -69,31 +36,92 @@ model GitProvider {
   disabled     Boolean
   privateToken String  @map("private_token")
 
-  @@map("git_provider")
+  @@map("canyon3_git_provider")
 }
 
-model Distributedlock {
-  lockName       String    @id
-  isLocked       Boolean   @default(false)
-  lockTimestamp  DateTime?
-  lockExpiration DateTime?
+model Coverage {
+  id                String   @id @default(cuid())
+  sha               String   @map("sha")
+  branch            String
+  compareTarget     String   @map("compare_target")
+  provider          String
+  buildProvider     String   @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID           String   @map("build_id")
+  projectID         String   @map("project_id")
+  reporter          String
+  reportID          String   @map("report_id") // 未来聚合的一句，区分case
+  covType           String   @map("cov_type") // 普通类型，all、agg
+  // 代码覆盖率
+  branchesTotal     Int      @map("branches_total")
+  branchesCovered   Int      @map("branches_covered")
+  functionsTotal    Int      @map("functions_total")
+  functionsCovered  Int      @map("functions_covered")
+  linesTotal        Int      @map("lines_total")
+  linesCovered      Int      @map("lines_covered")
+  statementsTotal   Int      @map("statements_total")
+  statementsCovered Int      @map("statements_covered")
+  newlinesTotal     Int      @map("newlines_total")
+  newlinesCovered   Int      @map("newlines_covered")
+  summary           Bytes
+  // 代码覆盖率详情
+  hit               Bytes
+  // 通用
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
 
-  @@map("canyon_v3_distributedlock")
+  @@map("canyon3_coverage")
+}
+
+model CoverageMap {
+  id            String @id @default(cuid())
+  projectID     String @map("project_id")
+  sha           String @map("sha")
+  path          String
+  map           Bytes
+  // 如果是含有sourceMap的，需要instrumentCwd来做源码还原
+  instrumentCwd String @map("instrument_cwd")
+
+  // 再添加一个path索引
+  @@index(fields: [path])
+  @@index([projectID, sha]) // 联合索引
+  @@map("canyon3_coverage_map")
 }
 
 model Project {
-  id                String   @id
+  id                String @id
   name              String
-  pathWithNamespace String   @map("path_with_namespace")
+  pathWithNamespace String @map("path_with_namespace")
   description       String
   bu                String
   tags              Json
   members           Json
   coverage          String
-  language          String
-  defaultBranch     String   @map("default_branch")
-  instrumentCwd     String   @map("instrument_cwd")
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  defaultBranch     String @map("default_branch")
 
-  @@map("project")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("canyon3_project")
+}
+
+model Codechange {
+  id            String   @id @default(cuid())
+  projectID     String   @map("project_id")
+  compareTarget String   @map("compare_target")
+  sha           String   @map("sha")
+  path          String
+  additions     Int[]
+  deletions     Int[]
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("canyon3_codechange")
+}
+
+model Distributedlock {
+  lockName       String    @id @map("lock_name")
+  isLocked       Boolean   @default(false) @map("is_locked")
+  lockTimestamp  DateTime? @map("lock_timestamp")
+  lockExpiration DateTime? @map("lock_expiration")
+
+  @@map("canyon3_distributed_lock")
 }
