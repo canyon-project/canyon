@@ -88,12 +88,15 @@ export class CoverageMapClientService {
          */
 
         const arr = Object.entries(formatCoverageMap).map(([path, map]) => {
-            return { path, map };
+            return {
+                ...map,
+                path,
+            };
         });
 
         const compressedArr = await Promise.all(
             arr.map((item) => {
-                return compressedData(item.map).then((map) => {
+                return compressedData(item).then((map) => {
                     return {
                         path: item.path,
                         map,

@@ -1,6 +1,7 @@
 import libCoverage from "istanbul-lib-coverage";
 import libSourceMaps from "istanbul-lib-source-maps";
 import { mergeCoverageMap as mergeCoverageMapOfCanyonData } from "canyon-data";
+import { decompressedData } from "./zstd";
 // import { merge_coverage_json_str } from 'canyon-data';
 function parseInstrumentCwd(instrumentCwd) {
   if (instrumentCwd.includes("=>")) {
@@ -121,7 +122,6 @@ export function resetCoverageData(coverageData) {
   }, {});
 }
 
-
 // TODO：在覆盖率map数据上来的时候，有必要做一次过滤，去掉start和end为空的情况。然后再交由zod进行校验，这里需要非常严格的校验。
 const removeStartEndNull = (coverage) => {
   const obj = {};
@@ -168,4 +168,35 @@ const removeStartEndNull = (coverage) => {
   });
   // fs.writeFileSync('./coverage.json', JSON.stringify(obj));
   return obj;
+};
+
+export const convertDataFromCoverageMapDatabase = async (
+  coverageMaps: {
+    projectID: string;
+    sha: string;
+    // path: string;
+    instrumentCwd: string;
+    map: Buffer;
+  }[],
+): Promise<{
+  map: any;
+  instrumentCwd: string;
+}> => {
+  const decompressedCoverageMaps = await Promise.all(
+    coverageMaps.map((coverageMap) => {
+      return decompressedData(coverageMap.map).then((map) => {
+        return map;
+      });
+    }),
+  );
+  return {
+    map: decompressedCoverageMaps.reduce((acc, cur) => {
+      return {
+        ...acc,
+        // @ts-ignore
+        [cur.path]: cur,
+      };
+    }, {}),
+    instrumentCwd: coverageMaps[0].instrumentCwd,
+  };
 };

@@ -86,7 +86,7 @@ export const convertDataFromCoverageMapDatabase = async (
     coverageMaps: {
         projectID: string;
         sha: string;
-        path: string;
+        // path: string;
         instrumentCwd: string;
         map: Buffer;
     }[],
@@ -97,10 +97,7 @@ export const convertDataFromCoverageMapDatabase = async (
     const decompressedCoverageMaps = await Promise.all(
         coverageMaps.map((coverageMap) => {
             return decompressedData(coverageMap.map).then((map) => {
-                return {
-                    ...map,
-                    path: coverageMap.path,
-                };
+                return map;
             });
         }),
     );
@@ -108,6 +105,7 @@ export const convertDataFromCoverageMapDatabase = async (
         map: decompressedCoverageMaps.reduce((acc, cur) => {
             return {
                 ...acc,
+                // @ts-ignore
                 [cur.path]: cur,
             };
         }, {}),

@@ -60,8 +60,11 @@ importers:
         specifier: ^1.20.3
         version: 1.20.3
       canyon-data:
-        specifier: 0.1.1-alpha.17
-        version: 0.1.1-alpha.17
+        specifier: ^2.0.0-beta.6
+        version: 2.0.0-beta.6
+      canyon-map:
+        specifier: ^2.0.0-beta.5
+        version: 2.0.0-beta.5
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1

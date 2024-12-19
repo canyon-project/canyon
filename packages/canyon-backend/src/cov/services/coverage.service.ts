@@ -1,10 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CoverageSummary } from "../models/coverage-summary";
-import { genSummaryMapByCoverageMap } from "canyon-data";
+import {
+  genSummaryMapByCoverageMap,
+  resetCoverageDataMap,
+  reorganizeCompleteCoverageObjects,
+} from "canyon-data";
 import { TestExcludeService } from "./common/test-exclude.service";
 import { removeNullKeys } from "../../utils/utils";
 import { decompressedData } from "../../utils/zstd";
+import { convertDataFromCoverageMapDatabase } from "../../utils/coverage";
+import { remapCoverageWithInstrumentCwd } from "canyon-map";
 
 @Injectable()
 export class CoverageService {
@@ -122,38 +128,22 @@ export class CoverageService {
       }),
     });
 
-    // console.log(coverageMaps,'coverageMaps')
+    const { map, instrumentCwd } =
+      await convertDataFromCoverageMapDatabase(coverageMaps);
 
-    const coverageJsonMaps = await Promise.all(
-      coverageMaps.map((coverageMap) => {
-        return decompressedData(coverageMap.map).then((map) => {
-          return {
-            ...coverageMap,
-            ...map,
-          };
-        });
-      }),
+    // map不参与exclude过滤，需要保留完整的
+
+    const reMapMap = await remapCoverageWithInstrumentCwd(
+      resetCoverageDataMap(map),
+      instrumentCwd,
     );
-    console.log(coverageJsonMaps,'coverageJsonMaps')
-    const obj = {};
-    coverageJsonMaps.forEach((item) => {
-      if (hit[item.path]) {
-        const o = {
-          ...hit[item.path],
-          ...item,
-          path: item.path,
-        };
-        obj[item.path] = {
-          path: o.path,
-          b: o.b || {},
-          f: o.f || {},
-          s: o.s || {},
-          branchMap: o.branchMap || {},
-          fnMap: o.fnMap || {},
-          statementMap: o.statementMap || {},
-        };
-      }
-    });
-    return obj;
+
+    const newCoverage = reorganizeCompleteCoverageObjects(
+      reMapMap, //
+      // @ts-ignore
+      hit,
+    );
+
+    return newCoverage;
   }
 }
