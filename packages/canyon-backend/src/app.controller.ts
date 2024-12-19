@@ -5,7 +5,7 @@ import { convertSystemSettingsFromTheDatabase } from "./utils/sys";
 @Controller()
 export class AppController {
   constructor(private readonly prisma: PrismaService) {}
-  @Get("vi/health")
+  @Get("/api/vi/health")
   async viHealth() {
     return "230614";
   }
