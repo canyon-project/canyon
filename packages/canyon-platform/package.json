@@ -36,7 +36,7 @@
     "swr": "^2.2.5"
   },
   "devDependencies": {
-    "@iconify/json": "^2.2.285",
+    "@iconify/json": "^2.2.286",
     "@iconify/tailwind": "^1.2.0",
     "@types/node": "^22.10.2",
     "@types/react": "^19.0.2",
