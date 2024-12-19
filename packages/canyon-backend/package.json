@@ -8,7 +8,7 @@
     "start": "nest start",
     "dev-backend": "nest start --watch",
     "preinstall": "prisma generate && nest build",
-    "format": "prettier --write .",
+    "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
     "do-test": "jest"
   },
   "dependencies": {
