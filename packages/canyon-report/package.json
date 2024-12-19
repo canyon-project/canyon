@@ -38,7 +38,7 @@
     "@rsbuild/core": "^1.1.10",
     "@rsbuild/plugin-babel": "^1.0.3",
     "@rsbuild/plugin-react": "^1.1.0",
-    "@rslib/core": "^0.1.4",
+    "@rslib/core": "^0.1.5",
     "@types/react": "^19.0.2",
     "@types/react-dom": "^19.0.2",
     "autoprefixer": "^10.4.20",
