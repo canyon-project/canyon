@@ -12,6 +12,19 @@ import { decompressedData } from "../../utils/zstd";
 import { convertDataFromCoverageMapDatabase } from "../../utils/coverage";
 import { remapCoverageWithInstrumentCwd } from "canyon-map";
 
+function guolv(coverageData, filepath) {
+  if (filepath) {
+    const newCoverageData = {};
+    Object.keys(coverageData).forEach((key) => {
+      if (key.includes(filepath)) {
+        newCoverageData[key] = coverageData[key];
+      }
+    });
+    return newCoverageData;
+  }
+  return coverageData;
+}
+
 @Injectable()
 export class CoverageService {
   constructor(
@@ -144,6 +157,6 @@ export class CoverageService {
       hit,
     );
 
-    return newCoverage;
+    return guolv(newCoverage, filepath);
   }
 }
