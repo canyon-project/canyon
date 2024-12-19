@@ -33,7 +33,7 @@ import { CoverageModule } from "./cov/coverage.module";
 
     PrismaModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, "..", "public"),
+      rootPath: join(__dirname, "../../canyon-platform", "dist"),
       exclude: ["/graphql/(.*)"],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
