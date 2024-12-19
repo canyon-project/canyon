@@ -57,8 +57,8 @@ importers:
         specifier: ^2.0.0-beta.6
         version: 2.0.0-beta.6
       canyon-map:
-        specifier: ^2.0.0-beta.2
-        version: 2.0.0-beta.2
+        specifier: ^2.0.0-beta.3
+        version: 2.0.0-beta.3
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -222,8 +222,8 @@ importers:
         specifier: ^2.0.0-beta.6
         version: 2.0.0-beta.6
       canyon-map:
-        specifier: ^2.0.0-beta.2
-        version: 2.0.0-beta.2
+        specifier: ^2.0.0-beta.3
+        version: 2.0.0-beta.3
       canyon-report:
         specifier: 0.0.8-beta-49
         version: 0.0.8-beta-49
@@ -274,8 +274,8 @@ importers:
         version: 2.2.5(react@19.0.0)
     devDependencies:
       '@iconify/json':
-        specifier: ^2.2.285
-        version: 2.2.285
+        specifier: ^2.2.286
+        version: 2.2.286
       '@iconify/tailwind':
         specifier: ^1.2.0
         version: 1.2.0
@@ -1368,8 +1368,8 @@ packages:
     resolution: {integrity: sha512-93zYdMES/c1D69yZiKDBj0V24vqNzB/koF26KPaagAfd3P/4gUlh3Dys5ogAK+Exi9QyzlD8x/08Zt7wIKcDcA==}
     deprecated: Use @eslint/object-schema instead
 
-  '@iconify/json@2.2.285':
-    resolution: {integrity: sha512-oyH9NQ3aMdPuBl7miNcX7IavISwv5o07O6MBTQhW+X1mvyzrGwTxFf5bZmGYOsH3yB0MDGZkir3v+JiQE3UInA==}
+  '@iconify/json@2.2.286':
+    resolution: {integrity: sha512-tVl/fYvCyU5flYl4zfuJgig+ZEnpG3DJdTTTIjsiPu7xsk4s0gT1BktWvcFGr2B4UUiTRdb+XHWzW8Eu9WwhKQ==}
 
   '@iconify/tailwind@1.2.0':
     resolution: {integrity: sha512-KgpIHWOTcRYw1XcoUqyNSrmYyfLLqZYu3AmP8zdfLk0F5TqRO8YerhlvlQmGfn7rJXgPeZN569xPAJnJ53zZxA==}
@@ -3085,8 +3085,8 @@ packages:
   canyon-data@2.0.0-beta.6:
     resolution: {integrity: sha512-6uzHlmJVU+jXk0yDgSQl9DPDP8d6Ieor8mE8oJHnHj9vrgFUM7czoabwvb7z4pfpj1ehsFjto5wKdlLlkXzUSQ==}
 
-  canyon-map@2.0.0-beta.2:
-    resolution: {integrity: sha512-P8dp3ROhfbcdFTarvgZMLCbV5D2C5fof6VpRcv66YaBJzdMjTZ5AZH+w5fVx6ZMgWuBmHpWAQqdiHDpACahoLQ==}
+  canyon-map@2.0.0-beta.3:
+    resolution: {integrity: sha512-BiAVqF6qTn/e+D/Bl3MBXAizirOvnqs3XnVusTHLOXk4dzzkFZPflt0cz2G85Gf3N5OcIvOph5Rxomas26GSaw==}
 
   canyon-report@0.0.8-beta-49:
     resolution: {integrity: sha512-AFDtKVZyTz12C/QHtGYbjhy41u6OLasN5n8PN2QY/UQEU3NgaX+TuDD4g+S/Y9sJlocwTw6Hsz/ThI6g+Kkg6Q==}
@@ -8274,7 +8274,7 @@ snapshots:
 
   '@humanwhocodes/object-schema@2.0.3': {}
 
-  '@iconify/json@2.2.285':
+  '@iconify/json@2.2.286':
     dependencies:
       '@iconify/types': 2.0.0
       pathe: 1.1.2
@@ -10353,7 +10353,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  canyon-map@2.0.0-beta.2:
+  canyon-map@2.0.0-beta.3:
     dependencies:
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-source-maps: 5.0.6
@@ -11167,7 +11167,7 @@ snapshots:
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
       eslint-import-resolver-typescript: 3.7.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1))(eslint@8.57.1)
-      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.2(eslint@8.57.1)
       eslint-plugin-react-hooks: 5.1.0(eslint@8.57.1)
@@ -11202,7 +11202,7 @@ snapshots:
       is-glob: 4.0.3
       stable-hash: 0.0.4
     optionalDependencies:
-      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -11217,7 +11217,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.18.1(eslint@8.57.1)(typescript@5.7.2))(eslint-import-resolver-typescript@3.7.0)(eslint@8.57.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.8
