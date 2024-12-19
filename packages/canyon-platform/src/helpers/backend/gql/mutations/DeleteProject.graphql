@@ -1,8 +1,8 @@
 mutation DeleteProject($projectID: String!) {
-  deleteProject(projectID: $projectID) {
-    id
-    name
-    pathWithNamespace
-    description
-  }
+    deleteProject(projectID: $projectID) {
+        id
+        name
+        pathWithNamespace
+        description
+    }
 }

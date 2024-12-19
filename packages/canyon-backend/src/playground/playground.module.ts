@@ -4,9 +4,9 @@ import { PrismaModule } from "src/prisma/prisma.module";
 import { PlaygroundController } from "./playground.controller";
 
 @Module({
-  imports: [PrismaModule],
-  controllers: [PlaygroundController],
-  providers: [PlaygroundService],
-  exports: [PlaygroundService],
+    imports: [PrismaModule],
+    controllers: [PlaygroundController],
+    providers: [PlaygroundService],
+    exports: [PlaygroundService],
 })
 export class PlaygroundModule {}

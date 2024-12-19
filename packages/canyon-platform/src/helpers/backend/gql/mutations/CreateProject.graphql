@@ -1,8 +1,8 @@
 mutation CreateProject($projectID: String!, $language: String!) {
-  createProject(projectID: $projectID, language: $language) {
-    id
-    name
-    pathWithNamespace
-    description
-  }
+    createProject(projectID: $projectID, language: $language) {
+        id
+        name
+        pathWithNamespace
+        description
+    }
 }

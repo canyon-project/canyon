@@ -3,13 +3,13 @@
 // 参数，fileCoverage、fileContent、
 
 function fn(fileCoverage, fileContent) {
-  return {
-    lines: [], //行信息
-  };
+    return {
+        lines: [], //行信息
+    };
 }
 
 const Test = () => {
-  return <div>Test</div>;
+    return <div>Test</div>;
 };
 
 export default Test;

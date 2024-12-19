@@ -1,7 +1,7 @@
 query ListUser {
-  listUser {
-    email
-    id
-    nickname
-  }
+    listUser {
+        email
+        id
+        nickname
+    }
 }

@@ -9,13 +9,13 @@ import { TestExcludeService } from "./services/common/test-exclude.service";
 // import {CoverageResolver} from "./coverage.resolver";
 
 @Module({
-  // imports: [TypeOrmModule.forFeature([CoveragediskEntity])],
-  controllers: [CoverageController],
-  providers: [
-    // CoverageResolver,
-    PrismaService,
-    CoverageService,
-    TestExcludeService,
-  ],
+    // imports: [TypeOrmModule.forFeature([CoveragediskEntity])],
+    controllers: [CoverageController],
+    providers: [
+        // CoverageResolver,
+        PrismaService,
+        CoverageService,
+        TestExcludeService,
+    ],
 })
 export class CoverageModule {}
