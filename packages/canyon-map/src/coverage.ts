@@ -1,8 +1,8 @@
 import libCoverage from "istanbul-lib-coverage";
 import libSourceMaps from "istanbul-lib-source-maps";
-// 覆盖率回溯，在覆盖率存储之前转换
-export async function remapCoverage(obj:any) {
-  const oldKeys = Object.keys(obj);
+
+
+export async function remapCoverage(obj) {
   const res = await libSourceMaps
     .createSourceMapStore()
     .transformCoverage(libCoverage.createCoverageMap(obj));
@@ -14,10 +14,33 @@ export async function remapCoverage(obj:any) {
     // @ts-ignore
     obj_1[x.path] = {
       ...x,
-      oldPath: oldKeys[index]
     };
   });
   return obj_1
+}
+
+
+// 覆盖率回溯，在覆盖率存储之前转换
+export async function remapCoverageByOld(obj:any) {
+  const aaa = await Promise.all(Object.values(obj).map(item=>{
+    return remapCoverage({
+      [item.path]: item
+    }).then(res=>{
+      return Object.values(res)
+    }).then(res=>{
+      return res[0]
+    }).then(res=>{
+      return {
+        ...res,
+        oldPath: item.path
+      }
+    })
+  }));
+  const obj2 = {};
+  aaa.forEach(item=>{
+    obj2[item.path] = item;
+  });
+  return obj2;
 }
 
 // 回溯未经过reMapCoverage的数据，但是必须得传入插装路径，因为这里的noReMap是没有插装路径的
@@ -34,7 +57,7 @@ export const remapCoverageWithInstrumentCwd = async (noReMap:any, instrumentCwd:
     };
   }
 
-  const reMapedCov = await remapCoverage(obj);
+  const reMapedCov = await remapCoverageByOld(obj);
 
   const obj2: any = {};
   for (const coverageKey in reMapedCov) {
