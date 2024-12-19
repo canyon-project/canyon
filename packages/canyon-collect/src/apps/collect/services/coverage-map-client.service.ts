@@ -15,6 +15,17 @@ import {
 import { remapCoverageWithInstrumentCwd } from "canyon-map";
 import { compressedData } from "../../../utils/zstd";
 
+function getNewPathByOldPath(covMap, path) {
+    // @ts-ignore
+    const arr = Object.values(covMap).filter((item) => item.oldPath === path);
+    if (arr.length > 0) {
+        // @ts-ignore
+        return arr[0].path;
+    } else {
+        return path;
+    }
+}
+
 @Injectable()
 export class CoverageMapClientService {
     constructor(private readonly prisma: PrismaService) {}
@@ -98,7 +109,7 @@ export class CoverageMapClientService {
                     map: map, //???没删除bfs
                     projectID: projectID,
                     sha: sha,
-                    path: path,
+                    path: getNewPathByOldPath(hitObject, path),
                     instrumentCwd: instrumentCwd,
                 };
             }),
