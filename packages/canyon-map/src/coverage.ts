@@ -2,7 +2,7 @@ import libCoverage from "istanbul-lib-coverage";
 import libSourceMaps from "istanbul-lib-source-maps";
 
 
-export async function remapCoverage(obj) {
+export async function remapCoverage(obj:any) {
   const res = await libSourceMaps
     .createSourceMapStore()
     .transformCoverage(libCoverage.createCoverageMap(obj));
@@ -24,6 +24,7 @@ export async function remapCoverage(obj) {
 export async function remapCoverageByOld(obj:any) {
   const aaa = await Promise.all(Object.values(obj).map(item=>{
     return remapCoverage({
+      // @ts-ignore
       [item.path]: item
     }).then(res=>{
       return Object.values(res)
@@ -31,13 +32,17 @@ export async function remapCoverageByOld(obj:any) {
       return res[0]
     }).then(res=>{
       return {
+        // @ts-ignore
         ...res,
+        // @ts-ignore
         oldPath: item.path
       }
     })
   }));
   const obj2 = {};
+  // @ts-ignore
   aaa.forEach(item=>{
+    // @ts-ignore
     obj2[item.path] = item;
   });
   return obj2;
