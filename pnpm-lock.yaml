@@ -214,8 +214,8 @@ importers:
         specifier: ^2.0.0-beta.6
         version: 2.0.0-beta.6
       canyon-map:
-        specifier: ^2.0.0-beta.3
-        version: 2.0.0-beta.3
+        specifier: ^2.0.0-beta.5
+        version: 2.0.0-beta.5
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
@@ -2979,8 +2979,8 @@ packages:
   canyon-data@2.0.0-beta.6:
     resolution: {integrity: sha512-6uzHlmJVU+jXk0yDgSQl9DPDP8d6Ieor8mE8oJHnHj9vrgFUM7czoabwvb7z4pfpj1ehsFjto5wKdlLlkXzUSQ==}
 
-  canyon-map@2.0.0-beta.3:
-    resolution: {integrity: sha512-BiAVqF6qTn/e+D/Bl3MBXAizirOvnqs3XnVusTHLOXk4dzzkFZPflt0cz2G85Gf3N5OcIvOph5Rxomas26GSaw==}
+  canyon-map@2.0.0-beta.5:
+    resolution: {integrity: sha512-NeI+vTJTbWhkAO3c1EMPt0sFEBBvDi0nxGLwSgz2hhheX1+Mr06M0lSQG1xJ0i3brmMVR8InEareDObb45nh9w==}
 
   capital-case@1.0.4:
     resolution: {integrity: sha512-ds37W8CytHgwnhGGTi88pcPyR15qoNkOpYwmMMfnWqqWgESapLqvDx6huFjQ5vqWSn2Z06173XNA7LtMOeUh1A==}
@@ -10297,7 +10297,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  canyon-map@2.0.0-beta.3:
+  canyon-map@2.0.0-beta.5:
     dependencies:
       istanbul-lib-coverage: 3.2.2
       istanbul-lib-source-maps: 5.0.6
