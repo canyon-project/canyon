@@ -17,6 +17,6 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
-      - run: pnpm --filter=canyon-data publish -f --no-git-checks --access=public --filter || echo "Version already published. Skipping."
+      - run: pnpm --filter=canyon-data publish -f --no-git-checks --access=public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}

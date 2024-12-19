@@ -1,0 +1,8 @@
+mutation CheckProjectUrl($projectUrl: String!) {
+    checkProjectUrl(projectUrl: $projectUrl) {
+        id
+        name
+        pathWithNamespace
+        description
+    }
+}

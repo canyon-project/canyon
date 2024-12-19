@@ -6,21 +6,11 @@
   "author": "wr.zhang25@gmail.com",
   "license": "MIT",
   "scripts": {
-    "build": "turbo build",
-    "build:report": "turbo build:report",
-    "start:platform": "turbo start:platform",
-    "dev": "turbo dev",
+    "build": "pnpm -r do-build",
     "clean": "node ./scripts/clean.mjs",
     "preinstall": "node ./scripts/check.mjs && node ./scripts/prisma.mjs"
   },
-  "packageManager": "pnpm@9.14.2",
   "devDependencies": {
-    "@commitlint/cli": "^19.5.0",
-    "@commitlint/config-conventional": "^19.5.0",
-    "fs-extra": "^11.2.0",
-    "husky": "^9.1.6",
-    "turbo": "latest",
-    "typescript": "latest",
-    "pnpm": "latest"
+    "fs-extra": "^11.2.0"
   }
 }
