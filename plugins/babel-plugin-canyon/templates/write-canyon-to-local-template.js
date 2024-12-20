@@ -23,7 +23,7 @@
           globalObj.manualWriteCanyonToLocal = function () {
             globalObj.writeCanyonToLocal(JSON.stringify({
               coverage: globalObj.__coverage__,
-              canyon: globalObj.__canyon__
+              canyon: globalObj.__canyon__ || (Object.keys(globalObj.__coverage__).length>0?Object.values(globalObj.__coverage__)[0]:undefined)
             }))
           }
         }
@@ -32,7 +32,7 @@
             if (globalObj.writeCanyonToLocal) {
               globalObj.writeCanyonToLocal(JSON.stringify({
                 coverage: globalObj.__coverage__,
-                canyon: globalObj.__canyon__
+                canyon: globalObj.__canyon__ || (Object.keys(globalObj.__coverage__).length>0?Object.values(globalObj.__coverage__)[0]:undefined)
               }))
             } else {
               console.log('writeCanyonToLocal is not defined')
