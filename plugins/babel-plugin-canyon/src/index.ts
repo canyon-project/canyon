@@ -1,8 +1,11 @@
 import {declare} from "@babel/helper-plugin-utils";
 import {visitorProgramExit} from "./visitor-program-exit";
 import {template} from "@babel/core";
-import tep from './template'
+import tep from './template';
+import packageJson from '../package.json'
 const writeCanyonToLocalTemplate = template(tep["templates/write-canyon-to-local-template.js"])
+
+
 export default declare((api, config, dirname) => {
   api.assertVersion(7);
   return {
@@ -16,6 +19,7 @@ export default declare((api, config, dirname) => {
 
           const servePa:{provider?:string,compareTarget?:string}&any = {
             ...config,
+            version: packageJson.version,
             projectID: config.projectID || env_projectID || '-',
             sha: config.sha || env_sha || '-',
             branch: config.branch || env_branch || '-',
