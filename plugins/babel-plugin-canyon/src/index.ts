@@ -5,6 +5,14 @@ import tep from './template';
 import packageJson from '../package.json'
 const writeCanyonToLocalTemplate = template(tep["templates/write-canyon-to-local-template.js"])
 
+function newAtob() {
+  try {
+    return typeof atob === 'function' ? atob : null
+  } catch (e) {
+    return null
+  }
+}
+const newatob = newAtob()
 
 export default declare((api, config, dirname) => {
   api.assertVersion(7);
@@ -12,6 +20,26 @@ export default declare((api, config, dirname) => {
     visitor: {
       Program: {
         exit: (path) => {
+          const yushe = (process.env.CI_SERVER_URL || '').includes(newatob('Y3RyaXA=')) ? {
+              provider: 'tripgl',
+              // ==========以上是属性=============
+              // 代理配置
+              oneByOne: {
+                proxy:{
+                  protocol: 'http',
+                  host: newatob('cHJveHlnYXRlMi5jdHJpcGNvcnAuY29t'),
+                  port: 8080
+                }
+              }, //可配置代理 默认false
+              special: true, //默认false
+              keepMap: true, // 默认false
+            }
+            :{}
+          config = {
+            ...yushe,
+            ...config,
+          }
+
           const envs = process.env
           const env_sha = envs.CI_MERGE_REQUEST_SOURCE_BRANCH_SHA || envs.CI_BUILD_REF || envs.CI_COMMIT_SHA
           const env_projectID = envs.CI_PROJECT_ID
