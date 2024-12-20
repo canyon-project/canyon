@@ -42,7 +42,7 @@ const AppMain = () => {
   const {
     data: { canyon, coverage } = {
       canyon: {
-        commitSha: '-',
+        sha: '-',
         projectID: '-',
         branch: '-',
         dsn: '-',
@@ -119,7 +119,7 @@ const AppMain = () => {
         <Spin spinning={loading}>
           <Space direction={'vertical'}>
             <AppDataLayout label={'Project ID'} value={canyon.projectID} />
-            <AppDataLayout label={'Commit Sha'} value={canyon.commitSha} />
+            <AppDataLayout label={'Commit Sha'} value={canyon.sha} />
             <AppDataLayout label={'Branch'} value={canyon.branch} />
             <AppDataLayout label={'DSN'} value={canyon.dsn} />
             <AppDataLayout
@@ -128,7 +128,7 @@ const AppMain = () => {
                 <div>
                   <a
                     onClick={() => {
-                      downJson(JSON.stringify(coverage), canyon.projectID + '-' + canyon.commitSha);
+                      downJson(JSON.stringify(coverage), canyon.projectID + '-' + canyon.sha);
                     }}
                   >
                     {Object.keys(coverage).length}
