@@ -1,3 +1,4 @@
+// const __canyon__ = ((window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined))||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined));
 window.addEventListener('message', function (e) {
   if (e.data.type === '__canyon__event_get_coverage_and_canyon_data_request') {
     // 新增逻辑，获取覆盖率数据的时候还可以set reportID，key定为__canyon__report__id__
@@ -15,10 +16,10 @@ window.addEventListener('message', function (e) {
         type: '__canyon__event_get_coverage_and_canyon_data_response',
         payload: {
           canyon: {
-            ...window.__canyon__,
+            ...(window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined)),
             reportID: localStorage.getItem('__canyon__report__id__') || undefined,
-            intervalTime: localStorage.getItem('__canyon__interval__time__') || window.__canyon__?.intervalTime,
-            reporter: localStorage.getItem('__canyon__reporter__') || window.__canyon__?.reporter,
+            intervalTime: localStorage.getItem('__canyon__interval__time__') || (window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined))?.intervalTime,
+            reporter: localStorage.getItem('__canyon__reporter__') || (window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined))?.reporter,
           },
           coverage: window.__coverage__,
         },
@@ -36,16 +37,16 @@ setTimeout(()=>{
     const num = __canyon__interval__time__;
     if (num > 0) {
       setInterval(() => {
-        if (window.__canyon__ && window.__coverage__) {
-          fetch(window.__canyon__.dsn, {
+        if ((window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined)) && window.__coverage__) {
+          fetch((window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined)).dsn, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
-              Authorization: `Bearer ${window.__canyon__.reporter}`,
+              Authorization: `Bearer ${(window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined)).reporter}`,
             },
             body: JSON.stringify({
               coverage: window.__coverage__,
-              ...window.__canyon__,
+              ...(window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined)),
               reportID: localStorage.getItem('__canyon__report__id__') || undefined,
             }),
           }).then(() => {
