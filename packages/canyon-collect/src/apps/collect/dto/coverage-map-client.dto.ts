@@ -33,4 +33,10 @@ export class CoverageMapClientDto {
     @IsNotEmpty({ message: "coverage不能为空" })
     @Validate(IsValidCoverage)
     coverage: any;
+
+    // 允许为空，但是最小长度为1
+    @IsString()
+    @MinLength(1, { message: "compareTarget长度最小为1" })
+    @IsOptional({ message: "compareTarget可以为空" })
+    compareTarget: string;
 }
