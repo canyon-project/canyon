@@ -79,15 +79,15 @@ export class GetProjectRecordsService {
                 disabled: false,
             },
         });
-        // const commits = await getCommits(
-        //   {
-        //     projectID: projectID.split("-")[1],
-        //     commitShas: coverages.map((item) => item.sha),
-        //   },
-        //   gitProvider?.privateToken,
-        //   gitProvider?.url,
-        // );
-        const commits = [];
+        const commits = await getCommits(
+            {
+                projectID: projectID.split("-")[1],
+                commitShas: coverages.map((item) => item.sha),
+            },
+            gitProvider?.privateToken,
+            gitProvider?.url,
+        );
+        // const commits = [];
         const rows = [];
 
         const csList = await Promise.all(
