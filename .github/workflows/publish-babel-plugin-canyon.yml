@@ -17,7 +17,7 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
-      - run: pnpm --filter=babel-plugin-canyon publish -f --no-git-checks --access=public
+      - run: pnpm --filter=babel-plugin-canyon publish -f --no-git-checks --access=public || true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
       - run: |
