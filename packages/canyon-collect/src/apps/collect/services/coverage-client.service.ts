@@ -114,6 +114,7 @@ export class CoverageClientService {
             projectID,
             sha,
             reportID,
+            compareTarget: compareTarget || sha,
             coverage: hit,
         });
         return {
