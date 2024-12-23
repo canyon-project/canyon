@@ -7,7 +7,11 @@ import {
 
 import { CoveragediskService } from "./coveragedisk.service";
 import { PrismaService } from "../../../../prisma/prisma.service";
-import { removeNullKeys } from "../../../../utils/utils";
+import {
+    removeNullKeys,
+    resolveProjectID,
+    summaryToDbSummary,
+} from "../../../../utils/utils";
 import { compressedData, decompressedData } from "../../../../utils/zstd";
 import { coverageObj } from "../../models/coverage.model";
 import {
@@ -17,6 +21,9 @@ import {
 import { IstanbulHitMapSchema } from "../../../../zod/istanbul.zod";
 import { remapCoverageWithInstrumentCwd } from "canyon-map";
 import { convertDataFromCoverageMapDatabase } from "../../../../utils/coverage";
+import { logger } from "../../../../logger";
+import { PullChangeCodeAndInsertDbService } from "../common/pull-change-code-and-insert-db.service";
+import { TestExcludeService } from "../common/test-exclude.service";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -31,8 +38,8 @@ export class ConsumerCoverageService {
         private readonly prisma: PrismaService,
         // private readonly pullChangeCodeAndInsertDbService: PullChangeCodeAndInsertDbService,
         private readonly coveragediskService: CoveragediskService,
-        // private readonly testExcludeService: TestExcludeService,
-        // private readonly pullFilePathAndInsertDbService: PullFilePathAndInsertDbService,
+        private readonly pullChangeCodeAndInsertDbService: PullChangeCodeAndInsertDbService,
+        private readonly testExcludeService: TestExcludeService,
     ) {}
 
     async invoke() {
@@ -130,7 +137,18 @@ export class ConsumerCoverageService {
                 return convertDataFromCoverageMapDatabase(coverageMaps);
             });
 
-        const codechanges = [];
+        // 拉取变更代码
+        await this.pullChangeCode(queueDataToBeConsumed);
+        // 判断是否需要拉取变更代码，对比sha和compareTarget
+        const codechanges =
+            queueDataToBeConsumed.sha === queueDataToBeConsumed.compareTarget
+                ? []
+                : await this.prisma.codechange.findMany({
+                      where: {
+                          sha: queueDataToBeConsumed.sha,
+                          compareTarget: queueDataToBeConsumed.compareTarget,
+                      },
+                  });
 
         // TODO cov应该是全量的，应该是find出来的hit，因为已经合并过了，避免重复
 
@@ -199,16 +217,7 @@ export class ConsumerCoverageService {
                     ...coverageObj,
                     hit: compressedHit,
                     covType: covType,
-                    // newlinesCovered: sum.newlines.covered,
-                    // newlinesTotal: sum.newlines.total,
-                    statementsCovered: sum.statements.covered,
-                    statementsTotal: sum.statements.total,
-                    // functionsCovered: sum.functions.covered,
-                    // functionsTotal: sum.functions.total,
-                    // branchesCovered: sum.branches.covered,
-                    // branchesTotal: sum.branches.total,
-                    // linesCovered: sum.lines.covered,
-                    // linesTotal: sum.lines.total,
+                    ...summaryToDbSummary(sum),
                     summary: summaryZstd,
                     //以下都读的是queueDataToBeConsumed
                     // key: queueDataToBeConsumed.key,
@@ -230,7 +239,25 @@ export class ConsumerCoverageService {
             });
         }
     }
-    // async pullChangeCode(coverage) {}
+    async pullChangeCode(coverage) {
+        if (coverage.sha !== coverage.compareTarget) {
+            try {
+                await this.pullChangeCodeAndInsertDbService.invoke(
+                    resolveProjectID(coverage.projectID),
+                    coverage.sha,
+                    coverage.compareTarget,
+                    "accessToken",
+                    this.prisma,
+                );
+            } catch (e) {
+                logger({
+                    type: "error",
+                    title: "pullChangeCode",
+                    message: String(e),
+                });
+            }
+        }
+    }
 
     async acquireLock(lockName: string, lockTimeout: number): Promise<boolean> {
         const now = new Date();

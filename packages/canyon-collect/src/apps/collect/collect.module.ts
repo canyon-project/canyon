@@ -9,6 +9,8 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CoveragediskService } from "./services/core/coveragedisk.service";
 import { ConsumerCoverageService } from "./services/core/consumer-coverage.service";
+import { PullChangeCodeAndInsertDbService } from "./services/common/pull-change-code-and-insert-db.service";
+import { TestExcludeService } from "./services/common/test-exclude.service";
 
 @Module({
     imports: [TypeOrmModule.forFeature([CoveragediskEntity])],
@@ -19,6 +21,8 @@ import { ConsumerCoverageService } from "./services/core/consumer-coverage.servi
         CoverageMapClientService,
         ConsumerCoverageService,
         CoveragediskService,
+        PullChangeCodeAndInsertDbService,
+        TestExcludeService,
     ],
 })
 export class CollectModule {
