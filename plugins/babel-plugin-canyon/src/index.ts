@@ -14,13 +14,24 @@ function newAtob() {
 }
 const newatob = newAtob()
 
+function trim(obj) {
+  return Object.keys(obj).reduce((acc, key) => {
+    if (typeof obj[key] === "string"){
+      acc[key] = obj[key].trim();
+    } else {
+      acc[key] = obj[key];
+    }
+    return acc;
+  }, {});
+}
+
 export default declare((api, config, dirname) => {
   api.assertVersion(7);
   return {
     visitor: {
       Program: {
         exit: (path) => {
-          const yushe = (process.env.CI_SERVER_URL || '').includes(newatob('Y3RyaXA=')) ? {
+          const preset = (process.env.CI_SERVER_URL || '').includes(newatob('Y3RyaXA=')) ? {
               provider: 'tripgl',
               // ==========以上是属性=============
               // 代理配置
@@ -36,8 +47,8 @@ export default declare((api, config, dirname) => {
             }
             :{}
           config = {
-            ...yushe,
-            ...config,
+            ...preset,
+            ...trim(config),
           }
 
           const envs = process.env
