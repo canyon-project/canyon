@@ -7,9 +7,9 @@ const writeCanyonToLocalTemplate = template(tep["templates/write-canyon-to-local
 
 function newAtob() {
   try {
-    return typeof atob === 'function' ? atob : null
+    return typeof atob === 'function' ? atob : ()=>""
   } catch (e) {
-    return null
+    return ()=>""
   }
 }
 const newatob = newAtob()
