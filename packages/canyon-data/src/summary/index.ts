@@ -54,12 +54,7 @@ export const genSummaryMapByCoverageMap = (
       s = fc.toSummary();
     summaryMap[f] = {
       ...s.data,
-      newlines: {
-        total: 0,
-        covered: 0,
-        skipped: 0,
-        pct: 0,
-      },
+      newlines:calculateNewLineCoverageForSingleFile(fc.data,codeChanges?.find(c=>`${c.path}`===f)?.additions||[])
     };
   });
   return JSON.parse(JSON.stringify(summaryMap));
