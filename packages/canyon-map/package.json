@@ -1,6 +1,6 @@
 {
   "name": "canyon-map",
-  "version": "2.0.0-beta.5",
+  "version": "2.0.0-beta.6",
   "description": "",
   "type": "module",
   "exports": {
@@ -17,7 +17,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest",
     "build": "rslib build",
     "prepublishOnly": "rslib build",
     "preinstall": "rslib build || true"
@@ -28,7 +28,8 @@
   "devDependencies": {
     "@rslib/core": "^0.1.5",
     "@types/istanbul-lib-coverage": "^2.0.6",
-    "@types/istanbul-lib-source-maps": "^4.0.4"
+    "@types/istanbul-lib-source-maps": "^4.0.4",
+    "vitest": "^2.1.8"
   },
   "dependencies": {
     "istanbul-lib-coverage": "^3.2.2",

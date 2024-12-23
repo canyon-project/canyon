@@ -42,8 +42,11 @@ export async function remapCoverageByOld(obj:any) {
   const obj2 = {};
   // @ts-ignore
   aaa.forEach(item=>{
-    // @ts-ignore
-    obj2[item.path] = item;
+    // 过滤作用
+    if (item.path) {
+      // @ts-ignore
+      obj2[item.path] = item
+    }
   });
   return obj2;
 }
@@ -77,6 +80,7 @@ export const remapCoverageWithInstrumentCwd = async (noReMap:any, instrumentCwd:
     };
   }
 
+  // console.log(JSON.stringify(obj2));
   // 再把instrumentCwd去掉
   return obj2;
 };

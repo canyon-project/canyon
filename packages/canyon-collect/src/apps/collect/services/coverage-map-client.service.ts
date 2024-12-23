@@ -54,7 +54,7 @@ export class CoverageMapClientService {
         const resetCovMap = resetCoverageDataMap(formatCoverageMap);
 
         // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
-        const hitObject = await remapCoverageWithInstrumentCwd(
+        const hitObject: any = await remapCoverageWithInstrumentCwd(
             resetCovMap,
             instrumentCwd,
         );
