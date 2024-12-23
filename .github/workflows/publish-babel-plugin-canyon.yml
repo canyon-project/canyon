@@ -21,6 +21,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
       - run: |
-          pnpm dist-tag add babel-plugin-canyon@2.0.2 latest
+          pnpm dist-tag add babel-plugin-canyon@2.0.3 latest
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
