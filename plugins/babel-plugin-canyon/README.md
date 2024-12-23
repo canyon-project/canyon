@@ -1,4 +1,4 @@
-# 核心功能
+# babel-plugin-canyon
 
-1. 读取istanbul产生的map数据
-2. 侦测环境变量，打进istanbul数据里
+To see how to use this plugin, please visit our [documentation](https://docs.canyonjs.org/zh/documentation/ecosystem/babel-plugin-canyon).
+
