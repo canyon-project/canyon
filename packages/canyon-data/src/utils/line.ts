@@ -96,7 +96,6 @@ export function calculateNewLineCoverageForSingleFile(
   });
 
   const noCoveredLines = getLinesFromRanges(noCovered);
-  console.log(noCoveredLines, "noCoveredLines");
   return {
     total: newLine.length,
     covered: newLine.filter((line) => !noCoveredLines.includes(line)).length,
