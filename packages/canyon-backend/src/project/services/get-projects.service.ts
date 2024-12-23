@@ -21,7 +21,7 @@ export class GetProjectsService {
         const favorProjects = await this.prisma.user
             .findUnique({
                 where: {
-                    id: userID,
+                    id: String(userID),
                 },
             })
             .then((r) => r.favor.split(",").filter((item) => item !== ""));
