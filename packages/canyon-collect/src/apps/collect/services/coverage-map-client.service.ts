@@ -29,7 +29,14 @@ function getNewPathByOldPath(covMap, path) {
 @Injectable()
 export class CoverageMapClientService {
     constructor(private readonly prisma: PrismaService) {}
-    async invoke({ sha, projectID, coverage, instrumentCwd, branch }) {
+    async invoke({
+        sha,
+        projectID,
+        coverage,
+        instrumentCwd,
+        branch,
+        compareTarget,
+    }) {
         const coverageFromExternalReport =
             typeof coverage === "string" ? JSON.parse(coverage) : coverage;
         // #endregion
@@ -75,6 +82,7 @@ export class CoverageMapClientService {
                     statementsCovered: 0,
                     statementsTotal: overallSummary.statements.total,
                     reportID: sha,
+                    compareTarget: compareTarget || sha, // 默认是自己
                 },
             })
             .catch(() => {

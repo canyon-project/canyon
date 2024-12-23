@@ -30,6 +30,7 @@ export class CoverageClientService {
         instrumentCwd,
         reportID: _reportID,
         branch,
+        compareTarget,
     }) {
         const reportID = _reportID || sha;
         // #region == Step x: 解析出上报上来的覆盖率数据
@@ -46,6 +47,7 @@ export class CoverageClientService {
                 coverage,
                 instrumentCwd,
                 branch: branch || "-",
+                compareTarget: compareTarget || sha,
             });
         }
         const count = await this.prisma.coverageMap.count({

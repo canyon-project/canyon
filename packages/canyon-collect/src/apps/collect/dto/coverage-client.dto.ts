@@ -39,4 +39,10 @@ export class CoverageClientDto {
     @MinLength(1, { message: "branch长度最小为1" })
     @IsOptional({ message: "branch 可以为空" })
     branch: string;
+
+    // 允许为空，但是最小长度为1
+    @IsString()
+    @MinLength(1, { message: "compareTarget长度最小为1" })
+    @IsOptional({ message: "compareTarget可以为空" })
+    compareTarget: string;
 }
