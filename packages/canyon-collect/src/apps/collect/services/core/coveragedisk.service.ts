@@ -20,6 +20,7 @@ export class CoveragediskService {
         reportID: string;
         coverage: any;
         compareTarget: string;
+        reporter: string;
     }) {
         return this.coveragediskRepository.insert({
             pid: String(process.pid),

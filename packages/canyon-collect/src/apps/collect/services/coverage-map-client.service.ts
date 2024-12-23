@@ -83,6 +83,7 @@ export class CoverageMapClientService {
                     ...summaryToDbSummary(overallSummary),
                     reportID: sha,
                     compareTarget: compareTarget || sha, // 默认是自己
+                    reporter: "canyon",
                 },
             })
             .catch(() => {

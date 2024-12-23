@@ -31,6 +31,7 @@ export class CoverageClientService {
         reportID: _reportID,
         branch,
         compareTarget,
+        reporter,
     }) {
         const reportID = _reportID || sha;
         // #region == Step x: 解析出上报上来的覆盖率数据
@@ -116,6 +117,7 @@ export class CoverageClientService {
             reportID,
             compareTarget: compareTarget || sha,
             coverage: hit,
+            reporter,
         });
         return {
             success: true,
