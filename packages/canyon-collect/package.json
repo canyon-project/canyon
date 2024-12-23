@@ -31,7 +31,7 @@
     "sqlite3": "^5.1.7",
     "test-exclude": "^7.0.1",
     "canyon-data": "^2.0.0-beta.6",
-    "canyon-map": "^2.0.0-beta.5",
+    "canyon-map": "^2.0.0-beta.6",
     "diff": "^7.0.0"
   },
   "devDependencies": {
