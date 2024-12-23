@@ -14,6 +14,7 @@ import {
 } from "../../../zod/istanbul.zod";
 import { remapCoverageWithInstrumentCwd } from "canyon-map";
 import { compressedData } from "../../../utils/zstd";
+import { summaryToDbSummary } from "../../../utils/utils";
 
 function getNewPathByOldPath(covMap, path) {
     // @ts-ignore
@@ -79,8 +80,7 @@ export class CoverageMapClientService {
                     branch: branch,
                     summary: summary,
                     hit: hit,
-                    statementsCovered: 0,
-                    statementsTotal: overallSummary.statements.total,
+                    ...summaryToDbSummary(overallSummary),
                     reportID: sha,
                     compareTarget: compareTarget || sha, // 默认是自己
                 },

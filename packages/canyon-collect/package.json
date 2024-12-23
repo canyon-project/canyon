@@ -29,8 +29,10 @@
     "@nestjs/typeorm": "^10.0.2",
     "typeorm": "^0.3.20",
     "sqlite3": "^5.1.7",
+    "test-exclude": "^7.0.1",
     "canyon-data": "^2.0.0-beta.6",
-    "canyon-map": "^2.0.0-beta.5"
+    "canyon-map": "^2.0.0-beta.5",
+    "diff": "^7.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
@@ -53,6 +55,7 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@types/test-exclude": "^6.0.2"
   }
 }
