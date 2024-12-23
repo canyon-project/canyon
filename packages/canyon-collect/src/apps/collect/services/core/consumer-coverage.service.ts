@@ -193,16 +193,7 @@ export class ConsumerCoverageService {
                 },
                 data: {
                     hit: compressedHit,
-                    // newlinesCovered: sum.newlines.covered,
-                    // newlinesTotal: sum.newlines.total,
-                    statementsCovered: sum.statements.covered,
-                    statementsTotal: sum.statements.total,
-                    // functionsCovered: sum.functions.covered,
-                    // functionsTotal: sum.functions.total,
-                    // branchesCovered: sum.branches.covered,
-                    // branchesTotal: sum.branches.total,
-                    // linesCovered: sum.lines.covered,
-                    // linesTotal: sum.lines.total,
+                    ...summaryToDbSummary(sum),
                     summary: summaryZstd,
                     // updatedAt: queueDataToBeConsumed.updatedAt,
                     // TODO 暂时
