@@ -14,25 +14,28 @@
   "dependencies": {
     "@nestjs/common": "^10.4.15",
     "@nestjs/core": "^10.4.15",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.4.15",
+    "@nestjs/typeorm": "^10.0.2",
     "@prisma/client": "5.16.1",
+    "canyon-data": "^2.0.0-beta.7",
+    "canyon-map": "^2.0.0-beta.6",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
+    "diff": "^7.0.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-source-maps": "^5.0.6",
+    "passport-jwt": "^4.0.1",
     "prisma": "5.16.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "zod": "^3.24.1",
-    "@nestjs/typeorm": "^10.0.2",
-    "typeorm": "^0.3.20",
     "sqlite3": "^5.1.7",
     "test-exclude": "^7.0.1",
-    "canyon-data": "^2.0.0-beta.7",
-    "canyon-map": "^2.0.0-beta.6",
-    "diff": "^7.0.0"
+    "typeorm": "^0.3.20",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
@@ -42,6 +45,7 @@
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.2",
     "@types/supertest": "^6.0.2",
+    "@types/test-exclude": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.18.1",
     "@typescript-eslint/parser": "^8.18.1",
     "eslint": "^8",
@@ -55,7 +59,6 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.2",
-    "@types/test-exclude": "^6.0.2"
+    "typescript": "^5.7.2"
   }
 }

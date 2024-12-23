@@ -3,7 +3,9 @@ import {
     Controller,
     Post,
     UploadedFile,
+    UseGuards,
     UseInterceptors,
+    Request,
 } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { CoverageClientService } from "./services/coverage-client.service";
@@ -12,6 +14,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { CoverageMapClientService } from "./services/coverage-map-client.service";
 import { CoverageMapClientDto } from "./dto/coverage-map-client.dto";
 import zlib from "zlib";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 // 解压 GZIP 的 Buffer 数据
 async function decompressData(buffer) {
     return new Promise((resolve, reject) => {
@@ -39,15 +42,18 @@ export class CollectController {
   4. 经过测试在macbookpro上compressDataWithStream压缩1600kb的数据，压缩后64kb左右，耗时8ms左右
   TODO 得调研8ms对navigator.sendBeacon有没有影响
    */
+    @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor("coverage"))
     @Post("coverage/client")
     async coverageClient(
         @UploadedFile() cov: any,
         @Body() coverageClientDto: CoverageClientDto,
+        @Request() req: any,
     ) {
         if (coverageClientDto.coverage) {
             return this.coverageClientService.invoke({
                 ...coverageClientDto,
+                reporter: String(req.user.id),
             });
         }
         let coverage = {};
@@ -65,6 +71,7 @@ export class CollectController {
         return this.coverageClientService.invoke({
             ...coverageClientDto,
             coverage,
+            reporter: String(req.user.id),
         });
     }
 
