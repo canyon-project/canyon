@@ -9,7 +9,10 @@ export default defineConfig({
     plugins: [
         react({
             babel: {
-                plugins: process.env.NODE_ENV === "development" ? [] : [],
+                plugins: process.env.NODE_ENV === "development" ? [] : [
+                    'istanbul',
+                    'canyon'
+                ],
             },
         }),
         AutoImport({
