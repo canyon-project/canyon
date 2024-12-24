@@ -68,7 +68,7 @@ program
 	.option("--instrument_cwd <coverage>", "instrument_cwd")
   .option("--branch <branch>", "branch of the project")
   .option("--provider <provider>", "provider")
-	  .option("--workplace <workplace>", "workplace")
+	  .option("--workspace <workspace>", "workspace")
 	.allowExcessArguments(false)
 	.allowUnknownOption(false)
 	.description("modify react native project code to adapt to canyon")
