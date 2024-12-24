@@ -15,6 +15,7 @@ export async function mapCommand(params, options) {
 	const realWorkspace = workspace || process.cwd();
 	// 判断是否存在.canyon_output文件夹
 	if (!fs.existsSync(path.resolve(realWorkspace, ".canyon_output"))) {
+		console.log(path.resolve(realWorkspace, ".canyon_output"))
 		console.error("No coverage data found in .canyon_output");
 		return;
 	}
