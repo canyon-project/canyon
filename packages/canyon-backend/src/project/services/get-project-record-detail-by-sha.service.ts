@@ -38,6 +38,7 @@ export class GetProjectRecordDetailByShaService {
 
         for (let i = 0; i < coverages.length; i++) {
             const coverage = coverages[i];
+            console.log(coverage.reporter, "coverage.reporter");
             const data = {
                 ...coverage,
                 relationID: "",
@@ -55,12 +56,14 @@ export class GetProjectRecordDetailByShaService {
                 times: 0,
                 logs: [],
                 message: "",
-                reporterUsername: users.find(({ id: uId }) => {
-                    return String(uId) === coverage.reporter;
-                })?.nickname,
-                reporterAvatar: users.find(
-                    ({ id: uId }) => String(uId) === coverage.reporter,
-                )?.avatar,
+                reporterUsername:
+                    users.find(({ id: uId }) => {
+                        return String(uId) === coverage.reporter;
+                    })?.nickname || "not found",
+                reporterAvatar:
+                    users.find(
+                        ({ id: uId }) => String(uId) === coverage.reporter,
+                    )?.avatar || "not found",
             };
             rows.push(data);
         }
