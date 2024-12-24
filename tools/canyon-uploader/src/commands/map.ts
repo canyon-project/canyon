@@ -9,15 +9,17 @@ export async function mapCommand(params, options) {
 		sha,
 		instrument_cwd: instrumentCwd,
     branch,
-    provider
+    provider,
+		workspace,
 	} = params;
+	const realWorkspace = workspace || process.cwd();
 	// 判断是否存在.canyon_output文件夹
-	if (!fs.existsSync(path.resolve(process.cwd(), ".canyon_output"))) {
+	if (!fs.existsSync(path.resolve(realWorkspace, ".canyon_output"))) {
 		console.error("No coverage data found in .canyon_output");
 		return;
 	}
 
-	const files = fs.readdirSync(path.resolve(process.cwd(), ".canyon_output"));
+	const files = fs.readdirSync(path.resolve(realWorkspace, ".canyon_output"));
 	if (files.length === 0) {
 		console.error("No coverage data found in .canyon_output");
 		return;
@@ -25,7 +27,7 @@ export async function mapCommand(params, options) {
 	let data = {};
 	for (let i = 0; i < files.length; i++) {
 		const fileCoverageString = fs.readFileSync(
-			path.resolve(process.cwd(), ".canyon_output", files[i]),
+			path.resolve(realWorkspace, ".canyon_output", files[i]),
 			"utf-8",
 		);
 		data = {
