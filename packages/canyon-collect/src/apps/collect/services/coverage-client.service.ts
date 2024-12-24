@@ -120,7 +120,10 @@ export class CoverageClientService {
             reporter,
         });
         return {
-            success: true,
+            msg: "ok",
+            coverageId: "",
+            dataFormatAndCheckTime: "",
+            coverageInsertDbTime: "",
         };
     }
 }
