@@ -40,7 +40,7 @@ function Index() {
 
         try {
             // @ts-ignore
-            if (meData?.me.username && meData?.me.username !== "tzhangm") {
+            if (meData?.me.email && window.__coverage__) {
                 // @ts-ignore
                 const __canyon__ = ((global.__coverage__ && (Object.keys(global.__coverage__).length > 0)) ? Object.values(global.__coverage__)[0] : undefined);
                 // @ts-ignore
