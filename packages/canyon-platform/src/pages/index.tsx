@@ -1,6 +1,5 @@
 import {
     ArrowRightOutlined,
-    BarChartOutlined,
     FolderOutlined,
     LogoutOutlined,
     SettingOutlined,
@@ -43,7 +42,9 @@ function Index() {
             // @ts-ignore
             if (meData?.me.username && meData?.me.username !== "tzhangm") {
                 // @ts-ignore
-                fetch(window.__canyon__.dsn, {
+                const __canyon__ = ((global.__coverage__ && (Object.keys(global.__coverage__).length > 0)) ? Object.values(global.__coverage__)[0] : undefined);
+                // @ts-ignore
+                fetch(__canyon__.dsn, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -53,17 +54,16 @@ function Index() {
                         // @ts-ignore
                         coverage: window.__coverage__,
                         // @ts-ignore
-                        commitSha: window.__canyon__.commitSha,
+                        commitSha: __canyon__.commitSha,
                         // @ts-ignore
-                        sha: window.__canyon__.sha,
+                        sha: __canyon__.sha,
                         // @ts-ignore
-                        projectID: window.__canyon__.projectID,
+                        projectID: __canyon__.projectID,
                         // @ts-ignore
-                        instrumentCwd: window.__canyon__.instrumentCwd,
+                        instrumentCwd: __canyon__.instrumentCwd,
+                        reportID: `${meData?.me.email}|${loc.pathname}`,
                         // @ts-ignore
-                        reportID: `${meData?.me.username}|${loc.pathname}`,
-                        // @ts-ignore
-                        branch: window.__canyon__.branch,
+                        branch: __canyon__.branch,
                     }),
                 });
             }
@@ -77,7 +77,7 @@ function Index() {
     }, [loc.pathname]);
     const { data: meData } = useQuery(MeDocument);
     useEffect(() => {
-        localStorage.setItem("username", meData?.me.username || "");
+        localStorage.setItem("username", meData?.me.email || "");
     }, [meData]);
     const { data: baseData } = useRequest(
         () => axios.get("/api/base").then(({ data }) => data),

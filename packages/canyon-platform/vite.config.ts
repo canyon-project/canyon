@@ -11,7 +11,13 @@ export default defineConfig({
             babel: {
                 plugins: process.env.NODE_ENV === "development" ? [] : [
                     'istanbul',
-                    'canyon'
+                    ['canyon',{
+                        instrumentCwd: path.resolve(__dirname, "../.."),
+                        provider: 'tripgl',
+                        oneByOne: false,
+                        special: false,
+                        keepMap: false,
+                    }]
                 ],
             },
         }),
