@@ -8,6 +8,12 @@ export class JwtAuthGuard extends AuthGuard("jwt") {
         super();
     }
     canActivate(context: ExecutionContext): any {
+        const request = context.switchToHttp().getRequest();
+        // 获取请求体
+        const requestBody = request.body;
+        if (Object.keys(requestBody).length === 0) {
+            return true;
+        }
         return super.canActivate(context);
     }
 }
