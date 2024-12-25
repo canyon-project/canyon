@@ -41,7 +41,7 @@ export class CoverageService {
             where: {
                 sha: sha,
                 projectID,
-                covType: "agg",
+                covType: "all",
                 NOT: {
                     compareTarget: {
                         equals: "",
