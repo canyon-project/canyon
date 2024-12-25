@@ -12,7 +12,7 @@ export interface CodeChange {
   additions: number[];
 }
 export interface CoverageSummaryDataMap {
-  [key: string]: CoverageSummaryData & { newlines: Totals };
+  [key: string]: CoverageSummaryData & { newlines: Totals,path:string,change:boolean };
 }
 
 /**
@@ -52,9 +52,12 @@ export const genSummaryMapByCoverageMap = (
   m.files().forEach(function (f) {
     const fc = m.fileCoverageFor(f),
       s = fc.toSummary();
+    const additions = codeChanges?.find((c) => `${c.path}` === f)?.additions || [];
     summaryMap[f] = {
       ...s.data,
-      newlines:calculateNewLineCoverageForSingleFile(fc.data,codeChanges?.find(c=>`${c.path}`===f)?.additions||[])
+      newlines:calculateNewLineCoverageForSingleFile(fc.data,additions),
+      path: f,
+      change:additions.length > 0
     };
   });
   return JSON.parse(JSON.stringify(summaryMap));
