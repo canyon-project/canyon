@@ -42,11 +42,11 @@ export class CoverageService {
                 sha: sha,
                 projectID,
                 covType: "agg",
-                // NOT: {
-                //   projectID: {
-                //     contains: '-ut',
-                //   },
-                // },
+                NOT: {
+                    compareTarget: {
+                        equals: "",
+                    },
+                },
             },
             orderBy: {
                 updatedAt: "desc",
@@ -54,6 +54,8 @@ export class CoverageService {
             select: {
                 projectID: true,
                 compareTarget: true,
+                covType: true,
+                id: true,
             },
         });
         if (coverages.length === 0) {
