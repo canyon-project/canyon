@@ -87,7 +87,7 @@ export class CoverageMapClientService {
                 },
             })
             .catch(() => {
-                console.log("coverage create error");
+                // console.log("coverage create error");
             });
 
         /*

@@ -53,7 +53,7 @@ export class CollectController {
         if (coverageClientDto.coverage) {
             return this.coverageClientService.invoke({
                 ...coverageClientDto,
-                reporter: String(req.user.id),
+                reporter: String(req?.user?.id || "canyon"),
             });
         }
         let coverage = {};
@@ -71,7 +71,7 @@ export class CollectController {
         return this.coverageClientService.invoke({
             ...coverageClientDto,
             coverage,
-            reporter: String(req.user.id),
+            reporter: String(req?.user?.id || "canyon"),
         });
     }
 
