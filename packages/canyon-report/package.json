@@ -24,7 +24,7 @@
     "antd": "^5.22.6",
     "axios": "^1.7.9",
     "canyon-core": "^0.1.1-beta.3",
-    "canyon-data": "^2.0.0-beta.8",
+    "canyon-data": "^2.0.0-beta.9",
     "commander": "^12.1.0",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-report": "^3.0.1",
