@@ -8,7 +8,7 @@ import {
 } from "react-router-dom";
 
 import CanyonReport from "../../../../../components/CanyonReport";
-import { GetProjectByIdDocument } from "../../../../../helpers/backend/gen/graphql.ts";
+import { GetProjectByIdDocument } from "@/helpers/backend/gen/graphql.ts";
 import { getCoverageSummaryMapService, handleSelectFile } from "./helper";
 const { useToken } = theme;
 
@@ -66,7 +66,7 @@ const Sha = () => {
         if (activatedPath.includes(".")) {
             handleSelectFile({
                 filepath: activatedPath,
-                reportID: sprm.get("report_id") || "",
+                reportID: sprm.get("report_id"),
                 sha: prm.sha || "",
                 projectID: prm.id || "",
                 // mode: sprm.get("mode") || "",
@@ -84,6 +84,7 @@ const Sha = () => {
         }
     }, [activatedPath]);
 
+    // @ts-ignore
     return (
         <>
             <div
@@ -94,7 +95,7 @@ const Sha = () => {
             >
                 <>
                     <CanyonReport
-                        defaultOnlyShowChanged={sprm.get("mode")}
+                        defaultOnlyShowChanged={Boolean(sprm.get("mode"))}
                         theme={localStorage.getItem("theme") || "light"}
                         mainData={mainData}
                         pathWithNamespace={pathWithNamespace}

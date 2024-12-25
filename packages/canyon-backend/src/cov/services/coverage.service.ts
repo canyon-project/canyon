@@ -32,11 +32,7 @@ export class CoverageService {
         private readonly testExcludeService: TestExcludeService,
     ) {}
 
-    async getCoverageSummaryMap(
-        projectID,
-        sha: string,
-        reportID: string,
-    ): Promise<CoverageSummary[]> {
+    async getCoverageSummaryMap(projectID, sha: string, reportID: string) {
         const coverages = await this.prisma.coverage.findMany({
             where: {
                 sha: sha,
@@ -99,13 +95,20 @@ export class CoverageService {
             covSummary = genSummaryMapByCoverageMap(coverageData, codechanges);
         }
 
-        return Object.entries(covSummary).map(([key, value]: any) => {
-            return {
-                path: key,
-                ...value,
-                change: codechanges.map(({ path }) => `${path}`).includes(key),
-            };
-        });
+        return Object.entries(covSummary)
+            .map(([key, value]: any) => {
+                return {
+                    path: key,
+                    ...value,
+                    change: codechanges
+                        .map(({ path }) => `${path}`)
+                        .includes(key),
+                };
+            })
+            .reduce((acc, cur) => {
+                acc[cur.path] = cur;
+                return acc;
+            }, {});
     }
 
     async getCoverageData(projectID, commitSha, reportID, _filepath) {
