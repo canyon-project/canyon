@@ -10,7 +10,7 @@ export class UserController {
     getHello(@Request() req): Promise<any> {
         return this.prismaService.user.findFirst({
             where: {
-                id: req.user.id,
+                id: String(req.user.id),
             },
         });
     }
