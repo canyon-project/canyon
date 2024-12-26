@@ -101,6 +101,7 @@ export class CoverageClientService {
         const originalHit = IstanbulHitMapSchema.parse(formartCOv);
         // #endregion
 
+        // TODO: originalHit，这里也可以一起放到coverageFinalService里，重要！！！！，把百分比函数也放到canyon-data里,压缩函数，那种100年不会动的，数据校验
         const chongzu = reorganizeCompleteCoverageObjects(map, originalHit);
 
         // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)

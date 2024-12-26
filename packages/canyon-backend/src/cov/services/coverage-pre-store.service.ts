@@ -1,17 +1,12 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import {
-    resetCoverageDataMap,
-    reorganizeCompleteCoverageObjects,
-    CoverageSummaryDataMap,
-} from "canyon-data";
-import { removeNullKeys } from "../../utils/utils";
+import { CoverageSummaryDataMap } from "canyon-data";
 import { decompressedData } from "../../utils/zstd";
-import { convertDataFromCoverageMapDatabase } from "../../utils/coverage";
-import { remapCoverageWithInstrumentCwd } from "canyon-map";
+
 import { CoverageSummaryDto } from "../dto/coverage-summary.dto";
 import { CoverageMapDto } from "../dto/coverage-map.dto";
 import { CoverageMapData } from "istanbul-lib-coverage";
+import { CoverageFinalService } from "./common/coverage-final.service";
 
 /**
  * Service to handle pre-storage operations for code coverage data.
@@ -31,7 +26,10 @@ import { CoverageMapData } from "istanbul-lib-coverage";
  */
 @Injectable()
 export class CoveragePreStoreService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(
+        private readonly prisma: PrismaService,
+        private readonly coverageFinalService: CoverageFinalService,
+    ) {}
 
     /**
      * Retrieves the coverage summary map for a specific project, commit (SHA), and report ID.
@@ -57,14 +55,8 @@ export class CoveragePreStoreService {
         if (coverage?.summary) {
             return decompressedData<CoverageSummaryDataMap>(coverage.summary);
         }
-        throw new HttpException(
-            {
-                statusCode: 404,
-                message: "summary data not found",
-                errorCode: "SUMMARY_DATA_NOT_FOUND",
-            },
-            404,
-        );
+        // 不报错，直接返回空对象
+        return {};
     }
 
     /**
@@ -79,43 +71,11 @@ export class CoveragePreStoreService {
         reportID,
         filepath,
     }: CoverageMapDto): Promise<CoverageMapData> {
-        const coverage = await this.prisma.coverage.findFirst({
-            where: {
-                sha,
-                projectID,
-                reportID: reportID,
-                covType: reportID ? "agg" : "all",
-            },
+        return this.coverageFinalService.invoke({
+            projectID,
+            sha,
+            reportID,
+            filepath,
         });
-        if (!coverage) {
-            throw new HttpException(
-                {
-                    statusCode: 404,
-                    message: "coverage data not found",
-                    errorCode: "COVERAGE_DATA_NOT_FOUND",
-                },
-                404,
-            );
-        }
-        const hit = await decompressedData<{
-            [key: string]: object;
-        }>(coverage.hit);
-        const coverageMaps = await this.prisma.coverageMap.findMany({
-            where: removeNullKeys({
-                sha,
-                projectID,
-                path: filepath,
-            }),
-        });
-
-        const { map, instrumentCwd } =
-            await convertDataFromCoverageMapDatabase(coverageMaps);
-
-        const reMapMap = await remapCoverageWithInstrumentCwd(
-            resetCoverageDataMap(map),
-            instrumentCwd,
-        );
-
-        return reorganizeCompleteCoverageObjects(reMapMap, hit);
     }
 }

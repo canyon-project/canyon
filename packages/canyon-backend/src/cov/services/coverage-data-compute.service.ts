@@ -1,22 +1,16 @@
 // 覆盖率实体数据计算，适用于reportID数组计算
 
-import { HttpException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
-    resetCoverageDataMap,
-    reorganizeCompleteCoverageObjects,
     CoverageSummaryDataMap,
-    mergeCoverageMap,
     genSummaryMapByCoverageMap,
 } from "canyon-data";
-import { removeNullKeys } from "../../utils/utils";
-import { decompressedData } from "../../utils/zstd";
-import { convertDataFromCoverageMapDatabase } from "../../utils/coverage";
-import { remapCoverageWithInstrumentCwd } from "canyon-map";
 import { CoverageSummaryDto } from "../dto/coverage-summary.dto";
 import { CoverageMapDto } from "../dto/coverage-map.dto";
 import { CoverageMapData } from "istanbul-lib-coverage";
 import { TestExcludeService } from "./common/test-exclude.service";
+import { CoverageFinalService } from "./common/coverage-final.service";
 
 /**
  * Service to handle pre-storage operations for code coverage data.
@@ -39,6 +33,7 @@ export class CoverageDataComputeService {
     constructor(
         private readonly prisma: PrismaService,
         private readonly testExcludeService: TestExcludeService,
+        private readonly coverageFinalService: CoverageFinalService,
     ) {}
 
     /**
@@ -84,61 +79,11 @@ export class CoverageDataComputeService {
         reportID,
         filepath,
     }: CoverageMapDto): Promise<CoverageMapData> {
-        const coverages = await this.prisma.coverage.findMany({
-            where: {
-                sha,
-                projectID,
-                reportID: {
-                    in: reportID.split(","),
-                },
-                covType: reportID ? "agg" : "all",
-            },
+        return this.coverageFinalService.invoke({
+            projectID,
+            sha,
+            reportID,
+            filepath,
         });
-
-        if (coverages.length === 0) {
-            throw new HttpException(
-                {
-                    statusCode: 404,
-                    message: "coverage data not found",
-                    errorCode: "COVERAGE_DATA_NOT_FOUND",
-                },
-                404,
-            );
-        }
-
-        // 异步解压
-        const hits = await Promise.all(
-            coverages.map((coverage) => {
-                return decompressedData<{
-                    [key: string]: object;
-                }>(coverage.hit);
-            }),
-        );
-
-        // 防止内存爆炸，逐一合并
-        let hit = {};
-
-        for (let i = 0; i < hits.length; i++) {
-            hit = mergeCoverageMap(hit, hits[i]);
-        }
-
-        // TODO 这里的覆盖率实体生成方法重复了，期望能够提取出来
-        const coverageMaps = await this.prisma.coverageMap.findMany({
-            where: removeNullKeys({
-                sha,
-                projectID,
-                path: filepath,
-            }),
-        });
-
-        const { map, instrumentCwd } =
-            await convertDataFromCoverageMapDatabase(coverageMaps);
-
-        const reMapMap = await remapCoverageWithInstrumentCwd(
-            resetCoverageDataMap(map),
-            instrumentCwd,
-        );
-
-        return reorganizeCompleteCoverageObjects(reMapMap, hit);
     }
 }

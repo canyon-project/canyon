@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import { percent, removeNullKeys } from "../../utils/utils";
-// import { getProjectByID } from '../adapter/gitlab.adapter';
+import { percent } from "../../utils/utils";
+
 @Injectable()
 export class GetProjectChartDataService {
     constructor(private readonly prisma: PrismaService) {}
@@ -12,10 +12,10 @@ export class GetProjectChartDataService {
             },
         });
         const allCovTypeCoverages = await this.prisma.coverage.findMany({
-            where: removeNullKeys({
+            where: {
                 projectID: projectID,
                 covType: "all",
-                branch: defaultBranch === "-" ? null : defaultBranch,
+                branch: defaultBranch === "-" ? undefined : defaultBranch,
                 NOT: {
                     statementsCovered: 0,
                     // 老的逻辑，不再使用
@@ -30,7 +30,7 @@ export class GetProjectChartDataService {
                 //     equals: 0,
                 //   },
                 // },
-            }),
+            },
             orderBy: {
                 updatedAt: "desc",
             },
