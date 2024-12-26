@@ -5,14 +5,29 @@ import { CoverageSummaryDataMap } from "canyon-data";
 import { CoverageMapData } from "istanbul-lib-coverage";
 import { CoverageMapDto } from "./dto/coverage-map.dto";
 import { CoverageDataComputeService } from "./services/coverage-data-compute.service";
+import { CoverageService } from "./services/coverage.service";
 
 @Controller()
 export class CoverageController {
     constructor(
         private readonly coveragePreStoreService: CoveragePreStoreService,
         private readonly coverageDataComputeService: CoverageDataComputeService,
+        private readonly coverageService: CoverageService,
     ) {}
+
+    // TODO 马上要废弃的接口
     @Get("api/coverage/summary/map")
+    async oldCoverageSummary(@Query() coverageSummaryDto: any): Promise<any> {
+        const { projectID, sha, reportID } = coverageSummaryDto;
+
+        return this.coverageService.coverageSummaryMap(
+            projectID,
+            sha,
+            reportID,
+        );
+    }
+
+    @Get("api/coverage/summary/v2/map")
     async coverageSummary(
         @Query() coverageSummaryDto: CoverageSummaryDto,
     ): Promise<CoverageSummaryDataMap> {
