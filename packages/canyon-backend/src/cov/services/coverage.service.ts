@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { CoverageSummary } from "../models/coverage-summary";
 import {
     genSummaryMapByCoverageMap,
     resetCoverageDataMap,
