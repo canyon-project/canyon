@@ -13,7 +13,6 @@ import { SourcecodeService } from "./sourcecode/sourcecode.service";
 import { SourcecodeModule } from "./sourcecode/sourcecode.module";
 import { join } from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
-import { PlaygroundModule } from "./playground/playground.module";
 import { CoverageModule } from "./cov/coverage.module";
 
 @Module({
@@ -26,7 +25,6 @@ import { CoverageModule } from "./cov/coverage.module";
         CoverageModule,
         CodechangeModule,
         SourcecodeModule,
-        PlaygroundModule,
         PrismaModule,
         ServeStaticModule.forRoot({
             rootPath: join(__dirname, "../../canyon-platform", "dist"),
