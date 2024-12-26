@@ -1,144 +1,55 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import {
-    genSummaryMapByCoverageMap,
     resetCoverageDataMap,
     reorganizeCompleteCoverageObjects,
+    CoverageSummaryDataMap,
 } from "canyon-data";
-import { TestExcludeService } from "./common/test-exclude.service";
 import { removeNullKeys } from "../../utils/utils";
 import { decompressedData } from "../../utils/zstd";
 import { convertDataFromCoverageMapDatabase } from "../../utils/coverage";
 import { remapCoverageWithInstrumentCwd } from "canyon-map";
-
-function guolv(coverageData, filepath) {
-    if (filepath) {
-        const newCoverageData = {};
-        Object.keys(coverageData).forEach((key) => {
-            if (key.includes(filepath)) {
-                newCoverageData[key] = coverageData[key];
-            }
-        });
-        return newCoverageData;
-    }
-    return coverageData;
-}
+import { CoverageSummaryDto } from "../dto/coverage-summary.dto";
+import { CoverageMapDto } from "../dto/coverage-map.dto";
 
 @Injectable()
 export class CoverageService {
-    constructor(
-        private readonly prisma: PrismaService,
-        private readonly testExcludeService: TestExcludeService,
-    ) {}
+    constructor(private readonly prisma: PrismaService) {}
 
-    async getCoverageSummaryMap(projectID, sha: string, reportID: string) {
-        const coverages = await this.prisma.coverage.findMany({
+    async coverageSummaryMap({ projectID, sha, reportID }: CoverageSummaryDto) {
+        const coverage = await this.prisma.coverage.findFirst({
             where: {
-                sha: sha,
-                projectID,
-                covType: "all",
-                NOT: {
-                    compareTarget: {
-                        equals: "",
-                    },
-                },
-            },
-            orderBy: {
-                updatedAt: "desc",
-            },
-            select: {
-                projectID: true,
-                compareTarget: true,
-                covType: true,
-                id: true,
-            },
-        });
-        if (coverages.length === 0) {
-            return [];
-        }
-
-        const codechanges = await this.prisma.codechange.findMany({
-            where: {
-                compareTarget: coverages[0].compareTarget,
-                sha: sha,
-            },
-        });
-
-        let covSummary = await this.prisma.coverage
-            .findFirst({
-                where: removeNullKeys({
-                    sha,
-                    projectID,
-                    reportID: reportID || null,
-                    covType: reportID ? "agg" : "all",
-                }),
-            })
-            .then((cov) => {
-                if (cov && cov.summary) {
-                    // zstd解压
-                    return decompressedData(cov.summary);
-                } else {
-                    return null;
-                }
-            });
-
-        if (!covSummary) {
-            const coverageData = await this.getCoverageDataFromAdapter(
-                projectID,
                 sha,
-                reportID,
-            ).then((r) =>
-                this.testExcludeService.invoke(coverages[0].projectID, r),
-            );
+                projectID,
+                reportID: reportID,
+                covType: reportID ? "agg" : "all",
+            },
+        });
 
-            covSummary = genSummaryMapByCoverageMap(coverageData, codechanges);
+        if (coverage?.summary) {
+            return decompressedData<CoverageSummaryDataMap>(coverage.summary);
         }
-
-        return Object.entries(covSummary)
-            .map(([key, value]: any) => {
-                return {
-                    path: key,
-                    ...value,
-                    change: codechanges
-                        .map(({ path }) => `${path}`)
-                        .includes(key),
-                };
-            })
-            .reduce((acc, cur) => {
-                acc[cur.path] = cur;
-                return acc;
-            }, {});
-    }
-
-    async getCoverageData(projectID, commitSha, reportID, _filepath) {
-        const filepath = _filepath ? _filepath.replaceAll("~/", "") : null;
-        // 获取单个需要优化
-        const coverageData = await this.getCoverageDataFromAdapter(
-            projectID,
-            commitSha,
-            reportID,
-            filepath,
+        throw new HttpException(
+            {
+                statusCode: 404,
+                message: "summary data not found",
+                errorCode: "SUMMARY_DATA_NOT_FOUND",
+            },
+            404,
         );
-        return coverageData;
     }
 
-    // 私有方法
-    private async getCoverageDataFromAdapter(
-        projectID,
-        sha,
-        reportID,
-        filepath = null,
-    ) {
-        const cov = await this.prisma.coverage.findFirst({
-            where: removeNullKeys({
+    async coverageMap({ projectID, sha, reportID, filepath }: CoverageMapDto) {
+        const coverage = await this.prisma.coverage.findFirst({
+            where: {
                 sha,
                 projectID,
-                covType: reportID || null ? "agg" : "all",
-                reportID: reportID || null,
-            }),
+                reportID: reportID,
+                covType: reportID ? "agg" : "all",
+            },
         });
-        const hit = await decompressedData(cov.hit);
-
+        // 原始hit数据
+        const hit = await decompressedData(coverage.hit);
         const coverageMaps = await this.prisma.coverageMap.findMany({
             where: removeNullKeys({
                 sha,
@@ -149,8 +60,6 @@ export class CoverageService {
 
         const { map, instrumentCwd } =
             await convertDataFromCoverageMapDatabase(coverageMaps);
-
-        // map不参与exclude过滤，需要保留完整的
 
         const reMapMap = await remapCoverageWithInstrumentCwd(
             resetCoverageDataMap(map),
@@ -163,6 +72,6 @@ export class CoverageService {
             hit,
         );
 
-        return guolv(newCoverage, filepath);
+        return newCoverage;
     }
 }

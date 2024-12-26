@@ -13,11 +13,11 @@ export class CoverageController {
         @Query() coverageSummaryDto: CoverageSummaryDto,
     ): Promise<CoverageSummaryDataMap> {
         const { projectID, sha, reportID } = coverageSummaryDto;
-        return this.coverageService.getCoverageSummaryMap(
+        return this.coverageService.coverageSummaryMap({
             projectID,
             sha,
             reportID,
-        );
+        });
     }
 
     @Get("api/coverage/map")
@@ -25,11 +25,11 @@ export class CoverageController {
         @Query() coverageMapDto: CoverageMapDto,
     ): Promise<CoverageMapData> {
         const { projectID, sha, reportID, filepath } = coverageMapDto;
-        return this.coverageService.getCoverageData(
+        return this.coverageService.coverageMap({
             projectID,
             sha,
             reportID,
             filepath,
-        );
+        });
     }
 }

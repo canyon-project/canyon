@@ -6,21 +6,19 @@ export const reorganizeCompleteCoverageObjects = (
     [key: string]: object;
   },
 ) => {
-  // istanbul数据结构
+  // 重组的时候以map为基准，map可能是只查询一部分。
   const obj = {};
-  for (const objKey in hit) {
-    const item = hit[objKey];
-    const mapItem = map[objKey];
-    // @ts-ignore
-    obj[objKey] = {
-      ...mapItem,
-      // 一定要在下面!!!
-      ...item,
-      path: objKey,
-    };
+  for (const mapKey in map) {
+    if (map[mapKey] && hit[mapKey]) {
+      // @ts-ignore
+      obj[mapKey] = {
+        ...map[mapKey],
+        ...hit[mapKey],
+        path: mapKey,
+      }
+    }
   }
   return obj;
-  // return {};
 };
 
 export const resetCoverageDataMap = (coverageData:any)=> {

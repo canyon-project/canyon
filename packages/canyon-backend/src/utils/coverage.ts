@@ -192,6 +192,7 @@ export const convertDataFromCoverageMapDatabase = async (
     return {
         map: decompressedCoverageMaps.reduce((acc, cur) => {
             return {
+                // @ts-ignore
                 ...acc,
                 // @ts-ignore
                 [cur.path]: cur,
