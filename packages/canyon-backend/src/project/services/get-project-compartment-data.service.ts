@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import * as dayjs from "dayjs";
-import { percent, removeNullKeys } from "../../utils/utils";
+import { percent } from "../../utils/utils";
 
 @Injectable()
 export class GetProjectCompartmentDataService {
@@ -13,13 +13,13 @@ export class GetProjectCompartmentDataService {
             },
         });
         const coverages = await this.prisma.coverage.findMany({
-            where: removeNullKeys({
+            where: {
                 projectID: projectID,
                 covType: "all",
                 branch: ["", "-"].includes(project.defaultBranch)
-                    ? null
+                    ? undefined
                     : project.defaultBranch,
-            }),
+            },
             orderBy: {
                 updatedAt: "desc",
             },

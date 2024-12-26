@@ -10,15 +10,6 @@ export function percent(covered, total) {
     }
 }
 
-export function removeNullKeys(obj) {
-    const newObj = {};
-    for (const key in obj) {
-        if (obj[key] !== null) {
-            newObj[key] = obj[key];
-        }
-    }
-    return newObj;
-}
 
 export function deleteID(obj) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

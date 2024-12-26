@@ -7,11 +7,7 @@ import {
 
 import { CoveragediskService } from "./coveragedisk.service";
 import { PrismaService } from "../../../../prisma/prisma.service";
-import {
-    removeNullKeys,
-    resolveProjectID,
-    summaryToDbSummary,
-} from "../../../../utils/utils";
+import { resolveProjectID, summaryToDbSummary } from "../../../../utils/utils";
 import { compressedData, decompressedData } from "../../../../utils/zstd";
 import { coverageObj } from "../../models/coverage.model";
 import {
@@ -36,7 +32,6 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export class ConsumerCoverageService {
     constructor(
         private readonly prisma: PrismaService,
-        // private readonly pullChangeCodeAndInsertDbService: PullChangeCodeAndInsertDbService,
         private readonly coveragediskService: CoveragediskService,
         private readonly pullChangeCodeAndInsertDbService: PullChangeCodeAndInsertDbService,
         private readonly testExcludeService: TestExcludeService,
@@ -110,13 +105,15 @@ export class ConsumerCoverageService {
     async consume(queueDataToBeConsumed, covType) {
         // 读取agg类型的数据
         const coverage = await this.prisma.coverage.findFirst({
-            where: removeNullKeys({
+            where: {
                 sha: queueDataToBeConsumed.sha,
                 projectID: queueDataToBeConsumed.projectID,
                 covType: covType,
                 reportID:
-                    covType === "agg" ? queueDataToBeConsumed.reportID : null,
-            }),
+                    covType === "agg"
+                        ? queueDataToBeConsumed.reportID
+                        : undefined,
+            },
         });
 
         const { map, instrumentCwd } = await this.prisma.coverageMap

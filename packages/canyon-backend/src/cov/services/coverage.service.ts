@@ -2,20 +2,20 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CoverageSummaryDataMap } from "canyon-data";
 import { decompressedData } from "../../utils/zstd";
-import { removeNullKeys } from "../../utils/utils";
 
+// 马上废弃，勿动
 @Injectable()
 export class CoverageService {
     constructor(private readonly prisma: PrismaService) {}
 
     async coverageSummaryMap(projectID, sha: string, reportID: string) {
         const coverage = await this.prisma.coverage.findFirst({
-            where: removeNullKeys({
-                sha: sha || null,
-                projectID: projectID || null,
-                reportID: reportID || null,
+            where: {
+                sha: sha || undefined,
+                projectID: projectID || undefined,
+                reportID: reportID || undefined,
                 covType: reportID ? "agg" : "all",
-            }),
+            },
         });
 
         if (coverage?.summary) {
