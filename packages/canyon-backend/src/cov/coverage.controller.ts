@@ -33,7 +33,7 @@ export class CoverageController {
     ): Promise<CoverageSummaryDataMap> {
         const { projectID, sha, reportID } = coverageSummaryDto;
 
-        if (reportID.includes(",")) {
+        if (reportID && reportID.includes(",")) {
             return this.coverageDataComputeService.coverageSummaryMap({
                 projectID,
                 sha,
