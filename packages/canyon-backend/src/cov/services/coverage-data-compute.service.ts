@@ -53,6 +53,7 @@ export class CoverageDataComputeService {
         sha,
         reportID,
     }: CoverageSummaryDto): Promise<CoverageSummaryDataMap> {
+        // 直接调用同class下的coverageMap方法
         const coverage = await this.coverageMap({
             projectID,
             sha,
@@ -121,6 +122,7 @@ export class CoverageDataComputeService {
             hit = mergeCoverageMap(hit, hits[i]);
         }
 
+        // TODO 这里的覆盖率实体生成方法重复了，期望能够提取出来
         const coverageMaps = await this.prisma.coverageMap.findMany({
             where: removeNullKeys({
                 sha,

@@ -59,7 +59,7 @@ export function handleSelectFile({
 // @ts-ignore
 export const getCoverageSummaryMapService = ({ projectID, sha, reportID }) =>
     axios({
-        url: "/api/coverage/summary/map",
+        url: "/api/coverage/summary/v2/map",
         method: "GET",
         params: {
             reportID: reportID,
