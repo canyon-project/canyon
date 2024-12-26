@@ -172,11 +172,10 @@ export class ConsumerCoverageService {
         );
 
         const summary = genSummaryMapByCoverageMap(
-            // await this.testExcludeService.invoke(
-            //   queueDataToBeConsumed.projectID,
-            //   newCoverage,
-            // ),
-            newCoverage,
+            await this.testExcludeService.invoke(
+                queueDataToBeConsumed.projectID,
+                newCoverage,
+            ),
             codechanges,
         );
         const sum: any = getSummaryByPath("", summary);
@@ -195,7 +194,6 @@ export class ConsumerCoverageService {
                     hit: compressedHit,
                     ...summaryToDbSummary(sum),
                     summary: summaryZstd,
-                    // updatedAt: queueDataToBeConsumed.updatedAt,
                     // TODO 暂时
                     updatedAt: new Date(),
                     compareTarget: queueDataToBeConsumed.compareTarget,
@@ -210,22 +208,10 @@ export class ConsumerCoverageService {
                     covType: covType,
                     ...summaryToDbSummary(sum),
                     summary: summaryZstd,
-                    //以下都读的是queueDataToBeConsumed
-                    // key: queueDataToBeConsumed.key,
-                    // branch: queueDataToBeConsumed.branch,
                     sha: queueDataToBeConsumed.sha,
-                    // compareTarget: queueDataToBeConsumed.compareTarget,
                     projectID: queueDataToBeConsumed.projectID,
-                    // provider: queueDataToBeConsumed.provider,
-                    // instrumentCwd: queueDataToBeConsumed.instrumentCwd,
                     reporter: String(queueDataToBeConsumed.reporter),
                     reportID: queueDataToBeConsumed.reportID,
-                    // 如果是auto的map，需要复制过来
-                    // map: rawMap,
-                    // instrumentCwd: instrumentCwd,
-                    // tag: queueDataToBeConsumed.tag,
-                    // buildID: queueDataToBeConsumed.buildID,
-                    // buildProvider: queueDataToBeConsumed.buildProvider,
                 },
             });
         }
