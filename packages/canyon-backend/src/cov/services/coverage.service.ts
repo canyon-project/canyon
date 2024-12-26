@@ -2,6 +2,7 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CoverageSummaryDataMap } from "canyon-data";
 import { decompressedData } from "../../utils/zstd";
+import { removeNullKeys } from "../../utils/utils";
 
 @Injectable()
 export class CoverageService {
@@ -9,12 +10,12 @@ export class CoverageService {
 
     async coverageSummaryMap(projectID, sha: string, reportID: string) {
         const coverage = await this.prisma.coverage.findFirst({
-            where: {
-                sha,
-                projectID,
-                reportID: reportID,
+            where: removeNullKeys({
+                sha: sha || null,
+                projectID: projectID || null,
+                reportID: reportID || null,
                 covType: reportID ? "agg" : "all",
-            },
+            }),
         });
 
         if (coverage?.summary) {
