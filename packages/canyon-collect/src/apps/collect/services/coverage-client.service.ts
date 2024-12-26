@@ -40,7 +40,10 @@ export class CoverageClientService {
         // #endregion
 
         // 首先就要判断，这个是可选步骤，所以用单if，以statementMap来判断
-        if (Object.values(coverageFromExternalReport)[0]["statementMap"]) {
+        if (
+            Object.keys(coverageFromExternalReport).length > 0 &&
+            Object.values(coverageFromExternalReport)[0]["statementMap"]
+        ) {
             // 构建一个coverageMapClientService
             await this.coverageMapClientService.invoke({
                 sha,
