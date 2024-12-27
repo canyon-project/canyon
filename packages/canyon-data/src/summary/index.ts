@@ -1,4 +1,4 @@
-import { percent } from "../utils/percent";
+import { percent } from "../util";
 import libCoverage, {
   CoverageMapData,
   CoverageSummaryData,
