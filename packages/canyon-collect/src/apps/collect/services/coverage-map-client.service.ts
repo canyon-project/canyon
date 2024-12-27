@@ -12,8 +12,7 @@ import {
     IstanbulHitMapSchema,
     IstanbulMapMapSchema,
 } from "../../../zod/istanbul.zod";
-import { remapCoverageWithInstrumentCwd,compressedData } from "canyon-map";
-// import { compressedData } from "canyon-map";
+import { compressedData, remapCoverageWithInstrumentCwd } from "canyon-map";
 import { summaryToDbSummary } from "../../../utils/utils";
 
 function getNewPathByOldPath(covMap, path) {
@@ -114,12 +113,15 @@ export class CoverageMapClientService {
             }),
         );
 
+        // 避免重复录入
+        const coverageMapProjectID = `${projectID.split("-")[0]}-${projectID.split("-")[1]}-auto`;
+
         return await this.prisma.coverageMap.createMany({
             data: compressedArr.map(({ path, map }: any) => {
                 return {
-                    id: `__${projectID}__${sha}__${path}__`,
+                    id: `__${coverageMapProjectID}__${sha}__${path}__`,
                     map: map, //???没删除bfs
-                    projectID: projectID,
+                    projectID: coverageMapProjectID,
                     sha: sha,
                     path: getNewPathByOldPath(hitObject, path),
                     instrumentCwd: instrumentCwd,

@@ -1,16 +1,11 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../prisma/prisma.service";
 import { CoverageMapClientService } from "./coverage-map-client.service";
-import {
-    formatReportObject,
-} from "../../../utils/coverage";
+import { formatReportObject } from "../../../utils/coverage";
 import { IstanbulHitMapSchema } from "../../../zod/istanbul.zod";
-import { remapCoverageWithInstrumentCwd,convertDataFromCoverageMapDatabase } from "canyon-map";
-import {
-    formatCoverageData,
-    reorganizeCompleteCoverageObjects,
-} from "canyon-data";
+import { formatCoverageData } from "canyon-data";
 import { CoveragediskService } from "./core/coveragedisk.service";
+import { CoverageFinalService } from "./common/coverage-final.service";
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -19,6 +14,7 @@ export class CoverageClientService {
         private readonly prisma: PrismaService,
         private readonly coverageMapClientService: CoverageMapClientService,
         private coveragediskService: CoveragediskService,
+        private coverageFinalService: CoverageFinalService,
     ) {}
     async invoke({
         sha,
@@ -66,58 +62,29 @@ export class CoverageClientService {
             throw new HttpException("coverage map not found", 400);
         }
 
-        const coverageFromDatabase = await this.prisma.coverageMap
-            .findMany({
-                where: {
-                    // tripgl-1-autoxxx
-                    projectID: {
-                        // 只取前两位
-                        contains: projectID
-                            .split("-")
-                            .filter((_: any, index: number) => index < 2)
-                            .join("-"),
-                    },
-                    sha: sha,
-                },
-            })
-            .then((coverageMaps) => {
-                return convertDataFromCoverageMapDatabase(coverageMaps);
-            });
-
-        // return coverageFromDatabase;
-
-        // #region == Step x: db查找出对应的map数据
-        const map = coverageFromDatabase.map;
-        // #endregion
-
-        // #region == Step x: 格式化上报的覆盖率对象
         const { coverage: formartCOv } = await formatReportObject({
             coverage: formatCoverageData(coverageFromExternalReport),
             instrumentCwd: instrumentCwd,
         });
 
-        // 未经过reMapCoverage的数据
         const originalHit = IstanbulHitMapSchema.parse(formartCOv);
-        // #endregion
 
-        // TODO: originalHit，这里也可以一起放到coverageFinalService里，重要！！！！，把百分比函数也放到canyon-data里,压缩函数，那种100年不会动的，数据校验
-        const chongzu = reorganizeCompleteCoverageObjects(map, originalHit);
-
-        // #region == Step x: 覆盖率回溯，在覆盖率存储之前转换(这里一定要用数据库里的instrumentCwd，因为和map是对应的！！！)
-        const hit = await remapCoverageWithInstrumentCwd(
-            chongzu,
-            coverageFromDatabase.instrumentCwd,
+        // 重要！！！，这里是reMap过的数据
+        const coveragewenhao = await this.coverageFinalService.invoke(
+            {
+                projectID,
+                sha,
+                // reportID, 这里不需要reportID了
+            },
+            originalHit,
         );
-        // #endregion
-
-        //   放到本地消息队列里
 
         await this.coveragediskService.pushQueue({
             projectID,
             sha,
             reportID,
             compareTarget: compareTarget || sha,
-            coverage: hit,
+            coverage: IstanbulHitMapSchema.parse(coveragewenhao),
             reporter,
         });
         return {
