@@ -12,8 +12,8 @@ import {
     IstanbulHitMapSchema,
     IstanbulMapMapSchema,
 } from "../../../zod/istanbul.zod";
-import { remapCoverageWithInstrumentCwd } from "canyon-map";
-import { compressedData } from "../../../utils/zstd";
+import { remapCoverageWithInstrumentCwd,compressedData } from "canyon-map";
+// import { compressedData } from "canyon-map";
 import { summaryToDbSummary } from "../../../utils/utils";
 
 function getNewPathByOldPath(covMap, path) {

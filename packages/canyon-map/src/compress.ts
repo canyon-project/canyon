@@ -1,4 +1,4 @@
-import * as zlib from "node:zlib";
+import zlib from "node:zlib";
 
 // 输入是一个对象，输出是一个 Buffer
 export async function compressedData(input: object) {
@@ -11,10 +11,9 @@ export async function compressedData(input: object) {
 }
 
 // 输入是一个 Buffer，输出是一个对象
-export async function decompressedData(
-    compressedData: Buffer,
-): Promise<object> {
+export async function decompressedData<T>(compressedData: Buffer): Promise<T> {
     if (!compressedData || compressedData.length === 0) {
+        // @ts-ignore
         return {};
     }
     // console.log(compressedData.length,'compressedData')
