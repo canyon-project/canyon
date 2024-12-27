@@ -6,7 +6,6 @@ export class PullChangeCodeAndInsertDbService {
     async invoke(projectID, commitSha, compareTarget, accessToken, prisma) {
         const codechanges = await prisma.codechange.findMany({
             where: {
-                projectID,
                 sha: commitSha,
                 compareTarget,
             },

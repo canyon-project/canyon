@@ -57,7 +57,6 @@ export class CoverageDataComputeService {
         });
         const codechanges = await this.prisma.codechange.findMany({
             where: {
-                projectID,
                 sha,
             },
         });

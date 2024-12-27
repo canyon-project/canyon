@@ -8,7 +8,11 @@ import {
 import { CoveragediskService } from "./coveragedisk.service";
 import { PrismaService } from "../../../../prisma/prisma.service";
 import { resolveProjectID, summaryToDbSummary } from "../../../../utils/utils";
-import { compressedData, decompressedData,convertDataFromCoverageMapDatabase } from "canyon-map";
+import {
+    compressedData,
+    decompressedData,
+    convertDataFromCoverageMapDatabase,
+} from "canyon-map";
 import { coverageObj } from "../../models/coverage.model";
 import {
     reorganizeCompleteCoverageObjects,
@@ -19,6 +23,7 @@ import { remapCoverageWithInstrumentCwd } from "canyon-map";
 import { logger } from "../../../../logger";
 import { PullChangeCodeAndInsertDbService } from "../common/pull-change-code-and-insert-db.service";
 import { TestExcludeService } from "../common/test-exclude.service";
+import { CoverageFinalService } from "../common/coverage-final.service";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -34,6 +39,7 @@ export class ConsumerCoverageService {
         private readonly coveragediskService: CoveragediskService,
         private readonly pullChangeCodeAndInsertDbService: PullChangeCodeAndInsertDbService,
         private readonly testExcludeService: TestExcludeService,
+        private readonly coverageFinalService: CoverageFinalService,
     ) {}
 
     async invoke() {
@@ -54,17 +60,6 @@ export class ConsumerCoverageService {
                     );
 
                     if (lockAcquired) {
-                        // const project = await this.prisma.project.findFirst({
-                        //   where: {
-                        //     id: queueDataToBeConsumed.projectID,
-                        //   },
-                        // });
-                        // 到这里，获取到锁了以后再作处理
-                        // const dataFormatAndCheckQueueDataToBeConsumed =
-                        //   await this.dataFormatAndCheck(
-                        //     queueDataToBeConsumed,
-                        //     project?.instrumentCwd,
-                        //   );
                         const dataFormatAndCheckQueueDataToBeConsumed =
                             queueDataToBeConsumed;
                         try {
@@ -76,10 +71,6 @@ export class ConsumerCoverageService {
                                 dataFormatAndCheckQueueDataToBeConsumed,
                                 "all",
                             );
-                            // 这里有需要补偿变更行覆盖率，因为一些懒加载的原因，可能导致每个agg类型的变更行数量不一样。所以每次更新后，需要更新一下所有agg的变更行覆盖率summary
-                            // await this.compensationChangeLineCoverageSummary(
-                            //   dataFormatAndCheckQueueDataToBeConsumed,
-                            // );
                             // 执行任务
                         } finally {
                             await this.releaseLock(lockName);
@@ -103,6 +94,7 @@ export class ConsumerCoverageService {
     }
     async consume(queueDataToBeConsumed, covType) {
         // 读取agg类型的数据
+
         const coverage = await this.prisma.coverage.findFirst({
             where: {
                 sha: queueDataToBeConsumed.sha,
@@ -114,24 +106,6 @@ export class ConsumerCoverageService {
                         : undefined,
             },
         });
-
-        const { map, instrumentCwd } = await this.prisma.coverageMap
-            .findMany({
-                where: {
-                    // tripgl-1-autoxxx
-                    projectID: {
-                        // 只取前两位
-                        contains: queueDataToBeConsumed.projectID
-                            .split("-")
-                            .filter((_: any, index: number) => index < 2)
-                            .join("-"),
-                    },
-                    sha: queueDataToBeConsumed.sha,
-                },
-            })
-            .then((coverageMaps) => {
-                return convertDataFromCoverageMapDatabase(coverageMaps);
-            });
 
         // 拉取变更代码
         await this.pullChangeCode(queueDataToBeConsumed);
@@ -155,15 +129,16 @@ export class ConsumerCoverageService {
             await decompressedData(coverage?.hit),
         );
 
-        // map不参与exclude过滤，需要保留完整的
-
-        const reMapMap = await remapCoverageWithInstrumentCwd(
-            resetCoverageDataMap(map),
-            instrumentCwd,
-        );
-
-        const newCoverage = reorganizeCompleteCoverageObjects(
-            reMapMap, //
+        const newCoverage = await this.coverageFinalService.invoke(
+            {
+                projectID: queueDataToBeConsumed.projectID,
+                sha: queueDataToBeConsumed.sha,
+                // 这里要手动指定reportID，因为如果是all类型，reportID也存在
+                reportID:
+                    covType === "agg"
+                        ? queueDataToBeConsumed.reportID
+                        : undefined,
+            },
             mergedHit,
         );
 

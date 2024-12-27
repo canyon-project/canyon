@@ -14,5 +14,5 @@ export const summaryToDbSummary = (summary) => {
 };
 
 export function resolveProjectID(projectID) {
-    return projectID.split("-")[1] || projectID;
+    return `${projectID.split("-")[0]}-${projectID.split("-")[1]}-auto`;
 }
