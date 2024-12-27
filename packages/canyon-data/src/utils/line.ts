@@ -1,5 +1,5 @@
 import { FileCoverageData, Range } from "istanbul-lib-coverage";
-import { percent } from "./percent";
+import { percent } from "../util";
 // @ts-ignore
 function getLinesFromRanges(ranges) {
   const lines = [];
