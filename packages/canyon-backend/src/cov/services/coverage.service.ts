@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CoverageSummaryDataMap } from "canyon-data";
-import { decompressedData } from "../../utils/zstd";
+import { decompressedData } from "canyon-map";
 
 // 马上废弃，勿动
 @Injectable()

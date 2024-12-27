@@ -8,7 +8,7 @@ import {
 import { CoveragediskService } from "./coveragedisk.service";
 import { PrismaService } from "../../../../prisma/prisma.service";
 import { resolveProjectID, summaryToDbSummary } from "../../../../utils/utils";
-import { compressedData, decompressedData } from "../../../../utils/zstd";
+import { compressedData, decompressedData,convertDataFromCoverageMapDatabase } from "canyon-map";
 import { coverageObj } from "../../models/coverage.model";
 import {
     reorganizeCompleteCoverageObjects,
@@ -16,7 +16,6 @@ import {
 } from "canyon-data";
 import { IstanbulHitMapSchema } from "../../../../zod/istanbul.zod";
 import { remapCoverageWithInstrumentCwd } from "canyon-map";
-import { convertDataFromCoverageMapDatabase } from "../../../../utils/coverage";
 import { logger } from "../../../../logger";
 import { PullChangeCodeAndInsertDbService } from "../common/pull-change-code-and-insert-db.service";
 import { TestExcludeService } from "../common/test-exclude.service";

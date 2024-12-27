@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import { percent, within30days } from "../../utils/utils";
+import { within30days } from "../../utils/utils";
+import { percent } from "canyon-data";
 import * as dayjs from "dayjs";
 
 @Injectable()

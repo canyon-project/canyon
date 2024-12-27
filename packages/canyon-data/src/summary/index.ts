@@ -4,9 +4,9 @@ import libCoverage, {
   CoverageSummaryData,
   Totals,
 } from "istanbul-lib-coverage";
-import { calculateNewLineCoverageForSingleFile } from "../utils/line";
+import { calculateNewLineCoverageForSingleFile } from "../helpers/line";
 import { emptySummary } from "./helpers";
-import { fCoverageData } from "../utils/fCoverageData";
+import { fCoverageData } from "../helpers/fCoverageData";
 export interface CodeChange {
   path: string;
   additions: number[];

@@ -2,11 +2,10 @@ import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../prisma/prisma.service";
 import { CoverageMapClientService } from "./coverage-map-client.service";
 import {
-    convertDataFromCoverageMapDatabase,
     formatReportObject,
 } from "../../../utils/coverage";
 import { IstanbulHitMapSchema } from "../../../zod/istanbul.zod";
-import { remapCoverageWithInstrumentCwd } from "canyon-map";
+import { remapCoverageWithInstrumentCwd,convertDataFromCoverageMapDatabase } from "canyon-map";
 import {
     formatCoverageData,
     reorganizeCompleteCoverageObjects,

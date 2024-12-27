@@ -1,5 +1,3 @@
-import { decompressedData } from "./zstd";
-
 function parseInstrumentCwd(instrumentCwd) {
     if (instrumentCwd.includes("=>")) {
         const instrumentCwdSplit = instrumentCwd.split("=>");
@@ -57,58 +55,3 @@ export function formatReportObject(c: any) {
         instrumentCwd,
     };
 }
-
-export function resetCoverageData(coverageData) {
-    return Object.entries(coverageData).reduce((acc, [key, value]: any) => {
-        acc[key] = {
-            ...value,
-            s: Object.entries(value.s).reduce((accInside, [keyInside]) => {
-                accInside[keyInside] = 0;
-                return accInside;
-            }, {}),
-            f: Object.entries(value.f).reduce((accInside, [keyInside]) => {
-                accInside[keyInside] = 0;
-                return accInside;
-            }, {}),
-            b: Object.entries(value.b).reduce(
-                (accInside, [keyInside, valueInside]: any) => {
-                    accInside[keyInside] = Array(valueInside.length).fill(0);
-                    return accInside;
-                },
-                {},
-            ),
-        };
-        return acc;
-    }, {});
-}
-
-export const convertDataFromCoverageMapDatabase = async (
-    coverageMaps: {
-        projectID: string;
-        sha: string;
-        // path: string;
-        instrumentCwd: string;
-        map: Buffer;
-    }[],
-): Promise<{
-    map: any;
-    instrumentCwd: string;
-}> => {
-    const decompressedCoverageMaps = await Promise.all(
-        coverageMaps.map((coverageMap) => {
-            return decompressedData(coverageMap.map).then((map) => {
-                return map;
-            });
-        }),
-    );
-    return {
-        map: decompressedCoverageMaps.reduce((acc, cur) => {
-            return {
-                ...acc,
-                // @ts-ignore
-                [cur.path]: cur,
-            };
-        }, {}),
-        instrumentCwd: coverageMaps[0].instrumentCwd,
-    };
-};

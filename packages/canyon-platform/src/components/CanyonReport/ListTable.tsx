@@ -1,6 +1,6 @@
 import Highlighter from "react-highlight-words";
-
-import { getCOlor, percent } from "../../helpers/utils/common.ts";
+import {percent} from 'canyon-data'
+import { getCOlor } from "@/helpers/utils/common.ts";
 const CanyonReportListTable = ({
     dataSource,
     loading,

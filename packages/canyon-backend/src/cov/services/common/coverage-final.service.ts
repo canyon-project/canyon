@@ -1,8 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-import { decompressedData } from "../../../utils/zstd";
-import { convertDataFromCoverageMapDatabase } from "../../../utils/coverage";
-import { remapCoverageWithInstrumentCwd } from "canyon-map";
+// import { decompressedData } from "canyon-map";
+// import { convertDataFromCoverageMapDatabase } from "canyon-map";
+import {
+    remapCoverageWithInstrumentCwd,
+    convertDataFromCoverageMapDatabase,
+    decompressedData,
+} from "canyon-map";
 import {
     mergeCoverageMap,
     reorganizeCompleteCoverageObjects,

@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
 import { CoverageSummaryDataMap } from "canyon-data";
-import { decompressedData } from "../../utils/zstd";
+import { decompressedData } from "canyon-map";
 
 import { CoverageSummaryDto } from "../dto/coverage-summary.dto";
 import { CoverageMapDto } from "../dto/coverage-map.dto";
