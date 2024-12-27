@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
-import { percent } from "../../utils/utils";
+import { percent } from "canyon-data";
 @Injectable()
 export class GetProjectRecordDetailByShaService {
     constructor(private readonly prisma: PrismaService) {}
