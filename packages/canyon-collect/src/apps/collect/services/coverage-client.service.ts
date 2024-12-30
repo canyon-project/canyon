@@ -26,7 +26,7 @@ export class CoverageClientService {
         compareTarget,
         reporter,
     }) {
-        const { provider, repoID, slug } = parseProjectID(projectID);
+        const { repoID } = parseProjectID(projectID);
         const reportID = _reportID || sha;
         // #region == Step x: 解析出上报上来的覆盖率数据
         const coverageFromExternalReport =
@@ -51,7 +51,7 @@ export class CoverageClientService {
         const count = await this.prisma.coverageMap.count({
             where: {
                 repoID: {
-                    contains: `${provider}-${repoID}`,
+                    contains: repoID,
                 },
                 sha: sha,
             },
