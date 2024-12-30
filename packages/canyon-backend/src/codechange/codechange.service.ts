@@ -24,7 +24,7 @@ export class CodechangeService {
                 where: {
                     compareTarget,
                     sha: sha,
-                    path: filepath.replace("~/", ""),
+                    path: filepath,
                 },
             })
             .then((r) => {
@@ -36,7 +36,7 @@ export class CodechangeService {
                         projectID: "",
                         compareTarget: compareTarget,
                         sha: sha,
-                        path: filepath.replace("~/", ""),
+                        path: filepath,
                         additions: [],
                         deletions: [],
                     };
