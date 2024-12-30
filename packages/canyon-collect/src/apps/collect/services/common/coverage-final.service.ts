@@ -1,7 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma/prisma.service";
-// import { decompressedData } from "canyon-map";
-// import { convertDataFromCoverageMapDatabase } from "canyon-map";
 import {
     remapCoverageWithInstrumentCwd,
     convertDataFromCoverageMapDatabase,
@@ -9,6 +7,7 @@ import {
 } from "canyon-map";
 import {
     mergeCoverageMap,
+    parseProjectID,
     reorganizeCompleteCoverageObjects,
     resetCoverageDataMap,
 } from "canyon-data";
@@ -35,35 +34,15 @@ export class CoverageFinalService {
         },
         hit?: { [key: string]: object },
     ) {
-        const coverages = await this.prisma.coverage.findMany({
-            where: {
-                sha,
-                projectID: {
-                    // 只取前两位
-                    contains: projectID
-                        .split("-")
-                        .filter((_: any, index: number) => index < 2)
-                        .join("-"),
-                },
-                reportID: reportID
-                    ? {
-                          in: reportID.split(","),
-                      }
-                    : undefined,
-                covType: reportID ? "agg" : "all",
-            },
-        });
-
-        let hitBox = {};
-        for (let i = 0; i < coverages.length; i++) {
-            hitBox = mergeCoverageMap(
-                hitBox,
-                await decompressedData(coverages[i].hit),
-            );
-        }
-
+        const { provider, repoID } = parseProjectID(projectID);
         // 如果外部传入了hit，就不再从数据库中获取hit
-        hit = hit || hitBox;
+        hit =
+            hit ||
+            (await this.getHitByProjectIDShaReportID({
+                projectID,
+                sha,
+                reportID,
+            }));
 
         // 无论是外部hit，还是查询到的hit，都为空对象，直接返回空对象
         if (Object.keys(hit).length === 0) {
@@ -72,8 +51,9 @@ export class CoverageFinalService {
 
         const coverageMaps = await this.prisma.coverageMap.findMany({
             where: {
+                provider,
+                repoID,
                 sha,
-                projectID,
                 path: filepath,
             },
         });
@@ -90,8 +70,30 @@ export class CoverageFinalService {
             resetCoverageDataMap(map),
             instrumentCwd,
         );
-
-        // console.log("reMapMap", reMapMap);
         return reorganizeCompleteCoverageObjects(reMapMap, hit);
+    }
+
+    private async getHitByProjectIDShaReportID({ projectID, sha, reportID }) {
+        const coverages = await this.prisma.coverage.findMany({
+            where: {
+                projectID,
+                sha,
+                reportID: reportID
+                    ? {
+                          in: reportID.split(","),
+                      }
+                    : undefined,
+                covType: reportID ? "agg" : "all",
+            },
+        });
+
+        let hitBox = {};
+        for (let i = 0; i < coverages.length; i++) {
+            hitBox = mergeCoverageMap(
+                hitBox,
+                await decompressedData(coverages[i].hit),
+            );
+        }
+        return hitBox;
     }
 }

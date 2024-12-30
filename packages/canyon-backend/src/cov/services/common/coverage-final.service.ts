@@ -7,6 +7,7 @@ import {
 } from "canyon-map";
 import {
     mergeCoverageMap,
+    parseProjectID,
     reorganizeCompleteCoverageObjects,
     resetCoverageDataMap,
 } from "canyon-data";
@@ -33,6 +34,7 @@ export class CoverageFinalService {
         },
         hit?: { [key: string]: object },
     ) {
+        const { provider, repoID } = parseProjectID(projectID);
         // 如果外部传入了hit，就不再从数据库中获取hit
         hit =
             hit ||
@@ -49,8 +51,9 @@ export class CoverageFinalService {
 
         const coverageMaps = await this.prisma.coverageMap.findMany({
             where: {
+                provider,
+                repoID,
                 sha,
-                repoID: projectID.split("-")[1],
                 path: filepath,
             },
         });
@@ -60,13 +63,8 @@ export class CoverageFinalService {
             return {};
         }
 
-        // 等会删掉
-        const { map, instrumentCwd } = await convertDataFromCoverageMapDatabase(
-            coverageMaps.map((i) => ({
-                ...i,
-                projectID: "11",
-            })),
-        );
+        const { map, instrumentCwd } =
+            await convertDataFromCoverageMapDatabase(coverageMaps);
 
         const reMapMap = await remapCoverageWithInstrumentCwd(
             resetCoverageDataMap(map),
@@ -78,8 +76,8 @@ export class CoverageFinalService {
     private async getHitByProjectIDShaReportID({ projectID, sha, reportID }) {
         const coverages = await this.prisma.coverage.findMany({
             where: {
-                sha,
                 projectID,
+                sha,
                 reportID: reportID
                     ? {
                           in: reportID.split(","),

@@ -12,7 +12,3 @@ export const summaryToDbSummary = (summary) => {
         newlinesTotal: summary.newlines.total,
     };
 };
-
-export function resolveProjectID(projectID) {
-    return `${projectID.split("-")[0]}-${projectID.split("-")[1]}-auto`;
-}

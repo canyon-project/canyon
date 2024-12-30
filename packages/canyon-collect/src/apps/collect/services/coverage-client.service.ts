@@ -3,7 +3,7 @@ import { PrismaService } from "../../../prisma/prisma.service";
 import { CoverageMapClientService } from "./coverage-map-client.service";
 import { formatReportObject } from "../../../utils/coverage";
 import { IstanbulHitMapSchema } from "../../../zod/istanbul.zod";
-import { formatCoverageData } from "canyon-data";
+import { formatCoverageData, parseProjectID } from "canyon-data";
 import { CoveragediskService } from "./core/coveragedisk.service";
 import { CoverageFinalService } from "./common/coverage-final.service";
 
@@ -26,6 +26,7 @@ export class CoverageClientService {
         compareTarget,
         reporter,
     }) {
+        const { provider, repoID, slug } = parseProjectID(projectID);
         const reportID = _reportID || sha;
         // #region == Step x: 解析出上报上来的覆盖率数据
         const coverageFromExternalReport =
@@ -49,11 +50,8 @@ export class CoverageClientService {
         }
         const count = await this.prisma.coverageMap.count({
             where: {
-                projectID: {
-                    contains: projectID
-                        .split("-")
-                        .filter((_, index) => index < 2)
-                        .join("-"),
+                repoID: {
+                    contains: `${provider}-${repoID}`,
                 },
                 sha: sha,
             },

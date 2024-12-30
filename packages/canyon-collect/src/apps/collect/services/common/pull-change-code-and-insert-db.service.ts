@@ -1,32 +1,35 @@
-// import { diffLine } from "../../../utils/diffline";
-
 import { diffLine } from "../../../../utils/diffline";
+import { PrismaService } from "../../../../prisma/prisma.service";
+import { parseProjectID } from "canyon-data";
 
 export class PullChangeCodeAndInsertDbService {
-    async invoke(projectID, commitSha, compareTarget, accessToken, prisma) {
-        const codechanges = await prisma.codechange.findMany({
+    constructor(private readonly prisma: PrismaService) {}
+    async invoke({ projectID, sha, compareTarget }) {
+        const { provider, repoID } = parseProjectID(projectID);
+        const codechanges = await this.prisma.codechange.findMany({
             where: {
-                sha: commitSha,
+                sha: sha,
                 compareTarget,
             },
         });
-        const gitProvider = await prisma.gitProvider.findFirst({
+        const gitProvider = await this.prisma.gitProvider.findFirst({
             where: {
                 disabled: false,
             },
         });
         if (codechanges.length === 0) {
             const diffLineData = await diffLine({
-                repoID: projectID,
+                repoID: repoID,
                 baseCommitSha: compareTarget,
-                compareCommitSha: commitSha,
+                compareCommitSha: sha,
                 token: gitProvider?.privateToken,
                 gitlabUrl: gitProvider?.url,
             });
             const data = diffLineData.map(({ path, additions, deletions }) => {
                 return {
-                    projectID,
-                    sha: commitSha,
+                    provider,
+                    repoID,
+                    sha: sha,
                     compareTarget,
                     path,
                     additions,
@@ -34,7 +37,7 @@ export class PullChangeCodeAndInsertDbService {
                 };
             });
 
-            await prisma.codechange.createMany({
+            await this.prisma.codechange.createMany({
                 data: data,
             });
         }
