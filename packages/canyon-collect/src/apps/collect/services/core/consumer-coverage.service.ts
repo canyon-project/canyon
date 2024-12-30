@@ -7,19 +7,11 @@ import {
 
 import { CoveragediskService } from "./coveragedisk.service";
 import { PrismaService } from "../../../../prisma/prisma.service";
-import { resolveProjectID, summaryToDbSummary } from "../../../../utils/utils";
-import {
-    compressedData,
-    decompressedData,
-    convertDataFromCoverageMapDatabase,
-} from "canyon-map";
+import { summaryToDbSummary } from "../../../../utils/utils";
+import { compressedData, decompressedData } from "canyon-map";
 import { coverageObj } from "../../models/coverage.model";
-import {
-    reorganizeCompleteCoverageObjects,
-    resetCoverageDataMap,
-} from "canyon-data";
+
 import { IstanbulHitMapSchema } from "../../../../zod/istanbul.zod";
-import { remapCoverageWithInstrumentCwd } from "canyon-map";
 import { logger } from "../../../../logger";
 import { PullChangeCodeAndInsertDbService } from "../common/pull-change-code-and-insert-db.service";
 import { TestExcludeService } from "../common/test-exclude.service";
@@ -190,13 +182,11 @@ export class ConsumerCoverageService {
     async pullChangeCode(coverage) {
         if (coverage.sha !== coverage.compareTarget) {
             try {
-                await this.pullChangeCodeAndInsertDbService.invoke(
-                    resolveProjectID(coverage.projectID),
-                    coverage.sha,
-                    coverage.compareTarget,
-                    "accessToken",
-                    this.prisma,
-                );
+                await this.pullChangeCodeAndInsertDbService.invoke({
+                    projectID: coverage.projectID,
+                    sha: coverage.sha,
+                    compareTarget: coverage.compareTarget,
+                });
             } catch (e) {
                 logger({
                     type: "error",

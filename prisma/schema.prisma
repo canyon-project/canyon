@@ -74,6 +74,7 @@ model Coverage {
 
 model CoverageMap {
   id            String @id @default(cuid())
+  provider      String
   repoID        String @map("repo_id")
   sha           String @map("sha")
   path          String
@@ -106,6 +107,7 @@ model Project {
 
 model Codechange {
   id            String   @id @default(cuid())
+  provider      String
   repoID        String   @map("repo_id")
   compareTarget String   @map("compare_target")
   sha           String   @map("sha")

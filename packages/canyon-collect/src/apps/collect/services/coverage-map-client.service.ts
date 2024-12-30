@@ -6,6 +6,7 @@ import {
     formatCoverageData,
     genSummaryMapByCoverageMap,
     getSummaryByPath,
+    parseProjectID,
     resetCoverageDataMap,
 } from "canyon-data";
 import {
@@ -37,6 +38,7 @@ export class CoverageMapClientService {
         branch,
         compareTarget,
     }) {
+        const { provider, repoID } = parseProjectID(projectID);
         const coverageFromExternalReport =
             typeof coverage === "string" ? JSON.parse(coverage) : coverage;
         // #endregion
@@ -114,14 +116,13 @@ export class CoverageMapClientService {
         );
 
         // 避免重复录入
-        const coverageMapProjectID = `${projectID.split("-")[0]}-${projectID.split("-")[1]}-auto`;
-
         return await this.prisma.coverageMap.createMany({
             data: compressedArr.map(({ path, map }: any) => {
                 return {
-                    id: `__${coverageMapProjectID}__${sha}__${path}__`,
+                    id: `__${provider}__${repoID}__${sha}__${path}__`,
                     map: map, //???没删除bfs
-                    projectID: coverageMapProjectID,
+                    provider: provider,
+                    repoID: repoID,
                     sha: sha,
                     path: getNewPathByOldPath(hitObject, path),
                     instrumentCwd: instrumentCwd,
