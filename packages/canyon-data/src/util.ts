@@ -7,3 +7,14 @@ export function percent(covered:number, total:number) {
     return 100.0;
   }
 }
+
+export function parseProjectID(projectID:string) {
+  if (projectID.split("-").length !== 3) {
+    throw new Error(`Invalid projectID: ${projectID}`);
+  }
+  return {
+    provider: projectID.split("-")[0],
+    repoID: projectID.split("-")[1],
+    slug: projectID.split("-")[2],
+  }
+}
