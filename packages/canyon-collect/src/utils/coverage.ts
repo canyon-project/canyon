@@ -42,10 +42,13 @@ export function formatReportObject(c: any) {
     };
     const obj: any = {};
     for (const coverageKey in coverage) {
-        obj[reversePath(coverageKey)] = {
-            ...coverage[coverageKey],
-            path: reversePath(coverageKey),
-        };
+        // 这里是特殊逻辑，只有他们不想等的时候才是成功替换过的
+        if (reversePath(coverageKey) !== coverageKey) {
+            obj[reversePath(coverageKey)] = {
+                ...coverage[coverageKey],
+                path: reversePath(coverageKey),
+            };
+        }
     }
 
     // 确保修改成istanbul格式，去掉start、end为空的情况
