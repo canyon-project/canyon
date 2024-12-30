@@ -61,7 +61,7 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 
 ## WeChat Group
 
-<img src="./screenshots/wechat15.jpg" style="width: 200px"/>
+<img src="./screenshots/wechat16.png" style="width: 200px"/>
 
 ## Developing
 
