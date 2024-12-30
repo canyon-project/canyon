@@ -3,7 +3,6 @@ import "./useWorker.ts";
 import "./i18n.ts";
 import "antd/dist/reset.css";
 import "./index.css";
-import "./collect.js";
 
 import {
     ApolloClient,

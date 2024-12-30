@@ -21,60 +21,21 @@ const theme = localStorage.getItem("theme") || "light";
 // console.log(theme, 'theme');
 function Index() {
     const { t } = useTranslation();
-    useEffect(() => {
-        if (localStorage.getItem("token") === null) {
-            localStorage.clear();
-            localStorage.setItem("callback", window.location.href);
-            nav("/login");
-        }
-    }, []);
-
     const loc = useLocation();
     const nav = useNavigate();
 
     useEffect(() => {
-        if (loc.pathname === "/") {
+        setMenuSelectedKey(loc.pathname.replace("/", ""));
+        document.title = genTitle(loc.pathname);
+        if (localStorage.getItem("token") === null) {
+            localStorage.clear();
+            localStorage.setItem("callback", window.location.href);
+            nav("/login");
+        } else if (loc.pathname === "/"){
             nav("/projects");
         }
-        document.title = genTitle(loc.pathname);
-
-        try {
-            // @ts-ignore
-            if (meData?.me.email && window.__coverage__) {
-                // @ts-ignore
-                const __canyon__ = ((global.__coverage__ && (Object.keys(global.__coverage__).length > 0)) ? Object.values(global.__coverage__)[0] : undefined);
-                // @ts-ignore
-                fetch(__canyon__.dsn, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                    },
-                    body: JSON.stringify({
-                        // @ts-ignore
-                        coverage: window.__coverage__,
-                        // @ts-ignore
-                        commitSha: __canyon__.commitSha,
-                        // @ts-ignore
-                        sha: __canyon__.sha,
-                        // @ts-ignore
-                        projectID: __canyon__.projectID,
-                        // @ts-ignore
-                        instrumentCwd: __canyon__.instrumentCwd,
-                        reportID: `${meData?.me.email}|${loc.pathname}`,
-                        // @ts-ignore
-                        branch: __canyon__.branch,
-                    }),
-                });
-            }
-        } catch (e) {
-            // console.log(e);
-        }
     }, [loc.pathname]);
 
-    useEffect(() => {
-        setMenuSelectedKey(loc.pathname.replace("/", ""));
-    }, [loc.pathname]);
     const { data: meData } = useQuery(MeDocument);
     useEffect(() => {
         localStorage.setItem("username", meData?.me.email || "");
