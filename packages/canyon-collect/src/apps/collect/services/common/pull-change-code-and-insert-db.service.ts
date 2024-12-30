@@ -1,7 +1,9 @@
 import { diffLine } from "../../../../utils/diffline";
 import { PrismaService } from "../../../../prisma/prisma.service";
 import { parseProjectID } from "canyon-data";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class PullChangeCodeAndInsertDbService {
     constructor(private readonly prisma: PrismaService) {}
     async invoke({ projectID, sha, compareTarget }) {
