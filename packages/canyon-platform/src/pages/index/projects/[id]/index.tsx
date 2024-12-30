@@ -379,7 +379,7 @@ const ProjectOverviewPage = () => {
                             className={"ml-3 cursor-pointer text-[#0071c2]"}
                             style={{ fontSize: "20px" }}
                             onClick={() => {
-                                nav(`/projects/${pam.id}/configure`);
+                                nav(`/projects/${pam.id}/settings`);
                             }}
                         />
                     </Title>

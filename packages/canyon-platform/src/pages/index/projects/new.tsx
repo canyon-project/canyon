@@ -110,22 +110,6 @@ const App: React.FC = () => {
                     <Input placeholder={t("new.slug.placeholder")} />
                 </Form.Item>
 
-                <Form.Item
-                    name="language"
-                    label={t("common.language")}
-                    rules={[{ required: true }]}
-                >
-                    <Select
-                        placeholder={t("new.language.placeholder")}
-                        options={[
-                            {
-                                label: "JavaScript",
-                                value: "JavaScript",
-                            },
-                        ]}
-                    />
-                </Form.Item>
-
                 <Form.Item>
                     <Button
                         type={"primary"}

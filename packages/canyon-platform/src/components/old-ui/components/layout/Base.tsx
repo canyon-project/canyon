@@ -175,19 +175,7 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                                     onSelectMenu?.(selectInfo);
                                 }}
                                 selectedKeys={[menuSelectedKey]}
-                                items={menuItems.concat({
-                                    key: "open-reports",
-                                    icon: <BarChartOutlined />,
-                                    label: (
-                                        <a
-                                            href="/open-reports"
-                                            // target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            报表
-                                        </a>
-                                    ),
-                                })}
+                                items={menuItems}
                                 className={"dark:bg-[#151718] px-1"}
                                 style={{ flex: "1" }}
                             />
