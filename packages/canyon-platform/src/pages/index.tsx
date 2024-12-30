@@ -25,15 +25,15 @@ function Index() {
     const nav = useNavigate();
 
     useEffect(() => {
-        setMenuSelectedKey(loc.pathname.replace("/", ""));
-        document.title = genTitle(loc.pathname);
-        if (localStorage.getItem("token") === null) {
-            localStorage.clear();
-            localStorage.setItem("callback", window.location.href);
-            nav("/login");
-        } else if (loc.pathname === "/"){
-            nav("/projects");
-        }
+        // setMenuSelectedKey(loc.pathname.replace("/", ""));
+        // document.title = genTitle(loc.pathname);
+        // if (localStorage.getItem("token") === null) {
+        //     localStorage.clear();
+        //     localStorage.setItem("callback", window.location.href);
+        //     nav("/login");
+        // } else if (loc.pathname === "/"){
+        //     nav("/projects");
+        // }
     }, [loc.pathname]);
 
     const { data: meData } = useQuery(MeDocument);

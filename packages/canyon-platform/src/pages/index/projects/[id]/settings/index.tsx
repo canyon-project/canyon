@@ -16,7 +16,7 @@ const gridStyle: any = {
 };
 const { Text } = Typography;
 const { useToken } = theme;
-const ProjectConfigure = () => {
+const ProjectSettings = () => {
     const prm: any = useParams();
     const { token } = useToken();
     const { t } = useTranslation();
@@ -206,4 +206,4 @@ const ProjectConfigure = () => {
     );
 };
 
-export default ProjectConfigure;
+export default ProjectSettings;

@@ -189,10 +189,10 @@ const ProjectPage = () => {
                     <Divider type={"vertical"} />
                     <Link
                         to={{
-                            pathname: `/projects/${id}/configure`,
+                            pathname: `/projects/${id}/settings`,
                         }}
                     >
-                        {t("common.configure")}
+                        {t("common.settings")}
                     </Link>
                 </>
             ),
