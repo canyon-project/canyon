@@ -2,8 +2,8 @@ import {decompressedData} from "./compress.ts";
 
 export const convertDataFromCoverageMapDatabase = async (
     coverageMaps: {
-        projectID: string;
-        sha: string;
+        // projectID: string;
+        // sha: string;
         // path: string;
         instrumentCwd: string;
         map: Buffer;

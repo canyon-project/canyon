@@ -74,7 +74,7 @@ model Coverage {
 
 model CoverageMap {
   id            String @id @default(cuid())
-  projectID     String @map("project_id")
+  repoID        String @map("repo_id")
   sha           String @map("sha")
   path          String
   map           Bytes
@@ -83,7 +83,7 @@ model CoverageMap {
 
   // 再添加一个path索引
   @@index(fields: [path])
-  @@index([projectID, sha]) // 联合索引
+  @@index([repoID, sha]) // 联合索引
   @@map("canyon3_coverage_map")
 }
 
@@ -106,7 +106,7 @@ model Project {
 
 model Codechange {
   id            String   @id @default(cuid())
-  projectID     String   @map("project_id")
+  repoID        String   @map("repo_id")
   compareTarget String   @map("compare_target")
   sha           String   @map("sha")
   path          String
