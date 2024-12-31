@@ -22,15 +22,11 @@ import {
     GetProjectCompartmentDataDocument,
     GetProjectRecordsDocument,
     ProjectRecordsModel,
-} from "../../../../helpers/backend/gen/graphql.ts";
+} from "@/helpers/backend/gen/graphql.ts";
 
 const { useToken } = theme;
 const { Title, Text } = Typography;
-// const content = ()=>{
-//   return <div>
-//     nihao
-//   </div>
-// }
+
 const ProjectOverviewPage = () => {
     const { token } = useToken();
     const { t } = useTranslation();
@@ -604,7 +600,6 @@ const ProjectOverviewPage = () => {
                 }}
             />
 
-            {/*默太狂就共用一个*/}
             <ProjectRecordDetailDrawer
                 open={open}
                 onClose={onClose}
