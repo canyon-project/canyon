@@ -102,7 +102,7 @@
     "common": {
         "option": "Option",
         "detail": "Detail",
-        "configure": "Configure",
+        "settings": "Settings",
         "delete": "Delete",
         "language": "Language",
         "theme": "Theme",
