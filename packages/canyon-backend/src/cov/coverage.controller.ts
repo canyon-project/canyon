@@ -6,6 +6,7 @@ import { CoverageMapData } from "istanbul-lib-coverage";
 import { CoverageMapDto } from "./dto/coverage-map.dto";
 import { CoverageDataComputeService } from "./services/coverage-data-compute.service";
 import { CoverageService } from "./services/coverage.service";
+import { CoverageReportsService } from "./services/coverage-reports.service";
 
 @Controller()
 export class CoverageController {
@@ -13,6 +14,7 @@ export class CoverageController {
         private readonly coveragePreStoreService: CoveragePreStoreService,
         private readonly coverageDataComputeService: CoverageDataComputeService,
         private readonly coverageService: CoverageService,
+        private readonly coverageReportsService: CoverageReportsService,
     ) {}
 
     // TODO 马上要废弃的接口
@@ -67,5 +69,11 @@ export class CoverageController {
             reportID,
             filepath,
         });
+    }
+
+    @Get("api/coverage/reports")
+    async coverageReports(@Query() query): Promise<any> {
+        const { bu, start, end } = query;
+        return this.coverageReportsService.invoke({ bu, start, end });
     }
 }

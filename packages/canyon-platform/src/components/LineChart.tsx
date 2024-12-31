@@ -104,6 +104,16 @@ const coreData = [
         utLineCoverage: 70.4,
         codeChangeNum: 945000,
     },
+    {
+        month: 11,
+        year: 2024,
+        uiTestBranchCoverage: 63.85,
+        uiTestLineCoverage: 78.49,
+        uiTestChangedLineCoverage: 95.49,
+        utBranchCoverage: 68.32,
+        utLineCoverage: 70.83,
+        codeChangeNum: 954410,
+    },
 ];
 
 const data = {

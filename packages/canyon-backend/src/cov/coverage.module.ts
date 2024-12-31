@@ -6,6 +6,7 @@ import { TestExcludeService } from "./services/common/test-exclude.service";
 import { CoverageDataComputeService } from "./services/coverage-data-compute.service";
 import { CoverageService } from "./services/coverage.service";
 import { CoverageFinalService } from "./services/common/coverage-final.service";
+import { CoverageReportsService } from "./services/coverage-reports.service";
 
 @Module({
     controllers: [CoverageController],
@@ -16,6 +17,7 @@ import { CoverageFinalService } from "./services/common/coverage-final.service";
         CoverageDataComputeService,
         CoverageFinalService,
         TestExcludeService,
+        CoverageReportsService,
     ],
 })
 export class CoverageModule {}
