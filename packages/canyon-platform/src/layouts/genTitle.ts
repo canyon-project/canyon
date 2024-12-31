@@ -12,8 +12,8 @@ export const genTitle = (pathname: string) => {
         return `${pathname.split("/")[2].split("-")[1]} | Overview | Canyon`;
     } else if (pathname.includes("commits")) {
         return `${pathname.split("/")[2].split("-")[1]} | Coverage Details | Canyon`;
-    } else if (pathname.includes("configure")) {
-        return `${pathname.split("/")[2].split("-")[1]} | Configure | Canyon`;
+    } else if (pathname.includes("settings")&&pathname.split("/").length===4) {
+        return `${pathname.split("/")[2].split("-")[1]} | Settings | Canyon`;
     } else if (pathname.includes("settings")) {
         return `Settings | Canyon`;
     }
