@@ -66,7 +66,7 @@ export function genBreadcrumbItems(pathname: string) {
                 // title: 'Coverage Details',
             },
         ];
-    } else if (pathname.includes("configure")) {
+    } else if (pathname.includes("settings")&&pathname.split("/").length===4) {
         return [
             {
                 title: (
