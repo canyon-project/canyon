@@ -26,7 +26,7 @@ export class UserService {
         const favorProjects = await this.prisma.user
             .findUnique({
                 where: {
-                    id: user.id,
+                    id: String(user.id),
                 },
             })
             .then((r) => r.favor.split(",").filter((item) => item !== ""));
@@ -39,7 +39,7 @@ export class UserService {
         }
         return this.prisma.user.update({
             where: {
-                id: user.id,
+                id: String(user.id),
             },
             data: {
                 favor: favors.join(","),
