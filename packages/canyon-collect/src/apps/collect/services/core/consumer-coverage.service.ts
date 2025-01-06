@@ -132,6 +132,7 @@ export class ConsumerCoverageService {
                         : undefined,
             },
             mergedHit,
+            true,
         );
 
         const summary = genSummaryMapByCoverageMap(
