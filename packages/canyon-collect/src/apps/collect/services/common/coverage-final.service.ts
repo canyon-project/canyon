@@ -33,6 +33,7 @@ export class CoverageFinalService {
             filepath?: string;
         },
         hit?: { [key: string]: object },
+        hitType?: boolean,
     ) {
         const { provider, repoID } = parseProjectID(projectID);
         // 如果外部传入了hit，就不再从数据库中获取hit
@@ -66,11 +67,23 @@ export class CoverageFinalService {
         const { map, instrumentCwd } =
             await convertDataFromCoverageMapDatabase(coverageMaps);
 
+        // hitType是true的时候，说明是reMap过后的
+        if (hitType) {
+            const reMapMap2 = await remapCoverageWithInstrumentCwd(
+                resetCoverageDataMap(map),
+                instrumentCwd,
+            );
+            const r = reorganizeCompleteCoverageObjects(reMapMap2, hit);
+            return r;
+        }
+
+        const chongzu = reorganizeCompleteCoverageObjects(map, hit);
+
         const reMapMap = await remapCoverageWithInstrumentCwd(
-            resetCoverageDataMap(map),
+            chongzu,
             instrumentCwd,
         );
-        return reorganizeCompleteCoverageObjects(reMapMap, hit);
+        return reMapMap;
     }
 
     private async getHitByProjectIDShaReportID({ projectID, sha, reportID }) {
