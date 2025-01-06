@@ -8,10 +8,12 @@ import { useNavigate } from "react-router-dom";
 import {
     CheckProjectUrlDocument,
     CreateProjectDocument,
-} from "../../../helpers/backend/gen/graphql.ts";
+} from "@/helpers/backend/gen/graphql.ts";
 const { Text } = Typography;
+import {message} from 'antd';
 
 const LabelTest = ({ type, name, url, disabled }) => {
+    // const message =
     return (
         <Space>
             <img
@@ -146,7 +148,7 @@ const App: React.FC = () => {
                     createProject({
                         variables: {
                             projectID: projectID,
-                            language: form.getFieldValue("language"),
+                            // language: form.getFieldValue("language"),
                         },
                     }).then((res) => {
                         message.success(

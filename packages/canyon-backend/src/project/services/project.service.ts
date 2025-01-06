@@ -56,7 +56,7 @@ export class ProjectService {
         };
     }
 
-    async createProject(user, projectID, language) {
+    async createProject(user, projectID) {
         const gitProvider = await this.prisma.gitProvider.findFirst({
             where: {
                 disabled: false,

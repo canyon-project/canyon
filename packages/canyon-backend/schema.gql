@@ -267,7 +267,7 @@ type Mutation {
   checkProjectUrl(projectUrl: String!): Project2!
 
   """创建项目"""
-  createProject(projectID: String!, language: String!): Project2!
+  createProject(projectID: String!): Project2!
 
   """删除项目"""
   deleteProject(projectID: String!): Project2!
