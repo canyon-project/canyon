@@ -1,0 +1,21 @@
+export function reportCoverage() {
+    try {
+        // @ts-ignore
+        const canyon = window.__coverage__[0];
+        return fetch(canyon.dsn,{
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            method: "POST",
+            body: JSON.stringify({
+                ...canyon,
+                // @ts-ignore
+                coverage: window.__coverage__,
+                reportID: localStorage.getItem("username")||undefined,
+            }),
+        })
+    } catch (e) {
+        return Promise.resolve();
+    }
+}
