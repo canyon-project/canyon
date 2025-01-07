@@ -2,7 +2,11 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { Project } from "../project.model";
 import { getProjectByID } from "src/adapter/gitlab.adapter";
-import { projectMembers, projectTags } from "../project.zod";
+import {
+    projectMembers,
+    projectsAutoInstrument,
+    projectTags,
+} from "../project.zod";
 
 // import { getProjectByID } from '../adapter/gitlab.adapter';
 function parseGitLabUrl(gitLabUrl) {
@@ -122,6 +126,7 @@ export class ProjectService {
                     // language,
                     members,
                     // instrumentCwd,
+                    autoInstrument,
                 }) => {
                     return {
                         id,
@@ -152,6 +157,12 @@ export class ProjectService {
                             .map(({ userID, role }) => ({
                                 userID,
                                 role,
+                            })),
+                        autoInstrument: projectsAutoInstrument
+                            .parse(autoInstrument || [])
+                            .map(({ filepath, content }) => ({
+                                filepath,
+                                content,
                             })),
                     };
                 },

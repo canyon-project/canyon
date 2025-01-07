@@ -20,6 +20,14 @@ class MemberInput {
     role: string;
 }
 
+@InputType() // 定义规则输入类型
+class AutoInstrumentInput {
+    @Field()
+    filepath: string;
+    @Field()
+    content: string;
+}
+
 @ArgsType()
 export class UpdateProjectArgs {
     @Field(() => ID, {
@@ -56,4 +64,9 @@ export class UpdateProjectArgs {
         nullable: true,
     })
     members?: MemberInput[];
+
+    @Field(() => [AutoInstrumentInput], {
+        nullable: true,
+    })
+    autoInstrument?: AutoInstrumentInput[];
 }

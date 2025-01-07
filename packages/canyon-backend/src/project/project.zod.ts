@@ -15,3 +15,10 @@ export const projectMembers = z.array(
         role: z.string().default(""),
     }),
 );
+
+export const projectsAutoInstrument = z.array(
+    z.object({
+        filepath: z.string().default(""),
+        content: z.string().default(""),
+    }),
+);
