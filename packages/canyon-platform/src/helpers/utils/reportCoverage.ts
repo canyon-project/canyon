@@ -16,6 +16,7 @@ export function reportCoverage() {
             }),
         })
     } catch (e) {
+        console.log(e);
         return Promise.resolve();
     }
 }
