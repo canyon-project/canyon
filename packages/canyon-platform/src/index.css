@@ -31,7 +31,7 @@ a:hover {
 }
 
 /*登陆页面*/
-.ant-tabs-nav {
+#login-page .ant-tabs-nav {
     padding-left: 40px !important;
 }
 

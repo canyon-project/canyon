@@ -13,7 +13,7 @@ const Login2 = () => {
     }
 
     return (
-        <div>
+        <div id={'login-page'}>
             <Alert
                 showIcon={false}
                 message={
