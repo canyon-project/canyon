@@ -50,8 +50,9 @@ const CanyonReportControl = ({
         <>
             <div className={"flex mb-2 justify-between items-center"}>
                 <div className={"flex gap-2 flex-col"}>
-                    <Space>
+                    <div className={'flex gap-1 items-center'}>
                         <Segmented
+                            size={'small'}
                             value={showMode}
                             defaultValue={showMode}
                             onChange={(v) => {
@@ -71,8 +72,7 @@ const CanyonReportControl = ({
                             ]}
                         />
 
-                        <span style={{ fontSize: "14px" }}>
-                            {/*<span className={'mr-2'}>{numberFiles}</span>*/}
+                        <span style={{ fontSize: "12px" }}>
                             {t("projects.detail.total.files", {
                                 msg: numberFiles,
                             })}
@@ -80,10 +80,23 @@ const CanyonReportControl = ({
                             {/*转换生产流量为测试用例*/}
                             <PrepareProdFn />
                         </span>
-                    </Space>
+                    </div>
                 </div>
 
                 <div className={"flex items-center"}>
+
+
+                    <div className={"flex items-center gap-2 hidden"}>
+                        <Typography.Text
+                            type={"secondary"}
+                            style={{ fontSize: "12px" }}
+                        >
+                            未覆盖维度:
+                        </Typography.Text>
+                        <Segmented size="small" options={['所有维度', '语句', '函数', '分支']} />
+                    </div>
+
+                    <Divider type={"vertical"} />
                     <div className={"flex items-center gap-2"}>
                         <Typography.Text
                             type={"secondary"}
@@ -95,7 +108,6 @@ const CanyonReportControl = ({
                             checked={onlyChange}
                             size={"small"}
                             onChange={onChangeOnlyChange}
-                            // checkedChildren={<HeartFilled />}
                         />
                     </div>
                     <Divider type={"vertical"} />
@@ -106,7 +118,6 @@ const CanyonReportControl = ({
                         >
                             范围：
                         </Typography.Text>
-                        {/*style={{ transform: "translateY(10px)" }}*/}
                         <div
                             style={{
                                 height: "30px",
@@ -122,15 +133,10 @@ const CanyonReportControl = ({
                                     onChangeRange(va);
                                 }}
                                 styles={{
-                                    rail: {
-                                        // background: `linear-gradient(to right, ${getCOlor(0)} 0%, ${getCOlor(0)} 50.00%, ${getCOlor(60)} 50.00%, ${getCOlor(60)} 80.00%, ${getCOlor(100)} 80.00%, ${getCOlor(100)} 100%)`,
-                                    },
                                     track: {
                                         background: "transparent",
-                                        // background: "#0071c2",
                                     },
                                     tracks: {
-                                        // background: "#0071c2",
                                         background: genBackground(range),
                                     },
                                 }}
