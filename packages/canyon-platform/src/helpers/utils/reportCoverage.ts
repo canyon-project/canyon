@@ -1,7 +1,7 @@
 export function reportCoverage() {
     try {
         // @ts-ignore
-        const canyon = window.__coverage__[0];
+        const canyon = Object.values(window.__coverage__)[0] as any;
         return fetch(canyon.dsn,{
             headers: {
                 "Content-Type": "application/json",
