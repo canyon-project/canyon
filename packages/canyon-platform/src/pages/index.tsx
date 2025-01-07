@@ -17,8 +17,9 @@ import {
 import { MeDocument } from "../helpers/backend/gen/graphql.ts";
 import { genBreadcrumbItems } from "../layouts/genBreadcrumbItems.tsx";
 import { genTitle } from "../layouts/genTitle.ts";
+import {reportCoverage} from "@/helpers/utils/reportCoverage.ts";
 const theme = localStorage.getItem("theme") || "light";
-// console.log(theme, 'theme');
+
 function Index() {
     const { t } = useTranslation();
     const loc = useLocation();
@@ -34,6 +35,7 @@ function Index() {
         } else if (loc.pathname === "/"){
             nav("/projects");
         }
+        reportCoverage();
     }, [loc.pathname]);
 
     const { data: meData } = useQuery(MeDocument);
