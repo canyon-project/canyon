@@ -1,4 +1,4 @@
-import Icon, { AppstoreOutlined, ExperimentOutlined } from "@ant-design/icons";
+import Icon, {AppstoreOutlined, ExperimentOutlined, QuestionCircleOutlined} from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/client";
 import { Editor } from "@monaco-editor/react";
 import { FormRegion, TextTypography } from "../../../../../components/ui";
@@ -11,6 +11,8 @@ import BasicForms from "./helper/BasicForms.tsx";
 import { SolarUserIdLinear } from "./helper/icons/SolarUserIdLinear.tsx";
 import MemberTable from "./helper/MemberTable.tsx";
 import TagTable from "./helper/TagTable.tsx";
+import AutoInstrumentForm from "@/pages/index/projects/[id]/settings/helper/AutoInstrumentForm.tsx";
+import {Divider} from "antd";
 const gridStyle: any = {
     width: "100%",
 };
@@ -36,6 +38,8 @@ const ProjectSettings = () => {
     const [coverage, setCoverage] = useState<string>("");
 
     const [defaultBranch, setDefaultBranch] = useState<string>("");
+
+    const [autoInstrument, setAutoInstrument] = useState<{filepath:string,content:string}[]>([]);
 
     const basicFormsRef = useRef<any>(null);
     return (
@@ -70,6 +74,23 @@ const ProjectSettings = () => {
                 <Card.Grid hoverable={false} style={gridStyle}>
                     <div className={"mb-5"}>
                         <div className={"mb-2"}>
+                            <div>自动插桩</div>
+                            <Text className={"text-xs"} type={"secondary"}>
+                                配置 CI 自动插桩时需要修改的文件列表
+                            </Text>
+                        </div>
+                        {
+                            GetProjectByIdDocumentData?.getProjectByID.autoInstrument!==undefined  && <AutoInstrumentForm defaultDataSource={GetProjectByIdDocumentData?.getProjectByID.autoInstrument||[]} onChange={(val)=>{
+                            setAutoInstrument(val)
+                        }}/>
+                        }
+
+                    </div>
+
+                    <Divider/>
+
+                    <div className={"mb-5"}>
+                        <div className={"mb-2"}>
                             <div>{t("projects.default.branch")}</div>
                             <Text className={"text-xs"} type={"secondary"}>
                                 {t("projects.config.default.branch.desc")}
@@ -98,6 +119,8 @@ const ProjectSettings = () => {
                         )}
                     </div>
 
+                    <Divider/>
+
                     <div className={"mb-5"}>
                         <div className={"mb-2"}>
                             <div>{t("projects.config.detection.range")}</div>
@@ -123,7 +146,7 @@ const ProjectSettings = () => {
                             </Text>
                         </div>
                         <div
-                            style={{ border: "1px solid " + token.colorBorder }}
+                            style={{border: "1px solid " + token.colorBorder}}
                         >
                             {GetProjectByIdDocumentData?.getProjectByID && (
                                 <Editor
@@ -132,9 +155,9 @@ const ProjectSettings = () => {
                                             light: "light",
                                             dark: "vs-dark",
                                         }[
-                                            localStorage.getItem("theme") ||
-                                                "light"
-                                        ]
+                                        localStorage.getItem("theme") ||
+                                        "light"
+                                            ]
                                     }
                                     defaultValue={
                                         GetProjectByIdDocumentData
@@ -182,6 +205,12 @@ const ProjectSettings = () => {
                                                 ?.getProjectByID
                                                 .defaultBranch ||
                                             "-",
+                                        autoInstrument: autoInstrument.map(item=>{
+                                            return {
+                                                filepath:item.filepath,
+                                                content:item.content
+                                            }
+                                        }),
                                     },
                                 }).then(() => {
                                     showMessage();
@@ -200,7 +229,7 @@ const ProjectSettings = () => {
                 members={GetProjectByIdDocumentData?.getProjectByID.members}
             />
             <div className={"h-5"}></div>
-            <TagTable tags={GetProjectByIdDocumentData?.getProjectByID.tags} />
+            <TagTable tags={GetProjectByIdDocumentData?.getProjectByID.tags}/>
             <div className={"h-5"}></div>
         </div>
     );

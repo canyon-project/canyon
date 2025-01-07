@@ -29,6 +29,11 @@ type Member {
   role: String!
 }
 
+type AutoInstrument {
+  filepath: String!
+  content: String!
+}
+
 type Project {
   id: ID!
   name: String!
@@ -37,6 +42,7 @@ type Project {
   coverage: String!
   tags: [Tag!]!
   members: [Member!]!
+  autoInstrument: [AutoInstrument!]!
   bu: String!
   branchOptions: [String!]!
   maxCoverage: Float!
@@ -282,6 +288,7 @@ type Mutation {
     defaultBranch: String
     tags: [TagInput!]
     members: [MemberInput!]
+    autoInstrument: [AutoInstrumentInput!]
   ): Project2!
 
   """删除sha记录"""
@@ -298,4 +305,9 @@ input TagInput {
 input MemberInput {
   userID: String!
   role: String!
+}
+
+input AutoInstrumentInput {
+  filepath: String!
+  content: String!
 }

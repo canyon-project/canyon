@@ -21,7 +21,7 @@
   "main": "./dist/index.mjs",
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
-    "antd": "^5.22.6",
+    "antd": "^5.23.0",
     "axios": "^1.7.9",
     "canyon-core": "^0.1.1-beta.3",
     "canyon-data": "^2.0.0-beta.15",

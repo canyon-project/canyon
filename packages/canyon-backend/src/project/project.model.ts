@@ -25,6 +25,15 @@ export class Member {
 }
 
 @ObjectType()
+export class AutoInstrument {
+    @Field(() => String)
+    filepath: string;
+
+    @Field(() => String)
+    content: string;
+}
+
+@ObjectType()
 export class Project {
     @Field(() => ID)
     id: string;
@@ -49,6 +58,9 @@ export class Project {
 
     @Field(() => [Member])
     members: Member[];
+
+    @Field(() => [AutoInstrument])
+    autoInstrument: AutoInstrument[];
 
     @Field(() => String)
     bu: string;

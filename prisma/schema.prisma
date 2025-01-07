@@ -96,6 +96,7 @@ model Project {
   bu                String
   tags              Json
   members           Json
+  autoInstrument    Json?  @map("auto_instrument")
   coverage          String
   defaultBranch     String @map("default_branch")
 

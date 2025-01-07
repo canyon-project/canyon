@@ -9,6 +9,10 @@ query GetProjectByID($projectID: ID!) {
         coverage
         branchOptions
         defaultBranch
+        autoInstrument {
+            filepath
+            content
+        }
         #    language
         #    instrumentCwd
         tags {
