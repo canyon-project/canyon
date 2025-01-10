@@ -1,0 +1,16 @@
+{
+  "name": "canyon",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Canyon is a JavaScript code coverage solution",
+  "author": "wr.zhang25@gmail.com",
+  "license": "MIT",
+  "scripts": {
+    "build": "pnpm -r do-build",
+    "clean": "node ./scripts/clean.mjs",
+    "preinstall": "node ./scripts/check.mjs && node ./scripts/prisma.mjs"
+  },
+  "devDependencies": {
+    "fs-extra": "^11.2.0"
+  }
+}

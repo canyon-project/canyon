@@ -1,0 +1,32 @@
+version: "3"
+services:
+  zookeeper:
+    image: bitnami/zookeeper:3.8
+    container_name: zookeeper_1
+    ports:
+      - "2181:2181"
+    environment:
+      - TZ=Asia/Shanghai
+      - ALLOW_ANONYMOUS_LOGIN=yes
+    networks:
+      - kafka_network
+  kafka:
+    restart: always
+    image: bitnami/kafka:3.4
+    container_name: kafka_1
+    ports:
+      - "9004:9004"
+    environment:
+      - TZ=Asia/Shanghai
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9004
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://192.168.2.104:9004
+      - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper_1:2181
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    depends_on:
+      - zookeeper
+    networks:
+      - kafka_network
+networks:
+  kafka_network:
+    driver: bridge
