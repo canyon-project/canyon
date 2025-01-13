@@ -55,10 +55,24 @@ export class ConsumerCoverageService {
                         const dataFormatAndCheckQueueDataToBeConsumed =
                             queueDataToBeConsumed;
                         try {
-                            await this.consume(
-                                dataFormatAndCheckQueueDataToBeConsumed,
-                                "agg",
-                            );
+                            const reportIDs = [
+                                ...new Set(
+                                    dataFormatAndCheckQueueDataToBeConsumed.reportID.split(
+                                        ",",
+                                    ),
+                                ),
+                            ];
+                            for (let i = 0; i < reportIDs.length; i++) {
+                                await this.consume(
+                                    Object.assign(
+                                        dataFormatAndCheckQueueDataToBeConsumed,
+                                        {
+                                            reportID: reportIDs[i],
+                                        },
+                                    ),
+                                    "agg",
+                                );
+                            }
                             await this.consume(
                                 dataFormatAndCheckQueueDataToBeConsumed,
                                 "all",
