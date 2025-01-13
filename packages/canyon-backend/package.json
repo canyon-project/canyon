@@ -11,6 +11,7 @@
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'"
   },
   "dependencies": {
+    "@apollo/server": "^4.11.3",
     "@nestjs/apollo": "^12.2.2",
     "@nestjs/common": "^10.4.15",
     "@nestjs/config": "^3.3.0",
