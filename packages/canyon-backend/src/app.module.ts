@@ -14,6 +14,7 @@ import { SourcecodeModule } from "./sourcecode/sourcecode.module";
 import { join } from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { CoverageModule } from "./cov/coverage.module";
+import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
 
 @Module({
     imports: [
@@ -33,6 +34,8 @@ import { CoverageModule } from "./cov/coverage.module";
         GraphQLModule.forRoot<ApolloDriverConfig>({
             autoSchemaFile: "schema.gql",
             driver: ApolloDriver,
+            playground: false,
+            plugins: [ApolloServerPluginLandingPageLocalDefault()],
         }),
     ],
     controllers: [AppController, SourcecodeController],
