@@ -72,6 +72,35 @@ model Coverage {
   @@map("canyon3_coverage")
 }
 
+model UtCoverage {
+  id                String   @id @default(cuid())
+  sha               String   @map("sha")
+  branch            String
+  projectID         String   @map("project_id")
+  // 代码覆盖率
+  branchesTotal     Int      @map("branches_total")
+  branchesCovered   Int      @map("branches_covered")
+  functionsTotal    Int      @map("functions_total")
+  functionsCovered  Int      @map("functions_covered")
+  linesTotal        Int      @map("lines_total")
+  linesCovered      Int      @map("lines_covered")
+  statementsTotal   Int      @map("statements_total")
+  statementsCovered Int      @map("statements_covered")
+  newlinesTotal     Int      @map("newlines_total")
+  newlinesCovered   Int      @map("newlines_covered")
+  summary           Bytes
+  // 代码覆盖率详情
+  hit               Bytes
+  // 数据源类型
+  sourceType        String   @map("source_type")
+  // 插桩路径
+  instrumentCwd     String   @map("instrument_cwd")
+  // 通用
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("ut_coverage")
+}
+
 model CoverageMap {
   id            String @id @default(cuid())
   provider      String

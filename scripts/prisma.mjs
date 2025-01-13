@@ -20,3 +20,8 @@ console.log('The file directory has been successfully copied from', sourceDirPat
 fse.copySync(sourceDirPath, './packages/canyon-backend/prisma');
 
 console.log('The file directory has been successfully copied from', sourceDirPath, 'to', targetDirPath);
+
+// Then copy the source directory to another target directory.
+fse.copySync(sourceDirPath, './packages/canyon-ut/prisma');
+
+console.log('The file directory has been successfully copied from', sourceDirPath, 'to', targetDirPath);
