@@ -1,11 +1,11 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "../../../prisma/prisma.service";
 import { CoverageMapClientService } from "./coverage-map-client.service";
-import { formatReportObject } from "../../../utils/coverage";
 import { IstanbulHitMapSchema } from "../../../zod/istanbul.zod";
 import { formatCoverageData, parseProjectID } from "canyon-data";
 import { CoveragediskService } from "./core/coveragedisk.service";
 import { CoverageFinalService } from "./common/coverage-final.service";
+import {formatReportObject} from "../../../utils/coverage";
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -60,7 +60,7 @@ export class CoverageClientService {
             throw new HttpException("coverage map not found", 400);
         }
 
-        const { coverage: formartCOv } = await formatReportObject({
+        const { coverage: formartCOv } = formatReportObject({
             coverage: formatCoverageData(coverageFromExternalReport),
             instrumentCwd: instrumentCwd,
         });

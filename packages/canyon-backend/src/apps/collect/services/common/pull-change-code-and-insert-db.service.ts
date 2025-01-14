@@ -1,7 +1,7 @@
-import { diffLine } from "../../../../utils/diffline";
 import { PrismaService } from "../../../../prisma/prisma.service";
 import { parseProjectID } from "canyon-data";
 import { Injectable } from "@nestjs/common";
+import {diffLine} from "../../../../utils/diffline";
 
 @Injectable()
 export class PullChangeCodeAndInsertDbService {

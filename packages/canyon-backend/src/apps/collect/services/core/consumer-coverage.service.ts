@@ -7,7 +7,6 @@ import {
 
 import { CoveragediskService } from "./coveragedisk.service";
 import { PrismaService } from "../../../../prisma/prisma.service";
-import { summaryToDbSummary } from "../../../../utils/utils";
 import { compressedData, decompressedData } from "canyon-map";
 import { coverageObj } from "../../models/coverage.model";
 
@@ -16,6 +15,7 @@ import { logger } from "../../../../logger";
 import { PullChangeCodeAndInsertDbService } from "../common/pull-change-code-and-insert-db.service";
 import { TestExcludeService } from "../common/test-exclude.service";
 import { CoverageFinalService } from "../common/coverage-final.service";
+import { summaryToDbSummary } from "../../../../utils/utils";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

@@ -1,7 +1,6 @@
 import { PrismaService } from "../../../prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { coverageObj } from "../models/coverage.model";
-import { formatReportObject } from "../../../utils/coverage";
 import {
     formatCoverageData,
     genSummaryMapByCoverageMap,
@@ -14,7 +13,8 @@ import {
     IstanbulMapMapSchema,
 } from "../../../zod/istanbul.zod";
 import { compressedData, remapCoverageWithInstrumentCwd } from "canyon-map";
-import { summaryToDbSummary } from "../../../utils/utils";
+import { formatReportObject } from "../../../utils/coverage";
+import {summaryToDbSummary} from "../../../utils/utils";
 
 function getNewPathByOldPath(covMap, path) {
     // @ts-ignore

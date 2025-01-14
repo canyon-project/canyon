@@ -11,7 +11,6 @@
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'"
   },
   "dependencies": {
-    "@apollo/server": "^4.11.3",
     "@nestjs/apollo": "^12.2.2",
     "@nestjs/common": "^10.4.15",
     "@nestjs/config": "^3.3.0",
@@ -31,6 +30,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dayjs": "^1.11.13",
+    "diff": "^7.0.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "graphql": "^16.10.0",
@@ -52,6 +52,7 @@
   "devDependencies": {
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.2.3",
+    "@types/diff": "^7.0.0",
     "@types/express": "^5.0.0",
     "@types/istanbul-lib-coverage": "^2.0.6",
     "@types/istanbul-lib-source-maps": "^4.0.4",
