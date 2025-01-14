@@ -43,9 +43,12 @@ export default declare((api, config, dirname) => {
                 }
               }, //可配置代理 默认false
               special: true, //默认false
-              keepMap: true, // 默认false
+              keepMap: true, // 默认true
             }
-            :{}
+            :{
+              provider: 'gitlab',
+              keepMap: true,
+            }
           config = {
             ...preset,
             ...trim(config),
