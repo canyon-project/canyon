@@ -1,10 +1,10 @@
 import { useQuery } from "@apollo/client";
 import { useRequest } from "ahooks";
 import {
-    useLocation,
-    useNavigate,
-    useParams,
-    useSearchParams,
+  useLocation,
+  useNavigate,
+  useParams,
+  useSearchParams,
 } from "react-router-dom";
 
 import CanyonReport from "../../../../../components/CanyonReport";
@@ -13,103 +13,101 @@ import { getCoverageSummaryMapService, handleSelectFile } from "./helper";
 const { useToken } = theme;
 
 const Sha = () => {
-    const prm = useParams();
-    const nav = useNavigate();
-    const [sprm] = useSearchParams();
-    // 在组件中
-    const location = useLocation();
-    const currentPathname = location.pathname;
-    const { data: getProjectByIdDocumentData } = useQuery(
-        GetProjectByIdDocument,
-        {
-            variables: {
-                projectID: prm["id"] as string,
-            },
-        },
-    );
-    const pathWithNamespace =
-        getProjectByIdDocumentData?.getProjectByID.pathWithNamespace.split(
-            "/",
-        )[1];
-    const { token } = useToken();
+  const prm = useParams();
+  const nav = useNavigate();
+  const [sprm] = useSearchParams();
+  // 在组件中
+  const location = useLocation();
+  const currentPathname = location.pathname;
+  const { data: getProjectByIdDocumentData } = useQuery(
+    GetProjectByIdDocument,
+    {
+      variables: {
+        projectID: prm["id"] as string,
+      },
+    },
+  );
+  const pathWithNamespace =
+    getProjectByIdDocumentData?.getProjectByID.pathWithNamespace.split("/")[1];
+  const { token } = useToken();
 
-    const { data: coverageSummaryMapData, loading } = useRequest(
-        () =>
-            getCoverageSummaryMapService({
-                projectID: prm.id as string,
-                reportID: sprm.get("report_id"),
-                sha: prm.sha,
-            }),
-        {
-            onSuccess() {},
-        },
-    );
+  const { data: coverageSummaryMapData, loading } = useRequest(
+    () =>
+      getCoverageSummaryMapService({
+        projectID: prm.id as string,
+        reportID: sprm.get("report_id"),
+        sha: prm.sha,
+      }),
+    {
+      onSuccess() {},
+    },
+  );
 
-    const [activatedPath, setActivatedPath] = useState(sprm.get("path") || "");
-    const [mainData, setMainData] = useState<any>(false);
+  const [activatedPath, setActivatedPath] = useState(sprm.get("path") || "");
+  const [mainData, setMainData] = useState<any>(false);
 
-    useEffect(() => {
-        const params = new URLSearchParams();
-        if (sprm.get("report_id")) {
-            params.append("report_id", sprm.get("report_id") || "");
-        }
-        if (sprm.get("mode")) {
-            params.append("mode", sprm.get("mode") || "");
-        }
-        params.append("path", activatedPath);
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (sprm.get("report_id")) {
+      params.append("report_id", sprm.get("report_id") || "");
+    }
+    if (sprm.get("mode")) {
+      params.append("mode", sprm.get("mode") || "");
+    }
+    params.append("path", activatedPath);
 
-        // 将参数拼接到路径中
-        const pathWithParams = `${currentPathname}?${params.toString()}${location.hash}`;
+    // 将参数拼接到路径中
+    const pathWithParams = `${currentPathname}?${params.toString()}${location.hash}`;
 
-        nav(pathWithParams);
+    nav(pathWithParams);
 
-        if (activatedPath.includes(".")) {
-            handleSelectFile({
-                filepath: activatedPath,
-                reportID: sprm.get("report_id"),
-                sha: prm.sha || "",
-                projectID: prm.id || "",
-                // mode: sprm.get("mode") || "",
-            }).then((r) => {
-                if (r.fileCoverage) {
-                    // console.log(r)
-                    setMainData(r);
-                } else {
-                    setMainData(false);
-                }
-            });
+    if (activatedPath.includes(".")) {
+      handleSelectFile({
+        filepath: activatedPath,
+        reportID: sprm.get("report_id"),
+        sha: prm.sha || "",
+        projectID: prm.id || "",
+        // mode: sprm.get("mode") || "",
+      }).then((r) => {
+        if (r.fileCoverage) {
+          // console.log(r)
+          setMainData(r);
         } else {
-            // console.log('设么也不做');
-            setMainData(false);
+          setMainData(false);
         }
-    }, [activatedPath]);
+      });
+    } else {
+      // console.log('设么也不做');
+      setMainData(false);
+    }
+  }, [activatedPath]);
 
-    // @ts-ignore
-    return (
+  // @ts-ignore
+  return (
+    <>
+      <div
+        className="p-2 rounded-md bg-white dark:bg-[#151718]"
+        style={{
+          boxShadow: `${token.boxShadowTertiary}`,
+        }}
+      >
         <>
-            <div
-                className="p-2 rounded-md bg-white dark:bg-[#151718]"
-                style={{
-                    boxShadow: `${token.boxShadowTertiary}`,
-                }}
-            >
-                <>
-                    <CanyonReport
-                        defaultOnlyShowChanged={Boolean(sprm.get("mode"))}
-                        theme={localStorage.getItem("theme") || "light"}
-                        mainData={mainData}
-                        pathWithNamespace={pathWithNamespace}
-                        activatedPath={activatedPath}
-                        coverageSummaryMapData={coverageSummaryMapData || []}
-                        loading={loading}
-                        onSelect={(v: any) => {
-                            setActivatedPath(v.path);
-                        }}
-                    />
-                </>
-            </div>
+          <CanyonReport
+            defaultOnlyShowChanged={Boolean(sprm.get("mode"))}
+            theme={localStorage.getItem("theme") || "light"}
+            mainData={mainData}
+            pathWithNamespace={pathWithNamespace}
+            activatedPath={activatedPath}
+            coverageSummaryMapData={coverageSummaryMapData || []}
+            loading={loading}
+            onSelect={(v: any) => {
+              setActivatedPath(v.path);
+            }}
+          />
         </>
-    );
+      </div>
+    </>
+  );
 };
 
 export default Sha;

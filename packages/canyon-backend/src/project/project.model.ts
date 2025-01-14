@@ -2,108 +2,108 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
 export class Tag {
-    @Field(() => String)
-    id: string;
+  @Field(() => String)
+  id: string;
 
-    @Field(() => String)
-    name: string;
+  @Field(() => String)
+  name: string;
 
-    @Field(() => String)
-    link: string;
+  @Field(() => String)
+  link: string;
 
-    @Field(() => String)
-    color: string;
+  @Field(() => String)
+  color: string;
 }
 
 @ObjectType()
 export class Member {
-    @Field(() => String)
-    userID: string;
+  @Field(() => String)
+  userID: string;
 
-    @Field(() => String)
-    role: string;
+  @Field(() => String)
+  role: string;
 }
 
 @ObjectType()
 export class AutoInstrument {
-    @Field(() => String)
-    filepath: string;
+  @Field(() => String)
+  filepath: string;
 
-    @Field(() => String)
-    content: string;
+  @Field(() => String)
+  content: string;
 }
 
 @ObjectType()
 export class Project {
-    @Field(() => ID)
-    id: string;
+  @Field(() => ID)
+  id: string;
 
-    @Field(() => String)
-    name: string;
+  @Field(() => String)
+  name: string;
 
-    @Field(() => String)
-    pathWithNamespace: string;
+  @Field(() => String)
+  pathWithNamespace: string;
 
-    @Field(() => String)
-    description: string;
+  @Field(() => String)
+  description: string;
 
-    @Field(() => String)
-    coverage: string;
+  @Field(() => String)
+  coverage: string;
 
-    // @Field(() => String)
-    // language: string;
+  // @Field(() => String)
+  // language: string;
 
-    @Field(() => [Tag])
-    tags: Tag[];
+  @Field(() => [Tag])
+  tags: Tag[];
 
-    @Field(() => [Member])
-    members: Member[];
+  @Field(() => [Member])
+  members: Member[];
 
-    @Field(() => [AutoInstrument])
-    autoInstrument: AutoInstrument[];
+  @Field(() => [AutoInstrument])
+  autoInstrument: AutoInstrument[];
 
-    @Field(() => String)
-    bu: string;
+  @Field(() => String)
+  bu: string;
 
-    @Field(() => [String])
-    branchOptions: string[];
+  @Field(() => [String])
+  branchOptions: string[];
 
-    @Field(() => Number)
-    maxCoverage: number;
+  @Field(() => Number)
+  maxCoverage: number;
 
-    @Field(() => String)
-    defaultBranch: string;
+  @Field(() => String)
+  defaultBranch: string;
 
-    // @Field(() => String)
-    // instrumentCwd: string;
+  // @Field(() => String)
+  // instrumentCwd: string;
 
-    @Field(() => Number)
-    reportTimes: number;
+  @Field(() => Number)
+  reportTimes: number;
 
-    @Field(() => Date)
-    lastReportTime: Date;
+  @Field(() => Date)
+  lastReportTime: Date;
 
-    @Field(() => Boolean)
-    favored: boolean;
+  @Field(() => Boolean)
+  favored: boolean;
 
-    @Field(() => Date)
-    createdAt: Date;
+  @Field(() => Date)
+  createdAt: Date;
 }
 
 // buOption
 
 @ObjectType()
 export class BuOption {
-    @Field(() => String)
-    bu: string;
-    @Field(() => Number)
-    count: number;
+  @Field(() => String)
+  bu: string;
+  @Field(() => Number)
+  count: number;
 }
 
 // TagOption
 
 @ObjectType()
 export class TagOption {
-    @Field(() => String)
-    name: string;
+  @Field(() => String)
+  name: string;
 }

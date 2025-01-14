@@ -10,21 +10,16 @@ import { PrismaModule } from "../prisma/prisma.module";
 import { OauthgitproviderService } from "./services/oauthgitprovider.service";
 
 @Module({
-    imports: [
-        PassportModule,
-        JwtModule.register({
-            secret: jwtConstants.secret,
-            signOptions: { expiresIn: "10y" },
-        }),
-        PrismaModule,
-    ],
-    controllers: [AuthController],
-    providers: [
-        AuthService,
-        LocalStrategy,
-        JwtStrategy,
-        OauthgitproviderService,
-    ],
-    exports: [AuthService],
+  imports: [
+    PassportModule,
+    JwtModule.register({
+      secret: jwtConstants.secret,
+      signOptions: { expiresIn: "10y" },
+    }),
+    PrismaModule,
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, LocalStrategy, JwtStrategy, OauthgitproviderService],
+  exports: [AuthService],
 })
 export class AuthModule {}

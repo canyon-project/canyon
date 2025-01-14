@@ -1,3 +1,3 @@
 export function logger(data: any) {
-    console.log(data);
+  console.log(data);
 }

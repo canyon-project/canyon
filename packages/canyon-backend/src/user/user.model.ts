@@ -2,33 +2,33 @@ import { Field, ID, ObjectType } from "@nestjs/graphql";
 
 @ObjectType()
 export class User {
-    @Field(() => ID)
-    id: string;
+  @Field(() => ID)
+  id: string;
 
-    // @Field()
-    // username: string;
+  // @Field()
+  // username: string;
 
-    @Field()
-    password: string;
+  @Field()
+  password: string;
 
-    @Field()
-    nickname: string;
+  @Field()
+  nickname: string;
 
-    @Field()
-    avatar: string;
+  @Field()
+  avatar: string;
 
-    // @Field()
-    // refreshToken: string;
-    //
-    // @Field()
-    // accessToken: string;
+  // @Field()
+  // refreshToken: string;
+  //
+  // @Field()
+  // accessToken: string;
 
-    @Field()
-    email: string;
+  @Field()
+  email: string;
 
-    @Field()
-    favor: string;
+  @Field()
+  favor: string;
 
-    @Field()
-    createdAt: Date;
+  @Field()
+  createdAt: Date;
 }

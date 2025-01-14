@@ -6,26 +6,27 @@ import en from "../locales/en.json";
 import ja from "../locales/ja.json";
 
 const resources = {
-    cn: {
-        translation: cn,
-    },
-    en: {
-        translation: en,
-    },
-    ja: {
-        translation: ja,
-    },
+  cn: {
+    translation: cn,
+  },
+  en: {
+    translation: en,
+  },
+  ja: {
+    translation: ja,
+  },
 };
 
-i18n.use(LanguageDetector)
-    .use(initReactI18next)
-    .init({
-        fallbackLng: "en",
-        interpolation: {
-            escapeValue: false,
-        },
-        resources: resources,
-        lng: localStorage.getItem("language") || "cn",
-    });
+i18n
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    fallbackLng: "en",
+    interpolation: {
+      escapeValue: false,
+    },
+    resources: resources,
+    lng: localStorage.getItem("language") || "cn",
+  });
 
 export default i18n;

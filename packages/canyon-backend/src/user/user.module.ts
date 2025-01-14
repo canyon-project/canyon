@@ -6,9 +6,9 @@ import { UserController } from "./user.controller";
 import { ListUserService } from "./crud/list-user.service";
 
 @Module({
-    imports: [PrismaModule],
-    controllers: [UserController],
-    providers: [UserResolver, UserService, ListUserService],
-    exports: [UserService],
+  imports: [PrismaModule],
+  controllers: [UserController],
+  providers: [UserResolver, UserService, ListUserService],
+  exports: [UserService],
 })
 export class UserModule {}

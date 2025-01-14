@@ -26,56 +26,56 @@ import { CoverageFinalService } from "./common/coverage-final.service";
  */
 @Injectable()
 export class CoveragePreStoreService {
-    constructor(
-        private readonly prisma: PrismaService,
-        private readonly coverageFinalService: CoverageFinalService,
-    ) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly coverageFinalService: CoverageFinalService,
+  ) {}
 
-    /**
-     * Retrieves the coverage summary map for a specific project, commit (SHA), and report ID.
-     *
-     * @param {CoverageSummaryDto} dto - The data transfer object containing project ID, SHA, and report ID.
-     * @returns {Promise<CoverageSummaryDataMap>} - A promise that resolves to the decompressed coverage summary map.
-     * @throws {HttpException} - If the coverage summary data is not found, an exception with status 404 is thrown.
-     */
-    async coverageSummaryMap({
-        projectID,
+  /**
+   * Retrieves the coverage summary map for a specific project, commit (SHA), and report ID.
+   *
+   * @param {CoverageSummaryDto} dto - The data transfer object containing project ID, SHA, and report ID.
+   * @returns {Promise<CoverageSummaryDataMap>} - A promise that resolves to the decompressed coverage summary map.
+   * @throws {HttpException} - If the coverage summary data is not found, an exception with status 404 is thrown.
+   */
+  async coverageSummaryMap({
+    projectID,
+    sha,
+    reportID,
+  }: CoverageSummaryDto): Promise<CoverageSummaryDataMap> {
+    const coverage = await this.prisma.coverage.findFirst({
+      where: {
         sha,
-        reportID,
-    }: CoverageSummaryDto): Promise<CoverageSummaryDataMap> {
-        const coverage = await this.prisma.coverage.findFirst({
-            where: {
-                sha,
-                projectID,
-                reportID: reportID,
-                covType: reportID ? "agg" : "all",
-            },
-        });
-
-        if (coverage?.summary) {
-            return decompressedData<CoverageSummaryDataMap>(coverage.summary);
-        }
-        // 不报错，直接返回空对象
-        return {};
-    }
-
-    /**
-     * Retrieves and processes the coverage map data for a specific project, commit (SHA), report ID, and file path.
-     *
-     * @param {CoverageMapDto} dto - The data transfer object containing project ID, SHA, report ID, and file path.
-     * @returns {Promise<CoverageMapData>} - A promise that resolves to the processed and reorganized coverage map data.
-     */
-    async coverageMap({
         projectID,
-        sha,
-        reportID,
-        filepath,
-    }: CoverageMapDto): Promise<CoverageMapData> {
-        return this.coverageFinalService.invoke({
-            projectID,
-            sha,
-            reportID,
-            filepath,
-        });
+        reportID: reportID,
+        covType: reportID ? "agg" : "all",
+      },
+    });
+
+    if (coverage?.summary) {
+      return decompressedData<CoverageSummaryDataMap>(coverage.summary);
     }
+    // 不报错，直接返回空对象
+    return {};
+  }
+
+  /**
+   * Retrieves and processes the coverage map data for a specific project, commit (SHA), report ID, and file path.
+   *
+   * @param {CoverageMapDto} dto - The data transfer object containing project ID, SHA, report ID, and file path.
+   * @returns {Promise<CoverageMapData>} - A promise that resolves to the processed and reorganized coverage map data.
+   */
+  async coverageMap({
+    projectID,
+    sha,
+    reportID,
+    filepath,
+  }: CoverageMapDto): Promise<CoverageMapData> {
+    return this.coverageFinalService.invoke({
+      projectID,
+      sha,
+      reportID,
+      filepath,
+    });
+  }
 }

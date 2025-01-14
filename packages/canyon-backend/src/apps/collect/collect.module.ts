@@ -12,23 +12,23 @@ import { TestExcludeService } from "./services/common/test-exclude.service";
 import { CoverageFinalService } from "./services/common/coverage-final.service";
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CoveragediskEntity])],
-    controllers: [CollectController],
-    providers: [
-        PrismaService,
-        CoverageClientService,
-        CoverageMapClientService,
-        ConsumerCoverageService,
-        CoveragediskService,
-        PullChangeCodeAndInsertDbService,
-        TestExcludeService,
-        CoverageFinalService,
-    ],
+  imports: [TypeOrmModule.forFeature([CoveragediskEntity])],
+  controllers: [CollectController],
+  providers: [
+    PrismaService,
+    CoverageClientService,
+    CoverageMapClientService,
+    ConsumerCoverageService,
+    CoveragediskService,
+    PullChangeCodeAndInsertDbService,
+    TestExcludeService,
+    CoverageFinalService,
+  ],
 })
 export class CollectModule {
-    constructor(
-        private readonly consumerCoverageService: ConsumerCoverageService,
-    ) {
-        this.consumerCoverageService.invoke();
-    }
+  constructor(
+    private readonly consumerCoverageService: ConsumerCoverageService,
+  ) {
+    this.consumerCoverageService.invoke();
+  }
 }

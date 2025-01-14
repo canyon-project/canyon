@@ -1,3 +1,3 @@
 export const getViewLineHeight = () => {
-    return 20;
+  return 20;
 };
