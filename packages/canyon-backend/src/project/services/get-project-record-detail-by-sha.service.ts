@@ -38,7 +38,6 @@ export class GetProjectRecordDetailByShaService {
 
         for (let i = 0; i < coverages.length; i++) {
             const coverage = coverages[i];
-            console.log(coverage.reporter, "coverage.reporter");
             const data = {
                 ...coverage,
                 relationID: "",

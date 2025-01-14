@@ -4,6 +4,7 @@ import lightplus from "shiki/themes/light-plus.mjs";
 import tokyoNight from "shiki/themes/tokyo-night.mjs";
 import css from "shiki/langs/css.mjs";
 import jscss from "shiki/langs/javascript.mjs";
+import json from "shiki/langs/json.mjs";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 
 export const createHighlighterCoreInstance = async () => {
@@ -13,7 +14,7 @@ export const createHighlighterCoreInstance = async () => {
             lightplus,
             tokyoNight,
         ],
-        langs: [css, jscss],
+        langs: [css, jscss,json],
         // `shiki/wasm` contains the wasm binary inlined as base64 string.
         engine: createOnigurumaEngine(getWasm),
     });
