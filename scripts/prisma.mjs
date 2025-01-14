@@ -12,7 +12,7 @@ if (fs.existsSync(targetDirPath)) {
 }
 
 // Then copy the source directory to the target directory.
-fse.copySync(sourceDirPath, targetDirPath);
+// fse.copySync(sourceDirPath, targetDirPath);
 
 console.log('The file directory has been successfully copied from', sourceDirPath, 'to', targetDirPath);
 

@@ -14,7 +14,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { CoverageMapClientService } from "./services/coverage-map-client.service";
 import { CoverageMapClientDto } from "./dto/coverage-map-client.dto";
 import * as zlib from "zlib";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { JwtAuthGuard } from "../../auth/guards/jwt-auth.guard";
+// import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 // 解压 GZIP 的 Buffer 数据
 async function decompressData(buffer) {
     return new Promise((resolve, reject) => {

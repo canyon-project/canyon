@@ -14,12 +14,21 @@ import { SourcecodeModule } from "./sourcecode/sourcecode.module";
 import { join } from "path";
 import { ServeStaticModule } from "@nestjs/serve-static";
 import { CoverageModule } from "./cov/coverage.module";
-import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin/landingPage/default";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { CollectModule } from "./apps/collect/collect.module";
+import { CoveragediskEntity } from "./apps/collect/entity/coveragedisk.entity";
 
 @Module({
     imports: [
+        TypeOrmModule.forRoot({
+            type: "sqlite",
+            database: "db/sql",
+            synchronize: true,
+            entities: [CoveragediskEntity],
+        }),
         ScheduleModule.forRoot(),
         AuthModule,
+        CollectModule,
         UserModule,
         ProjectModule,
         PrismaModule,
@@ -34,8 +43,6 @@ import { ApolloServerPluginLandingPageLocalDefault } from "@apollo/server/plugin
         GraphQLModule.forRoot<ApolloDriverConfig>({
             autoSchemaFile: "schema.gql",
             driver: ApolloDriver,
-            playground: false,
-            plugins: [ApolloServerPluginLandingPageLocalDefault()],
         }),
     ],
     controllers: [AppController, SourcecodeController],
