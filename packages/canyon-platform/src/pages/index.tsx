@@ -18,7 +18,6 @@ import { MeDocument } from "../helpers/backend/gen/graphql.ts";
 import { genBreadcrumbItems } from "../layouts/genBreadcrumbItems.tsx";
 import { genTitle } from "../layouts/genTitle.ts";
 import {reportCoverage} from "@/helpers/utils/reportCoverage.ts";
-const theme = localStorage.getItem("theme") || "light";
 
 function Index() {
     const { t } = useTranslation();
@@ -90,7 +89,7 @@ function Index() {
                 logo={
                     <div>
                         <img
-                            src={`/${theme}-logo.svg?a=1`}
+                            src={`/logo.svg?a=1`}
                             alt=""
                             className={"w-[32px]"}
                         />

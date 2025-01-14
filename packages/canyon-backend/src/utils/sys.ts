@@ -3,7 +3,6 @@ const obj = {
     GITLAB_CLIENT_SECRET: "gitlabClientSecret",
     GITLAB_SERVER: "gitlabServer",
     DOCS_LINK: "docsLink",
-    CANYON_SERVER: "canyonServer",
 };
 export const convertSystemSettingsFromTheDatabase = (
     settings,

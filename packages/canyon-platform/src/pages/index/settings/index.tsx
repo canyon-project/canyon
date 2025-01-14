@@ -6,17 +6,13 @@ import { useTranslation } from "react-i18next";
 
 import languages from "../../../../languages.json";
 import Faa from "./components/BindGitProvider.tsx";
-import { useRequest } from "ahooks";
-import axios from "axios";
+
 const TextArea = Input.TextArea;
 const gridStyle: any = {
     width: "100%",
 };
 const Settings = () => {
     const { t } = useTranslation();
-    const { data } = useRequest(() =>
-        axios.get("/api/base").then(({ data }) => data),
-    );
     return (
         <>
             <TextTypography
@@ -91,19 +87,6 @@ const Settings = () => {
                             message.success("Copied to clipboard!");
                         }}
                         value={localStorage.getItem("token") || ""}
-                        readOnly
-                    />
-                </Card>
-            </CanyonCardPrimary>
-            <div className={"h-5"}></div>
-            <CanyonCardPrimary>
-                <Card title={"Canyon服务接口地址"} bordered={false}>
-                    <Input
-                        onClick={() => {
-                            copy(data?.CANYON_SERVER || "");
-                            message.success("Copied to clipboard!");
-                        }}
-                        value={data?.CANYON_SERVER || ""}
                         readOnly
                     />
                 </Card>
