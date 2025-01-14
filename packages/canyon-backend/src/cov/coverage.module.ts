@@ -9,15 +9,15 @@ import { CoverageFinalService } from "./services/common/coverage-final.service";
 import { CoverageReportsService } from "./services/coverage-reports.service";
 
 @Module({
-    controllers: [CoverageController],
-    providers: [
-        PrismaService,
-        CoveragePreStoreService,
-        CoverageService,
-        CoverageDataComputeService,
-        CoverageFinalService,
-        TestExcludeService,
-        CoverageReportsService,
-    ],
+  controllers: [CoverageController],
+  providers: [
+    PrismaService,
+    CoveragePreStoreService,
+    CoverageService,
+    CoverageDataComputeService,
+    CoverageFinalService,
+    TestExcludeService,
+    CoverageReportsService,
+  ],
 })
 export class CoverageModule {}

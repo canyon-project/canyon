@@ -12,19 +12,19 @@ import { GetProjectsService } from "./services/get-projects.service";
 import { DeleteProjectRecordService } from "./services/delete-project-record.service";
 import { UpdateProjectService } from "./services/crud/update-project.service";
 @Module({
-    imports: [PrismaModule],
-    controllers: [],
-    providers: [
-        ProjectResolver,
-        ProjectService,
-        GetProjectChartDataService,
-        GetProjectRecordsService,
-        GetProjectCompartmentDataService,
-        GetProjectRecordDetailByShaService,
-        GetProjectsService,
-        DeleteProjectRecordService,
-        UpdateProjectService,
-    ],
-    exports: [],
+  imports: [PrismaModule],
+  controllers: [],
+  providers: [
+    ProjectResolver,
+    ProjectService,
+    GetProjectChartDataService,
+    GetProjectRecordsService,
+    GetProjectCompartmentDataService,
+    GetProjectRecordDetailByShaService,
+    GetProjectsService,
+    DeleteProjectRecordService,
+    UpdateProjectService,
+  ],
+  exports: [],
 })
 export class ProjectModule {}

@@ -19,33 +19,33 @@ import { CollectModule } from "./apps/collect/collect.module";
 import { CoveragediskEntity } from "./apps/collect/entity/coveragedisk.entity";
 
 @Module({
-    imports: [
-        TypeOrmModule.forRoot({
-            type: "sqlite",
-            database: "db/sql",
-            synchronize: true,
-            entities: [CoveragediskEntity],
-        }),
-        ScheduleModule.forRoot(),
-        AuthModule,
-        CollectModule,
-        UserModule,
-        ProjectModule,
-        PrismaModule,
-        CoverageModule,
-        CodechangeModule,
-        SourcecodeModule,
-        PrismaModule,
-        ServeStaticModule.forRoot({
-            rootPath: join(__dirname, "../../canyon-platform", "dist"),
-            exclude: ["/graphql/(.*)"],
-        }),
-        GraphQLModule.forRoot<ApolloDriverConfig>({
-            autoSchemaFile: "schema.gql",
-            driver: ApolloDriver,
-        }),
-    ],
-    controllers: [AppController, SourcecodeController],
-    providers: [SourcecodeService],
+  imports: [
+    TypeOrmModule.forRoot({
+      type: "sqlite",
+      database: "db/sql",
+      synchronize: true,
+      entities: [CoveragediskEntity],
+    }),
+    ScheduleModule.forRoot(),
+    AuthModule,
+    CollectModule,
+    UserModule,
+    ProjectModule,
+    PrismaModule,
+    CoverageModule,
+    CodechangeModule,
+    SourcecodeModule,
+    PrismaModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "../../canyon-platform", "dist"),
+      exclude: ["/graphql/(.*)"],
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      autoSchemaFile: "schema.gql",
+      driver: ApolloDriver,
+    }),
+  ],
+  controllers: [AppController, SourcecodeController],
+  providers: [SourcecodeService],
 })
 export class AppModule {}

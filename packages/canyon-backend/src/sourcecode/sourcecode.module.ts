@@ -4,7 +4,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { SourcecodeService } from "./sourcecode.service";
 
 @Module({
-    controllers: [SourcecodeController],
-    providers: [SourcecodeService, PrismaService],
+  controllers: [SourcecodeController],
+  providers: [SourcecodeService, PrismaService],
 })
 export class SourcecodeModule {}
