@@ -2,7 +2,7 @@ import { useRequest } from "ahooks";
 import axios from "axios";
 import { CanyonPageLogin } from "../../components/old-ui";
 
-import logo from "../../assets/light-logo.svg";
+import logo from "../../assets/logo.svg";
 
 const Login2 = () => {
   const { data, loading: isLoading } = useRequest(() =>
@@ -14,15 +14,6 @@ const Login2 = () => {
 
   return (
     <div id={"login-page"}>
-      <Alert
-        showIcon={false}
-        message={
-          <div className={"text-center"}>
-            携程用户请直接点击右上角的“Sign in with Gitlab”登陆！！！
-          </div>
-        }
-        banner
-      />
       <CanyonPageLogin
         logo={<img src={logo} className={"w-[36px]"} alt="" />}
         oauthUrl={{
