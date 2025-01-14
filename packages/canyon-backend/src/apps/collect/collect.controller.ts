@@ -27,6 +27,12 @@ async function decompressData(buffer) {
     });
   });
 }
+function reimbursementProjectID(projectID: string) {
+  if (!projectID.includes("-")) {
+    return `gitlab-${projectID}-auto`;
+  }
+  return projectID;
+}
 @Controller()
 export class CollectController {
   constructor(
@@ -55,6 +61,7 @@ export class CollectController {
       return this.coverageClientService.invoke({
         ...coverageClientDto,
         reporter: String(req?.user?.id || "canyon"),
+        projectID: reimbursementProjectID(coverageClientDto.projectID),
       });
     }
     let coverage = {};
@@ -73,6 +80,7 @@ export class CollectController {
       ...coverageClientDto,
       coverage,
       reporter: String(req?.user?.id || "canyon"),
+      projectID: reimbursementProjectID(coverageClientDto.projectID),
     });
   }
 
