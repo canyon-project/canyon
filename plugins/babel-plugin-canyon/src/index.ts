@@ -44,10 +44,12 @@ export default declare((api, config, dirname) => {
               }, //可配置代理 默认false
               special: true, //默认false
               keepMap: true, // 默认true
+              slug:'auto'
             }
             :{
               provider: 'gitlab',
               keepMap: true,
+              slug:'auto'
             }
           config = {
             ...preset,
