@@ -2,10 +2,10 @@ import Icon, {
   AimOutlined,
   BranchesOutlined,
   EditOutlined,
-  QuestionCircleOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/client";
-import { TourProps } from "antd";
+import {TourProps} from "antd";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import ReactECharts from "echarts-for-react";
@@ -23,9 +23,13 @@ import {
   GetProjectRecordsDocument,
   ProjectRecordsModel,
 } from "@/helpers/backend/gen/graphql.ts";
+import {usePageStore} from "@/store/page.ts";
 
 const { useToken } = theme;
 const { Title, Text } = Typography;
+
+const plainOptions = ['statements', 'branches', 'functions','lines','newlines'];
+
 
 const ProjectOverviewPage = () => {
   const { token } = useToken();
@@ -89,6 +93,9 @@ const ProjectOverviewPage = () => {
   const ref1 = useRef(null);
   const ref2 = useRef(null);
   const [tourOpen, setTourOpen] = useState(false);
+  const projectCoverageRecordColumns = usePageStore(state => state.projectCoverageRecordColumns);
+  const setProjectCoverageRecordColumns = usePageStore(state => state.setProjectCoverageRecordColumns);
+
   const steps: TourProps["steps"] = [
     {
       title: t("projects.statements_tour_title"),
@@ -185,72 +192,23 @@ const ProjectOverviewPage = () => {
       width: "160px",
       ellipsis: true,
     },
-    {
-      title: (
-        <div ref={ref1}>
-          <Tooltip title={t("projects.statements_tooltip")} className={"mr-2"}>
-            <QuestionCircleOutlined />
-          </Tooltip>
-          {t("projects.statements")}
-        </div>
-      ),
-      dataIndex: "statements",
-      // width: '148px',
-      render(_, { sha }) {
-        return (
-          <Link
-            to={{
-              pathname: `/projects/${pam.id}/commits/${sha}`,
-            }}
-          >
-            {_}%
-          </Link>
-        );
-      },
-      // width: '150px',
-      // render(_, { sha }) {
-      //   return (
-      //     <div className={'flex'}>
-      //       <Link
-      //         // style={{border:'1px solid #000'}}
-      //         className={'block w-[60px]'}
-      //         to={{
-      //           pathname: `/projects/${pam.id}/commits/${sha}`,
-      //         }}
-      //       >
-      //         {_}%
-      //       </Link>
-      //       <Popover content={content} title="Title">
-      //         <img src={im} alt='coverage'/>
-      //       </Popover>
-      //
-      //     </div>
-      //   );
-      // },
-    },
-    {
-      title: (
-        <div ref={ref2}>
-          <Tooltip title={t("projects.newlines_tooltip")} className={"mr-2"}>
-            <QuestionCircleOutlined />
-          </Tooltip>
-          {t("projects.newlines")}
-        </div>
-      ),
-      dataIndex: "newlines",
-      // width: '130px',
-      render(_, { sha }) {
-        return (
-          <Link
-            to={{
-              pathname: `/projects/${pam.id}/commits/${sha}`,
-            }}
-          >
-            {_}%
-          </Link>
-        );
-      },
-    },
+    ...projectCoverageRecordColumns.map((item) => {
+      return {
+        title: t(`projects.${item}`),
+        dataIndex: item,
+        render(_, { sha }) {
+          return (
+            <Link
+              to={{
+                pathname: `/projects/${pam.id}/commits/${sha}`,
+              }}
+            >
+              {_}%
+            </Link>
+          );
+        },
+      }
+    }),
     {
       title: t("projects.report_times"),
       dataIndex: "times",
@@ -517,27 +475,18 @@ const ProjectOverviewPage = () => {
           </Space>
         </div>
 
-        <div className={"flex gap-2"} style={{ display: "none" }}>
-          {["#1f77b4", "#ff7f0e", "#2ca02c"].map((item, index) => {
-            return (
-              <div className={"flex items-center gap-1"} key={index}>
-                <span
-                  className={"block w-[20px] h-[12px] rounded-sm"}
-                  style={{ backgroundColor: item }}
-                ></span>
-                <span className={"text-sm"}>
-                  {{
-                    0: "手工测试",
-                    1: "UI自动化测试",
-                    2: "单元测试",
-                  }[index] || "unknown"}
-                </span>
-              </div>
-            );
-          })}
+        <div className={"flex gap-2"}>
+          <Popover trigger={'click'} placement={'right'} content={
+            <div>
+              <Checkbox.Group options={plainOptions} defaultValue={projectCoverageRecordColumns} onChange={(val)=>{
+                setProjectCoverageRecordColumns(val);
+              }} />
+            </div>
+          } title="列展示">
+            <SettingOutlined/>
+          </Popover>
         </div>
       </div>
-      {/*div*/}
       <Table
         loading={loading}
         style={{
