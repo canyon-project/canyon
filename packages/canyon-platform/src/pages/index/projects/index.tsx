@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 
 import { CanyonCardPrimary } from "../../../components/old-ui";
 import {
-  DeleteProjectDocument,
+  // DeleteProjectDocument,
   FavorProjectDocument,
   GetProjectsBuOptionsDocument,
   GetProjectsDocument,
@@ -40,7 +40,7 @@ function countingStars(num: any) {
 }
 const ProjectPage = () => {
   const { t } = useTranslation();
-  const [deleteProject] = useMutation(DeleteProjectDocument);
+  // const [deleteProject] = useMutation(DeleteProjectDocument);
   const [favorProject] = useMutation(FavorProjectDocument);
   const columns: ColumnsType<Project> = [
     {
