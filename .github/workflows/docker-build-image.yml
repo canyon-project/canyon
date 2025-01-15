@@ -39,7 +39,7 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/canyon:latest
-          platforms: linux/amd64,linux/arm64  # 添加你需要支持的平台架构
+          platforms: linux/amd64
 
       - name: Notify Build Success
         run: echo "Docker Image built and pushed successfully!"
