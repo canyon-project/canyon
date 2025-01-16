@@ -40,6 +40,12 @@ export class GetProjectChartDataService {
         statementsTotal: true,
         newlinesCovered: true,
         newlinesTotal: true,
+        linesCovered: true,
+        linesTotal: true,
+        branchesCovered: true,
+        branchesTotal: true,
+        functionsCovered: true,
+        functionsTotal: true,
       },
     });
 
@@ -49,6 +55,9 @@ export class GetProjectChartDataService {
           sha: item.sha,
           statements: percent(item.statementsCovered, item.statementsTotal),
           newlines: percent(item.newlinesCovered, item.newlinesCovered),
+          lines: percent(item.linesCovered, item.linesTotal),
+          branches: percent(item.branchesCovered, item.branchesTotal),
+          functions: percent(item.functionsCovered, item.functionsTotal),
         };
       })
       .reverse();

@@ -68,8 +68,17 @@ type ProjectPagesModel {
 }
 
 type ProjectChartDataModel {
-  """整体覆盖率"""
+  """语句覆盖率"""
   statements: Float!
+
+  """行覆盖率"""
+  lines: Float!
+
+  """分支覆盖率"""
+  branches: Float!
+
+  """函数覆盖率"""
+  functions: Float!
 
   """New Lines"""
   newlines: Float!

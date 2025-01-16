@@ -93,8 +93,8 @@ const ProjectOverviewPage = () => {
   const ref1 = useRef(null);
   const ref2 = useRef(null);
   const [tourOpen, setTourOpen] = useState(false);
-  const projectCoverageRecordColumns = usePageStore(state => state.projectCoverageRecordColumns);
-  const setProjectCoverageRecordColumns = usePageStore(state => state.setProjectCoverageRecordColumns);
+
+  const defaultCoverageDim = localStorage.getItem("defaultCoverageDim") || "statements";
 
   const steps: TourProps["steps"] = [
     {
@@ -192,7 +192,7 @@ const ProjectOverviewPage = () => {
       width: "160px",
       ellipsis: true,
     },
-    ...projectCoverageRecordColumns.map((item) => {
+    ...[defaultCoverageDim,'newlines'].map((item) => {
       return {
         title: t(`projects.${item}`),
         dataIndex: item,
@@ -224,7 +224,7 @@ const ProjectOverviewPage = () => {
     },
     {
       title: t("common.option"),
-      width: "125px",
+      width: "75px",
       render(_): JSX.Element {
         return (
           <div>
@@ -236,35 +236,35 @@ const ProjectOverviewPage = () => {
             >
               {t("projects.reported_details")}
             </a>
-            <Divider type={"vertical"} />
+            {/*<Divider type={"vertical"} />*/}
 
-            <Popconfirm
-              title="Delete the project record"
-              description="Are you sure to delete this project record?"
-              onConfirm={() => {
-                deleteProjectRecord({
-                  variables: {
-                    projectID: pam.id as string,
-                    sha: _.sha,
-                  },
-                })
-                  .then(() => {
-                    window.location.reload();
-                  })
-                  .catch((err) => {
-                    console.log(err);
-                  });
-              }}
-              onCancel={() => {
-                console.log("cancel");
-              }}
-              okText="Yes"
-              cancelText="No"
-            >
-              <a className={"text-red-500 hover:text-red-600"}>
-                {t("common.delete")}
-              </a>
-            </Popconfirm>
+            {/*<Popconfirm*/}
+            {/*  title="Delete the project record"*/}
+            {/*  description="Are you sure to delete this project record?"*/}
+            {/*  onConfirm={() => {*/}
+            {/*    deleteProjectRecord({*/}
+            {/*      variables: {*/}
+            {/*        projectID: pam.id as string,*/}
+            {/*        sha: _.sha,*/}
+            {/*      },*/}
+            {/*    })*/}
+            {/*      .then(() => {*/}
+            {/*        window.location.reload();*/}
+            {/*      })*/}
+            {/*      .catch((err) => {*/}
+            {/*        console.log(err);*/}
+            {/*      });*/}
+            {/*  }}*/}
+            {/*  onCancel={() => {*/}
+            {/*    console.log("cancel");*/}
+            {/*  }}*/}
+            {/*  okText="Yes"*/}
+            {/*  cancelText="No"*/}
+            {/*>*/}
+            {/*  <a className={"text-red-500 hover:text-red-600"}>*/}
+            {/*    {t("common.delete")}*/}
+            {/*  </a>*/}
+            {/*</Popconfirm>*/}
           </div>
         );
       },
@@ -284,7 +284,7 @@ const ProjectOverviewPage = () => {
     },
     legend: {
       x: "right",
-      data: [t("projects.statements"), t("projects.newlines")],
+      data: [t(`projects.${defaultCoverageDim}`), t("projects.newlines")],
     },
     xAxis: {
       type: "category",
@@ -296,12 +296,16 @@ const ProjectOverviewPage = () => {
     yAxis: {
       type: "value",
     },
-    series: [t("projects.statements"), t("projects.newlines")].map(
+    series: [t(`projects.${defaultCoverageDim}`), t("projects.newlines")].map(
       (_, index) => ({
         name: _,
         data:
-          projectChartData?.getProjectChartData.map(
-            ({ statements, newlines }) => (index === 0 ? statements : newlines),
+          projectChartData?.getProjectChartData.map(item=>{
+
+            return [item[defaultCoverageDim],item.newlines]
+
+          }).map(
+            ([first, newlines] ) => (index === 0 ? first : newlines),
           ) || [],
         type: "line",
       }),
@@ -475,17 +479,17 @@ const ProjectOverviewPage = () => {
           </Space>
         </div>
 
-        <div className={"flex gap-2"}>
-          <Popover trigger={'click'} placement={'right'} content={
-            <div>
-              <Checkbox.Group options={plainOptions} defaultValue={projectCoverageRecordColumns} onChange={(val)=>{
-                setProjectCoverageRecordColumns(val);
-              }} />
-            </div>
-          } title="列展示">
-            <SettingOutlined/>
-          </Popover>
-        </div>
+        {/*<div className={"flex gap-2"}>*/}
+        {/*  <Popover trigger={'click'} placement={'right'} content={*/}
+        {/*    <div>*/}
+        {/*      <Checkbox.Group options={plainOptions} defaultValue={projectCoverageRecordColumns} onChange={(val)=>{*/}
+        {/*        setProjectCoverageRecordColumns(val);*/}
+        {/*      }} />*/}
+        {/*    </div>*/}
+        {/*  } title="列展示">*/}
+        {/*    <SettingOutlined/>*/}
+        {/*  </Popover>*/}
+        {/*</div>*/}
       </div>
       <Table
         loading={loading}
