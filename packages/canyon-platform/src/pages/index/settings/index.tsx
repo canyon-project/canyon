@@ -67,6 +67,41 @@ const Settings = () => {
               </div>
             </div>
           </Card.Grid>
+
+          <Card.Grid hoverable={false} style={gridStyle}>
+            <div className={"flex"}>
+              <div className={"w-1/2"}>{"默认覆盖率显示维度"}</div>
+
+              <div className={"w-1/2"}>
+                <Select
+                  value={localStorage.getItem("defaultCoverageDim") || "statements"}
+                  onChange={(value) => {
+                    localStorage.setItem("defaultCoverageDim", value);
+                    window.location.reload();
+                  }}
+                  options={[
+                    {
+                      label: t("projects.statements"),
+                      value: "statements",
+                    },
+                    {
+                      label: t("projects.branches"),
+                      value: "branches",
+                    },
+                    {
+                      label: t("projects.functions"),
+                      value: "functions",
+                    },
+                    {
+                      label: t("projects.lines"),
+                      value: "lines",
+                    },
+                  ]}
+                  className={"w-[100%]"}
+                />
+              </div>
+            </div>
+          </Card.Grid>
         </Card>
       </CanyonCardPrimary>
       <div className={"h-5"}></div>

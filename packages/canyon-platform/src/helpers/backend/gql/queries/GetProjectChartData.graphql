@@ -3,5 +3,8 @@ query GetProjectChartData($projectID: String!, $branch: String!) {
         sha
         newlines
         statements
+        branches
+        functions
+        lines
     }
 }
