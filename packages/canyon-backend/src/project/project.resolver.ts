@@ -50,6 +50,8 @@ export class ProjectResolver {
     @Args() paginationArgs: PaginationArgs,
     @Args() sorterArgs: SorterArgs,
     @Args("favorOnly", { type: () => Boolean }) favorOnly: boolean,
+    @Args("defaultCoverageDim", { type: () => String })
+    defaultCoverageDim: string,
   ): Promise<ProjectPagesModel> {
     return this.getProjectsService.invoke(
       user?.id,
@@ -62,6 +64,7 @@ export class ProjectResolver {
       sorterArgs.field,
       sorterArgs.order,
       favorOnly,
+      defaultCoverageDim,
     );
   }
 
@@ -94,8 +97,13 @@ export class ProjectResolver {
   })
   getProjectCompartmentData(
     @Args("projectID", { type: () => String }) projectID: string,
+    @Args("defaultCoverageDim", { type: () => String })
+    defaultCoverageDim: string,
   ): Promise<ProjectCompartmentDataModel[]> {
-    return this.getProjectCompartmentDataService.invoke(projectID);
+    return this.getProjectCompartmentDataService.invoke(
+      projectID,
+      defaultCoverageDim,
+    );
   }
 
   @Query(() => ProjectRecordsPagesModel, {

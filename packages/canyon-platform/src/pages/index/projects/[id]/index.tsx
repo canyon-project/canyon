@@ -86,6 +86,7 @@ const ProjectOverviewPage = () => {
   } = useQuery(GetProjectCompartmentDataDocument, {
     variables: {
       projectID: pam.id as string,
+      defaultCoverageDim: localStorage.getItem("defaultCoverageDim") || "statements",
     },
     fetchPolicy: "no-cache",
   });
@@ -224,7 +225,7 @@ const ProjectOverviewPage = () => {
     },
     {
       title: t("common.option"),
-      width: "75px",
+      width: "85px",
       render(_): JSX.Element {
         return (
           <div>

@@ -21,7 +21,7 @@ import {
   GetProjectsDocument,
   GetProjectsTagOptionsDocument,
   Project,
-} from "../../../helpers/backend/gen/graphql.ts";
+} from "@/helpers/backend/gen/graphql.ts";
 
 const { Text } = Typography;
 
@@ -229,7 +229,7 @@ const ProjectPage = () => {
       fetchPolicy: "no-cache",
     },
   );
-
+  const defaultCoverageDim = localStorage.getItem("defaultCoverageDim") || "statements";
   const {
     data: projectsData,
     loading,
@@ -245,6 +245,7 @@ const ProjectPage = () => {
       field: sorter.field || "",
       order: sorter.order || "",
       favorOnly: favorOnly,
+      defaultCoverageDim: defaultCoverageDim,
     },
     fetchPolicy: "no-cache",
   });

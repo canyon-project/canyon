@@ -8,6 +8,7 @@ query GetProjects(
     $field: String!
     $order: String!
     $favorOnly: Boolean!
+  $defaultCoverageDim: String!
 ) {
     getProjects(
         current: $current
@@ -19,6 +20,7 @@ query GetProjects(
         field: $field
         order: $order
         favorOnly: $favorOnly
+        defaultCoverageDim: $defaultCoverageDim
     ) {
         total
         data {
@@ -30,7 +32,6 @@ query GetProjects(
             lastReportTime
             maxCoverage
             favored
-            #      language
         }
     }
 }

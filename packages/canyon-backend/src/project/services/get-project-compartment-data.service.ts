@@ -6,7 +6,7 @@ import { percent } from "canyon-data";
 @Injectable()
 export class GetProjectCompartmentDataService {
   constructor(private readonly prisma: PrismaService) {}
-  async invoke(projectID) {
+  async invoke(projectID, defaultCoverageDim) {
     const project = await this.prisma.project.findFirst({
       where: {
         id: projectID,
@@ -26,6 +26,12 @@ export class GetProjectCompartmentDataService {
       select: {
         statementsCovered: true,
         statementsTotal: true,
+        branchesTotal: true,
+        branchesCovered: true,
+        functionsTotal: true,
+        functionsCovered: true,
+        linesTotal: true,
+        linesCovered: true,
         updatedAt: true,
       },
     });
@@ -39,8 +45,11 @@ export class GetProjectCompartmentDataService {
           label: "projects.max_coverage",
           value:
             Math.max(
-              ...coverages.map((c) =>
-                percent(c.statementsCovered, c.statementsTotal),
+              ...coverages.map((item) =>
+                percent(
+                  item[`${defaultCoverageDim}Covered`],
+                  item[`${defaultCoverageDim}Total`],
+                ),
               ),
             ) + "%",
         },
@@ -52,8 +61,8 @@ export class GetProjectCompartmentDataService {
           label: "projects.latest_report_coverage",
           value:
             percent(
-              coverages[0].statementsCovered,
-              coverages[0].statementsTotal,
+              coverages[0][`${defaultCoverageDim}Covered`],
+              coverages[0][`${defaultCoverageDim}Total`],
             ) + "%",
         },
       ];

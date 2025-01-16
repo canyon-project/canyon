@@ -252,6 +252,7 @@ type Query {
     """升序或降序"""
     order: String!
     favorOnly: Boolean!
+    defaultCoverageDim: String!
   ): ProjectPagesModel!
 
   """获取Projects部门选项"""
@@ -264,7 +265,7 @@ type Query {
   getProjectChartData(projectID: String!, branch: String!): [ProjectChartDataModel!]!
 
   """获取Project宫格"""
-  getProjectCompartmentData(projectID: String!): [ProjectCompartmentDataModel!]!
+  getProjectCompartmentData(projectID: String!, defaultCoverageDim: String!): [ProjectCompartmentDataModel!]!
 
   """获取Project记录"""
   getProjectRecords(projectID: String!, current: Int!, pageSize: Int!, keyword: String!, onlyDefault: Boolean): ProjectRecordsPagesModel!
