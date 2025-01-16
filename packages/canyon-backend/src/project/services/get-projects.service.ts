@@ -18,6 +18,7 @@ export class GetProjectsService {
     field,
     order,
     favorOnly,
+    defaultCoverageDim,
   ): Promise<any> {
     const favorProjects = await this.prisma.user
       .findUnique({
@@ -80,15 +81,17 @@ export class GetProjectsService {
       },
       select: {
         projectID: true,
-        // project: true,
         sha: true,
-        // branch: true,
-        // report: true,
         createdAt: true,
         updatedAt: true,
         statementsCovered: true,
         statementsTotal: true,
-        // summary: true,
+        branchesTotal: true,
+        branchesCovered: true,
+        functionsTotal: true,
+        functionsCovered: true,
+        linesTotal: true,
+        linesCovered: true,
       },
     });
 
@@ -124,7 +127,10 @@ export class GetProjectsService {
                     ...covs
                       .filter((item) => within30days(item.updatedAt))
                       .map((item) =>
-                        percent(item.statementsCovered, item.statementsTotal),
+                        percent(
+                          item[`${defaultCoverageDim}Covered`],
+                          item[`${defaultCoverageDim}Total`],
+                        ),
                       ),
                   )
                 : 0,
