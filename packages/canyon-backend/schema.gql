@@ -284,6 +284,7 @@ type Mutation {
     projectID: ID!
     description: String
     instrumentCwd: String
+    bu: String
     coverage: String
     defaultBranch: String
     tags: [TagInput!]

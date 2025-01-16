@@ -13,8 +13,7 @@ query GetProjectByID($projectID: ID!) {
             filepath
             content
         }
-        #    language
-        #    instrumentCwd
+        bu
         tags {
             id
             name

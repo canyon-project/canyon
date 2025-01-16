@@ -2,7 +2,7 @@ import { useMutation } from "@apollo/client";
 import { useForm } from "antd/es/form/Form";
 import { FC } from "react";
 
-import { UpdateProjectDocument } from "../../../../../../helpers/backend/gen/graphql.ts";
+import { UpdateProjectDocument } from "@/helpers/backend/gen/graphql.ts";
 
 const { TextArea } = Input;
 
@@ -17,7 +17,7 @@ const BasicForms: FC<{ data: any }> = ({ data }, ref) => {
         coverage: "__null__",
         description: values.description,
         defaultBranch: "__null__",
-        instrumentCwd: values.instrumentCwd,
+        bu: values.bu,
       },
     }).then(() => {
       message.success("成功");
@@ -30,7 +30,6 @@ const BasicForms: FC<{ data: any }> = ({ data }, ref) => {
   useImperativeHandle(ref, () => ({
     submit: onSubmit,
   }));
-  // use
   if (data) {
     return (
       <Form
@@ -44,7 +43,7 @@ const BasicForms: FC<{ data: any }> = ({ data }, ref) => {
           projectID: data.id,
           tag: data.tag,
           language: data.language,
-          instrumentCwd: data.instrumentCwd,
+          bu: data.bu,
         }}
         onFinish={onFinish}
       >
@@ -66,8 +65,8 @@ const BasicForms: FC<{ data: any }> = ({ data }, ref) => {
           </Form.Item>
         </div>
 
-        <Form.Item<any> label={t("common.language")} name="language">
-          <Input disabled />
+        <Form.Item<any> label={t("common.bu")} name="bu">
+          <Input />
         </Form.Item>
 
         <Form.Item<any>
