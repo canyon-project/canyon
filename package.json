@@ -9,7 +9,6 @@
     "build": "pnpm -r do-build",
     "clean": "node ./scripts/clean.mjs",
     "preinstall": "node ./scripts/check.mjs && node ./scripts/prisma.mjs",
-    "start:ut": "pnpm -r do-start-ut",
     "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma"
   },
   "devDependencies": {
