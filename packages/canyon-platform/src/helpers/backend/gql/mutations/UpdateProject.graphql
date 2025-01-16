@@ -7,6 +7,7 @@ mutation UpdateProject(
     $tags: [TagInput!]
     $members: [MemberInput!]
     $autoInstrument: [AutoInstrumentInput!]
+    $bu: String
 ) {
     updateProject(
         projectID: $projectID
@@ -17,6 +18,7 @@ mutation UpdateProject(
         tags: $tags
         members: $members
         autoInstrument: $autoInstrument
+        bu: $bu
     ) {
         id
     }
