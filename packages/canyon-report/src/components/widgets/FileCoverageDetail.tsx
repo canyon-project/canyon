@@ -6,15 +6,15 @@ import { annotateFunctions, annotateStatements } from "../helpers/annotate.ts";
 import LineNumber from "./line/number.tsx";
 import LineNew from "./line/new.tsx";
 import LineCoverage from "./line/coverage.tsx";
-import {coreFn} from "../helpers/coreFn.ts";
+import { coreFn } from "../helpers/coreFn.ts";
 
 const FileCoverageDetail: FC<{
   fileContent: string;
   fileCodeChange: number[];
   fileCoverage: any;
-}> = ({ fileContent, fileCoverage,fileCodeChange }) => {
+}> = ({ fileContent, fileCoverage, fileCodeChange }) => {
   const lineCount = fileContent.split("\n").length;
-  const {lines} = coreFn(fileCoverage, fileContent);
+  const { lines } = coreFn(fileCoverage, fileContent);
   const decorations = useMemo(() => {
     const annotateFunctionsList = annotateFunctions(fileCoverage, fileContent);
     const annotateStatementsList = annotateStatements(fileCoverage);
@@ -50,12 +50,6 @@ const FileCoverageDetail: FC<{
           }),
         ),
       );
-
-      // 禁用 Monaco 内部的 Command + F 或 Ctrl + F
-      editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyF, () => {
-        // 不做任何操作，事件会继续传播到浏览器
-        console.log("Command + F");
-      });
     }
   }, [editor, decorations]);
 
@@ -67,42 +61,24 @@ const FileCoverageDetail: FC<{
         // lineHeight: "14px",
       }}
     >
-      <LineNumber theme={"light"} count={fileContent.split("\n").length} />
-      <LineNew
-        count={fileContent.split("\n").length}
-        news={fileCodeChange}
-      ></LineNew>
-      <LineCoverage
-        theme={"light"}
-        covers={lines.map((i) => {
-          if (i.executionNumber > 0) {
-            return {
-              covered: "yes",
-              hits: i.executionNumber,
-            };
-          } else if (i.executionNumber === 0) {
-            return {
-              covered: "no",
-              hits: i.executionNumber,
-            };
-          } else {
-            return {
-              covered: "neutral",
-              hits: 0,
-            };
-          }
-        })}
-      />
-
       <Editor
         value={fileContent}
         // theme={"nightOwl"}
-        height={`${18 * lineCount}px`}
+        height={"calc(100vh - 200px)"}
+        // height={`${18 * (lineCount + 1)}px`}
         language={"javascript"}
         onMount={handleEditorDidMount}
         options={{
           lineHeight: 18,
-          lineNumbers: "off",
+          lineNumbers: (lineNumber) => {
+            // 根据行号生成标识，后续会处理逻辑
+            return `<div class="line-number-wrapper">
+              <span class="line-number">${lineNumber}</span>
+              <span class="line-change">change</span>
+              <span class="line-coverage">coverage</span>
+            </div>`;
+          },
+          lineNumbersMinChars: 20,
           readOnly: true,
           folding: false,
           minimap: { enabled: false },
@@ -111,7 +87,7 @@ const FileCoverageDetail: FC<{
           fontSize: 12,
           fontFamily: "IBMPlexMono",
           scrollbar: {
-            handleMouseWheel: false,
+            // handleMouseWheel: false,
           },
           contextmenu: false,
         }}
