@@ -1,6 +1,6 @@
 {
   "name": "canyon-report",
-  "version": "0.0.0",
+  "version": "0.0.8-beta.60",
   "type": "module",
   "main": "./dist/canyon-report.cjs",
   "module": "./dist/canyon-report.js",
