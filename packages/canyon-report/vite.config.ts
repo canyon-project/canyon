@@ -5,6 +5,7 @@ import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   build: {
+    target: "ES2022",
     // 输出文件夹
     outDir: "dist",
     lib: {

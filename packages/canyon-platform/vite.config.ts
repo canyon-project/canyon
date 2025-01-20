@@ -8,24 +8,24 @@ import Pages from "vite-plugin-pages";
 export default defineConfig({
   plugins: [
     react({
-      babel: {
-        plugins:
-          process.env.NODE_ENV === "development"
-            ? []
-            : [
-                "istanbul",
-                [
-                  "canyon",
-                  {
-                    instrumentCwd: path.resolve(__dirname, "../.."),
-                    provider: "tripgl",
-                    oneByOne: false,
-                    special: false,
-                    keepMap: false,
-                  },
-                ],
-              ],
-      },
+      // babel: {
+      //   plugins:
+      //     process.env.NODE_ENV === "development"
+      //       ? []
+      //       : [
+      //           "istanbul",
+      //           [
+      //             "canyon",
+      //             {
+      //               instrumentCwd: path.resolve(__dirname, "../.."),
+      //               provider: "tripgl",
+      //               oneByOne: false,
+      //               special: false,
+      //               keepMap: false,
+      //             },
+      //           ],
+      //         ],
+      // },
     }),
     AutoImport({
       imports: ["react", "react-i18next", "react-router-dom"],
@@ -39,15 +39,16 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "canyon-report": path.resolve(
-        __dirname,
-        "../canyon-report/src/components",
-      ),
+      // "canyon-report": path.resolve(
+      //   __dirname,
+      //   "../canyon-report/src/components",
+      // ),
       // "canyon-data": path.resolve(__dirname, "../canyon-data/src"),
     },
   },
   build: {
     sourcemap: true,
+    target: "ES2022",
   },
   server: {
     port: 8000,

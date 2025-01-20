@@ -19,7 +19,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "format": "prettier --write '**/*.{js,ts,jsx,tsx}'"
+    "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
+    "postinstall": "vite build"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
