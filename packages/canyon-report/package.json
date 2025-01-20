@@ -20,7 +20,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
-    "postinstall": "vite build",
+    "preinstall": "vite build || true",
     "prepublishOnly": "vite build"
   },
   "dependencies": {
