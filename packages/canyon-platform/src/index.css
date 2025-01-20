@@ -125,3 +125,9 @@ a:hover {
   padding-right: 5px;
   color: rgba(0, 0, 0, 0.5);
 }
+
+.dark .line-number-wrapper .line-coverage{
+  width: 60px;
+  padding-right: 5px;
+  color: #eaeaea;
+}
