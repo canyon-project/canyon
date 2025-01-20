@@ -40,7 +40,7 @@
     "tailwind-merge": "^2.6.0",
     "zustand": "^5.0.3",
     "monaco-themes": "^0.4.4",
-    "canyon-report": "workspace:*"
+    "canyon-report": "^0.0.8-beta.62"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
