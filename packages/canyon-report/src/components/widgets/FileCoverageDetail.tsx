@@ -2,72 +2,19 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Editor } from "@monaco-editor/react";
 
 import * as monaco from "monaco-editor";
-
-export function annotateStatements(fileCoverage: any) {
-  const annotateStatementsList: any[] = [];
-  const statementStats = fileCoverage.s;
-  const statementMeta = fileCoverage.statementMap;
-  Object.entries(statementStats).forEach(([stName, count]: any) => {
-    const meta = statementMeta[stName];
-    const type = count > 0 ? "yes" : "no";
-    const startCol = meta.start.column;
-    const endCol = meta.end.column + 1;
-    const startLine = meta.start.line;
-    const endLine = meta.end.line;
-    if (type === "no") {
-      annotateStatementsList.push({
-        startLine,
-        endLine,
-        startCol,
-        endCol,
-        type,
-      });
-    }
-  });
-  return annotateStatementsList;
-}
-
-export function annotateFunctions(fileCoverage, structuredText) {
-  const fnStats = fileCoverage.f;
-  const fnMeta = fileCoverage.fnMap;
-  if (!fnStats) {
-    return [];
-  }
-  const list = [];
-  Object.entries(fnStats).forEach(([fName, count]) => {
-    const meta = fnMeta[fName];
-    const type = count > 0 ? "yes" : "no";
-    // Some versions of the instrumenter in the wild populate 'func'
-    // but not 'decl':
-    const decl = meta.decl || meta.loc;
-    const startCol = decl.start.column;
-    let endCol = decl.end.column + 1;
-    const startLine = decl.start.line;
-    const endLine = decl.end.line;
-    if (type === "no") {
-      if (endLine !== startLine) {
-        console.log("???????");
-        endCol = structuredText[startLine - 1].length;
-      }
-      list.push({
-        startLine,
-        endLine,
-        startCol,
-        endCol,
-        type,
-      });
-    }
-  });
-  return list;
-}
+import { annotateFunctions, annotateStatements } from "../helpers/annotate.ts";
+import LineNumber from "./line/number.tsx";
+import LineNew from "./line/new.tsx";
+import LineCoverage from "./line/coverage.tsx";
+import {coreFn} from "../helpers/coreFn.ts";
 
 const FileCoverageDetail: FC<{
   fileContent: string;
-  lines: { count: number }[];
+  fileCodeChange: number[];
   fileCoverage: any;
-}> = ({ fileContent, lines, fileCoverage }) => {
+}> = ({ fileContent, fileCoverage,fileCodeChange }) => {
   const lineCount = fileContent.split("\n").length;
-
+  const {lines} = coreFn(fileCoverage, fileContent);
   const decorations = useMemo(() => {
     const annotateFunctionsList = annotateFunctions(fileCoverage, fileContent);
     const annotateStatementsList = annotateStatements(fileCoverage);
@@ -113,17 +60,49 @@ const FileCoverageDetail: FC<{
   }, [editor, decorations]);
 
   return (
-    <div>
+    <div
+      style={{
+        display: "flex",
+        fontSize: "12px",
+        // lineHeight: "14px",
+      }}
+    >
+      <LineNumber theme={"light"} count={fileContent.split("\n").length} />
+      <LineNew
+        count={fileContent.split("\n").length}
+        news={fileCodeChange}
+      ></LineNew>
+      <LineCoverage
+        theme={"light"}
+        covers={lines.map((i) => {
+          if (i.executionNumber > 0) {
+            return {
+              covered: "yes",
+              hits: i.executionNumber,
+            };
+          } else if (i.executionNumber === 0) {
+            return {
+              covered: "no",
+              hits: i.executionNumber,
+            };
+          } else {
+            return {
+              covered: "neutral",
+              hits: 0,
+            };
+          }
+        })}
+      />
+
       <Editor
         value={fileContent}
         // theme={"nightOwl"}
         height={`${18 * lineCount}px`}
         language={"javascript"}
         onMount={handleEditorDidMount}
-        // value={value}
         options={{
           lineHeight: 18,
-          // lineNumbers: "off",
+          lineNumbers: "off",
           readOnly: true,
           folding: false,
           minimap: { enabled: false },
@@ -135,9 +114,6 @@ const FileCoverageDetail: FC<{
             handleMouseWheel: false,
           },
           contextmenu: false,
-          // mouseWheelScrollSensitivity: 0, // 设置为 0 禁用编辑器的滚动行为
-          // mouseWheelZoom: false, // 禁止鼠标滚轮缩放
-          // handleMouseWheel
         }}
       />
     </div>

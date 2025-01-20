@@ -1,6 +1,6 @@
 import { FC } from "react";
 import Icon, { BarsOutlined, SearchOutlined } from "@ant-design/icons";
-import { Divider, Space, Segmented, Input } from "antd";
+import { Divider, Space, Segmented, Input, Typography, Switch } from "antd";
 import PhTreeViewIcon from "../icons/PhTreeView";
 
 const TopControl: FC<{
@@ -9,13 +9,18 @@ const TopControl: FC<{
   filenameKeywords: string;
   onChangeShowMode: (mode: string) => void;
   onChangeKeywords: (word: string) => void;
+  onChangeOnlyChange: (checked: boolean) => void;
+  onlyChange: boolean;
 }> = ({
   total,
   showMode,
   onChangeShowMode,
   onChangeKeywords,
   filenameKeywords,
+  onChangeOnlyChange,
+  onlyChange,
 }) => {
+  // const { t } = useTranslation();
   return (
     <div>
       <div className={"flex mb-2 justify-between items-center"}>
@@ -49,6 +54,17 @@ const TopControl: FC<{
         </div>
 
         <div className={"flex items-center"}>
+          <div className={"flex items-center gap-2"}>
+            <Typography.Text type={"secondary"} style={{ fontSize: "12px" }}>
+              {"projects.detail.only.changed"}:{" "}
+            </Typography.Text>
+            <Switch
+              checked={onlyChange}
+              size={"small"}
+              onChange={onChangeOnlyChange}
+            />
+          </div>
+          <Divider type={"vertical"} />
           <Input
             value={filenameKeywords}
             addonBefore={<SearchOutlined />}

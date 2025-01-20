@@ -9,11 +9,9 @@ const t = (msg: string) => msg;
 const SummaryListTable: FC<{
   dataSource: (CoverageSummaryData & { path: string })[];
   onSelect: (path: string) => void;
-  value: string;
   filenameKeywords: string;
   style?: React.CSSProperties;
-}> = ({ dataSource, onSelect, value, filenameKeywords, style }) => {
-  console.log(filenameKeywords,'filenameKeywords')
+}> = ({ dataSource, onSelect, filenameKeywords, style }) => {
   return (
     <div style={style}>
       <ConfigProvider
@@ -29,10 +27,7 @@ const SummaryListTable: FC<{
             defaultPageSize: 15,
           }}
           size={"small"}
-          dataSource={dataSource.filter((item) => {
-            console.log(value, "???");
-            return item.path.startsWith(value || "");
-          })}
+          dataSource={dataSource}
           rowKey={"path"}
           columns={[
             {

@@ -91,6 +91,7 @@ const Sha = () => {
               return {
                 fileContent: res.fileContent,
                 fileCoverage: res.fileCoverage,
+                fileCodeChange: res.fileCodeChange,
               };
             });
           }}

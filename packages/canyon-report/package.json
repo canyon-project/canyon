@@ -38,6 +38,7 @@
     "@types/istanbul-lib-coverage": "^2.0.6",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@types/react-highlight-words": "^0.20.0",
     "@vitejs/plugin-react": "^4.3.4",
     "eslint": "^9.17.0",
     "eslint-plugin-prettier": "^5.2.2",
