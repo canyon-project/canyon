@@ -58,13 +58,12 @@ const SummaryMetric: FC<{
       <div className={"flex gap-2 mb-3"}>
         {Object.entries(summaryTreeItem.summary)
           .sort(([key1], [key2]) => {
-            // 按照["statements", "branches", "functions", "lines"]的顺序排列
-            const order = ["statements", "branches", "functions", "lines"];
+            const order = ["statements", "branches", "functions", "lines","newlines"];
 
             return order.indexOf(key1) - order.indexOf(key2);
           })
           .filter(([key]) =>
-            ["statements", "branches", "functions", "lines"].includes(key),
+            ["statements", "branches", "functions", "lines","newlines"].includes(key),
           )
           .map(([key, value]) => {
             return (
