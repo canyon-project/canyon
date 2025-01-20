@@ -51,7 +51,6 @@ export default defineConfig({
     host: "0.0.0.0",
     proxy: {
       "^/graphql|^/api": {
-        // target: "http://canyon.fws.qa.nt.ctripcorp.com",
         changeOrigin: true,
       },
     },
