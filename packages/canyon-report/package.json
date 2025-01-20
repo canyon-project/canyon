@@ -21,7 +21,7 @@
     "preview": "vite preview",
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
     "preinstall": "vite build || true",
-    "prepublishOnly": "vite build"
+    "prepublishOnly": "vite build || true"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
