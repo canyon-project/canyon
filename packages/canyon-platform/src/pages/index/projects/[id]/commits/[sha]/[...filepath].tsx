@@ -9,16 +9,14 @@ import {
 
 import CanyonReport from "canyon-report";
 import { GetProjectByIdDocument } from "@/helpers/backend/gen/graphql.ts";
-import { getCoverageSummaryMapService, handleSelectFile } from "./helper";
+import { getCoverageSummaryMapService, handleSelectFile } from "../helper";
 const { useToken } = theme;
 
 const Sha = () => {
   const prm = useParams();
   const nav = useNavigate();
   const [sprm] = useSearchParams();
-  // 在组件中
   const location = useLocation();
-  const currentPathname = location.pathname;
   const { data: getProjectByIdDocumentData } = useQuery(
     GetProjectByIdDocument,
     {
@@ -43,7 +41,7 @@ const Sha = () => {
     },
   );
 
-  const [activatedPath, setActivatedPath] = useState(sprm.get("path") || "");
+  const [activatedPath, setActivatedPath] = useState(prm["*"] || "");
   // 导航
   useEffect(() => {
     const params = new URLSearchParams();
@@ -53,15 +51,14 @@ const Sha = () => {
     if (sprm.get("mode")) {
       params.append("mode", sprm.get("mode") || "");
     }
-    params.append("path", activatedPath);
+    // params.append("path", activatedPath);
 
     // 将参数拼接到路径中
-    const pathWithParams = `${currentPathname}?${params.toString()}${location.hash}`;
+    const pathWithParams = `/projects/${prm.id}/commits/${prm.sha}${activatedPath ? "/" + activatedPath : ""}?${params.toString()}${location.hash}`;
 
     nav(pathWithParams);
   }, [activatedPath]);
 
-  // @ts-ignore
   return (
     <>
       <div
