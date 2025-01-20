@@ -1,12 +1,67 @@
-import { mergeIntervals } from "./helper.tsx";
-import { createHighlighterCoreInstance } from "@/components/CanyonReport/loadShiki.ts";
+// 获取numberOfRows
+// 获取行覆盖率
+function getLineCoverage(data) {
+  const statementMap = data.statementMap;
+  const statements = data.s;
+  const lineMap = Object.create(null);
+  Object.entries(statements).forEach(([st, count]) => {
+    if (!statementMap[st]) {
+      return;
+    }
+    const { line } = statementMap[st].start;
+    const prevVal = lineMap[line];
+    if (prevVal === undefined || prevVal < count) {
+      lineMap[line] = count;
+    }
+  });
+  return lineMap;
+}
+export const genFileDetailLines = (fileCoverage, fileContent) => {
+  // console.log(coverage)
+  const totalLines = fileContent.split("\n").length;
+  const lineStats = getLineCoverage(fileCoverage);
+  // console.log(lineStats); 很奇怪，打开nextjs会报错
+  return Array.from({ length: totalLines }, (_, index) => {
+    return {
+      count: lineStats[index + 1],
+    };
+  });
+};
 
-const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
-  const [content, setContent] = useState("");
+export function mergeIntervals(intervals) {
+  // 如果输入为空，直接返回空列表
+  if (intervals.length === 0) {
+    return [];
+  }
 
+  // 将所有线段按起始位置进行排序
+  intervals.sort((a, b) => a[0] - b[0]);
+
+  // 初始化结果列表
+  const merged = [];
+  let [currentStart, currentEnd] = intervals[0];
+
+  for (const [start, end] of intervals.slice(1)) {
+    if (start <= currentEnd) {
+      // 当前线段与前一个线段有重叠
+      currentEnd = Math.max(currentEnd, end); // 更新结束位置
+    } else {
+      // 当前线段与前一个线段没有重叠
+      merged.push([currentStart, currentEnd]); // 将前一个线段加入结果列表
+      [currentStart, currentEnd] = [start, end]; // 更新当前线段的起始和结束位置
+    }
+  }
+
+  // 添加最后一个线段
+  merged.push([currentStart, currentEnd]);
+
+  return merged;
+}
+
+export const ggggggfn = (filecoverage, fileContent) => {
   const statementStats = filecoverage.s;
   const statementMeta = filecoverage.statementMap;
-  const structuredText = defaultValue
+  const structuredText = fileContent
     .split("\n")
     .reduce((previousValue, currentValue, currentIndex) => {
       return {
@@ -136,53 +191,27 @@ const ShikiDetail = ({ defaultValue, filecoverage, theme }) => {
     }
   });
 
-  useEffect(() => {
-    createHighlighterCoreInstance().then(({ codeToHtml }) => {
-      try {
-        const res = codeToHtml(defaultValue, {
-          lang: "javascript",
-          theme: theme === "light" ? "light-plus" : "tokyo-night",
-          decorations: mergeIntervals(
-            [
-              ...statementDecorations,
-              ...fnDecorations,
-              ...branchDecorations,
-            ].filter((item) => {
-              // defaultValue
-              if (item[0] >= item[1]) {
-                return false;
-              } else if (item[1] > defaultValue.length) {
-                return false;
-              } else {
-                return item[0] < item[1];
-              }
-            }),
-          ).map(([start, end]) => {
-            return {
-              start,
-              end,
-              properties: { class: "content-class-no-found" },
-            };
-          }),
-        });
-        setContent(res);
-      } catch (err) {
-        console.log("覆盖率着色失败", err);
-        const r = codeToHtml(defaultValue, {
-          lang: "javascript",
-          theme: theme === "light" ? "light-plus" : "tokyo-night",
-        });
 
-        setContent(r);
+  return mergeIntervals(
+    [
+      ...statementDecorations,
+      ...fnDecorations,
+      ...branchDecorations,
+    ].filter((item) => {
+      // defaultValue
+      if (item[0] >= item[1]) {
+        return false;
+      } else if (item[1] > fileContent.length) {
+        return false;
+      } else {
+        return item[0] < item[1];
       }
-    });
-  }, []);
-
-  return (
-    <div className={"px-[12px] overflow-x-auto w-full"}>
-      <div dangerouslySetInnerHTML={{ __html: content }}></div>
-    </div>
-  );
+    }),
+  ).map(([start, end]) => {
+    return {
+      start,
+      end,
+      properties: { class: "content-class-no-found" },
+    };
+  })
 };
-
-export default ShikiDetail;

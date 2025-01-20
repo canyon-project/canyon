@@ -66,11 +66,10 @@ export const getCoverageSummaryMapService = ({ projectID, sha, reportID }) =>
       sha: sha,
       projectID: projectID,
     },
-  })
-    .then(({ data }) => data)
-    .then((r) => {
-      return Object.values(r).reduce((acc: any[], cur: any) => {
-        acc.push(cur);
-        return acc;
-      }, []);
-    });
+  }).then(({ data }) => data);
+// .then((r) => {
+//   return Object.values(r).reduce((acc: any[], cur: any) => {
+//     acc.push(cur);
+//     return acc;
+//   }, []);
+// });
