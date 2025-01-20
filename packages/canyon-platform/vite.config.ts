@@ -39,7 +39,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      "canyon-report": path.resolve(__dirname, "../canyon-report/src/components"),
+      "canyon-report": path.resolve(
+        __dirname,
+        "../canyon-report/src/components",
+      ),
       // "canyon-data": path.resolve(__dirname, "../canyon-data/src"),
     },
   },
@@ -52,6 +55,7 @@ export default defineConfig({
     proxy: {
       "^/graphql|^/api": {
         changeOrigin: true,
+        target: "http://localhost:8000",
       },
     },
   },

@@ -56,7 +56,7 @@ const TopControl: FC<{
         <div className={"flex items-center"}>
           <div className={"flex items-center gap-2"}>
             <Typography.Text type={"secondary"} style={{ fontSize: "12px" }}>
-              {"projects.detail.only.changed"}:{" "}
+              {"Only Changed"}:{" "}
             </Typography.Text>
             <Switch
               checked={onlyChange}
@@ -66,6 +66,7 @@ const TopControl: FC<{
           </div>
           <Divider type={"vertical"} />
           <Input
+            placeholder={"Enter the file path to search"}
             value={filenameKeywords}
             addonBefore={<SearchOutlined />}
             className={"w-[240px]"}

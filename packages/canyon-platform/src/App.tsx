@@ -4,7 +4,7 @@ import zhCN from "antd/es/locale/zh_CN";
 import { useRoutes } from "react-router-dom";
 
 import routes from "~react-pages";
-import Sha from "@/pages/index/projects/[id]/commits/[sha]/index.tsx";
+import Sha from "@/pages/index/projects/[id]/commits/[sha]/[...filepath].tsx";
 
 routes.push({
   element: <Sha />,
