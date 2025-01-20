@@ -201,7 +201,7 @@ const ProjectOverviewPage = () => {
           return (
             <Link
               to={{
-                pathname: `/projects/${pam.id}/commits/${sha}`,
+                pathname: `/projects/${pam.id}/commits/${sha}/-`,
               }}
             >
               {_}%

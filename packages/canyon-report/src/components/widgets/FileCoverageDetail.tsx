@@ -3,18 +3,32 @@ import { Editor } from "@monaco-editor/react";
 
 import * as monaco from "monaco-editor";
 import { annotateFunctions, annotateStatements } from "../helpers/annotate.ts";
-import LineNumber from "./line/number.tsx";
-import LineNew from "./line/new.tsx";
-import LineCoverage from "./line/coverage.tsx";
 import { coreFn } from "../helpers/coreFn.ts";
+import { lineNumbers } from "./lineNumbers.ts";
 
 const FileCoverageDetail: FC<{
   fileContent: string;
   fileCodeChange: number[];
   fileCoverage: any;
 }> = ({ fileContent, fileCoverage, fileCodeChange }) => {
-  const lineCount = fileContent.split("\n").length;
+  // const lineCount = fileContent.split("\n").length;
   const { lines } = coreFn(fileCoverage, fileContent);
+
+  const linesState = useMemo(() => {
+    return lines.map((line, index) => {
+      return {
+        lineNumber: index + 1,
+        change: fileCodeChange.includes(index + 1),
+        hit: line.executionNumber,
+      };
+    });
+  }, [lines, fileCodeChange]);
+
+  const lineNumbersMinChars = useMemo(() => {
+    const maxHit = Math.max(...linesState.map((line) => line.hit));
+    return maxHit.toString().length + 8;
+  }, [linesState]);
+
   const decorations = useMemo(() => {
     const annotateFunctionsList = annotateFunctions(fileCoverage, fileContent);
     const annotateStatementsList = annotateStatements(fileCoverage);
@@ -71,14 +85,9 @@ const FileCoverageDetail: FC<{
         options={{
           lineHeight: 18,
           lineNumbers: (lineNumber) => {
-            // 根据行号生成标识，后续会处理逻辑
-            return `<div class="line-number-wrapper">
-              <span class="line-number">${lineNumber}</span>
-              <span class="line-change">change</span>
-              <span class="line-coverage">coverage</span>
-            </div>`;
+            return lineNumbers(lineNumber, linesState);
           },
-          lineNumbersMinChars: 20,
+          lineNumbersMinChars: lineNumbersMinChars,
           readOnly: true,
           folding: false,
           minimap: { enabled: false },

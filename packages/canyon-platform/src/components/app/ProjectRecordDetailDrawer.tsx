@@ -68,7 +68,7 @@ const ProjectRecordDetailDrawer = ({ open, onClose, sha }: any) => {
           <div>
             <Link
               to={{
-                pathname: `/projects/${pam.id}/commits/${_.sha}`,
+                pathname: `/projects/${pam.id}/commits/${_.sha}/-`,
                 search: `?report_id=${encodeURIComponent(_.reportID)}`,
               }}
             >

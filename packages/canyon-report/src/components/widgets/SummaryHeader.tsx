@@ -19,7 +19,7 @@ const SummaryNav: FC<{
   // console.log(token.colorPrimary,'token')
   return (
     <div
-      className={"flex gap-1"}
+      className={"flex gap-1 mb-2"}
       style={{ fontSize: "16px", fontWeight: "bold" }}
     >
       {(reportName + "/" + value).split("/").map((item, index) => {

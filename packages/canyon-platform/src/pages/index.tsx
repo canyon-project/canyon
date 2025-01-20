@@ -61,7 +61,7 @@ function Index() {
           <div>
             {/*榜单mark*/}
             <Breadcrumb
-              className={"py-3"}
+              className={"pt-3"}
               items={genBreadcrumbItems(loc.pathname)}
             />
           </div>
