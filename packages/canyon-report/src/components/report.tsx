@@ -6,37 +6,64 @@ import SummaryHeader from "./widgets/SummaryHeader.tsx";
 import SummaryTreeTable from "./widgets/SummaryTreeTable.tsx";
 import SummaryListTable from "./widgets/SummaryListTable.tsx";
 import FileCoverageDetail from "./widgets/FileCoverageDetail.tsx";
-import { genSummaryTreeItem } from "canyon-data";
+import { emptyFileCoverageData } from "./helpers/const.ts";
+import { generateCoreDataForEachComponent } from "./helpers/generateCoreDataForEachComponent.ts";
+import { FloatButton } from "antd";
 const onSelectDefault = () => {
   return Promise.resolve({
     fileContent: "",
-    fileCoverage: {},
+    fileCoverage: emptyFileCoverageData,
     fileCodeChange: [],
   });
 };
+function checkSummaryOnlyChange(item, onlyChange) {
+  // 如果只看改变的为false，就返回全部
+  if (onlyChange === false) {
+    return true;
+  }
+  // 不然就检查item.change
+  if (onlyChange && item.change) {
+    return true;
+  } else {
+    return false;
+  }
+}
+function checkSummaryKeywords(item, keywords) {
+  return item.path.toLowerCase().includes(keywords.toLowerCase());
+}
 const Report: FC<ReportProps> = ({
   name = "untitled", // 报告名称
   dataSource = {}, // 数据源，概览的map
   value = "", // 当前选中的文件路径
   onSelect = onSelectDefault, // 选中文件的回调，返回文件内容和覆盖率，promise
+  defaultOnlyShowChanged = false,
 }) => {
+  // 内部状态
   const [filenameKeywords, setFilenameKeywords] = useState("");
   const [showMode, setShowMode] = useState("tree");
-  const [loading, setLoading] = useState(false);
+  const [fileCoverage, setFileCoverage] = useState<FileCoverageData>({
+    path: "",
+    statementMap: {},
+    fnMap: {},
+    branchMap: {},
+    s: {},
+    f: {},
+    b: {},
+  });
+  const [fileContent, setFileContent] = useState<string>("");
+  const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
+  const [onlyChange, setOnlyChange] = useState(Boolean(defaultOnlyShowChanged));
 
-  function newonSelect(val: string) {
-    setLoading(true);
-    return onSelect(val).then((res) => {
-      console.log(res, "??????");
-      setFileContent(res.fileContent);
-      setFileCoverage(res.fileCoverage);
-      setLoading(false);
-      return res;
-    });
+  async function newOnSelect(val: string) {
+    const res = await onSelect(val);
+    setFileContent(res.fileContent);
+    setFileCoverage(res.fileCoverage);
+    setFileCodeChange(res.fileCodeChange);
+    return res;
   }
 
   useEffect(() => {
-    newonSelect(value);
+    newOnSelect(value);
   }, []);
 
   const isFile = useMemo(() => {
@@ -51,60 +78,30 @@ const Report: FC<ReportProps> = ({
     }
   }, [showMode, value]);
 
-  const [fileCoverage, setFileCoverage] = useState<FileCoverageData>({
-    path: "",
-    statementMap: {},
-    fnMap: {},
-    branchMap: {},
-    s: {},
-    f: {},
-    b: {},
-  });
-  const [fileContent, setFileContent] = useState<string>("");
-
   const { treeDataSource, rootDataSource, listDataSource } = useMemo(() => {
-    // 1.过滤
+    return generateCoreDataForEachComponent({
+      dataSource,
+      filenameKeywords,
+      value,
+      onlyChange,
+    });
+  }, [dataSource, value, filenameKeywords, onlyChange]);
 
-    const listDataSource = Object.values(dataSource).filter((item) =>
-      item.path.toLowerCase().includes(filenameKeywords.toLowerCase()),
-    );
-    // @ts-ignore
-    const summary = listDataSource
-      // @ts-ignore
-      .reduce((acc: never, cur: never) => {
-        // @ts-ignore
-        acc[cur.path] = cur;
-        return acc;
-      }, {});
-
-    const aaaa = genSummaryTreeItem(value, summary);
-    return {
-      treeDataSource: aaaa.children.map((item) => {
-        return {
-          path: item.path,
-          ...item.summary,
-        };
-      }),
-      rootDataSource: {
-        path: aaaa.path,
-        ...aaaa.summary,
-      },
-      listDataSource: listDataSource,
-    };
-  }, [dataSource, value, filenameKeywords]);
+  function onChangeOnlyChange(v) {
+    setOnlyChange(v);
+  }
 
   return (
     <div>
       <TopControl
+        onlyChange={onlyChange}
         filenameKeywords={filenameKeywords}
         showMode={showMode}
         onChangeShowMode={(val) => {
           setShowMode(val);
         }}
-        total={
-          Object.keys(dataSource).filter((item) => item.startsWith(value))
-            .length
-        }
+        onChangeOnlyChange={onChangeOnlyChange}
+        total={listDataSource.length}
         onChangeKeywords={(val) => {
           setFilenameKeywords(val);
         }}
@@ -113,17 +110,14 @@ const Report: FC<ReportProps> = ({
         reportName={name}
         data={rootDataSource}
         value={value}
-        onSelect={newonSelect}
+        onSelect={newOnSelect}
       />
-      {/*{isFile && <FileCoverageDetail />}*/}
-      {/*{showMode === "tree" && <SummaryTreeTable dataSource={} onSelect={} />}*/}
-      {/*{showMode === "list" && <SummaryListTable dataSource={} onSelect={} />}*/}
       {mode === "file" &&
         Object.keys(fileCoverage).length > 0 &&
         Object.keys(fileContent).length > 0 && (
           <FileCoverageDetail
             fileContent={fileContent}
-            lines={[]}
+            fileCodeChange={fileCodeChange}
             fileCoverage={fileCoverage}
           />
         )}
@@ -133,18 +127,18 @@ const Report: FC<ReportProps> = ({
             display: mode === "tree" ? "block" : "none",
           }}
           dataSource={treeDataSource}
-          onSelect={newonSelect}
-          filenameKeywords={filenameKeywords}
+          onSelect={newOnSelect}
         />
         <SummaryListTable
           style={{
             display: mode === "list" ? "block" : "none",
           }}
           dataSource={listDataSource}
-          onSelect={newonSelect}
+          onSelect={newOnSelect}
           filenameKeywords={filenameKeywords}
         />
       </div>
+      <FloatButton.BackTop />
     </div>
   );
 };

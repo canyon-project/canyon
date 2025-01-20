@@ -9,4 +9,5 @@ export interface ReportProps {
     fileContent: string;
     fileCodeChange: number[];
   }>;
+  defaultOnlyShowChanged: boolean;
 }
