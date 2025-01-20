@@ -5,13 +5,14 @@ import * as monaco from "monaco-editor";
 import { annotateFunctions, annotateStatements } from "../helpers/annotate.ts";
 import { coreFn } from "../helpers/coreFn.ts";
 import { lineNumbers } from "./lineNumbers.ts";
-
+import { theme } from "antd";
+const { useToken } = theme;
 const FileCoverageDetail: FC<{
   fileContent: string;
   fileCodeChange: number[];
   fileCoverage: any;
 }> = ({ fileContent, fileCoverage, fileCodeChange }) => {
-  // const lineCount = fileContent.split("\n").length;
+  const { token } = useToken();
   const { lines } = coreFn(fileCoverage, fileContent);
 
   const linesState = useMemo(() => {
@@ -77,7 +78,7 @@ const FileCoverageDetail: FC<{
     >
       <Editor
         value={fileContent}
-        // theme={"nightOwl"}
+        theme={token.colorBgBase === "#000" ? "nightOwl" : "vs"}
         height={"calc(100vh - 200px)"}
         // height={`${18 * (lineCount + 1)}px`}
         language={"javascript"}
@@ -85,7 +86,11 @@ const FileCoverageDetail: FC<{
         options={{
           lineHeight: 18,
           lineNumbers: (lineNumber) => {
-            return lineNumbers(lineNumber, linesState);
+            return lineNumbers(
+              lineNumber,
+              linesState,
+              token.colorBgBase === "#000",
+            );
           },
           lineNumbersMinChars: lineNumbersMinChars,
           readOnly: true,
