@@ -20,7 +20,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
-    "postinstall": "vite build"
+    "postinstall": "vite build",
+    "prepublishOnly": "vite build"
   },
   "dependencies": {
     "@ant-design/icons": "^5.5.2",
