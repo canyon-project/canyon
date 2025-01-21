@@ -58,6 +58,14 @@ app.get("/vi/health", (req, res) => {
   res.send("Hello World!");
 });
 
+function handleProjectID(id) {
+  if (id.includes('-')){
+    return id.split('-')[1]
+  } else {
+    return id
+  }
+}
+
 app.post("/coverage/client", async (req, res,next) => {
   const {sha,branch,projectID,instrumentCwd} = req.body;
   const {summaryCompressed,hitCompressed} =await handleCoverage(req.body);
@@ -65,7 +73,7 @@ app.post("/coverage/client", async (req, res,next) => {
     const utCoverageData = {
       sha,
       branch,
-      projectID,
+      projectID:handleProjectID(projectID),
       branchesTotal: 0,
       branchesCovered: 0,
       functionsTotal: 0,
