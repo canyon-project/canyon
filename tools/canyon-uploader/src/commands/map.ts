@@ -3,7 +3,7 @@ import path from "node:path";
 
 import axios from "axios";
 export async function mapCommand(params, options) {
-	const {
+	let {
 		dsn,
 		project_id: projectID,
 		sha,
@@ -11,24 +11,25 @@ export async function mapCommand(params, options) {
     branch,
     provider,
 		workspace,
+    target_folder_name:targetFolderName
 	} = params;
+  targetFolderName = targetFolderName || '.canyon_output'
 	const realWorkspace = workspace || process.cwd();
 	// 判断是否存在.canyon_output文件夹
-	if (!fs.existsSync(path.resolve(realWorkspace, ".canyon_output"))) {
-		console.log(path.resolve(realWorkspace, ".canyon_output"))
-		console.error("No coverage data found in .canyon_output");
+	if (!fs.existsSync(path.resolve(realWorkspace, targetFolderName))) {
+		console.error(`No coverage data found in ${targetFolderName}`);
 		return;
 	}
 
-	const files = fs.readdirSync(path.resolve(realWorkspace, ".canyon_output"));
+	const files = fs.readdirSync(path.resolve(realWorkspace, targetFolderName)).filter((file) => /^coverage-.*\.json$/.test(file));
 	if (files.length === 0) {
-		console.error("No coverage data found in .canyon_output");
+    console.error(`No coverage data found in ${targetFolderName}`);
 		return;
 	}
 	let data = {};
 	for (let i = 0; i < files.length; i++) {
 		const fileCoverageString = fs.readFileSync(
-			path.resolve(realWorkspace, ".canyon_output", files[i]),
+			path.resolve(realWorkspace, targetFolderName, files[i]),
 			"utf-8",
 		);
 		data = {
