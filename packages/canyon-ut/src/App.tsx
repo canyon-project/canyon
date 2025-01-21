@@ -1,20 +1,24 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-// import './App.css'
-// import CanyonReport from 'canyon-report'
-import {useRoutes} from "react-router-dom";
+import { useRoutes } from "react-router-dom";
 import routes from "~react-pages";
+import { ConfigProvider, theme } from "antd";
+
+const { darkAlgorithm } = theme;
 
 function App() {
-  // const [count, setCount] = useState(0)
-
   return (
     <>
-      {/*<CanyonReport/>*/}
-      {useRoutes(routes)}
+      <ConfigProvider
+        theme={{
+          token: {
+            colorPrimary: "#0071c2",
+          },
+          algorithm: false ? [darkAlgorithm] : [],
+        }}
+      >
+        {useRoutes(routes)}
+      </ConfigProvider>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
