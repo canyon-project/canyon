@@ -43,6 +43,8 @@ const { Client } = pg;
 const client = new Client(config);
 await client.connect();
 
+// coverage/client
+
 app.get("/api/coverage/summary/map", async (req, res) => {
   const projectID = req.query.projectID;
   const sha = req.query.sha;

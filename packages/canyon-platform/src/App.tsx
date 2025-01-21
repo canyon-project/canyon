@@ -8,7 +8,7 @@ import Sha from "@/pages/index/projects/[id]/commits/[sha]/[...filepath].tsx";
 
 routes.push({
   element: <Sha />,
-  path: "/open-projects/:id/commits/:sha",
+  path: "/open-projects/:id/commits/:sha/*",
 });
 
 const languages = {
