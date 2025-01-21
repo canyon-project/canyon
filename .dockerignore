@@ -2,5 +2,4 @@ plugins
 tools
 packages/canyon-data
 packages/canyon-map
-packages/canyon-ut
 examples
