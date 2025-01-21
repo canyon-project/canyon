@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+.dark{
+  color: white;
+}
+
 a {
   color: #0071c2;
 }
