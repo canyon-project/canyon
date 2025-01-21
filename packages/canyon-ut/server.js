@@ -21,8 +21,13 @@ dotenv.config({
 
 const app = express();
 
+
 app.use(cors());
+app.use(history()); // 这里千万要注意，要在static静态资源上面
+app.use(express.static("dist"));
 app.use(express.json());
+
+
 
 function parseDatabaseUrl(url) {
   const match = url.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)\?schema=(.*)/);
@@ -47,8 +52,7 @@ const { Client } = pg;
 const client = new Client(config);
 await client.connect();
 
-app.use(history()); // 这里千万要注意，要在static静态资源上面
-app.use(express.static("dist"));
+
 
 app.get("/vi/health", (req, res) => {
   res.send("Hello World!");
@@ -234,6 +238,11 @@ app.use((err, req, res, next) => {
     message: err.message,
     stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
   });
+});
+
+// TODO 解决.tsx文件无法访问的问题
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
 });
 
 // 捕获未处理异常和未处理 Promise
