@@ -4,6 +4,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import {useNavigate, useParams, useSearchParams} from "react-router-dom";
 import {handleSelectFile} from "../../../../../helper.ts";
+import {Spin} from "antd";
 const App123 = () => {
   const prm = useParams();
   const nav = useNavigate();
@@ -16,6 +17,15 @@ const App123 = () => {
         sha: prm.sha,
       }
    }).then(res=>res.data)
+  });
+
+
+  const {data:projectData} = useRequest(() => {
+    return  axios.get(`/api/project/${prm.id}`,{
+      params: {
+        // projectID: prm.id as string,
+      }
+    }).then(res=>res.data)
   });
 
   const [activatedPath, setActivatedPath] = useState(
@@ -64,9 +74,9 @@ const App123 = () => {
 
 
   return (
-    <div>
-      <CanyonReport name={'canyon-demo'} value={activatedPath} dataSource={data} onSelect={onSelect} />
-    </div>
+    <Spin spinning={!(projectData&&data)}>
+      <CanyonReport name={projectData?.path} value={activatedPath} dataSource={data} onSelect={onSelect} />
+    </Spin>
   );
 };
 

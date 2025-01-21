@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
@@ -20,6 +20,7 @@
     "canyon-data": "2.0.0-beta.16",
     "canyon-map": "^2.0.0-beta.9",
     "canyon-report": "0.0.8-beta.62",
+    "connect-history-api-fallback": "^2.0.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
