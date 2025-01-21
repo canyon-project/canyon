@@ -56,7 +56,7 @@ const Sha = () => {
     // params.append("path", activatedPath);
 
     // 将参数拼接到路径中
-    const pathWithParams = `/projects/${prm.id}/commits/${prm.sha}/-/${activatedPath}?${params.toString()}${location.hash}`;
+    const pathWithParams = `/${location.pathname.split("/")[1]}/${prm.id}/commits/${prm.sha}/-/${activatedPath}?${params.toString()}${location.hash}`;
 
     nav(pathWithParams);
   }, [activatedPath]);
