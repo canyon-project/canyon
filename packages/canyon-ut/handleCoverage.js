@@ -5,10 +5,12 @@ export async function handleCoverage({coverage,instrumentCwd}) {
   const newCoverage = {}
 
   for (const coverageKey in coverage) {
-    const newPath = coverage[coverageKey].path.replace(`${instrumentCwd}/`, "")
-    newCoverage[newPath] = {
-      ...coverage[coverageKey],
-      path: newPath
+    if(coverage[coverageKey].path){
+      const newPath = coverage[coverageKey].path.replace(`${instrumentCwd}/`, "")
+      newCoverage[newPath] = {
+        ...coverage[coverageKey],
+        path: newPath
+      }
     }
   }
 
