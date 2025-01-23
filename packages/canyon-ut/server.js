@@ -74,7 +74,7 @@ app.post("/coverage/client", async (req, res,next) => {
   try {
     const utCoverageData = {
       sha,
-      branch,
+      branch:branch||'-',
       projectID:handleProjectID(projectID),
       branchesTotal: 0,
       branchesCovered: 0,
