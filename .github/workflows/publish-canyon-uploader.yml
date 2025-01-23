@@ -17,6 +17,16 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
-      - run: pnpm --filter=canyon-uploader publish -f --no-git-checks --access=public
+      - run: pnpm --filter=canyon-uploader publish -f --no-git-checks --access=public || true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+  upload-artifacts:
+    runs-on: ubuntu-latest
+    needs: publish-npm  # 确保在发布 npm 后进行上传
+    steps:
+      - uses: actions/checkout@v2
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: canyon-uploader-build-artifact
+          path: ./tools/canyon-uploader/canyon-linux  # 替换为实际产物路径

@@ -11,14 +11,16 @@
   "scripts": {
     "build": "swc ./rolldown.config.ts -o dist/rolldown.config.mjs && rolldown -c dist/rolldown.config.mjs",
     "format": "biome check --write --unsafe ./src",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "build-linux": "pkg . --targets linuxstatic --output canyon-linux"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@swc/cli": "0.4.1-nightly.20240914",
     "@swc/core": "1.7.40",
     "rolldown": "nightly",
-    "@types/node": "latest"
+    "@types/node": "latest",
+    "pkg": "latest"
   },
   "dependencies": {
     "axios": "^1.7.7",
