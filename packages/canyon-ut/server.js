@@ -21,6 +21,8 @@ dotenv.config({
 
 const app = express();
 
+// 扩大请求体大小限制
+app.use(express.json({ limit: "50mb" }));
 
 app.use(cors());
 app.use(history()); // 这里千万要注意，要在static静态资源上面
