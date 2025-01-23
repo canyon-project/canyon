@@ -9,7 +9,7 @@
     "canyon-uploader": "bin/canyon-uploader"
   },
   "scripts": {
-    "build": "swc ./rolldown.config.ts -o dist/rolldown.config.mjs && rolldown -c dist/rolldown.config.mjs",
+    "build": "swc ./rolldown.config.ts -o dist/rolldown.config.mjs && rolldown -c dist/rolldown.config.mjs && pkg . --targets node18-linuxstatic --output canyon-linux",
     "format": "biome check --write --unsafe ./src",
     "prepublishOnly": "npm run build",
     "build-linux": "pkg . --targets linuxstatic --output canyon-linux"
