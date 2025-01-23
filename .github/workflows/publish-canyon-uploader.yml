@@ -18,7 +18,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
       - run: pnpm --filter=canyon-uploader publish -f --no-git-checks --access=public || true
-      - run: ls
+      - run: ls ./tools/canyon-uploader
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
   upload-artifacts:
