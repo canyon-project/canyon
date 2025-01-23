@@ -1,3 +1,10 @@
 #!/usr/bin/env node
 // * The entry point of the CLI
-import("../dist/main.js").then((module) => module.cli(process.argv))
+// import("../dist/main.js").then((module) => module.cli(process.argv))
+
+async function main() {
+  const module = require("../dist/main.js");
+  module.cli(process.argv);
+}
+
+main()
