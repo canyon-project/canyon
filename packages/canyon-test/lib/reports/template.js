@@ -45,7 +45,7 @@ const generateHtml = ({coverage,reportName,_instrumentCwd,date}) => {
     window.data = ${JSON.stringify(su)};
     window.date = "${date}";
   </script>
-  <script defer="defer" src="asset/main.js"></script>
+  <script defer="defer" src="https://unpkg.com/canyon-test/dist/asset/main.js"></script>
 </head>
 <body>
 <div id="root"></div>

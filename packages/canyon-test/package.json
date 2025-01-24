@@ -1,6 +1,6 @@
 {
   "name": "canyon-test",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "description": "Canyon's Coverage Reporting Toolkit",
   "main": "./lib/index.js",
   "bin": "./lib/cli.js",

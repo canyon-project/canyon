@@ -16,6 +16,7 @@ const dynamicLoadingSource = (val) => {
       resolve({
         fileCoverage: undefined,
         fileContent: undefined,
+        fileCodeChange: [],
       });
     } else {
       const script = document.createElement("script");
@@ -26,10 +27,10 @@ const dynamicLoadingSource = (val) => {
           fileCoverage: window[val].coverage,
           // @ts-ignore
           fileContent: window[val].content,
+          fileCodeChange: [],
         });
         document.body.removeChild(script);
         window[val] = undefined;
-        console.log(window[val]);
       };
       document.body.appendChild(script);
     }
@@ -39,9 +40,11 @@ const dynamicLoadingSource = (val) => {
 function App() {
   const [value, setValue] = useState(window.location.hash.slice(1));
   const onSelect = (val) => {
-    setValue(val);
     window.location.hash = val;
-    return dynamicLoadingSource(val);
+    return dynamicLoadingSource(val).then((r) => {
+      setValue(val);
+      return r;
+    });
   };
 
   return (
@@ -49,7 +52,10 @@ function App() {
       <div style={{ minHeight: "calc(100vh - 48px)" }}>
         <Report
           name={reportName}
-          dataSource={dataSource}
+          dataSource={dataSource.reduce((acc, cur) => {
+            acc[cur.path] = cur;
+            return acc;
+          }, {})}
           onSelect={onSelect}
           value={value}
         />
