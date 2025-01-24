@@ -8,24 +8,24 @@ import Pages from "vite-plugin-pages";
 export default defineConfig({
   plugins: [
     react({
-      // babel: {
-      //   plugins:
-      //     process.env.NODE_ENV === "development"
-      //       ? []
-      //       : [
-      //           "istanbul",
-      //           [
-      //             "canyon",
-      //             {
-      //               instrumentCwd: path.resolve(__dirname, "../.."),
-      //               provider: "tripgl",
-      //               oneByOne: false,
-      //               special: false,
-      //               keepMap: false,
-      //             },
-      //           ],
-      //         ],
-      // },
+      babel: {
+        plugins:
+          process.env.NODE_ENV === "development"
+            ? []
+            : [
+                "istanbul",
+                [
+                  "canyon",
+                  {
+                    instrumentCwd: path.resolve(__dirname, "../.."),
+                    provider: "tripgl",
+                    oneByOne: false,
+                    special: false,
+                    keepMap: false,
+                  },
+                ],
+              ],
+      },
     }),
     AutoImport({
       imports: ["react", "react-i18next", "react-router-dom"],
