@@ -60,7 +60,7 @@ Canyon is a JavaScript code coverage collection platform. We address the difficu
 
 ## Developing
 
-Follow our [self-hosting documentation](https://docs.canyonjs.org/zh/documentation/self-host/community-edition/prerequisites) to get started with the development environment.
+Follow our [self-hosting documentation](https://docs.canyonjs.org/documentation/self-host/community-edition/prerequisites) to get started with the development environment.
 
 ## Contributing
 
