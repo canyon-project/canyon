@@ -25,7 +25,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@rslib/core": "^0.2.0",
+    "@rslib/core": "^0.3.2",
     "@types/istanbul-lib-coverage": "^2.0.6",
     "@types/istanbul-lib-source-maps": "^4.0.4"
   },
