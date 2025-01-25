@@ -28,7 +28,7 @@
     "@monaco-editor/react": "^4.6.0",
     "antd": "^5.23.2",
     "axios": "^1.7.9",
-    "canyon-data": "^2.0.0-beta.17",
+    "canyon-data": "^2.0.0-beta.16",
     "monaco-editor": "^0.52.2",
     "monaco-themes": "^0.4.4",
     "react": "^18.3.1",
