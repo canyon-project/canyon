@@ -5,7 +5,7 @@ import Icon, {
   SettingOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/client";
-import {TourProps} from "antd";
+import { TourProps } from "antd";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import ReactECharts from "echarts-for-react";
@@ -23,13 +23,18 @@ import {
   GetProjectRecordsDocument,
   ProjectRecordsModel,
 } from "@/helpers/backend/gen/graphql.ts";
-import {usePageStore} from "@/store/page.ts";
+import { usePageStore } from "@/store/page.ts";
 
 const { useToken } = theme;
 const { Title, Text } = Typography;
 
-const plainOptions = ['statements', 'branches', 'functions','lines','newlines'];
-
+const plainOptions = [
+  "statements",
+  "branches",
+  "functions",
+  "lines",
+  "newlines",
+];
 
 const ProjectOverviewPage = () => {
   const { token } = useToken();
@@ -86,7 +91,8 @@ const ProjectOverviewPage = () => {
   } = useQuery(GetProjectCompartmentDataDocument, {
     variables: {
       projectID: pam.id as string,
-      defaultCoverageDim: localStorage.getItem("defaultCoverageDim") || "statements",
+      defaultCoverageDim:
+        localStorage.getItem("defaultCoverageDim") || "statements",
     },
     fetchPolicy: "no-cache",
   });
@@ -95,7 +101,8 @@ const ProjectOverviewPage = () => {
   const ref2 = useRef(null);
   const [tourOpen, setTourOpen] = useState(false);
 
-  const defaultCoverageDim = localStorage.getItem("defaultCoverageDim") || "statements";
+  const defaultCoverageDim =
+    localStorage.getItem("defaultCoverageDim") || "statements";
 
   const steps: TourProps["steps"] = [
     {
@@ -193,7 +200,7 @@ const ProjectOverviewPage = () => {
       width: "160px",
       ellipsis: true,
     },
-    ...[defaultCoverageDim,'newlines'].map((item) => {
+    ...[defaultCoverageDim, "newlines"].map((item) => {
       return {
         title: t(`projects.${item}`),
         dataIndex: item,
@@ -208,7 +215,7 @@ const ProjectOverviewPage = () => {
             </Link>
           );
         },
-      }
+      };
     }),
     {
       title: t("projects.report_times"),
@@ -301,13 +308,11 @@ const ProjectOverviewPage = () => {
       (_, index) => ({
         name: _,
         data:
-          projectChartData?.getProjectChartData.map(item=>{
-
-            return [item[defaultCoverageDim],item.newlines]
-
-          }).map(
-            ([first, newlines] ) => (index === 0 ? first : newlines),
-          ) || [],
+          projectChartData?.getProjectChartData
+            .map((item) => {
+              return [item[defaultCoverageDim], item.newlines];
+            })
+            .map(([first, newlines]) => (index === 0 ? first : newlines)) || [],
         type: "line",
       }),
     ),
@@ -395,7 +400,7 @@ const ProjectOverviewPage = () => {
                     key={index}
                   >
                     <Text type={"secondary"}>{t(item.label)}</Text>
-                    <Text className={"text-xl"}>{item.value}</Text>
+                    <Text className={"!text-xl"}>{item.value}</Text>
                   </div>
                 );
               },

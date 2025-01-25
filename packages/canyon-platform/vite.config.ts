@@ -4,27 +4,27 @@ import AutoImport from "unplugin-auto-import/vite";
 import AntdResolver from "unplugin-auto-import-antd";
 import { defineConfig } from "vite";
 import Pages from "vite-plugin-pages";
+import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [
     react({
       babel: {
-        plugins:
-          process.env.NODE_ENV === "development"
-            ? []
-            : [
-                "istanbul",
-                [
-                  "canyon",
-                  {
-                    instrumentCwd: path.resolve(__dirname, "../.."),
-                    provider: "tripgl",
-                    oneByOne: false,
-                    special: false,
-                    keepMap: false,
-                  },
-                ],
+        plugins: process.env.CI
+          ? [
+              "istanbul",
+              [
+                "canyon",
+                {
+                  instrumentCwd: path.resolve(__dirname, "../.."),
+                  provider: "tripgl",
+                  oneByOne: false,
+                  special: false,
+                  keepMap: false,
+                },
               ],
+            ]
+          : [],
       },
     }),
     AutoImport({
@@ -35,6 +35,7 @@ export default defineConfig({
     Pages({
       exclude: ["**/helper/**", "**/components/**"],
     }),
+    tailwindcss(),
   ],
   resolve: {
     alias: {

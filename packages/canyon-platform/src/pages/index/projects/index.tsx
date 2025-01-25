@@ -96,13 +96,11 @@ const ProjectPage = () => {
       render: (text, record) => {
         return (
           <div className={"flex gap-1"}>
-            <div>
-              <img
-                src="/gitproviders/gitlab.svg"
-                alt=""
-                className={"w-[16px]"}
-              />
-            </div>
+            <img
+              src="/gitproviders/gitlab.svg"
+              alt=""
+              className={"mt-1 w-[16px] h-[16px]"}
+            />
 
             <span style={{ width: "4px", display: "inline-block" }}></span>
             <div className={"flex gap-1 flex-col"}>
@@ -142,7 +140,7 @@ const ProjectPage = () => {
         <>
           <Tooltip
             title={t("projects.max_coverage_tooltip")}
-            className={"mr-2"}
+            className={"!mr-2"}
           >
             <QuestionCircleOutlined />
           </Tooltip>
@@ -229,7 +227,8 @@ const ProjectPage = () => {
       fetchPolicy: "no-cache",
     },
   );
-  const defaultCoverageDim = localStorage.getItem("defaultCoverageDim") || "statements";
+  const defaultCoverageDim =
+    localStorage.getItem("defaultCoverageDim") || "statements";
   const {
     data: projectsData,
     loading,
@@ -275,7 +274,7 @@ const ProjectPage = () => {
                 localStorage.setItem("bu", JSON.stringify(v));
               }}
               placeholder={"Bu"}
-              className={"w-[200px] mr-2"}
+              className={"w-[200px] !mr-2"}
               options={(projectsBuOptionsData?.getProjectsBuOptions || []).map(
                 ({ bu, count }) => ({
                   label: bu + ` ${count}`,
@@ -292,7 +291,7 @@ const ProjectPage = () => {
                 localStorage.setItem("tag", v || "");
               }}
               placeholder={"Tag"}
-              className={"w-[200px] mr-2"}
+              className={"w-[200px] !mr-2"}
               options={(
                 projectsTagOptionsData?.getProjectsTagOptions || []
               ).map(({ name }) => ({
@@ -303,7 +302,7 @@ const ProjectPage = () => {
 
             <Input.Search
               placeholder={t("projects.search_keywords")}
-              className={"w-[420px] mb-3"}
+              className={"!w-[420px] mb-3"}
               onSearch={(value) => {
                 setKeyword(value);
                 setCurrent(1);

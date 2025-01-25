@@ -59,9 +59,8 @@ function Index() {
       <CanyonLayoutBase
         breadcrumb={
           <div>
-            {/*榜单mark*/}
             <Breadcrumb
-              className={"pt-3"}
+              className={"!pt-3"}
               items={genBreadcrumbItems(loc.pathname)}
             />
           </div>
