@@ -7,11 +7,9 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest  # 这里是 Ubuntu 的构建，稍后会添加 Windows 和 Mac 的构建
-
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]  # 指定不同操作系统的构建环境
+        runs-on: [ubuntu-latest, macos-latest, windows-latest]  # 指定不同操作系统的构建环境
 
     steps:
       - uses: pnpm/action-setup@v4
