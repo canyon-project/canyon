@@ -19,8 +19,7 @@
   "scripts": {
     "test": "vitest",
     "build": "rslib build",
-    "prepublishOnly": "rslib build",
-    "preinstall": "rslib build || true"
+    "prepublishOnly": "rslib build"
   },
   "keywords": [],
   "author": "",
