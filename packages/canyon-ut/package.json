@@ -17,7 +17,7 @@
     "ahooks": "^3.8.4",
     "antd": "^5.23.2",
     "axios": "^1.7.9",
-    "canyon-data": "2.0.0-beta.17",
+    "canyon-data": "2.0.0-beta.16",
     "canyon-map": "^2.0.0-beta.10",
     "connect-history-api-fallback": "^2.0.0",
     "cors": "^2.8.5",
