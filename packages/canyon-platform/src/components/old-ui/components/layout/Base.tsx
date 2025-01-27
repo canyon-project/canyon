@@ -45,7 +45,7 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
   footerName = "CANYON",
 }) => {
   const { token } = useToken();
-
+  const isTripHost = window.location.host.includes("trip");
   return (
     <div>
       <>
@@ -94,15 +94,19 @@ const CanyonLayoutBase: FC<CanyonLayoutBaseProps> = ({
                   onSelectMenu?.(selectInfo);
                 }}
                 selectedKeys={[menuSelectedKey]}
-                items={menuItems.concat({
-                  key: "open-reports",
-                  icon: <BarChartOutlined />,
-                  label: (
-                    <a href="/open-reports" rel="noopener noreferrer">
-                      报表
-                    </a>
-                  ),
-                })}
+                items={
+                  isTripHost
+                    ? menuItems.concat({
+                        key: "open-reports",
+                        icon: <BarChartOutlined />,
+                        label: (
+                          <a href="/open-reports" rel="noopener noreferrer">
+                            报表
+                          </a>
+                        ),
+                      })
+                    : menuItems
+                }
                 className={"dark:bg-[#151718] px-1"}
                 style={{ flex: "1" }}
               />
