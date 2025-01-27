@@ -74,9 +74,11 @@ const App123 = () => {
 
 
   return (
-    <Spin spinning={!(projectData&&data)}>
-      <CanyonReport name={projectData?.path} value={activatedPath} dataSource={data} onSelect={onSelect} />
-    </Spin>
+    <div>
+      <Spin spinning={!(projectData&&data)}>
+        <CanyonReport name={projectData?.path} value={activatedPath} dataSource={data} onSelect={onSelect} />
+      </Spin>
+    </div>
   );
 };
 
