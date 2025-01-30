@@ -9,7 +9,7 @@ export default defineConfig({
       provider: 'istanbul', // or 'v8'
       reporter: [
         'json',
-        aa,
+        'canyon-reporter',
       ],
     },
   },
