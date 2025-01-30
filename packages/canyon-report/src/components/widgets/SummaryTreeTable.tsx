@@ -4,6 +4,7 @@ import { ConfigProvider, Progress, Table } from "antd";
 // import { getColor } from "../../helpers";
 import { CoverageSummaryData } from "istanbul-lib-coverage";
 import { getColor } from "../helpers";
+import { css } from "@emotion/react";
 
 function checkSuffix(str: string) {
   console.log(str);
@@ -39,7 +40,10 @@ const CanyonReportTreeTable: FC<{
               render(text) {
                 return (
                   <a
-                    className={"flex gap-1"}
+                    css={css`
+                      display: flex;
+                      gap: 10px;
+                    `}
                     onClick={() => {
                       onSelect(text);
                     }}
@@ -86,7 +90,9 @@ const CanyonReportTreeTable: FC<{
                     strokeLinecap="butt"
                     size={"small"}
                     strokeColor={getColor(text)}
-                    className={"pr-5"}
+                    css={css`
+                      padding-right: 5px;
+                    `}
                     status={"normal"}
                   />
                 );

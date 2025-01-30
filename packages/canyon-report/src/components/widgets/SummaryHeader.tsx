@@ -3,6 +3,7 @@ import { Tag, Typography, theme } from "antd";
 // import { getColor } from "../../helpers";
 import { CoverageSummaryData } from "istanbul-lib-coverage";
 import { getColor } from "../helpers";
+import { css } from "@emotion/react";
 const { Text } = Typography;
 function convertFirstLetterToUpper(name) {
   return name.charAt(0).toUpperCase() + name.slice(1);
@@ -19,15 +20,31 @@ const SummaryNav: FC<{
   // console.log(token.colorPrimary,'token')
   return (
     <div
-      className={"flex gap-1 mb-2"}
-      style={{ fontSize: "16px", fontWeight: "bold" }}
+      css={css`
+        display: flex;
+        gap: 10px;
+        margin-bottom: 10px;
+        font-size: 16px;
+        font-weight: bold;
+      `}
     >
       {(reportName + "/" + value).split("/").map((item, index) => {
         return (
-          <div key={index} className={"flex gap-1"}>
+          <div
+            key={index}
+            css={css`
+              display: flex;
+              gap: 10px;
+            `}
+          >
             <a
-              style={{ color: token.colorPrimary }}
-              className={"cursor-pointer hover:underline"}
+              css={css`
+                color: ${token.colorPrimary};
+                cursor: pointer;
+                &:hover {
+                  text-decoration: underline;
+                }
+              `}
               key={index}
               onClick={() => {
                 onClick(value.split("/").slice(0, index).join("/"));
@@ -55,19 +72,44 @@ const SummaryMetric: FC<{
 
   return (
     <div>
-      <div className={"flex gap-2 mb-3"}>
+      <div
+        css={css`
+          display: flex;
+          gap: 20px;
+          margin-bottom: 10px;
+        `}
+      >
         {Object.entries(summaryTreeItem.summary)
           .sort(([key1], [key2]) => {
-            const order = ["statements", "branches", "functions", "lines","newlines"];
+            const order = [
+              "statements",
+              "branches",
+              "functions",
+              "lines",
+              "newlines",
+            ];
 
             return order.indexOf(key1) - order.indexOf(key2);
           })
           .filter(([key]) =>
-            ["statements", "branches", "functions", "lines","newlines"].includes(key),
+            [
+              "statements",
+              "branches",
+              "functions",
+              "lines",
+              "newlines",
+            ].includes(key),
           )
           .map(([key, value]) => {
             return (
-              <div className={"flex gap-1 items-center"} key={key}>
+              <div
+                css={css`
+                  display: flex;
+                  gap: 10px;
+                  align-items: center;
+                `}
+                key={key}
+              >
                 <span style={{ fontWeight: "600", fontSize: "14px" }}>
                   {value.pct}%
                 </span>
@@ -88,10 +130,12 @@ const SummaryMetric: FC<{
 const SummaryBar: FC<{ pct: number }> = ({ pct }) => {
   return (
     <div
-      style={{
-        backgroundColor: getColor(pct),
-      }}
-      className={"w-full h-[10px] mb-3"}
+      css={css`
+        height: 10px;
+        width: 100%;
+        margin-bottom: 10px;
+        background-color: ${getColor(pct)};
+      `}
     />
   );
 };

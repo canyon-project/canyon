@@ -2,6 +2,7 @@ import { FC } from "react";
 import Icon, { BarsOutlined, SearchOutlined } from "@ant-design/icons";
 import { Divider, Space, Segmented, Input, Typography, Switch } from "antd";
 import PhTreeViewIcon from "../icons/PhTreeView";
+import { css } from "@emotion/react";
 
 const TopControl: FC<{
   total: number;
@@ -23,8 +24,21 @@ const TopControl: FC<{
   // const { t } = useTranslation();
   return (
     <div>
-      <div className={"flex mb-2 justify-between items-center"}>
-        <div className={"flex gap-2 flex-col"}>
+      <div
+        css={css`
+          display: flex;
+          margin-bottom: 10px;
+          justify-content: space-between;
+          align-items: center;
+        `}
+      >
+        <div
+          css={css`
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+          `}
+        >
           <Space>
             <Segmented
               size={"small"}
@@ -48,13 +62,30 @@ const TopControl: FC<{
             />
 
             <span style={{ fontSize: "14px" }}>
-              <span className={"mr-2"}>{total} total files</span>
+              <span
+                css={css`
+                  margin-bottom: 10px;
+                `}
+              >
+                {total} total files
+              </span>
             </span>
           </Space>
         </div>
 
-        <div className={"flex items-center"}>
-          <div className={"flex items-center gap-2"}>
+        <div
+          css={css`
+            display: flex;
+            align-items: center;
+          `}
+        >
+          <div
+            css={css`
+              display: flex;
+              align-items: center;
+              gap: 10px;
+            `}
+          >
             <Typography.Text type={"secondary"} style={{ fontSize: "12px" }}>
               {"Only Changed"}:{" "}
             </Typography.Text>
@@ -69,7 +100,9 @@ const TopControl: FC<{
             placeholder={"Enter the file path to search"}
             value={filenameKeywords}
             addonBefore={<SearchOutlined />}
-            className={"w-[240px]"}
+            css={css`
+              width: 240px;
+            `}
             size={"small"}
             onChange={(val) => {
               onChangeKeywords(val.target.value);

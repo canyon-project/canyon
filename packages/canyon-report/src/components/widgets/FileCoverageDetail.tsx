@@ -1,7 +1,7 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Editor } from "@monaco-editor/react";
 
-import * as monaco from "monaco-editor";
+// import * as monaco from "monaco-editor";
 import { annotateFunctions, annotateStatements } from "../helpers/annotate.ts";
 import { coreFn } from "../helpers/coreFn.ts";
 import { lineNumbers } from "./lineNumbers.ts";
@@ -57,7 +57,7 @@ const FileCoverageDetail: FC<{
         [], // oldDecorations 每次清空上次标记的
         decorations.map(
           ({ inlineClassName, startLine, startCol, endLine, endCol }) => ({
-            range: new monaco.Range(startLine, startCol, endLine, endCol),
+            range: new window.monaco.Range(startLine, startCol, endLine, endCol),
             options: {
               isWholeLine: false,
               inlineClassName: inlineClassName,
