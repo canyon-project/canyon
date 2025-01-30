@@ -1,0 +1,21 @@
+{
+  "name": "canyon-reporter",
+  "version": "0.0.0-beta.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run --coverage"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-report": "^3.0.1"
+  },
+  "devDependencies": {
+    "@vitest/coverage-istanbul": "^3.0.4",
+    "nyc": "^17.1.0",
+    "vitest": "^3.0.4"
+  }
+}

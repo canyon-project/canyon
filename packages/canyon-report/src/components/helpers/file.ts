@@ -191,27 +191,24 @@ export const ggggggfn = (filecoverage, fileContent) => {
     }
   });
 
-
   return mergeIntervals(
-    [
-      ...statementDecorations,
-      ...fnDecorations,
-      ...branchDecorations,
-    ].filter((item) => {
-      // defaultValue
-      if (item[0] >= item[1]) {
-        return false;
-      } else if (item[1] > fileContent.length) {
-        return false;
-      } else {
-        return item[0] < item[1];
-      }
-    }),
+    [...statementDecorations, ...fnDecorations, ...branchDecorations].filter(
+      (item) => {
+        // defaultValue
+        if (item[0] >= item[1]) {
+          return false;
+        } else if (item[1] > fileContent.length) {
+          return false;
+        } else {
+          return item[0] < item[1];
+        }
+      },
+    ),
   ).map(([start, end]) => {
     return {
       start,
       end,
       properties: { class: "content-class-no-found" },
     };
-  })
+  });
 };

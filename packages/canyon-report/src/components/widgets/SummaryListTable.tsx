@@ -4,6 +4,7 @@ import Highlighter from "react-highlight-words";
 // import { getColor } from "../../helpers";
 import { CoverageSummaryData } from "istanbul-lib-coverage";
 import { getColor } from "../helpers";
+import { css } from "@emotion/react";
 
 const t = (msg: string) => msg;
 const SummaryListTable: FC<{
@@ -37,7 +38,11 @@ const SummaryListTable: FC<{
               render(text) {
                 return (
                   <a
-                    className={"block break-words w-[420px]"}
+                    css={css`
+                      width: 420px;
+                      display: block;
+                      overflow-wrap: break-word;
+                    `}
                     onClick={() => {
                       onSelect(text);
                     }}
@@ -83,7 +88,9 @@ const SummaryListTable: FC<{
                     strokeLinecap="butt"
                     size={"small"}
                     strokeColor={getColor(text)}
-                    className={"pr-5"}
+                    css={css`
+                      padding-right: 5px;
+                    `}
                     status={"normal"}
                   />
                 );

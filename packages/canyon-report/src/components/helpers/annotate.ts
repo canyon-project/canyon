@@ -13,8 +13,8 @@ export function annotateStatements(fileCoverage: any) {
       annotateStatementsList.push({
         startLine,
         endLine,
-        startCol:startCol+1,
-        endCol:endCol+1,
+        startCol: startCol + 1,
+        endCol: endCol + 1,
         type,
       });
     }
@@ -46,8 +46,8 @@ export function annotateFunctions(fileCoverage, structuredText) {
       list.push({
         startLine,
         endLine,
-        startCol:startCol+1,
-        endCol:endCol+1,
+        startCol: startCol + 1,
+        endCol: endCol + 1,
         type,
       });
     }
