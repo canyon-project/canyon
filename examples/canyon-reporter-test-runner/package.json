@@ -1,0 +1,16 @@
+{
+  "name": "canyon-reporter-test-runner",
+  "version": "1.0.0",
+  "main": "ride.js",
+  "type": "module",
+  "scripts": {
+    "test": "c8 --reporter=canyon-reporter node --test"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "c8": "^10.1.3",
+    "canyon-reporter": "^0.0.0-beta.1"
+  }
+}
