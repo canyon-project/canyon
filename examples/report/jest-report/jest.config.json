@@ -1,5 +1,0 @@
-{
-  "collectCoverage": true,
-  "coverageDirectory": "coverage",
-  "coverageReporters": ["/Users/zhangtao/Desktop/canyon/examples/report/jest-report/custom-reporter.cjs"]
-}
