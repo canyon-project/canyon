@@ -4,7 +4,7 @@
   "main": "ride.js",
   "type": "module",
   "scripts": {
-    "test": "c8 --reporter=canyon-reporter node --test"
+    "test": "c8 --reporter=json --reporter=canyon-reporter node --test"
   },
   "author": "",
   "license": "ISC",
