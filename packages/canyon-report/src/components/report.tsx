@@ -8,7 +8,7 @@ import SummaryListTable from "./widgets/SummaryListTable.tsx";
 import FileCoverageDetail from "./widgets/FileCoverageDetail.tsx";
 import { emptyFileCoverageData } from "./helpers/const.ts";
 import { generateCoreDataForEachComponent } from "./helpers/generateCoreDataForEachComponent.ts";
-import { FloatButton } from "antd";
+import { FloatButton, theme } from "antd";
 import { css } from "@emotion/react";
 const onSelectDefault = () => {
   return Promise.resolve({
@@ -78,6 +78,8 @@ const Report: FC<ReportProps> = ({
     setOnlyChange(v);
   }
 
+  const { token } = theme.useToken();
+  const isDark = token.colorBgBase === "#000";
   return (
     <div
       css={css`
@@ -114,11 +116,7 @@ const Report: FC<ReportProps> = ({
 
         /*额外的*/
         .content-class-no-found {
-          background: #f6c6ce;
-        }
-
-        .dark .content-class-no-found {
-          background: rgb(122, 84, 116);
+          background: ${isDark ? "rgb(122, 84, 116)" : "#f6c6ce"};
         }
       `}
     >
