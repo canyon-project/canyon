@@ -91,7 +91,7 @@ function Index() {
           </div>
         }
         mainTitleRightNode={
-          <div>
+          <div className={"flex items-center"}>
             <Tooltip
               title={
                 <div>
