@@ -51,7 +51,7 @@ const BasicForms: FC<{ data: any }> = ({ data }, ref) => {
           <Form.Item<any>
             label={t("new.repository")}
             name="pathWithNamespace"
-            className={"flex-1 mr-10"}
+            className={"flex-1 !mr-10"}
           >
             <Input disabled />
           </Form.Item>
