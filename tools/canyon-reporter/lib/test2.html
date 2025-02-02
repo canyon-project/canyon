@@ -3,6 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Document</title>
+  <style>
+    a {
+      color: #0071c2;
+    }
+    a:hover {
+      color: #0071c2;
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+  </style>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <script src="https://unpkg.com/dayjs@1.11.13/dayjs.min.js"></script>
   <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
@@ -23,6 +33,7 @@
 <script type="text/babel">
   const { createRoot } = ReactDOM;
   const { useEffect,useState } = React;
+  const { ConfigProvider } = antd;
   const dataSource = window.data;
   const reportName = window.reportName;
   const date = window.date;
@@ -63,15 +74,24 @@
     return (
       <div className={"p-[10px] pb-0"}>
         <div style={{ minHeight: "calc(100vh - 50px)" }}>
-          <CanyonReport
-            name={reportName}
-            dataSource={dataSource.reduce((acc, cur) => {
-              acc[cur.path] = cur;
-              return acc;
-            }, {})}
-            onSelect={onSelect}
-            value={value}
-          />
+          <ConfigProvider
+            theme={{
+              token: {
+                colorPrimary: "#0071c2",
+              },
+              // algorithm: isDark ? [darkAlgorithm] : [],
+            }}
+          >
+            <CanyonReport
+              name={reportName}
+              dataSource={dataSource.reduce((acc, cur) => {
+                acc[cur.path] = cur;
+                return acc;
+              }, {})}
+              onSelect={onSelect}
+              value={value}
+            />
+          </ConfigProvider>
         </div>
         <footer
           style={{
