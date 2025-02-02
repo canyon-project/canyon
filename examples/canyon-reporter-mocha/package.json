@@ -9,7 +9,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "canyon-reporter": "^0.0.0-beta.1",
+    "canyon-reporter": "^0.0.0-beta.2",
     "mocha": "^11.1.0",
     "nyc": "^17.1.0"
   }
