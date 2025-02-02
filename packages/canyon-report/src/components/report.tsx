@@ -9,6 +9,7 @@ import FileCoverageDetail from "./widgets/FileCoverageDetail.tsx";
 import { emptyFileCoverageData } from "./helpers/const.ts";
 import { generateCoreDataForEachComponent } from "./helpers/generateCoreDataForEachComponent.ts";
 import { FloatButton } from "antd";
+import { css } from "@emotion/react";
 const onSelectDefault = () => {
   return Promise.resolve({
     fileContent: "",
@@ -78,7 +79,49 @@ const Report: FC<ReportProps> = ({
   }
 
   return (
-    <div>
+    <div
+      css={css`
+        /*新版canyon-report*/
+
+        .line-number-wrapper {
+          display: flex;
+          /*从右边开始*/
+          justify-content: flex-end;
+          /*text-align: right;*/
+        }
+
+        .line-number-wrapper .line-number {
+          /*width: 60px;*/
+          padding-right: 5px;
+        }
+
+        .line-number-wrapper .line-change {
+          width: 4px;
+          /*display: block;*/
+        }
+
+        .line-number-wrapper .line-coverage {
+          width: 60px;
+          padding-right: 5px;
+          color: rgba(0, 0, 0, 0.5);
+        }
+
+        .dark .line-number-wrapper .line-coverage {
+          width: 60px;
+          padding-right: 5px;
+          color: #eaeaea;
+        }
+
+        /*额外的*/
+        .content-class-no-found {
+          background: #f6c6ce;
+        }
+
+        .dark .content-class-no-found {
+          background: rgb(122, 84, 116);
+        }
+      `}
+    >
       <TopControl
         onlyChange={onlyChange}
         filenameKeywords={filenameKeywords}
