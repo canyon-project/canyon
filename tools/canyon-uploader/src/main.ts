@@ -1,7 +1,6 @@
 import chalk from "chalk";
 import { program } from "commander";
 import { version } from "../package.json";
-import { hitCommand } from "./commands/hit";
 import { mapCommand } from "./commands/map";
 
 const accent = chalk.greenBright;
@@ -36,26 +35,6 @@ program
 	})
 	.addHelpCommand(false)
 	.showHelpAfterError(true);
-
-/**
- * * CLI Commands with hit
- */
-
-program
-	.command("hit")
-	.option("--dsn <dsn>", "dsn of the canyon server")
-	.option("--project_id <project_id>", "id of the project")
-	.option("--commit_sha <commit_sha>", "commit sha of the project")
-	.allowExcessArguments(false)
-	.allowUnknownOption(false)
-	.description("modify react native project code to adapt to canyon")
-	.addHelpText(
-		"after",
-		`\nFor help, head on to ${accent(
-			"https://github.com/canyon-project/canyon",
-		)}`,
-	)
-	.action(async (params, options) => await hitCommand(params, options));
 
 /**
  * * CLI Commands with map
