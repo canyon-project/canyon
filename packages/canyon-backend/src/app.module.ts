@@ -38,7 +38,7 @@ import { CoveragediskEntity } from "./apps/collect/entity/coveragedisk.entity";
     PrismaModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "../../canyon-platform", "dist"),
-      exclude: ["/graphql/(.*)"],
+      exclude: ["/graphql"], // 这样就不会触发 path-to-regexp 解析错误
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: "schema.gql",
