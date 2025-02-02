@@ -22,7 +22,7 @@ const SummaryNav: FC<{
     <div
       css={css`
         display: flex;
-        gap: 10px;
+        gap: 3px;
         margin-bottom: 10px;
         font-size: 16px;
         font-weight: bold;
@@ -34,7 +34,7 @@ const SummaryNav: FC<{
             key={index}
             css={css`
               display: flex;
-              gap: 10px;
+              gap: 3px;
             `}
           >
             <a
