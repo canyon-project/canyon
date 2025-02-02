@@ -75,7 +75,7 @@ const SummaryMetric: FC<{
       <div
         css={css`
           display: flex;
-          gap: 20px;
+          gap: 10px;
           margin-bottom: 10px;
         `}
       >
@@ -105,7 +105,7 @@ const SummaryMetric: FC<{
               <div
                 css={css`
                   display: flex;
-                  gap: 10px;
+                  gap: 3px;
                   align-items: center;
                 `}
                 key={key}

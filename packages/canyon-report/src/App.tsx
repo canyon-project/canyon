@@ -49,7 +49,7 @@ function App() {
 
   return (
     <div>
-      <div style={{ minHeight: "calc(100vh - 48px)" }}>
+      <div style={{ minHeight: "calc(100vh - 50px)" }}>
         <Report
           name={reportName}
           dataSource={dataSource.reduce((acc, cur) => {

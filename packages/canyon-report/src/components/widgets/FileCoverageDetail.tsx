@@ -74,6 +74,7 @@ const FileCoverageDetail: FC<{
         display: "flex",
         fontSize: "12px",
         // lineHeight: "14px",
+        border: "1px solid " + token.colorBorder,
       }}
     >
       <Editor

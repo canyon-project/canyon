@@ -1,6 +1,6 @@
 {
   "name": "canyon-report",
-  "version": "0.0.8-beta.65",
+  "version": "0.0.8-beta.66",
   "type": "module",
   "main": "./dist/canyon-report.umd.js",
   "module": "./dist/canyon-report.js",
