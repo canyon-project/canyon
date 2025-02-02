@@ -35,7 +35,7 @@ const FileCoverageDetail: FC<{
     const annotateStatementsList = annotateStatements(fileCoverage);
     return [...annotateStatementsList, ...annotateFunctionsList].map((i) => {
       return {
-        inlineClassName: "content-class-found",
+        inlineClassName: "content-class-no-found",
         startLine: i.startLine,
         startCol: i.startCol,
         endLine: i.endLine,
