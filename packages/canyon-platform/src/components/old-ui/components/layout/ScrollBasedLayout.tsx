@@ -15,7 +15,7 @@ const ScrollBasedLayout: FC<{
       const footer = document.getElementById("footer");
 
       // 检查滚动是否超过100vh
-      setIsScrolled(scrollY + window.innerHeight > footer.offsetTop);
+      // setIsScrolled(scrollY + window.innerHeight > footer.offsetTop);
     };
 
     // 添加滚动事件监听器
@@ -36,7 +36,6 @@ const ScrollBasedLayout: FC<{
       <div
         style={{
           display: "flex",
-          borderBottom: `1px solid ${token.colorBorder}`,
         }}
       >
         <div
@@ -50,7 +49,7 @@ const ScrollBasedLayout: FC<{
         >
           <div style={{ flex: "1" }}></div>
 
-          <div style={{ height: "100vh", background: "" }}>{sideBar}</div>
+          <div>{sideBar}</div>
         </div>
 
         <div
@@ -61,10 +60,16 @@ const ScrollBasedLayout: FC<{
           }}
         >
           {mainContent}
+          <div
+            id={"footer"}
+            style={{
+              height: "200px",
+              borderTop: `1px solid ${token.colorBorder}`,
+            }}
+          >
+            {footer}
+          </div>
         </div>
-      </div>
-      <div id={"footer"} style={{ height: "200px" }}>
-        {footer}
       </div>
     </div>
   );
