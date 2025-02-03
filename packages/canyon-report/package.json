@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cp dist/canyon-report.umd.cjs dist/canyon-report.umd.js",
+    "build": "vite build && node scripts/cp.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
