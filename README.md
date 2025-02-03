@@ -41,7 +41,7 @@ English · [中文](./README-zh_CN.md)
 
 ## Project Structure
 
-Canyon is a JavaScript code coverage collection platform. We address the difficulties developers and QA engineers encounter in collecting test case code coverage during end-to-end testing. It consists of three main parts:
+Canyon (Word for "quick", pronounced /ˈkænjən/) is a JavaScript code coverage collection platform. We address the difficulties developers and QA engineers encounter in collecting test case code coverage during end-to-end testing. It consists of three main parts:
 
 - A series of plugin responsible for adapting to various CI tools and reading environment variables.
 
