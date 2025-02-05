@@ -18,8 +18,8 @@
     "@biomejs/biome": "1.9.4",
     "@swc/cli": "0.4.1-nightly.20240914",
     "@swc/core": "1.7.40",
-    "rolldown": "nightly",
-    "@types/node": "latest",
+    "rolldown": "1.0.0-beta.3",
+    "@types/node": "^22.10.10",
     "pkg": "latest"
   },
   "dependencies": {
