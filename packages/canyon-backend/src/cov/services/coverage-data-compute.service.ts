@@ -9,8 +9,8 @@ import {
 import { CoverageSummaryDto } from "../dto/coverage-summary.dto";
 import { CoverageMapDto } from "../dto/coverage-map.dto";
 import { CoverageMapData } from "istanbul-lib-coverage";
-import { TestExcludeService } from "./common/test-exclude.service";
 import { CoverageFinalService } from "./common/coverage-final.service";
+import {TestExcludeService} from "../../apps/collect/services/common/test-exclude.service";
 
 /**
  * Service to handle pre-storage operations for code coverage data.

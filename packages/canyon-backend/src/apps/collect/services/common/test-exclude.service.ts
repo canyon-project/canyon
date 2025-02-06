@@ -25,7 +25,10 @@ export class TestExcludeService {
     const exclude = new TestExclude({
       cwd: "",
       include: matchRule.include,
-      exclude: matchRule.exclude || [],
+      exclude: (matchRule.exclude || []).concat([
+        "dist/**",
+        "node_modules/**",
+      ]),
       extension: matchRule.extensions || [
         ".js",
         ".cjs",
