@@ -38,26 +38,6 @@ export class CoverageMapClientService {
     branch,
     compareTarget,
   }) {
-
-    // 记录流量
-    if (projectID.includes('117343')){
-      console.log({
-        sha,
-        projectID,
-        instrumentCwd,
-        branch,
-        compareTarget,
-      })
-      await this.prisma.covLog.create({
-        data:{
-          projectID: projectID,
-          sha: sha,
-          data: JSON.stringify(coverage),
-        }
-      });
-    }
-
-
     const { provider, repoID } = parseProjectID(projectID);
     const coverageFromExternalReport =
       typeof coverage === "string" ? JSON.parse(coverage) : coverage;
