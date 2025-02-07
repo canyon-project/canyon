@@ -7,7 +7,11 @@ import {CoverageUtEntity} from "../entity/coverage-ut.entity";
 export class CoverageMapService {
   constructor(@InjectRepository(CoverageUtEntity) private readonly repo: Repository<CoverageUtEntity>) { }
 
-  async invoke() {
+  async invoke({
+    projectID,
+    sha,
+    reportID,
+               }) {
     const data = await this.repo.find();
     console.log(data);
     return {
