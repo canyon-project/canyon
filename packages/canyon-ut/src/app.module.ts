@@ -5,6 +5,7 @@ import {join} from "path";
 import {CoverageMapService} from "./services/coverage-map.service";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {CoverageUtEntity} from "./entity/coverage-ut.entity";
+import {CoverageSummaryMapService} from "./services/coverage-summary-map.service";
 
 function parseDatabaseUrl(url) {
   const match = url.match(/postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)\?schema=(.*)/);
@@ -46,6 +47,6 @@ console.log(config)
     }),
   ],
   controllers: [AppController],
-  providers: [CoverageMapService],
+  providers: [CoverageMapService,CoverageSummaryMapService],
 })
 export class AppModule {}
