@@ -53,6 +53,9 @@ export async function mapCommand(params, options) {
 			coverage: data,
       projectID:`${reqData.provider}-${reqData.projectID}-auto`,
 		})
+    .then(res=>{
+      console.log(res.data)
+    })
 		.catch((e) => {
 			// 打印错误
 			console.log(e.message, e.name, e.errors, e.response);
