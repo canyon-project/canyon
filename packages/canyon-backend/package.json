@@ -11,6 +11,7 @@
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'"
   },
   "dependencies": {
+    "@apollo/server": "^4.11.3",
     "@nestjs/apollo": "^13.0.2",
     "@nestjs/common": "^11.0.5",
     "@nestjs/config": "^4.0.0",
@@ -24,7 +25,6 @@
     "@nestjs/typeorm": "^11.0.0",
     "@prisma/client": "5.16.1",
     "axios": "^1.7.9",
-    "sqlite3": "^5.1.7",
     "body-parser": "^1.20.3",
     "canyon-data": "^2.0.0-beta.17",
     "canyon-map": "^2.0.0-beta.10",
@@ -45,6 +45,7 @@
     "protobufjs": "^7.4.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
+    "sqlite3": "^5.1.7",
     "test-exclude": "^7.0.1",
     "typeorm": "^0.3.20",
     "zod": "^3.24.1"
