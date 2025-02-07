@@ -17,6 +17,8 @@ import { CoverageModule } from "./cov/coverage.module";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { CollectModule } from "./apps/collect/collect.module";
 import { CoveragediskEntity } from "./apps/collect/entity/coveragedisk.entity";
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+
 
 @Module({
   imports: [
@@ -43,6 +45,8 @@ import { CoveragediskEntity } from "./apps/collect/entity/coveragedisk.entity";
     GraphQLModule.forRoot<ApolloDriverConfig>({
       autoSchemaFile: "schema.gql",
       driver: ApolloDriver,
+      playground: false,
+      plugins: [ApolloServerPluginLandingPageLocalDefault()],
     }),
   ],
   controllers: [AppController, SourcecodeController],
