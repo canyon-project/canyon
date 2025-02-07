@@ -158,12 +158,3 @@ model UtCoverage {
 
   @@map("ut_coverage")
 }
-
-model CovLog {
-  id        String @id @default(cuid())
-  sha       String @map("sha")
-  projectID String @map("project_id")
-  data      String @map("data")
-
-  @@map("cov_log")
-}
