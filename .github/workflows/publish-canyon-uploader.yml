@@ -21,8 +21,3 @@ jobs:
       - run: ls ./tools/canyon-uploader
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: canyon-uploader-build-artifact
-          path: ./tools/canyon-uploader/canyon-linux  # 替换为实际产物路径
