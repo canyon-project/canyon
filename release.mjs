@@ -5,6 +5,7 @@ const args = process.argv.slice(2);
 const [version] = args;
 
 // 执行命令
+// v2.0.0-nightly-20250208.1
 
 console.log('version:', version);
 
