@@ -2,9 +2,8 @@ name: Npm Publish swc-plugin-canyon
 
 on:
   push:
-    # 通过正则匹配 commit 信息
-    commits:
-      - regex: '.*: \(swc-plugin-canyon\): .+'
+    branches:
+      - main
 
 env:
   RUST_LOG: debug
@@ -15,6 +14,10 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    # 新增条件：仅当提交信息匹配指定格式时触发
+    if: |
+      contains(github.event.head_commit.message, ': (swc-plugin-canyon): ') &&
+      (github.ref == 'refs/heads/main')
     steps:
       - uses: actions/checkout@v2
         with:
