@@ -2,8 +2,6 @@ name: Npm Publish swc-plugin-canyon
 
 on:
   push:
-    branches:
-      - main
     # 通过正则匹配 commit 信息
     commits:
       - regex: '.*: \(swc-plugin-canyon\): .+'
