@@ -1,4 +1,4 @@
-import adm_zip from 'adm-zip'
+import adm_zip from "adm-zip";
 
 const zip = new adm_zip();
 zip.addLocalFolder("./dist");
