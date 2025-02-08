@@ -17,16 +17,30 @@ export class CoverageController {
     private readonly coverageReportsService: CoverageReportsService,
   ) {}
 
-  // TODO 马上要废弃的接口
+  // 下面那个要删掉的
   @Get("api/coverage/summary/map")
-  async oldCoverageSummary(@Query() coverageSummaryDto: any): Promise<any> {
+  async coverageSummary(
+    @Query() coverageSummaryDto: CoverageSummaryDto,
+  ): Promise<CoverageSummaryDataMap> {
     const { projectID, sha, reportID } = coverageSummaryDto;
 
-    return this.coverageService.coverageSummaryMap(projectID, sha, reportID);
+    if (reportID && reportID.includes(",")) {
+      return this.coverageDataComputeService.coverageSummaryMap({
+        projectID,
+        sha,
+        reportID,
+      });
+    }
+
+    return this.coveragePreStoreService.coverageSummaryMap({
+      projectID,
+      sha,
+      reportID,
+    });
   }
 
   @Get("api/coverage/summary/v2/map")
-  async coverageSummary(
+  async coverageSummaryV2(
     @Query() coverageSummaryDto: CoverageSummaryDto,
   ): Promise<CoverageSummaryDataMap> {
     const { projectID, sha, reportID } = coverageSummaryDto;
