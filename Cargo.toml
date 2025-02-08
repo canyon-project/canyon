@@ -1,80 +1,12 @@
 [workspace]
-members = [
-#    "packages/canyon-core",
-    "plugins/swc-plugin-canyon"
+members  = [
+    "plugins/swc-plugin-canyon",
+    "tools/canyon-uploader"
 ]
 
-
-resolver = "2"
-
-
 [workspace.package]
-authors      = ["Allen Zhang <wr_zhang25@163.com>"]
-edition      = "2021"
+authors      = ["Allen Zhang <wr.zhang25@gmail.com>"]
+edition    = "2021"
+license    = "MIT"
 homepage     = "https://github.com/canyon-project/canyon"
-license      = "Apache-2.0"
-repository   = "https://github.com/canyon-project/canyon.git"
-rust-version = "1.70"
-
-[workspace.dependencies]
-Inflector                   = "0.11.4"
-anyhow                      = "1.0.83"
-base64                      = "0.22"
-byteorder                   = "1"
-cargo_metadata              = "0.18.1"
-cipher                      = "0.4.4"
-clap                        = "4.5.4"
-convert_case                = "0.6.0"
-default-from-serde          = "0.1"
-fxhash                      = "0.2.1"
-handlebars                  = "5.1.2"
-hex                         = "0.4.3"
-lightningcss                = "1.0.0-alpha.59"
-magic-crypt                 = "3.1.13"
-once_cell                   = "1.19.0"
-parcel_selectors            = "0.27.0"
-phf                         = "0.11.2"
-preset_env_base             = "1.0.0"
-radix_fmt                   = "1"
-regex                       = { version = "1.10.4", default-features = false }
-serde                       = "1.0.203"
-serde_json                  = "1.0.117"
-sourcemap                   = "9.0.0"
-swc_atoms                   = "2.0.0"
-swc_cached                  = "1.0.0"
-swc_common                  = "1.0.0"
-swc_core                    = "1.0.3"
-swc_css_ast                 = "1.0.0"
-swc_css_codegen             = "1.0.0"
-swc_css_compat              = "1.0.0"
-swc_css_minifier            = "1.0.0"
-swc_css_parser              = "1.0.0"
-swc_css_prefixer            = "1.0.0"
-swc_css_visit               = "1.0.0"
-swc_ecma_ast                = "1.0.0"
-swc_ecma_codegen            = "1.0.0"
-swc_ecma_minifier           = "1.0.0"
-swc_ecma_parser             = "1.0.0"
-swc_ecma_transforms         = "1.0.0"
-swc_ecma_transforms_base    = "1.0.0"
-swc_ecma_transforms_react   = "1.0.0"
-swc_ecma_transforms_testing = "1.0.0"
-swc_ecma_utils              = "1.0.0"
-swc_ecma_visit              = "1.0.0"
-swc_plugin_macro            = "1.0.0"
-swc_plugin_proxy            = "1.0.0"
-swc_trace_macro             = "2.0.0"
-testing                     = "1.0.0"
-tracing                     = "0.1.40"
-
-
-[profile.release]
-codegen-units = 1
-# debug = true
-lto = true
-
-# Optimize for size
-opt-level = "s"
-
-# Strip debug symbols
-strip = "symbols"
+repository = "https://github.com/canyon-project/canyon.git"
