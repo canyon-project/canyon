@@ -1,7 +1,6 @@
 import { exec } from 'child_process';
 
 // 接收命令行参数
-
 const args = process.argv.slice(2);
 const [version] = args;
 
