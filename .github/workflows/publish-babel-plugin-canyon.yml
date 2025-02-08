@@ -7,6 +7,10 @@ on:
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
+    # 新增条件：仅当提交信息匹配指定格式时触发
+    if: |
+      contains(github.event.head_commit.message, ': (babel-plugin-canyon): ') &&
+      (github.ref == 'refs/heads/main')
     steps:
       - uses: pnpm/action-setup@v4
         with:
