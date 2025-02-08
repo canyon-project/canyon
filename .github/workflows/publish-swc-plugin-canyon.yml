@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - main
-      - ci
+    # 通过正则匹配 commit 信息
+    commits:
+      - regex: '.*: \(swc-plugin-canyon\): .+'
 
 env:
   RUST_LOG: debug
