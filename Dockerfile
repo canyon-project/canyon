@@ -6,7 +6,7 @@ RUN mkdir -p /app
 COPY . /app/
 WORKDIR /app
 
-RUN npm install pnpm -g
+RUN npm install pnpm@9 -g
 RUN pnpm i
 RUN pnpm run build
 
