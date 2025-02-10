@@ -40,6 +40,8 @@ function countingStars(num: any) {
 }
 const ProjectPage = () => {
   const { t } = useTranslation();
+  const defaultCoverageDim =
+    localStorage.getItem("defaultCoverageDim") || "statements";
   // const [deleteProject] = useMutation(DeleteProjectDocument);
   const [favorProject] = useMutation(FavorProjectDocument);
   const columns: ColumnsType<Project> = [
@@ -144,7 +146,7 @@ const ProjectPage = () => {
           >
             <QuestionCircleOutlined />
           </Tooltip>
-          {t("projects.max_coverage")}
+          最大{t(`projects.${defaultCoverageDim}`)}覆盖率
         </>
       ),
       dataIndex: "maxCoverage",
@@ -227,8 +229,7 @@ const ProjectPage = () => {
       fetchPolicy: "no-cache",
     },
   );
-  const defaultCoverageDim =
-    localStorage.getItem("defaultCoverageDim") || "statements";
+
   const {
     data: projectsData,
     loading,
