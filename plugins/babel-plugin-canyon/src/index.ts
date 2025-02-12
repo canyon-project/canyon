@@ -100,7 +100,9 @@ export default declare((api, config, dirname) => {
             COMPARE_TARGET: servePa.compareTarget||'-',
             INSTRUMENT_CWD: servePa.instrumentCwd,
           }
-
+          if (config.debug){
+            console.log('Canyon:', __canyon__)
+          }
           if (config.oneByOne) {
             // 必须校验数据完整性
             if (initialCoverageDataForTheCurrentFile && __canyon__.DSN.includes('http') && __canyon__.COMMIT_SHA && __canyon__.PROJECT_ID && __canyon__.REPORTER) {
