@@ -11,7 +11,6 @@ English · [中文](./README-zh_CN.md)
 | Project               | Status                                                       | Description                                        |
 |-----------------------|--------------------------------------------------------------|----------------------------------------------------|
 | [babel-plugin-canyon] | [![babel-plugin-canyon-status]][babel-plugin-canyon-package] | Detecting environment variables in the pipeline    |
-| [canyon-sdk]          | [![canyon-sdk-status]][canyon-sdk-package]                   | Coverage data sdk                                  |
 | [canyon-uploader]     | [![canyon-uploader-status]][canyon-uploader-package]         | Coverage data uploader                             |
 | [canyon-extension]    | [![canyon-extension-status]][canyon-extension-package]       | Chrome plugin for coverage reporting of manual tests |
 
