@@ -11,7 +11,6 @@
 | 项目                      | 状态                                                         | 描述                                               |
 |---------------------------|--------------------------------------------------------------|----------------------------------------------------|
 | [babel-plugin-canyon]      | [![babel-plugin-canyon-status]][babel-plugin-canyon-package]  | 在流水线中检测环境变量                             |
-| [canyon-sdk]               | [![canyon-sdk-status]][canyon-sdk-package]                    | 覆盖率数据 SDK                                     |
 | [canyon-uploader]          | [![canyon-uploader-status]][canyon-uploader-package]          | 覆盖率数据上传工具                                 |
 | [canyon-extension]         | [![canyon-extension-status]][canyon-extension-package]        | Chrome 插件，用于手动测试的覆盖率报告              |
 
