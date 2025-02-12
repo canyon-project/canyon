@@ -118,7 +118,7 @@ export default declare((api, config, dirname) => {
                     reportID: 'initial_coverage_data',
                     compare_target: __canyon__.COMPARE_TARGET,
                     instrumentCwd: __canyon__.INSTRUMENT_CWD,
-                    // buildID: __canyon__.BUILD_ID,
+                    // buildID: __canyon__.BUILD_ID
                   }, {
                     headers: {
                       Authorization: 'Bearer ' + __canyon__.REPORTER,
