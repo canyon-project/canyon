@@ -125,6 +125,10 @@ export default declare((api, config, dirname) => {
                     },
                     timeout: 15000,
                     ...proxy
+                  }).then(r=>{
+                    if (config.debug){
+                      console.log('Posted coverage data:', r.data)
+                    }
                   }).catch(err=>{
                     if (config.debug){
                       console.log('Failed to post coverage data:', err)
