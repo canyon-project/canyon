@@ -75,7 +75,9 @@ export class ConsumerCoverageService {
             }
           } else {
             await this.coveragediskService.pushQueue(queueDataToBeConsumed);
-            await sleep(1000);
+            // 随机3-8秒
+            const random = Math.floor(Math.random() * 5) + 3;
+            await sleep(random);
             // 锁已被其他实例持有，无法获取锁
           }
         } else {
