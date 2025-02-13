@@ -177,20 +177,22 @@ const ProjectOverviewPage = () => {
       align: "center",
       width: "70px",
       render(_, record) {
+        if (!record.buildURL) {
+          return <span>-</span>;
+        }
         return (
-          <>
-            {record.buildID !== "-" ? (
-              <a href={record.buildURL} target={"_blank"} rel="noreferrer">
-                <img
-                  className={"w-[16px]"}
-                  src={`/gitproviders/${record.buildProvider === "-" ? "gitlab" : record.buildProvider || "gitlab"}.svg`}
-                  alt=""
-                />
-              </a>
-            ) : (
-              <span>-</span>
-            )}
-          </>
+          <a
+            href={record.buildURL}
+            target={"_blank"}
+            rel="noreferrer"
+            className={"flex item-center justify-center"}
+          >
+            <img
+              className={"w-[16px]"}
+              src={`/gitproviders/${record.buildProvider || "gitlab"}.svg`}
+              alt=""
+            />
+          </a>
         );
       },
     },
