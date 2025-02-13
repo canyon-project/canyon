@@ -2,6 +2,32 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../../prisma/prisma.service";
 import { getCommits } from "../../adapter/gitlab.adapter";
 import { percent } from "canyon-data";
+
+function genBuildURL(buildProviders,provider, buildID) {
+  const buildProvider = buildProviders.find((item) => item.id === provider);
+  if (!buildProvider){
+    return '';
+  }
+  let buildProviderURL = buildProvider?.url;
+
+  try {
+    const buildIDObj = JSON.parse(buildID);
+
+    if (typeof buildIDObj === 'object') {
+      Object.entries(buildIDObj).forEach(([key, value]) => {
+        buildProviderURL = buildProviderURL.replace(`{{${key}}}`, value);
+      });
+
+      return buildProviderURL;
+    } else {
+      return '';
+    }
+
+  } catch (e) {
+    return '';
+  }
+}
+
 @Injectable()
 export class GetProjectRecordsService {
   constructor(private readonly prisma: PrismaService) {}
@@ -108,7 +134,7 @@ export class GetProjectRecordsService {
         }),
       ),
     );
-
+    const buildProviders = await this.prisma.buildProvider.findMany();
     for (let i = 0; i < coverages.length; i++) {
       const coverage = coverages[i];
 
@@ -137,10 +163,7 @@ export class GetProjectRecordsService {
         logs: [],
         buildID: coverage.buildID,
         buildProvider: coverage.buildProvider,
-        buildURL:
-          coverage.buildProvider === "mpaas"
-            ? `${atob("aHR0cHM6Ly9tcGFhcy5jdHJpcGNvcnAuY29tL3NwcmluZy9tY2R2Mi9wYWNrYWdlUHVibGlzaFYyL1JlYWN0TmF0aXZl") || "??"}?appId=${coverage.buildID.split("|")[0]}&module=${coverage.buildID.split("|")[1]}&filters={"buildId":"${coverage.buildID.split("|")[2]}"}`
-            : `${gitProvider?.url}/${project.pathWithNamespace}/-/jobs/${coverage.buildID}`,
+        buildURL: genBuildURL(buildProviders,coverage.buildProvider, coverage.buildID),
       };
       rows.push(data);
     }
