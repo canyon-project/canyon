@@ -37,7 +37,11 @@ export class CoverageMapClientService {
     instrumentCwd,
     branch,
     compareTarget,
+    buildID,
+    buildProvider,
   }) {
+    buildID = buildID || "";
+    buildProvider = buildProvider || "gitlab_runner";
     const { provider, repoID } = parseProjectID(projectID);
     const coverageFromExternalReport =
       typeof coverage === "string" ? JSON.parse(coverage) : coverage;
@@ -85,6 +89,8 @@ export class CoverageMapClientService {
           reportID: sha,
           compareTarget: compareTarget || sha, // 默认是自己
           reporter: "canyon",
+          buildID,
+          buildProvider,
         },
       })
       .catch(() => {

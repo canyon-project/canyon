@@ -45,4 +45,14 @@ export class CoverageClientDto {
   @MinLength(1, { message: "compareTarget长度最小为1" })
   @IsOptional({ message: "compareTarget可以为空" })
   compareTarget: string;
+
+  @IsString()
+  @MinLength(1, { message: "buildID长度最小为1" })
+  @IsOptional({ message: "buildID 可以为空" })
+  buildID: string;
+
+  @IsString()
+  @MinLength(1, { message: "buildProvider长度最小为1" })
+  @IsOptional({ message: "buildProvider 可以为空" })
+  buildProvider: string;
 }

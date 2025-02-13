@@ -161,6 +161,8 @@ export class ConsumerCoverageService {
           // TODO 暂时
           updatedAt: new Date(),
           compareTarget: queueDataToBeConsumed.compareTarget,
+          buildID: queueDataToBeConsumed.buildID,
+          buildProvider: queueDataToBeConsumed.buildProvider,
         },
       }); // 更新时间
     } else {
@@ -176,6 +178,8 @@ export class ConsumerCoverageService {
           projectID: queueDataToBeConsumed.projectID,
           reporter: String(queueDataToBeConsumed.reporter),
           reportID: queueDataToBeConsumed.reportID,
+          buildID: queueDataToBeConsumed.buildID,
+          buildProvider: queueDataToBeConsumed.buildProvider,
         },
       });
     }
