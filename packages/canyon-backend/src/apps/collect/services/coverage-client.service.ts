@@ -25,7 +25,11 @@ export class CoverageClientService {
     branch,
     compareTarget,
     reporter,
+    buildID,
+    buildProvider,
   }) {
+    buildID = buildID || "";
+    buildProvider = buildProvider || "gitlab_runner";
     const { repoID } = parseProjectID(projectID);
     const reportID = _reportID || sha;
     // #region == Step x: 解析出上报上来的覆盖率数据
@@ -46,6 +50,8 @@ export class CoverageClientService {
         instrumentCwd,
         branch: branch || "-",
         compareTarget: compareTarget || sha,
+        buildID: buildID,
+        buildProvider: buildProvider,
       });
     }
     const count = await this.prisma.coverageMap.count({
@@ -84,6 +90,8 @@ export class CoverageClientService {
       compareTarget: compareTarget || sha,
       coverage: IstanbulHitMapSchema.parse(coveragewenhao),
       reporter,
+      buildID,
+      buildProvider,
     });
     return {
       msg: "ok",
