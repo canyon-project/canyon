@@ -39,6 +39,16 @@ model GitProvider {
   @@map("git_provider")
 }
 
+model BuildProvider {
+  id      String  @id
+  url     String
+  type    String
+  name    String
+  default Boolean
+
+  @@map("build_provider")
+}
+
 model Coverage {
   id                String   @id @default(cuid())
   sha               String   @map("sha")

@@ -61,7 +61,7 @@ export default declare((api, config, dirname) => {
           const env_projectID = envs.CI_PROJECT_ID
           const env_branch = envs.CI_COMMIT_BRANCH
 
-          const servePa:{provider?:string,compareTarget?:string}&any = {
+          const servePa:{provider?:string,compareTarget?:string}&any = trim({
             ...config,
             version: packageJson.version,
             projectID: config.projectID || env_projectID || '-',
@@ -71,7 +71,7 @@ export default declare((api, config, dirname) => {
             // 自配置
             dsn: config.dsn || process.env['DSN'] || 'http://localhost:3000',
             reporter: config.reporter || process.env['REPORTER'] || '-',
-          }
+          })
 
           const {initialCoverageDataForTheCurrentFile} = visitorProgramExit(api, path, servePa)
 

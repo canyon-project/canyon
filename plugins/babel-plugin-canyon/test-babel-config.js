@@ -7,7 +7,6 @@ module.exports = {
       sha:'xxxxx',
       branch:'master',
       // 流水线变量里配置
-      dsn:'http://localhost:3000',
       reporter:'xxxxx',
       // 插件里配置
       compareTarget: 'main',
