@@ -3,7 +3,7 @@ import generate from "@babel/generator";
 
 export const visitorProgramExit = (api,path,serviceParams) => {
 
-  const initialCoverageDataForTheCurrentFile = generateInitialCoverage(generate(path.node).code)
+  const initialCoverageDataForTheCurrentFile = generateInitialCoverage(generate(path.node).code,serviceParams)
 
   if (generate(path.node).code.includes('coverageData')) {
     const t = api.types;

@@ -17,6 +17,7 @@ module.exports = {
       // special: true, //默认false
       keepMap: true, // 默认false
       // addAttributes:['branch'], //默认全部，有的话用有的，适用于生产
+      ci:true, // 默认false
     }]
   ]
 }

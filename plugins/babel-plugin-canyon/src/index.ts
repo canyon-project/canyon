@@ -25,6 +25,8 @@ function trim(obj) {
   }, {});
 }
 
+let onlyOne = true
+
 export default declare((api, config, dirname) => {
   api.assertVersion(7);
   return {
@@ -71,7 +73,15 @@ export default declare((api, config, dirname) => {
             // 自配置
             dsn: config.dsn || process.env['DSN'] || 'http://localhost:3000',
             reporter: config.reporter || process.env['REPORTER'] || '-',
+            ci: config.ci || process.env['CI'] || false,
           })
+
+          if (onlyOne){
+            console.log(`canyon args: ----------------`)
+            console.log(servePa)
+            console.log(`canyon args: ----------------`)
+          }
+          onlyOne = false
 
           const {initialCoverageDataForTheCurrentFile} = visitorProgramExit(api, path, servePa)
 
