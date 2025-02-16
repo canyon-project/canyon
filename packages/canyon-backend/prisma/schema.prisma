@@ -83,14 +83,16 @@ model Coverage {
 }
 
 model CoverageMap {
-  id            String @id @default(cuid())
-  provider      String
-  repoID        String @map("repo_id")
-  sha           String @map("sha")
-  path          String
-  map           Bytes
+  id               String  @id @default(cuid())
+  provider         String
+  repoID           String  @map("repo_id")
+  sha              String  @map("sha")
+  path             String
+  map              Bytes
+  statementMap     String  @map("statement_map")
+  containSourceMap Boolean @map("contain_source_map")
   // 如果是含有sourceMap的，需要instrumentCwd来做源码还原
-  instrumentCwd String @map("instrument_cwd")
+  instrumentCwd    String  @map("instrument_cwd")
 
   // 再添加一个path索引
   @@index(fields: [path])

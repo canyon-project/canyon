@@ -10,6 +10,7 @@ import { ConsumerCoverageService } from "./services/core/consumer-coverage.servi
 import { PullChangeCodeAndInsertDbService } from "./services/common/pull-change-code-and-insert-db.service";
 import { TestExcludeService } from "./services/common/test-exclude.service";
 import { CoverageFinalService } from "./services/common/coverage-final.service";
+import {RemapedHitService} from "./services/hit/remaped-hit.service";
 
 @Module({
   imports: [TypeOrmModule.forFeature([CoveragediskEntity])],
@@ -23,6 +24,7 @@ import { CoverageFinalService } from "./services/common/coverage-final.service";
     PullChangeCodeAndInsertDbService,
     TestExcludeService,
     CoverageFinalService,
+    RemapedHitService
   ],
 })
 export class CollectModule {

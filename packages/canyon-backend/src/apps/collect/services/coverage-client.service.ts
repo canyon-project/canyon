@@ -74,6 +74,7 @@ export class CoverageClientService {
     const originalHit = IstanbulHitMapSchema.parse(formartCOv);
 
     // 重要！！！，这里是reMap过的数据
+    // TODO: 可以不需要map，减少计算
     const coveragewenhao = await this.coverageFinalService.invoke(
       {
         projectID,

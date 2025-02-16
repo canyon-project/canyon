@@ -16,6 +16,7 @@ import { PullChangeCodeAndInsertDbService } from "../common/pull-change-code-and
 import { TestExcludeService } from "../common/test-exclude.service";
 import { CoverageFinalService } from "../common/coverage-final.service";
 import { summaryToDbSummary } from "../../../../utils/utils";
+import {RemapedHitService} from "../hit/remaped-hit.service";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -32,6 +33,7 @@ export class ConsumerCoverageService {
     private readonly pullChangeCodeAndInsertDbService: PullChangeCodeAndInsertDbService,
     private readonly testExcludeService: TestExcludeService,
     private readonly coverageFinalService: CoverageFinalService,
+    private readonly remapedHitService: RemapedHitService,
   ) {}
 
   async invoke() {
@@ -123,7 +125,8 @@ export class ConsumerCoverageService {
       await decompressedData(coverage?.hit),
     );
 
-    const newCoverage = await this.coverageFinalService.invoke(
+    // TODO 不需要map，但是需要staMap
+    const newCoverage = await this.remapedHitService.invoke(
       {
         projectID: queueDataToBeConsumed.projectID,
         sha: queueDataToBeConsumed.sha,
@@ -132,7 +135,6 @@ export class ConsumerCoverageService {
           covType === "agg" ? queueDataToBeConsumed.reportID : undefined,
       },
       mergedHit,
-      true,
     );
 
     const summary = genSummaryMapByCoverageMap(
