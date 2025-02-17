@@ -1,7 +1,7 @@
 import {Injectable} from "@nestjs/common";
 import {PrismaService} from "../../../../prisma/prisma.service";
 import {parseProjectID, reorganizeCompleteCoverageObjects, resetCoverageDataMap} from "canyon-data";
-import {convertDataFromCoverageMapDatabase, remapCoverageWithInstrumentCwd} from "canyon-map";
+import {convertDataFromCoverageMapDatabase, decompressedData, remapCoverageWithInstrumentCwd} from "canyon-map";
 import {deserializeSMap} from "../../../../utils/s-map";
 
 
@@ -43,7 +43,7 @@ export class RemapedHitService {
                       reportID?: string;
                       filepath?: string;
                     },
-                    hit: { [key: string]: object },){
+                    hit: { [key: string]: object },codechanges){
 
 
 
@@ -73,8 +73,6 @@ export class RemapedHitService {
     })
 
 
-    // console.log(needReMaps,'needReMaps')
-
 
 
     let result = {}
@@ -95,6 +93,17 @@ export class RemapedHitService {
     }
 
 
+    const addsMaps = await this.prisma.coverageMap.findMany({
+      where:{
+        provider,
+        repoID,
+        sha,
+        path:{
+          in:codechanges.map((item)=>item.path)
+        },
+      }
+    })
+
 
     for (let i = 0; i < noNeedReMaps.length; i++) {
       if (hit[noNeedReMaps[i].path]){
@@ -111,6 +120,16 @@ export class RemapedHitService {
         }
       }
     }
+
+    for (let i = 0; i < addsMaps.length; i++) {
+      const m = await decompressedData(addsMaps[i].map)
+      result[addsMaps[i].path] = {
+        // @ts-ignore
+        ...m,
+        ...hit[addsMaps[i].path],
+      }
+    }
+
 
     return result
   }

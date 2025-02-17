@@ -16,6 +16,7 @@ import { compressedData, remapCoverageWithInstrumentCwd } from "canyon-map";
 import { formatReportObject } from "../../../utils/coverage";
 import { summaryToDbSummary } from "../../../utils/utils";
 import {serializeSMap} from "../../../utils/s-map";
+import * as console from "node:console";
 
 function getNewPathByOldPath(covMap, path) {
   // @ts-ignore

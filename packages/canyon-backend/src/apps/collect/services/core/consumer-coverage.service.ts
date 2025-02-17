@@ -17,6 +17,7 @@ import { TestExcludeService } from "../common/test-exclude.service";
 import { CoverageFinalService } from "../common/coverage-final.service";
 import { summaryToDbSummary } from "../../../../utils/utils";
 import {RemapedHitService} from "../hit/remaped-hit.service";
+import * as console from "node:console";
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -135,6 +136,7 @@ export class ConsumerCoverageService {
           covType === "agg" ? queueDataToBeConsumed.reportID : undefined,
       },
       mergedHit,
+      codechanges
     );
 
     const summary = genSummaryMapByCoverageMap(
