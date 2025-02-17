@@ -55,7 +55,7 @@ export const genSummaryMapByCoverageMap = (
     const additions = codeChanges?.find((c) => `${c.path}` === f)?.additions || [];
     summaryMap[f] = {
       ...s.data,
-      newlines:calculateNewLineCoverageForSingleFile(fc.data,additions),
+      newlines:additions.length>0?calculateNewLineCoverageForSingleFile(fc.data,additions):{ total: 0, covered: 0, skipped: 0, pct: 100 },
       path: f,
       change:additions.length > 0
     };
