@@ -50,12 +50,12 @@ export class RemapedHitService {
     const { provider, repoID } = parseProjectID(projectID);
 
 
-    const allNeedReMaps = await this.prisma.coverageMap.findMany({
+    const noNeedReMaps = await this.prisma.coverageMap.findMany({
       where:{
         provider,
         repoID,
         sha,
-        // containSourceMap: false,
+        containSourceMap: false,
       },select:{
         statementMap: true,
         path: true,
@@ -77,44 +77,37 @@ export class RemapedHitService {
 
 
 
-    const result = {}
+    let result = {}
 
-    for (let i = 0; i < allNeedReMaps.length; i++) {
-      if (needReMaps.length>0){
-
-        const { map, instrumentCwd } =
-          await convertDataFromCoverageMapDatabase(needReMaps);
+    if (needReMaps.length > 0){
+      const { map, instrumentCwd } =
+        await convertDataFromCoverageMapDatabase(needReMaps);
 
 
-        const reMapMap2 = await remapCoverageWithInstrumentCwd(
-          resetCoverageDataMap(map),
-          instrumentCwd,
-        );
-        const reMapMapMap = reorganizeCompleteCoverageObjects(reMapMap2, hit);
-
-        if (result[allNeedReMaps[i].path]){
-          result[allNeedReMaps[i].path] = reMapMapMap[allNeedReMaps[i].path]
-        } else {
-          // 跟最后一个一样
-          result[allNeedReMaps[i].path] = {
-            path: allNeedReMaps[i].path,
-            ...genHitByMap(allNeedReMaps[i]),
-            statementMap: deserializeSMap(allNeedReMaps[i].statementMap),
-          }
-        }
+      const reMapMap2 = await remapCoverageWithInstrumentCwd(
+        resetCoverageDataMap(map),
+        instrumentCwd,
+      );
+      const reMapMapMap = reorganizeCompleteCoverageObjects(reMapMap2, hit);
 
 
-      } else if (hit[allNeedReMaps[i].path]){
-        result[allNeedReMaps[i].path] = {
-          ...hit[allNeedReMaps[i].path],
-          statementMap: deserializeSMap(allNeedReMaps[i].statementMap),
+      result = reMapMapMap
+    }
+
+
+
+    for (let i = 0; i < noNeedReMaps.length; i++) {
+      if (hit[noNeedReMaps[i].path]){
+        result[noNeedReMaps[i].path] = {
+          ...hit[noNeedReMaps[i].path],
+          statementMap: deserializeSMap(noNeedReMaps[i].statementMap),
         }
       } else {
         // 跟最后一个一样
-        result[allNeedReMaps[i].path] = {
-          path: allNeedReMaps[i].path,
-          ...genHitByMap(allNeedReMaps[i]),
-          statementMap: deserializeSMap(allNeedReMaps[i].statementMap),
+        result[noNeedReMaps[i].path] = {
+          path: noNeedReMaps[i].path,
+          ...genHitByMap(noNeedReMaps[i]),
+          statementMap: deserializeSMap(noNeedReMaps[i].statementMap),
         }
       }
     }
