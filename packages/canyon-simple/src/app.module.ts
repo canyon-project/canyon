@@ -5,6 +5,7 @@ import {join} from "path";
 import {CoverageMapService} from "./services/coverage-map.service";
 import {CoverageSummaryMapService} from "./services/coverage-summary-map.service";
 import {PrismaService} from "./prisma/prisma.service";
+import {CoverageClientService} from "./services/coverage-client.service";
 
 
 @Module({
@@ -15,6 +16,6 @@ import {PrismaService} from "./prisma/prisma.service";
     }),
   ],
   controllers: [AppController],
-  providers: [CoverageMapService,CoverageSummaryMapService,PrismaService],
+  providers: [CoverageMapService,CoverageSummaryMapService,PrismaService,CoverageClientService],
 })
 export class AppModule {}
