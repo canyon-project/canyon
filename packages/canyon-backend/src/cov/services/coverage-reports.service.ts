@@ -38,7 +38,7 @@ export class CoverageReportsService {
         // 根据updatedAt的一个范围
         updatedAt: {
           gte: dayjs(start).toDate(),
-          lte: dayjs(end).toDate(),
+          lte: dayjs(end).add(1,'d').toDate(),
         },
       },
       select: {
