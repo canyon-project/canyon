@@ -30,7 +30,7 @@ model UtCoverage {
   // 代码覆盖率详情
   hit               Bytes
   // 数据源类型
-  sourceType        String   @map("source_type")
+  // sourceType        String   @map("source_type")
   // 插桩路径
   instrumentCwd     String   @map("instrument_cwd")
   // 通用
