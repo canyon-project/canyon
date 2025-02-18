@@ -1,27 +1,25 @@
 import {Injectable} from "@nestjs/common";
-import {Repository} from "typeorm";
-import {InjectRepository} from "@nestjs/typeorm";
-import {CoverageUtEntity} from "../entity/coverage-ut.entity";
 import {decompressedData} from "canyon-map";
+import {PrismaService} from "../prisma/prisma.service";
 
 @Injectable()
 export class CoverageSummaryMapService {
-  constructor(@InjectRepository(CoverageUtEntity) private readonly repo: Repository<CoverageUtEntity>) { }
+  constructor(
+    private prisma: PrismaService,
+  ) { }
 
   async invoke({
                  projectID,
                  sha,
                  // reportID,
                }) {
-    const data = await this.repo.findOne({
+    const data = await this.prisma.utCoverage.findFirst({
       where:{
-        projectID,
-        sha,
+        // projectID,
+        // sha,
       }
     });
     // console.log(data);
-
-    // @ts-ignore
     const res = (await decompressedData(data.summary))
 
     return res
