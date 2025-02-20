@@ -75,16 +75,16 @@ export class ConsumerCoverageService {
             }
           } else {
             await this.coveragediskService.pushQueue(queueDataToBeConsumed);
-            await sleep(1000);
+            await sleep(1000*10);
             // 锁已被其他实例持有，无法获取锁
           }
         } else {
           // 空闲等待1s，防止cpu占用过高
-          await sleep(3000);
+          await sleep(1000*10);
         }
       } catch (e) {
         console.log(e);
-        await sleep(3000);
+        await sleep(1000*10);
       }
     }
   }
