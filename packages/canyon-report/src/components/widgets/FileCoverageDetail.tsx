@@ -2,7 +2,11 @@ import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { Editor } from "@monaco-editor/react";
 
 // import * as monaco from "monaco-editor";
-import { annotateFunctions, annotateStatements } from "../helpers/annotate.ts";
+import {
+  annotateBranches,
+  annotateFunctions,
+  annotateStatements,
+} from "../helpers/annotate.ts";
 import { coreFn } from "../helpers/coreFn.ts";
 import { lineNumbers } from "./lineNumbers.ts";
 import { theme } from "antd";
@@ -33,7 +37,12 @@ const FileCoverageDetail: FC<{
   const decorations = useMemo(() => {
     const annotateFunctionsList = annotateFunctions(fileCoverage, fileContent);
     const annotateStatementsList = annotateStatements(fileCoverage);
-    return [...annotateStatementsList, ...annotateFunctionsList].map((i) => {
+    const annotateBranchesList = annotateBranches(fileCoverage, fileContent);
+    return [
+      ...annotateStatementsList,
+      ...annotateFunctionsList,
+      ...annotateBranchesList,
+    ].map((i) => {
       return {
         inlineClassName: "content-class-no-found",
         startLine: i.startLine,
@@ -57,7 +66,12 @@ const FileCoverageDetail: FC<{
         [], // oldDecorations 每次清空上次标记的
         decorations.map(
           ({ inlineClassName, startLine, startCol, endLine, endCol }) => ({
-            range: new window.monaco.Range(startLine, startCol, endLine, endCol),
+            range: new window.monaco.Range(
+              startLine,
+              startCol,
+              endLine,
+              endCol,
+            ),
             options: {
               isWholeLine: false,
               inlineClassName: inlineClassName,
