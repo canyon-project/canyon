@@ -102,7 +102,7 @@ export function annotateBranches(fileCoverage, structuredText) {
         if (count === 0 && structuredText[startLine]) {
           // Skip branches taken, handle multi-line spans
           if (endLine !== startLine) {
-            endCol = structuredText[startLine].text.originalLength();
+            endCol = structuredText[startLine - 1].length;
           }
 
           annotateBranchesList.push({
