@@ -49,6 +49,7 @@ const ProjectPage = () => {
       title: "ID",
       dataIndex: "id",
       key: "id",
+      // align:'center',
       render(text, record) {
         return (
           <Space>
@@ -76,21 +77,21 @@ const ProjectPage = () => {
                 <HeartOutlined />
               )}
             </div>
-            {text.split("-")[1]}
+            {text}
           </Space>
         );
       },
     },
-    {
-      title: t("projects.slug"),
-      dataIndex: "id",
-      key: "slug",
-      render(text) {
-        return (
-          <span className={"max-w-[80px] block"}>{text.split("-")[2]}</span>
-        );
-      },
-    },
+    // {
+    //   title: t("projects.slug"),
+    //   dataIndex: "id",
+    //   key: "slug",
+    //   render(text) {
+    //     return (
+    //       <span className={"max-w-[80px] block"}>{text.split("-")[2]}</span>
+    //     );
+    //   },
+    // },
     {
       title: t("projects.name"),
       dataIndex: "pathWithNamespace",
