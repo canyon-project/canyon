@@ -37,7 +37,6 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
     CoverageModule,
     CodechangeModule,
     SourcecodeModule,
-    PrismaModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "../../canyon-platform", "dist"),
       exclude: ["/graphql"], // 这样就不会触发 path-to-regexp 解析错误
