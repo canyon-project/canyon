@@ -54,7 +54,7 @@ export class GetProjectChartDataService {
         return {
           sha: item.sha,
           statements: percent(item.statementsCovered, item.statementsTotal),
-          newlines: percent(item.newlinesCovered, item.newlinesCovered),
+          newlines: percent(item.newlinesCovered, item.newlinesTotal),
           lines: percent(item.linesCovered, item.linesTotal),
           branches: percent(item.branchesCovered, item.branchesTotal),
           functions: percent(item.functionsCovered, item.functionsTotal),
