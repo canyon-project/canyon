@@ -1,1 +1,8 @@
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*antd的样式*/
+
+.ant-menu-light.ant-menu-root {
+  border-inline-end: none !important;
+}
