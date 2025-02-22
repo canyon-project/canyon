@@ -1,0 +1,15 @@
+query GetProjects(
+    $current: Int!
+    $pageSize: Int!
+) {
+    getProjects(
+        current: $current
+        pageSize: $pageSize
+    ) {
+        total
+        data {
+            id
+            description
+        }
+    }
+}
