@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     # 新增条件：仅当提交信息匹配指定格式时触发
     if: |
-      contains(github.event.head_commit.message, ': (docker-image): ') &&
+      contains(github.event.head_commit.message, 'docker-image') &&
       (github.ref == 'refs/heads/main')
     steps:
       - name: Checkout code
