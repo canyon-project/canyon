@@ -39,7 +39,7 @@ db/sql
 
 coverage
 
-schema.gql
+/schema.gql
 
 target/
 Cargo.lock

@@ -1,0 +1,27 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ProjectRecordsModel {
+  """Description"""
+  description: String!
+
+  """ID"""
+  id: String!
+}
+
+type GetProjectsResponseModel {
+  data: [ProjectRecordsModel!]!
+  total: Float!
+}
+
+type Query {
+  """获取Project"""
+  getProjects(
+    """当前页码"""
+    current: Int!
+
+    """每页数量"""
+    pageSize: Int!
+  ): GetProjectsResponseModel!
+}
