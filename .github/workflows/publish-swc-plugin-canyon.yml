@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - ci
+      - canyonjs
 
 env:
   RUST_LOG: debug
