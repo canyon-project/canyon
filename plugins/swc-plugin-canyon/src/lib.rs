@@ -182,10 +182,16 @@ impl TransformVisitor {
             }
         }
 
-        // 保存成json文件
+        // 定义文件路径
+        let file_path = "coverageData3.json";
 
-        let mut file = File::create("coverageData.json").unwrap();
-        serde_json::to_writer(&file, &map).unwrap();
+        // 打开或创建文件
+        let mut file = File::create(file_path).expect("无法创建文件");
+
+        // 将 map 转换为 JSON 并写入文件
+        serde_json::to_writer(&mut file, &map).expect("无法写入文件");
+
+        println!("数据已保存到: {}", file_path);
 
         // 过滤掉指定的属性
         obj.props.retain(|prop| {
