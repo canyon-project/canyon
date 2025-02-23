@@ -97,16 +97,8 @@ fn object_lit_to_json(obj: &ObjectLit) -> Value {
     // 遍历对象字面量中的每个属性
     for prop in &obj.props {
         if let PropOrSpread::Prop(ref prop) = prop {
-
-
-
-            println!("xxxxxxxxxxxx:{:?}", prop);
             if let Prop::KeyValue(KeyValueProp { key, value }) = &**prop {
                 match key {
-                    PropName::Ident(IdentName { sym, .. }) => {
-                        // 处理标识符类型的键
-                        println!("键为标识符: {:?}, 值: {:?}", sym, value);
-                    }
                     PropName::Str(Str { value: key_str, .. }) => {
                         // 处理字符串字面量类型的键
                         println!("键为字符串字面量: {:?}, 值: {:?}", key_str, value);
@@ -154,12 +146,6 @@ impl TransformVisitor {
     fn process_coverage_data_object(&mut self, obj: &mut ObjectLit) {
         let excluded_keys = ["statementMap", "fnMap", "branchMap", "inputSourceMap"];
 
-
-        // 生成处理后的对象代码
-        // let expr = Expr::Object(obj.clone());
-        // let code = expr_to_code(&expr);
-        // println!("Processed object: {}", code);
-
         // 定一个map
         let mut map = std::collections::HashMap::new();
 
@@ -177,7 +163,6 @@ impl TransformVisitor {
                             lit_to_json(lit)
                         }
                         Expr::Object(ref obj) => {
-                            println!("xxxxxx:{:?}",obj);
                             // 如果是对象字面量，递归转换为 JSON
                             object_lit_to_json(obj)
                         }
