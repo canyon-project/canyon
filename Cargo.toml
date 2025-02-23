@@ -10,7 +10,7 @@ resolver = "2"
 
 [workspace.package]
 authors      = ["Allen Zhang <wr_zhang25@163.com>"]
-edition      = "2024"
+edition      = "2021"
 homepage     = "https://github.com/canyon-project/canyon"
 license      = "Apache-2.0"
 repository   = "https://github.com/canyon-project/canyon.git"
