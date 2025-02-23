@@ -49,4 +49,4 @@ jobs:
       - name: Publish to npm
         run: pnpm --filter=swc-plugin-canyon publish -f --no-git-checks --access=public
         env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}  # 确保这里引用了 secret
