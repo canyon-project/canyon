@@ -18,3 +18,4 @@ rust-version = "1.70"
 
 [workspace.dependencies]
 swc_core = "14.1.0"
+munge='0.4.1'
