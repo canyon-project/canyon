@@ -6,7 +6,7 @@ use swc_core::ecma::{
         PropName
     },
     transforms::testing::test_inline,
-    visit::{as_folder, FoldWith, VisitMut},
+    visit::{visit_mut_pass, FoldWith, VisitMut},
 };
 use swc_core::plugin::{plugin_transform, proxies::TransformPluginProgramMetadata};
 
@@ -149,12 +149,14 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
         return program; // Skip transformation for non-JS/TS files
     }
 
-    program.fold_with(&mut as_folder(TransformVisitor { config }))
+    // program.fold_with(&mut visit_mut_pass(TransformVisitor { config }))
+
+    program.apply(&mut visit_mut_pass(TransformVisitor { config }))
 }
 
 test_inline!(
     Default::default(),
-    |_| as_folder(TransformVisitor::new()),
+    |_| visit_mut_pass(TransformVisitor::new()),
     boo,
     // 输入代码
     r#"const coverageData={fnMap:"nihao",statementMap:"",branchMap:"sss"};"#,

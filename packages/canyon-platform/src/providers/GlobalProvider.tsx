@@ -20,10 +20,17 @@ const GlobalProvider: FC<{
   } | null>(null);
   useEffect(() => {
     setTimeout(() => {
-      setData({ theme: 'light', language: 'cn' });
+      // 打印浏览器默认语言
+
+      console.log(navigator.language);
+
+      // 打印浏览器默认主题色
+      console.log(window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+      setData({ theme: 'dark', language: 'cn' });
 
       // On page load or when changing themes, best to add inline in `head` to avoid FOUC
-      document.documentElement.classList.toggle('dark', false);
+      document.documentElement.classList.toggle('dark', true);
     }, 100);
   }, []);
   return (
