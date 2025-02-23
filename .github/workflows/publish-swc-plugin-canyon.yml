@@ -45,6 +45,6 @@ jobs:
           rustup target add wasm32-wasip1
 
       - name: Publish to npm
-      - run: pnpm --filter=babel-plugin-canyon publish -f --no-git-checks --access=public
+        run: pnpm --filter=babel-plugin-canyon publish -f --no-git-checks --access=public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
