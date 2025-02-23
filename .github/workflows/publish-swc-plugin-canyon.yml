@@ -27,7 +27,8 @@ jobs:
           node-version: 20
 
       - run: |
-          corepack enable
+          corepack prepare pnpm@latest-9 --activate
+          pnpm -v
           pnpm i
 
       - name: Install Rust
