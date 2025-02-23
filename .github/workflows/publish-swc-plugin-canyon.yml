@@ -46,6 +46,9 @@ jobs:
         run: |
           rustup target add wasm32-wasip1
 
+      - name: Check NODE_AUTH_TOKEN
+        run: echo "NODE_AUTH_TOKEN=${{ secrets.NODE_AUTH_TOKEN }}"  # 不建议直接打印 token
+
       - name: Publish to npm
         run: pnpm --filter=swc-plugin-canyon publish -f --no-git-checks --access=public
         env:
