@@ -34,10 +34,12 @@ jobs:
           pnpm --version
           pnpm i
 
-      - name: Install Rust
+      - name: Install Rust Nightly
         uses: actions-rs/toolchain@v1
         with:
+          toolchain: nightly
           profile: minimal
+          override: true
 
       - name: Install wasm target
         shell: bash
