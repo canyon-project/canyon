@@ -1,6 +1,7 @@
+use std::fs::write;
 use std::fs::File;
 use std::sync::Arc;
-use swc_core::ecma::ast::{ArrayLit, IdentName, Lit, PropOrSpread, Str};
+use swc_core::ecma::ast::{ArrayLit, IdentName, Lit, Number, PropOrSpread, Str};
 use swc_core::ecma::{
     ast::{
         Expr, KeyValueProp, ObjectLit, Program,
@@ -17,6 +18,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use swc_core::atoms::Atom;
 use swc_core::common::SourceMap;
+use swc_core::ecma::ast::Lit::Num;
 use swc_core::ecma::visit::swc_ecma_ast;
 use swc_core::plugin::metadata::TransformPluginMetadataContextKind;
 
@@ -101,22 +103,23 @@ fn object_lit_to_json(obj: &ObjectLit) -> Value {
                 match key {
                     PropName::Str(Str { value: key_str, .. }) => {
                         // 处理字符串字面量类型的键
-                        println!("键为字符串字面量: {:?}, 值: {:?}", key_str, value);
+                        // println!("键为字符串字面量: {:?}, 值: {:?}", key_str, value);
 
                         map.insert(key_str.to_string(), expr_to_json(value));  // 递归处理 value
                     }
+                    PropName::Ident(IdentName { sym, .. }) => {
+                        // 处理标识符类型的键
+                        println!("键为标识符类型: {}", sym);
+                        map.insert(sym.to_string(), expr_to_json(value));
+                    }
                     _ => {
+                        // KeyValue(KeyValueProp { key: PropName::Ident(IdentName { sym, .. }), value }
+                        // println!("{:?}", key);
                         // 处理其他类型的键
-                        println!("键为其他类型");
+                        // println!("键为其他类型");
                     }
                 }
             }
-
-
-            // if let Prop::KeyValue(KeyValueProp { key: PropName::Ident(IdentName { sym, .. }), value }) = &**prop {
-            //     // 将 value 转换为 JSON
-            //     map.insert(sym.to_string(), expr_to_json(value));  // 递归处理 value
-            // }
         }
     }
 
@@ -182,16 +185,13 @@ impl TransformVisitor {
             }
         }
 
-        // 定义文件路径
-        let file_path = "coverageData3.json";
+        let file_path = "/cwd/coverageData.json";
 
-        // 打开或创建文件
-        let mut file = File::create(file_path).expect("无法创建文件");
+        // 使用 `write` 方法进行同步写入
+        write(file_path, serde_json::to_string(&map).expect("Unable to serialize JSON"))
+            .expect("Unable to write file");
 
-        // 将 map 转换为 JSON 并写入文件
-        serde_json::to_writer(&mut file, &map).expect("无法写入文件");
 
-        println!("数据已保存到: {}", file_path);
 
         // 过滤掉指定的属性
         obj.props.retain(|prop| {
@@ -202,7 +202,8 @@ impl TransformVisitor {
                                               ..
                                           }) = &**prop {
                         // 排除指定的属性名
-                        !excluded_keys.contains(&sym.as_ref())
+                        // !excluded_keys.contains(&sym.as_ref())
+                        true
                     } else {
                         true
                     }
