@@ -1,3 +1,4 @@
 /target
 Cargo.lock
 swc_plugin_canyon.wasm
+.canyon_output

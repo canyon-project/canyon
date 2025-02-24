@@ -1,6 +1,7 @@
+use std::fs;
 use std::fs::write;
-use std::fs::File;
-use std::sync::Arc;
+use std::path::Path;
+use rand::Rng;
 use swc_core::ecma::ast::{ArrayLit, IdentName, Lit, Number, PropOrSpread, Str};
 use swc_core::ecma::{
     ast::{
@@ -9,21 +10,12 @@ use swc_core::ecma::{
         PropName
     },
     transforms::testing::test_inline,
-    visit::{visit_mut_pass, FoldWith, VisitMut},
+    visit::{visit_mut_pass, VisitMut},
 };
 use swc_core::plugin::{plugin_transform, proxies::TransformPluginProgramMetadata};
-
-
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use swc_core::atoms::Atom;
-use swc_core::common::SourceMap;
-use swc_core::ecma::ast::Lit::Num;
-use swc_core::ecma::visit::swc_ecma_ast;
 use swc_core::plugin::metadata::TransformPluginMetadataContextKind;
-
-use swc_ecma_codegen::{Emitter, Config as EmitConfig, text_writer::JsWriter};
-// use swc_core::ecma::ast::ObjectLit;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -50,33 +42,26 @@ impl Default for Config {
     }
 }
 
+fn array_lit_to_json(arr: &ArrayLit) -> Value {
+    let mut arr_json = Vec::new();
+    for expr in &arr.elems {
+        match expr {
+            Some(expr) => {
+                arr_json.push(expr_to_json(expr.expr.as_ref()));
+            }
+            None => {
+                arr_json.push(json!(null));
+            }
+        }
+    }
+    Value::Array(arr_json)
+}
 
-// 辅助函数：将 Expr 转换为 JavaScript 代码字符串
-// fn expr_to_code(expr: &Expr) -> String {
-//     let cm = SourceMap::default();
-//     let mut buf = Vec::new();
-//     let config = EmitConfig {
-//         ..Default::default()
-//     };
-//     let mut emitter = Emitter {
-//         cfg: config,
-//         // cm: &cm,
-//         wr: Box::new(JsWriter::new(Arc::from(cm), "\n", &mut buf, None)),
-//         comments: None,
-//         cm: Arc::new(()),
-//     };
-//     emitter.comments(expr);
-//     String::from_utf8_lossy(&buf).to_string()
-// }
-
-
-
-// 将表达式转换为 JSON
 fn expr_to_json(expr: &Expr) -> Value {
     match expr {
         Expr::Lit(lit) => lit_to_json(lit),  // 处理字面量
         Expr::Object(obj) => object_lit_to_json(obj),  // 处理对象字面量
-        // Expr::Array(arr) => array_lit_to_json(arr),  // 处理数组字面量（如果需要）
+        Expr::Array(arr) => array_lit_to_json(arr),  // 处理数组字面量（如果需要）
         _ => json!(null)  // 其他类型的值默认为 null
     }
 }
@@ -87,12 +72,10 @@ fn lit_to_json(lit: &Lit) -> Value {
         Lit::Str(str_) => json!(str_.value),
         Lit::Num(num_) => json!(num_.value),
         Lit::Bool(bool_) => json!(bool_.value),
-        // Lit::Null => json!(null),
         _ => json!(null)  // 其他字面量转换为 null
     }
 }
 
-// 将对象字面量转换为 JSON 对象
 fn object_lit_to_json(obj: &ObjectLit) -> Value {
     let mut map = serde_json::Map::new();
 
@@ -102,21 +85,12 @@ fn object_lit_to_json(obj: &ObjectLit) -> Value {
             if let Prop::KeyValue(KeyValueProp { key, value }) = &**prop {
                 match key {
                     PropName::Str(Str { value: key_str, .. }) => {
-                        // 处理字符串字面量类型的键
-                        // println!("键为字符串字面量: {:?}, 值: {:?}", key_str, value);
-
                         map.insert(key_str.to_string(), expr_to_json(value));  // 递归处理 value
                     }
                     PropName::Ident(IdentName { sym, .. }) => {
-                        // 处理标识符类型的键
-                        println!("键为标识符类型: {}", sym);
                         map.insert(sym.to_string(), expr_to_json(value));
                     }
                     _ => {
-                        // KeyValue(KeyValueProp { key: PropName::Ident(IdentName { sym, .. }), value }
-                        // println!("{:?}", key);
-                        // 处理其他类型的键
-                        // println!("键为其他类型");
                     }
                 }
             }
@@ -125,18 +99,6 @@ fn object_lit_to_json(obj: &ObjectLit) -> Value {
 
     Value::Object(map)
 }
-
-// 将数组字面量转换为 JSON 数组（如果需要）
-// fn array_lit_to_json(arr: &ArrayLit) -> Value {
-//     let mut arr_json = Vec::new();
-//
-//     for expr in arr {
-//         arr_json.push(expr_to_json(expr));  // 递归处理数组中的元素
-//     }
-//
-//     Value::Array(arr_json)
-// }
-
 
 pub struct TransformVisitor {
     config: Config,
@@ -156,13 +118,9 @@ impl TransformVisitor {
         for prop in &obj.props {
             if let PropOrSpread::Prop(ref prop) = prop {
                 if let Prop::KeyValue(KeyValueProp { key: PropName::Ident(IdentName { sym, .. }), value }) = &**prop {
-
-
-
                     // 解引用 value，处理其中的表达式
                     let value1 = match &**value {
                         Expr::Lit(lit) => {
-                            // 将 lit 转换为 JSON
                             lit_to_json(lit)
                         }
                         Expr::Object(ref obj) => {
@@ -177,21 +135,38 @@ impl TransformVisitor {
 
                     map.insert(sym.clone(), value1);
 
-                //     保存成json文件
-                //     let mut file = File::create("coverageData.json").unwrap();
-                //     serde_json::to_writer(&file, &value1).unwrap();
-
                 }
             }
         }
 
-        let file_path = "/cwd/coverageData.json";
+        // 目录/cwd/.canyon_output 没有就创建
+
+
+
+
+
+
+        // 创建一个随机数生成器
+        let mut rng = rand::thread_rng();
+
+        // 生成一个随机的 u64 数字
+        let random_number: u64 = rng.gen();
+
+        // 将数字转换为字符串
+        let random_string = random_number.to_string();
+
+        // 构建文件名
+        let file_path = format!("/cwd/.canyon_output/coverage-final-{}.json", random_string);
+
+        // 获取文件的父目录路径
+        let parent_dir = Path::new(&file_path).parent().unwrap();
+
+        // 创建父目录及其所有缺失的父目录
+        fs::create_dir_all(parent_dir).expect("Unable to create directories");
 
         // 使用 `write` 方法进行同步写入
         write(file_path, serde_json::to_string(&map).expect("Unable to serialize JSON"))
             .expect("Unable to write file");
-
-
 
         // 过滤掉指定的属性
         obj.props.retain(|prop| {
@@ -202,8 +177,7 @@ impl TransformVisitor {
                                               ..
                                           }) = &**prop {
                         // 排除指定的属性名
-                        // !excluded_keys.contains(&sym.as_ref())
-                        true
+                        !excluded_keys.contains(&sym.as_ref())
                     } else {
                         true
                     }
@@ -269,11 +243,6 @@ impl VisitMut for TransformVisitor {
 
 #[plugin_transform]
 pub fn process_transform(program: Program, metadata: TransformPluginProgramMetadata) -> Program {
-
-    // 定义react_remove_properties
-
-
-
     let config = serde_json::from_str::<Option<Config>>(
         &metadata
             .get_transform_plugin_config()
@@ -292,9 +261,6 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
     if filename.contains("node_modules") {
         return program; // Skip transformation for non-JS/TS files
     }
-
-    // program.fold_with(&mut visit_mut_pass(TransformVisitor { config }))
-
     program.apply(&mut visit_mut_pass(TransformVisitor { config }))
 }
 
