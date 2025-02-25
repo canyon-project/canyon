@@ -1,0 +1,47 @@
+# Vite
+
+import { Steps } from "nextra/components";
+
+安装和配置 Vite 。
+
+<Steps>
+
+  ### 创建项目
+  首先使用以下命令创建一个新的 React 项目 `vite` 。
+
+  > [!TIP]
+  >
+  > 目前只支持 vite 的 react 模版
+
+  ```sh npm2yarn copy
+  npm create vite@latest
+  ```
+
+  ### 添加 canyon 及其配置
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### 配置 swc 插件
+
+  ``` ts filename="vite.config.ts" copy {7,8,9}
+  import { defineConfig } from 'vite'
+  import react from '@vitejs/plugin-react'
+
+  // https://vite.dev/config/
+  export default defineConfig({
+  plugins: [react({
+      babel:{
+        plugins:["istanbul","canyon"]
+      }
+    })],
+  })
+
+  ```
+
+  ### 就是这样
+  继续查看 [第一个覆盖率数据 - 检查](/documentation/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)。
+</Steps>
+
+
