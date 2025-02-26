@@ -34,7 +34,8 @@ setTimeout(()=>{
   // 先尝试本地获取，如果没有再去获取window上的数据
   const __canyon__interval__time__ = Number(localStorage.getItem('__canyon__interval__time__')) || Number(window?.__canyon__?.intervalTime);
   if (!isNaN(__canyon__interval__time__)) {
-    const num = __canyon__interval__time__;
+    // const num = __canyon__interval__time__;
+    const num = 6;
     if (num > 0) {
       setInterval(() => {
         if ((window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined)) && window.__coverage__) {
