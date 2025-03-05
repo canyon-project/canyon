@@ -1,0 +1,18 @@
+import { Steps, Callout, Cards } from "nextra/components";
+
+# Getting Started
+
+Unlike unit tests, end-to-end testing launches a browser, and our goal is to collect coverage data within the browser. Therefore, the complexity is relatively higher. Here's the general process:
+
+- Expose browser global variables and write coverage data to local storage at the appropriate time
+- After UI automation is complete, use [canyon-uploader](/documentation/ecosystem/canyon-uploader) to read and aggregate coverage data from the local `.canyon_output` directory
+- Associate the caseID with [Report ID](/documentation/core-concepts/report-id) to ensure case traceability
+
+## Frameworks
+
+<Cards>
+  <Cards.Card
+    title="Playwright"
+    href="/documentation/end-to-end-testing/playwright"
+  />
+</Cards>

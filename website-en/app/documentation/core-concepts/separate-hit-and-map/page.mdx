@@ -1,0 +1,43 @@
+import { Callout } from "nextra/components";
+
+# Separating Hit and Map
+
+Collecting initial coverage source files generated during Babel compilation in CI
+
+## Reasons
+
+1. **Collecting Complete Compilation Files**: During the post-compilation process, the `babel-plugin-canyon` plugin analyzes and parses
+   the initial coverage files for each compiled file and saves them to the `.canyon_out` folder.
+
+2. **Early Collection, Reduced Load**: When you haven't reported the initial coverage files, these coverage files will be reported during UI automation testing,
+   which creates significant transmission load. Early collection can reduce transmission load by over 90%.
+
+> [!TIP]
+>
+> While this is not mandatory, it is strongly recommended if you need accurate and stable coverage data collection.
+
+## Reporting Initial Coverage Data
+
+The babel-plugin-canyon plugin generates original coverage files for compiled files during compilation and saves them to the .canyon_output folder. We provide the canyon-uploader command-line tool, which you can use to report to the Canyon server in CI.
+
+```yml filename=".github/workflows/report-canyon-output.yml" {19,20} copy
+name: Report Canyon Output
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # Node.js version can be modified according to project requirements
+      - name: Install dependencies
+        run: npm install
+      - name: Generate output
+        run: npm run build
+
+      # Report .canyon_output file content
+      - name: Report output
+```
