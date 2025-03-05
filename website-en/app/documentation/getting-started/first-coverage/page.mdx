@@ -1,0 +1,98 @@
+import { Steps, Callout, Cards } from "nextra/components";
+
+# First Coverage Data
+
+> [!NOTE]
+>
+> Canyon provides [installation guides for common frameworks](/documentation/installation/getting-started) to help you get started quickly.
+
+Follow these steps to complete your first coverage data report:
+
+## Start as a New Project
+
+<Steps>
+  ### Installation
+
+In frontend engineering and modular development, Babel is indispensable. For Babel projects, you only need to install two Babel plugins to get started quickly.
+
+```sh npm2yarn
+npm install babel-plugin-istanbul babel-plugin-canyon -D
+```
+
+Add the [`istanbul`](https://www.npmjs.com/package/babel-plugin-istanbul) and [`canyon`](https://www.npmjs.com/package/babel-plugin-canyon) plugins to your [Babel configuration file](https://babeljs.io/docs/config-files#configuration-file-types):
+
+  ```js filename="babel.config.js" {3,4} copy
+  module.exports = {
+    plugins: [
+      'canyon',
+      'istanbul'
+      ],
+  };
+  ```
+
+### Verification
+
+After configuration, start your project and print **window.\_\_coverage\_\_** in the console. If the output matches the image below, it indicates successful code instrumentation.
+
+![coverage-canyon-console](/static/documentation/getting-started/first-coverage/coverage-canyon-console.png)
+
+### Configure CI Environment Variables
+
+In the CI environment, we need to configure some environment variables for reporting coverage data.
+
+> [!TIP]
+>
+> Canyon detects pipeline variables during compilation. We support multiple [pipeline providers](/documentation/reference/provider).<br/>
+> Don't see your pipeline provider? Try [explicit configuration](/documentation/ecosystem/babel-plugin-canyon#配置).
+
+
+1. `DSN` and `REPORTER`
+
+- **DSN**: Coverage data reporting service address, url/coverage/client, where url is the Canyon service address.
+- **REPORTER**: User token, which can be viewed in the Canyon user settings page.
+
+2. Configure CI Platform Variables
+
+![gitlab](/static/documentation/getting-started/first-coverage/gitlab-var-config.png)
+
+<Callout type="info" emoji="ℹ️">
+  Note that project ID, branch, and SHA don't need manual configuration - the Canyon plugin automatically detects pipeline environment variables.
+</Callout>
+
+  ### Update Babel Plugin Activation Conditions
+
+  __In the CI phase, we need to control when plugins are active to prevent instrumentation on production branches.__
+
+  ```js {2,3} copy
+  module.exports = {
+    plugins: (process.env.CI &&
+              process.env.CI_COMMIT_REF_NAME !== 'release')
+              ? [
+                'canyon',
+                'istanbul'
+              ]:[],
+  };
+  ```
+
+  ### Report Coverage Data
+
+  After CI completes, the page is deployed to the test environment.
+
+  At this point, coverage data is stored in the browser. As users operate or UI automation tests execute, the window.__coverage___ data continuously accumulates.
+
+  By accurately reporting this data to the Canyon server, you can achieve real-time coverage data visualization.
+
+
+  Here are several ways to report coverage data:
+
+  <Cards>
+  <Cards.Card
+    title="UI Automation Testing"
+    href="/documentation/end-to-end-testing/playwright"
+  />
+  <Cards.Card
+    title="Manual Testing"
+    href="/documentation/ecosystem/canyon-extension"
+  />
+</Cards>
+</Steps>
