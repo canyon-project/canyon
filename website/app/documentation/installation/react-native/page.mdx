@@ -1,23 +1,20 @@
-# Next.js
+# React Native
 
 import { Steps } from "nextra/components";
 
-安装和配置 Next.js 。
+安装和配置 React Native 。
 
 <Steps>
 
   ### 创建项目
-  首先使用以下命令创建一个新的 React 项目 `next.js` 。
 
-  ```sh npm2yarn copy
-  npx create-next-app@latest
-  ```
+  React Native [文档](https://reactnative.dev/)
 
   ### 添加 Canyon 及其配置
 
   > [!TIP]
   >
-  > 最新next.js编译器默认使用swc，有关babel插件的配置，请查看[这里](https://nextjs.org/docs/advanced-features/customizing-babel-config)。
+  > 您需要了解 [react-native-babel-preset](https://reactnative.dev/docs/javascript-environment#javascript-syntax-transformers) 。
 
 
   ```sh npm2yarn copy
@@ -28,7 +25,7 @@ import { Steps } from "nextra/components";
 
   ```js filename="babel.config.js" {3} copy
   module.exports = {
-    presets: ["next/babel"],
+    presets: ["module:@react-native/babel-preset"],
     plugins: ["istanbul", "canyon"],
   };
   ```
