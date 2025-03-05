@@ -1,7 +1,7 @@
 import { GithubOutlined } from '@ant-design/icons';
 import { css } from '@emotion/react';
 
-import logo from '../../assets/light-logo.svg';
+import logo from '../../assets/logo-128.png';
 const AppHeader = () => {
   return (
     <header

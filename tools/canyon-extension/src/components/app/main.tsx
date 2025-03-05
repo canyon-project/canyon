@@ -168,7 +168,7 @@ const AppMain = () => {
                   <InputNumber
                     max={60}
                     min={0}
-                    value={intervalTime}
+                    value={7}
                     onChange={(e) => {
                       setIntervalTime(e || 0);
                     }}
