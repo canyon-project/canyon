@@ -1,5 +1,5 @@
 import { FC, useEffect, useMemo, useRef, useState } from "react";
-import { DiffEditor, Editor } from "@monaco-editor/react";
+import { Editor } from "@monaco-editor/react";
 
 // import * as monaco from "monaco-editor";
 import {
@@ -14,9 +14,8 @@ const { useToken } = theme;
 const FileCoverageDetail: FC<{
   fileContent: string;
   fileCodeChange: number[];
-  fileCodeChangeContent: string;
   fileCoverage: any;
-}> = ({ fileContent, fileCoverage, fileCodeChange, fileCodeChangeContent }) => {
+}> = ({ fileContent, fileCoverage, fileCodeChange }) => {
   const { token } = useToken();
   const { lines } = coreFn(fileCoverage, fileContent);
 
@@ -24,11 +23,11 @@ const FileCoverageDetail: FC<{
     return lines.map((line, index) => {
       return {
         lineNumber: index + 1,
-        change: false,
+        change: fileCodeChange.includes(index + 1),
         hit: line.executionNumber,
       };
     });
-  }, [lines]);
+  }, [lines, fileCodeChange]);
 
   const lineNumbersMinChars = useMemo(() => {
     const maxHit = Math.max(...linesState.map((line) => line.hit));
@@ -63,20 +62,7 @@ const FileCoverageDetail: FC<{
   }
   useEffect(() => {
     if (editor) {
-      let needDeltaDecorationsEditor = null;
-
-      if (fileCodeChangeContent) {
-        const originalEditor = editor.getOriginalEditor();
-        originalEditor.updateOptions({
-          lineNumbers: false,
-        });
-        const modifiedEditor = editor.getModifiedEditor();
-        needDeltaDecorationsEditor = modifiedEditor;
-      } else {
-        needDeltaDecorationsEditor = editor;
-      }
-
-      needDeltaDecorationsEditor?.deltaDecorations?.(
+      editor?.deltaDecorations?.(
         [], // oldDecorations 每次清空上次标记的
         decorations.map(
           ({ inlineClassName, startLine, startCol, endLine, endCol }) => ({
@@ -105,70 +91,36 @@ const FileCoverageDetail: FC<{
         // border: "1px solid " + token.colorBorder,
       }}
     >
-      {fileCodeChangeContent ? (
-        <DiffEditor
-          original={fileCodeChangeContent}
-          modified={fileContent}
-          // theme={"vs-dark"}
-          height={"calc(100vh - 200px)"}
-          // height={`${18 * (lineCount + 1)}px`}
-          language={"javascript"}
-          onMount={handleEditorDidMount}
-          options={{
-            lineHeight: 18,
-            lineNumbers: (lineNumber) => {
-              return lineNumbers(
-                lineNumber,
-                linesState,
-                token.colorBgBase === "#000",
-              );
-            },
-            lineNumbersMinChars: lineNumbersMinChars,
-            readOnly: true,
-            folding: false,
-            minimap: { enabled: false },
-            scrollBeyondLastLine: false,
-            showUnused: false,
-            fontSize: 12,
-            fontFamily: "IBMPlexMono",
-            scrollbar: {
-              // handleMouseWheel: false,
-            },
-            contextmenu: false,
-          }}
-        />
-      ) : (
-        <Editor
-          value={fileContent}
-          theme={token.colorBgBase === "#000" ? "nightOwl" : "vs"}
-          height={"calc(100vh - 200px)"}
-          // height={`${18 * (lineCount + 1)}px`}
-          language={"javascript"}
-          onMount={handleEditorDidMount}
-          options={{
-            lineHeight: 18,
-            lineNumbers: (lineNumber) => {
-              return lineNumbers(
-                lineNumber,
-                linesState,
-                token.colorBgBase === "#000",
-              );
-            },
-            lineNumbersMinChars: lineNumbersMinChars,
-            readOnly: true,
-            folding: false,
-            minimap: { enabled: false },
-            scrollBeyondLastLine: false,
-            showUnused: false,
-            fontSize: 12,
-            fontFamily: "IBMPlexMono",
-            scrollbar: {
-              // handleMouseWheel: false,
-            },
-            contextmenu: false,
-          }}
-        />
-      )}
+      <Editor
+        value={fileContent}
+        theme={token.colorBgBase === "#000" ? "nightOwl" : "vs"}
+        height={"calc(100vh - 200px)"}
+        // height={`${18 * (lineCount + 1)}px`}
+        language={"javascript"}
+        onMount={handleEditorDidMount}
+        options={{
+          lineHeight: 18,
+          lineNumbers: (lineNumber) => {
+            return lineNumbers(
+              lineNumber,
+              linesState,
+              token.colorBgBase === "#000",
+            );
+          },
+          lineNumbersMinChars: lineNumbersMinChars,
+          readOnly: true,
+          folding: false,
+          minimap: { enabled: false },
+          scrollBeyondLastLine: false,
+          showUnused: false,
+          fontSize: 12,
+          fontFamily: "IBMPlexMono",
+          scrollbar: {
+            // handleMouseWheel: false,
+          },
+          contextmenu: false,
+        }}
+      />
     </div>
   );
 };

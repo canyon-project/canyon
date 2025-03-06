@@ -8,7 +8,6 @@ export interface ReportProps {
     fileCoverage: FileCoverageData;
     fileContent: string;
     fileCodeChange: number[];
-    fileCodeChangeContent: string;
   }>;
   defaultOnlyShowChanged: boolean;
 }
