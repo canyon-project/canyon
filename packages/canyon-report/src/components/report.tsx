@@ -15,7 +15,6 @@ const onSelectDefault = () => {
     fileContent: "",
     fileCoverage: emptyFileCoverageData,
     fileCodeChange: [],
-    fileCodeChangeContent: "",
   });
 };
 
@@ -39,7 +38,6 @@ const Report: FC<ReportProps> = ({
     b: {},
   });
   const [fileContent, setFileContent] = useState<string>("");
-  const [fileCodeChangeContent, setFileCodeChangeContent] = useState<string>("");
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
   const [onlyChange, setOnlyChange] = useState(Boolean(defaultOnlyShowChanged));
 
@@ -48,7 +46,6 @@ const Report: FC<ReportProps> = ({
     setFileContent(res.fileContent);
     setFileCoverage(res.fileCoverage);
     setFileCodeChange(res.fileCodeChange);
-    setFileCodeChangeContent(res.fileCodeChangeContent);
     return res;
   }
 
@@ -146,7 +143,6 @@ const Report: FC<ReportProps> = ({
         Object.keys(fileCoverage).length > 0 &&
         Object.keys(fileContent).length > 0 && (
           <FileCoverageDetail
-            fileCodeChangeContent={fileCodeChangeContent}
             fileContent={fileContent}
             fileCodeChange={fileCodeChange}
             fileCoverage={fileCoverage}

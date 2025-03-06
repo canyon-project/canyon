@@ -15,7 +15,7 @@ export function handleSelectFile({
   reportID,
 }: HandleSelectFile) {
   const fileContentRequest = axios
-    .get(`/api/code`, {
+    .get(`/api/sourcecode`, {
       params: {
         projectID: projectID,
         sha: sha,
@@ -52,7 +52,6 @@ export function handleSelectFile({
       fileContent: getDecode(fileContent.content),
       fileCoverage: fileCoverage,
       fileCodeChange: fileCodeChange.additions || [],
-      fileCodeChangeContent: getDecode(fileContent.oldContent),
     };
   });
 }
