@@ -18,6 +18,7 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { CollectModule } from "./apps/collect/collect.module";
 import { CoveragediskEntity } from "./apps/collect/entity/coveragedisk.entity";
 import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+import {CodeModule} from "./code/code.module";
 
 
 @Module({
@@ -37,6 +38,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
     CoverageModule,
     CodechangeModule,
     SourcecodeModule,
+    CodeModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "../../canyon-platform", "dist"),
       exclude: ["/graphql"], // 这样就不会触发 path-to-regexp 解析错误
