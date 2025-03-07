@@ -62,6 +62,8 @@ export default declare((api, config, dirname) => {
           const env_sha = envs.CI_MERGE_REQUEST_SOURCE_BRANCH_SHA || envs.CI_BUILD_REF || envs.CI_COMMIT_SHA
           const env_projectID = envs.CI_PROJECT_ID
           const env_branch = envs.CI_COMMIT_BRANCH
+          const env_buildID = envs.CI_JOB_ID
+          const env_buildProvider = 'gitlab_runner'
 
           const servePa:{provider?:string,compareTarget?:string}&any = trim({
             ...config,
@@ -74,6 +76,8 @@ export default declare((api, config, dirname) => {
             dsn: config.dsn || process.env['DSN'] || 'http://localhost:3000',
             reporter: config.reporter || process.env['REPORTER'] || '-',
             ci: config.ci || process.env['CI'] || false,
+            buildID: config.buildID || env_buildID || '-',
+            buildProvider: config.buildProvider || env_buildProvider,
           })
 
           if (onlyOne){
@@ -109,6 +113,8 @@ export default declare((api, config, dirname) => {
             REPORTER: servePa.reporter,
             COMPARE_TARGET: servePa.compareTarget||'-',
             INSTRUMENT_CWD: servePa.instrumentCwd,
+            BUILD_ID: servePa.buildID,
+            BUILD_PROVIDER: servePa.buildProvider,
           }
           if (config.debug){
             console.log('Canyon:', __canyon__)
@@ -130,10 +136,11 @@ export default declare((api, config, dirname) => {
                     reportID: 'initial_coverage_data',
                     compare_target: __canyon__.COMPARE_TARGET,
                     instrumentCwd: __canyon__.INSTRUMENT_CWD,
-                    // buildID: __canyon__.BUILD_ID
+                    buildID: __canyon__.BUILD_ID,
+                    buildProvider: __canyon__.BUILD_PROVIDER,
                   }, {
                     headers: {
-                      Authorization: 'Bearer ' + __canyon__.REPORTER,
+                      Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InR6aGFuZ21AdHJpcC5jb20iLCJpZCI6Ijg0MTciLCJpYXQiOjE3NDEyNDEyOTQsImV4cCI6MjA1NjgxNzI5NH0.5R8HQ5ag_HG8_brkFJiSXMZXGTso9bwpLsQ58MQm0zw',
                     },
                     timeout: 15000,
                     ...proxy
