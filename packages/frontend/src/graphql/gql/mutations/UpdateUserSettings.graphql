@@ -1,0 +1,14 @@
+mutation UpdateUserSettings(
+  $theme: String
+  $language: String
+  # 这里可以根据 UpdateUserSettingsRequestModel 的实际字段添加更多参数
+) {
+  updateUserSettings(
+    theme: $theme
+    language: $language
+    # 同样根据实际情况添加其他字段
+  ) {
+    theme
+    language
+  }
+}

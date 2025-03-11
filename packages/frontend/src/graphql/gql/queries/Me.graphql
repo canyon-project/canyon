@@ -1,0 +1,18 @@
+query Me {
+    me {
+        id
+        username
+        password
+        nickname
+        avatar
+        #    refreshToken
+        #    accessToken
+        email
+      settings {
+        theme
+        language
+      }
+#        favor
+#        createdAt
+    }
+}
