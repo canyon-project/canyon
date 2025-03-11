@@ -19,7 +19,7 @@ import {AuthModule} from "./apps/auth/auth.module";
     AuthModule,
     ProjectModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../../platform', 'dist'),
+      rootPath: join(__dirname, '../../frontend', 'dist'),
       exclude: ['/graphql'], // 这样就不会触发 path-to-regexp 解析错误
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
