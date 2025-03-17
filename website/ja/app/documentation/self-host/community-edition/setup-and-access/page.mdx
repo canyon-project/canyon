@@ -1,0 +1,52 @@
+# 设置和访问
+
+了解如何设置和访问 Canyon 社区版。
+
+## 系统设置
+
+想要使用 Canyon 的所有功能，您必须配置以下数据表：
+
+1. `CANYON_SERVER`: Canyon 服务器地址
+2. `GITLAB_SERVER`: GitLab 服务器地址
+3. `GITLAB_CLIENT_ID`: GitLab 客户端 ID
+4. `GITLAB_CLIENT_SECRET`: GitLab 客户端密钥
+
+import { Callout } from 'nextra/components';
+
+<Callout type="info" emoji="ℹ️">
+  [将 GitLab 配置为 OAuth 2.0 身份验证身份提供者](https://docs.gitlab.com/ee/integration/oauth_provider.html)
+</Callout>
+
+
+```sql copy
+insert into public.sys_setting (id, key, value)
+values  ('1', 'CANYON_SERVER', 'https://canyonjs.org');
+        ('2', 'GITLAB_SERVER', 'https://gitlab.com'),
+        ('3', 'GITLAB_CLIENT_ID', 'xxx'),
+        ('4', 'GITLAB_CLIENT_SECRET', 'xxx'),
+```
+
+目前只支持 GitLab，后续会支持更多的 Git 服务商。
+
+
+<Callout type="info" emoji="ℹ️">
+  仅需要修改 `url`、`private_token`。
+</Callout>
+
+```sql copy
+insert into public.git_provider (id, url, type, name, disabled, private_token)
+values  ('gitlab', 'https://gitlab.com', 'gitlab', 'GitLab', false, 'xxx'),
+```
+
+## 管理员登录
+
+创建以下用户。您可以使用以下凭据登录： email: canyon，password: 123456
+
+```sql copy
+INSERT INTO "user" (id, email, password, nickname, avatar, favor)
+VALUES ('canyon', 'canyon@canyon.com', '123456', 'Canyon', '/avatar.jpg', '');
+```
+
+## gitlab oauth2 登陆
+
+![](/static/documentation/self-host/community-edition/login.png)
