@@ -1,0 +1,88 @@
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { DatabaseSync } from 'node:sqlite';
+import { randomUUID } from 'crypto';
+import * as fs from 'node:fs';
+
+@Injectable()
+export class CoverageLocalMessageQueueService
+  implements OnModuleInit, OnModuleDestroy
+{
+  private database: DatabaseSync;
+  onModuleInit() {
+    // 检查db目录在不在
+    // 如果不在，创建
+
+    if (!fs.existsSync('db')) {
+      fs.mkdirSync('db');
+    }
+    this.database = new DatabaseSync('db/source.db');
+    this.setupDatabase();
+  }
+
+  onModuleDestroy() {
+    this.database.close();
+    console.log('关闭');
+  }
+
+  // constructor(
+  //   private database: DatabaseSync;
+  // ) {
+  //
+  // }
+
+  private setupDatabase() {
+    try {
+      // 先尝试删除已存在的表
+      this.database.exec(`DROP TABLE IF EXISTS data`);
+
+      // 创建表
+      this.database.exec(`
+        CREATE TABLE data(
+          id TEXT PRIMARY KEY  NOT NULL,
+          pid TEXT  NOT NULL,
+          project_id TEXT  NOT NULL,
+          report_id TEXT  NOT NULL,
+          sha TEXT NOT NULL,
+          data TEXT NOT NULL
+        ) STRICT
+      `);
+
+      // 插入示例数据
+      this.insertSampleData();
+    } catch (error) {
+      console.error('Database setup error:', error);
+    }
+  }
+
+  private insertSampleData() {
+    const insert = this.database.prepare(
+      'INSERT INTO data (id, pid, project_id, report_id, sha, data) VALUES (?, ?, ?, ?, ?, ?)',
+    );
+
+    // 生成随机 id 并插入数据
+    const id1 = randomUUID();
+    insert.run(
+      id1,
+      'testPid1',
+      'testProjectId1',
+      'testReportId1',
+      'testSha1',
+      'testData1',
+    );
+
+    const id2 = randomUUID();
+    insert.run(
+      id2,
+      'testPid2',
+      'testProjectId2',
+      'testReportId2',
+      'testSha2',
+      'testData2',
+    );
+  }
+
+  getData() {
+    const query = this.database.prepare('SELECT * FROM data ORDER BY id');
+    return query.all();
+  }
+}
