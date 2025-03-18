@@ -70,8 +70,10 @@ const Sha = () => {
         }}
       >
         <CanyonReport
+          theme={localStorage.getItem("theme") || "light"}
+          language={localStorage.getItem("i18nextLng") || "en"}
           value={activatedPath}
-          name={pathWithNamespace}
+          name={pathWithNamespace || ""}
           dataSource={coverageSummaryMapData}
           onSelect={(val: string) => {
             setActivatedPath(val);
@@ -79,6 +81,7 @@ const Sha = () => {
               return Promise.resolve({
                 fileContent: "",
                 fileCoverage: {},
+                fileCodeChange: [],
               });
             }
             return handleSelectFile({
