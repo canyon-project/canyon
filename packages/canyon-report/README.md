@@ -1,1 +1,0 @@
-# 一定要注意Monaco，loader，new Range的monao用window.monaco全局的
