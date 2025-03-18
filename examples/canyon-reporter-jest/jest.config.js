@@ -5,7 +5,7 @@ const config = {
     // 原本的报告器
     'clover', 'json', 'lcov',
     // canyon-reporter
-    'canyon-reporter'
+    // 'canyon-reporter'
   ],
 };
 
