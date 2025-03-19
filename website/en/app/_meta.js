@@ -17,15 +17,15 @@ export default {
     type: "page",
   },
   language: {
-    title: "语言",
+    title: "Language",
     type: "menu",
     items: {
       en: {
-        title: "简体中文",
+        title: "Simplified Chinese",
         href: "https://cn.docs.canyonjs.org",
       },
       ja: {
-        title: "日文",
+        title: "Japanese",
         href: "https://ja.docs.canyonjs.org",
       },
     },
