@@ -9,15 +9,15 @@ export default {
     },
   },
   documentation: {
-    title: "文档",
+    title: "ドキュメント",
     type: "page",
   },
   support: {
-    title: "支持",
+    title: "サポート",
     type: "page",
   },
   language: {
-    title: "语言",
+    title: "言語",
     type: "menu",
     items: {
       en: {
@@ -25,7 +25,7 @@ export default {
         href: "https://docs.canyonjs.org",
       },
       ja: {
-        title: "简体中文",
+        title: "日本語",
         href: "https://cn.docs.canyonjs.org",
       },
     },

@@ -2,26 +2,26 @@
 
 import { Steps } from "nextra/components";
 
-安装和配置 React Native 。
+React Nativeのインストールと設定。
 
 <Steps>
 
-  ### 创建项目
+  ### プロジェクトの作成
 
-  React Native [文档](https://reactnative.dev/)
+  React Native [ドキュメント](https://reactnative.dev/)
 
-  ### 添加 Canyon 及其配置
+  ### Canyonの追加と設定
 
   > [!TIP]
   >
-  > 您需要了解 [react-native-babel-preset](https://reactnative.dev/docs/javascript-environment#javascript-syntax-transformers) 。
+  > [react-native-babel-preset](https://reactnative.dev/docs/javascript-environment#javascript-syntax-transformers)について理解する必要があります。
 
 
   ```sh npm2yarn copy
   npm install babel-plugin-istanbul babel-plugin-canyon -D
   ```
 
-  ### 配置 babel 插件
+  ### babelプラグインの設定
 
   ```js filename="babel.config.js" {3} copy
   module.exports = {
@@ -30,8 +30,8 @@ import { Steps } from "nextra/components";
   };
   ```
 
-  ### 就是这样
-  继续查看 [第一个覆盖率数据 - 检查](/documentation/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)。
+  ### 以上です
+  [最初のカバレッジデータ - 確認](/documentation/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)に進んでください。
 </Steps>
 
 
