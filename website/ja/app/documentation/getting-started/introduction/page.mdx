@@ -1,45 +1,44 @@
-# 介绍
+# はじめに
 
-## 概述
+## 概要
 
-Canyon（意为 “峡谷”，发音 /ˈkænjən/）是一个 JavaScript 代码覆盖率收集平台。我们解决了开发人员和 QA 工程师在端到端测试过程中收集测试用例代码覆盖率时遇到的困难。它由三个主要部分组成：
+Canyon（「峡谷」の意、発音 /ˈkænjən/）は、JavaScriptコードカバレッジ収集プラットフォームです。開発者とQAエンジニアがエンドツーエンドテスト中にテストケースのコードカバレッジを収集する際の課題を解決します。主に3つの部分で構成されています：
 
-- 负责适配各种CI提供商、侦测环境变量的一系列 [插件](https://github.com/canyon-project/canyon/tree/main/plugins)。
+- 様々なCIプロバイダーに対応し、環境変数を検出する[プラグイン](https://github.com/canyon-project/canyon/tree/main/plugins)群。
 
-- 负责收集处理覆盖率数据，提供后端API的 [nodejs服务](https://github.com/canyon-project/canyon/tree/main/packages/canyon-backend)。
+- カバレッジデータの収集・処理、バックエンドAPIを提供する[nodejsサービス](https://github.com/canyon-project/canyon/tree/main/packages/canyon-backend)。
 
-- 负责展示覆盖率数据的 [react前端应用](https://github.com/canyon-project/canyon/tree/main/packages/canyon-platform)。
+- カバレッジデータを表示する[reactフロントエンドアプリケーション](https://github.com/canyon-project/canyon/tree/main/packages/canyon-platform)。
 
 ![](/static/documentation/getting-started/introduction/home-screen.png)
 
-## 为什么是Canyon?
+## なぜCanyonなのか？
 
-Canyon通过在编译阶段分离 hit 和 map 数据，能够高效处理 UI 自动化测试产生的大量覆盖率数据。
+Canyonは、コンパイル段階でhitとmapデータを分離することで、UI自動化テストで生成される大量のカバレッジデータを効率的に処理できます。
 
-此外，Canyon 适配了常见CI提供商，能够在构建阶段插入探针代码，在 UI 自动化测试阶段收集和上报覆盖率数据。
+さらに、Canyonは一般的なCIプロバイダーに対応しており、ビルド段階でプローブコードを挿入し、UI自動化テスト段階でカバレッジデータを収集・報告することができます。
 
-这使得开发团队能够 __准确__ 、 __实时__ 的了解当前 UI 自动化测试 __每个用例__ 的覆盖率情况，从而更好地评估和提升代码质量。
+これにより、開発チームはUI自動化テストの__各ケース__のカバレッジ状況を__正確__に、__リアルタイム__で把握し、コード品質の評価と向上に役立てることができます。
 
-### 功能特点
+### 特徴
 
-- [准确高效](/documentation/core-concepts/separate-hit-and-map)：通过分离hit、map，编译时生成初始覆盖率数据，准确高效的收集覆盖率数据
-- [SourceMap](/documentation/core-concepts/restore-source-code-coverage)：准确的源码覆盖率还原
-- [构建工具](/documentation/installation/getting-started)：提供next.js、vite、webpack等常见构建工具的覆盖率方案
-- [自动化框架](/documentation/end-to-end-testing/getting-started)：提供常见UI自动化框架集成方案
-- [CI提供商](/documentation/reference/provider)：适配常见CI提供商（Github Actions、GitLab Runner），侦测CI环境变量
+- [正確で効率的](/documentation/core-concepts/separate-hit-and-map)：hitとmapの分離、コンパイル時の初期カバレッジデータ生成により、正確で効率的なカバレッジデータの収集を実現
+- [SourceMap](/documentation/core-concepts/restore-source-code-coverage)：正確なソースコードカバレッジの復元
+- [ビルドツール](/documentation/installation/getting-started)：next.js、vite、webpackなど一般的なビルドツールのカバレッジソリューションを提供
+- [自動化フレームワーク](/documentation/end-to-end-testing/getting-started)：一般的なUI自動化フレームワークの統合ソリューションを提供
+- [CIプロバイダー](/documentation/reference/provider)：一般的なCIプロバイダー（Github Actions、GitLab Runner）に対応し、CI環境変数を検出
 
+### セルフホスティング
 
-### 自托管
+カバレッジデータとテストデータを完全に管理したい場合は、自身のインフラストラクチャ上で[セルフホスティング](/documentation/self-host/community-edition/prerequisites)することができます。
 
-如果您希望完全掌控您的覆盖率数据和测试数据，您可以在自己的基础设施上[自托管](/documentation/self-host/community-edition/prerequisites) Canyon。
+## エコシステム
 
-## 生态系统
-
-| 项目                  | 状态                                                         | 描述                                         |
+| プロジェクト          | ステータス                                                    | 説明                                         |
 | --------------------- | ------------------------------------------------------------ | -------------------------------------------- |
-| [babel-plugin-canyon] | [![babel-plugin-canyon-status]][babel-plugin-canyon-package] | Babel 插件，用于检测流水线环境变量           |
-| [canyon-uploader]     | [![canyon-uploader-status]][canyon-uploader-package]         | 扫描本地 `.canyon_output` 数据并上传到服务器 |
-| [canyon-extension]    | [![canyon-extension-status]][canyon-extension-package]       | Chrome 插件，用于手动上报覆盖率数据          |
+| [babel-plugin-canyon] | [![babel-plugin-canyon-status]][babel-plugin-canyon-package] | パイプライン環境変数を検出するBabelプラグイン |
+| [canyon-uploader]     | [![canyon-uploader-status]][canyon-uploader-package]         | ローカルの`.canyon_output`データをスキャンしサーバーにアップロード |
+| [canyon-extension]    | [![canyon-extension-status]][canyon-extension-package]       | カバレッジデータを手動で報告するためのChromeプラグイン |
 
 [babel-plugin-canyon]: /documentation/ecosystem/babel-plugin-canyon
 [vite-plugin-canyon]: https://github.com/canyon-project/vite-plugin-canyon
@@ -54,13 +53,13 @@ Canyon通过在编译阶段分离 hit 和 map 数据，能够高效处理 UI 自
 [canyon-uploader-package]: https://npmjs.com/package/canyon-uploader
 [canyon-extension-package]: https://chrome.google.com/webstore/detail/canyon/omnpafdjidgpdmlimbangcjjaaodbeof
 
-## 架构
+## アーキテクチャ
 
-以下图示展示了 Canyon 及其生态系统的一些组件架构：
+以下の図は、Canyonとそのエコシステムのコンポーネントアーキテクチャを示しています：
 
-1. Babel 插件在 CI/CD 流水线中完成代码插桩。
-2. 项目发布到测试环境，用户可以选择 UI 自动化或手动测试来触发插桩代码探针。
-3. 生成的覆盖率数据上报至 Canyon 服务器。
-4. Canyon 服务器消费数据，并结合 GitLab 提供的源代码信息生成覆盖率报告。
+1. BabelプラグインがCI/CDパイプラインでコード計測を完了。
+2. プロジェクトがテスト環境にデプロイされ、ユーザーはUI自動化または手動テストで計測コードプローブをトリガー可能。
+3. 生成されたカバレッジデータがCanyonサーバーに報告。
+4. Canyonサーバーがデータを処理し、GitLabが提供するソースコード情報と組み合わせてカバレッジレポートを生成。
 
 ![](/static/documentation/getting-started/introduction/architecture.png)

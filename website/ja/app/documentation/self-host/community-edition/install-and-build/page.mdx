@@ -1,10 +1,10 @@
-# 安装和构建
+# インストールとビルド
 
-了解如何安装和构建 Canyon 社区版。
+Canyon コミュニティ版のインストールとビルド方法について説明します。
 
-## 配置环境
+## 環境の設定
 
-在开始安装之前，您需要配置环境变量。
+インストールを開始する前に、環境変数を設定する必要があります。
 
 ```yaml
 # Prisma Config
@@ -13,25 +13,25 @@ DATABASE_URL=postgress://canyon:canyon@localhost:5432/canyon
 
 ## Node.js
 
-克隆项目
+プロジェクトのクローン
 
 ```shell
 git clone https://github.com/canyon-project/canyon
 ```
 
-安装依赖项并构建项目
+依存関係のインストールとプロジェクトのビルド
 
 ```shell
 pnpm install && pnpm run build
 ```
 
-修改.env文件，创建数据库表
+.envファイルの修正とデータベーステーブルの作成
 
 ```shell
 pnpm run migrate
 ```
 
-使用nodejs运行项目
+nodejsでプロジェクトを実行
 
 ```shell
 node packages/canyon-backend/dist/main.js
@@ -40,17 +40,17 @@ node packages/canyon-backend/dist/main.js
 
 ## Docker
 
-使用docker运行canyon只需要指定环境变量文件路径和端口号即可
+dockerでcanyonを実行する場合は、環境変数ファイルのパスとポート番号を指定するだけです
 
 ```shell
 docker run -d -p 8080:8080 -v /your/path/.env:/app/.env zhangtao25/canyon:main
 ```
 
-## 启动成功
+## 起動成功
 
-启动成功后会有两个主要的服务：
+起動が成功すると、2つの主要なサービスが利用可能になります：
 
 - Canyon frontend
 - Canyon backend
 
-访问 `http://localhost:8000/login` 登录 Canyon。
+`http://localhost:8000/login` にアクセスしてCanyonにログインします。
