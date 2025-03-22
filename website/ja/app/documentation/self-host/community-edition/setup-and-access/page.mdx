@@ -20,10 +20,10 @@ import { Callout } from 'nextra/components';
 
 ```sql copy
 insert into public.sys_setting (id, key, value)
-values  ('1', 'CANYON_SERVER', 'https://canyonjs.org');
+values  ('1', 'CANYON_SERVER', 'https://canyonjs.org'),
         ('2', 'GITLAB_SERVER', 'https://gitlab.com'),
         ('3', 'GITLAB_CLIENT_ID', 'xxx'),
-        ('4', 'GITLAB_CLIENT_SECRET', 'xxx'),
+        ('4', 'GITLAB_CLIENT_SECRET', 'xxx');
 ```
 
 目前只支持 GitLab，后续会支持更多的 Git 服务商。
@@ -35,7 +35,7 @@ values  ('1', 'CANYON_SERVER', 'https://canyonjs.org');
 
 ```sql copy
 insert into public.git_provider (id, url, type, name, disabled, private_token)
-values  ('gitlab', 'https://gitlab.com', 'gitlab', 'GitLab', false, 'xxx'),
+values  ('gitlab', 'https://gitlab.com', 'gitlab', 'GitLab', false, 'xxx');
 ```
 
 ## 管理员登录
