@@ -4,6 +4,11 @@
 
 👋 Canyon 是一个 JavaScript 代码覆盖率解决方案
 
+视频演示
+
+[Bilibili](https://www.bilibili.com/video/BV13sXHYDEn6)
+[YouTube](https://www.youtube.com/watch?v=-2IRQ_pmEjI)
+
 ![](./screenshots/coverage-report.jpg)
 
 ## 生态系统
