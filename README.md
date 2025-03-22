@@ -4,6 +4,11 @@ English · [中文](./README-zh_CN.md)
 
 👋 Canyon is a JavaScript code coverage solution
 
+Video Showcase
+
+[Bilibili](https://www.bilibili.com/video/BV13sXHYDEn6)
+[YouTube](https://www.youtube.com/watch?v=-2IRQ_pmEjI)
+
 ![](./screenshots/coverage-report.jpg)
 
 ## Ecosystem
