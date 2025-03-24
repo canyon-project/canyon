@@ -1,5 +1,9 @@
+import CoverageDashboard from "@/components/coverage-dashboard.tsx";
+
 const IndexPage = () => {
-  return <div>IndexPage</div>;
+  return <div>
+    <CoverageDashboard/>
+  </div>;
 };
 
 export default IndexPage;
