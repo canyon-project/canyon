@@ -24,8 +24,9 @@ Add the [`istanbul`](https://www.npmjs.com/package/babel-plugin-istanbul) and [`
   ```js filename="babel.config.js" {3,4} copy
   module.exports = {
     plugins: [
-      'canyon',
-      'istanbul'
+      'istanbul',
+      'canyon'
+      // Note the plugin order, canyon plugin should be after istanbul plugin
       ],
   };
   ```

@@ -1,4 +1,11 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
 # babel-plugin-canyon
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/plugins/babel-plugin-canyon'} icon={<GithubOutlined />} size={'small'}>Source</Button>
 
 A Babel plugin for detecting CI environment variables. Works with istanbuljs to complete code instrumentation.
 
@@ -6,7 +13,21 @@ A Babel plugin for detecting CI environment variables. Works with istanbuljs to 
 
 Installation:
 
+```sh
+npm install --save-dev babel-plugin-canyon
+```
+
 Add these configurations in `babel.config.js`:
+
+```js
+module.exports = {
+  plugins:
+    process.env.CI_COMMIT_REF_NAME === "test-coverage"
+      ? ["istanbul", "canyon"]
+      : [],
+      // Note the plugin order, canyon plugin should be after istanbul plugin
+};
+```
 
 It will do two things:
 
@@ -15,7 +36,9 @@ It will do two things:
 
 ## Configuration
 
-```js filename="babel.config.js" {3-66} copy
+babel.config.js
+
+```js
 module.exports = {
   plugins: [
     // #region == Step 1: CI variable configuration or manual explicit configuration
