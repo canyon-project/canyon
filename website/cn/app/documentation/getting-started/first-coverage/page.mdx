@@ -24,8 +24,9 @@ npm install babel-plugin-istanbul babel-plugin-canyon -D
   ```js filename="babel.config.js" {3,4} copy
   module.exports = {
     plugins: [
-      'canyon',
-      'istanbul'
+      'istanbul',
+      'canyon'
+      // 需注意插件顺序，canyon插件应在istanbul插件之后
       ],
   };
   ```

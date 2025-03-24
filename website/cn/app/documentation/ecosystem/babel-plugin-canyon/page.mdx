@@ -25,6 +25,7 @@ module.exports = {
     process.env.CI_COMMIT_REF_NAME === "test-coverage"
       ? ["istanbul", "canyon"]
       : [],
+      // 需注意插件顺序，canyon插件应在istanbul插件之后
 };
 ```
 
