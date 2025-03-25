@@ -16,7 +16,7 @@ const CommitsPage:FC<{
   sha,
   reportProvider,
   repoID,
-  reportID
+  reportID,onSelectCommit
                      }) => {
   const [drawerVisible, setDrawerVisible] = useState(false)
 
@@ -40,6 +40,10 @@ const CommitsPage:FC<{
       <Button type="primary" onClick={showDrawer}>
         Open Commit Details
       </Button>
+
+      <Button onClick={()=>{
+        onSelectCommit(Math.random().toString().split('.')[1])
+      }}>选择一个commit</Button>
 
       <Drawer
         title="Commit Details"
