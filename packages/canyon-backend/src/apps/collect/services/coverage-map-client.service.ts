@@ -54,7 +54,31 @@ export class CoverageMapClientService {
       instrumentCwd: instrumentCwd,
     });
 
+    // 关键是这个数据
     const formatCoverageMap = IstanbulMapMapSchema.parse(formatedCoverage);
+
+    // ***查询数据库是否已经存在，存在就不插入
+    const finds = await this.prisma.coverageMap.findMany({
+      where:{
+        id:{
+          in:Object.keys(formatCoverageMap).map(path=>`__${provider}__${repoID}__${sha}__${path}__`)
+        }
+      },
+      select:{
+        id:true,
+      }
+    })
+
+    const needHandleCoverage = Object.keys(formatCoverageMap).filter(path=>{
+      return finds.findIndex(f=>f.id===`__${provider}__${repoID}__${sha}__${path}__`)===-1
+    })
+
+
+    const isHasInitCoverage = await this.prisma.coverage.findMany({
+      where:{
+        id: `__${projectID}__${sha}__`,
+      }
+    })
 
     const resetCovMap = resetCoverageDataMap(formatCoverageMap);
 
@@ -64,38 +88,42 @@ export class CoverageMapClientService {
       instrumentCwd,
     );
 
-    // const compressedFormatCoverageStr =
-    //     await compressedData(formatCoverageMap);
-    const hit = await compressedData(IstanbulHitMapSchema.parse(hitObject));
 
-    const summaryObject = genSummaryMapByCoverageMap(hitObject, []);
-    const overallSummary: any = getSummaryByPath("", summaryObject);
-    const summary = await compressedData(summaryObject);
-    // ************************************************************
-    // 原来的代码
+    if (!isHasInitCoverage){
+      // const compressedFormatCoverageStr =
+      //     await compressedData(formatCoverageMap);
+      const hit = await compressedData(IstanbulHitMapSchema.parse(hitObject));
 
-    // 提前插入
-    await this.prisma.coverage
-      .create({
-        data: {
-          ...coverageObj,
-          id: `__${projectID}__${sha}__`,
-          sha: sha,
-          projectID: projectID,
-          branch: branch,
-          summary: summary,
-          hit: hit,
-          ...summaryToDbSummary(overallSummary),
-          reportID: sha,
-          compareTarget: compareTarget || sha, // 默认是自己
-          reporter: "canyon",
-          buildID,
-          buildProvider,
-        },
-      })
-      .catch(() => {
-        // console.log("coverage create error");
-      });
+      const summaryObject = genSummaryMapByCoverageMap(hitObject, []);
+      const overallSummary: any = getSummaryByPath("", summaryObject);
+      const summary = await compressedData(summaryObject);
+      // ************************************************************
+      // 原来的代码
+
+      // 提前插入
+      await this.prisma.coverage
+        .create({
+          data: {
+            ...coverageObj,
+            id: `__${projectID}__${sha}__`,
+            sha: sha,
+            projectID: projectID,
+            branch: branch,
+            summary: summary,
+            hit: hit,
+            ...summaryToDbSummary(overallSummary),
+            reportID: sha,
+            compareTarget: compareTarget || sha, // 默认是自己
+            reporter: "canyon",
+            buildID,
+            buildProvider,
+          },
+        })
+        .catch(() => {
+          // console.log("coverage create error");
+        });
+    }
+
 
     /*
         这里的逻辑是每次批量插入上报的map数据，按文件存，不更新。
@@ -108,7 +136,7 @@ export class CoverageMapClientService {
         ...map,
         path,
       };
-    });
+    }).filter(item=>needHandleCoverage.includes(item.path));
 
     const compressedArr = await Promise.all(
       arr.map((item) => {
