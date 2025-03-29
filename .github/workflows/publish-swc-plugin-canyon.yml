@@ -1,0 +1,56 @@
+name: Npm Publish swc-plugin-canyon
+
+on:
+  push:
+    branches:
+      - main
+      - ci
+      - canyonjs
+
+env:
+  RUST_LOG: debug
+  CARGO_INCREMENTAL: 0
+  MACOSX_DEPLOYMENT_TARGET: "10.13"
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+
+      - run: |
+          echo "Before: corepack version => $(corepack --version || echo 'not installed')"
+          npm install -g corepack@latest
+          echo "After : corepack version => $(corepack --version)"
+          corepack enable
+          pnpm --version
+          pnpm i
+
+      - name: Install Rust Nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          profile: minimal
+          override: true
+
+      - name: Install wasm target
+        shell: bash
+        run: |
+          rustup target add wasm32-wasip1
+
+      - name: Login to npm
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NODE_AUTH_TOKEN }}" > ~/.npmrc
+
+      - name: Publish to npm
+        run: pnpm --filter=swc-plugin-canyon publish -f --no-git-checks --access=public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
