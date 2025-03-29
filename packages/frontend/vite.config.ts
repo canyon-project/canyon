@@ -13,6 +13,7 @@ export default defineConfig({
         ['swc-plugin-coverage-instrument',{}],
         ['swc-plugin-canyon',{
         projectID: 'xxx',
+          keepMap:false
         }],
       ],
       // jsxImportSource: '@emotion/react',
