@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {FC, ReactNode, useState} from 'react';
 import {
   DesktopOutlined,
   FileOutlined,
@@ -39,7 +39,11 @@ const items: MenuItem[] = [
   getItem('Files', '9', <FileOutlined />),
 ];
 
-export const BaseLayout: React.FC = () => {
+export const BaseLayout: FC<{
+  children: ReactNode;
+}> = ({
+                                 children
+                               }) => {
   const [collapsed, setCollapsed] = useState(false);
   const {
     token: { colorBgContainer, borderRadiusLG },
@@ -66,7 +70,7 @@ export const BaseLayout: React.FC = () => {
               borderRadius: borderRadiusLG,
             }}
           >
-            Bill is a cat.
+            {children}
           </div>
         </Content>
         <Footer style={{ textAlign: 'center' }}>

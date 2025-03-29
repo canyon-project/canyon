@@ -1,17 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-import {BaseLayout} from 'canyon-ui'
+import enUS from "antd/es/locale/en_US";
+import jaJP from "antd/es/locale/ja_JP";
+import zhCN from "antd/es/locale/zh_CN";
+import { useRoutes } from "react-router-dom";
 
-function App() {
-  const [count, setCount] = useState(0)
-  console.log(BaseLayout)
+import routes from "~react-pages";
+import {ConfigProvider, theme} from "antd";
+const languages = {
+  cn: zhCN,
+  en: enUS,
+  ja: jaJP,
+};
+
+const lng = (localStorage.getItem("language") ||
+  "cn") as keyof typeof languages;
+
+const { darkAlgorithm } = theme;
+
+console.log(routes,'routes')
+const App = () => {
+  const isDark = localStorage.getItem("theme")
+    ? localStorage.getItem("theme") === "dark"
+    : false;
   return (
-    <BaseLayout>
+    <div>
+      <ConfigProvider
+        locale={languages[lng]}
+        theme={{
+          token: {
+            colorPrimary: "#0071c2",
+            borderRadius:2
+          },
+          algorithm: isDark ? [darkAlgorithm] : [],
+        }}
+      >
+        {useRoutes(routes)}
+      </ConfigProvider>
+    </div>
+  );
+};
 
-    </BaseLayout>
-  )
-}
-
-export default App
+export default App;

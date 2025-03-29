@@ -5,10 +5,13 @@ import Pages from 'vite-plugin-pages';
 import * as path from 'path';
 
 // https://vite.dev/config/
-console.log(process.env.NODE_ENV);
+
 export default defineConfig({
   plugins: [
     react({
+      plugins: [
+        ['swc-plugin-coverage-instrument',{}]
+      ],
       // jsxImportSource: '@emotion/react',
     }),
     Pages({
@@ -27,6 +30,10 @@ export default defineConfig({
         ),
       } : {}),
     },
+  },
+  build: {
+    sourcemap: true,
+    target: "ES2022",
   },
   server: {
     port: 8000,
