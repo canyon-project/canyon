@@ -10,7 +10,10 @@ export default defineConfig({
   plugins: [
     react({
       plugins: [
-        ['swc-plugin-coverage-instrument',{}]
+        ['swc-plugin-coverage-instrument',{}],
+        ['swc-plugin-canyon',{
+        projectID: 'xxx',
+        }],
       ],
       // jsxImportSource: '@emotion/react',
     }),
