@@ -1,0 +1,182 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+  output        = "../generated/client"
+}
+
+model User {
+  id        String   @id
+  email     String
+  username  String
+  password  String
+  nickname  String
+  avatar    String
+  favor     String
+  settings  Json // 主题、语言、默认显示覆盖率维度 defaultCoverageDimension
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("canyonjs_user")
+}
+
+enum CovType {
+  BUILD_ID // 根据buildID来聚合
+  // 根据reportProvider来聚合，比如flytest、mpaas、可能还有手工，所有reportProvider还要分手工和自动化
+  REPORT_PROVIDER_AUTO
+  REPORT_PROVIDER_MANUAL
+  REPORT_ID //根据reportID来聚合
+}
+
+model Coverage {
+  id                String   @id @default(cuid())
+  sha               String   @map("sha")
+  branch            String
+  compareTarget     String   @map("compare_target")
+  provider          String
+  buildProvider     String   @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID           String   @map("build_id")
+  projectID         String   @map("project_id")
+  reporter          String
+  // 新加的上报提供商，flytest、mpaas(auto) 、人(person) 人就是 (manual)
+  reportProvider    String   @map("report_provider")
+  reportID          String   @map("report_id") // 未来聚合的一句，区分case 是个ID
+  covType           CovType  @map("cov_type") // 普通类型，all、agg
+  scopeID           String   @map("scope_id") // 范围ID，来自于project的scope中
+  // 代码覆盖率
+  branchesTotal     Int      @map("branches_total")
+  branchesCovered   Int      @map("branches_covered")
+  functionsTotal    Int      @map("functions_total")
+  functionsCovered  Int      @map("functions_covered")
+  linesTotal        Int      @map("lines_total")
+  linesCovered      Int      @map("lines_covered")
+  statementsTotal   Int      @map("statements_total")
+  statementsCovered Int      @map("statements_covered")
+  newlinesTotal     Int      @map("newlines_total")
+  newlinesCovered   Int      @map("newlines_covered")
+  summary           Bytes
+  // 代码覆盖率详情
+  hit               Bytes
+  // 通用
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("canyonjs_coverage")
+}
+
+model CoverageMap {
+  id       String @id @default(cuid())
+  provider String
+
+  buildProvider String @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID       String @map("build_id")
+
+  repoID         String @map("repo_id")
+  sha            String @map("sha")
+  path           String
+  // oldPath，是有sourceMap的情况下，需要做源码还原
+  oldPath        String @map("old_path")
+  inputSourceMap String @map("input_source_map")
+  branchMap      String @map("branch_map")
+  statementMap   String @map("statement_map")
+  fnMap          String @map("fn_map")
+  // 如果是含有sourceMap的，需要instrumentCwd来做源码还原，确认要么？
+  instrumentCwd  String @map("instrument_cwd")
+
+  time Int
+
+  // 再添加一个path索引
+  @@index(fields: [path])
+  @@index([repoID, sha]) // 联合索引
+  @@map("canyonjs_coverage_map")
+}
+
+model Project {
+  id                String @id
+  pathWithNamespace String @map("path_with_namespace")
+  description       String
+  bu                String
+  tags              Json
+  members           Json
+  scopes            Json
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("canyonjs_project")
+}
+
+model Diff {
+  id            String   @id @default(cuid())
+  provider      String
+  repoID        String   @map("repo_id")
+  compareTarget String   @map("compare_target")
+  sha           String   @map("sha")
+  path          String
+  additions     Int[]
+  deletions     Int[]
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("canyonjs_diff")
+}
+
+model Distributedlock {
+  lockName       String   @id @map("lock_name")
+  isLocked       Boolean  @default(false) @map("is_locked")
+  lockTimestamp  DateTime @map("lock_timestamp")
+  lockExpiration DateTime @map("lock_expiration")
+
+  @@map("canyonjs_distributed_lock")
+}
+
+enum AggregatedState {
+  // 未处理
+  UNPROCESSED
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model CoverageLog {
+  id             String @id @default(cuid())
+  sha            String @map("sha")
+  branch         String
+  compareTarget  String @map("compare_target")
+  provider       String
+  buildProvider  String @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID        String @map("build_id")
+  projectID      String @map("project_id")
+  reporter       String
+  // 新加的上报提供商，flytest、mpaas(auto) 、人(person) 人就是 (manual)
+  reportProvider String @map("report_provider")
+  reportID       String @map("report_id") // 未来聚合的一句，区分case 是个ID
+
+  // 以上是coverage也有的
+
+  // 一下是log独有的
+  isHitAndMapSeparated Boolean         @map("is_hit_and_map_separated")
+  aggregatedState      AggregatedState @map("aggregated_state")
+  size                 Int //单位是byte
+  // fileList             Json            @map("file_list")
+  instrumentCwd        String          @map("instrument_cwd")
+  tags                 Json
+
+  // 通用
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("canyonjs_coverage_log")
+}
+
+model Config {
+  id        String   @id @default(cuid())
+  key       String
+  value     String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("canyonjs_config")
+}
