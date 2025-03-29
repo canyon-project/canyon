@@ -15,7 +15,8 @@
   ],
   "scripts": {
     "do-build": "rslib build",
-    "dev": "rslib build --watch"
+    "dev": "rslib build --watch",
+    "prepublishOnly": "rslib build"
   },
   "devDependencies": {
     "@rsbuild/plugin-babel": "^1.0.4",
