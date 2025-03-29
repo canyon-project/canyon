@@ -12,7 +12,7 @@
             "sha":"xxx",
             "projectID":"xxx",
             "compareTarget":"xxx",
-            "keepMap":false,
+            "keepMap": false,
         }]
       ]
     }

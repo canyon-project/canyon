@@ -39,7 +39,7 @@ impl Default for Config {
             sha: None,
             projectID: None,
             compareTarget: None,
-            keepMap: None
+            keepMap: Some(true)
         }
     }
 }
@@ -112,72 +112,79 @@ impl TransformVisitor {
     // 处理对象字面量属性的函数
     fn process_coverage_data_object(&mut self, obj: &mut ObjectLit) {
 
-        // 过滤掉指定的属性
-        let excluded_keys = ["statementMap", "fnMap", "branchMap", "inputSourceMap"];
-        // 定一个map
-        let mut map = std::collections::HashMap::new();
-        // 遍历对象的属性
-        for prop in &obj.props {
-            if let PropOrSpread::Prop(ref prop) = prop {
-                if let Prop::KeyValue(KeyValueProp { key: PropName::Ident(IdentName { sym, .. }), value }) = &**prop {
-                    // 解引用 value，处理其中的表达式
-                    let value1 = match &**value {
-                        Expr::Lit(lit) => {
-                            lit_to_json(lit)
-                        }
-                        Expr::Object(ref obj) => {
-                            // 如果是对象字面量，递归转换为 JSON
-                            object_lit_to_json(obj)
-                        }
-                        _ => {
-                            json!(null)  // 如果不是字面量或对象字面量，返回 null
-                        }
-                    };
-                    map.insert(sym.clone(), value1);
+        let keep_map = self.config.keepMap.unwrap_or(true); // 只有 false 时才执行过滤
 
-                }
-            }
-        }
-        // 目录/cwd/.canyon_output 没有就创建
-        // 创建一个随机数生成器
-        let mut rng = rand::thread_rng();
+        if keep_map == false {
+            // 过滤掉指定的属性
+            let excluded_keys = ["statementMap", "fnMap", "branchMap", "inputSourceMap"];
+            // 定一个map
+            let mut map = std::collections::HashMap::new();
+            // 遍历对象的属性
+            for prop in &obj.props {
+                if let PropOrSpread::Prop(ref prop) = prop {
+                    if let Prop::KeyValue(KeyValueProp { key: PropName::Ident(IdentName { sym, .. }), value }) = &**prop {
+                        // 解引用 value，处理其中的表达式
+                        let value1 = match &**value {
+                            Expr::Lit(lit) => {
+                                lit_to_json(lit)
+                            }
+                            Expr::Object(ref obj) => {
+                                // 如果是对象字面量，递归转换为 JSON
+                                object_lit_to_json(obj)
+                            }
+                            _ => {
+                                json!(null)  // 如果不是字面量或对象字面量，返回 null
+                            }
+                        };
+                        map.insert(sym.clone(), value1);
 
-        // 生成一个随机的 u64 数字
-        let random_number: u64 = rng.gen();
-
-        // 将数字转换为字符串
-        let random_string = random_number.to_string();
-
-        // 构建文件名
-        let file_path = format!("/cwd/.canyon_output/coverage-final-{}.json", random_string);
-
-        // 获取文件的父目录路径
-        let parent_dir = Path::new(&file_path).parent().unwrap();
-
-        // 创建父目录及其所有缺失的父目录
-        fs::create_dir_all(parent_dir).expect("Unable to create directories");
-
-        // 使用 `write` 方法进行同步写入
-        write(file_path, serde_json::to_string(&map).expect("Unable to serialize JSON"))
-            .expect("Unable to write file");
-
-        // 过滤掉指定的属性
-        obj.props.retain(|prop| {
-            match prop {
-                PropOrSpread::Prop(prop) => {
-                    if let Prop::KeyValue(KeyValueProp {
-                                              key: PropName::Ident(IdentName { sym, .. }),
-                                              ..
-                                          }) = &**prop {
-                        // 排除指定的属性名
-                        !excluded_keys.contains(&sym.as_ref())
-                    } else {
-                        true
                     }
                 }
-                _ => true,
             }
-        });
+            // 目录/cwd/.canyon_output 没有就创建
+            // 创建一个随机数生成器
+            let mut rng = rand::thread_rng();
+
+            // 生成一个随机的 u64 数字
+            let random_number: u64 = rng.gen();
+
+            // 将数字转换为字符串
+            let random_string = random_number.to_string();
+
+            // 构建文件名
+            let file_path = format!("/cwd/.canyon_output/coverage-final-{}.json", random_string);
+
+            // 获取文件的父目录路径
+            let parent_dir = Path::new(&file_path).parent().unwrap();
+
+            // 创建父目录及其所有缺失的父目录
+            fs::create_dir_all(parent_dir).expect("Unable to create directories");
+
+            // 使用 `write` 方法进行同步写入
+            write(file_path, serde_json::to_string(&map).expect("Unable to serialize JSON"))
+                .expect("Unable to write file");
+
+            // 过滤掉指定的属性
+            obj.props.retain(|prop| {
+                match prop {
+                    PropOrSpread::Prop(prop) => {
+                        if let Prop::KeyValue(KeyValueProp {
+                                                  key: PropName::Ident(IdentName { sym, .. }),
+                                                  ..
+                                              }) = &**prop {
+                            // 排除指定的属性名
+                            !excluded_keys.contains(&sym.as_ref())
+                        } else {
+                            true
+                        }
+                    }
+                    _ => true,
+                }
+            });
+        }
+
+
+
 
         let dsn = self.config.dsn.clone().unwrap_or("".to_string());
         let reporter = self.config.reporter.clone().unwrap_or("".to_string());
