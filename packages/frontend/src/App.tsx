@@ -6,7 +6,7 @@ import {BaseLayout} from 'canyon-ui'
 
 function App() {
   const [count, setCount] = useState(0)
-  // console.log(Res)
+  console.log(BaseLayout)
   return (
     <BaseLayout>
 
