@@ -12,8 +12,13 @@ export default defineConfig({
       plugins: [
         ['swc-plugin-coverage-instrument',{}],
         ['swc-plugin-canyon',{
-        projectID: 'xxx',
-          keepMap:false
+          projectID: process.env.GITHUB_REPOSITORY,
+          sha: process.env.GITHUB_SHA,
+          dsn: process.env.DSN,
+          reporter: process.env.REPORTER,
+          branch: process.env.GITHUB_REF,
+          instrumentCwd: process.cwd(),
+          compareTarget: 'dev', //可选
         }],
       ],
       // jsxImportSource: '@emotion/react',
@@ -27,12 +32,12 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       // 只在开发环境下添加 canyon-ui 别名
-      ...(process.env.NODE_ENV === 'development' ? {
-        "canyon-ui": path.resolve(
-          __dirname,
-          "../ui/src",
-        ),
-      } : {}),
+      // ...(process.env.NODE_ENV === 'development' ? {
+      //   "canyon-ui": path.resolve(
+      //     __dirname,
+      //     "../ui/src",
+      //   ),
+      // } : {}),
     },
   },
   build: {

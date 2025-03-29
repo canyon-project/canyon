@@ -10,7 +10,7 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "antd": "^5.24.5",
-    "canyon-ui": "workspace:*",
+    "canyon-ui": "0.1.0-beta.1",
     "monaco-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
