@@ -15,7 +15,7 @@
     "@graphql-typed-document-node/core": "^3.2.0",
     "@monaco-editor/react": "^4.7.0",
     "antd": "^5.24.5",
-    "canyon-ui": "0.1.0-beta.3",
+    "canyon-ui": "0.1.0-beta.5",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
     "graphql": "^16.10.0",
