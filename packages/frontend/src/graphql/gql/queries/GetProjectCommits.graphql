@@ -1,0 +1,22 @@
+query GetProjectCommits(
+  $projectID: ID!
+  $branch: String
+  $current: Int!
+  $pageSize: Int!
+) {
+  getProjectCommits(
+    projectID: $projectID
+    branch: $branch
+    current: $current
+    pageSize: $pageSize
+  ) {
+    data {
+      sha
+      commitMessage
+      commitCreatedAt
+      branches
+      coverage
+    }
+    total
+  }
+}

@@ -1,0 +1,20 @@
+[workspace]
+members = [
+#    "packages/canyon-core",
+    "plugins/swc-plugin-canyon"
+]
+
+
+resolver = "2"
+
+
+[workspace.package]
+authors      = ["Allen Zhang <wr_zhang25@163.com>"]
+edition      = "2021"
+homepage     = "https://github.com/canyon-project/canyon"
+license      = "Apache-2.0"
+repository   = "https://github.com/canyon-project/canyon.git"
+rust-version = "1.70"
+
+[workspace.dependencies]
+swc_core = "13.0.4"

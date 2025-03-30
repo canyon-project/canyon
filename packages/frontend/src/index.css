@@ -1,0 +1,21 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*antd的样式*/
+
+.ant-menu-light.ant-menu-root {
+  border-inline-end: none !important;
+}
+
+/*登陆页面*/
+.ant-tabs-nav {
+  padding-left: 16px !important;
+}
+
+.ant-drawer-body{
+  padding: 0 !important;
+}
+
+.ant-drawer-header{
+  padding: 6px !important;
+}

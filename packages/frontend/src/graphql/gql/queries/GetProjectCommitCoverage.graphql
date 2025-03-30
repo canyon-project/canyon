@@ -1,0 +1,23 @@
+query GetProjectCommitCoverage($projectID: ID!, $sha: String!) {
+  getProjectCommitCoverage(projectID: $projectID, sha: $sha) {
+    buildID
+    coverage {
+      e2eCoverage
+      unitTestCoverage
+    }
+    reports {
+      reportID
+      type
+      coveragePercentage
+      cases {
+        reportID
+        name
+        status
+        successCount
+        failureCount
+        reportProvider
+        type
+      }
+    }
+  }
+}

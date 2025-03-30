@@ -1,0 +1,187 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type ProjectRecordsModel {
+  id: ID!
+  name: String!
+  pathWithNamespace: String!
+  description: String!
+  coverage: String!
+  bu: String!
+  branchOptions: [String!]!
+  maxCoverage: Float!
+  defaultBranch: String!
+  reportTimes: Float!
+  lastReportTime: DateTime!
+  favored: Boolean!
+  createdAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type GetProjectsResponseModel {
+  data: [ProjectRecordsModel!]!
+  total: Float!
+}
+
+type CommitModel {
+  sha: String!
+  commitMessage: String!
+  commitCreatedAt: DateTime!
+  branches: [String!]!
+  coverage: Float
+}
+
+type GetProjectCommitsResponseModel {
+  data: [CommitModel!]!
+  total: Float!
+}
+
+type CaseModel {
+  reportID: String!
+  name: String!
+  status: String!
+  successCount: Float!
+  failureCount: Float!
+  reportProvider: String!
+  type: String!
+}
+
+type ReportModel {
+  reportID: String!
+  type: String!
+  coveragePercentage: Float!
+  cases: [CaseModel!]!
+}
+
+type CoverageMetricsModel {
+  e2eCoverage: Float!
+  unitTestCoverage: Float!
+}
+
+type GetProjectCommitCoverageResponseModel {
+  buildID: String!
+  coverage: CoverageMetricsModel!
+  reports: [ReportModel!]!
+}
+
+type UserSettingsModel {
+  theme: String!
+  language: String!
+}
+
+type UserModel {
+  id: ID!
+  username: String!
+  password: String!
+  nickname: String!
+  avatar: String!
+  email: String!
+  favor: String!
+  createdAt: DateTime!
+  settings: UserSettingsModel!
+}
+
+type UpdateUserSettingsResponseModel {
+  theme: String!
+  language: String!
+}
+
+type CoverageRecordsModel {
+  id: String!
+  name: String!
+  description: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type GetCoveragesResponseModel {
+  data: [CoverageRecordsModel!]!
+  total: Float!
+}
+
+type ConfigRecord {
+  id: String!
+  key: String!
+  value: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+type Query {
+  """提供执行此查询的用户的详细信息（通过授权 Bearer 标头）"""
+  me: UserModel!
+
+  """获取Project"""
+  getProjects(
+    keyword: String!
+    bu: [String!]!
+
+    """当前页码"""
+    current: Int!
+
+    """每页数量"""
+    pageSize: Int!
+
+    """排序字段名称"""
+    field: String!
+
+    """升序或降序"""
+    order: String!
+    favorOnly: Boolean!
+  ): GetProjectsResponseModel!
+
+  """获取项目提交记录"""
+  getProjectCommits(
+    """项目ID"""
+    projectID: ID!
+
+    """分支名称"""
+    branch: String
+
+    """当前页码"""
+    current: Int!
+
+    """每页数量"""
+    pageSize: Int!
+  ): GetProjectCommitsResponseModel!
+
+  """获取项目提交覆盖率"""
+  getProjectCommitCoverage(
+    """项目ID"""
+    projectID: ID!
+
+    """提交ID"""
+    sha: String!
+  ): [GetProjectCommitCoverageResponseModel!]!
+
+  """获取Coverage列表"""
+  getCoverages(
+    """当前页码"""
+    current: Int!
+
+    """每页数量"""
+    pageSize: Int!
+  ): GetCoveragesResponseModel!
+  configs: [ConfigRecord!]!
+}
+
+type Mutation {
+  updateUserSettings(
+    """主题"""
+    theme: String
+
+    """语言"""
+    language: String
+  ): UpdateUserSettingsResponseModel!
+  updateConfig(input: UpdateConfigInput!): ConfigRecord!
+}
+
+input UpdateConfigInput {
+  key: String!
+  value: String!
+}

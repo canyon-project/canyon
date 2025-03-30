@@ -1,0 +1,50 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "do-dev": "vite",
+    "do-build": "vite build",
+    "postinstall": "npm run codegen",
+    "codegen": "graphql-codegen --config codegen.ts"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "@apollo/client": "^3.13.5",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@monaco-editor/react": "^4.7.0",
+    "antd": "^5.24.5",
+    "canyon-ui": "0.1.0-beta.3",
+    "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
+    "graphql": "^16.10.0",
+    "i18next": "^24.2.3",
+    "i18next-browser-languagedetector": "^8.0.4",
+    "monaco-themes": "^0.4.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-i18next": "^15.4.1",
+    "react-router-dom": "^7.4.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.21.0",
+    "@graphql-codegen/cli": "^5.0.5",
+    "@graphql-codegen/client-preset": "^4.8.0",
+    "@tailwindcss/vite": "^4.0.17",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react-swc": "^3.8.0",
+    "eslint": "^9.21.0",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^15.15.0",
+    "swc-plugin-canyon": "0.0.26-beta.1",
+    "swc-plugin-coverage-instrument": "^0.0.26",
+    "tailwindcss": "^4.0.17",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.24.1",
+    "vite": "^6.2.0",
+    "vite-plugin-pages": "^0.32.5"
+  }
+}

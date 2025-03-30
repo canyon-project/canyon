@@ -1,0 +1,7 @@
+mutation UpdateConfig($input: UpdateConfigInput!) {
+  updateConfig(input: $input) {
+    id
+    key
+    value
+  }
+}
