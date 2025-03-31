@@ -80,12 +80,12 @@ export default declare((api, config, dirname) => {
             buildProvider: config.buildProvider || env_buildProvider,
           })
 
-          if (onlyOne){
-            console.log(`canyon args: ----------------`)
-            console.log(servePa)
-            console.log(`canyon args: ----------------`)
-          }
-          onlyOne = false
+          // if (onlyOne){
+          //   console.log(`canyon args: ----------------`)
+          //   console.log(servePa)
+          //   console.log(`canyon args: ----------------`)
+          // }
+          // onlyOne = false
 
           const {initialCoverageDataForTheCurrentFile} = visitorProgramExit(api, path, servePa)
 
