@@ -79,22 +79,23 @@ export function calculateNewLineCoverageForSingleFile(
     }
   });
 
-  Object.keys(coverage.branchMap).forEach((key) => {
-    const branchRange = coverage.branchMap[key];
-    branchRange.locations.forEach((location, index) => {
-      // branch类型是if，并且有多个分支的，第一个if的location范围是整个分支的范围，所以如果它未覆盖，会导致标注的时候整个分支红色，先剔除。
-      if (
-          coverage.b[key]&&
-        coverage.b[key][index] === 0 &&
-        specialLogicByIf(branchRange, index)
-      ) {
-        noCovered.push({
-          startLine: location.start.line,
-          endLine: location.end.line,
-        });
-      }
-    });
-  });
+  // 暂时禁用分支判断
+  // Object.keys(coverage.branchMap).forEach((key) => {
+  //   const branchRange = coverage.branchMap[key];
+  //   branchRange.locations.forEach((location, index) => {
+  //     // branch类型是if，并且有多个分支的，第一个if的location范围是整个分支的范围，所以如果它未覆盖，会导致标注的时候整个分支红色，先剔除。
+  //     if (
+  //         coverage.b[key]&&
+  //       coverage.b[key][index] === 0 &&
+  //       specialLogicByIf(branchRange, index)
+  //     ) {
+  //       noCovered.push({
+  //         startLine: location.start.line,
+  //         endLine: location.end.line,
+  //       });
+  //     }
+  //   });
+  // });
 
   const noCoveredLines = getLinesFromRanges(noCovered);
   return {
