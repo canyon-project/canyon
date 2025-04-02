@@ -20,7 +20,7 @@
     "ahooks": "^3.8.4",
     "antd": "^5.23.2",
     "axios": "^1.7.9",
-    "canyon-data": "^2.0.0-beta.17",
+    "canyon-data": "^2.0.0-beta.23",
     "canyon-report": "0.0.8-beta.74",
     "clsx": "^2.1.1",
     "copy-to-clipboard": "^3.3.3",
