@@ -23,6 +23,7 @@ export class CoveragediskService {
     reporter: string;
     buildID: string;
     buildProvider: string;
+    branch: string;
   }) {
     return this.coveragediskRepository.insert({
       pid: String(process.pid),

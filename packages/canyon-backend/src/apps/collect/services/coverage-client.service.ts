@@ -92,6 +92,7 @@ export class CoverageClientService {
       reporter,
       buildID,
       buildProvider,
+      branch: branch || "-",
     });
     return {
       msg: "ok",

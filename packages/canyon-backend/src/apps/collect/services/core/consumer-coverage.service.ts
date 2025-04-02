@@ -163,6 +163,7 @@ export class ConsumerCoverageService {
           compareTarget: queueDataToBeConsumed.compareTarget,
           buildID: queueDataToBeConsumed.buildID,
           buildProvider: queueDataToBeConsumed.buildProvider,
+          branch: queueDataToBeConsumed.branch||"-",
         },
       }); // 更新时间
     } else {
@@ -180,6 +181,7 @@ export class ConsumerCoverageService {
           reportID: queueDataToBeConsumed.reportID,
           buildID: queueDataToBeConsumed.buildID,
           buildProvider: queueDataToBeConsumed.buildProvider,
+          branch: queueDataToBeConsumed.branch||"-",
         },
       });
     }
