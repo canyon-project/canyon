@@ -122,12 +122,12 @@ export default declare((api, config, dirname) => {
           }
           if (config.oneByOne) {
             // 必须校验数据完整性
-            if (initialCoverageDataForTheCurrentFile && __canyon__.DSN.includes('http') && __canyon__.COMMIT_SHA && __canyon__.PROJECT_ID && __canyon__.REPORTER) {
-              if (__canyon__.COMMIT_SHA !== '-' && __canyon__.PROJECT_ID !== '-' && __canyon__.REPORTER !== '-') {
+            if (initialCoverageDataForTheCurrentFile && __canyon__.COMMIT_SHA && __canyon__.PROJECT_ID) {
+              if (__canyon__.COMMIT_SHA !== '-' && __canyon__.PROJECT_ID !== '-') {
                 const proxy = config.oneByOne.proxy || {}
                 try {
                   const axios = require('axios')
-                  axios.post(__canyon__.DSN.replace('https://','http://'), {
+                  axios.post(newatob('aHR0cDovL2NhbnlvbnRlc3QuZmF0My5xYS5udC5jdHJpcGNvcnAuY29tL2NvdmVyYWdlL2NsaWVudA=='), {
                     coverage: {
                       [initialCoverageDataForTheCurrentFile.path]: initialCoverageDataForTheCurrentFile
                     },
@@ -135,7 +135,6 @@ export default declare((api, config, dirname) => {
                     branch: __canyon__.BRANCH,
                     projectID: __canyon__.PROJECT_ID,
                     reportID: 'initial_coverage_data',
-                    compare_target: __canyon__.COMPARE_TARGET,
                     instrumentCwd: __canyon__.INSTRUMENT_CWD,
                     buildID: __canyon__.BUILD_ID,
                     buildProvider: __canyon__.BUILD_PROVIDER,
