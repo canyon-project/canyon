@@ -33,7 +33,9 @@ window.addEventListener('message', function (e) {
 setTimeout(()=>{
   // 先尝试本地获取，如果没有再去获取window上的数据
   const __canyon__interval__time__ = Number(localStorage.getItem('__canyon__interval__time__')) || Number(window?.__canyon__?.intervalTime);
-  if (true) {
+  // (window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined)) && window.__coverage__)
+  const islegal = ((window.__canyon__||(Object.keys(window.__coverage__||{}).length>0 ? Object.values(window.__coverage__)[0] : undefined)) && window.__coverage__)
+  if (islegal) {
     // const num = __canyon__interval__time__;
     const num = 7;
     if (num > 0) {
