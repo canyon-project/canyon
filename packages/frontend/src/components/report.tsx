@@ -3,7 +3,6 @@ import mock from "../mock";
 import {useEffect, useMemo, useRef, useState} from "react";
 import * as monaco from 'monaco-editor'
 
-// 用于文件base64解码后的格式化
 export function getDecode(str: string) {
     return decodeURIComponent(
         atob(str)
@@ -39,7 +38,7 @@ const Report = () => {
     useEffect(() => {
         if (editor) {
             editor?.deltaDecorations?.(
-                [], // oldDecorations 每次清空上次标记的
+                [],
                 decorations.map(
                     ({ inlineClassName, startLine, startCol, endLine, endCol }) => ({
                         range: new monaco.Range(

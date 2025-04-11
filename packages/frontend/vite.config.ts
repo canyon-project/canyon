@@ -8,7 +8,16 @@ export default defineConfig({
   plugins: [
     react({
       plugins: process.env.NODE_ENV === "production"?[
-        ['swc-plugin-coverage-instrument',{}],
+        ['swc-plugin-coverage-instrument',{
+          instrumentLog: {
+            // Currently there aren't logs other than spans.
+            // Enabling >= info can display span traces.
+            // level: 'trace',
+            // Emits spans along with any logs
+            // Only effective if level sets higher than info.
+            // enableTrace: true
+          },
+        }],
         // ['swc-plugin-canyon',{
         //   projectID: process.env.GITHUB_REPOSITORY,
         //   sha: process.env.GITHUB_SHA,
