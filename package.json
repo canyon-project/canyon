@@ -1,0 +1,25 @@
+{
+  "name": "canyon",
+  "private": true,
+  "version": "2.0.0",
+  "description": "Canyon is a JavaScript code coverage solution",
+  "author": "wr.zhang25@gmail.com",
+  "license": "MIT",
+  "scripts": {
+    "dev": "pnpm -r do-dev",
+    "build": "pnpm -r do-build",
+    "clean": "node ./scripts/clean.mjs",
+    "preinstall": "node ./scripts/check.mjs",
+    "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "19.5.0",
+    "@commitlint/config-conventional": "19.5.0",
+    "husky": "9.1.6",
+    "lint-staged": "15.2.10",
+    "prisma": "5.16.1"
+  },
+  "pacakgeManager": {
+    "packageManager": "pnpm@9"
+  }
+}
