@@ -7,7 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "do-build": "nest build",
-    "do-dev": "nest start"
+    "do-dev": "nest start",
+    "preinstall": "prisma generate && nest build"
   },
   "dependencies": {
     "@clickhouse/client": "^1.11.0",
@@ -17,7 +18,20 @@
     "@nestjs/serve-static": "^5.0.3",
     "express": "^5.1.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
+    "@prisma/client": "^6.4.1",
+    "class-validator": "^0.14.1",
+    "dotenv": "^16.4.7",
+    "graphql": "^16.10.0",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-source-maps": "^5.0.6",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0",
+    "prisma": "^6.4.1",
+    "test-exclude": "^7.0.1",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
