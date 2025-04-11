@@ -1,17 +1,19 @@
 // import {BaseLayout} from "canyon-ui";
 
-import {useParams} from "react-router-dom";
-import ProjectDetailPage from "../../../../../pages/ProjectDetailPage";
+import { useParams } from 'react-router-dom';
+import ProjectDetailPage from '../../../../../pages/ProjectDetailPage';
 
 const ProjectDetailRoute = () => {
-  const params = useParams()
+  const params = useParams();
 
-  console.log(params.org)
-  return <div>
+  console.log(params.org);
+  return (
     <div>
-      <ProjectDetailPage/>
+      <div>
+        <ProjectDetailPage />
+      </div>
     </div>
-  </div>
-}
+  );
+};
 
-export default ProjectDetailRoute
+export default ProjectDetailRoute;

@@ -1,11 +1,13 @@
 // import {BaseLayout} from "canyon-ui";
 
-import ProjectListPage from "@/pages/ProjectListPage";
+import ProjectListPage from '@/pages/ProjectListPage';
 
 const IndexPage = () => {
-  return <>
-    <ProjectListPage/>
-  </>
-}
+  return (
+    <>
+      <ProjectListPage />
+    </>
+  );
+};
 
-export default IndexPage
+export default IndexPage;
