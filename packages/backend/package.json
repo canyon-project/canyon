@@ -10,6 +10,7 @@
     "do-dev": "nest start"
   },
   "dependencies": {
+    "@clickhouse/client": "^1.11.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
