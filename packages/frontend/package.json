@@ -13,11 +13,16 @@
     "antd": "5.23.2",
     "axios": "^1.8.4",
     "dayjs": "^1.11.13",
+    "i18next": "^24.2.3",
+    "i18next-browser-languagedetector": "^8.0.4",
     "monaco-editor": "^0.52.2",
     "monaco-themes": "^0.4.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "swr": "^2.3.3"
+    "react-i18next": "^15.4.1",
+    "react-router-dom": "^7.5.0",
+    "swr": "^2.3.3",
+    "canyon-ui": "0.1.0-beta.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

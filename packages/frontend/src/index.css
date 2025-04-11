@@ -1,59 +1,21 @@
 @import "tailwindcss";
 @custom-variant dark (&:where(.dark, .dark *));
 
-/*.content-class-no-found{*/
-/*    !*border: 1px dashed red;*!*/
-/*    !*padding: 1px 3px;*!*/
-/*    !*border-radius: 3px;*!*/
+/*antd的样式*/
 
-/*    border: 1.5px dashed dodgerblue;*/
-/*    !*border: 1px dashed darkorange;*!*/
-/*    !*padding: 1px 3px;*!*/
-/*    !*border-radius: 3px;*!*/
-/*}*/
-
-
-/* 通用提示框样式 */
-.coverage-if,
-.coverage-else {
-  position: relative;
-  cursor: help;
-  border: 1.5px dashed dodgerblue;
-  border: 1px dashed darkorange;
-  padding: 1px 3px;
-  border-radius: 3px;
-  z-index: 100000100000;
+.ant-menu-light.ant-menu-root {
+  border-inline-end: none !important;
 }
 
-/* Tooltip 内容 */
-.coverage-if::after,
-.coverage-else::after {
-  position: absolute;
-  bottom: 120%; /* 放在元素上方 */
-  left: 0%;
-  /*transform: translateX(-50%);*/
-  background: #333;
-  color: white;
-  font-size: 12px;
-  white-space: nowrap;
-  padding: 4px 6px;
-  border-radius: 4px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.2s ease-in-out;
-  z-index: 100000100000;
+/*登陆页面*/
+.ant-tabs-nav {
+  padding-left: 16px !important;
 }
 
-/* 分别设置内容 */
-.coverage-if::after {
-  content: "if 分支（分支命中）";
-}
-.coverage-else::after {
-  content: "else 分支（条件未命中）";
+.ant-drawer-body{
+  padding: 0 !important;
 }
 
-/* hover 时显示 tooltip */
-.coverage-if:hover::after,
-.coverage-else:hover::after {
-  opacity: 1;
+.ant-drawer-header{
+  padding: 6px !important;
 }

@@ -7,16 +7,8 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineConfig({
   plugins: [
     react({
-      plugins: process.env.NODE_ENV === "production"?[
+      plugins: process.env.NODE_ENV === "x"?[
         ['swc-plugin-coverage-instrument',{
-          instrumentLog: {
-            // Currently there aren't logs other than spans.
-            // Enabling >= info can display span traces.
-            // level: 'trace',
-            // Emits spans along with any logs
-            // Only effective if level sets higher than info.
-            // enableTrace: true
-          },
         }],
         // ['swc-plugin-canyon',{
         //   projectID: process.env.GITHUB_REPOSITORY,
@@ -31,7 +23,9 @@ export default defineConfig({
         // }],
       ]:[],
     }),
-    Pages(),
+    Pages({
+      dirs: 'src/routes'
+    }),
     tailwindcss(),
   ],
   resolve: {
