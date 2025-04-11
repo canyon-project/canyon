@@ -10,7 +10,12 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get()
+  @Get('vi/health')
+  health() {
+    return '10ms';
+  }
+
+  @Get('sss')
   getHello123() {
     return this.appService.getHello();
   }
