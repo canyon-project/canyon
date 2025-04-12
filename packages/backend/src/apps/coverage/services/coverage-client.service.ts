@@ -40,7 +40,7 @@ export class CoverageClientService {
       reportProvider,
     });
 
-    this.prisma.coverage.create({
+    await this.prisma.coverage.create({
       data: {
         id: coverageID,
         sha, // 定
@@ -73,12 +73,15 @@ export class CoverageClientService {
   async insertCoverageToClickhouse(coverageID, params: CoverageQueryParams) {
     // TODO: 实现实际的数据库查询逻辑
     // const params = coverage;
-    if (Object.values(params)[0].branchMap) {
+    if (
+      Object.values(params).length > 0 &&
+      Object.values(params)[0].branchMap
+    ) {
       //   才需要插入map表
       await this.clickhouseClient.insert({
         table: 'coverage_map',
         values: Object.values(params).map(
-          ({ coverageID, statementMap, path, branchMap, fnMap }) => {
+          ({ statementMap, path, branchMap, fnMap }) => {
             return {
               coverage_id: coverageID,
               file_path: path,
@@ -133,7 +136,7 @@ export class CoverageClientService {
 
     await this.clickhouseClient.insert({
       table: 'coverage_hit',
-      values: Object.values(params).map(({ s, path, f, b, coverageID }) => {
+      values: Object.values(params).map(({ s, path, f, b }) => {
         return {
           coverage_id: coverageID,
           file_path: path,

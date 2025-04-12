@@ -9,13 +9,15 @@
     "dev": "pnpm -r do-dev",
     "build": "pnpm -r do-build",
     "clean": "node ./scripts/clean.mjs",
-    "preinstall": "node ./scripts/check.mjs"
+    "preinstall": "node ./scripts/check.mjs",
+    "migrate": "prisma migrate dev --schema ./packages/backend/prisma/schema.prisma"
   },
   "devDependencies": {
     "@commitlint/cli": "19.5.0",
     "@commitlint/config-conventional": "19.5.0",
     "husky": "9.1.6",
-    "lint-staged": "15.2.10"
+    "lint-staged": "15.2.10",
+    "prisma": "^6.4.1"
   },
   "pnpm": {
     "overrides": {
