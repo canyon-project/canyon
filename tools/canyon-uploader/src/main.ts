@@ -48,6 +48,8 @@ program
   .option("--branch <branch>", "branch of the project")
   .option("--provider <provider>", "provider")
   .option("--workspace <workspace>", "workspace")
+  .option("--build_id <build_id>", "build_id")
+  .option("--build_provider <build_provider>", "build_provider")
   .option("--target_folder_name <target_folder_name>", "target_folder_name")
 	.allowExcessArguments(false)
 	.allowUnknownOption(false)

@@ -11,7 +11,9 @@ export async function mapCommand(params, options) {
     branch,
     provider,
 		workspace,
-    target_folder_name:targetFolderName
+    target_folder_name:targetFolderName,
+    build_id: buildID,
+    build_provider: buildProvider,
 	} = params;
   targetFolderName = targetFolderName || '.canyon_output'
 	const realWorkspace = workspace || process.cwd();
@@ -45,6 +47,8 @@ export async function mapCommand(params, options) {
 		instrumentCwd: instrumentCwd || process.cwd(),
 		coverage: Object.keys(data),
     provider: provider,
+    buildID: buildID || process.env.CI_BUILD_ID,
+    buildProvider: buildProvider || 'gitlab_runner',
 	};
 	console.log(reqData);
 	await axios
