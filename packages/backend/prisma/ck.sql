@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
   statement_map   Map(UInt32, Tuple(Tuple(UInt32, UInt32, UInt32, UInt32))),
   fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
   branch_map      Map(UInt32, Tuple(String, UInt32, Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
+  input_source_map String,
   ts              DateTime
   ) ENGINE = ReplicatedReplacingMergeTree('/clickhouse/tables/ck100062136-{shard}/default/coverage_map', '{replica}')
   PARTITION BY toYYYYMM(ts)
