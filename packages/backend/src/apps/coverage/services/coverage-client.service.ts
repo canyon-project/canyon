@@ -27,7 +27,6 @@ export class CoverageClientService {
       buildID, // 可选
       buildProvider, // 可选
       reportProvider, // 可选
-      tags, // 可选
     }: CoverageClientDto,
   ) {
     const coverageID = generateCoverageId({
@@ -54,15 +53,12 @@ export class CoverageClientService {
           compareTarget,
           reporter: '1',
           buildID,
-          buildProvider: '',
-          scopeID: '',
-          provider: 'gitlab',
-          // projectID: '',
+          buildProvider,
+          scopeID: '2',
+          provider: provider,
         },
       });
-    } catch (e) {
-      console.log('重复');
-    }
+    } catch () {}
     await this.insertCoverageToClickhouse(coverageID, coverage);
     return {
       msg: 'ok',
@@ -72,7 +68,10 @@ export class CoverageClientService {
     };
   }
 
-  async insertCoverageToClickhouse(coverageID, params: CoverageQueryParams) {
+  async insertCoverageToClickhouse(
+    coverageID: string,
+    params: CoverageQueryParams,
+  ) {
     // TODO: 实现实际的数据库查询逻辑
     // const params = coverage;
     if (
@@ -83,11 +82,14 @@ export class CoverageClientService {
       await this.clickhouseClient.insert({
         table: 'coverage_map',
         values: Object.values(params).map(
-          ({ statementMap, path, branchMap, fnMap }) => {
+          ({ statementMap, path, branchMap, fnMap, inputSourceMap }) => {
             return {
               ts: Math.floor(new Date().getTime() / 1000),
               coverage_id: coverageID,
               file_path: path,
+              input_source_map: inputSourceMap
+                ? JSON.stringify(inputSourceMap)
+                : '',
               statement_map: Object.fromEntries(
                 Object.entries(statementMap).map(([k, v]) => [
                   Number(k),
