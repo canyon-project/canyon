@@ -14,13 +14,13 @@ export class AppService {
       f: { [fIndex: string]: number };
     };
   }> {
-    const sha = 'c90eda3d034c5a966957cbe1739ad926fc06a334';
+    const sha = '1053f12ad516b609ec1e05bb013a4cd25947a873';
     const queryS = `
       SELECT
         file_path,
         arrayJoin(mapKeys(s)) AS s_index,
         sum(s[s_index]) AS s_hit
-      FROM coverage_hit
+      FROM coverage_hit_agg
       WHERE sha = '${sha}'
       GROUP BY file_path, s_index
       ORDER BY file_path, s_index;

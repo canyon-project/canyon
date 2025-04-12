@@ -40,28 +40,30 @@ export class CoverageClientService {
       reportProvider,
     });
 
-    await this.prisma.coverage.create({
-      data: {
-        id: coverageID,
-        sha, // 定
-        repoID, // 定
-        // coverage: {},
-        instrumentCwd, // 定
-        reportID: reportID,
-        reportProvider: reportProvider,
-        branch, // 定
-        compareTarget,
-        reporter: '1',
-        buildID,
-        buildProvider: '',
-        scopeID: '',
-        provider: 'gitlab',
-        // projectID: '',
-      },
-    });
-
+    try {
+      await this.prisma.coverage.create({
+        data: {
+          id: coverageID,
+          sha, // 定
+          repoID, // 定
+          // coverage: {},
+          instrumentCwd, // 定
+          reportID: reportID,
+          reportProvider: reportProvider,
+          branch, // 定
+          compareTarget,
+          reporter: '1',
+          buildID,
+          buildProvider: '',
+          scopeID: '',
+          provider: 'gitlab',
+          // projectID: '',
+        },
+      });
+    } catch (e) {
+      console.log('重复');
+    }
     await this.insertCoverageToClickhouse(coverageID, coverage);
-
     return {
       msg: 'ok',
       coverageId: '',
@@ -83,6 +85,7 @@ export class CoverageClientService {
         values: Object.values(params).map(
           ({ statementMap, path, branchMap, fnMap }) => {
             return {
+              ts: Math.floor(new Date().getTime() / 1000),
               coverage_id: coverageID,
               file_path: path,
               statement_map: Object.fromEntries(
@@ -138,6 +141,7 @@ export class CoverageClientService {
       table: 'coverage_hit',
       values: Object.values(params).map(({ s, path, f, b }) => {
         return {
+          ts: Math.floor(new Date().getTime() / 1000),
           coverage_id: coverageID,
           file_path: path,
           s: s,
