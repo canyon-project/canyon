@@ -58,7 +58,7 @@ export class CoverageClientService {
           provider: provider,
         },
       });
-    } catch () {}
+    } catch (e) {}
     await this.insertCoverageToClickhouse(coverageID, coverage);
     return {
       msg: 'ok',
