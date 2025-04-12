@@ -70,9 +70,9 @@ export class CoverageClientService {
     };
   }
 
-  async insertCoverageToClickhouse(coverageID, coverage: CoverageQueryParams) {
+  async insertCoverageToClickhouse(coverageID, params: CoverageQueryParams) {
     // TODO: 实现实际的数据库查询逻辑
-    const params = coverage;
+    // const params = coverage;
     if (Object.values(params)[0].branchMap) {
       //   才需要插入map表
       await this.clickhouseClient.insert({
