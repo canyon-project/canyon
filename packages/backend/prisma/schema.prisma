@@ -40,13 +40,14 @@ model Project {
 
 model Coverage {
   id             String   @id @default(cuid())
+  instrumentCwd  String   @map("instrument_cwd")
   sha            String   @map("sha")
   branch         String
   compareTarget  String   @map("compare_target")
   provider       String
   buildProvider  String   @map("build_provider") // 通过侦测CI环境变量来判断
   buildID        String   @map("build_id")
-  projectID      String   @map("project_id")
+  repoID         String   @map("repo_id")
   reporter       String
   // 新加的上报提供商，flytest、mpaas(auto) 、人(person) 人就是 (manual)
   reportProvider String   @map("report_provider")

@@ -16,8 +16,12 @@ export class CoverageClientDto {
   sha: string;
 
   @IsString()
-  @IsNotEmpty({ message: 'projectID 不能为空' })
-  projectID: string;
+  @IsNotEmpty({ message: 'provider 不能为空' })
+  provider: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'repoID 不能为空' })
+  repoID: string;
 
   // 单次 case 触发相关
   @IsString()
