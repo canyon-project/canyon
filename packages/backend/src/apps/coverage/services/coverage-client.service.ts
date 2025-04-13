@@ -91,7 +91,7 @@ export class CoverageClientService {
             return {
               ts: Math.floor(new Date().getTime() / 1000),
               hash_id: coverageID,
-              file_path: path,
+              relative_path: path,
               input_source_map: inputSourceMap
                 ? JSON.stringify(inputSourceMap)
                 : '',
@@ -156,7 +156,7 @@ export class CoverageClientService {
         return {
           ts: Math.floor(new Date().getTime() / 1000),
           hash_id: coverageID,
-          file_path: path,
+          relative_path: path,
           s: s,
           f: f,
           b: flattenBranchMap(b),

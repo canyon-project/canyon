@@ -25,10 +25,10 @@ export class GetProjectCoverageService {
       },
     });
 
-    const coverage_id =
-      'cb60c1425ea9a141522ea8bfa946338ea8d76b53a4cd9f0c7af576ef238f4f17';
+    const hash_id =
+      '3d24676eaa440203ba2e155039f9b809ce36fc384bf5ab49fbe69455c3374bdd';
     const queryS = `
-      SELECT * FROM coverage_map WHERE coverage_id='${coverage_id}';
+      SELECT * FROM coverage_map WHERE hash_id='${hash_id}';
     `;
 
     const resultS = await this.clickhouseClient.query({
@@ -38,13 +38,13 @@ export class GetProjectCoverageService {
     const dataS = await resultS.json();
 
     const queryF = `SELECT
-    coverage_id,
-    file_path,
+    hash_id,
+    relative_path,
     sumMapMerge(s_map) AS merged_s,
     sumMapMerge(f_map) AS merged_f
 FROM default.coverage_hit_agg
-WHERE coverage_id='${coverage_id}'
-GROUP BY coverage_id, file_path;`;
+WHERE hash_id='${hash_id}'
+GROUP BY hash_id, relative_path;`;
 
     const resultF = await this.clickhouseClient.query({
       query: queryF,

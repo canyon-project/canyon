@@ -1,11 +1,13 @@
 // @ts-nocheck
+import { getBranchTypeByIndex } from './getBranchType';
+
 export function dbToIstanbul(cov_map) {
   const result = {};
 
   cov_map.forEach((item) => {
-    result[item.file_path] = {
+    result[item.relative_path] = {
       statementMap: Object.entries(item.statement_map).reduce(
-        (acc, [key, [[startLine, startColumn, endLine, endColumn]]]) => {
+        (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
           acc[key] = {
             start: {
               line: startLine,
@@ -20,7 +22,7 @@ export function dbToIstanbul(cov_map) {
         },
         {},
       ),
-      fn: Object.entries(item.fn_map).reduce(
+      fnMap: Object.entries(item.fn_map).reduce(
         (
           acc,
           [
@@ -62,10 +64,21 @@ export function dbToIstanbul(cov_map) {
         {},
       ),
       branchMap: Object.entries(item.branch_map).reduce(
-        (acc, [key, [type, line, locations]]) => {
+        (acc, [key, [type, line, loc, locations]]) => {
+          console.log(locations);
           acc[key] = {
-            type,
+            type: getBranchTypeByIndex(type),
             line,
+            loc: {
+              start: {
+                line: loc[0],
+                column: loc[1],
+              },
+              end: {
+                line: loc[2],
+                column: loc[3],
+              },
+            },
             locations: locations.map(
               ([startLine, startColumn, endLine, endColumn]) => ({
                 start: {
