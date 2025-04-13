@@ -1,4 +1,4 @@
-const MAX_BRANCH_LENGTH = 100000; // 每个分支的最大长度
+const MAX_BRANCH_LENGTH = 10000; // 每个分支的最大长度
 
 // 编码：生成唯一的键
 export function encodeKey(branchId, branchLength) {

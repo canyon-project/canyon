@@ -81,7 +81,7 @@ export class CoverageClientService {
     // const params = coverage;
     if (
       Object.values(params).length > 0 &&
-      Object.values(params)[0].branchMap
+      Object.values(params)[0].statementMap
     ) {
       //   才需要插入map表
       await this.clickhouseClient.insert({
@@ -90,7 +90,7 @@ export class CoverageClientService {
           ({ statementMap, path, branchMap, fnMap, inputSourceMap }) => {
             return {
               ts: Math.floor(new Date().getTime() / 1000),
-              coverage_id: coverageID,
+              hash_id: coverageID,
               file_path: path,
               input_source_map: inputSourceMap
                 ? JSON.stringify(inputSourceMap)
@@ -135,10 +135,10 @@ export class CoverageClientService {
                       v.loc.end.column,
                     ],
                     v.locations.map((loc) => [
-                      loc.start.line || 0,
-                      loc.start.column || 0,
-                      loc.end.line || 0,
-                      loc.end.column || 0,
+                      loc.start.line,
+                      loc.start.column,
+                      loc.end.line,
+                      loc.end.column,
                     ]),
                   ],
                 ]),
@@ -155,7 +155,7 @@ export class CoverageClientService {
       values: Object.values(params).map(({ s, path, f, b }) => {
         return {
           ts: Math.floor(new Date().getTime() / 1000),
-          coverage_id: coverageID,
+          hash_id: coverageID,
           file_path: path,
           s: s,
           f: f,
