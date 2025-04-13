@@ -217,6 +217,8 @@ export class CoverageClientService {
       ),
       format: 'JSONEachRow',
     });
+
+    // 这里返回插入的状态，例如成功几个，失败几个
     return {
       msg: 'ok',
       coverageId: '',
