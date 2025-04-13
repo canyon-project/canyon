@@ -125,13 +125,20 @@ export class CoverageClientService {
           ),
         };
 
-        const hash = createHash('sha256')
-          .update(JSON.stringify(mapItem))
+        const file_coverage_map_hash = createHash('sha256')
+          .update(
+            JSON.stringify({
+              input_source_map: mapItem.input_source_map,
+              statement_map: mapItem.statement_map,
+              fn_map: mapItem.fn_map,
+              branch_map: mapItem.branch_map,
+            }),
+          )
           .digest('hex');
 
         return {
           ...mapItem,
-          hash, // 增加hash字段
+          file_coverage_map_hash, // 增加hash字段
         };
       },
     );
@@ -142,7 +149,7 @@ export class CoverageClientService {
       await this.prisma.coverageMapRelation.findMany({
         where: {
           hashID: {
-            in: mapList.map((i) => i.hash),
+            in: mapList.map((i) => i.file_coverage_map_hash),
           },
         },
       });
@@ -154,7 +161,7 @@ export class CoverageClientService {
 
     // 找出未存在的 mapList 项
     const newMapList = mapList.filter(
-      (item) => !existingHashSet.has(item.hash),
+      (item) => !existingHashSet.has(item.file_coverage_map_hash),
     );
 
     // 插入 coverage_map 表（只插入新的 map 内容）
@@ -174,7 +181,7 @@ export class CoverageClientService {
       table: 'coverage_map',
       values: newMapList.map((m) => ({
         ts: Math.floor(new Date().getTime() / 1000),
-        hash_id: coverageID,
+        hash_id: m.file_coverage_map_hash,
         input_source_map: m.input_source_map,
         statement_map: m.statement_map,
         fn_map: m.fn_map,
@@ -187,7 +194,7 @@ export class CoverageClientService {
     await this.prisma.coverageMapRelation.createMany({
       data: newMapList.map((m) => ({
         id: coverageID + '|' + m.relative_path,
-        hashID: m.hash,
+        hashID: m.file_coverage_map_hash,
         absolutePath: m.relative_path,
         relativePath: m.relative_path,
       })),
@@ -200,7 +207,7 @@ export class CoverageClientService {
         ({ s, path, f, b }) => {
           return {
             ts: Math.floor(new Date().getTime() / 1000),
-            hash_id: coverageID,
+            hash_id: coverageID, // 这里的hash_id是 coverageID，保证reportID维度的不重复
             relative_path: path,
             s: s,
             f: f,
