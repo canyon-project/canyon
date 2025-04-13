@@ -80,6 +80,7 @@ model CoverageMapRelation {
   absolutePath String @map("absolute_path")
   relativePath String @map("relative_path")
   hashID       String @map("hash_id") // hashID
+  coverageID   String @map("coverage_id") // coverageID
 
   @@map("canyonjs_coverage_map_relation")
 }

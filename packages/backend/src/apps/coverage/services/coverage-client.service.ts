@@ -197,6 +197,7 @@ export class CoverageClientService {
         hashID: m.file_coverage_map_hash,
         absolutePath: m.relative_path,
         relativePath: m.relative_path,
+        coverageID,
       })),
       skipDuplicates: true,
     });

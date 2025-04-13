@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../prisma/prisma.service';
 import { ClickHouseClient } from '@clickhouse/client';
-import {dbToIstanbul} from "../../../utils/dbToIstanbul";
+import { dbToIstanbul } from '../../../utils/dbToIstanbul';
 // import { PrismaService } from '../../prisma/prisma.service';
 // import { within30days } from '../../utils/utils';
 // import { percent } from 'canyon-data';
@@ -25,11 +25,32 @@ export class GetProjectCoverageService {
       },
     });
 
-    const hash_id =
-      '3d24676eaa440203ba2e155039f9b809ce36fc384bf5ab49fbe69455c3374bdd';
+    // 一批coverageIDs，多个reportID，里面关联的所有path都要
+
+    const coverageMapRelationList =
+      await this.prisma.coverageMapRelation.findMany({
+        where: {
+          coverageID: {
+            in: coverages.map((coverage) => coverage.id),
+          },
+        },
+      });
+
+    // coverageMapRelationList去重hash，把所有相关的查出来
+
+    const hashs = coverageMapRelationList.map(
+      (coverageMapRelation) => coverageMapRelation.hashID,
+    );
+
+    const sethashs = [...new Set(hashs)];
+
+    // console.log(sethashs,'sethashs')
+
     const queryS = `
-      SELECT * FROM coverage_map WHERE hash_id='${hash_id}';
-    `;
+  SELECT *
+  FROM coverage_map
+  WHERE hash IN (${sethashs.map((h) => `'${h}'`).join(', ')});
+`;
 
     const resultS = await this.clickhouseClient.query({
       query: queryS,
@@ -37,21 +58,21 @@ export class GetProjectCoverageService {
     });
     const dataS = await resultS.json();
 
-    const queryF = `SELECT
-    hash_id,
-    relative_path,
-    sumMapMerge(s_map) AS merged_s,
-    sumMapMerge(f_map) AS merged_f
-FROM default.coverage_hit_agg
-WHERE hash_id='${hash_id}'
-GROUP BY hash_id, relative_path;`;
-
-    const resultF = await this.clickhouseClient.query({
-      query: queryF,
-      format: 'JSONEachRow',
-    });
-    const dataF = await resultF.json();
-
-    return dbToIstanbul(dataS)
+    return dbToIstanbul(dataS);
   }
 }
+
+// const queryF = `SELECT
+//     hash,
+//     relative_path,
+//     sumMapMerge(s_map) AS merged_s,
+//     sumMapMerge(f_map) AS merged_f
+// FROM default.coverage_hit_agg
+// WHERE hash='${hash}'
+// GROUP BY hash, relative_path;`;
+//
+// const resultF = await this.clickhouseClient.query({
+//   query: queryF,
+//   format: 'JSONEachRow',
+// });
+// const dataF = await resultF.json();
