@@ -25,8 +25,7 @@ export class GetProjectCoverageService {
       },
     });
 
-    // 一批coverageIDs，多个reportID，里面关联的所有path都要
-
+    // 查询 Postgres：哪些 hash 出现在哪些路径中
     const coverageMapRelationList =
       await this.prisma.coverageMapRelation.findMany({
         where: {
@@ -36,15 +35,14 @@ export class GetProjectCoverageService {
         },
       });
 
-    // coverageMapRelationList去重hash，把所有相关的查出来
+    // 构造 hash -> relative_paths[] 映射表
+    const hashToPaths = new Map<string, string>();
+    for (const item of coverageMapRelationList) {
+      hashToPaths.set(item.hashID, item.relativePath);
+    }
 
-    const hashs = coverageMapRelationList.map(
-      (coverageMapRelation) => coverageMapRelation.hashID,
-    );
-
-    const sethashs = [...new Set(hashs)];
-
-    // console.log(sethashs,'sethashs')
+    // 查询 ClickHouse：查 hash 对应的 coverage_map
+    const sethashs = [...new Set(coverageMapRelationList.map((i) => i.hashID))];
 
     const queryS = `
   SELECT *
@@ -56,9 +54,19 @@ export class GetProjectCoverageService {
       query: queryS,
       format: 'JSONEachRow',
     });
-    const dataS = await resultS.json();
+    const rawData = await resultS.json(); // [{ hash: ..., statement_map: ..., ... }, ...]
 
-    return dbToIstanbul(dataS);
+    // 将 file_path 挂上去
+    const dataWithPath = rawData.map((i: any) => {
+      const file_path = hashToPaths.get(i.hash);
+      return {
+        ...i,
+        relative_path: file_path,
+      };
+    });
+
+    // 返回带 file_path 的数据，或者传给 dbToIstanbul
+    return dbToIstanbul(dataWithPath);
   }
 }
 
