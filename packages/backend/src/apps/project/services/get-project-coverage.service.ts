@@ -15,6 +15,11 @@ export class GetProjectCoverageService {
     private readonly clickhouseClient: ClickHouseClient,
   ) {}
   async invoke(provider, repoID, sha, buildProvider, buildID) {
+    if (!provider || !repoID || !sha || !buildProvider || !buildID) {
+      return {
+        error: 'provider, repoID, sha are required',
+      };
+    }
     const coverages = await this.prisma.coverage.findMany({
       where: {
         provider: provider,

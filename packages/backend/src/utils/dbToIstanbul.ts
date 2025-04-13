@@ -6,6 +6,7 @@ export function dbToIstanbul(cov_map) {
 
   cov_map.forEach((item) => {
     result[item.relative_path] = {
+      path: item.relative_path,
       statementMap: Object.entries(item.statement_map).reduce(
         (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
           acc[key] = {
