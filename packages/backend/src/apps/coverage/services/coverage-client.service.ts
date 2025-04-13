@@ -181,7 +181,7 @@ export class CoverageClientService {
       table: 'coverage_map',
       values: newMapList.map((m) => ({
         ts: Math.floor(new Date().getTime() / 1000),
-        hash_id: m.file_coverage_map_hash,
+        hash: m.file_coverage_map_hash,
         input_source_map: m.input_source_map,
         statement_map: m.statement_map,
         fn_map: m.fn_map,
