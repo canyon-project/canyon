@@ -9,6 +9,7 @@ import {
   getBranchTypeIndex,
 } from '../../../utils/getBranchType';
 import { encodeKey, flattenBranchMap } from 'src/utils/ekey';
+import { createHash } from 'crypto';
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -44,8 +45,8 @@ export class CoverageClientService {
       reportProvider,
     });
 
-    try {
-      await this.prisma.coverage.create({
+    await this.prisma.coverage
+      .create({
         data: {
           id: coverageID,
           sha, // 定
@@ -62,107 +63,157 @@ export class CoverageClientService {
           scopeID: '2',
           provider: provider,
         },
+      })
+      .catch((r) => {
+        console.log('重复');
       });
-    } catch (e) {}
-    await this.insertCoverageToClickhouse(coverageID, coverage);
+
+    const mapList = Object.values(coverage as CoverageQueryParams).map(
+      ({ statementMap, branchMap, fnMap, inputSourceMap }) => {
+        const mapItem = {
+          input_source_map: inputSourceMap
+            ? JSON.stringify(inputSourceMap)
+            : '',
+          statement_map: Object.fromEntries(
+            Object.entries(statementMap).map(([k, v]) => [
+              Number(k),
+              [v.start.line, v.start.column, v.end.line, v.end.column],
+            ]),
+          ),
+          fn_map: Object.fromEntries(
+            Object.entries(fnMap).map(([k, v]) => [
+              Number(k),
+              [
+                v.name,
+                v.line,
+                [
+                  v.decl.start.line,
+                  v.decl.start.column,
+                  v.decl.end.line,
+                  v.decl.end.column,
+                ],
+                [
+                  v.loc.start.line,
+                  v.loc.start.column,
+                  v.loc.end.line,
+                  v.loc.end.column,
+                ],
+              ],
+            ]),
+          ),
+          branch_map: Object.fromEntries(
+            Object.entries(branchMap).map(([k, v]) => [
+              Number(k),
+              [
+                getBranchTypeIndex(v.type),
+                v.line,
+                [
+                  v.loc.start.line,
+                  v.loc.start.column,
+                  v.loc.end.line,
+                  v.loc.end.column,
+                ],
+                v.locations.map((loc) => [
+                  loc.start.line,
+                  loc.start.column,
+                  loc.end.line,
+                  loc.end.column,
+                ]),
+              ],
+            ]),
+          ),
+        };
+
+        const hash = createHash('sha256')
+          .update(JSON.stringify(mapItem))
+          .digest('hex');
+
+        return {
+          ...mapItem,
+          hash, // 增加hash字段
+        };
+      },
+    );
+
+    // 1. 先检查有没有
+    // coverageMapRelationList是已经插入过的
+    const coverageMapRelationList =
+      await this.prisma.coverageMapRelation.findMany({
+        where: {
+          hashID: {
+            in: mapList.map((i) => i.hash),
+          },
+        },
+      });
+
+    // coverageMapRelationList 是已存在的 hash
+    const existingHashSet = new Set(
+      coverageMapRelationList.map((r) => r.hashID),
+    );
+
+    // 找出未存在的 mapList 项
+    const newMapList = mapList.filter(
+      (item) => !existingHashSet.has(item.hash),
+    );
+
+    // 插入 coverage_map 表（只插入新的 map 内容）
+    // await this.prisma.coverageMap.createMany({
+    //   data: newMapList.map((m) => ({
+    //     hashID: m.hash,
+    //     inputSourceMap: m.input_source_map,
+    //     statementMap: m.statement_map,
+    //     fnMap: m.fn_map,
+    //     branchMap: m.branch_map,
+    //   })),
+    //   skipDuplicates: true, // 避免并发情况下报错
+    // });
+
+    //   才需要插入map表
+    await this.clickhouseClient.insert({
+      table: 'coverage_map',
+      values: newMapList.map((m) => ({
+        ts: Math.floor(new Date().getTime() / 1000),
+        hash_id: coverageID,
+        input_source_map: m.input_source_map,
+        statement_map: m.statement_map,
+        fn_map: m.fn_map,
+        branch_map: m.branch_map,
+      })),
+      format: 'JSONEachRow',
+    });
+
+    // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
+    await this.prisma.coverageMapRelation.createMany({
+      data: newMapList.map((m) => ({
+        id: m.hash,
+        hashID: m.hash,
+        absolutePath: '',
+        relativePath: '',
+      })),
+      skipDuplicates: true,
+    });
+
+    await this.clickhouseClient.insert({
+      table: 'coverage_hit',
+      values: Object.values(coverage as CoverageQueryParams).map(
+        ({ s, path, f, b }) => {
+          return {
+            ts: Math.floor(new Date().getTime() / 1000),
+            hash_id: coverageID,
+            relative_path: path,
+            s: s,
+            f: f,
+            b: flattenBranchMap(b),
+          };
+        },
+      ),
+      format: 'JSONEachRow',
+    });
     return {
       msg: 'ok',
       coverageId: '',
       dataFormatAndCheckTime: '',
       coverageInsertDbTime: '',
     };
-  }
-
-  async insertCoverageToClickhouse(
-    coverageID: string,
-    params: CoverageQueryParams,
-  ) {
-    // TODO: 实现实际的数据库查询逻辑
-    // const params = coverage;
-    if (
-      Object.values(params).length > 0 &&
-      Object.values(params)[0].statementMap
-    ) {
-      //   才需要插入map表
-      await this.clickhouseClient.insert({
-        table: 'coverage_map',
-        values: Object.values(params).map(
-          ({ statementMap, path, branchMap, fnMap, inputSourceMap }) => {
-            return {
-              ts: Math.floor(new Date().getTime() / 1000),
-              hash_id: coverageID,
-              relative_path: path,
-              input_source_map: inputSourceMap
-                ? JSON.stringify(inputSourceMap)
-                : '',
-              statement_map: Object.fromEntries(
-                Object.entries(statementMap).map(([k, v]) => [
-                  Number(k),
-                  [v.start.line, v.start.column, v.end.line, v.end.column],
-                ]),
-              ),
-              fn_map: Object.fromEntries(
-                Object.entries(fnMap).map(([k, v]) => [
-                  Number(k),
-                  [
-                    v.name,
-                    v.line,
-                    [
-                      v.decl.start.line,
-                      v.decl.start.column,
-                      v.decl.end.line,
-                      v.decl.end.column,
-                    ],
-                    [
-                      v.loc.start.line,
-                      v.loc.start.column,
-                      v.loc.end.line,
-                      v.loc.end.column,
-                    ],
-                  ],
-                ]),
-              ),
-              branch_map: Object.fromEntries(
-                Object.entries(branchMap).map(([k, v]) => [
-                  Number(k),
-                  [
-                    getBranchTypeIndex(v.type),
-                    v.line,
-                    [
-                      v.loc.start.line,
-                      v.loc.start.column,
-                      v.loc.end.line,
-                      v.loc.end.column,
-                    ],
-                    v.locations.map((loc) => [
-                      loc.start.line,
-                      loc.start.column,
-                      loc.end.line,
-                      loc.end.column,
-                    ]),
-                  ],
-                ]),
-              ),
-            };
-          },
-        ),
-        format: 'JSONEachRow',
-      });
-    }
-
-    await this.clickhouseClient.insert({
-      table: 'coverage_hit',
-      values: Object.values(params).map(({ s, path, f, b }) => {
-        return {
-          ts: Math.floor(new Date().getTime() / 1000),
-          hash_id: coverageID,
-          relative_path: path,
-          s: s,
-          f: f,
-          b: flattenBranchMap(b),
-        };
-      }),
-      format: 'JSONEachRow',
-    });
   }
 }
