@@ -4,6 +4,11 @@ import { CoverageClientDto } from '../dto/coverage-client.dto';
 import { generateCoverageId } from '../../../utils/generateCoverageId';
 import { ClickHouseClient } from '@clickhouse/client';
 import { CoverageQueryParams } from '../../../types/coverage';
+import {
+  getBranchTypeByIndex,
+  getBranchTypeIndex,
+} from '../../../utils/getBranchType';
+import { encodeKey, flattenBranchMap } from 'src/utils/ekey';
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -93,7 +98,7 @@ export class CoverageClientService {
               statement_map: Object.fromEntries(
                 Object.entries(statementMap).map(([k, v]) => [
                   Number(k),
-                  [[v.start.line, v.start.column, v.end.line, v.end.column]],
+                  [v.start.line, v.start.column, v.end.line, v.end.column],
                 ]),
               ),
               fn_map: Object.fromEntries(
@@ -121,13 +126,19 @@ export class CoverageClientService {
                 Object.entries(branchMap).map(([k, v]) => [
                   Number(k),
                   [
-                    v.type,
+                    getBranchTypeIndex(v.type),
                     v.line,
+                    [
+                      v.loc.start.line,
+                      v.loc.start.column,
+                      v.loc.end.line,
+                      v.loc.end.column,
+                    ],
                     v.locations.map((loc) => [
-                      loc.start.line,
-                      loc.start.column,
-                      loc.end.line,
-                      loc.end.column,
+                      loc.start.line || 0,
+                      loc.start.column || 0,
+                      loc.end.line || 0,
+                      loc.end.column || 0,
                     ]),
                   ],
                 ]),
@@ -148,7 +159,7 @@ export class CoverageClientService {
           file_path: path,
           s: s,
           f: f,
-          b: b,
+          b: flattenBranchMap(b),
         };
       }),
       format: 'JSONEachRow',

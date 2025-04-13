@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit
   relative_path       String,
   s               Map(UInt32, UInt32),
   f               Map(UInt32, UInt32),
-  b               Map(UInt32, Array(UInt32)),
+  b               Map(UInt32, UInt32),
   ts              DateTime
   ) ENGINE = MergeTree()
   PARTITION BY toYYYYMM(ts)
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
 (
   hash_id     String,
   relative_path       String,
-  statement_map   Map(UInt32, Tuple(Tuple(UInt32, UInt32, UInt32, UInt32))),
+  statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32)),
   fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
   branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
   input_source_map String,
@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
   relative_path   String,
   s_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   f_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
+  b_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   latest_ts   SimpleAggregateFunction(max, DateTime)
   )
   ENGINE = AggregatingMergeTree()
@@ -52,6 +53,8 @@ SELECT
   relative_path,
   sumMapState(mapKeys(s), mapValues(s)) AS s_map,
   sumMapState(mapKeys(f), mapValues(f)) AS f_map,
+  sumMapState(mapKeys(b), mapValues(b)) AS b_map,
+
   max(ts) AS latest_ts
 FROM default.coverage_hit
 GROUP BY hash_id, relative_path;
