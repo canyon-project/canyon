@@ -1,46 +1,28 @@
 CREATE TABLE IF NOT EXISTS default.coverage_hit
 (
   coverage_id     String,
-  file_path       String,
+  relative_path       String,
   s               Map(UInt32, UInt32),
   f               Map(UInt32, UInt32),
-  b               Map(UInt32, Array(UInt32)),
+  b               Map(UInt32, UInt32),
   ts              DateTime
-) ENGINE = ReplicatedMergeTree('/clickhouse/tables/ck100062136-{shard}/default/coverage_hit', '{replica}')
-    PARTITION BY toYYYYMM(ts)
-    ORDER BY (ts)
-    TTL ts + toIntervalHour(720);
-
-
-CREATE TABLE IF NOT EXISTS default.coverage_map
-(
-  coverage_id     String,
-  file_path       String,
-  statement_map   Map(UInt32, Tuple(Tuple(UInt32, UInt32, UInt32, UInt32))),
-  fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
-  branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
-  input_source_map String,
-  ts              DateTime
-) ENGINE = ReplicatedMergeTree('/clickhouse/tables/ck100062136-{shard}/default/coverage_map', '{replica}')
-    PARTITION BY toYYYYMM(ts)
-    ORDER BY (ts)
-    TTL ts + toIntervalHour(720);
-
-
+  ) ENGINE = ReplicatedMergeTree('/clickhouse/tables/ck100062136-{shard}-5/default/coverage_hit', '{replica}')
+  PARTITION BY toYYYYMM(ts)
+  ORDER BY (ts)
+  TTL ts + toIntervalHour(720);
 -- ReplacingMergeTree
 
 CREATE TABLE IF NOT EXISTS default.coverage_map
 (
-  coverage_id     String,
-  file_path       String,
-  statement_map   Map(UInt32, Tuple(Tuple(UInt32, UInt32, UInt32, UInt32))),
+  hash     String,
+  statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32)),
   fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
-  branch_map      Map(UInt32, Tuple(String, UInt32, Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
+  branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
   input_source_map String,
   ts              DateTime
-  ) ENGINE = ReplicatedReplacingMergeTree('/clickhouse/tables/ck100062136-{shard}/default/coverage_map', '{replica}')
+  ) ENGINE = ReplicatedReplacingMergeTree('/clickhouse/tables/ck100062136-{shard}-5/default/coverage_map', '{replica}')
   PARTITION BY toYYYYMM(ts)
-  ORDER BY (coverage_id, file_path)
+  ORDER BY (hash)
   TTL ts + toIntervalHour(720)
   SETTINGS index_granularity = 8192;
 
@@ -49,15 +31,16 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
 
 CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
 (
-  coverage_id String,
-  file_path   String,
+  hash String,
+  relative_path   String,
   s_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   f_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
+  b_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   latest_ts   SimpleAggregateFunction(max, DateTime)
   )
-  ENGINE = AggregatingMergeTree()
+  ENGINE = AggregatingMergeTree('/clickhouse/tables/ck100062136-{shard}/default/coverage_hit_agg', '{replica}')
   PARTITION BY tuple()
-  ORDER BY (coverage_id, file_path);
+  ORDER BY (hash, relative_path);
 
 -- 物化视图
 
@@ -65,24 +48,26 @@ CREATE MATERIALIZED VIEW default.coverage_hit_mv
             TO default.coverage_hit_agg
 AS
 SELECT
-  coverage_id,
-  file_path,
+  hash,
+  relative_path,
   sumMapState(mapKeys(s), mapValues(s)) AS s_map,
   sumMapState(mapKeys(f), mapValues(f)) AS f_map,
+  sumMapState(mapKeys(b), mapValues(b)) AS b_map,
+
   max(ts) AS latest_ts
 FROM default.coverage_hit
-GROUP BY coverage_id, file_path;
+GROUP BY hash, relative_path;
 
 -- 查询
 
-SELECT
-  coverage_id,
-  file_path,
-  sumMapMerge(s_map) AS merged_s,
-  sumMapMerge(f_map) AS merged_f,
-  last_updated
-FROM default.coverage_hit_agg
-GROUP BY coverage_id, file_path;
+-- SELECT
+--   hash,
+--   relative_path,
+--   sumMapMerge(s_map) AS merged_s,
+--   sumMapMerge(f_map) AS merged_f,
+--   last_updated
+-- FROM default.coverage_hit_agg
+-- GROUP BY hash, relative_path;
 
 -- 问题
 -- map表，聚合为一行的时候，应该是到build_provider、build_id维度，目前是到coverage_id,report_id维度，map_id，根据build
