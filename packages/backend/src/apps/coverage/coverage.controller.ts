@@ -10,4 +10,6 @@ export class CoverageController {
     // TODO: 实现覆盖率数据处理逻辑
     return this.coverageClientService.invoke('1', coverageClientDto);
   }
+
+  //   /projects/gitlab/canyon-projects/coverage?sha=1234567890abcdef
 }

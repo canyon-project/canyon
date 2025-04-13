@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
   file_path       String,
   statement_map   Map(UInt32, Tuple(Tuple(UInt32, UInt32, UInt32, UInt32))),
   fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
-  branch_map      Map(UInt32, Tuple(String, UInt32, Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
+  branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
   input_source_map String,
   ts              DateTime
 ) ENGINE = ReplicatedMergeTree('/clickhouse/tables/ck100062136-{shard}/default/coverage_map', '{replica}')
