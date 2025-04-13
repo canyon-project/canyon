@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit
   f               Map(UInt32, UInt32),
   b               Map(UInt32, UInt32),
   ts              DateTime
-  ) ENGINE = ReplicatedMergeTree('/clickhouse/tables/ck100062136-{shard}-5/default/coverage_hit', '{replica}')
+  ) ENGINE = ReplicatedMergeTree('/clickhouse/tables/ck100062136-{shard}-7/default/coverage_hit', '{replica}')
   PARTITION BY toYYYYMM(ts)
   ORDER BY (ts)
   TTL ts + toIntervalHour(720);
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
   branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
   input_source_map String,
   ts              DateTime
-  ) ENGINE = ReplicatedReplacingMergeTree('/clickhouse/tables/ck100062136-{shard}-5/default/coverage_map', '{replica}')
+  ) ENGINE = ReplicatedReplacingMergeTree('/clickhouse/tables/ck100062136-{shard}-7/default/coverage_map', '{replica}')
   PARTITION BY toYYYYMM(ts)
   ORDER BY (hash)
   TTL ts + toIntervalHour(720)
@@ -31,16 +31,16 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
 
 CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
 (
-  hash String,
+  coverage_id String,
   relative_path   String,
   s_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   f_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   b_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   latest_ts   SimpleAggregateFunction(max, DateTime)
   )
-  ENGINE = AggregatingMergeTree('/clickhouse/tables/ck100062136-{shard}/default/coverage_hit_agg', '{replica}')
+  ENGINE = ReplicatedAggregatingMergeTree('/clickhouse/tables/ck100062136-{shard}-7/default/coverage_hit_agg', '{replica}')
   PARTITION BY tuple()
-  ORDER BY (hash, relative_path);
+  ORDER BY (coverage_id, relative_path);
 
 -- 物化视图
 
@@ -48,7 +48,7 @@ CREATE MATERIALIZED VIEW default.coverage_hit_mv
             TO default.coverage_hit_agg
 AS
 SELECT
-  hash,
+  coverage_id,
   relative_path,
   sumMapState(mapKeys(s), mapValues(s)) AS s_map,
   sumMapState(mapKeys(f), mapValues(f)) AS f_map,
@@ -56,7 +56,7 @@ SELECT
 
   max(ts) AS latest_ts
 FROM default.coverage_hit
-GROUP BY hash, relative_path;
+GROUP BY coverage_id, relative_path;
 
 -- 查询
 
