@@ -69,8 +69,9 @@ export class CoverageClientService {
       });
 
     const mapList = Object.values(coverage as CoverageQueryParams).map(
-      ({ statementMap, branchMap, fnMap, inputSourceMap }) => {
+      ({ statementMap, branchMap, fnMap, inputSourceMap, path }) => {
         const mapItem = {
+          relative_path: path,
           input_source_map: inputSourceMap
             ? JSON.stringify(inputSourceMap)
             : '',
@@ -185,10 +186,10 @@ export class CoverageClientService {
     // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
     await this.prisma.coverageMapRelation.createMany({
       data: newMapList.map((m) => ({
-        id: m.hash,
+        id: coverageID + '|' + m.relative_path,
         hashID: m.hash,
-        absolutePath: '',
-        relativePath: '',
+        absolutePath: m.relative_path,
+        relativePath: m.relative_path,
       })),
       skipDuplicates: true,
     });
