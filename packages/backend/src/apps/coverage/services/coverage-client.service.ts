@@ -207,7 +207,7 @@ export class CoverageClientService {
         ({ s, path, f, b }) => {
           return {
             ts: Math.floor(new Date().getTime() / 1000),
-            hash_id: coverageID, // 这里的hash_id是 coverageID，保证reportID维度的不重复
+            coverage_id: coverageID, // 这里的hash_id是 coverageID，保证reportID维度的不重复
             relative_path: path,
             s: s,
             f: f,
