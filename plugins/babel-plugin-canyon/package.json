@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-canyon",
-  "version": "2.0.16",
+  "version": "2.0.18",
   "description": "",
   "scripts": {
     "release": "babel src --extensions \".ts\" --out-dir lib",
