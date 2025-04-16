@@ -1,6 +1,6 @@
 {
   "name": "canyontest-report",
-  "version": "0.0.1-beta.2",
+  "version": "0.0.1-beta.3",
   "type": "module",
   "main": "./dist/canyon-report.umd.js",
   "module": "./dist/canyon-report.js",
@@ -20,7 +20,6 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
-    "preinstall": "npm run build",
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
