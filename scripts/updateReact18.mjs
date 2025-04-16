@@ -1,7 +1,7 @@
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 console.log(process.env.GITHUB_REF,'process.env.GITHUB_REF')
-if (process.env.GITHUB_REF === 'pkg-react18'){
+if ((process.env.GITHUB_REF||'').includes('pkg-react18')){
   // 定义 package.json 文件路径
   const packageJsonPath = join(process.cwd(), 'package.json');
 

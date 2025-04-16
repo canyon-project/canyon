@@ -7,7 +7,6 @@
   "license": "MIT",
   "scripts": {
     "dev": "pnpm -r do-dev",
-    "postinstall": "node ./scripts/updateReact18.mjs",
     "clean": "node ./scripts/clean.mjs",
     "preinstall": "node ./scripts/check.mjs",
     "migrate": "prisma migrate dev --schema ./packages/backend/prisma/schema.prisma"

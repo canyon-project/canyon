@@ -16,6 +16,7 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
+      - run: node ./scripts/updateReact18.mjs
       - run: pnpm install
       - run: pnpm --filter=canyontest-report publish -f --no-git-checks --access=public
         env:
