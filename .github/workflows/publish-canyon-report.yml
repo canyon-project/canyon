@@ -2,7 +2,7 @@ name: Publish canyon-report
 
 on:
   push:
-    branches: [ "*" ]
+    branches: [ "pkg-react18" ]
 
 jobs:
   publish-npm:
