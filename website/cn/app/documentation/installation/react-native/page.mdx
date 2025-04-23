@@ -1,0 +1,37 @@
+# React Native
+
+import { Steps } from "nextra/components";
+
+安装和配置 React Native 。
+
+<Steps>
+
+  ### 创建项目
+
+  React Native [文档](https://reactnative.dev/)
+
+  ### 添加 Canyon 及其配置
+
+  > [!TIP]
+  >
+  > 您需要了解 [react-native-babel-preset](https://reactnative.dev/docs/javascript-environment#javascript-syntax-transformers) 。
+
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### 配置 babel 插件
+
+  ```js filename="babel.config.js" {3} copy
+  module.exports = {
+    presets: ["module:@react-native/babel-preset"],
+    plugins: ["istanbul", "canyon"],
+  };
+  ```
+
+  ### 就是这样
+  继续查看 [第一个覆盖率数据 - 检查](/documentation/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)。
+</Steps>
+
+

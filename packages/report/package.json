@@ -1,0 +1,26 @@
+{
+  "name": "report",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "format": "prettier --write '**/*.{js,ts,jsx,tsx}'"
+  },
+  "prettier": "eslint-config-canyon/prettier",
+  "dependencies": {
+    "react": "*",
+    "react-dom": "*"
+  },
+  "devDependencies": {
+    "eslint-config-canyon": "*",
+    "@types/react": "*",
+    "@types/react-dom": "*",
+    "@vitejs/plugin-react": "*",
+    "globals": "*",
+    "typescript": "*",
+    "vite": "*",
+    "babel-plugin-react-compiler": "*"
+  }
+}
