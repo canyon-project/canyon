@@ -5,7 +5,7 @@ import { loader } from '@monaco-editor/react';
 //     return r.json();
 //   })
 //   .then((r) => r.UNPKG_URL || "https://unpkg.com");
-const UNPKG_URL = '//unpkg.com';
+const UNPKG_URL = 'https://unpkg.com';
 console.log(UNPKG_URL, 'UNPKG_URL');
 loader.config({
   paths: { vs: `${UNPKG_URL}/monaco-editor@0.52.2/min/vs` },

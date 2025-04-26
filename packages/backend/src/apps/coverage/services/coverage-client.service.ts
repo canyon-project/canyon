@@ -192,7 +192,7 @@ export class CoverageClientService {
 
     // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
     await this.prisma.coverageMapRelation.createMany({
-      data: newMapList.map((m) => ({
+      data: mapList.map((m) => ({
         id: coverageID + '|' + m.relative_path,
         hashID: m.file_coverage_map_hash,
         absolutePath: m.relative_path,

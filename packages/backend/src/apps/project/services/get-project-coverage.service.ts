@@ -71,21 +71,23 @@ export class GetProjectCoverageService {
     });
 
     // 返回带 file_path 的数据，或者传给 dbToIstanbul
-    return dbToIstanbul(dataWithPath);
+
+    const queryF = `SELECT
+                      coverage_id,
+    relative_path,
+    sumMapMerge(s_map) AS merged_s,
+    sumMapMerge(f_map) AS merged_f,
+    sumMapMerge(b_map) AS merged_b
+FROM default.coverage_hit_agg
+                    WHERE coverage_id IN (${coverages.map((h) => `'${h.id}'`).join(', ')})
+GROUP BY coverage_id, relative_path;`;
+
+    const resultF = await this.clickhouseClient.query({
+      query: queryF,
+      format: 'JSONEachRow',
+    });
+    const dataF = await resultF.json();
+
+    return dbToIstanbul(dataWithPath, dataF);
   }
 }
-
-// const queryF = `SELECT
-//     hash,
-//     relative_path,
-//     sumMapMerge(s_map) AS merged_s,
-//     sumMapMerge(f_map) AS merged_f
-// FROM default.coverage_hit_agg
-// WHERE hash='${hash}'
-// GROUP BY hash, relative_path;`;
-//
-// const resultF = await this.clickhouseClient.query({
-//   query: queryF,
-//   format: 'JSONEachRow',
-// });
-// const dataF = await resultF.json();

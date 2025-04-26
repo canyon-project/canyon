@@ -1,12 +1,15 @@
 // @ts-nocheck
 import { getBranchTypeByIndex } from './getBranchType';
+import { genHitByMap } from './genHitByMap';
+import { decodeKey } from './ekey';
 
-export function dbToIstanbul(cov_map) {
+export function dbToIstanbul(cov_map, cov_hit) {
   const result = {};
 
   cov_map.forEach((item) => {
-    result[item.relative_path] = {
+    const beigin = {
       path: item.relative_path,
+      // s: cov_hit.find((i) => i.relative_path === item.relative_path).merged_s,
       statementMap: Object.entries(item.statement_map).reduce(
         (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
           acc[key] = {
@@ -66,7 +69,6 @@ export function dbToIstanbul(cov_map) {
       ),
       branchMap: Object.entries(item.branch_map).reduce(
         (acc, [key, [type, line, loc, locations]]) => {
-          console.log(locations);
           acc[key] = {
             type: getBranchTypeByIndex(type),
             line,
@@ -100,6 +102,33 @@ export function dbToIstanbul(cov_map) {
       inputSourceMap: item.input_source_map
         ? JSON.parse(item.input_source_map)
         : undefined,
+    };
+
+    const initCov = genHitByMap(beigin);
+
+    const { merged_s, merged_f, merged_b } = cov_hit.find(
+      (i) => i.relative_path === item.relative_path,
+    );
+
+    merged_s[0].forEach((j, jindex) => {
+      initCov.s[j] = Number(merged_s[1][jindex]);
+    });
+
+    merged_f[0].forEach((j, jindex) => {
+      initCov.f[j] = Number(merged_f[1][jindex]);
+    });
+
+    // console.log(merged_b[0],'merged_b[0]')
+
+    merged_b[0].forEach((j, jindex) => {
+      const realB = decodeKey(j);
+      const [a, b] = realB;
+      initCov.b[a][b] = Number(merged_b[1][jindex]);
+    });
+
+    result[item.relative_path] = {
+      ...beigin,
+      ...initCov,
     };
   });
   return result;
