@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
 
 -- 物化视图
 
-CREATE MATERIALIZED VIEW default.coverage_hit_mv
+CREATE MATERIALIZED VIEW IF NOT EXISTS default.coverage_hit_mv
             TO default.coverage_hit_agg
 AS
 SELECT
