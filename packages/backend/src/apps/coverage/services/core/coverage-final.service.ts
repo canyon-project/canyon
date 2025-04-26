@@ -3,11 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClickHouseClient } from '@clickhouse/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { dbToIstanbul } from '../../../../utils/dbToIstanbul';
-// import { dbToIstanbul } from '../../../utils/dbToIstanbul';
-// import { PrismaService } from '../../prisma/prisma.service';
-// import { within30days } from '../../utils/utils';
-// import { percent } from 'canyon-data';
-// import * as dayjs from 'dayjs';
+import { remapCoverageWithInstrumentCwd } from 'canyon-map';
 
 @Injectable()
 export class CoverageFinalService {
@@ -90,6 +86,28 @@ GROUP BY coverage_id, relative_path;`;
     });
     const dataF = await resultF.json();
 
-    return dbToIstanbul(dataWithPath, dataF);
+    const unReMapedCov = dbToIstanbul(dataWithPath, dataF);
+
+    // 不知道要不要reMap
+    // const realResCov = await remapCoverageWithInstrumentCwd(
+    //   unReMapedCov,
+    //   coverages[0].instrumentCwd,
+    // );
+    // console.log(coverages[0].instrumentCwd);
+    const instrumentCwd = coverages[0].instrumentCwd;
+    const realResCov = Object.values(unReMapedCov)
+      .map((item: any) => {
+        const path = item.path.replace(instrumentCwd + '/', '');
+        return {
+          ...item,
+          path,
+        };
+      })
+      .reduce((acc, cur) => {
+        acc[cur.path] = cur;
+        return acc;
+      }, {});
+
+    return realResCov;
   }
 }
