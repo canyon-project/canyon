@@ -10,6 +10,7 @@ import { AuthModule } from './apps/auth/auth.module';
 // import { ProjectModule } from './apps/project/project.module';
 import { CoverageModule } from './apps/coverage/coverage.module';
 import { ProjectModule } from './apps/project/project.module';
+import { SourcecodeModule } from './apps/sourcecode/sourcecode.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ProjectModule } from './apps/project/project.module';
     AuthModule,
     ProjectModule,
     CoverageModule,
+    SourcecodeModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../../frontend', 'dist'),
       exclude: ['/graphql'], // 这样就不会触发 path-to-regexp 解析错误

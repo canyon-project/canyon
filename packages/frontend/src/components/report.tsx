@@ -2,17 +2,9 @@ import { Editor } from '@monaco-editor/react';
 import mock from '../mock';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import * as monaco from 'monaco-editor';
+import { getDecode } from '@/helper';
 
-export function getDecode(str: string) {
-  return decodeURIComponent(
-    atob(str)
-      .split('')
-      .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join(''),
-  );
-}
+
 
 const Report = () => {
   const [editor, setEditor] = useState<any>(false);

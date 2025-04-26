@@ -108,3 +108,14 @@ model Config {
 
   @@map("canyonjs_config")
 }
+
+model GitProvider {
+  id           String  @id
+  url          String
+  type         String
+  name         String
+  disabled     Boolean
+  privateToken String  @map("private_token")
+
+  @@map("git_provider")
+}
