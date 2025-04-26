@@ -4,6 +4,7 @@ import { Module } from '@nestjs/common';
 import { PrismaModule } from '../../prisma/prisma.module';
 import { CoverageController } from './coverage.controller';
 import { CoverageClientService } from './services/coverage-client.service';
+import { CoverageFinalService } from './services/core/coverage-final.service';
 // import { CoveragediskService } from './services/core/coveragedisk.service';
 // import { CoveragediskEntity } from './entity/coveragedisk.entity';
 // import { TypeOrmModule } from '@nestjs/typeorm';
@@ -19,6 +20,7 @@ import { CoverageClientService } from './services/coverage-client.service';
     // CoverageResolver,
     // GetCoveragesService,
     CoverageClientService,
+    CoverageFinalService,
     // CoveragediskService,
     // ConsumerCoverageService,
     // CoveragePreStoreService,
