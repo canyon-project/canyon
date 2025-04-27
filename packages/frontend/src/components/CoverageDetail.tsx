@@ -1,5 +1,4 @@
-import { Drawer } from 'antd';
-
+import { Drawer } from 'antd'
 const CoverageDetail = ({ open, onClose }) => {
   return (
     <Drawer
