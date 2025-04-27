@@ -1,29 +1,19 @@
-import react from '@vitejs/plugin-react-swc';
+import react from '@vitejs/plugin-react';
 import * as path from 'path';
 import { defineConfig } from 'vite';
 import Pages from 'vite-plugin-pages';
 import tailwindcss from '@tailwindcss/vite';
 
+const ReactCompilerConfig = {
+  target: '19', // '17' | '18' | '19'
+};
+
 export default defineConfig({
   plugins: [
     react({
-      plugins:
-        process.env.NODE_ENV === 'x'
-          ? [
-              ['swc-plugin-coverage-instrument', {}],
-              // ['swc-plugin-canyon',{
-              //   projectID: process.env.GITHUB_REPOSITORY,
-              //   sha: process.env.GITHUB_SHA,
-              //   dsn: process.env.DSN,
-              //   reporter: process.env.REPORTER,
-              //   branch: process.env.GITHUB_REF,
-              //   instrumentCwd: process.cwd(),
-              //   compareTarget: 'dev', //可选
-              //   buildID: process.env.GITHUB_RUN_ID,
-              //   buildProvider: 'github',
-              // }],
-            ]
-          : [],
+      babel: {
+        plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
+      },
     }),
     Pages({
       dirs: 'src/routes',
