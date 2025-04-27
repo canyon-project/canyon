@@ -3,13 +3,14 @@ import { getBranchTypeByIndex } from './getBranchType';
 import { genHitByMap } from './genHitByMap';
 import { decodeKey } from './ekey';
 
-export function dbToIstanbul(cov_map, cov_hit) {
+export function dbToIstanbul(coverageMapQuerySqlResultJson, coverageHitQuerySqlResultJson) {
+  console.log(coverageMapQuerySqlResultJson)
   const result = {};
 
-  cov_map.forEach((item) => {
+  coverageMapQuerySqlResultJson.forEach((item) => {
     const beigin = {
       path: item.relative_path,
-      // s: cov_hit.find((i) => i.relative_path === item.relative_path).merged_s,
+      // s: coverageHitQuerySqlResultJson.find((i) => i.relative_path === item.relative_path).merged_s,
       statementMap: Object.entries(item.statement_map).reduce(
         (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
           acc[key] = {
@@ -106,7 +107,7 @@ export function dbToIstanbul(cov_map, cov_hit) {
 
     const initCov = genHitByMap(beigin);
 
-    const { merged_s, merged_f, merged_b } = cov_hit.find(
+    const { merged_s, merged_f, merged_b } = coverageHitQuerySqlResultJson.find(
       (i) => i.relative_path === item.relative_path,
     );
 
