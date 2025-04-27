@@ -13,13 +13,13 @@ export class CoverageFinalService {
     private readonly clickhouseClient: ClickHouseClient,
   ) {}
   async invoke(
-    provider,
-    repoID,
-    sha,
-    buildProvider,
-    buildID,
-    reportProvider,
-    reportID,
+    provider: string,
+    repoID: string,
+    sha: string,
+    buildProvider?: string,
+    buildID?: string,
+    reportProvider?: string,
+    reportID?: string,
   ) {
     const coverages = await this.prisma.coverage.findMany({
       where: {
@@ -28,6 +28,8 @@ export class CoverageFinalService {
         sha: sha,
         buildProvider: buildProvider,
         buildID: buildID,
+        reportProvider: reportProvider,
+        reportID: reportID,
       },
     });
 

@@ -2,9 +2,7 @@ import { Controller, Post, Body, Get, Query } from '@nestjs/common';
 import { CoverageClientDto } from './dto/coverage-client.dto';
 import { CoverageClientService } from './services/coverage-client.service';
 import { CoverageFinalService } from './services/core/coverage-final.service';
-import {
-  genSummaryMapByCoverageMap,
-} from 'canyon-data';
+import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { CoverageQueryDto } from './dto/coverage-query.dto'; // 假设 DTO 文件路径
 
 @Controller('')
@@ -42,8 +40,8 @@ export class CoverageController {
       buildProvider,
       buildID,
       reportProvider,
-      reportID
-    } = query
+      reportID,
+    } = query;
     return this.coverageFinalService.invoke(
       provider,
       repoID,
@@ -51,7 +49,7 @@ export class CoverageController {
       buildProvider,
       buildID,
       reportProvider,
-      reportID
+      reportID,
     );
   }
 }
