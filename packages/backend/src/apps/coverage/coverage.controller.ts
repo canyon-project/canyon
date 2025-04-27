@@ -4,9 +4,9 @@ import { CoverageClientService } from './services/coverage-client.service';
 import { CoverageFinalService } from './services/core/coverage-final.service';
 import {
   genSummaryMapByCoverageMap,
-  getSummaryByPath,
-  mergeCoverageMap,
 } from 'canyon-data';
+import { CoverageQueryDto } from './dto/coverage-query.dto'; // 假设 DTO 文件路径
+
 @Controller('')
 export class CoverageController {
   constructor(
@@ -15,13 +15,8 @@ export class CoverageController {
   ) {}
   @Post('coverage/client')
   async uploadCoverageFromClient(@Body() coverageClientDto: CoverageClientDto) {
-    // TODO: 实现覆盖率数据处理逻辑
     return this.coverageClientService.invoke('1', coverageClientDto);
   }
-
-  //   /projects/gitlab/canyon-projects/coverage?sha=1234567890abcdef
-
-  // /api/coverage/summary/v2/map
 
   @Get('api/coverage/summary/map')
   async coverageSummaryMap(@Query() query) {
@@ -37,13 +32,24 @@ export class CoverageController {
   }
 
   @Get('api/coverage/map')
-  async coverageMap(@Query() query) {
+  async coverageMap(@Query() query: CoverageQueryDto) {
+    const {
+      provider,
+      repoID,
+      sha,
+      buildProvider,
+      buildID,
+      reportProvider,
+      reportID
+    } = query
     return this.coverageFinalService.invoke(
-      query.provider,
-      query.repoID,
-      query.sha,
-      query.buildProvider,
-      query.buildID,
+      provider,
+      repoID,
+      sha,
+      buildProvider,
+      buildID,
+      reportProvider,
+      reportID
     );
   }
 }

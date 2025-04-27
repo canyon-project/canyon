@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common'
 // import { PrismaService } from '../../../prisma/prisma.service';
 import { ClickHouseClient } from '@clickhouse/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
@@ -12,12 +12,10 @@ export class CoverageFinalService {
     @Inject('CLICKHOUSE_CLIENT')
     private readonly clickhouseClient: ClickHouseClient,
   ) {}
-  async invoke(provider, repoID, sha, buildProvider, buildID) {
-    if (!provider || !repoID || !sha || !buildProvider || !buildID) {
-      return {
-        error: 'provider, repoID, sha are required',
-      };
-    }
+  async invoke(provider, repoID, sha, buildProvider, buildID,
+               reportProvider, reportID
+               ) {
+
     const coverages = await this.prisma.coverage.findMany({
       where: {
         provider: provider,
