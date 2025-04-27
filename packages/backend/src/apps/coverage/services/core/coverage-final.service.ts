@@ -1,9 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
-// import { PrismaService } from '../../../prisma/prisma.service';
 import { ClickHouseClient } from '@clickhouse/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { dbToIstanbul } from '../../../../utils/dbToIstanbul';
-import { remapCoverageWithInstrumentCwd } from 'canyon-map';
 
 @Injectable()
 export class CoverageFinalService {
@@ -21,6 +19,7 @@ export class CoverageFinalService {
     reportProvider?: string,
     reportID?: string,
   ) {
+    // 第一步：查询coverage表，获取所有的 coverageID
     const coverages = await this.prisma.coverage.findMany({
       where: {
         provider: provider,
@@ -28,12 +27,12 @@ export class CoverageFinalService {
         sha: sha,
         buildProvider: buildProvider,
         buildID: buildID,
-        reportProvider: reportProvider,
-        reportID: reportID,
+        // reportProvider: reportProvider,
+        // reportID: reportID,
       },
     });
 
-    // 查询 Postgres：哪些 hash 出现在哪些路径中
+    // 第二步：provider、repoID、sha、buildProvider、buildID确定一组 coverage_map
     const coverageMapRelationList =
       await this.prisma.coverageMapRelation.findMany({
         where: {
@@ -75,6 +74,8 @@ export class CoverageFinalService {
 
     // 返回带 file_path 的数据，或者传给 dbToIstanbul
 
+    // 第三步：查询 ClickHouse：查 coverage_hit_agg
+
     const queryF = `SELECT
                       coverage_id,
     relative_path,
@@ -82,7 +83,14 @@ export class CoverageFinalService {
     sumMapMerge(f_map) AS merged_f,
     sumMapMerge(b_map) AS merged_b
 FROM default.coverage_hit_agg
-                    WHERE coverage_id IN (${coverages.map((h) => `'${h.id}'`).join(', ')})
+                    WHERE coverage_id IN (${coverages
+                      .filter(
+                        (i) =>
+                          i.reportProvider === reportProvider &&
+                          i.reportID === reportID,
+                      )
+                      .map((h) => `'${h.id}'`)
+                      .join(', ')})
 GROUP BY coverage_id, relative_path;`;
 
     const resultF = await this.clickhouseClient.query({
@@ -92,13 +100,6 @@ GROUP BY coverage_id, relative_path;`;
     const dataF = await resultF.json();
 
     const unReMapedCov = dbToIstanbul(dataWithPath, dataF);
-
-    // 不知道要不要reMap
-    // const realResCov = await remapCoverageWithInstrumentCwd(
-    //   unReMapedCov,
-    //   coverages[0].instrumentCwd,
-    // );
-    // console.log(coverages[0].instrumentCwd);
     const instrumentCwd = coverages[0].instrumentCwd;
     const realResCov = Object.values(unReMapedCov)
       .map((item: any) => {
