@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from 'src/prisma/prisma.module';
-import { GetProjectCoverageService } from './services/get-project-coverage.service';
+// import { GetProjectCoverageService } from './services/get-project-coverage.service';
 import {ProjectController} from "./project.controller";
 // import { ProjectResolver } from './project.resolver';
 // import { ProjectService } from './services/project.service';
@@ -17,7 +17,7 @@ import {ProjectController} from "./project.controller";
   imports: [PrismaModule],
   controllers: [ProjectController],
   providers: [
-    GetProjectCoverageService,
+    // GetProjectCoverageService,
     // ProjectResolver,
     // ProjectService,
     // GetProjectChartDataService,
