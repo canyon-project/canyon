@@ -21,7 +21,7 @@
   },
   "pnpm": {
     "overrides": {
-      "eslint-config-canyon": "1.0.2",
+      "eslint-config-canyon": "1.0.3",
       "typescript": "5.7.3",
       "globals": "16.0.0",
       "react": "^19",
