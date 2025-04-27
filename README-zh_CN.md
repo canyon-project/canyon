@@ -61,7 +61,7 @@ Canyon（意为 “峡谷”，发音 /ˈkænjən/） 是一个 JavaScript 代�
 
 ## 微信群
 
-<img src="./screenshots/wechat27.png" style="width: 200px"/>
+<img src="./screenshots/wechat28.png" style="width: 200px"/>
 
 ## 开发
 
