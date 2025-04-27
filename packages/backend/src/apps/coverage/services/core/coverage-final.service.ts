@@ -1,7 +1,29 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClickHouseClient } from '@clickhouse/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
-import { dbToIstanbul } from '../../../../utils/dbToIstanbul';
+import { coverageMapQuerySql } from '../../sql/coverage-map-query.sql';
+import { coverageHitQuerySql } from '../../sql/coverage-hit-query.sql';
+import { getBranchTypeByIndex } from '../../../../utils/getBranchType';
+import { genHitByMap } from '../../../../utils/genHitByMap';
+import { decodeKey } from '../../../../utils/ekey';
+import { BranchMapping, FunctionMapping, Range } from 'istanbul-lib-coverage';
+
+interface CoverageHitQuerySqlResultJsonInterface {
+  coverage_id: string;
+  relative_path: string;
+  merged_s: string;
+  merged_f: string;
+  merged_b: string;
+}
+
+interface CoverageMapQuerySqlResultJsonInterface {
+  hash: string;
+  statement_map: { [key: string]: Range };
+  fn_map: { [key: string]: FunctionMapping };
+  branch_map: { [key: string]: BranchMapping };
+  input_source_map: string;
+  ts: string;
+}
 
 @Injectable()
 export class CoverageFinalService {
@@ -19,7 +41,7 @@ export class CoverageFinalService {
     reportProvider?: string,
     reportID?: string,
   ) {
-    // 第一步：查询coverage表，获取所有的 coverageID
+    // 第一步：查询coverage表，获取所有的 coverageID。注意，此时不过滤reportProvider和reportID
     const coverages = await this.prisma.coverage.findMany({
       where: {
         provider: provider,
@@ -27,8 +49,6 @@ export class CoverageFinalService {
         sha: sha,
         buildProvider: buildProvider,
         buildID: buildID,
-        // reportProvider: reportProvider,
-        // reportID: reportID,
       },
     });
 
@@ -42,78 +62,191 @@ export class CoverageFinalService {
         },
       });
 
+    // 以下操作为了去除重复的 hashID
     // 构造 hash -> relative_paths[] 映射表
     const hashToPaths = new Map<string, string>();
     for (const item of coverageMapRelationList) {
       hashToPaths.set(item.hashID, item.relativePath);
     }
-
     // 查询 ClickHouse：查 hash 对应的 coverage_map
-    const sethashs = [...new Set(coverageMapRelationList.map((i) => i.hashID))];
+    const deduplicateHashIDList = [
+      ...new Set(coverageMapRelationList.map((i) => i.hashID)),
+    ];
 
-    const queryS = `
-  SELECT *
-  FROM coverage_map
-  WHERE hash IN (${sethashs.map((h) => `'${h}'`).join(', ')});
-`;
-
-    const resultS = await this.clickhouseClient.query({
-      query: queryS,
+    // coverageMapQuerySqlResult
+    const coverageMapQuerySqlResult = await this.clickhouseClient.query({
+      query: coverageMapQuerySql(deduplicateHashIDList),
       format: 'JSONEachRow',
     });
-    const rawData = await resultS.json(); // [{ hash: ..., statement_map: ..., ... }, ...]
+
+    const coverageMapQuerySqlResultJson: CoverageMapQuerySqlResultJsonInterface[] =
+      await coverageMapQuerySqlResult.json();
 
     // 将 file_path 挂上去
-    const dataWithPath = rawData.map((i: any) => {
-      const file_path = hashToPaths.get(i.hash);
-      return {
-        ...i,
-        relative_path: file_path,
-      };
-    });
+    const coverageMapQuerySqlResultJsonWithRelativePath =
+      coverageMapQuerySqlResultJson.map((item) => {
+        const file_path = hashToPaths.get(item.hash);
+        return {
+          ...item,
+          relative_path: file_path,
+        };
+      });
 
     // 返回带 file_path 的数据，或者传给 dbToIstanbul
 
     // 第三步：查询 ClickHouse：查 coverage_hit_agg
 
-    const queryF = `SELECT
-                      coverage_id,
-    relative_path,
-    sumMapMerge(s_map) AS merged_s,
-    sumMapMerge(f_map) AS merged_f,
-    sumMapMerge(b_map) AS merged_b
-FROM default.coverage_hit_agg
-                    WHERE coverage_id IN (${coverages
-                      .filter(
-                        (i) =>
-                          i.reportProvider === reportProvider &&
-                          i.reportID === reportID,
-                      )
-                      .map((h) => `'${h.id}'`)
-                      .join(', ')})
-GROUP BY coverage_id, relative_path;`;
-
-    const resultF = await this.clickhouseClient.query({
-      query: queryF,
+    const coverageHitQuerySqlResult = await this.clickhouseClient.query({
+      query: coverageHitQuerySql(coverages, {
+        reportProvider,
+        reportID,
+      }),
       format: 'JSONEachRow',
     });
-    const dataF = await resultF.json();
+    const coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[] =
+      await coverageHitQuerySqlResult.json();
 
-    const unReMapedCov = dbToIstanbul(dataWithPath, dataF);
+    const res = this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
+      coverageMapQuerySqlResultJsonWithRelativePath,
+      coverageHitQuerySqlResultJson,
+    );
     const instrumentCwd = coverages[0].instrumentCwd;
-    const realResCov = Object.values(unReMapedCov)
-      .map((item: any) => {
-        const path = item.path.replace(instrumentCwd + '/', '');
-        return {
-          ...item,
-          path,
-        };
-      })
-      .reduce((acc, cur) => {
-        acc[cur.path] = cur;
-        return acc;
-      }, {});
 
-    return realResCov;
+    return res;
+  }
+
+  //   合并 coverageMapQuerySqlResult、coverageHitQuerySqlResult
+  mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
+    coverageMapQuerySqlResultJson: (CoverageMapQuerySqlResultJsonInterface & {
+      relative_path: string;
+    })[],
+    coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[],
+  ) {
+    const result = {};
+
+    coverageMapQuerySqlResultJson.forEach((item) => {
+      const beigin = {
+        path: item.relative_path,
+        statementMap: Object.entries(item.statement_map).reduce(
+          (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
+            acc[key] = {
+              start: {
+                line: startLine,
+                column: startColumn,
+              },
+              end: {
+                line: endLine,
+                column: endColumn,
+              },
+            };
+            return acc;
+          },
+          {},
+        ),
+        fnMap: Object.entries(item.fn_map).reduce(
+          (
+            acc,
+            [
+              key,
+              [
+                name,
+                line,
+                [startLine, startColumn, endLine, endColumn],
+                [startLine2, startColumn2, endLine2, endColumn2],
+              ],
+            ],
+          ) => {
+            acc[key] = {
+              name,
+              line,
+              decl: {
+                start: {
+                  line: startLine,
+                  column: startColumn,
+                },
+                end: {
+                  line: endLine,
+                  column: endColumn,
+                },
+              },
+              loc: {
+                start: {
+                  line: startLine2,
+                  column: startColumn2,
+                },
+                end: {
+                  line: endLine2,
+                  column: endColumn2,
+                },
+              },
+            };
+            return acc;
+          },
+          {},
+        ),
+        branchMap: Object.entries(item.branch_map).reduce(
+          (acc, [key, [type, line, loc, locations]]) => {
+            acc[key] = {
+              type: getBranchTypeByIndex(type),
+              line,
+              loc: {
+                start: {
+                  line: loc[0],
+                  column: loc[1],
+                },
+                end: {
+                  line: loc[2],
+                  column: loc[3],
+                },
+              },
+              locations: locations.map(
+                ([startLine, startColumn, endLine, endColumn]) => ({
+                  start: {
+                    line: startLine,
+                    column: startColumn,
+                  },
+                  end: {
+                    line: endLine,
+                    column: endColumn,
+                  },
+                }),
+              ),
+            };
+            return acc;
+          },
+          {},
+        ),
+        inputSourceMap: item.input_source_map
+          ? JSON.parse(item.input_source_map)
+          : undefined,
+      };
+
+      const initCov = genHitByMap(beigin);
+
+      const { merged_s, merged_f, merged_b } =
+        coverageHitQuerySqlResultJson.find(
+          (i) => i.relative_path === item.relative_path,
+        );
+
+      merged_s[0].forEach((j, jindex) => {
+        initCov.s[j] = Number(merged_s[1][jindex]);
+      });
+
+      merged_f[0].forEach((j, jindex) => {
+        initCov.f[j] = Number(merged_f[1][jindex]);
+      });
+
+      merged_b[0].forEach((j, jindex) => {
+        const realB = decodeKey(j);
+        const [a, b] = realB;
+        initCov.b[a][b] = Number(merged_b[1][jindex]);
+      });
+
+      result[item.relative_path] = {
+        ...beigin,
+        ...initCov,
+      };
+    });
+    return result;
   }
 }
