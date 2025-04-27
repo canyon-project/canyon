@@ -27,6 +27,8 @@ export class CoverageController {
         query.sha,
         query.buildProvider,
         query.buildID,
+        query.reportProvider,
+        query.reportID,
       )
       .then((r) => genSummaryMapByCoverageMap(r));
   }
