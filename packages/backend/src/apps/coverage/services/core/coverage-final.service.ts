@@ -79,9 +79,18 @@ export class CoverageFinalService {
 
     // 以下操作为了去除重复的 hashID
     // 构造 hash -> relative_paths[] 映射表
-    const hashToPaths = new Map<string, string>();
+    const hashToPaths = new Map<
+      string,
+      {
+        file_path: string;
+        input_source_map: string;
+      }
+    >();
     for (const item of coverageMapRelationList) {
-      hashToPaths.set(item.hashID, item.relativePath);
+      hashToPaths.set(item.hashID, {
+        file_path: item.relativePath,
+        input_source_map: item.inputSourceMap,
+      });
     }
     // 查询 ClickHouse：查 hash 对应的 coverage_map
     const deduplicateHashIDList = [
@@ -100,10 +109,11 @@ export class CoverageFinalService {
     // 将 file_path 挂上去
     const coverageMapQuerySqlResultJsonWithRelativePath =
       coverageMapQuerySqlResultJson.map((item) => {
-        const file_path = hashToPaths.get(item.hash);
+        const relaHashToPaths = hashToPaths.get(item.hash);
         return {
           ...item,
-          relative_path: file_path || '',
+          relative_path: relaHashToPaths?.file_path || '',
+          input_source_map: relaHashToPaths?.input_source_map || '',
         };
       });
 
@@ -142,6 +152,9 @@ export class CoverageFinalService {
     coverageMapQuerySqlResultJson.forEach((item) => {
       const beigin = {
         path: item.relative_path,
+        inputSourceMap: item.input_source_map
+          ? JSON.parse(item.input_source_map)
+          : undefined,
         statementMap: Object.entries(item.statement_map).reduce(
           (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
             acc[key] = {
@@ -231,9 +244,6 @@ export class CoverageFinalService {
           },
           {},
         ),
-        inputSourceMap: item.input_source_map
-          ? JSON.parse(item.input_source_map)
-          : undefined,
       };
 
       const initCov = genHitByMap(beigin);

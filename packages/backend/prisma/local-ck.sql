@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
   statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32)),
   fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
   branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
-  input_source_map String,
   ts              DateTime
   ) ENGINE = ReplacingMergeTree()
   PARTITION BY toYYYYMM(ts)
@@ -31,7 +30,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
 
 CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
 (
-  hash String,
+  coverage_id String,
   relative_path   String,
   s_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   f_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
@@ -40,15 +39,15 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
   )
   ENGINE = AggregatingMergeTree()
   PARTITION BY tuple()
-  ORDER BY (hash, relative_path);
+  ORDER BY (coverage_id, relative_path);
 
 -- 物化视图
 
-CREATE MATERIALIZED VIEW default.coverage_hit_mv
+CREATE MATERIALIZED VIEW IF NOT EXISTS default.coverage_hit_mv
             TO default.coverage_hit_agg
 AS
 SELECT
-  hash,
+  coverage_id,
   relative_path,
   sumMapState(mapKeys(s), mapValues(s)) AS s_map,
   sumMapState(mapKeys(f), mapValues(f)) AS f_map,
@@ -56,18 +55,17 @@ SELECT
 
   max(ts) AS latest_ts
 FROM default.coverage_hit
-GROUP BY hash, relative_path;
+GROUP BY coverage_id, relative_path;
 
 -- 查询
 
 -- SELECT
---   hash,
+--   coverage_id,
 --   relative_path,
 --   sumMapMerge(s_map) AS merged_s,
---   sumMapMerge(f_map) AS merged_f,
---   last_updated
+--   sumMapMerge(f_map) AS merged_f
 -- FROM default.coverage_hit_agg
--- GROUP BY hash, relative_path;
+-- GROUP BY coverage_id, relative_path;
 
 -- 问题
 -- map表，聚合为一行的时候，应该是到build_provider、build_id维度，目前是到coverage_id,report_id维度，map_id，根据build
