@@ -6,39 +6,12 @@ import { coverageHitQuerySql } from '../../sql/coverage-hit-query.sql';
 import { getBranchTypeByIndex } from '../../../../utils/getBranchType';
 import { genHitByMap } from '../../../../utils/genHitByMap';
 import { decodeKey } from '../../../../utils/ekey';
-
-interface CoverageHitQuerySqlResultJsonInterface {
-  coverage_id: string;
-  relative_path: string;
-  merged_s: [string[], number[]];
-  merged_f: [string[], number[]];
-  merged_b: [string[], number[]];
-}
-
-interface CoverageMapQuerySqlResultJsonInterface {
-  hash: string;
-  statement_map: Record<string, [number, number, number, number]>;
-  fn_map: Record<
-    string,
-    [
-      string,
-      number,
-      [number, number, number, number],
-      [number, number, number, number],
-    ]
-  >;
-  branch_map: Record<
-    string,
-    [
-      number,
-      number,
-      [number, number, number, number],
-      [number, number, number, number][],
-    ]
-  >;
-  input_source_map: string;
-  ts: string;
-}
+import {
+  CoverageHitQuerySqlResultJsonInterface,
+  CoverageMapQuerySqlResultJsonInterface,
+} from '../../types/coverage-final.types';
+import { remapCoverage } from 'canyon-map';
+import { removeCoverageInstrumentCwd } from '../../../../utils/removeCoverageInstrumentCwd';
 
 @Injectable()
 export class CoverageFinalService {
@@ -131,13 +104,12 @@ export class CoverageFinalService {
     const coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[] =
       await coverageHitQuerySqlResult.json();
 
-    const res = this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
+    const res = await this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
       coverageMapQuerySqlResultJsonWithRelativePath,
       coverageHitQuerySqlResultJson,
     );
     const instrumentCwd = coverages[0].instrumentCwd;
-
-    return res;
+    return removeCoverageInstrumentCwd(res, instrumentCwd);
   }
 
   //   合并 coverageMapQuerySqlResult、coverageHitQuerySqlResult
@@ -275,6 +247,7 @@ export class CoverageFinalService {
         ...initCov,
       };
     });
-    return result;
+
+    return remapCoverage(result);
   }
 }
