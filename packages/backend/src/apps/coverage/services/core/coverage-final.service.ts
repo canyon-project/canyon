@@ -6,21 +6,36 @@ import { coverageHitQuerySql } from '../../sql/coverage-hit-query.sql';
 import { getBranchTypeByIndex } from '../../../../utils/getBranchType';
 import { genHitByMap } from '../../../../utils/genHitByMap';
 import { decodeKey } from '../../../../utils/ekey';
-import { BranchMapping, FunctionMapping, Range } from 'istanbul-lib-coverage';
 
 interface CoverageHitQuerySqlResultJsonInterface {
   coverage_id: string;
   relative_path: string;
-  merged_s: string;
-  merged_f: string;
-  merged_b: string;
+  merged_s: [string[], number[]];
+  merged_f: [string[], number[]];
+  merged_b: [string[], number[]];
 }
 
 interface CoverageMapQuerySqlResultJsonInterface {
   hash: string;
-  statement_map: { [key: string]: Range };
-  fn_map: { [key: string]: FunctionMapping };
-  branch_map: { [key: string]: BranchMapping };
+  statement_map: Record<string, [number, number, number, number]>;
+  fn_map: Record<
+    string,
+    [
+      string,
+      number,
+      [number, number, number, number],
+      [number, number, number, number],
+    ]
+  >;
+  branch_map: Record<
+    string,
+    [
+      number,
+      number,
+      [number, number, number, number],
+      [number, number, number, number][],
+    ]
+  >;
   input_source_map: string;
   ts: string;
 }
@@ -88,7 +103,7 @@ export class CoverageFinalService {
         const file_path = hashToPaths.get(item.hash);
         return {
           ...item,
-          relative_path: file_path,
+          relative_path: file_path || '',
         };
       });
 
@@ -223,24 +238,27 @@ export class CoverageFinalService {
 
       const initCov = genHitByMap(beigin);
 
-      const { merged_s, merged_f, merged_b } =
-        coverageHitQuerySqlResultJson.find(
-          (i) => i.relative_path === item.relative_path,
-        );
+      const find = coverageHitQuerySqlResultJson.find(
+        (i) => i.relative_path === item.relative_path,
+      );
 
-      merged_s[0].forEach((j, jindex) => {
-        initCov.s[j] = Number(merged_s[1][jindex]);
-      });
+      if (find) {
+        const { merged_s, merged_f, merged_b } = find;
 
-      merged_f[0].forEach((j, jindex) => {
-        initCov.f[j] = Number(merged_f[1][jindex]);
-      });
+        merged_s[0].forEach((j, jindex) => {
+          initCov.s[j] = Number(merged_s[1][jindex]);
+        });
 
-      merged_b[0].forEach((j, jindex) => {
-        const realB = decodeKey(j);
-        const [a, b] = realB;
-        initCov.b[a][b] = Number(merged_b[1][jindex]);
-      });
+        merged_f[0].forEach((j, jindex) => {
+          initCov.f[j] = Number(merged_f[1][jindex]);
+        });
+
+        merged_b[0].forEach((j, jindex) => {
+          const realB = decodeKey(j);
+          const [a, b] = realB;
+          initCov.b[a][b] = Number(merged_b[1][jindex]);
+        });
+      }
 
       result[item.relative_path] = {
         ...beigin,
