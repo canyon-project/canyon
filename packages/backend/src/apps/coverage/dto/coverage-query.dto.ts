@@ -1,6 +1,5 @@
 import { IsString, IsOptional } from 'class-validator';
 
-
 export class CoverageQueryDto {
   @IsString()
   provider: string;
@@ -10,7 +9,6 @@ export class CoverageQueryDto {
 
   @IsString()
   sha: string;
-
 
   @IsString()
   @IsOptional()
@@ -27,4 +25,8 @@ export class CoverageQueryDto {
   @IsString()
   @IsOptional()
   reportID?: string;
+
+  @IsString()
+  @IsOptional()
+  filePath?: string;
 }
