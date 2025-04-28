@@ -64,12 +64,16 @@ export class CoverageClientService {
           provider: provider,
         },
       })
-      .catch((r) => {
+      .catch(() => {
         console.log('重复');
       });
 
-    const mapList = Object.values(coverage as CoverageQueryParams).map(
-      ({ statementMap, branchMap, fnMap, inputSourceMap, path }) => {
+    const mapList = Object.values(coverage as CoverageQueryParams)
+      .filter(
+        ({ statementMap, branchMap, fnMap }) =>
+          statementMap && branchMap && fnMap,
+      )
+      .map(({ statementMap, branchMap, fnMap, inputSourceMap, path }) => {
         const mapItem = {
           relative_path: path,
           input_source_map: inputSourceMap
@@ -128,7 +132,7 @@ export class CoverageClientService {
         const file_coverage_map_hash = createHash('sha256')
           .update(
             JSON.stringify({
-              input_source_map: mapItem.input_source_map,
+              // input_source_map: mapItem.input_source_map, 把input_source_map移到relation表
               statement_map: mapItem.statement_map,
               fn_map: mapItem.fn_map,
               branch_map: mapItem.branch_map,
@@ -140,8 +144,7 @@ export class CoverageClientService {
           ...mapItem,
           file_coverage_map_hash, // 增加hash字段
         };
-      },
-    );
+      });
 
     // 1. 先检查有没有
     // coverageMapRelationList是已经插入过的
@@ -182,7 +185,7 @@ export class CoverageClientService {
       values: newMapList.map((m) => ({
         ts: Math.floor(new Date().getTime() / 1000),
         hash: m.file_coverage_map_hash,
-        input_source_map: m.input_source_map,
+        // input_source_map: m.input_source_map,
         statement_map: m.statement_map,
         fn_map: m.fn_map,
         branch_map: m.branch_map,
@@ -198,6 +201,7 @@ export class CoverageClientService {
         absolutePath: m.relative_path,
         relativePath: m.relative_path,
         coverageID,
+        inputSourceMap: m.input_source_map,
       })),
       skipDuplicates: true,
     });
