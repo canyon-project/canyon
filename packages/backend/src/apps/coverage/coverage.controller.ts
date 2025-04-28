@@ -17,16 +17,27 @@ export class CoverageController {
   }
 
   @Get('api/coverage/summary/map')
-  async coverageSummaryMap(@Query() query) {
+  async coverageSummaryMap(@Query() query: CoverageQueryDto) {
+    const {
+      provider,
+      repoID,
+      sha,
+      buildProvider,
+      buildID,
+      reportProvider,
+      reportID,
+      filePath,
+    } = query;
     return this.coverageFinalService
       .invoke(
-        query.provider,
-        query.repoID,
-        query.sha,
-        query.buildProvider,
-        query.buildID,
-        query.reportProvider,
-        query.reportID,
+        provider,
+        repoID,
+        sha,
+        buildProvider,
+        buildID,
+        reportProvider,
+        reportID,
+        filePath,
       )
       .then((r) => genSummaryMapByCoverageMap(r));
   }
