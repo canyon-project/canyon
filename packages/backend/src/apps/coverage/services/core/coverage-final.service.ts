@@ -28,6 +28,7 @@ export class CoverageFinalService {
     buildID?: string,
     reportProvider?: string,
     reportID?: string,
+    filePath?: string,
   ) {
     // 第一步：查询coverage表，获取所有的 coverageID。注意，此时不过滤reportProvider和reportID
     const coverages = await this.prisma.coverage.findMany({
@@ -39,7 +40,7 @@ export class CoverageFinalService {
         buildID: buildID,
       },
     });
-
+    // console.log(coverages,'ccc')
     // 第二步：provider、repoID、sha、buildProvider、buildID确定一组 coverage_map
     const coverageMapRelationList =
       await this.prisma.coverageMapRelation.findMany({
@@ -47,6 +48,7 @@ export class CoverageFinalService {
           coverageID: {
             in: coverages.map((coverage) => coverage.id),
           },
+          relativePath: filePath,
         },
       });
 
@@ -69,7 +71,7 @@ export class CoverageFinalService {
     const deduplicateHashIDList = [
       ...new Set(coverageMapRelationList.map((i) => i.hashID)),
     ];
-
+    // console.log(coverageMapRelationList,'coverageMapRelationList')
     // coverageMapQuerySqlResult
     const coverageMapQuerySqlResult = await this.clickhouseClient.query({
       query: coverageMapQuerySql(deduplicateHashIDList),
@@ -109,6 +111,7 @@ export class CoverageFinalService {
       coverageHitQuerySqlResultJson,
     );
     const instrumentCwd = coverages[0].instrumentCwd;
+    // return res;
     return removeCoverageInstrumentCwd(res, instrumentCwd);
   }
 
@@ -200,16 +203,26 @@ export class CoverageFinalService {
                 },
               },
               locations: locations.map(
-                ([startLine, startColumn, endLine, endColumn]) => ({
-                  start: {
-                    line: startLine,
-                    column: startColumn,
-                  },
-                  end: {
-                    line: endLine,
-                    column: endColumn,
-                  },
-                }),
+                ([startLine, startColumn, endLine, endColumn]) => {
+                  if (
+                    [startLine, startColumn, endLine, endColumn].includes(0)
+                  ) {
+                    return {
+                      start: {},
+                      end: {},
+                    };
+                  }
+                  return {
+                    start: {
+                      line: startLine,
+                      column: startColumn,
+                    },
+                    end: {
+                      line: endLine,
+                      column: endColumn,
+                    },
+                  };
+                },
               ),
             };
             return acc;
@@ -247,7 +260,7 @@ export class CoverageFinalService {
         ...initCov,
       };
     });
-
+    // return result;
     return remapCoverage(result);
   }
 }

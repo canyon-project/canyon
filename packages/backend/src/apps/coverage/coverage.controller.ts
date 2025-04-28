@@ -41,6 +41,7 @@ export class CoverageController {
       buildID,
       reportProvider,
       reportID,
+      filePath,
     } = query;
     return this.coverageFinalService.invoke(
       provider,
@@ -50,6 +51,7 @@ export class CoverageController {
       buildID,
       reportProvider,
       reportID,
+      filePath,
     );
   }
 }
