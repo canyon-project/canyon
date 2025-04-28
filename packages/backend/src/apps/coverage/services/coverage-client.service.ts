@@ -64,9 +64,7 @@ export class CoverageClientService {
           provider: provider,
         },
       })
-      .catch(() => {
-        console.log('重复');
-      });
+      .catch(() => {});
 
     const mapList = Object.values(coverage as CoverageQueryParams)
       .filter(
