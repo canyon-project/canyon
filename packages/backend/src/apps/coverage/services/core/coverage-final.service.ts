@@ -41,6 +41,7 @@ export class CoverageFinalService {
     reportProvider?: string,
     reportID?: string,
     filePath?: string,
+    raw?: boolean,
   ) {
     const time = new Date().getTime();
     // 第一步：查询coverage表，获取所有的 coverageID。注意，此时不过滤reportProvider和reportID
@@ -131,7 +132,17 @@ export class CoverageFinalService {
     console.log('耗时5：', new Date().getTime() - time5);
     const instrumentCwd = coverages[0].instrumentCwd;
     // return res;
-    return removeCoverageInstrumentCwd(res, instrumentCwd);
+
+    if (raw) {
+      return res;
+    } else {
+      const r2 = await remapCoverage(res).then((r) => {
+        console.log('耗时7：', new Date().getTime() - 0);
+        return r;
+      });
+
+      return removeCoverageInstrumentCwd(r2, instrumentCwd);
+    }
   }
 
   //   合并 coverageMapQuerySqlResult、coverageHitQuerySqlResult
@@ -282,11 +293,6 @@ export class CoverageFinalService {
     });
     // return result;
     console.log('耗时6：', new Date().getTime() - time6);
-
-    const time7 = new Date().getTime();
-    return remapCoverage(result).then((r) => {
-      console.log('耗时7：', new Date().getTime() - time7);
-      return r;
-    });
+    return result;
   }
 }
