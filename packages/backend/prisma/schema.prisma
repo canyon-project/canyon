@@ -76,14 +76,21 @@ model Coverage {
 }
 
 model CoverageMapRelation {
-  id             String @id @default(cuid()) // coverageID + a_path
-  absolutePath   String @map("absolute_path")
-  relativePath   String @map("relative_path")
-  hashID         String @map("hash_id") // hashID
-  coverageID     String @map("coverage_id") // coverageID
-  inputSourceMap String @map("input_source_map") // 输入的sourceMap
+  id              String @id @default(cuid()) // coverageID + a_path
+  absolutePath    String @map("absolute_path")
+  relativePath    String @map("relative_path")
+  hashID          String @map("hash_id") // hashID
+  coverageID      String @map("coverage_id") // coverageID
+  sourceMapHashID String @map("source_map_hash_id") // 输入的sourceMap
 
   @@map("canyonjs_coverage_map_relation")
+}
+
+model CoverageSourceMap {
+  hash      String @id
+  sourceMap Bytes  @map("source_map") // 输入的sourceMap
+
+  @@map("canyonjs_coverage_source_map")
 }
 
 model Diff {

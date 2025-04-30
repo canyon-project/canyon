@@ -85,7 +85,7 @@ export class CoverageFinalService {
     for (const item of coverageMapRelationList) {
       hashToPaths.set(item.hashID, {
         file_path: item.relativePath,
-        input_source_map: item.inputSourceMap,
+        input_source_map: '', // item.input_source_map,
       });
     }
     // 查询 ClickHouse：查 hash 对应的 coverage_map
