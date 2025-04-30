@@ -64,7 +64,9 @@ export class CoverageClientService {
           provider: provider,
         },
       })
-      .catch(() => {});
+      .catch((r) => {
+        // console.log(r)
+      });
 
     const mapList = Object.values(coverage as CoverageQueryParams)
       .filter(

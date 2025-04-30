@@ -27,6 +27,7 @@ export class CoverageController {
       reportProvider,
       reportID,
       filePath,
+      raw,
     } = query;
     return this.coverageFinalService
       .invoke(
@@ -38,6 +39,7 @@ export class CoverageController {
         reportProvider,
         reportID,
         filePath,
+        raw === 'true',
       )
       .then((r) => genSummaryMapByCoverageMap(r));
   }
@@ -53,6 +55,7 @@ export class CoverageController {
       reportProvider,
       reportID,
       filePath,
+      raw,
     } = query;
     return this.coverageFinalService.invoke(
       provider,
@@ -63,6 +66,7 @@ export class CoverageController {
       reportProvider,
       reportID,
       filePath,
+      raw === 'true',
     );
   }
 }

@@ -29,4 +29,8 @@ export class CoverageQueryDto {
   @IsString()
   @IsOptional()
   filePath?: string;
+
+  @IsString()
+  @IsOptional()
+  raw?: string;
 }
