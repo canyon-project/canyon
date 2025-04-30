@@ -41,7 +41,12 @@ export class CoverageController {
         filePath,
         raw === 'true',
       )
-      .then((r) => genSummaryMapByCoverageMap(r));
+      .then((r) => {
+        return {
+          performance: r.performance,
+          data: genSummaryMapByCoverageMap(r.data),
+        };
+      });
   }
 
   @Get('api/coverage/map')
