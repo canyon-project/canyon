@@ -12,7 +12,6 @@ import {
 } from '../../types/coverage-final.types';
 import { remapCoverage } from 'canyon-map';
 import { removeCoverageInstrumentCwd } from '../../../../utils/removeCoverageInstrumentCwd';
-import * as net from 'node:net';
 
 /*
 
