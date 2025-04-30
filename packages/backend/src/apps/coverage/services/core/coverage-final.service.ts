@@ -12,6 +12,7 @@ import {
 } from '../../types/coverage-final.types';
 import { remapCoverage } from 'canyon-map';
 import { removeCoverageInstrumentCwd } from '../../../../utils/removeCoverageInstrumentCwd';
+import * as net from 'node:net';
 
 /*
 
@@ -43,7 +44,7 @@ export class CoverageFinalService {
     filePath?: string,
     raw?: boolean,
   ) {
-    const time = new Date().getTime();
+    const prismaCoverageFindManyStartTime = new Date().getTime();
     // 第一步：查询coverage表，获取所有的 coverageID。注意，此时不过滤reportProvider和reportID
     const coverages = await this.prisma.coverage.findMany({
       where: {
@@ -54,10 +55,14 @@ export class CoverageFinalService {
         buildID: buildID,
       },
     });
-    console.log('耗时：', new Date().getTime() - time);
+
+    const prismaCoverageFindMany =
+      new Date().getTime() - prismaCoverageFindManyStartTime;
+
     // 第二步：provider、repoID、sha、buildProvider、buildID确定一组 coverage_map
 
-    const time2 = new Date().getTime();
+    const prismaCoverageMapRelationFindManyStartTime = new Date().getTime();
+    // TODO coverage_map_relation 表的优化空间是source_map的重复，reportID相同时会重复存
     const coverageMapRelationList =
       await this.prisma.coverageMapRelation.findMany({
         where: {
@@ -67,7 +72,8 @@ export class CoverageFinalService {
           relativePath: filePath,
         },
       });
-    console.log('耗时2：', new Date().getTime() - time2);
+    const prismaCoverageMapRelationFindMany =
+      new Date().getTime() - prismaCoverageMapRelationFindManyStartTime;
     // 以下操作为了去除重复的 hashID
     // 构造 hash -> relative_paths[] 映射表
     const hashToPaths = new Map<
@@ -88,17 +94,66 @@ export class CoverageFinalService {
       ...new Set(coverageMapRelationList.map((i) => i.hashID)),
     ];
     // console.log(coverageMapRelationList,'coverageMapRelationList')
-    // coverageMapQuerySqlResult
-    const time3 = new Date().getTime();
-    const coverageMapQuerySqlResult = await this.clickhouseClient.query({
-      query: coverageMapQuerySql(deduplicateHashIDList),
-      format: 'JSONEachRow',
-    });
 
-    const coverageMapQuerySqlResultJson: CoverageMapQuerySqlResultJsonInterface[] =
-      await coverageMapQuerySqlResult.json();
+    // ckckckck
+    // ckckckck
+    // ckckckck
+    //
+    // // coverageMapQuerySqlResult
+    // const coverageMapQuerySqlStartTime = new Date().getTime();
+    // const coverageMapQuerySqlResult = await this.clickhouseClient.query({
+    //   query: coverageMapQuerySql(deduplicateHashIDList),
+    //   format: 'JSONEachRow',
+    // });
+    //
+    // const coverageMapQuerySqlResultJson: CoverageMapQuerySqlResultJsonInterface[] =
+    //   await coverageMapQuerySqlResult.json();
+    //
+    // // 将 file_path 挂上去
+    // const coverageMapQuerySqlResultJsonWithRelativePath =
+    //   coverageMapQuerySqlResultJson.map((item) => {
+    //     const relaHashToPaths = hashToPaths.get(item.hash);
+    //     return {
+    //       ...item,
+    //       relative_path: relaHashToPaths?.file_path || '',
+    //       input_source_map: relaHashToPaths?.input_source_map || '',
+    //     };
+    //   });
+    // const coverageMapQuerySqlCur =
+    //   new Date().getTime() - coverageMapQuerySqlStartTime;
+    // // 返回带 file_path 的数据，或者传给 dbToIstanbul
+    //
+    // // 第三步：查询 ClickHouse：查 coverage_hit_agg
+    // const coverageHitQuerySqlStart = new Date().getTime();
+    // const coverageHitQuerySqlResult = await this.clickhouseClient.query({
+    //   query: coverageHitQuerySql(coverages, {
+    //     reportProvider,
+    //     reportID,
+    //   }),
+    //   format: 'JSONEachRow',
+    // });
+    // const coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[] =
+    //   await coverageHitQuerySqlResult.json();
+    const ckQuerySqlStart = new Date().getTime();
+    const [coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson] =
+      await Promise.all([
+        this.clickhouseClient
+          .query({
+            query: coverageHitQuerySql(coverages, {
+              reportProvider,
+              reportID,
+            }),
+            format: 'JSONEachRow',
+          })
+          .then((r) => r.json<CoverageHitQuerySqlResultJsonInterface>()),
+        await this.clickhouseClient
+          .query({
+            query: coverageMapQuerySql(deduplicateHashIDList),
+            format: 'JSONEachRow',
+          })
+          .then((r) => r.json<CoverageMapQuerySqlResultJsonInterface>()),
+      ]);
 
-    // 将 file_path 挂上去
     const coverageMapQuerySqlResultJsonWithRelativePath =
       coverageMapQuerySqlResultJson.map((item) => {
         const relaHashToPaths = hashToPaths.get(item.hash);
@@ -108,40 +163,53 @@ export class CoverageFinalService {
           input_source_map: relaHashToPaths?.input_source_map || '',
         };
       });
-    console.log('耗时3：', new Date().getTime() - time3);
-    // 返回带 file_path 的数据，或者传给 dbToIstanbul
 
-    // 第三步：查询 ClickHouse：查 coverage_hit_agg
-    const time4 = new Date().getTime();
-    const coverageHitQuerySqlResult = await this.clickhouseClient.query({
-      query: coverageHitQuerySql(coverages, {
-        reportProvider,
-        reportID,
-      }),
-      format: 'JSONEachRow',
-    });
-    const coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[] =
-      await coverageHitQuerySqlResult.json();
-    console.log('耗时4：', new Date().getTime() - time4);
+    // ckckckck
+    // ckckckck
+    // ckckckck
 
-    const time5 = new Date().getTime();
+    const ckQuerySqlCur = new Date().getTime() - ckQuerySqlStart;
     const res = await this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
       coverageMapQuerySqlResultJsonWithRelativePath,
       coverageHitQuerySqlResultJson,
     );
-    console.log('耗时5：', new Date().getTime() - time5);
     const instrumentCwd = coverages[0].instrumentCwd;
     // return res;
 
+    const performanceData = {
+      time: {
+        prismaCoverageFindMany: prismaCoverageFindMany,
+        prismaCoverageMapRelationFindMany: prismaCoverageMapRelationFindMany,
+        ckQuerySqlCur: ckQuerySqlCur,
+        reMapCoverage: 0,
+      },
+    };
+
     if (raw) {
-      return res;
+      return {
+        performance: performanceData,
+        data: res,
+      };
     } else {
+      const reMapTimeStart = new Date().getTime();
       const r2 = await remapCoverage(res).then((r) => {
-        console.log('耗时7：', new Date().getTime() - 0);
         return r;
       });
 
-      return removeCoverageInstrumentCwd(r2, instrumentCwd);
+      const removeCoverageInstrumentCwdRes = removeCoverageInstrumentCwd(
+        r2,
+        instrumentCwd,
+      );
+
+      return {
+        performance: {
+          time: {
+            ...performanceData.time,
+            reMapCoverage: new Date().getTime() - reMapTimeStart,
+          },
+        },
+        data: removeCoverageInstrumentCwdRes,
+      };
     }
   }
 
@@ -291,8 +359,6 @@ export class CoverageFinalService {
         ...initCov,
       };
     });
-    // return result;
-    console.log('耗时6：', new Date().getTime() - time6);
     return result;
   }
 }
