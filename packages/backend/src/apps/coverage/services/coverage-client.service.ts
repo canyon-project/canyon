@@ -10,6 +10,7 @@ import {
 } from '../../../utils/getBranchType';
 import { encodeKey, flattenBranchMap } from 'src/utils/ekey';
 import { createHash } from 'crypto';
+import { gzipSync } from 'zlib';
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -64,7 +65,7 @@ export class CoverageClientService {
           provider: provider,
         },
       })
-      .catch((r) => {
+      .catch(() => {
         // console.log(r)
       });
 
@@ -74,11 +75,16 @@ export class CoverageClientService {
           statementMap && branchMap && fnMap,
       )
       .map(({ statementMap, branchMap, fnMap, inputSourceMap, path }) => {
+        const source_map_hash_id = inputSourceMap
+          ? createHash('sha256')
+              .update(JSON.stringify(inputSourceMap))
+              .digest('hex')
+          : '';
+
         const mapItem = {
           relative_path: path,
-          input_source_map: inputSourceMap
-            ? JSON.stringify(inputSourceMap)
-            : '',
+          source_map_hash_id: source_map_hash_id,
+          source_map: JSON.stringify(inputSourceMap),
           statement_map: Object.fromEntries(
             Object.entries(statementMap).map(([k, v]) => [
               Number(k),
@@ -146,7 +152,29 @@ export class CoverageClientService {
         };
       });
 
-    // 1. 先检查有没有
+    // const compressed = inputSourceMap
+    //   ? gzipSync(Buffer.from())
+    //   : null;
+    //
+
+    // .map((m) => ({
+    //     hash: m.source_map_hash_id,
+    //     sourceMap: m.source_map,
+    //   }))
+
+    await this.prisma.coverageSourceMap.createMany({
+      data: mapList
+        .filter((i) => i.source_map_hash_id)
+        .map((i) => {
+          return {
+            hash: i.source_map_hash_id,
+            sourceMap: gzipSync(Buffer.from(i.source_map)),
+          };
+        }),
+      skipDuplicates: true,
+    });
+
+    // 1. 先检查有没有 （不知道能不能这是个经典的「幂等写入 vs 唯一约束」问题）
     // coverageMapRelationList是已经插入过的
     const coverageMapRelationList =
       await this.prisma.coverageMapRelation.findMany({
@@ -193,6 +221,8 @@ export class CoverageClientService {
       format: 'JSONEachRow',
     });
 
+    const sourceMapHashID = '';
+
     // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
     await this.prisma.coverageMapRelation.createMany({
       data: mapList.map((m) => ({
@@ -201,7 +231,8 @@ export class CoverageClientService {
         absolutePath: m.relative_path,
         relativePath: m.relative_path,
         coverageID,
-        inputSourceMap: m.input_source_map,
+        sourceMapHashID,
+        // inputSourceMap: m.input_source_map,
       })),
       skipDuplicates: true,
     });
