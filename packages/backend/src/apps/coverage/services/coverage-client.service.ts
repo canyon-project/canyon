@@ -221,7 +221,7 @@ export class CoverageClientService {
       format: 'JSONEachRow',
     });
 
-    const sourceMapHashID = '';
+    // const sourceMapHashID = '';
 
     // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
     await this.prisma.coverageMapRelation.createMany({
@@ -231,7 +231,7 @@ export class CoverageClientService {
         absolutePath: m.relative_path,
         relativePath: m.relative_path,
         coverageID,
-        sourceMapHashID,
+        sourceMapHashID: m.source_map_hash_id,
         // inputSourceMap: m.input_source_map,
       })),
       skipDuplicates: true,

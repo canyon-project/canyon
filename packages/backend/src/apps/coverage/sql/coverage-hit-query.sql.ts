@@ -18,6 +18,17 @@ export function coverageHitQuerySql(
     reportID?: string;
   },
 ): string {
+  const filterCovs = coverages.filter((i) => {
+    const reportProviderOff =
+      reportProvider === undefined || i.reportProvider === reportProvider;
+    const reportIDOff = reportProvider === undefined || i.reportID === reportID;
+    return reportProviderOff && reportIDOff;
+  });
+
+  const in_condition =
+    filterCovs.length > 0
+      ? `${filterCovs.map((h) => `'${h.id}'`).join(', ')}`
+      : `''`;
   return `SELECT
             coverage_id,
             relative_path,
@@ -25,16 +36,6 @@ export function coverageHitQuerySql(
             sumMapMerge(f_map) AS merged_f,
             sumMapMerge(b_map) AS merged_b
           FROM default.coverage_hit_agg
-          WHERE coverage_id IN (${coverages
-            .filter((i) => {
-              const reportProviderOff =
-                reportProvider === undefined ||
-                i.reportProvider === reportProvider;
-              const reportIDOff =
-                reportProvider === undefined || i.reportID === reportID;
-              return reportProviderOff && reportIDOff;
-            })
-            .map((h) => `'${h.id}'`)
-            .join(', ')})
+          WHERE coverage_id IN (${in_condition})
           GROUP BY coverage_id, relative_path;`;
 }

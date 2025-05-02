@@ -92,47 +92,6 @@ export class CoverageFinalService {
     const deduplicateHashIDList = [
       ...new Set(coverageMapRelationList.map((i) => i.hashID)),
     ];
-    // console.log(coverageMapRelationList,'coverageMapRelationList')
-
-    // ckckckck
-    // ckckckck
-    // ckckckck
-    //
-    // // coverageMapQuerySqlResult
-    // const coverageMapQuerySqlStartTime = new Date().getTime();
-    // const coverageMapQuerySqlResult = await this.clickhouseClient.query({
-    //   query: coverageMapQuerySql(deduplicateHashIDList),
-    //   format: 'JSONEachRow',
-    // });
-    //
-    // const coverageMapQuerySqlResultJson: CoverageMapQuerySqlResultJsonInterface[] =
-    //   await coverageMapQuerySqlResult.json();
-    //
-    // // 将 file_path 挂上去
-    // const coverageMapQuerySqlResultJsonWithRelativePath =
-    //   coverageMapQuerySqlResultJson.map((item) => {
-    //     const relaHashToPaths = hashToPaths.get(item.hash);
-    //     return {
-    //       ...item,
-    //       relative_path: relaHashToPaths?.file_path || '',
-    //       input_source_map: relaHashToPaths?.input_source_map || '',
-    //     };
-    //   });
-    // const coverageMapQuerySqlCur =
-    //   new Date().getTime() - coverageMapQuerySqlStartTime;
-    // // 返回带 file_path 的数据，或者传给 dbToIstanbul
-    //
-    // // 第三步：查询 ClickHouse：查 coverage_hit_agg
-    // const coverageHitQuerySqlStart = new Date().getTime();
-    // const coverageHitQuerySqlResult = await this.clickhouseClient.query({
-    //   query: coverageHitQuerySql(coverages, {
-    //     reportProvider,
-    //     reportID,
-    //   }),
-    //   format: 'JSONEachRow',
-    // });
-    // const coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[] =
-    //   await coverageHitQuerySqlResult.json();
     const ckQuerySqlStart = new Date().getTime();
     const [coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson] =
       await Promise.all([
@@ -184,32 +143,14 @@ export class CoverageFinalService {
       },
     };
 
-    if (raw) {
-      return {
-        performance: performanceData,
-        data: res,
-      };
-    } else {
-      const reMapTimeStart = new Date().getTime();
-      const r2 = await remapCoverage(res).then((r) => {
-        return r;
-      });
-
-      const removeCoverageInstrumentCwdRes = removeCoverageInstrumentCwd(
-        r2,
-        instrumentCwd,
-      );
-
-      return {
-        performance: {
-          time: {
-            ...performanceData.time,
-            reMapCoverage: new Date().getTime() - reMapTimeStart,
-          },
+    return {
+      performance: {
+        time: {
+          ...performanceData.time,
         },
-        data: removeCoverageInstrumentCwdRes,
-      };
-    }
+      },
+      data: res,
+    };
   }
 
   //   合并 coverageMapQuerySqlResult、coverageHitQuerySqlResult
@@ -219,15 +160,11 @@ export class CoverageFinalService {
     })[],
     coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[],
   ) {
-    const time6 = new Date().getTime();
     const result = {};
 
     coverageMapQuerySqlResultJson.forEach((item) => {
       const beigin = {
         path: item.relative_path,
-        inputSourceMap: item.input_source_map
-          ? JSON.parse(item.input_source_map)
-          : undefined,
         statementMap: Object.entries(item.statement_map).reduce(
           (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
             acc[key] = {
