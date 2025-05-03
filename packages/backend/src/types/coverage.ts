@@ -10,6 +10,7 @@ export interface CoverageResponse {
 
 interface FileCoverageData {
   path: string;
+  oldPath?: string;
   statementMap: { [key: string]: Range };
   fnMap: { [key: string]: FunctionMapping };
   branchMap: { [key: string]: BranchMapping };

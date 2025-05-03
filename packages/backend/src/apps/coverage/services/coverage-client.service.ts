@@ -11,7 +11,7 @@ import {
 import { encodeKey, flattenBranchMap } from 'src/utils/ekey';
 import { createHash } from 'crypto';
 import { gzipSync } from 'zlib';
-import { remapCoverageByOld } from 'canyon-map';
+import { remapCoverage, remapCoverageByOld } from 'canyon-map';
 import * as fs from 'node:fs';
 import {
   transformCoverageBranchMapToCk,
@@ -123,7 +123,23 @@ export class CoverageClientService {
           (i) => i.inputSourceMap,
         ).length > 0
       ) {
-        console.log('????');
+        const coverageMapRelationList =
+          await this.prisma.coverageMapRelation.findMany({
+            where: {},
+          });
+        this.clickhouseClient.query(``);
+
+        const hechengCov = {};
+
+        const remapCoverageObject = await remapCoverage(hechengCov);
+
+        const re2 = await this.coverageHitInsertResult(
+          coverageID,
+          remapCoverageObject,
+        );
+
+        return {};
+
         //   reMap后慢慢处理
       } else {
         //   直接插入hit了这边，不需要其他操作了应该？
@@ -184,7 +200,8 @@ export class CoverageClientService {
         // 还原覆盖率
         const remapCoverageObject = await remapCoverageByOld(coverage);
 
-        const mapList = this.genMapList(remapCoverageObject);
+        const mapList = this.genMapList(remapCoverageObject, coverage);
+        console.log(mapList, 'mapList');
         const re1 = await this.coverageMapInsertResult(mapList);
         // 封装**
         const re2 = await this.coverageHitInsertResult(
@@ -249,94 +266,77 @@ export class CoverageClientService {
         statement_map: m.statement_map,
         fn_map: m.fn_map,
         branch_map: m.branch_map,
+        no_transform_statement_map: m.no_transform_statement_map,
+        no_transform_fn_map: m.no_transform_fn_map,
+        no_transform_branch_map: m.no_transform_branch_map,
       })),
       format: 'JSONEachRow',
     });
   }
 
-  genMapList(coverage) {
+  genMapList(coverage, noTransformCoverage?) {
+    if (noTransformCoverage) {
+    }
+
     const mapList = Object.values(coverage as CoverageQueryParams)
       .filter(
         ({ statementMap, branchMap, fnMap }) =>
           statementMap && branchMap && fnMap,
       )
-      .map(({ statementMap, branchMap, fnMap, inputSourceMap, path }) => {
-        const source_map_hash_id = inputSourceMap
-          ? createHash('sha256')
-              .update(JSON.stringify(inputSourceMap))
-              .digest('hex')
-          : '';
+      .map(
+        ({ statementMap, branchMap, fnMap, inputSourceMap, path, oldPath }) => {
+          const source_map_hash_id = inputSourceMap
+            ? createHash('sha256')
+                .update(JSON.stringify(inputSourceMap))
+                .digest('hex')
+            : '';
 
-        const mapItem = {
-          relative_path: path,
-          source_map_hash_id: source_map_hash_id,
-          source_map: JSON.stringify(inputSourceMap),
-          statement_map: Object.fromEntries(
-            Object.entries(statementMap).map(([k, v]) => [
-              Number(k),
-              [v.start.line, v.start.column, v.end.line, v.end.column],
-            ]),
-          ),
-          fn_map: Object.fromEntries(
-            Object.entries(fnMap).map(([k, v]) => [
-              Number(k),
-              [
-                v.name,
-                v.line,
-                [
-                  v.decl.start.line,
-                  v.decl.start.column,
-                  v.decl.end.line,
-                  v.decl.end.column,
-                ],
-                [
-                  v.loc.start.line,
-                  v.loc.start.column,
-                  v.loc.end.line,
-                  v.loc.end.column,
-                ],
-              ],
-            ]),
-          ),
-          branch_map: Object.fromEntries(
-            Object.entries(branchMap).map(([k, v]) => [
-              Number(k),
-              [
-                getBranchTypeIndex(v.type),
-                v.line,
-                [
-                  v.loc.start.line,
-                  v.loc.start.column,
-                  v.loc.end.line,
-                  v.loc.end.column,
-                ],
-                v.locations.map((loc) => [
-                  loc.start.line,
-                  loc.start.column,
-                  loc.end.line,
-                  loc.end.column,
-                ]),
-              ],
-            ]),
-          ),
-        };
+          const noTransformCovItem: any = Object.values(
+            noTransformCoverage,
+          ).find((i: any) => i.path === oldPath);
 
-        const file_coverage_map_hash = createHash('sha256')
-          .update(
-            JSON.stringify({
-              // input_source_map: mapItem.input_source_map, 把input_source_map移到relation表
-              statement_map: mapItem.statement_map,
-              fn_map: mapItem.fn_map,
-              branch_map: mapItem.branch_map,
-            }),
-          )
-          .digest('hex');
+          const map = noTransformCovItem
+            ? {
+                no_transform_statement_map: transformCoverageStatementMapToCk(
+                  noTransformCovItem.statementMap,
+                ),
+                no_transform_fn_map: transformCoverageFnMapToCk(
+                  noTransformCovItem.fnMap,
+                ),
+                no_transform_branch_map: transformCoverageBranchMapToCk(
+                  noTransformCovItem.branchMap,
+                ),
+              }
+            : {};
 
-        return {
-          ...mapItem,
-          file_coverage_map_hash, // 增加hash字段
-        };
-      });
+          const mapItem = {
+            relative_path: path,
+            source_map_hash_id: source_map_hash_id,
+            source_map: JSON.stringify(inputSourceMap),
+            statement_map: transformCoverageStatementMapToCk(statementMap),
+            fn_map: transformCoverageFnMapToCk(fnMap),
+            branch_map: transformCoverageBranchMapToCk(branchMap),
+            ...map,
+          };
+
+          // 查找，如果存在才加上
+
+          const file_coverage_map_hash = createHash('sha256')
+            .update(
+              JSON.stringify({
+                statement_map: mapItem.statement_map,
+                fn_map: mapItem.fn_map,
+                branch_map: mapItem.branch_map,
+              }),
+            )
+            .digest('hex');
+
+          return {
+            ...mapItem,
+            file_coverage_map_hash, // 增加hash字段
+          };
+        },
+      );
 
     return mapList;
   }
