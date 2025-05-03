@@ -60,7 +60,6 @@ export class CoverageClientService {
       },
     });
 
-
     // 如果是hit且需要sourceMap的话，看 CoverageMapRelation 里有没有数据，没得话需要报错
 
     // findCoverage.hasSourceMap = true; // 这里是为了测试用的，实际应该是从数据库中获取
@@ -76,6 +75,7 @@ export class CoverageClientService {
     await this.prisma.coverage
       .create({
         data: {
+          needSourceMapBacktrack: false,
           id: coverageID,
           sha, // 定
           repoID, // 定
