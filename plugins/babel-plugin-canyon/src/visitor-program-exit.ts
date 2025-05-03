@@ -23,10 +23,8 @@ export const visitorProgramExit = (api,path,serviceParams) => {
             const properties = variablePath.node.init.properties;
 
             if (!serviceParams.keepMap){
-
-              // 删除 statementMap、fnMap 和 branchMap 属性
-              const keysToRemove = ["statementMap", "fnMap", "branchMap","inputSourceMap"];
-
+              // 替换 statementMap、fnMap、branchMap 删除逻辑，改成 inputSourceMap 替换为 1 的逻辑
+              const keysToRemove = ["statementMap", "fnMap", "branchMap"];
               keysToRemove.forEach(key => {
                 const index = properties.findIndex(prop =>
                   t.isIdentifier(prop.key, { name: key })
@@ -36,6 +34,18 @@ export const visitorProgramExit = (api,path,serviceParams) => {
                   properties.splice(index, 1); // 删除属性
                 }
               });
+
+              // 处理 inputSourceMap，替换为数字 1
+              const inputSourceMapIndex = properties.findIndex(prop =>
+                t.isIdentifier(prop.key, { name: "inputSourceMap" })
+              );
+
+              if (inputSourceMapIndex !== -1) {
+                properties[inputSourceMapIndex] = t.objectProperty(
+                  t.identifier("inputSourceMap"),
+                  t.numericLiteral(1)
+                );
+              }
             }
 
 
