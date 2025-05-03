@@ -39,23 +39,22 @@ model Project {
 }
 
 model Coverage {
-  id                     String   @id @default(cuid())
-  needSourceMapBacktrack Boolean  @map("need_source_map_backtrack")
-  instrumentCwd          String   @map("instrument_cwd")
-  sha                    String   @map("sha")
-  branch                 String
-  compareTarget          String   @map("compare_target")
-  provider               String
-  buildProvider          String   @map("build_provider") // 通过侦测CI环境变量来判断
-  buildID                String   @map("build_id")
-  repoID                 String   @map("repo_id")
-  reporter               String
+  id             String   @id @default(cuid())
+  instrumentCwd  String   @map("instrument_cwd")
+  sha            String   @map("sha")
+  branch         String
+  compareTarget  String   @map("compare_target")
+  provider       String
+  buildProvider  String   @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID        String   @map("build_id")
+  repoID         String   @map("repo_id")
+  reporter       String
   // 新加的上报提供商，flytest、mpaas(auto) 、人(person) 人就是 (manual)
-  reportProvider         String   @map("report_provider")
-  reportID               String   @map("report_id") // 未来聚合的一句，区分case 是个ID
-  scopeID                String   @map("scope_id") // 范围ID，来自于project的scope中
-  createdAt              DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-  updatedAt              DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+  reportProvider String   @map("report_provider")
+  reportID       String   @map("report_id") // 未来聚合的一句，区分case 是个ID
+  scopeID        String   @map("scope_id") // 范围ID，来自于project的scope中
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt      DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
 
   @@map("canyonjs_coverage")
 }
