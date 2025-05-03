@@ -11,6 +11,14 @@ import {
 import { encodeKey, flattenBranchMap } from 'src/utils/ekey';
 import { createHash } from 'crypto';
 import { gzipSync } from 'zlib';
+import { remapCoverageByOld } from 'canyon-map';
+import * as fs from 'node:fs';
+import {
+  transformCoverageBranchMapToCk,
+  transformCoverageFnMapToCk,
+  transformCoverageStatementMapToCk,
+} from '../../../utils/transform';
+import { transFormHash } from '../../../utils/hash';
 
 // 此代码重中之重、核心中的核心！！！
 @Injectable()
@@ -69,172 +77,72 @@ export class CoverageClientService {
         // console.log(r)
       });
 
-    const mapList = Object.values(coverage as CoverageQueryParams)
-      .filter(
-        ({ statementMap, branchMap, fnMap }) =>
-          statementMap && branchMap && fnMap,
-      )
-      .map(({ statementMap, branchMap, fnMap, inputSourceMap, path }) => {
-        const source_map_hash_id = inputSourceMap
-          ? createHash('sha256')
-              .update(JSON.stringify(inputSourceMap))
-              .digest('hex')
-          : '';
+    // 还原覆盖率
+    const remapCoverageObject = await remapCoverageByOld(coverage);
 
-        const mapItem = {
-          relative_path: path,
-          source_map_hash_id: source_map_hash_id,
-          source_map: JSON.stringify(inputSourceMap),
-          statement_map: Object.fromEntries(
-            Object.entries(statementMap).map(([k, v]) => [
-              Number(k),
-              [v.start.line, v.start.column, v.end.line, v.end.column],
-            ]),
-          ),
-          fn_map: Object.fromEntries(
-            Object.entries(fnMap).map(([k, v]) => [
-              Number(k),
-              [
-                v.name,
-                v.line,
-                [
-                  v.decl.start.line,
-                  v.decl.start.column,
-                  v.decl.end.line,
-                  v.decl.end.column,
-                ],
-                [
-                  v.loc.start.line,
-                  v.loc.start.column,
-                  v.loc.end.line,
-                  v.loc.end.column,
-                ],
-              ],
-            ]),
-          ),
-          branch_map: Object.fromEntries(
-            Object.entries(branchMap).map(([k, v]) => [
-              Number(k),
-              [
-                getBranchTypeIndex(v.type),
-                v.line,
-                [
-                  v.loc.start.line,
-                  v.loc.start.column,
-                  v.loc.end.line,
-                  v.loc.end.column,
-                ],
-                v.locations.map((loc) => [
-                  loc.start.line,
-                  loc.start.column,
-                  loc.end.line,
-                  loc.end.column,
-                ]),
-              ],
-            ]),
-          ),
-        };
-
-        const file_coverage_map_hash = createHash('sha256')
-          .update(
-            JSON.stringify({
-              // input_source_map: mapItem.input_source_map, 把input_source_map移到relation表
-              statement_map: mapItem.statement_map,
-              fn_map: mapItem.fn_map,
-              branch_map: mapItem.branch_map,
-            }),
-          )
-          .digest('hex');
-
-        return {
-          ...mapItem,
-          file_coverage_map_hash, // 增加hash字段
-        };
-      });
-
-    // const compressed = inputSourceMap
-    //   ? gzipSync(Buffer.from())
-    //   : null;
-    //
-
-    // .map((m) => ({
-    //     hash: m.source_map_hash_id,
-    //     sourceMap: m.source_map,
-    //   }))
-
-    await this.prisma.coverageSourceMap.createMany({
-      data: mapList
-        .filter((i) => i.source_map_hash_id)
-        .map((i) => {
-          return {
-            hash: i.source_map_hash_id,
-            sourceMap: gzipSync(Buffer.from(i.source_map)),
-          };
-        }),
-      skipDuplicates: true,
-    });
-
-    // 1. 先检查有没有 （不知道能不能这是个经典的「幂等写入 vs 唯一约束」问题）
-    // coverageMapRelationList是已经插入过的
-    const coverageMapRelationList =
-      await this.prisma.coverageMapRelation.findMany({
-        where: {
-          hashID: {
-            in: mapList.map((i) => i.file_coverage_map_hash),
-          },
+    const newMapList: any[] = [];
+    Object.entries(coverage).forEach(([key, value]: any) => {
+      const newCoverage: any = Object.values(remapCoverageObject).find(
+        ({ oldPath }) => {
+          // console.log(i, key)
+          return oldPath === key;
         },
-      });
+      );
+      // 通过 value 中的sourceMap来判断是否要插入no_transform的数据
+      if (newCoverage) {
+        // value.inputSourceMap;
+        const inputSourceMaphash = transFormHash(value.inputSourceMap);
+        const sourceMap = gzipSync(
+          Buffer.from(JSON.stringify(value.inputSourceMap)),
+        );
+        this.prisma.coverageSourceMap.create({
+          data: {
+            hash: inputSourceMaphash,
+            sourceMap,
+          },
+        });
 
-    // coverageMapRelationList 是已存在的 hash
-    const existingHashSet = new Set(
-      coverageMapRelationList.map((r) => r.hashID),
-    );
+        const file_coverage_map_hash = transFormHash({
+          statement_map: newCoverage.statementMap,
+          fn_map: newCoverage.fnMap,
+          branch_map: newCoverage.branchMap,
+        });
 
-    // 找出未存在的 mapList 项
-    const newMapList = mapList.filter(
-      (item) => !existingHashSet.has(item.file_coverage_map_hash),
-    );
-
-    // 插入 coverage_map 表（只插入新的 map 内容）
-    // await this.prisma.coverageMap.createMany({
-    //   data: newMapList.map((m) => ({
-    //     hashID: m.hash,
-    //     inputSourceMap: m.input_source_map,
-    //     statementMap: m.statement_map,
-    //     fnMap: m.fn_map,
-    //     branchMap: m.branch_map,
-    //   })),
-    //   skipDuplicates: true, // 避免并发情况下报错
-    // });
-
-    //   才需要插入map表
+        newMapList.push({
+          file_coverage_map_hash: file_coverage_map_hash,
+          statement_map: transformCoverageStatementMapToCk(
+            newCoverage.statementMap,
+          ),
+          fn_map: transformCoverageFnMapToCk(newCoverage.fnMap),
+          branch_map: transformCoverageBranchMapToCk(newCoverage.branchMap),
+          no_transform_statement_map: transformCoverageStatementMapToCk(
+            value.statementMap,
+          ),
+          no_transform_fn_map: transformCoverageFnMapToCk(value.fnMap),
+          no_transform_branch_map: transformCoverageBranchMapToCk(
+            value.branchMap,
+          ),
+          source_map_hash_id:inputSourceMaphash,
+          path: newCoverage.path,
+        });
+      }
+    });
+    const willInsertMapList = [newMapList[0]].map((m) => ({
+      ts: Math.floor(new Date().getTime() / 1000),
+      hash: m.file_coverage_map_hash,
+      statement_map: m.statement_map,
+      fn_map: m.fn_map,
+      branch_map: m.branch_map,
+      no_transform_statement_map: m.no_transform_statement_map,
+      no_transform_fn_map: m.no_transform_fn_map,
+      no_transform_branch_map: m.no_transform_branch_map,
+      relative_path: m.path,
+      source_map_hash_id: m.source_map_hash_id,
+    }));
     await this.clickhouseClient.insert({
       table: 'coverage_map',
-      values: newMapList.map((m) => ({
-        ts: Math.floor(new Date().getTime() / 1000),
-        hash: m.file_coverage_map_hash,
-        // input_source_map: m.input_source_map,
-        statement_map: m.statement_map,
-        fn_map: m.fn_map,
-        branch_map: m.branch_map,
-      })),
+      values: willInsertMapList,
       format: 'JSONEachRow',
-    });
-
-    // const sourceMapHashID = '';
-
-    // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
-    await this.prisma.coverageMapRelation.createMany({
-      data: mapList.map((m) => ({
-        id: coverageID + '|' + m.relative_path,
-        hashID: m.file_coverage_map_hash,
-        absolutePath: m.relative_path,
-        relativePath: m.relative_path,
-        coverageID,
-        sourceMapHashID: m.source_map_hash_id,
-        // inputSourceMap: m.input_source_map,
-      })),
-      skipDuplicates: true,
     });
 
     await this.clickhouseClient.insert({
@@ -252,6 +160,20 @@ export class CoverageClientService {
         },
       ),
       format: 'JSONEachRow',
+    });
+
+    // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
+    await this.prisma.coverageMapRelation.createMany({
+      data: willInsertMapList.map((m) => ({
+        id: coverageID + '|' + m.relative_path,
+        hashID: m.hash,
+        absolutePath: m.relative_path,
+        relativePath: m.relative_path,
+        coverageID,
+        sourceMapHashID: m.source_map_hash_id,
+        // inputSourceMap: m.input_source_map,
+      })),
+      skipDuplicates: true,
     });
 
     // 这里返回插入的状态，例如成功几个，失败几个

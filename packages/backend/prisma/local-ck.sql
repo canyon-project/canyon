@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
   statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32)),
   fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
   branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
+  no_transform_statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32)),
+  no_transform_fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
+  no_transform_branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
   ts              DateTime
   ) ENGINE = ReplacingMergeTree()
   PARTITION BY toYYYYMM(ts)
