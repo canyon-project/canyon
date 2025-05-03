@@ -54,6 +54,25 @@ export class CoverageClientService {
       reportProvider,
     });
 
+    const findCoverage = await this.prisma.coverage.findUnique({
+      where: {
+        id: coverageID,
+      },
+    });
+
+
+    // 如果是hit且需要sourceMap的话，看 CoverageMapRelation 里有没有数据，没得话需要报错
+
+    // findCoverage.hasSourceMap = true; // 这里是为了测试用的，实际应该是从数据库中获取
+
+    // 检查coverage类型，需要一个字段，看是否要进reMap逻辑
+
+    // 没有map的话
+    if (findCoverage?.buildID) {
+      console.log('findCoverage', findCoverage.buildID);
+    }
+
+    // 第一步：插入 coverage 表，唯一。
     await this.prisma.coverage
       .create({
         data: {
@@ -77,106 +96,8 @@ export class CoverageClientService {
         // console.log(r)
       });
 
-    // 还原覆盖率
-    const remapCoverageObject = await remapCoverageByOld(coverage);
+    // 第二步：判断coverage类型
 
-    const newMapList: any[] = [];
-    Object.entries(coverage).forEach(([key, value]: any) => {
-      const newCoverage: any = Object.values(remapCoverageObject).find(
-        ({ oldPath }) => {
-          // console.log(i, key)
-          return oldPath === key;
-        },
-      );
-      // 通过 value 中的sourceMap来判断是否要插入no_transform的数据
-      if (newCoverage) {
-        // value.inputSourceMap;
-        const inputSourceMaphash = transFormHash(value.inputSourceMap);
-        const sourceMap = gzipSync(
-          Buffer.from(JSON.stringify(value.inputSourceMap)),
-        );
-        this.prisma.coverageSourceMap.create({
-          data: {
-            hash: inputSourceMaphash,
-            sourceMap,
-          },
-        });
-
-        const file_coverage_map_hash = transFormHash({
-          statement_map: newCoverage.statementMap,
-          fn_map: newCoverage.fnMap,
-          branch_map: newCoverage.branchMap,
-        });
-
-        newMapList.push({
-          file_coverage_map_hash: file_coverage_map_hash,
-          statement_map: transformCoverageStatementMapToCk(
-            newCoverage.statementMap,
-          ),
-          fn_map: transformCoverageFnMapToCk(newCoverage.fnMap),
-          branch_map: transformCoverageBranchMapToCk(newCoverage.branchMap),
-          no_transform_statement_map: transformCoverageStatementMapToCk(
-            value.statementMap,
-          ),
-          no_transform_fn_map: transformCoverageFnMapToCk(value.fnMap),
-          no_transform_branch_map: transformCoverageBranchMapToCk(
-            value.branchMap,
-          ),
-          source_map_hash_id:inputSourceMaphash,
-          path: newCoverage.path,
-        });
-      }
-    });
-    const willInsertMapList = [newMapList[0]].map((m) => ({
-      ts: Math.floor(new Date().getTime() / 1000),
-      hash: m.file_coverage_map_hash,
-      statement_map: m.statement_map,
-      fn_map: m.fn_map,
-      branch_map: m.branch_map,
-      no_transform_statement_map: m.no_transform_statement_map,
-      no_transform_fn_map: m.no_transform_fn_map,
-      no_transform_branch_map: m.no_transform_branch_map,
-      relative_path: m.path,
-      source_map_hash_id: m.source_map_hash_id,
-    }));
-    await this.clickhouseClient.insert({
-      table: 'coverage_map',
-      values: willInsertMapList,
-      format: 'JSONEachRow',
-    });
-
-    await this.clickhouseClient.insert({
-      table: 'coverage_hit',
-      values: Object.values(coverage as CoverageQueryParams).map(
-        ({ s, path, f, b }) => {
-          return {
-            ts: Math.floor(new Date().getTime() / 1000),
-            coverage_id: coverageID, // 这里的hash_id是 coverageID，保证reportID维度的不重复
-            relative_path: path,
-            s: s,
-            f: f,
-            b: flattenBranchMap(b),
-          };
-        },
-      ),
-      format: 'JSONEachRow',
-    });
-
-    // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
-    await this.prisma.coverageMapRelation.createMany({
-      data: willInsertMapList.map((m) => ({
-        id: coverageID + '|' + m.relative_path,
-        hashID: m.hash,
-        absolutePath: m.relative_path,
-        relativePath: m.relative_path,
-        coverageID,
-        sourceMapHashID: m.source_map_hash_id,
-        // inputSourceMap: m.input_source_map,
-      })),
-      skipDuplicates: true,
-    });
-
-    // 这里返回插入的状态，例如成功几个，失败几个
     return {
       msg: 'ok',
       coverageId: '',
