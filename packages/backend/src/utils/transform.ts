@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { getBranchTypeByIndex, getBranchTypeIndex } from './getBranchType';
-
+import zlib from 'zlib';
 export const transformCoverageStatementMapToCk = (statementMap) => {
   return Object.fromEntries(
     Object.entries(statementMap).map(([k, v]) => [
