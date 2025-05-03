@@ -57,7 +57,7 @@ export class CoverageClientService {
     await this.prisma.coverage
       .create({
         data: {
-          needSourceMapBacktrack:false,
+          // needSourceMapBacktrack:false,
           id: coverageID,
           sha, // 定
           repoID, // 定
