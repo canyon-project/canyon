@@ -27,6 +27,24 @@ export interface CoverageMapQuerySqlResultJsonInterface {
       [number, number, number, number][],
     ]
   >;
-  input_source_map: string;
+  no_transform_statement_map: Record<string, [number, number, number, number]>;
+  no_transform_fn_map: Record<
+    string,
+    [
+      string,
+      number,
+      [number, number, number, number],
+      [number, number, number, number],
+    ]
+  >;
+  no_transform_branch_map: Record<
+    string,
+    [
+      number,
+      number,
+      [number, number, number, number],
+      [number, number, number, number][],
+    ]
+  >;
   ts: string;
 }

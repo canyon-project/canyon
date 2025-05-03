@@ -19,7 +19,8 @@ import {
 import { checkCoverageType } from '../../../utils/checkCoverageType';
 import { coverageMapQuerySql } from '../sql/coverage-map-query.sql';
 import { CoverageMapQuerySqlResultJsonInterface } from '../types/coverage-final.types';
-import { reorganizeCompleteCoverageObjects } from 'canyon-data';
+import { reorganizeCompleteCoverageObjects } from '../../../utils/canyon-map';
+import { gzipSync } from 'zlib';
 
 @Injectable()
 export class CoverageClientService {
@@ -48,9 +49,9 @@ export class CoverageClientService {
       provider,
       sha,
       repoID,
-      reportID,
       buildID,
       buildProvider,
+      reportID,
       reportProvider,
     });
 
@@ -78,10 +79,14 @@ export class CoverageClientService {
         ).length > 0
       ) {
         // 最复杂的地方
-        const hechengCov = await this.genCoverageHitMap(coverageID, coverage);
+        const needRemapCoverage = await this.genCoverageHitMap(
+          coverageID,
+          coverage,
+        );
 
-        const remapCoverageObject = await remapCoverage(hechengCov);
-
+        const remapCoverageObject = await remapCoverage(needRemapCoverage);
+        console.log(remapCoverageObject,'remapCoverageObject')
+        // console.log(remapCoverageObject,'remapCoverageObject')
         const re2 = await this.coverageHitInsertResult(
           coverageID,
           remapCoverageObject,
@@ -105,16 +110,6 @@ export class CoverageClientService {
     } else {
       //   如果是map的话，那逻辑就一样了
       // 不管怎么样，先插入
-      const coverageID = generateCoverageId({
-        provider,
-        sha,
-        repoID,
-        reportID,
-        buildID,
-        buildProvider,
-        reportProvider,
-      });
-
       await this.prisma.coverage
         .create({
           data: {
@@ -144,12 +139,10 @@ export class CoverageClientService {
           (i) => i.inputSourceMap,
         ).length > 0
       ) {
-        console.log('需要reMap');
         // 还原覆盖率
         const remapCoverageObject = await remapCoverageByOld(coverage);
 
         const mapList = this.genMapList(remapCoverageObject, coverage);
-        console.log(mapList, 'mapList');
         const re1 = await this.coverageMapInsertResult(mapList);
         // 封装**
         const re2 = await this.coverageHitInsertResult(
@@ -172,8 +165,6 @@ export class CoverageClientService {
         await this.coverageRelationAndMap(coverageID, mapList);
       }
     }
-
-    // await this.insertCoverageIntoDatabase();
 
     return {
       type: coverageType, // hit or map
@@ -225,61 +216,60 @@ export class CoverageClientService {
         ({ statementMap, branchMap, fnMap }) =>
           statementMap && branchMap && fnMap,
       )
-      .map(
-        ({ statementMap, branchMap, fnMap, inputSourceMap, path, oldPath }) => {
-          const source_map_hash_id = inputSourceMap
-            ? createHash('sha256')
-                .update(JSON.stringify(inputSourceMap))
-                .digest('hex')
-            : '';
+      .map(({ statementMap, branchMap, fnMap, path, oldPath }) => {
+        // console.log(inputSourceMap,'inputSourceMap')
+        const noTransformCovItem: any = Object.values(noTransformCoverage).find(
+          (i: any) => i.path === oldPath,
+        );
+        const inputSourceMap = noTransformCovItem.inputSourceMap;
+        // console.log(noTransformCovItem,'noTransformCovItem')
+        const source_map_hash_id = inputSourceMap
+          ? createHash('sha256')
+              .update(JSON.stringify(inputSourceMap))
+              .digest('hex')
+          : '';
+        const map = noTransformCovItem
+          ? {
+              no_transform_statement_map: transformCoverageStatementMapToCk(
+                noTransformCovItem.statementMap,
+              ),
+              no_transform_fn_map: transformCoverageFnMapToCk(
+                noTransformCovItem.fnMap,
+              ),
+              no_transform_branch_map: transformCoverageBranchMapToCk(
+                noTransformCovItem.branchMap,
+              ),
+              no_transform_relative_path: oldPath,
+            }
+          : {};
 
-          const noTransformCovItem: any = Object.values(
-            noTransformCoverage,
-          ).find((i: any) => i.path === oldPath);
+        const mapItem = {
+          relative_path: path,
+          source_map_hash_id: source_map_hash_id,
+          source_map: JSON.stringify(inputSourceMap),
+          statement_map: transformCoverageStatementMapToCk(statementMap),
+          fn_map: transformCoverageFnMapToCk(fnMap),
+          branch_map: transformCoverageBranchMapToCk(branchMap),
+          ...map,
+        };
+        // console.log(statementMap,'statementMap',noTransformCovItem.statementMap,'noTransformCovItem.statementMap')
+        // 查找，如果存在才加上
 
-          const map = noTransformCovItem
-            ? {
-                no_transform_statement_map: transformCoverageStatementMapToCk(
-                  noTransformCovItem.statementMap,
-                ),
-                no_transform_fn_map: transformCoverageFnMapToCk(
-                  noTransformCovItem.fnMap,
-                ),
-                no_transform_branch_map: transformCoverageBranchMapToCk(
-                  noTransformCovItem.branchMap,
-                ),
-                no_transform_relative_path: oldPath,
-              }
-            : {};
+        const file_coverage_map_hash = createHash('sha256')
+          .update(
+            JSON.stringify({
+              statement_map: mapItem.statement_map,
+              fn_map: mapItem.fn_map,
+              branch_map: mapItem.branch_map,
+            }),
+          )
+          .digest('hex');
 
-          const mapItem = {
-            relative_path: path,
-            source_map_hash_id: source_map_hash_id,
-            source_map: JSON.stringify(inputSourceMap),
-            statement_map: transformCoverageStatementMapToCk(statementMap),
-            fn_map: transformCoverageFnMapToCk(fnMap),
-            branch_map: transformCoverageBranchMapToCk(branchMap),
-            ...map,
-          };
-
-          // 查找，如果存在才加上
-
-          const file_coverage_map_hash = createHash('sha256')
-            .update(
-              JSON.stringify({
-                statement_map: mapItem.statement_map,
-                fn_map: mapItem.fn_map,
-                branch_map: mapItem.branch_map,
-              }),
-            )
-            .digest('hex');
-
-          return {
-            ...mapItem,
-            file_coverage_map_hash, // 增加hash字段
-          };
-        },
-      );
+        return {
+          ...mapItem,
+          file_coverage_map_hash, // 增加hash字段
+        };
+      });
 
     return mapList;
   }
@@ -339,7 +329,7 @@ export class CoverageClientService {
           ),
           inputSourceMap: inputSourceMap,
         };
-        result[coverageMapRelationItem.relativePath] = beigin;
+        result[coverageMapRelationItem?.noTransformRelativePath] = beigin;
       }
     });
 
@@ -351,13 +341,12 @@ export class CoverageClientService {
     await this.prisma.coverageMapRelation.createMany({
       data: mapList.map((m) => ({
         id: coverageID + '|' + m.relative_path,
-        hashID: m.hash,
+        hashID: m.file_coverage_map_hash,
         absolutePath: m.relative_path,
         relativePath: m.relative_path,
         noTransformRelativePath: m.no_transform_relative_path,
         coverageID,
         sourceMapHashID: m.source_map_hash_id,
-        // inputSourceMap: m.input_source_map,
       })),
       skipDuplicates: true,
     });
@@ -365,7 +354,7 @@ export class CoverageClientService {
     await this.prisma.coverageSourceMap.createMany({
       data: mapList.map((m) => ({
         hash: m.source_map_hash_id,
-        sourceMap: m.source_map,
+        sourceMap: gzipSync(Buffer.from(m.source_map)),
       })),
       skipDuplicates: true,
     });
