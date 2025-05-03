@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { getBranchTypeIndex } from './getBranchType';
+import { getBranchTypeByIndex, getBranchTypeIndex } from './getBranchType';
 
 export const transformCoverageStatementMapToCk = (statementMap) => {
   return Object.fromEntries(
@@ -57,3 +57,118 @@ export const transformCoverageBranchMapToCk = (branchMap) => {
     ]),
   );
 };
+
+export const transformCkToCoverageStatementMap = (statement_map) =>
+  Object.entries(statement_map).reduce(
+    (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
+      acc[key] = {
+        start: {
+          line: startLine,
+          column: startColumn,
+        },
+        end: {
+          line: endLine,
+          column: endColumn,
+        },
+      };
+      return acc;
+    },
+    {},
+  );
+export const transformCkToCoverageFnMap = (fn_map) =>
+  Object.entries(fn_map).reduce(
+    (
+      acc,
+      [
+        key,
+        [
+          name,
+          line,
+          [startLine, startColumn, endLine, endColumn],
+          [startLine2, startColumn2, endLine2, endColumn2],
+        ],
+      ],
+    ) => {
+      acc[key] = {
+        name,
+        line,
+        decl: {
+          start: {
+            line: startLine,
+            column: startColumn,
+          },
+          end: {
+            line: endLine,
+            column: endColumn,
+          },
+        },
+        loc: {
+          start: {
+            line: startLine2,
+            column: startColumn2,
+          },
+          end: {
+            line: endLine2,
+            column: endColumn2,
+          },
+        },
+      };
+      return acc;
+    },
+    {},
+  );
+export const transformCkToCoverageBranchMap = (branch_map) =>
+  Object.entries(branch_map).reduce(
+    (acc, [key, [type, line, loc, locations]]) => {
+      acc[key] = {
+        type: getBranchTypeByIndex(type),
+        line,
+        loc: {
+          start: {
+            line: loc[0],
+            column: loc[1],
+          },
+          end: {
+            line: loc[2],
+            column: loc[3],
+          },
+        },
+        locations: locations.map(
+          ([startLine, startColumn, endLine, endColumn]) => {
+            if ([startLine, startColumn, endLine, endColumn].includes(0)) {
+              return {
+                start: {},
+                end: {},
+              };
+            }
+            return {
+              start: {
+                line: startLine,
+                column: startColumn,
+              },
+              end: {
+                line: endLine,
+                column: endColumn,
+              },
+            };
+          },
+        ),
+      };
+      return acc;
+    },
+    {},
+  );
+
+export function decodeCompressedObject(compressedBuffer) {
+  try {
+    // 解压缩
+    const decompressedBuffer = zlib.gunzipSync(compressedBuffer);
+    // 将解压缩后的 Buffer 转换为字符串
+    const jsonString = decompressedBuffer.toString();
+    // 解析字符串为 JavaScript 对象
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.error('解码过程中出现错误:', error);
+    return null;
+  }
+}

@@ -12,6 +12,11 @@ import {
 } from '../../types/coverage-final.types';
 import { remapCoverage } from 'canyon-map';
 import { removeCoverageInstrumentCwd } from '../../../../utils/removeCoverageInstrumentCwd';
+import {
+  transformCkToCoverageBranchMap,
+  transformCkToCoverageFnMap,
+  transformCkToCoverageStatementMap,
+} from '../../../../utils/transform';
 
 /*
 
@@ -165,105 +170,9 @@ export class CoverageFinalService {
     coverageMapQuerySqlResultJson.forEach((item) => {
       const beigin = {
         path: item.relative_path,
-        statementMap: Object.entries(item.statement_map).reduce(
-          (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
-            acc[key] = {
-              start: {
-                line: startLine,
-                column: startColumn,
-              },
-              end: {
-                line: endLine,
-                column: endColumn,
-              },
-            };
-            return acc;
-          },
-          {},
-        ),
-        fnMap: Object.entries(item.fn_map).reduce(
-          (
-            acc,
-            [
-              key,
-              [
-                name,
-                line,
-                [startLine, startColumn, endLine, endColumn],
-                [startLine2, startColumn2, endLine2, endColumn2],
-              ],
-            ],
-          ) => {
-            acc[key] = {
-              name,
-              line,
-              decl: {
-                start: {
-                  line: startLine,
-                  column: startColumn,
-                },
-                end: {
-                  line: endLine,
-                  column: endColumn,
-                },
-              },
-              loc: {
-                start: {
-                  line: startLine2,
-                  column: startColumn2,
-                },
-                end: {
-                  line: endLine2,
-                  column: endColumn2,
-                },
-              },
-            };
-            return acc;
-          },
-          {},
-        ),
-        branchMap: Object.entries(item.branch_map).reduce(
-          (acc, [key, [type, line, loc, locations]]) => {
-            acc[key] = {
-              type: getBranchTypeByIndex(type),
-              line,
-              loc: {
-                start: {
-                  line: loc[0],
-                  column: loc[1],
-                },
-                end: {
-                  line: loc[2],
-                  column: loc[3],
-                },
-              },
-              locations: locations.map(
-                ([startLine, startColumn, endLine, endColumn]) => {
-                  if (
-                    [startLine, startColumn, endLine, endColumn].includes(0)
-                  ) {
-                    return {
-                      start: {},
-                      end: {},
-                    };
-                  }
-                  return {
-                    start: {
-                      line: startLine,
-                      column: startColumn,
-                    },
-                    end: {
-                      line: endLine,
-                      column: endColumn,
-                    },
-                  };
-                },
-              ),
-            };
-            return acc;
-          },
-          {},
-        ),
+        statementMap: transformCkToCoverageStatementMap(item.statement_map),
+        fnMap: transformCkToCoverageFnMap(item.fn_map),
+        branchMap: transformCkToCoverageBranchMap(item.branch_map),
       };
 
       const initCov = genHitByMap(beigin);
