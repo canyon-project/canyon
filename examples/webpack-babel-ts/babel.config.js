@@ -1,3 +1,8 @@
 module.exports = {
-  plugins: ['istanbul']
+  plugins: ['istanbul',[
+    'canyon',{
+      keepMap: false,
+      ci: true,
+    }
+  ]]
 };
