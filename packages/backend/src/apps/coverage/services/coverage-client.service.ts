@@ -333,6 +333,7 @@ export class CoverageClientService {
       }
     });
 
+    // TODO 0504凌晨1点，这里需要把sourceMap的值也加上去
     return reorganizeCompleteCoverageObjects(result, noReMapHit);
   }
 
