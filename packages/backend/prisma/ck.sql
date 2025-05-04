@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit
   f               Map(UInt32, UInt32),
   b               Map(UInt32, UInt32),
   ts              DateTime
-  ) ENGINE = ReplicatedMergeTree('/clickhouse/tables/ck100062136-{shard}-7/default/coverage_hit', '{replica}')
+  ) ENGINE = ReplicatedMergeTree('/clickhouse/tables/ck100062136-{shard}-15/default/coverage_hit', '{replica}')
   PARTITION BY toYYYYMM(ts)
   ORDER BY (ts)
   TTL ts + toIntervalHour(720);
@@ -18,8 +18,11 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
   statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32)),
   fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
   branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
+  no_transform_statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32)),
+  no_transform_fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
+  no_transform_branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
   ts              DateTime
-  ) ENGINE = ReplicatedReplacingMergeTree('/clickhouse/tables/ck100062136-{shard}-7/default/coverage_map', '{replica}')
+  ) ENGINE = ReplicatedReplacingMergeTree('/clickhouse/tables/ck100062136-{shard}-15/default/coverage_map', '{replica}')
   PARTITION BY toYYYYMM(ts)
   ORDER BY (hash)
   TTL ts + toIntervalHour(720)
@@ -37,7 +40,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
   b_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   latest_ts   SimpleAggregateFunction(max, DateTime)
   )
-  ENGINE = ReplicatedAggregatingMergeTree('/clickhouse/tables/ck100062136-{shard}-7/default/coverage_hit_agg', '{replica}')
+  ENGINE = ReplicatedAggregatingMergeTree('/clickhouse/tables/ck100062136-{shard}-15/default/coverage_hit_agg', '{replica}')
   PARTITION BY tuple()
   ORDER BY (coverage_id, relative_path);
 
@@ -59,13 +62,13 @@ GROUP BY coverage_id, relative_path;
 
 -- 查询
 
-SELECT
-  coverage_id,
-  relative_path,
-  sumMapMerge(s_map) AS merged_s,
-  sumMapMerge(f_map) AS merged_f
-FROM default.coverage_hit_agg
-GROUP BY coverage_id, relative_path;
+-- SELECT
+--   coverage_id,
+--   relative_path,
+--   sumMapMerge(s_map) AS merged_s,
+--   sumMapMerge(f_map) AS merged_f
+-- FROM default.coverage_hit_agg
+-- GROUP BY coverage_id, relative_path;
 
 -- 问题
 -- map表，聚合为一行的时候，应该是到build_provider、build_id维度，目前是到coverage_id,report_id维度，map_id，根据build
