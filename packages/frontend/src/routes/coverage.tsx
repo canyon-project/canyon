@@ -30,7 +30,7 @@ const CoveragePage = () => {
           repoID: repoID,
           provider: provider,
         },
-      }).then(({ data }) => data),
+      }).then(({ data }) => data.data),
     {},
   );
 
