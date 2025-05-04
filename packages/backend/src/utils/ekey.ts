@@ -17,7 +17,9 @@ export function decodeKey(encodedKey) {
  * @param b 分支原始对象，如 { "0": [0, 1], "1": [1, 0] }
  * @returns 扁平结构，如 { 0: 0, 1: 1, 100000: 1, 100001: 0 }
  */
-export function flattenBranchMap(b: Record<string, number[]>): Record<number, number> {
+export function flattenBranchMap(
+  b: Record<string, number[]>,
+): Record<number, number> {
   const result: Record<number, number> = {};
 
   Object.entries(b).forEach(([branchIdStr, hitArray]) => {
