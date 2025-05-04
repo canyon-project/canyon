@@ -50,6 +50,27 @@ CREATE TABLE "canyonjs_coverage" (
 );
 
 -- CreateTable
+CREATE TABLE "canyonjs_coverage_map_relation" (
+    "id" TEXT NOT NULL,
+    "absolute_path" TEXT NOT NULL,
+    "relative_path" TEXT NOT NULL,
+    "no_transform_relative_path" TEXT NOT NULL,
+    "hash_id" TEXT NOT NULL,
+    "coverage_id" TEXT NOT NULL,
+    "source_map_hash_id" TEXT NOT NULL,
+
+    CONSTRAINT "canyonjs_coverage_map_relation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "canyonjs_coverage_source_map" (
+    "hash" TEXT NOT NULL,
+    "source_map" BYTEA NOT NULL,
+
+    CONSTRAINT "canyonjs_coverage_source_map_pkey" PRIMARY KEY ("hash")
+);
+
+-- CreateTable
 CREATE TABLE "canyonjs_diff" (
     "id" TEXT NOT NULL,
     "provider" TEXT NOT NULL,
@@ -73,4 +94,16 @@ CREATE TABLE "canyonjs_config" (
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "canyonjs_config_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "git_provider" (
+    "id" TEXT NOT NULL,
+    "url" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "disabled" BOOLEAN NOT NULL,
+    "private_token" TEXT NOT NULL,
+
+    CONSTRAINT "git_provider_pkey" PRIMARY KEY ("id")
 );
