@@ -1,4 +1,7 @@
-export const removeCoverageInstrumentCwd = (coverage, instrumentCwd: string) => {
+export const removeCoverageInstrumentCwd = (
+  coverage,
+  instrumentCwd: string,
+) => {
   return Object.values(coverage)
     .map((item: any) => {
       return {

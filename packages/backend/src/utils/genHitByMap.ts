@@ -1,10 +1,13 @@
-export function genHitByMap(mapValue:any) {
+export function genHitByMap(mapValue: any) {
   return {
-    s: Object.entries(mapValue.statementMap).reduce((accInside, [keyInside]) => {
-      // @ts-ignore
-      accInside[keyInside] = 0;
-      return accInside;
-    }, {}),
+    s: Object.entries(mapValue.statementMap).reduce(
+      (accInside, [keyInside]) => {
+        // @ts-ignore
+        accInside[keyInside] = 0;
+        return accInside;
+      },
+      {},
+    ),
     f: Object.entries(mapValue.fnMap).reduce((accInside, [keyInside]) => {
       // @ts-ignore
       accInside[keyInside] = 0;
@@ -18,5 +21,5 @@ export function genHitByMap(mapValue:any) {
       },
       {},
     ),
-  }
+  };
 }
