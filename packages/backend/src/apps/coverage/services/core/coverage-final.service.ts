@@ -139,6 +139,8 @@ export class CoverageFinalService {
     const instrumentCwd = coverages[0].instrumentCwd;
     // return res;
 
+    const ddd = removeCoverageInstrumentCwd(res, instrumentCwd);
+
     const performanceData = {
       time: {
         prismaCoverageFindMany: prismaCoverageFindMany,
@@ -154,7 +156,7 @@ export class CoverageFinalService {
           ...performanceData.time,
         },
       },
-      data: res,
+      data: ddd,
     };
   }
 

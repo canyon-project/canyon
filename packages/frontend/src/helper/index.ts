@@ -43,12 +43,12 @@ export function handleSelectFile({
         reportID: reportID,
         sha: sha,
         filepath: filepath,
-        provider: 'gitlab',
+        provider: 'gitea',
         buildProvider,
         buildID,
       },
     })
-    .then(({ data }) => data[filepath || '']);
+    .then(({ data }) => data.data[filepath || '']);
 
   // const fileCodeChangeRequest = axios
   //   .get(`/api/codechange`, {
