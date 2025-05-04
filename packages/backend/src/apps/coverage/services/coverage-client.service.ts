@@ -21,6 +21,7 @@ import { coverageMapQuerySql } from '../sql/coverage-map-query.sql';
 import { CoverageMapQuerySqlResultJsonInterface } from '../types/coverage-final.types';
 import { reorganizeCompleteCoverageObjects } from '../../../utils/canyon-map';
 import { gzipSync } from 'zlib';
+import { remapCoverageWithWindow } from '../../../utils/remapCoverageWithWindow';
 
 @Injectable()
 export class CoverageClientService {
@@ -84,8 +85,9 @@ export class CoverageClientService {
           coverage,
         );
 
-        const remapCoverageObject = await remapCoverage(needRemapCoverage);
-        console.log(remapCoverageObject,'remapCoverageObject')
+        const remapCoverageObject = await remapCoverage(needRemapCoverage).then(
+          (r9050) => remapCoverageWithWindow(r9050),
+        );
         // console.log(remapCoverageObject,'remapCoverageObject')
         const re2 = await this.coverageHitInsertResult(
           coverageID,
