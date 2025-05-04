@@ -217,10 +217,10 @@ export class CoverageClientService {
       )
       .map(({ statementMap, branchMap, fnMap, path, oldPath }) => {
         // console.log(inputSourceMap,'inputSourceMap')
-        const noTransformCovItem: any = Object.values(noTransformCoverage).find(
-          (i: any) => i.path === oldPath,
-        );
-        const inputSourceMap = noTransformCovItem.inputSourceMap;
+        const noTransformCovItem: any = Object.values(
+          noTransformCoverage || {},
+        ).find((i: any) => i.path === oldPath);
+        const inputSourceMap = noTransformCovItem?.inputSourceMap;
         // console.log(noTransformCovItem,'noTransformCovItem')
         const source_map_hash_id = inputSourceMap
           ? createHash('sha256')
@@ -344,7 +344,8 @@ export class CoverageClientService {
         hashID: m.file_coverage_map_hash,
         absolutePath: m.relative_path,
         relativePath: m.relative_path,
-        noTransformRelativePath: m.no_transform_relative_path,
+        noTransformRelativePath:
+          m.no_transform_relative_path || m.relative_path,
         coverageID,
         sourceMapHashID: m.source_map_hash_id,
       })),
@@ -352,10 +353,12 @@ export class CoverageClientService {
     });
 
     await this.prisma.coverageSourceMap.createMany({
-      data: mapList.map((m) => ({
-        hash: m.source_map_hash_id,
-        sourceMap: gzipSync(Buffer.from(m.source_map)),
-      })),
+      data: mapList
+        .filter((i) => i.source_map_hash_id)
+        .map((m) => ({
+          hash: m.source_map_hash_id,
+          sourceMap: gzipSync(Buffer.from(m.source_map)),
+        })),
       skipDuplicates: true,
     });
   }
