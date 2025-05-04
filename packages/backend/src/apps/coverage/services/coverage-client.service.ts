@@ -85,9 +85,7 @@ export class CoverageClientService {
           coverage,
         );
 
-        const remapCoverageObject = await remapCoverage(needRemapCoverage).then(
-          (r9050) => remapCoverageWithWindow(r9050),
-        );
+        const remapCoverageObject = await remapCoverage(needRemapCoverage);
         // console.log(remapCoverageObject,'remapCoverageObject')
         const re2 = await this.coverageHitInsertResult(
           coverageID,
