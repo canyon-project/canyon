@@ -17,6 +17,7 @@ import {
   transformCkToCoverageFnMap,
   transformCkToCoverageStatementMap,
 } from '../../../../utils/transform';
+import {remapCoverageWithWindow} from "../../../../utils/remapCoverageWithWindow";
 
 /*
 
@@ -139,7 +140,7 @@ export class CoverageFinalService {
     const instrumentCwd = coverages[0].instrumentCwd;
     // return res;
 
-    const ddd = removeCoverageInstrumentCwd(res, instrumentCwd);
+    const ddd = removeCoverageInstrumentCwd(remapCoverageWithWindow(res), instrumentCwd)
 
     const performanceData = {
       time: {
