@@ -3,7 +3,7 @@ name: Build and Push Multi-Platform Docker Image
 on:
   push:
     branches:
-      - main  # 触发构建的分支，可以根据需要修改
+      - dev  # 触发构建的分支，可以根据需要修改
 
 jobs:
   build:
