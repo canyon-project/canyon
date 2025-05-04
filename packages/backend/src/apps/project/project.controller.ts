@@ -1,7 +1,4 @@
-import { Controller, Post, Body, Query, Get } from '@nestjs/common';
-// import { GetProjectCoverageService } from './services/get-project-coverage.service';
-// import { CoverageClientDto } from './dto/coverage-client.dto';
-// import { CoverageClientService } from './services/coverage-client.service';
+import { Controller, Query, Get } from '@nestjs/common';
 
 @Controller('')
 export class ProjectController {
