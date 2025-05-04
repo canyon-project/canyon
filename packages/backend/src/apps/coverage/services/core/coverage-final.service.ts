@@ -3,33 +3,19 @@ import { ClickHouseClient } from '@clickhouse/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { coverageMapQuerySql } from '../../sql/coverage-map-query.sql';
 import { coverageHitQuerySql } from '../../sql/coverage-hit-query.sql';
-import { getBranchTypeByIndex } from '../../../../utils/getBranchType';
 import { genHitByMap } from '../../../../utils/genHitByMap';
 import { decodeKey } from '../../../../utils/ekey';
 import {
   CoverageHitQuerySqlResultJsonInterface,
   CoverageMapQuerySqlResultJsonInterface,
 } from '../../types/coverage-final.types';
-import { remapCoverage } from 'canyon-map';
 import { removeCoverageInstrumentCwd } from '../../../../utils/removeCoverageInstrumentCwd';
 import {
   transformCkToCoverageBranchMap,
   transformCkToCoverageFnMap,
   transformCkToCoverageStatementMap,
 } from '../../../../utils/transform';
-import {remapCoverageWithWindow} from "../../../../utils/remapCoverageWithWindow";
-
-/*
-
-查询测试结果：
-
-条件，booking项目1200个文件，含map
-1. coverage表查询速度10ms
-2. relation表，400ms (索引优化，进100ms)
-3. ck map表，500ms (按需取，statement_map，进100ms)
-4. ck hit表，1000ms (为什么要这么慢？)
-5. 数据聚合+reMap 1000ms (有没有优化空间？异步)
-* */
+import { remapCoverageWithWindow } from '../../../../utils/remapCoverageWithWindow';
 
 @Injectable()
 export class CoverageFinalService {
@@ -47,7 +33,6 @@ export class CoverageFinalService {
     reportProvider?: string,
     reportID?: string,
     filePath?: string,
-    raw?: boolean,
   ) {
     const prismaCoverageFindManyStartTime = new Date().getTime();
     // 第一步：查询coverage表，获取所有的 coverageID。注意，此时不过滤reportProvider和reportID
@@ -128,10 +113,6 @@ export class CoverageFinalService {
         };
       });
 
-    // ckckckck
-    // ckckckck
-    // ckckckck
-
     const ckQuerySqlCur = new Date().getTime() - ckQuerySqlStart;
     const res = await this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
       coverageMapQuerySqlResultJsonWithRelativePath,
@@ -140,7 +121,10 @@ export class CoverageFinalService {
     const instrumentCwd = coverages[0].instrumentCwd;
     // return res;
 
-    const ddd = removeCoverageInstrumentCwd(remapCoverageWithWindow(res), instrumentCwd)
+    const ddd = removeCoverageInstrumentCwd(
+      remapCoverageWithWindow(res),
+      instrumentCwd,
+    );
 
     const performanceData = {
       time: {
