@@ -1,0 +1,46 @@
+name: Build and Push Multi-Platform Docker Image
+
+on:
+  push:
+    branches:
+      - main  # 触发构建的分支，可以根据需要修改
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # 新增条件：仅当提交信息匹配指定格式时触发
+    if: |
+      contains(github.event.head_commit.message, 'docker-image') &&
+      (github.ref == 'refs/heads/main')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Log in to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/canyon:dev
+          platforms: linux/amd64,linux/arm64
+
+      - name: Notify Build Success
+        run: echo "Docker Image built and pushed successfully!"
