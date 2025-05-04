@@ -1,5 +1,6 @@
-export const checkCoverageType = (coverage) => {
-  // @ts-ignore
+export const checkCoverageType = (coverage: {
+  [key: string]: { statementMap: object };
+}) => {
   if (Object.values(coverage)[0].statementMap) {
     return 'map';
   } else {

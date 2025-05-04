@@ -16,12 +16,11 @@ import {
   transformCoverageFnMapToCk,
   transformCoverageStatementMapToCk,
 } from '../../../utils/transform';
-import { checkCoverageType } from '../../../utils/checkCoverageType';
+import { checkCoverageType } from '../helpers/checkCoverageType';
 import { coverageMapQuerySql } from '../sql/coverage-map-query.sql';
 import { CoverageMapQuerySqlResultJsonInterface } from '../types/coverage-final.types';
 import { reorganizeCompleteCoverageObjects } from '../../../utils/canyon-map';
 import { gzipSync } from 'zlib';
-import { remapCoverageWithWindow } from '../../../utils/remapCoverageWithWindow';
 
 @Injectable()
 export class CoverageClientService {
@@ -38,12 +37,12 @@ export class CoverageClientService {
       repoID,
       coverage,
       instrumentCwd,
-      reportID, // 可选
-      branch, // 可选
-      compareTarget, //可选
-      buildID, // 可选
-      buildProvider, // 可选
-      reportProvider, // 可选
+      reportID, // Option
+      branch, // Option
+      compareTarget, // Option
+      buildID, // Option
+      buildProvider, // Option
+      reportProvider, // Option
     }: CoverageClientDto,
   ) {
     const coverageID = generateCoverageId({
