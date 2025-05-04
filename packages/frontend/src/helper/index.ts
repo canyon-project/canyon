@@ -43,7 +43,7 @@ export function handleSelectFile({
         reportID: reportID,
         sha: sha,
         filepath: filepath,
-        provider: 'gitea',
+        provider: 'gitlab',
         buildProvider,
         buildID,
       },

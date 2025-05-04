@@ -124,31 +124,6 @@ export interface ProjectInfo {
   autoclose_referenced_issues: boolean;
 }
 
-// export const getFileInfo = async (
-//   {
-//     projectID,
-//     filepath,
-//     commitSha,
-//   }: { projectID: string; filepath: string; commitSha: string },
-//   token: string,
-//   gitProviderUrl: string,
-// ) => {
-//   return await axios
-//     .get<FileInfo>(
-//       `${gitProviderUrl}/api/v4/projects/${projectID}/repository/files/${filepath}`,
-//       {
-//         params: {
-//           ref: commitSha,
-//         },
-//         headers: {
-//           // Authorization: `Bearer ${token}`,
-//           'private-token': token,
-//         },
-//       },
-//     )
-//     .then(({ data }) => data);
-// };
-
 export const getFileInfo = async (
   {
     projectID,
@@ -158,32 +133,21 @@ export const getFileInfo = async (
   token: string,
   gitProviderUrl: string,
 ) => {
-  // /api/v1/repos/{owner}/{repo}/contents/{filepath}
-  // console.log(token,'token')
-
-  const fullName = await axios
-    .get(`${gitProviderUrl}/api/v1/repositories/${projectID}`,{
-      headers: {
-        Authorization: `token ${token}`,
-      },
-    })
-    .then(({ data }) => data.full_name);
-  // console.log(fullName,'fullName')
   return await axios
     .get<FileInfo>(
-      `${gitProviderUrl}/api/v1/repos/${fullName}/contents/${filepath}`,
+      `${gitProviderUrl}/api/v4/projects/${projectID}/repository/files/${filepath}`,
       {
         params: {
           ref: commitSha,
         },
         headers: {
-          Authorization: `token ${token}`,
+          // Authorization: `Bearer ${token}`,
+          'private-token': token,
         },
       },
     )
     .then(({ data }) => data);
 };
-
 export const getCommits = async (
   { projectID, commitShas }: { projectID: string; commitShas: string[] },
   token: string,

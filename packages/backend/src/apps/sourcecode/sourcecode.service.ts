@@ -10,11 +10,11 @@ export class SourcecodeService {
   async getsourcecode(repoID, sha, filepath): Promise<any> {
     const gitProvider = await this.prisma.gitProvider.findFirst({
       where: {
-        id: 'gitea',
+        id: {
+          in: ['tripgl'],
+        },
       },
     });
-
-    // console.log(gitProvider, repoID, filepath, sha);
     return getFileInfo(
       {
         projectID: repoID,
