@@ -35,7 +35,7 @@ export class CoverageFinalService {
     filePath?: string,
   ) {
     const prismaCoverageFindManyStartTime = new Date().getTime();
-    // 第一步：查询coverage表，获取所有的 coverageID。注意，此时不过滤reportProvider和reportID
+    // 第一步：查询coverage表，获取所有的 coverageID。注意，此时不过滤reportProvider和reportID，这一步很关键，因为我们需要获取到所有的文件内容
     const coverages = await this.prisma.coverage.findMany({
       where: {
         provider: provider,
