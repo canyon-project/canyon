@@ -186,7 +186,7 @@ export class CoverageClientService {
           return {
             ts: Math.floor(new Date().getTime() / 1000),
             coverage_id: coverageID, // 这里的hash_id是 coverageID，保证reportID维度的不重复
-            relative_path: path,
+            file_path: path,
             s: s,
             f: f,
             b: flattenBranchMap(b),
@@ -207,10 +207,10 @@ export class CoverageClientService {
           statement_map: unknown;
           fn_map: unknown;
           branch_map: unknown;
-          no_transform_statement_map: unknown;
-          no_transform_fn_map: unknown;
-          no_transform_branch_map: unknown;
-          relative_path: string;
+          restore_statement_map: unknown;
+          restore_fn_map: unknown;
+          restore_branch_map: unknown;
+          file_path: string;
           source_map_hash_id: string;
           source_map: string;
           file_coverage_map_hash: string;
@@ -221,9 +221,9 @@ export class CoverageClientService {
           statement_map: m.statement_map,
           fn_map: m.fn_map,
           branch_map: m.branch_map,
-          no_transform_statement_map: m.no_transform_statement_map,
-          no_transform_fn_map: m.no_transform_fn_map,
-          no_transform_branch_map: m.no_transform_branch_map,
+          restore_statement_map: m.restore_statement_map,
+          restore_fn_map: m.restore_fn_map,
+          restore_branch_map: m.restore_branch_map,
         }),
       ),
       format: 'JSONEachRow',
@@ -251,21 +251,21 @@ export class CoverageClientService {
           : '';
         const map = noTransformCovItem
           ? {
-              no_transform_statement_map: transformCoverageStatementMapToCk(
+              restore_statement_map: transformCoverageStatementMapToCk(
                 noTransformCovItem.statementMap,
               ),
-              no_transform_fn_map: transformCoverageFnMapToCk(
+              restore_fn_map: transformCoverageFnMapToCk(
                 noTransformCovItem.fnMap,
               ),
-              no_transform_branch_map: transformCoverageBranchMapToCk(
+              restore_branch_map: transformCoverageBranchMapToCk(
                 noTransformCovItem.branchMap,
               ),
-              no_transform_relative_path: oldPath,
+              restore_full_file_path: oldPath,
             }
           : {};
 
         const mapItem = {
-          relative_path: path,
+          file_path: path,
           source_map_hash_id: source_map_hash_id,
           source_map: JSON.stringify(inputSourceMap),
           statement_map: transformCoverageStatementMapToCk(statementMap),
@@ -314,7 +314,7 @@ export class CoverageClientService {
         },
       });
 
-    const deduplicateHashIDList = coverageMapRelationList.map((i) => i.hashID);
+    const deduplicateHashIDList = coverageMapRelationList.map((i) => i.coverageMapHashID);
 
     const coverageMapQuerySqlResultJson = await this.clickhouseClient
       .query({
@@ -329,7 +329,7 @@ export class CoverageClientService {
       const hash = item.hash;
 
       const coverageMapRelationItem = coverageMapRelationList.find(
-        (i) => i.hashID === hash,
+        (i) => i.coverageMapHashID === hash,
       );
 
       if (coverageMapRelationItem) {
@@ -342,17 +342,17 @@ export class CoverageClientService {
           : undefined;
 
         const beigin = {
-          path: coverageMapRelationItem?.noTransformRelativePath,
+          path: coverageMapRelationItem?.restoreFullFilePath,
           statementMap: transformCkToCoverageStatementMap(
-            item.no_transform_statement_map,
+            item.restore_statement_map,
           ),
-          fnMap: transformCkToCoverageFnMap(item.no_transform_fn_map),
+          fnMap: transformCkToCoverageFnMap(item.restore_fn_map),
           branchMap: transformCkToCoverageBranchMap(
-            item.no_transform_branch_map,
+            item.restore_branch_map,
           ),
           inputSourceMap: inputSourceMap,
         };
-        result[coverageMapRelationItem?.noTransformRelativePath] = beigin;
+        result[coverageMapRelationItem?.restoreFullFilePath] = beigin;
       }
     });
 
@@ -364,12 +364,12 @@ export class CoverageClientService {
     // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
     await this.prisma.coverageMapRelation.createMany({
       data: mapList.map((m) => ({
-        id: coverageID + '|' + m.relative_path,
-        hashID: m.file_coverage_map_hash,
-        absolutePath: m.relative_path,
-        relativePath: m.relative_path,
-        noTransformRelativePath:
-          m.no_transform_relative_path || m.relative_path,
+        id: coverageID + '|' + m.file_path,
+        coverageMapHashID: m.file_coverage_map_hash,
+        fullFilePath: m.file_path,
+        filePath: m.file_path,
+        restoreFullFilePath:
+          m.restore_full_file_path || m.file_path,
         coverageID,
         sourceMapHashID: m.source_map_hash_id,
       })),
