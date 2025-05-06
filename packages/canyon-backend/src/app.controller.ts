@@ -187,7 +187,17 @@ export class AppController {
         "utBranchCoverage": 69.2,
         "utLineCoverage": 72.2,
         "codeChangeNum": 952100
-      }
+      },
+      {
+        month: 3,
+        year: 2025,
+        uiTestBranchCoverage: 66.0,
+        uiTestLineCoverage: 82.17,
+        uiTestChangedLineCoverage: 95.17,
+        utBranchCoverage: 70.17,
+        utLineCoverage: 73.46,
+        codeChangeNum: 953076.92,
+      },
     ];
   }
 }

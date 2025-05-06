@@ -125,25 +125,35 @@ const coreData = [
     codeChangeNum: 984410,
   },
   {
-    "month": 1,
-    "year": 2025,
-    "uiTestBranchCoverage": 65.09,
-    "uiTestLineCoverage": 80.54,
-    "uiTestChangedLineCoverage": 95.3,
-    "utBranchCoverage": 68.79,
-    "utLineCoverage": 71.79,
-    "codeChangeNum": 937374
+    month: 1,
+    year: 2025,
+    uiTestBranchCoverage: 65.09,
+    uiTestLineCoverage: 80.54,
+    uiTestChangedLineCoverage: 95.3,
+    utBranchCoverage: 68.79,
+    utLineCoverage: 71.79,
+    codeChangeNum: 937374,
   },
   {
-    "month": 2,
-    "year": 2025,
-    "uiTestBranchCoverage": 65.3,
-    "uiTestLineCoverage": 80.9,
-    "uiTestChangedLineCoverage": 95.4,
-    "utBranchCoverage": 69.2,
-    "utLineCoverage": 72.2,
-    "codeChangeNum": 952100
-  }
+    month: 2,
+    year: 2025,
+    uiTestBranchCoverage: 65.3,
+    uiTestLineCoverage: 80.9,
+    uiTestChangedLineCoverage: 95.4,
+    utBranchCoverage: 69.2,
+    utLineCoverage: 72.2,
+    codeChangeNum: 952100,
+  },
+  {
+    month: 3,
+    year: 2025,
+    uiTestBranchCoverage: 66.0,
+    uiTestLineCoverage: 82.17,
+    uiTestChangedLineCoverage: 95.17,
+    utBranchCoverage: 70.17,
+    utLineCoverage: 73.46,
+    codeChangeNum: 953076.92,
+  },
 ];
 
 const data = {
