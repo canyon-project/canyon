@@ -196,7 +196,7 @@ export class AppController {
         uiTestChangedLineCoverage: 95.17,
         utBranchCoverage: 70.17,
         utLineCoverage: 73.46,
-        codeChangeNum: 953076.92,
+        codeChangeNum: 953076,
       },
     ];
   }
