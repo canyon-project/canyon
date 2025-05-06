@@ -22,6 +22,7 @@ import { CoverageMapQuerySqlResultJsonInterface } from '../types/coverage-final.
 import { reorganizeCompleteCoverageObjects } from '../../../utils/canyon-map';
 import { gzipSync } from 'zlib';
 
+// 核心逻辑，需要用buildID获取所有关联的map，而不是单纯的通过coverageId获取到的
 @Injectable()
 export class CoverageClientService {
   constructor(
@@ -58,9 +59,11 @@ export class CoverageClientService {
     // 1. 检查coverage类型
     const coverageType = checkCoverageType(coverage);
 
-    const findCoverage = await this.prisma.coverage.findUnique({
+    // 这里的逻辑需要改，应该是检查是否有相同buildID的
+
+    const findCoverage = await this.prisma.coverage.findMany({
       where: {
-        id: coverageID,
+        //   ...
       },
     });
 
