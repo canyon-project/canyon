@@ -61,17 +61,21 @@ export class CoverageClientService {
 
     // 这里的逻辑需要改，应该是检查是否有相同buildID的
 
-    const findCoverage = await this.prisma.coverage.findMany({
+    const coverages = await this.prisma.coverage.findMany({
       where: {
-        //   ...
+        provider,
+        sha,
+        repoID,
+        buildID,
+        buildProvider,
       },
     });
 
     // review过了
-    if (coverageType === 'hit' && findCoverage === null) {
+    if (coverageType === 'hit' && coverages.length === 0) {
       return {
         type: coverageType, // hit or map
-        coverageTable: findCoverage,
+        coverageTable: coverages,
       };
     }
 
@@ -83,7 +87,7 @@ export class CoverageClientService {
       ) {
         // 最复杂的地方
         const needRemapCoverage = await this.genCoverageHitMap(
-          coverageID,
+          coverages.map((coverage) => coverage.id),
           coverage,
         );
 
@@ -105,7 +109,7 @@ export class CoverageClientService {
         );
         return {
           type: coverageType, // hit or map
-          coverageTable: findCoverage,
+          coverageTable: coverages,
           coverageHitInsertResult: coverageHitInsertResult,
         };
       }
@@ -170,7 +174,7 @@ export class CoverageClientService {
 
     return {
       type: coverageType, // hit or map
-      coverageTable: findCoverage,
+      coverageTable: coverages,
     };
   }
 
@@ -197,17 +201,31 @@ export class CoverageClientService {
     //   才需要插入map表
     return this.clickhouseClient.insert({
       table: 'coverage_map',
-      values: mapList.map((m) => ({
-        ts: Math.floor(new Date().getTime() / 1000),
-        hash: m.file_coverage_map_hash,
-        // input_source_map: m.input_source_map,
-        statement_map: m.statement_map,
-        fn_map: m.fn_map,
-        branch_map: m.branch_map,
-        no_transform_statement_map: m.no_transform_statement_map,
-        no_transform_fn_map: m.no_transform_fn_map,
-        no_transform_branch_map: m.no_transform_branch_map,
-      })),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
+      values: mapList.map(
+        (m: {
+          statement_map: unknown;
+          fn_map: unknown;
+          branch_map: unknown;
+          no_transform_statement_map: unknown;
+          no_transform_fn_map: unknown;
+          no_transform_branch_map: unknown;
+          relative_path: string;
+          source_map_hash_id: string;
+          source_map: string;
+          file_coverage_map_hash: string;
+        }) => ({
+          ts: Math.floor(new Date().getTime() / 1000),
+          hash: m.file_coverage_map_hash,
+          // input_source_map: m.input_source_map,
+          statement_map: m.statement_map,
+          fn_map: m.fn_map,
+          branch_map: m.branch_map,
+          no_transform_statement_map: m.no_transform_statement_map,
+          no_transform_fn_map: m.no_transform_fn_map,
+          no_transform_branch_map: m.no_transform_branch_map,
+        }),
+      ),
       format: 'JSONEachRow',
     });
   }
@@ -223,6 +241,7 @@ export class CoverageClientService {
         const noTransformCovItem: any = Object.values(
           noTransformCoverage || {},
         ).find((i: any) => i.path === oldPath);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const inputSourceMap = noTransformCovItem?.inputSourceMap;
         // console.log(noTransformCovItem,'noTransformCovItem')
         const source_map_hash_id = inputSourceMap
@@ -276,11 +295,13 @@ export class CoverageClientService {
     return mapList;
   }
 
-  async genCoverageHitMap(coverageID: string, noReMapHit) {
+  async genCoverageHitMap(coverageIDList: string[], noReMapHit) {
     const coverageMapRelationList =
       await this.prisma.coverageMapRelation.findMany({
         where: {
-          coverageID,
+          coverageID: {
+            in: coverageIDList,
+          },
         },
       });
 
