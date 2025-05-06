@@ -59,12 +59,12 @@ export class CoverageFinalService {
           coverageID: {
             in: coverages.map((coverage) => coverage.id),
           },
-          relativePath: filePath,
+          filePath: filePath,
         },
       });
     const prismaCoverageMapRelationFindMany =
       new Date().getTime() - prismaCoverageMapRelationFindManyStartTime;
-    // 以下操作为了去除重复的 hashID
+    // 以下操作为了去除重复的 coverageMapHashID
     // 构造 hash -> relative_paths[] 映射表
     const hashToPaths = new Map<
       string,
@@ -74,14 +74,14 @@ export class CoverageFinalService {
       }
     >();
     for (const item of coverageMapRelationList) {
-      hashToPaths.set(item.hashID, {
-        file_path: item.relativePath,
+      hashToPaths.set(item.coverageMapHashID, {
+        file_path: item.filePath,
         input_source_map: '', // item.input_source_map,
       });
     }
     // 查询 ClickHouse：查 hash 对应的 coverage_map
     const deduplicateHashIDList = [
-      ...new Set(coverageMapRelationList.map((i) => i.hashID)),
+      ...new Set(coverageMapRelationList.map((i) => i.coverageMapHashID)),
     ];
     const ckQuerySqlStart = new Date().getTime();
     const [coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson] =
@@ -103,19 +103,19 @@ export class CoverageFinalService {
           .then((r) => r.json<CoverageMapQuerySqlResultJsonInterface>()),
       ]);
 
-    const coverageMapQuerySqlResultJsonWithRelativePath =
+    const coverageMapQuerySqlResultJsonWithfilePath =
       coverageMapQuerySqlResultJson.map((item) => {
         const relaHashToPaths = hashToPaths.get(item.hash);
         return {
           ...item,
-          relative_path: relaHashToPaths?.file_path || '',
+          file_path: relaHashToPaths?.file_path || '',
           input_source_map: relaHashToPaths?.input_source_map || '',
         };
       });
 
     const ckQuerySqlCur = new Date().getTime() - ckQuerySqlStart;
     const res = await this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
-      coverageMapQuerySqlResultJsonWithRelativePath,
+      coverageMapQuerySqlResultJsonWithfilePath,
       coverageHitQuerySqlResultJson,
     );
     const instrumentCwd = coverages[0].instrumentCwd;
@@ -148,7 +148,7 @@ export class CoverageFinalService {
   //   合并 coverageMapQuerySqlResult、coverageHitQuerySqlResult
   mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
     coverageMapQuerySqlResultJson: (CoverageMapQuerySqlResultJsonInterface & {
-      relative_path: string;
+      file_path: string;
     })[],
     coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[],
   ) {
@@ -156,7 +156,7 @@ export class CoverageFinalService {
 
     coverageMapQuerySqlResultJson.forEach((item) => {
       const beigin = {
-        path: item.relative_path,
+        path: item.file_path,
         statementMap: transformCkToCoverageStatementMap(item.statement_map),
         fnMap: transformCkToCoverageFnMap(item.fn_map),
         branchMap: transformCkToCoverageBranchMap(item.branch_map),
@@ -165,7 +165,7 @@ export class CoverageFinalService {
       const initCov = genHitByMap(beigin);
 
       const find = coverageHitQuerySqlResultJson.find(
-        (i) => i.relative_path === item.relative_path,
+        (i) => i.file_path === item.file_path,
       );
 
       if (find) {
@@ -186,7 +186,7 @@ export class CoverageFinalService {
         });
       }
 
-      result[item.relative_path] = {
+      result[item.file_path] = {
         ...beigin,
         ...initCov,
       };
