@@ -25,6 +25,8 @@ import { gzipSync } from 'zlib';
 // 核心逻辑，需要用buildID获取所有关联的map，而不是单纯的通过coverageId获取到的
 @Injectable()
 export class CoverageClientService {
+  private producerQueue: any[] = [];
+  private consumerQueue: any[] = [];
   constructor(
     private readonly prisma: PrismaService,
     @Inject('CLICKHOUSE_CLIENT')
