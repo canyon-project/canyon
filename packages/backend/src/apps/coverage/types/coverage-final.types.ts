@@ -1,15 +1,15 @@
 export interface CoverageHitQuerySqlResultJsonInterface {
-  coverage_id: string;
-  file_path: string;
-  merged_s: [string[], number[]];
-  merged_f: [string[], number[]];
-  merged_b: [string[], number[]];
+  coverageID: string;
+  fullFilePath: string;
+  s: [string[], number[]];
+  f: [string[], number[]];
+  b: [string[], number[]];
 }
 
 export interface CoverageMapQuerySqlResultJsonInterface {
-  hash: string;
-  statement_map: Record<string, [number, number, number, number]>;
-  fn_map: Record<
+  coverageMapHashID: string;
+  statementMap: Record<string, [number, number, number, number]>;
+  fnMap: Record<
     string,
     [
       string,
@@ -18,7 +18,7 @@ export interface CoverageMapQuerySqlResultJsonInterface {
       [number, number, number, number],
     ]
   >;
-  branch_map: Record<
+  branchMap: Record<
     string,
     [
       number,
@@ -27,8 +27,8 @@ export interface CoverageMapQuerySqlResultJsonInterface {
       [number, number, number, number][],
     ]
   >;
-  restore_statement_map: Record<string, [number, number, number, number]>;
-  restore_fn_map: Record<
+  restoreStatementMap: Record<string, [number, number, number, number]>;
+  restoreFnMap: Record<
     string,
     [
       string,
@@ -37,7 +37,7 @@ export interface CoverageMapQuerySqlResultJsonInterface {
       [number, number, number, number],
     ]
   >;
-  restore_branch_map: Record<
+  restoreBranchMap: Record<
     string,
     [
       number,
