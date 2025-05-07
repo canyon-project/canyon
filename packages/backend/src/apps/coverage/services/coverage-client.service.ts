@@ -5,10 +5,10 @@ import { generateCoverageId } from '../../../utils/generateCoverageId';
 import { ClickHouseClient } from '@clickhouse/client';
 import { CoverageQueryParams } from '../../../types/coverage';
 import { flattenBranchMap } from 'src/utils/ekey';
-import { createHash } from 'crypto';
 import { remapCoverage, remapCoverageByOld } from 'canyon-map';
 import {
   decodeCompressedObject,
+  encodeObjectToCompressedBuffer,
   transformCkToCoverageBranchMap,
   transformCkToCoverageFnMap,
   transformCkToCoverageStatementMap,
@@ -20,7 +20,7 @@ import { checkCoverageType } from '../helpers/checkCoverageType';
 import { coverageMapQuerySql } from '../sql/coverage-map-query.sql';
 import { CoverageMapQuerySqlResultJsonInterface } from '../types/coverage-final.types';
 import { reorganizeCompleteCoverageObjects } from '../../../utils/canyon-map';
-import { gzipSync } from 'zlib';
+import { transFormHash } from '../../../utils/hash';
 
 // 核心逻辑，需要用buildID获取所有关联的map，而不是单纯的通过coverageId获取到的
 @Injectable()
@@ -63,7 +63,7 @@ export class CoverageClientService {
 
     // 这里的逻辑需要改，应该是检查是否有相同buildID的
 
-    const coverages = await this.prisma.coverage.findMany({
+    const coverageList = await this.prisma.coverage.findMany({
       where: {
         provider,
         sha,
@@ -74,10 +74,10 @@ export class CoverageClientService {
     });
 
     // review过了
-    if (coverageType === 'hit' && coverages.length === 0) {
+    if (coverageType === 'hit' && coverageList.length === 0) {
       return {
         type: coverageType, // hit or map
-        coverageTable: coverages,
+        coverageTable: coverageList,
       };
     }
 
@@ -89,12 +89,11 @@ export class CoverageClientService {
       ) {
         // 最复杂的地方
         const needRemapCoverage = await this.genCoverageHitMap(
-          coverages.map((coverage) => coverage.id),
+          coverageList.map((coverage) => coverage.id),
           coverage,
         );
 
         const remapCoverageObject = await remapCoverage(needRemapCoverage);
-        // console.log(remapCoverageObject,'remapCoverageObject')
         const re2 = await this.coverageHitInsertResult(
           coverageID,
           remapCoverageObject,
@@ -111,7 +110,7 @@ export class CoverageClientService {
         );
         return {
           type: coverageType, // hit or map
-          coverageTable: coverages,
+          coverageTable: coverageList,
           coverageHitInsertResult: coverageHitInsertResult,
         };
       }
@@ -150,7 +149,11 @@ export class CoverageClientService {
         // 还原覆盖率
         const remapCoverageObject = await remapCoverageByOld(coverage);
 
-        const mapList = this.genMapList(remapCoverageObject, coverage);
+        const mapList:any[] = this.genMapList(
+          instrumentCwd,
+          remapCoverageObject,
+          coverage,
+        );
         const re1 = await this.coverageMapInsertResult(mapList);
         // 封装**
         const re2 = await this.coverageHitInsertResult(
@@ -165,18 +168,16 @@ export class CoverageClientService {
           re2,
         };
       } else {
-        const mapList = this.genMapList(coverage);
+        const mapList:any[] = this.genMapList(instrumentCwd, coverage);
         await this.coverageMapInsertResult(mapList);
-        // 封装**
         await this.coverageHitInsertResult(coverageID, coverage);
-
         await this.coverageRelationAndMap(coverageID, mapList);
       }
     }
 
     return {
       type: coverageType, // hit or map
-      coverageTable: coverages,
+      coverageTable: coverageList,
     };
   }
 
@@ -188,7 +189,7 @@ export class CoverageClientService {
           return {
             ts: Math.floor(new Date().getTime() / 1000),
             coverage_id: coverageID, // 这里的hash_id是 coverageID，保证reportID维度的不重复
-            file_path: path,
+            full_file_path: path,
             s: s,
             f: f,
             b: flattenBranchMap(b),
@@ -199,98 +200,93 @@ export class CoverageClientService {
     });
   }
 
-  async coverageMapInsertResult(mapList) {
+  async coverageMapInsertResult(
+    mapList: CoverageMapQuerySqlResultJsonInterface[],
+  ) {
     //   才需要插入map表
     return this.clickhouseClient.insert({
       table: 'coverage_map',
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment,@typescript-eslint/no-unsafe-call
       values: mapList.map(
-        (m: {
-          statement_map: unknown;
-          fn_map: unknown;
-          branch_map: unknown;
-          restore_statement_map: unknown;
-          restore_fn_map: unknown;
-          restore_branch_map: unknown;
-          file_path: string;
-          source_map_hash_id: string;
-          source_map: string;
-          file_coverage_map_hash: string;
+        ({
+          coverageMapHashID,
+          statementMap,
+          fnMap,
+          branchMap,
+          restoreStatementMap,
+          restoreFnMap,
+          restoreBranchMap,
         }) => ({
           ts: Math.floor(new Date().getTime() / 1000),
-          hash: m.file_coverage_map_hash,
-          // input_source_map: m.input_source_map,
-          statement_map: m.statement_map,
-          fn_map: m.fn_map,
-          branch_map: m.branch_map,
-          restore_statement_map: m.restore_statement_map,
-          restore_fn_map: m.restore_fn_map,
-          restore_branch_map: m.restore_branch_map,
+          hash: coverageMapHashID,
+          statement_map: statementMap,
+          fn_map: fnMap,
+          branch_map: branchMap,
+          restore_statement_map: restoreStatementMap,
+          restore_fn_map: restoreFnMap,
+          restore_branch_map: restoreBranchMap,
         }),
       ),
       format: 'JSONEachRow',
     });
   }
 
-  genMapList(coverage, noTransformCoverage?) {
+  genMapList(instrumentCwd, coverage, restoreCoverage?) {
     const mapList = Object.values(coverage as CoverageQueryParams)
       .filter(
         ({ statementMap, branchMap, fnMap }) =>
           statementMap && branchMap && fnMap,
       )
       .map(({ statementMap, branchMap, fnMap, path, oldPath }) => {
-        // console.log(inputSourceMap,'inputSourceMap')
-        const noTransformCovItem: any = Object.values(
-          noTransformCoverage || {},
-        ).find((i: any) => i.path === oldPath);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        const inputSourceMap = noTransformCovItem?.inputSourceMap;
-        // console.log(noTransformCovItem,'noTransformCovItem')
-        const source_map_hash_id = inputSourceMap
-          ? createHash('sha256')
-              .update(JSON.stringify(inputSourceMap))
-              .digest('hex')
-          : '';
-        const map = noTransformCovItem
-          ? {
-              restore_statement_map: transformCoverageStatementMapToCk(
-                noTransformCovItem.statementMap,
-              ),
-              restore_fn_map: transformCoverageFnMapToCk(
-                noTransformCovItem.fnMap,
-              ),
-              restore_branch_map: transformCoverageBranchMapToCk(
-                noTransformCovItem.branchMap,
-              ),
-              restore_full_file_path: oldPath,
-            }
-          : {};
+        let map = {};
+        if (restoreCoverage) {
+          const noTransformCovItem: any = Object.values(
+            restoreCoverage as CoverageQueryParams,
+          ).find((i: any) => i.path === oldPath);
+
+          if (noTransformCovItem) {
+            const inputSourceMap = noTransformCovItem?.inputSourceMap;
+
+            const sourceMapHashID = inputSourceMap
+              ? transFormHash(inputSourceMap)
+              : '';
+            map = noTransformCovItem
+              ? {
+                  restoreStatementMap: transformCoverageStatementMapToCk(
+                    noTransformCovItem.statementMap,
+                  ),
+                  restoreFnMap: transformCoverageFnMapToCk(
+                    noTransformCovItem.fnMap,
+                  ),
+                  restoreBranchMap: transformCoverageBranchMapToCk(
+                    noTransformCovItem.branchMap,
+                  ),
+                  restoreFullFilePath: oldPath,
+                  sourceMapHashID,
+                  sourceMap: inputSourceMap,
+                }
+              : {};
+          }
+        }
 
         const mapItem = {
-          file_path: path,
-          source_map_hash_id: source_map_hash_id,
-          source_map: JSON.stringify(inputSourceMap),
-          statement_map: transformCoverageStatementMapToCk(statementMap),
-          fn_map: transformCoverageFnMapToCk(fnMap),
-          branch_map: transformCoverageBranchMapToCk(branchMap),
+          fullFilePath: path,
+          filePath: path.replaceAll(instrumentCwd + '/', ''),
+          statementMap: transformCoverageStatementMapToCk(statementMap),
+          fnMap: transformCoverageFnMapToCk(fnMap),
+          branchMap: transformCoverageBranchMapToCk(branchMap),
           ...map,
+          //  map是可能有的，关于sourceMap的数据
         };
-        // console.log(statementMap,'statementMap',noTransformCovItem.statementMap,'noTransformCovItem.statementMap')
-        // 查找，如果存在才加上
 
-        const file_coverage_map_hash = createHash('sha256')
-          .update(
-            JSON.stringify({
-              statement_map: mapItem.statement_map,
-              fn_map: mapItem.fn_map,
-              branch_map: mapItem.branch_map,
-            }),
-          )
-          .digest('hex');
+        const coverageMapHashID = transFormHash({
+          statementMap: mapItem.statementMap,
+          fnMap: mapItem.fnMap,
+          branchMap: mapItem.branchMap,
+        });
 
         return {
           ...mapItem,
-          file_coverage_map_hash, // 增加hash字段
+          coverageMapHashID, // 增加hash字段
         };
       });
 
@@ -298,8 +294,14 @@ export class CoverageClientService {
   }
 
   async genCoverageHitMap(coverageIDList: string[], noReMapHit) {
+    /*
+    这里是关键
+    1. coverageIDList 这个是相同buildID的集合，通过它筛选出来的coverageMapRelationList是全量的
+    2. 通过groupBy去重筛选出所有的文件路径
+    */
     const coverageMapRelationList =
-      await this.prisma.coverageMapRelation.findMany({
+      await this.prisma.coverageMapRelation.groupBy({
+        by: ['coverageMapHashID', 'sourceMapHashID', 'restoreFullFilePath'],
         where: {
           coverageID: {
             in: coverageIDList,
@@ -307,83 +309,103 @@ export class CoverageClientService {
         },
       });
 
-    const allcoverageSourceMapList =
-      await this.prisma.coverageSourceMap.findMany({
-        where: {
-          hash: {
-            in: coverageMapRelationList.map((m) => m.sourceMapHashID),
-          },
+    const sourceMapList = await this.prisma.coverageSourceMap.findMany({
+      where: {
+        hash: {
+          in: coverageMapRelationList.map(
+            ({ sourceMapHashID }) => sourceMapHashID,
+          ),
         },
-      });
-
-    const deduplicateHashIDList = coverageMapRelationList.map((i) => i.coverageMapHashID);
+      },
+    });
 
     const coverageMapQuerySqlResultJson = await this.clickhouseClient
       .query({
-        query: coverageMapQuerySql([...new Set(deduplicateHashIDList)]),
+        query: coverageMapQuerySql(
+          coverageMapRelationList.map(
+            ({ coverageMapHashID }) => coverageMapHashID,
+          ),
+        ),
         format: 'JSONEachRow',
       })
       .then((r) => r.json<CoverageMapQuerySqlResultJsonInterface>());
 
-    const result = {};
+    const allFileCoverage = {};
 
     coverageMapQuerySqlResultJson.forEach((item) => {
-      const hash = item.hash;
+      const coverageMapHashID = item.coverageMapHashID;
 
       const coverageMapRelationItem = coverageMapRelationList.find(
-        (i) => i.coverageMapHashID === hash,
+        (i) => i.coverageMapHashID === coverageMapHashID,
       );
 
       if (coverageMapRelationItem) {
-        const source = allcoverageSourceMapList.find(
+        const sourceMap = sourceMapList.find(
           (j) => j.hash === coverageMapRelationItem.sourceMapHashID,
         );
 
-        const inputSourceMap = source
-          ? decodeCompressedObject(source.sourceMap)
+        const inputSourceMap = sourceMap
+          ? decodeCompressedObject(sourceMap.sourceMap)
           : undefined;
 
-        const beigin = {
-          path: coverageMapRelationItem?.restoreFullFilePath,
+        const fileCoverage = {
+          path: coverageMapRelationItem.restoreFullFilePath,
           statementMap: transformCkToCoverageStatementMap(
-            item.restore_statement_map,
+            item.restoreStatementMap,
           ),
-          fnMap: transformCkToCoverageFnMap(item.restore_fn_map),
-          branchMap: transformCkToCoverageBranchMap(
-            item.restore_branch_map,
-          ),
+          fnMap: transformCkToCoverageFnMap(item.restoreFnMap),
+          branchMap: transformCkToCoverageBranchMap(item.restoreBranchMap),
           inputSourceMap: inputSourceMap,
         };
-        result[coverageMapRelationItem?.restoreFullFilePath] = beigin;
+        allFileCoverage[coverageMapRelationItem.restoreFullFilePath] =
+          fileCoverage;
       }
     });
 
     // TODO 0504凌晨1点，这里需要把sourceMap的值也加上去
-    return reorganizeCompleteCoverageObjects(result, noReMapHit);
+    return reorganizeCompleteCoverageObjects(allFileCoverage, noReMapHit);
   }
 
-  async coverageRelationAndMap(coverageID, mapList) {
+  async coverageRelationAndMap(
+    coverageID: string,
+    mapList: {
+      coverageMapHashID: string;
+      sourceMapHashID: string;
+      restoreFullFilePath: string;
+      filePath: string;
+      fullFilePath: string;
+      sourceMap: any;
+    }[],
+  ) {
+    console.log(mapList,'mapList')
     // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
     await this.prisma.coverageMapRelation.createMany({
-      data: mapList.map((m) => ({
-        id: coverageID + '|' + m.file_path,
-        coverageMapHashID: m.file_coverage_map_hash,
-        fullFilePath: m.file_path,
-        filePath: m.file_path,
-        restoreFullFilePath:
-          m.restore_full_file_path || m.file_path,
-        coverageID,
-        sourceMapHashID: m.source_map_hash_id,
-      })),
+      data: mapList.map(
+        ({
+          coverageMapHashID,
+          sourceMapHashID,
+          restoreFullFilePath,
+          filePath,
+          fullFilePath,
+        }) => ({
+          id: coverageID + '|' + filePath,
+          coverageMapHashID: coverageMapHashID,
+          fullFilePath: fullFilePath,
+          filePath: filePath,
+          restoreFullFilePath: restoreFullFilePath,
+          coverageID,
+          sourceMapHashID: sourceMapHashID,
+        }),
+      ),
       skipDuplicates: true,
     });
 
     await this.prisma.coverageSourceMap.createMany({
       data: mapList
-        .filter((i) => i.source_map_hash_id)
-        .map((m) => ({
-          hash: m.source_map_hash_id,
-          sourceMap: gzipSync(Buffer.from(m.source_map)),
+        .filter(({ sourceMapHashID }) => sourceMapHashID)
+        .map(({ sourceMapHashID, sourceMap }) => ({
+          hash: sourceMapHashID,
+          sourceMap: encodeObjectToCompressedBuffer(sourceMap),
         })),
       skipDuplicates: true,
     });

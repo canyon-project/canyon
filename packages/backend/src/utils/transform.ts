@@ -172,3 +172,13 @@ export function decodeCompressedObject(compressedBuffer) {
     return null;
   }
 }
+
+export function encodeObjectToCompressedBuffer(object) {
+  // 将对象转换为字符串
+  const jsonString = JSON.stringify(object);
+  // 将字符串转换为 Buffer
+  const buffer = Buffer.from(jsonString, 'utf-8');
+  // 压缩 Buffer
+  const compressedBuffer = zlib.gzipSync(buffer);
+  return compressedBuffer;
+}

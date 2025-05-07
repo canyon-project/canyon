@@ -30,11 +30,11 @@ export function coverageHitQuerySql(
       ? `${filterCovs.map((h) => `'${h.id}'`).join(', ')}`
       : `''`;
   return `SELECT
-            coverage_id,
-            full_file_path,
-            sumMapMerge(s_map) AS merged_s,
-            sumMapMerge(f_map) AS merged_f,
-            sumMapMerge(b_map) AS merged_b
+            coverage_id as coverageID,
+            full_file_path as fullFilePath,
+            sumMapMerge(s) AS s,
+            sumMapMerge(f) AS f,
+            sumMapMerge(b) AS b
           FROM default.coverage_hit_agg
           WHERE coverage_id IN (${in_condition})
           GROUP BY coverage_id, full_file_path;`;

@@ -69,14 +69,12 @@ export class CoverageFinalService {
     const hashToPaths = new Map<
       string,
       {
-        file_path: string;
-        input_source_map: string;
+        fullFilePath: string;
       }
     >();
     for (const item of coverageMapRelationList) {
       hashToPaths.set(item.coverageMapHashID, {
-        file_path: item.filePath,
-        input_source_map: '', // item.input_source_map,
+        fullFilePath: item.fullFilePath,
       });
     }
     // 查询 ClickHouse：查 hash 对应的 coverage_map
@@ -105,26 +103,22 @@ export class CoverageFinalService {
 
     const coverageMapQuerySqlResultJsonWithfilePath =
       coverageMapQuerySqlResultJson.map((item) => {
-        const relaHashToPaths = hashToPaths.get(item.hash);
+        const relaHashToPaths = hashToPaths.get(item.coverageMapHashID);
         return {
           ...item,
-          file_path: relaHashToPaths?.file_path || '',
-          input_source_map: relaHashToPaths?.input_source_map || '',
+          fullFilePath: relaHashToPaths?.fullFilePath || '',
         };
       });
 
     const ckQuerySqlCur = new Date().getTime() - ckQuerySqlStart;
-    const res = await this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
+    const res = this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
       coverageMapQuerySqlResultJsonWithfilePath,
       coverageHitQuerySqlResultJson,
     );
     const instrumentCwd = coverages[0].instrumentCwd;
     // return res;
 
-    const ddd = removeCoverageInstrumentCwd(
-      remapCoverageWithWindow(res),
-      instrumentCwd,
-    );
+    const ddd = removeCoverageInstrumentCwd(res, instrumentCwd);
 
     const performanceData = {
       time: {
@@ -148,28 +142,28 @@ export class CoverageFinalService {
   //   合并 coverageMapQuerySqlResult、coverageHitQuerySqlResult
   mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
     coverageMapQuerySqlResultJson: (CoverageMapQuerySqlResultJsonInterface & {
-      file_path: string;
+      fullFilePath: string;
     })[],
     coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[],
   ) {
     const result = {};
 
     coverageMapQuerySqlResultJson.forEach((item) => {
-      const beigin = {
-        path: item.file_path,
-        statementMap: transformCkToCoverageStatementMap(item.statement_map),
-        fnMap: transformCkToCoverageFnMap(item.fn_map),
-        branchMap: transformCkToCoverageBranchMap(item.branch_map),
+      const fileCoverageItem = {
+        path: item.fullFilePath,
+        statementMap: transformCkToCoverageStatementMap(item.statementMap),
+        fnMap: transformCkToCoverageFnMap(item.fnMap),
+        branchMap: transformCkToCoverageBranchMap(item.branchMap),
       };
 
-      const initCov = genHitByMap(beigin);
+      const initCov = genHitByMap(fileCoverageItem);
 
       const find = coverageHitQuerySqlResultJson.find(
-        (i) => i.file_path === item.file_path,
+        (i) => i.fullFilePath === item.fullFilePath,
       );
 
       if (find) {
-        const { merged_s, merged_f, merged_b } = find;
+        const { s: merged_s, f: merged_f, b: merged_b } = find;
 
         merged_s[0].forEach((j, jindex) => {
           initCov.s[j] = Number(merged_s[1][jindex]);
@@ -186,8 +180,8 @@ export class CoverageFinalService {
         });
       }
 
-      result[item.file_path] = {
-        ...beigin,
+      result[item.fullFilePath] = {
+        ...fileCoverageItem,
         ...initCov,
       };
     });
