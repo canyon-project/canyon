@@ -14,9 +14,4 @@ export class AppController {
   health() {
     return '10ms';
   }
-
-  @Get('sss')
-  getHello123() {
-    return this.appService.getHello();
-  }
 }

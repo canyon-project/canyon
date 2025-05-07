@@ -35,9 +35,9 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
 (
   coverage_id String,
   full_file_path   String,
-  s_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
-  f_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
-  b_map       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
+  s       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
+  f       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
+  b       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   latest_ts   SimpleAggregateFunction(max, DateTime)
   )
   ENGINE = AggregatingMergeTree()
@@ -52,9 +52,9 @@ AS
 SELECT
   coverage_id,
   full_file_path,
-  sumMapState(mapKeys(s), mapValues(s)) AS s_map,
-  sumMapState(mapKeys(f), mapValues(f)) AS f_map,
-  sumMapState(mapKeys(b), mapValues(b)) AS b_map,
+  sumMapState(mapKeys(s), mapValues(s)) AS s,
+  sumMapState(mapKeys(f), mapValues(f)) AS f,
+  sumMapState(mapKeys(b), mapValues(b)) AS b,
 
   max(ts) AS latest_ts
 FROM default.coverage_hit
@@ -65,8 +65,8 @@ GROUP BY coverage_id, full_file_path;
 -- SELECT
 --   coverage_id,
 --   full_file_path,
---   sumMapMerge(s_map) AS merged_s,
---   sumMapMerge(f_map) AS merged_f
+--   sumMapMerge(s) AS s,
+--   sumMapMerge(f) AS f
 -- FROM default.coverage_hit_agg
 -- GROUP BY coverage_id, full_file_path;
 
