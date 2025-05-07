@@ -81,6 +81,31 @@ export class CoverageClientService {
       };
     }
 
+    //   如果是map的话，那逻辑就一样了
+    // 不管怎么样，先插入
+    await this.prisma.coverage
+      .create({
+        data: {
+          id: coverageID,
+          sha, // 定
+          repoID, // 定
+          // coverage: {},
+          instrumentCwd, // 定
+          reportID: reportID,
+          reportProvider: reportProvider,
+          branch, // 定
+          compareTarget,
+          reporter: '1',
+          buildID,
+          buildProvider,
+          scopeID: '2',
+          provider: provider,
+        },
+      })
+      .catch(() => {
+        // console.log(r)
+      });
+
     if (coverageType === 'hit') {
       if (
         Object.values(coverage as CoverageQueryParams).filter(
@@ -115,31 +140,6 @@ export class CoverageClientService {
         };
       }
     } else {
-      //   如果是map的话，那逻辑就一样了
-      // 不管怎么样，先插入
-      await this.prisma.coverage
-        .create({
-          data: {
-            id: coverageID,
-            sha, // 定
-            repoID, // 定
-            // coverage: {},
-            instrumentCwd, // 定
-            reportID: reportID,
-            reportProvider: reportProvider,
-            branch, // 定
-            compareTarget,
-            reporter: '1',
-            buildID,
-            buildProvider,
-            scopeID: '2',
-            provider: provider,
-          },
-        })
-        .catch(() => {
-          // console.log(r)
-        });
-
       //   检查要不要reMap
       if (
         Object.values(coverage as CoverageQueryParams).filter(
@@ -149,7 +149,7 @@ export class CoverageClientService {
         // 还原覆盖率
         const remapCoverageObject = await remapCoverageByOld(coverage);
 
-        const mapList:any[] = this.genMapList(
+        const mapList: any[] = this.genMapList(
           instrumentCwd,
           remapCoverageObject,
           coverage,
@@ -168,7 +168,7 @@ export class CoverageClientService {
           re2,
         };
       } else {
-        const mapList:any[] = this.genMapList(instrumentCwd, coverage);
+        const mapList: any[] = this.genMapList(instrumentCwd, coverage);
         await this.coverageMapInsertResult(mapList);
         await this.coverageHitInsertResult(coverageID, coverage);
         await this.coverageRelationAndMap(coverageID, mapList);
@@ -377,7 +377,6 @@ export class CoverageClientService {
       sourceMap: any;
     }[],
   ) {
-    console.log(mapList,'mapList')
     // 插入 coverage_map_relation 表（当前 coverageID 所关联的 hash）
     await this.prisma.coverageMapRelation.createMany({
       data: mapList.map(
