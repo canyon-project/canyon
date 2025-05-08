@@ -10,7 +10,7 @@ export class GetRepoCommitByCommitShaServices {
     @Inject('CLICKHOUSE_CLIENT')
     private readonly clickhouseClient: ClickHouseClient,
   ) {}
-  async invoke(pathWithNamespace, sha:string) {
+  async invoke(pathWithNamespace: string, sha: string) {
     const project = await this.prisma.project
       .findFirst({
         where: {
