@@ -1,8 +1,11 @@
-import { Controller, Query, Get } from '@nestjs/common';
+import { Controller, Query, Get, Param } from '@nestjs/common';
+import { GetRepoCommitsByRepoIdServices } from './services/get-repo-commits-by-repo-id.services';
 
 @Controller('')
 export class ProjectController {
-  constructor() {}
+  constructor(
+    private readonly getRepoCommitsByRepoIdServices: GetRepoCommitsByRepoIdServices,
+  ) {}
   @Get('api/project/coverage')
   async getProjectCoverage(@Query() query) {
     // TODO: 实现覆盖率数据处理逻辑
@@ -30,5 +33,10 @@ export class ProjectController {
         },
       ],
     };
+  }
+
+  @Get('api/repo/:repoID/commits')
+  async getRepoCommitsByRepoId(@Param() param) {
+    return this.getRepoCommitsByRepoIdServices.invoke(param.repoID);
   }
 }

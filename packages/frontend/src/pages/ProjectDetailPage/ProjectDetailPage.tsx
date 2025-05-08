@@ -3,11 +3,16 @@
 import { Breadcrumb, Button, Divider, Space, Tabs } from 'antd';
 import CommitsTab from './CommitsTab';
 import { SettingOutlined } from '@ant-design/icons';
-import {useParams} from "react-router-dom";
+import { useParams } from 'react-router-dom';
 
 // 核心代码
 
 const ProjectDetailPage = () => {
+  // console.log(params.org);
+
+  // 获取仓库commits覆盖率上报记录通过仓库ID /repo/{repositoryId}/commits getRepoCommitsByRepoId
+  // 获取仓库commits详细信息通过仓库ID /repo/{repositoryId}/commits/{commitId} getRepoCommitByCommitSHA
+
   return (
     <div>
       <div className={'h-[48px] flex items-center justify-between px-[16px]'}>
