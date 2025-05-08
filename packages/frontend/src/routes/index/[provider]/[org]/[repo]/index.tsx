@@ -6,7 +6,7 @@ import ProjectDetailPage from '../../../../../pages/ProjectDetailPage';
 const ProjectDetailRoute = () => {
   const params = useParams();
 
-  console.log(params.org);
+
   return (
     <div>
       <div>
