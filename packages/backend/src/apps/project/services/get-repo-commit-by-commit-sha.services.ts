@@ -4,10 +4,19 @@ import { ClickHouseClient } from '@clickhouse/client';
 import { getCommits } from '../../../adapter/gitlab.adapter';
 import { coverageHitQuerySql } from '../../coverage/sql/coverage-hit-query.sql';
 import { CoverageHitQuerySqlResultJsonInterface } from '../../coverage/types/coverage-final.types';
+import { mergeHit } from '../../coverage/helpers/mergeHit';
+import { genHitByMap } from '../../../utils/genHitByMap';
+import { CoverageFinalService } from '../../coverage/services/core/coverage-final.service';
 
-function genSUmar(sqlRes: { coverageID: string }[], coverages: string[]) {
-  return sqlRes.filter(({ coverageID }) => coverages.includes(coverageID))
-    .length;
+function genSUmar(
+  sqlRes: { coverageID: string }[],
+  coverages: string[],
+  initCovObj,
+) {
+  return mergeHit(
+    sqlRes.filter(({ coverageID }) => coverages.includes(coverageID)),
+    initCovObj,
+  );
 }
 
 @Injectable()
@@ -16,6 +25,7 @@ export class GetRepoCommitByCommitShaServices {
     private readonly prisma: PrismaService,
     @Inject('CLICKHOUSE_CLIENT')
     private readonly clickhouseClient: ClickHouseClient,
+    private readonly coverageFinalService: CoverageFinalService,
   ) {}
   async invoke(pathWithNamespace: string, sha: string) {
     const project = await this.prisma.project.findFirst({
@@ -58,12 +68,25 @@ export class GetRepoCommitByCommitShaServices {
       return result;
     }
 
+    const firstCov = coverageList[0];
+
     const quchongList = deduplicateArray(groupList);
 
     const gList: any[] = [];
 
     for (let jjjjj = 0; jjjjj < quchongList.length; jjjjj++) {
       const { buildID, buildProvider } = quchongList[jjjjj];
+
+      const zongdeConFinal = await this.coverageFinalService.invoke(
+        firstCov.provider,
+        firstCov.repoID,
+        firstCov.sha,
+        buildProvider,
+        buildID,
+      );
+
+      const initCovObj = zongdeConFinal.data;
+
       const groups = {
         buildID,
         buildProvider,
@@ -76,6 +99,7 @@ export class GetRepoCommitByCommitShaServices {
               );
             })
             .map(({ id }) => id),
+          initCovObj,
         ),
         modeList: [
           {
@@ -90,6 +114,7 @@ export class GetRepoCommitByCommitShaServices {
                     item.buildID === buildID,
                 )
                 .map(({ id }) => id),
+              initCovObj,
             ),
             reportList: coverageList
               .filter(
@@ -100,7 +125,7 @@ export class GetRepoCommitByCommitShaServices {
               )
               .map((i) => {
                 return {
-                  summary: genSUmar(dbRes, [i.id]),
+                  summary: genSUmar(dbRes, [i.id], initCovObj),
                 };
               }),
           },
@@ -116,6 +141,7 @@ export class GetRepoCommitByCommitShaServices {
                     item.buildID === buildID,
                 )
                 .map(({ id }) => id),
+              initCovObj,
             ),
             reportList: coverageList
               .filter(
@@ -126,7 +152,7 @@ export class GetRepoCommitByCommitShaServices {
               )
               .map((i) => {
                 return {
-                  summary: genSUmar(dbRes, [i.id]),
+                  summary: genSUmar(dbRes, [i.id], initCovObj),
                 };
               }),
           },
