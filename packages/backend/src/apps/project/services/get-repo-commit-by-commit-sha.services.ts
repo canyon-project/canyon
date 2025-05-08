@@ -2,6 +2,13 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClickHouseClient } from '@clickhouse/client';
 import { getCommits } from '../../../adapter/gitlab.adapter';
+import { coverageHitQuerySql } from '../../coverage/sql/coverage-hit-query.sql';
+import { CoverageHitQuerySqlResultJsonInterface } from '../../coverage/types/coverage-final.types';
+
+function genSUmar(sqlRes: { coverageID: string }[], coverages: string[]) {
+  return sqlRes.filter(({ coverageID }) => coverages.includes(coverageID))
+    .length;
+}
 
 @Injectable()
 export class GetRepoCommitByCommitShaServices {
@@ -28,35 +35,63 @@ export class GetRepoCommitByCommitShaServices {
         sha: sha,
       },
     });
+    console.log(...new Set(coverageList.map((i) => i.reportProvider)));
 
-    const gitProvider = await this.prisma.gitProvider.findFirst({
-      where: {
-        id: 'tripgl',
-      },
-    });
+    const dbRes = await this.clickhouseClient
+      .query({
+        query: coverageHitQuerySql(coverageList, {}),
+        format: 'JSONEachRow',
+      })
+      .then((r) => r.json<CoverageHitQuerySqlResultJsonInterface>());
 
-    const commitList = await getCommits(
-      {
-        projectID: project?.id || '',
-        commitShas: [...new Set(coverageList.map((coverage) => coverage.sha))],
-      },
-      gitProvider?.privateToken || '',
-      gitProvider?.url || '',
-    );
-
-    const coverageListObject = coverageList.reduce((prev: any, curr) => {
-      if (prev[curr.sha]) {
-        prev[curr.sha].coverageDetail.push(curr);
-      } else {
-        prev[curr.sha] = {
-          sha: curr.sha,
-          commitDetail: commitList.find((item) => item.id === curr.sha),
-          coverageDetail: [curr],
-        };
-      }
-      return prev;
-    }, {});
-
-    return Object.values(coverageListObject)[0];
+    const groups = {
+      buildID: 'xxx',
+      buildProvider: 'xxx',
+      summary: genSUmar(
+        dbRes,
+        coverageList.map(({ id }) => id),
+      ),
+      modeList: [
+        {
+          mode: 'auto',
+          summary: genSUmar(
+            dbRes,
+            coverageList
+              .filter(({ reportProvider }) =>
+                ['mpaas', 'flytest'].includes(reportProvider),
+              )
+              .map(({ id }) => id),
+          ),
+          reportList: coverageList
+            .filter(({ reportProvider }) =>
+              ['mpaas', 'flytest'].includes(reportProvider),
+            )
+            .map((i) => {
+              return {
+                summary: genSUmar(dbRes, [i.id]),
+              };
+            }),
+        },
+        {
+          mode: 'personal',
+          summary: genSUmar(
+            dbRes,
+            coverageList
+              .filter(({ reportProvider }) =>
+                ['person'].includes(reportProvider),
+              )
+              .map(({ id }) => id),
+          ),
+          reportList: coverageList
+            .filter(({ reportProvider }) => ['person'].includes(reportProvider))
+            .map((i) => {
+              return {
+                summary: genSUmar(dbRes, [i.id]),
+              };
+            }),
+        },
+      ],
+    };
+    return groups;
   }
 }
