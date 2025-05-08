@@ -4,13 +4,13 @@ import { ClickHouseClient } from '@clickhouse/client';
 import { getCommits } from '../../../adapter/gitlab.adapter';
 
 @Injectable()
-export class GetRepoCommitsByRepoIdServices {
+export class GetRepoCommitByCommitShaServices {
   constructor(
     private readonly prisma: PrismaService,
     @Inject('CLICKHOUSE_CLIENT')
     private readonly clickhouseClient: ClickHouseClient,
   ) {}
-  async invoke(pathWithNamespace) {
+  async invoke(pathWithNamespace, sha:string) {
     const project = await this.prisma.project
       .findFirst({
         where: {
@@ -25,6 +25,7 @@ export class GetRepoCommitsByRepoIdServices {
     const coverageList = await this.prisma.coverage.findMany({
       where: {
         repoID: project?.id || '',
+        sha: sha,
       },
     });
 
@@ -56,6 +57,6 @@ export class GetRepoCommitsByRepoIdServices {
       return prev;
     }, {});
 
-    return Object.values(coverageListObject);
+    return Object.values(coverageListObject)[0];
   }
 }
