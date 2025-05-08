@@ -1,10 +1,12 @@
 import { Controller, Query, Get, Param } from '@nestjs/common';
 import { GetRepoCommitsByRepoIdServices } from './services/get-repo-commits-by-repo-id.services';
+import { GetRepoCommitByCommitShaServices } from './services/get-repo-commit-by-commit-sha.services';
 
 @Controller('')
 export class ProjectController {
   constructor(
     private readonly getRepoCommitsByRepoIdServices: GetRepoCommitsByRepoIdServices,
+    private readonly getRepoCommitByCommitSHAServices: GetRepoCommitByCommitShaServices,
   ) {}
   @Get('api/project/coverage')
   async getProjectCoverage(@Query() query) {
@@ -38,5 +40,10 @@ export class ProjectController {
   @Get('api/repo/:repoID/commits')
   async getRepoCommitsByRepoId(@Param() param) {
     return this.getRepoCommitsByRepoIdServices.invoke(param.repoID);
+  }
+
+  @Get('api/repo/:repoID/commits/:sha')
+  async getRepoCommitByCommitSHA(@Param() param) {
+    return this.getRepoCommitByCommitSHAServices.invoke(param.repoID, param.sha);
   }
 }

@@ -26,6 +26,10 @@ import {
 } from '@ant-design/icons';
 import type { TabsProps, TableProps } from 'antd';
 import CoverageDetail from '@/components/CoverageDetail.tsx';
+import { useRequest } from 'ahooks';
+import axios from 'axios';
+import { useParams } from 'react-router-dom';
+import { Editor } from '@monaco-editor/react';
 // import { useQuery } from '@apollo/client';
 // import { GetProjectCommitCoverageDocument } from '@/graphql/gen/graphql.ts';
 
@@ -153,13 +157,22 @@ const AggregationProgress: React.FC<{ progress: AggregationProgress }> = ({
 const CommitsDetail: FC<{
   selectedCommit: string;
 }> = ({ selectedCommit }) => {
+  console.log(selectedCommit,'selectedCommit')
   const [activeBuild, setActiveBuild] = useState<string>('build_123');
+  const params = useParams();
+  console.log(params, 'params');
+  const repoID = encodeURIComponent(params.org + '/' + params.repo);
+  const { data, loading } = useRequest(
+    () => {
+      return axios
+        .get(`/api/repo/${repoID}/commits/${selectedCommit.sha}`)
+        .then((res) => res.data);
+    },
+    {
+      refreshDeps: [selectedCommit],
+    },
+  );
 
-  // const { data } = {}
-
-  const data = {
-    getProjectCommitCoverage: [],
-  };
   const [coverageDetailOpen, setCoverageDetailOpen] = useState(false);
 
   // 根据搜索条件筛选流水线
@@ -407,6 +420,11 @@ const CommitsDetail: FC<{
   return (
     <div className="   shadow w-full">
       <div className="mb-4">
+        <Editor
+          value={JSON.stringify(data || {},null,2)}
+          language={'json'}
+          height={500}
+        />
         {/*{JSON.stringify(selectedCommit)}*/}
         {/* 添加 commit 信息显示 */}
         <div className=" p-3  text-sm">
