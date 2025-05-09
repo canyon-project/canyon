@@ -27,6 +27,15 @@ export default defineConfig({
         'antd',
         // "@ant-design/icons",
       ],
+      output: {
+        // UMD 全局变量名
+        globals: {
+          react: 'React',
+          'react-dom': 'ReactDOM',
+          antd: 'antd',
+          'monaco-editor': 'monaco',
+        },
+      },
     },
   },
 });
