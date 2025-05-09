@@ -13,9 +13,13 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - run: npm install
-      - run: |
-          cd packages/report && node ./scripts/publish-18.js
+      - name: Install dependencies
+        run: |
+          cd packages/report && node scripts/publish-18.js
+          npm install
+      - name: Publish package
+        run: |
+          cd packages/report
           npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
