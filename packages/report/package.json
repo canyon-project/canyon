@@ -1,13 +1,13 @@
 {
   "name": "canyontest-report",
-  "version": "0.0.1-beta.10",
+  "version": "0.0.1-beta.11",
   "type": "module",
-  "main": "./dist/canyon-report.umd.js",
+  "main": "./dist/canyon-report.umd.cjs",
   "module": "./dist/canyon-report.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/canyon-report.umd.js",
+      "require": "./dist/canyon-report.umd.cjs",
       "import": "./dist/canyon-report.js"
     }
   },
@@ -22,15 +22,15 @@
   },
   "prettier": "eslint-config-canyon/prettier",
   "dependencies": {
-    "react": "*",
-    "react-dom": "*",
-    "antd": "*",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "antd": "5.23.2",
     "istanbul-lib-coverage": "*"
   },
   "devDependencies": {
     "eslint-config-canyon": "*",
-    "@types/react": "*",
-    "@types/react-dom": "*",
+    "@types/react": "18.3.1",
+    "@types/react-dom": "18.3.1",
     "@vitejs/plugin-react": "*",
     "globals": "*",
     "typescript": "*",
