@@ -1,6 +1,6 @@
 {
   "name": "canyontest-report",
-  "version": "0.0.1-beta.12",
+  "version": "0.0.1-beta.14",
   "type": "module",
   "main": "./dist/canyon-report.umd.cjs",
   "module": "./dist/canyon-report.js",

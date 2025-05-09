@@ -19,12 +19,12 @@ async function updatePackage() {
     pkg.name = 'canyontest-report18';
 
     // Update React dependencies
-    pkg.dependencies.react = '^18.3.1';
-    pkg.dependencies['react-dom'] = '^18.3.1';
+    pkg.dependencies.react = '18.3.1';
+    pkg.dependencies['react-dom'] = '18.3.1';
 
     // Update devDependencies
-    pkg.devDependencies['@types/react'] = '^18.3.1';
-    pkg.devDependencies['@types/react-dom'] = '^18.3.1';
+    pkg.devDependencies['@types/react'] = '18.3.1';
+    pkg.devDependencies['@types/react-dom'] = '18.3.1';
 
     // Write back to package.json
     await fs.writeFile(packagePath, JSON.stringify(pkg, null, 2) + '\n');
