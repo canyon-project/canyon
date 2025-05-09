@@ -15,7 +15,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: npm install
       - run: |
-          cd packages/canyon-report && node ./scripts/publish-18.js
+          cd packages/report && node ./scripts/publish-18.js
           npm publish --access=public
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
