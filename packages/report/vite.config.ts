@@ -12,7 +12,7 @@ export default defineConfig({
     // 输出文件夹
     outDir: 'dist',
     lib: {
-      entry: 'src/components/report.tsx',
+      entry: 'src/index.tsx',
       // 组件库名称
       name: 'CanyonReport',
       fileName: 'canyon-report',
