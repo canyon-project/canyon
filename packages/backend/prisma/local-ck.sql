@@ -1,3 +1,4 @@
+-- 覆盖率hit表 ttl需要短一些，不然数据膨胀速度极快
 CREATE TABLE IF NOT EXISTS default.coverage_hit
 (
   coverage_id     String,
@@ -9,8 +10,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit
   ) ENGINE = MergeTree()
   PARTITION BY toYYYYMM(ts)
   ORDER BY (ts)
-  TTL ts + toIntervalHour(720);
--- ReplacingMergeTree
+  TTL ts + toIntervalHour(12);
 
 CREATE TABLE IF NOT EXISTS default.coverage_map
 (

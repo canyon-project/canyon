@@ -1,17 +1,31 @@
 {
-  "name": "report",
-  "private": true,
-  "version": "0.0.0",
+  "name": "canyontest-report",
+  "version": "0.0.1-beta.10",
   "type": "module",
+  "main": "./dist/canyon-report.umd.js",
+  "module": "./dist/canyon-report.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/canyon-report.umd.js",
+      "import": "./dist/canyon-report.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
+    "prepublishOnly": "vite build",
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'"
   },
   "prettier": "eslint-config-canyon/prettier",
   "dependencies": {
     "react": "*",
-    "react-dom": "*"
+    "react-dom": "*",
+    "antd": "*",
+    "istanbul-lib-coverage": "*"
   },
   "devDependencies": {
     "eslint-config-canyon": "*",
@@ -21,6 +35,7 @@
     "globals": "*",
     "typescript": "*",
     "vite": "*",
-    "babel-plugin-react-compiler": "*"
+    "babel-plugin-react-compiler": "*",
+    "@types/istanbul-lib-coverage": "^2.0.6"
   }
 }
