@@ -1,6 +1,6 @@
 {
   "name": "canyontest-report",
-  "version": "0.0.1-beta.14",
+  "version": "0.0.1-beta.16",
   "type": "module",
   "main": "./dist/canyon-report.umd.cjs",
   "module": "./dist/canyon-report.js",
@@ -18,14 +18,16 @@
     "dev": "vite",
     "build": "vite build",
     "prepublishOnly": "vite build",
-    "format": "prettier --write '**/*.{js,ts,jsx,tsx}'"
+    "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
+    "publish-18": "node scripts/publish-18.js"
   },
   "prettier": "eslint-config-canyon/prettier",
   "dependencies": {
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "antd": "5.23.2",
-    "istanbul-lib-coverage": "*"
+    "istanbul-lib-coverage": "*",
+    "@monaco-editor/react": "^4.7.0"
   },
   "devDependencies": {
     "eslint-config-canyon": "*",
