@@ -28,7 +28,7 @@ export default defineConfig({
         // "@ant-design/icons",
       ],
       output: {
-        // UMD 全局变量名
+        // NOTE: 不定义变量名会报错，react会被定义成$$require
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://swc.rs/schema.json",
+  "jsc": {
+    "experimental":{
+      "plugins": [
+        ["swc-plugin-coverage-instrument", {}],
+        ["./swc_plugin_canyon.wasm",{
+            "dsn":"http://localhost:3000",
+            "reporter":"1",
+            "instrumentCwd":"./src",
+            "branch":"dev",
+            "sha":"xxx",
+            "projectID":"xxx",
+            "compareTarget":"xxx",
+            "keepMap": false,
+        }]
+      ]
+    }
+  }
+}
