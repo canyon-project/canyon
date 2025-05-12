@@ -1,6 +1,6 @@
 [workspace]
 members = [
-#    "packages/canyon-core",
+    "tools/uploader",
     "plugins/swc-plugin-canyon"
 ]
 
