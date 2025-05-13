@@ -165,7 +165,7 @@ const CommitsDetail: FC<{
   const { data, loading } = useRequest(
     () => {
       return axios
-        .get(`/api/repo/${repoID}/commits/${selectedCommit.sha}`)
+        .get(`/api/repo/${repoID}/commits/${selectedCommit?.sha}`)
         .then((res) => res.data);
     },
     {
