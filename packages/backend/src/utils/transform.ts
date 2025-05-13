@@ -61,14 +61,15 @@ export const transformCoverageBranchMapToCk = (branchMap) => {
 export const transformCkToCoverageStatementMap = (statement_map) =>
   Object.entries(statement_map).reduce(
     (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
+      // 可能是null
       acc[key] = {
         start: {
-          line: startLine,
-          column: startColumn,
+          line: startLine||null,
+          column: startColumn||null,
         },
         end: {
-          line: endLine,
-          column: endColumn,
+          line: endLine||null,
+          column: endColumn||null,
         },
       };
       return acc;
@@ -91,25 +92,25 @@ export const transformCkToCoverageFnMap = (fn_map) =>
     ) => {
       acc[key] = {
         name,
-        line,
+        line:line||undefined,
         decl: {
           start: {
-            line: startLine,
-            column: startColumn,
+            line: startLine||null,
+            column: startColumn||null,
           },
           end: {
-            line: endLine,
-            column: endColumn,
+            line: endLine||null,
+            column: endColumn||null,
           },
         },
         loc: {
           start: {
-            line: startLine2,
-            column: startColumn2,
+            line: startLine2||null,
+            column: startColumn2||null,
           },
           end: {
-            line: endLine2,
-            column: endColumn2,
+            line: endLine2||null,
+            column: endColumn2||null,
           },
         },
       };
@@ -122,33 +123,33 @@ export const transformCkToCoverageBranchMap = (branch_map) =>
     (acc, [key, [type, line, loc, locations]]) => {
       acc[key] = {
         type: getBranchTypeByIndex(type),
-        line,
+        line:line||undefined,
         loc: {
           start: {
-            line: loc[0],
-            column: loc[1],
+            line: loc[0]||null,
+            column: loc[1]||null,
           },
           end: {
-            line: loc[2],
-            column: loc[3],
+            line: loc[2]||null,
+            column: loc[3]||null,
           },
         },
         locations: locations.map(
           ([startLine, startColumn, endLine, endColumn]) => {
-            if ([startLine, startColumn, endLine, endColumn].includes(0)) {
-              return {
-                start: {},
-                end: {},
-              };
-            }
+            // if ([startLine, startColumn, endLine, endColumn].includes(0)) {
+            //   return {
+            //     start: {},
+            //     end: {},
+            //   };
+            // }
             return {
               start: {
-                line: startLine,
-                column: startColumn,
+                line: startLine||null,
+                column: startColumn||null,
               },
               end: {
-                line: endLine,
-                column: endColumn,
+                line: endLine||null,
+                column: endColumn||null,
               },
             };
           },

@@ -19,6 +19,8 @@ function genSUmar(
   );
 }
 
+// TODO   // 需要准备map数据
+
 @Injectable()
 export class GetRepoCommitByCommitShaServices {
   constructor(
@@ -27,6 +29,7 @@ export class GetRepoCommitByCommitShaServices {
     private readonly clickhouseClient: ClickHouseClient,
     private readonly coverageFinalService: CoverageFinalService,
   ) {}
+
   async invoke(pathWithNamespace: string, sha: string) {
     const project = await this.prisma.project.findFirst({
       where: {
@@ -34,70 +37,63 @@ export class GetRepoCommitByCommitShaServices {
       },
     });
 
+    const startFindCoverage = Date.now();
     const coverageList = await this.prisma.coverage.findMany({
       where: {
         repoID: project?.id || '',
         sha: sha,
       },
     });
+    const endFindCoverage = Date.now();
+    console.log(
+      `findMany coverage耗时: ${endFindCoverage - startFindCoverage}ms`,
+    );
 
-    const dbRes = await this.clickhouseClient
-      .query({
-        query: coverageHitQuerySql(coverageList, {}),
-        format: 'JSONEachRow',
-      })
-      .then((r) => r.json<CoverageHitQuerySqlResultJsonInterface>());
-
-    const groupList = coverageList.map(({ buildProvider, buildID }) => ({
+    const buildGroupList = coverageList.map(({ buildProvider, buildID }) => ({
       buildProvider,
       buildID,
     }));
 
-    function deduplicateArray(arr) {
-      const map = new Map();
-      const result: any[] = [];
+    const deduplicatedBuildGroupList = this.deduplicateArray(buildGroupList);
 
-      arr.forEach((item: any) => {
-        const key = `${item.buildProvider}-${item.buildID}`;
-        if (!map.has(key)) {
-          map.set(key, item);
-          result.push(item);
-        }
-      });
+    const resultList: any[] = [];
 
-      return result;
-    }
+    // 并行执行 ClickHouse 查询和 coverageFinalService.invoke
+    const [dbRes, ...coverageFinalResults] = await Promise.all([
+      this.clickhouseClient
+        .query({
+          query: coverageHitQuerySql(coverageList, {}),
+          format: 'JSONEachRow',
+        })
+        .then((r) => r.json<CoverageHitQuerySqlResultJsonInterface>()),
+      ...deduplicatedBuildGroupList.map(async ({ buildID, buildProvider }) => {
+        const startTime = Date.now();
+        const coverageFinalResult = await this.coverageFinalService.invoke(
+          coverageList[0].provider,
+          coverageList[0].repoID,
+          coverageList[0].sha,
+          buildProvider,
+          buildID,
+        );
+        console.log(Date.now() - startTime, 'coverageFinalService耗时');
+        return coverageFinalResult;
+      }),
+    ]);
 
-    const firstCov = coverageList[0];
+    deduplicatedBuildGroupList.forEach(({ buildID, buildProvider }, index) => {
+      const initCovObj = coverageFinalResults[index].data;
 
-    const quchongList = deduplicateArray(groupList);
-
-    const gList: any[] = [];
-
-    for (let jjjjj = 0; jjjjj < quchongList.length; jjjjj++) {
-      const { buildID, buildProvider } = quchongList[jjjjj];
-
-      const zongdeConFinal = await this.coverageFinalService.invoke(
-        firstCov.provider,
-        firstCov.repoID,
-        firstCov.sha,
-        buildProvider,
-        buildID,
-      );
-
-      const initCovObj = zongdeConFinal.data;
-
-      const groups = {
+      const group = {
         buildID,
         buildProvider,
         summary: genSUmar(
           dbRes,
           coverageList
-            .filter((item) => {
-              return (
-                item.buildProvider === buildProvider && item.buildID === buildID
-              );
-            })
+            .filter(
+              (item) =>
+                item.buildProvider === buildProvider &&
+                item.buildID === buildID,
+            )
             .map(({ id }) => id),
           initCovObj,
         ),
@@ -123,11 +119,9 @@ export class GetRepoCommitByCommitShaServices {
                   item.buildProvider === buildProvider &&
                   item.buildID === buildID,
               )
-              .map((i) => {
-                return {
-                  summary: genSUmar(dbRes, [i.id], initCovObj),
-                };
-              }),
+              .map((i) => ({
+                summary: genSUmar(dbRes, [i.id], initCovObj),
+              })),
           },
           {
             mode: 'personal',
@@ -150,16 +144,30 @@ export class GetRepoCommitByCommitShaServices {
                   item.buildProvider === buildProvider &&
                   item.buildID === buildID,
               )
-              .map((i) => {
-                return {
-                  summary: genSUmar(dbRes, [i.id], initCovObj),
-                };
-              }),
+              .map((i) => ({
+                summary: genSUmar(dbRes, [i.id], initCovObj),
+              })),
           },
         ],
       };
-      gList.push(groups);
-    }
-    return gList;
+      resultList.push(group);
+    });
+
+    return resultList;
+  }
+
+  private deduplicateArray(arr: any[]): any[] {
+    const map = new Map();
+    const result: any[] = [];
+
+    arr.forEach((item: any) => {
+      const key = `${item.buildProvider}-${item.buildID}`;
+      if (!map.has(key)) {
+        map.set(key, item);
+        result.push(item);
+      }
+    });
+
+    return result;
   }
 }
