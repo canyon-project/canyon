@@ -68,6 +68,7 @@ export class GetRepoCommitByCommitShaServices {
         .then((r) => r.json<CoverageHitQuerySqlResultJsonInterface>()),
       ...deduplicatedBuildGroupList.map(async ({ buildID, buildProvider }) => {
         const startTime = Date.now();
+        // 这里多查了一次hit表，需要优化
         const coverageFinalResult = await this.coverageFinalService.invoke(
           coverageList[0].provider,
           coverageList[0].repoID,
