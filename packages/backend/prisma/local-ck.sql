@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
   latest_ts   SimpleAggregateFunction(max, DateTime)
   )
   ENGINE = AggregatingMergeTree()
-  PARTITION BY tuple()
+  PARTITION BY toYYYYMM(latest_ts)
   ORDER BY (coverage_id, full_file_path);
 
 -- 物化视图

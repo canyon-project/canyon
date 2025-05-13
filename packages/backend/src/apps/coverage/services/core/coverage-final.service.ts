@@ -136,7 +136,11 @@ export class CoverageFinalService {
           ...performanceData.time,
         },
       },
-      data: ddd,
+      data: filePath
+        ? {
+            [filePath]: ddd[filePath],
+          }
+        : ddd,
     };
   }
 
@@ -217,7 +221,8 @@ export class CoverageFinalService {
         merged_b[0].forEach((j: any, jindex) => {
           const realB = decodeKey(j);
           const [a, b] = realB;
-          initCov.b[a][b] = Number(merged_b[1][jindex]);
+          const realB1 = Number(merged_b[1][jindex]);
+          initCov.b[a][b] = isNaN(realB1) ? 0 : Number(realB1);
         });
       }
 

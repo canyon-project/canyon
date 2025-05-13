@@ -42,7 +42,7 @@ export function handleSelectFile({
         repoID,
         reportID: reportID,
         sha: sha,
-        filepath: filepath,
+        filePath: filepath,
         provider: 'gitlab',
         buildProvider,
         buildID,
