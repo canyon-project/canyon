@@ -13,11 +13,6 @@
 
 import { Callout } from 'nextra/components';
 
-<Callout type="info" emoji="ℹ️">
-  [将 GitLab 配置为 OAuth 2.0 身份验证身份提供者](https://docs.gitlab.com/ee/integration/oauth_provider.html)
-</Callout>
-
-
 ```sql copy
 insert into public.sys_setting (id, key, value)
 values  ('1', 'CANYON_SERVER', 'https://canyonjs.org'),
@@ -26,17 +21,20 @@ values  ('1', 'CANYON_SERVER', 'https://canyonjs.org'),
         ('4', 'GITLAB_CLIENT_SECRET', 'xxx');
 ```
 
-目前只支持 GitLab，后续会支持更多的 Git 服务商。
-
-
 <Callout type="info" emoji="ℹ️">
-  仅需要修改 `url`、`private_token`。
+  [将 GitLab 配置为 OAuth 2.0 身份验证身份提供者](https://docs.gitlab.com/ee/integration/oauth_provider.html)
 </Callout>
+
+目前只支持 GitLab，后续会支持更多的 Git 服务商。
 
 ```sql copy
 insert into public.git_provider (id, url, type, name, disabled, private_token)
 values  ('gitlab', 'https://gitlab.com', 'gitlab', 'GitLab', false, 'xxx');
 ```
+
+<Callout type="info" emoji="ℹ️">
+  [生成 GitLab Private Token](https://docs.gitlab.com/user/profile/personal_access_tokens/#create-a-personal-access-token)
+</Callout>
 
 ## 管理员登录
 

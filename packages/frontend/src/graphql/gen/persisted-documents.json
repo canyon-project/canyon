@@ -1,0 +1,8 @@
+{
+  "d6da2eb946c72055c0604cdbd55b8db4a88d5582": "mutation UpdateConfig($input: UpdateConfigInput!) { updateConfig(input: $input) { id key value } }",
+  "9dbe00936d1b64f960e68079bcba1340205b364b": "mutation UpdateUserSettings($language: String, $theme: String) { updateUserSettings(theme: $theme, language: $language) { language theme } }",
+  "179e28124560fea2c19024bf14e2aae077098175": "query GetProjectCommitCoverage($projectID: ID!, $sha: String!) { getProjectCommitCoverage(projectID: $projectID, sha: $sha) { buildID coverage { e2eCoverage unitTestCoverage } reports { cases { failureCount name reportID reportProvider status successCount type } coveragePercentage reportID type } } }",
+  "456155ae55ca0174d02bff1cd8d1e184e0c801e5": "query GetProjectCommits($branch: String, $current: Int!, $pageSize: Int!, $projectID: ID!) { getProjectCommits( projectID: $projectID branch: $branch current: $current pageSize: $pageSize ) { data { branches commitCreatedAt commitMessage coverage sha } total } }",
+  "e876539daa68e6380e0d5882d6bf375a73b2186c": "query GetProjects($bu: [String!]!, $current: Int!, $favorOnly: Boolean!, $field: String!, $keyword: String!, $order: String!, $pageSize: Int!) { getProjects( current: $current pageSize: $pageSize keyword: $keyword bu: $bu field: $field order: $order favorOnly: $favorOnly ) { data { bu description favored id lastReportTime maxCoverage pathWithNamespace reportTimes } total } }",
+  "6b1957d6e6fc59a4a1e1171a202834bc02831943": "query Me { me { avatar email id nickname password settings { language theme } username } }"
+}
