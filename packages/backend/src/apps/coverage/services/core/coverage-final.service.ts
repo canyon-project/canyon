@@ -35,6 +35,7 @@ export class CoverageFinalService {
     reportID?: string,
     filePath?: string,
   ) {
+    console.log('train+弱提示', reportID);
     const prismaCoverageFindManyStartTime = new Date().getTime();
     // 第一步：查询coverage表，获取所有的 coverageID。注意，此时不过滤reportProvider和reportID，这一步很关键，因为我们需要获取到所有的文件内容
     const coverages = await this.prisma.coverage.findMany({
@@ -67,10 +68,10 @@ export class CoverageFinalService {
     const prismaCoverageMapRelationFindMany =
       new Date().getTime() - prismaCoverageMapRelationFindManyStartTime;
     // 查询 ClickHouse：查 hash 对应的 coverage_map
+
     const deduplicateHashIDList = coverageMapRelationList.map(
       (i) => i.coverageMapHashID,
     );
-    console.log(deduplicateHashIDList.length);
     const ckQuerySqlStart = new Date().getTime();
     const [coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson] =
       await Promise.all([
@@ -90,18 +91,29 @@ export class CoverageFinalService {
           })
           .then((r) => r.json<CoverageMapQuerySqlResultJsonInterface>()),
       ]);
-    console.log(coverageMapQuerySqlResultJson.length,'coverageMapQuerySqlResultJson')
+
+    await fetch(`http://localhost:3000/save`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(coverageHitQuerySqlResultJson),
+    });
+
     const coverageMapQuerySqlResultJsonWithfilePath =
-      coverageMapQuerySqlResultJson.map((item) => {
-        const relaHashToPaths = coverageMapRelationList.find(
-          (i) => i.coverageMapHashID === item.coverageMapHashID,
+      coverageMapRelationList.map((i) => {
+        const sss = coverageMapQuerySqlResultJson.find(
+          (j) => j.coverageMapHashID === i.coverageMapHashID,
         );
         return {
-          ...item,
-          fullFilePath: relaHashToPaths?.fullFilePath || '',
+          ...sss,
+          fullFilePath: i.fullFilePath,
         };
       });
-
+    console.log(
+      coverageHitQuerySqlResultJson.length,
+      'coverageHitQuerySqlResultJson',
+    );
     const ckQuerySqlCur = new Date().getTime() - ckQuerySqlStart;
     const res = this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
       coverageMapQuerySqlResultJsonWithfilePath,
@@ -158,11 +170,25 @@ export class CoverageFinalService {
           (previousValue, currentValue, currentIndex, array) => {
             const { s: s1, f: f1, b: b1 } = currentValue;
             const { s: s2, f: f2, b: b2 } = previousValue;
-            const s = [[], []];
 
-            s[0] = [...new Set([...s1[0], ...s2[0]])].sort();
+            const s = [[], []];
+            const num = s1[0].length > 0 ? Math.max(...s1[0]) : 0;
+            s[0] = Array(num).fill().map((item, index) => {
+              // console.log(item,index)
+              return index;
+            });
+
+            if (
+              currentValue.fullFilePath.includes(
+                'c/components/product/book/costCenterPC/inde',
+              )
+            ) {
+              // console.log(Array(num),'Array(num)')
+              // console.log(s[0]);
+            }
 
             s[0].forEach((key) => {
+              // console.log()
               s[1][key] = Number(s1[1][key] || 0) + Number(s2[1][key] || 0);
             });
 
