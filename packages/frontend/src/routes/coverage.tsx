@@ -15,6 +15,7 @@ const CoveragePage = () => {
   const repoID = URLSearchParams.get('repo_id') || '';
   const provider = URLSearchParams.get('provider') || '';
   const reportID = URLSearchParams.get('report_id') || '';
+  const reportProvider = URLSearchParams.get('report_provider') || '';
 
   const [activatedPath, setActivatedPath] = useState(
     URLSearchParams.get('file_path') || '',
@@ -29,6 +30,8 @@ const CoveragePage = () => {
           buildID: buildID,
           repoID: repoID,
           provider: provider,
+          reportID,
+          reportProvider,
         },
       }).then(({ data }) => data.data),
     {},

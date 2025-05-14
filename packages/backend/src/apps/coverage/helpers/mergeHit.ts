@@ -1,8 +1,13 @@
 // @ts-nocheck
 import { decodeKey } from '../../../utils/ekey';
-import { genSummaryMapByCoverageMap, getSummaryByPath } from 'canyon-data';
+import {
+  genSummaryMapByCoverageMap,
+  getSummaryByPath,
+  resetCoverageDataMap,
+} from 'canyon-data';
 
 export const mergeHit = (coverageHitQuerySqlResultJson, initCovObj) => {
+  initCovObj = resetCoverageDataMap(initCovObj);
   const r = [];
   Object.values(initCovObj).forEach((item123) => {
     const find = coverageHitQuerySqlResultJson
