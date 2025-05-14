@@ -11,8 +11,9 @@ const CommitsTab = () => {
   // const params = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
+  // 测试url http://localhost:8000/coverage?sha=e5f02368eaf5027c756f4c9f33d60f89c67f348b&build_provider=gitlab_runner&build_id=121974026&repo_id=106573&provider=gitlab&report_id=initial_coverage_data&report_provider=person&file_path=
   const [selectedCommit, setSelectedCommit] = useState({
-    sha:'f78fa09c0da9c42e728e7abb91954da85d92d755'
+    sha:'e5f02368eaf5027c756f4c9f33d60f89c67f348b'
   });
 
   // 获取仓库commits覆盖率上报记录通过仓库ID /repo/{repositoryId}/commits getRepoCommitsByRepoId

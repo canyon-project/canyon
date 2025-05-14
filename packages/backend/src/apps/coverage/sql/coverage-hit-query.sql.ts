@@ -20,8 +20,8 @@ export function coverageHitQuerySql(
 ): string {
   const filterCovs = coverages.filter((i) => {
     const reportProviderOff =
-      reportProvider === undefined || i.reportProvider === reportProvider;
-    const reportIDOff = reportProvider === undefined || i.reportID === reportID;
+      !reportProvider || i.reportProvider === reportProvider;
+    const reportIDOff = !reportID || i.reportID === reportID;
     return reportProviderOff && reportIDOff;
   });
 

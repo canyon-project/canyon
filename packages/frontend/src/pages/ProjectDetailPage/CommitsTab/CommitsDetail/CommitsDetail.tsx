@@ -91,7 +91,7 @@ const CommitsDetail: FC<{
   selectedCommit: string;
 }> = ({ selectedCommit }) => {
   console.log(selectedCommit, 'selectedCommit');
-  const [activeBuild, setActiveBuild] = useState<string>('27932502');
+  const [activeBuild, setActiveBuild] = useState<string>('121974026');
   const params = useParams();
   console.log(params, 'params');
   const repoID = encodeURIComponent(params.org + '/' + params.repo);
