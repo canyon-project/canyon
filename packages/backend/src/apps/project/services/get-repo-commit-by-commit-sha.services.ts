@@ -14,7 +14,9 @@ function genSUmar(
   initCovObj,
 ) {
   return mergeHit(
-    sqlRes.filter(({ coverageID }) => coverages.includes(coverageID)),
+    sqlRes.filter(({ coverageID }) => {
+      return coverages.includes(coverageID);
+    }),
     initCovObj,
   );
 }
@@ -57,7 +59,6 @@ export class GetRepoCommitByCommitShaServices {
     const deduplicatedBuildGroupList = this.deduplicateArray(buildGroupList);
 
     const resultList: any[] = [];
-
     // 并行执行 ClickHouse 查询和 coverageFinalService.invoke
     const [dbRes, ...coverageFinalResults] = await Promise.all([
       this.clickhouseClient
@@ -87,7 +88,7 @@ export class GetRepoCommitByCommitShaServices {
       const group = {
         buildID,
         buildProvider,
-        summary: genSUmar(
+        coverage: genSUmar(
           dbRes,
           coverageList
             .filter(
@@ -100,20 +101,8 @@ export class GetRepoCommitByCommitShaServices {
         ),
         modeList: [
           {
-            mode: 'auto',
-            summary: genSUmar(
-              dbRes,
-              coverageList
-                .filter(
-                  (item) =>
-                    ['mpaas', 'flytest'].includes(item.reportProvider) &&
-                    item.buildProvider === buildProvider &&
-                    item.buildID === buildID,
-                )
-                .map(({ id }) => id),
-              initCovObj,
-            ),
-            reportList: coverageList
+            type: 'auto',
+            caseList: coverageList
               .filter(
                 (item) =>
                   ['mpaas', 'flytest'].includes(item.reportProvider) &&
@@ -121,24 +110,13 @@ export class GetRepoCommitByCommitShaServices {
                   item.buildID === buildID,
               )
               .map((i) => ({
-                summary: genSUmar(dbRes, [i.id], initCovObj),
+                coverage: genSUmar(dbRes, [i.id], initCovObj),
+                ...i,
               })),
           },
           {
-            mode: 'personal',
-            summary: genSUmar(
-              dbRes,
-              coverageList
-                .filter(
-                  (item) =>
-                    ['person'].includes(item.reportProvider) &&
-                    item.buildProvider === buildProvider &&
-                    item.buildID === buildID,
-                )
-                .map(({ id }) => id),
-              initCovObj,
-            ),
-            reportList: coverageList
+            type: 'manual',
+            caseList: coverageList
               .filter(
                 (item) =>
                   ['person'].includes(item.reportProvider) &&
@@ -146,7 +124,8 @@ export class GetRepoCommitByCommitShaServices {
                   item.buildID === buildID,
               )
               .map((i) => ({
-                summary: genSUmar(dbRes, [i.id], initCovObj),
+                coverage: genSUmar(dbRes, [i.id], initCovObj),
+                ...i,
               })),
           },
         ],

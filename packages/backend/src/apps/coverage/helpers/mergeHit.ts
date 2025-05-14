@@ -1,13 +1,15 @@
 // @ts-nocheck
 import { decodeKey } from '../../../utils/ekey';
-import { genSummaryMapByCoverageMap,getSummaryByPath } from 'canyon-data';
+import { genSummaryMapByCoverageMap, getSummaryByPath } from 'canyon-data';
 
 export const mergeHit = (coverageHitQuerySqlResultJson, initCovObj) => {
   const r = [];
-
   Object.values(initCovObj).forEach((item123) => {
     const find = coverageHitQuerySqlResultJson
-      .filter((i) => i.fullFilePath === item123.path)
+      .filter((i) => {
+        // 这边要改，要取reletaion表反查
+        return i.fullFilePath.includes(item123.path);
+      })
       .reduce(
         (previousValue, currentValue, currentIndex, array) => {
           const { s: s1, f: f1, b: b1 } = currentValue;
@@ -51,11 +53,11 @@ export const mergeHit = (coverageHitQuerySqlResultJson, initCovObj) => {
         },
       );
 
+    // 这里要改，还原0
     const initCov = item123;
 
     if (find) {
       const { s: merged_s, f: merged_f, b: merged_b } = find;
-
       merged_s[0].forEach((j: any, jindex) => {
         initCov.s[j] = Number(merged_s[1][jindex]);
       });
@@ -79,7 +81,6 @@ export const mergeHit = (coverageHitQuerySqlResultJson, initCovObj) => {
       s: initCov.s,
     });
   });
-
   const summary = genSummaryMapByCoverageMap(
     r.reduce((previousValue, currentValue, currentIndex, array) => {
       previousValue[currentValue.path] = currentValue;
@@ -87,6 +88,6 @@ export const mergeHit = (coverageHitQuerySqlResultJson, initCovObj) => {
     }, {}),
     [],
   );
-  const sum: any = getSummaryByPath("", summary);
+  const sum: any = getSummaryByPath('', summary);
   return sum;
 };
