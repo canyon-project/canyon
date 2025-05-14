@@ -92,13 +92,13 @@ export class CoverageFinalService {
           .then((r) => r.json<CoverageMapQuerySqlResultJsonInterface>()),
       ]);
 
-    await fetch(`http://localhost:3000/save`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(coverageHitQuerySqlResultJson),
-    });
+    // await fetch(`http://localhost:3000/save`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify(coverageHitQuerySqlResultJson),
+    // });
 
     const coverageMapQuerySqlResultJsonWithfilePath =
       coverageMapRelationList.map((i) => {
@@ -171,25 +171,14 @@ export class CoverageFinalService {
             const { s: s1, f: f1, b: b1 } = currentValue;
             const { s: s2, f: f2, b: b2 } = previousValue;
 
-            const s = [[], []];
-            const num = s1[0].length > 0 ? Math.max(...s1[0]) : 0;
-            s[0] = Array(num).fill().map((item, index) => {
-              // console.log(item,index)
-              return index;
-            });
+            // NOTE: 这里需要用index，不能用key
 
-            if (
-              currentValue.fullFilePath.includes(
-                'c/components/product/book/costCenterPC/inde',
-              )
-            ) {
-              // console.log(Array(num),'Array(num)')
-              // console.log(s[0]);
-            }
+            // [1,2,3,7,8] => [2,3,4,5,6]
 
-            s[0].forEach((key) => {
-              // console.log()
-              s[1][key] = Number(s1[1][key] || 0) + Number(s2[1][key] || 0);
+            const s = [s1[0], []];
+            s1[0].forEach((key, index) => {
+              const t = Number(s1[1][index] || 0) + Number(s2[1][index] || 0);
+              s[1][index] = isNaN(t) ? 0 : t;
             });
 
             const f = [[], []];
