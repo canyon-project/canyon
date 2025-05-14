@@ -171,6 +171,10 @@ export class CoverageFinalService {
             const { s: s1, f: f1, b: b1 } = currentValue;
             const { s: s2, f: f2, b: b2 } = previousValue;
 
+            if (currentValue.s[0].length === 0) {
+              return previousValue;
+            }
+
             // NOTE: 这里需要用index，不能用key
 
             // [1,2,3,7,8] => [2,3,4,5,6]
@@ -178,7 +182,7 @@ export class CoverageFinalService {
             const s = [s1[0], []];
             s1[0].forEach((key, index) => {
               const t = Number(s1[1][index] || 0) + Number(s2[1][index] || 0);
-              s[1][index] = isNaN(t) ? 0 : t;
+              s[1][index] = t;
             });
 
             const f = [[], []];
