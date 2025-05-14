@@ -55,7 +55,8 @@ export class CoverageFinalService {
     const prismaCoverageMapRelationFindManyStartTime = new Date().getTime();
     // TODO coverage_map_relation 表的优化空间是source_map的重复，reportID相同时会重复存
     const coverageMapRelationList =
-      await this.prisma.coverageMapRelation.findMany({
+      await this.prisma.coverageMapRelation.groupBy({
+        by: ['coverageMapHashID', 'fullFilePath'],
         where: {
           coverageID: {
             in: coverages.map((coverage) => coverage.id),
@@ -65,23 +66,11 @@ export class CoverageFinalService {
       });
     const prismaCoverageMapRelationFindMany =
       new Date().getTime() - prismaCoverageMapRelationFindManyStartTime;
-    // 以下操作为了去除重复的 coverageMapHashID
-    // 构造 hash -> relative_paths[] 映射表
-    const hashToPaths = new Map<
-      string,
-      {
-        fullFilePath: string;
-      }
-    >();
-    for (const item of coverageMapRelationList) {
-      hashToPaths.set(item.coverageMapHashID, {
-        fullFilePath: item.fullFilePath,
-      });
-    }
     // 查询 ClickHouse：查 hash 对应的 coverage_map
-    const deduplicateHashIDList = [
-      ...new Set(coverageMapRelationList.map((i) => i.coverageMapHashID)),
-    ];
+    const deduplicateHashIDList = coverageMapRelationList.map(
+      (i) => i.coverageMapHashID,
+    );
+    console.log(deduplicateHashIDList.length);
     const ckQuerySqlStart = new Date().getTime();
     const [coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson] =
       await Promise.all([
@@ -101,10 +90,12 @@ export class CoverageFinalService {
           })
           .then((r) => r.json<CoverageMapQuerySqlResultJsonInterface>()),
       ]);
-
+    console.log(coverageMapQuerySqlResultJson.length,'coverageMapQuerySqlResultJson')
     const coverageMapQuerySqlResultJsonWithfilePath =
       coverageMapQuerySqlResultJson.map((item) => {
-        const relaHashToPaths = hashToPaths.get(item.coverageMapHashID);
+        const relaHashToPaths = coverageMapRelationList.find(
+          (i) => i.coverageMapHashID === item.coverageMapHashID,
+        );
         return {
           ...item,
           fullFilePath: relaHashToPaths?.fullFilePath || '',
@@ -152,7 +143,6 @@ export class CoverageFinalService {
     coverageHitQuerySqlResultJson: CoverageHitQuerySqlResultJsonInterface[],
   ) {
     const result = {};
-
     coverageMapQuerySqlResultJson.forEach((item) => {
       const fileCoverageItem = {
         path: item.fullFilePath,
