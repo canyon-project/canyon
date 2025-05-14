@@ -11,7 +11,9 @@ const CommitsTab = () => {
   // const params = useParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
-  const [selectedCommit, setSelectedCommit] = useState(null);
+  const [selectedCommit, setSelectedCommit] = useState({
+    sha:'f78fa09c0da9c42e728e7abb91954da85d92d755'
+  });
 
   // 获取仓库commits覆盖率上报记录通过仓库ID /repo/{repositoryId}/commits getRepoCommitsByRepoId
   // 获取仓库commits详细信息通过仓库ID /repo/{repositoryId}/commits/{commitId} getRepoCommitByCommitSHA
@@ -48,6 +50,7 @@ const CommitsTab = () => {
   // if (error) return <div>Error: {error.message}</div>;
 
   return (
+    // NOTE：这里需要注意，暂时用条件判断渲染，后续改成路由？
     <div className={'flex gap-[20px] px-[20px]'}>
       <CommitsList
         commits={data || []}
