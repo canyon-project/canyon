@@ -14,7 +14,7 @@ import {
   Input,
   Radio,
   Space,
-  Divider,
+  Divider, Spin,
 } from 'antd';
 import {
   CheckCircleOutlined,
@@ -96,9 +96,9 @@ const CoverageProgress: React.FC<{ percentage: number; width?: string }> = ({
   else if (percentage >= 40) color = 'orange';
 
   return (
-    <Tooltip title={`覆盖率: ${percentage.toFixed(1)}%`}>
+    <Tooltip title={`覆盖率: ${percentage}%`}>
       <Progress
-        percent={percentage.toFixed(1)}
+        percent={percentage}
         size="small"
         status={percentage < 60 ? 'exception' : 'active'}
         strokeColor={color}
@@ -157,8 +157,8 @@ const AggregationProgress: React.FC<{ progress: AggregationProgress }> = ({
 const CommitsDetail: FC<{
   selectedCommit: string;
 }> = ({ selectedCommit }) => {
-  console.log(selectedCommit,'selectedCommit')
-  const [activeBuild, setActiveBuild] = useState<string>('build_123');
+  console.log(selectedCommit, 'selectedCommit');
+  const [activeBuild, setActiveBuild] = useState<string>('27932502');
   const params = useParams();
   console.log(params, 'params');
   const repoID = encodeURIComponent(params.org + '/' + params.repo);
@@ -224,7 +224,7 @@ const CommitsDetail: FC<{
             <span className="text-green-600 font-medium">
               {record.successCount}
             </span>{' '}
-            / {rate.toFixed(1)}%
+            / {rate}%
           </span>
         );
       },
@@ -237,7 +237,7 @@ const CommitsDetail: FC<{
   ];
 
   // 更新 pipeline tab 的渲染，添加 commit 信息
-  const buildTabs: TabsProps['items'] = (data?.getProjectCommitCoverage || [])
+  const buildTabs: TabsProps['items'] = (data || [])
     .map((i) => {
       return {
         ...i,
@@ -312,7 +312,7 @@ const CommitsDetail: FC<{
                       </span>
                     </Tooltip>
                     <CoverageProgress
-                      percentage={build.coverage.e2eCoverage}
+                      percentage={build?.coverage?.e2eCoverage}
                       width="w-32"
                     />
                   </div>
@@ -321,12 +321,12 @@ const CommitsDetail: FC<{
                       <span className="font-medium">单测覆盖率:</span>
                     </Tooltip>
                     <CoverageProgress
-                      percentage={build.coverage.unitTestCoverage}
+                      percentage={build?.coverage?.unitTestCoverage}
                       width="w-32"
                     />
                   </div>
                 </div>
-                <AggregationProgress progress={build.aggregationProgress} />
+                <AggregationProgress progress={build?.aggregationProgress} />
               </div>
 
               {/* Collapse 部分保持不变 */}
@@ -418,38 +418,38 @@ const CommitsDetail: FC<{
     }));
 
   return (
-    <div className="   shadow w-full">
-      <div className="mb-4">
-        <Editor
-          value={JSON.stringify(data || {},null,2)}
-          language={'json'}
-          height={500}
-        />
-        {/*{JSON.stringify(selectedCommit)}*/}
-        {/* 添加 commit 信息显示 */}
-        <div className=" p-3  text-sm">
-          <div className="flex items-center text-gray-600">
-            {/*<RedoOutlined />*/}
-            <span className="font-medium mr-2">Commit:</span>
-            <a
-              style={{
-                textDecoration: 'underline',
-              }}
-            >
-              {selectedCommit?.sha}
-            </a>
-            <span className="ml-2">{selectedCommit?.commitMessage}</span>
-          </div>
-        </div>
-      </div>
+    <div className="shadow" style={{ flex: 1 }}>
+      <Spin spinning={loading}>
+        {!loading && (
+          <>
+            <div className="mb-4">
+              {/* 添加 commit 信息显示 */}
+              <div className=" p-3  text-sm">
+                <div className="flex items-center text-gray-600">
+                  {/*<RedoOutlined />*/}
+                  <span className="font-medium mr-2">Commit:</span>
+                  <a
+                    style={{
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    {selectedCommit?.sha}
+                  </a>
+                  <span className="ml-2">{selectedCommit?.commitMessage}</span>
+                </div>
+              </div>
+            </div>
 
-      <Tabs
-        items={buildTabs}
-        activeKey={activeBuild}
-        onChange={setActiveBuild}
-        // type="card"
-        className="build-tabs"
-      />
+            <Tabs
+              items={buildTabs}
+              activeKey={activeBuild}
+              onChange={setActiveBuild}
+              // type="card"
+              className="build-tabs"
+            />
+          </>
+        )}
+      </Spin>
     </div>
   );
 };
