@@ -16,7 +16,9 @@ export function genHitByMap(mapValue: any) {
     b: Object.entries(mapValue.branchMap).reduce(
       (accInside, [keyInside, valueInside]: any) => {
         // @ts-ignore
-        accInside[keyInside] = Array(valueInside.length).fill(0);
+        accInside[keyInside] = Array(
+          // @ts-ignore
+          valueInside.locations.length).fill(0)
         return accInside;
       },
       {},

@@ -16,7 +16,10 @@ import {
   transformCkToCoverageFnMap,
   transformCkToCoverageStatementMap,
 } from '../../../../utils/transform';
-import { remapCoverageWithWindow } from '../../../../utils/remapCoverageWithWindow';
+import {
+  convertClickHouseCoverageToIstanbul,
+  fuzhi,
+} from '../../helpers/coverage';
 
 @Injectable()
 export class CoverageFinalService {
@@ -164,81 +167,25 @@ export class CoverageFinalService {
       };
 
       const initCov = genHitByMap(fileCoverageItem);
-      const find = coverageHitQuerySqlResultJson
-        .filter((i) => i.fullFilePath === item.fullFilePath)
-        .reduce(
-          (previousValue, currentValue, currentIndex, array) => {
-            const { s: s1, f: f1, b: b1 } = currentValue;
-            const { s: s2, f: f2, b: b2 } = previousValue;
-
-            if (currentValue.s[0].length === 0) {
-              return previousValue;
-            }
-
-            // NOTE: 这里需要用index，不能用key
-
-            // [1,2,3,7,8] => [2,3,4,5,6]
-
-            const s = [s1[0], []];
-            s1[0].forEach((key, index) => {
-              const t = Number(s1[1][index] || 0) + Number(s2[1][index] || 0);
-              s[1][index] = t;
-            });
-
-            const f = [[], []];
-
-            f[0] = [...new Set([...f1[0], ...f2[0]])].sort();
-
-            f[0].forEach((key) => {
-              f[1][key] = Number(f1[1][key] || 0) + Number(f2[1][key] || 0);
-            });
-
-            const b = [[], []];
-
-            b[0] = [...new Set([...b1[0], ...b2[0]])].sort();
-
-            b[0].forEach((key) => {
-              b[1][key] = Number(b1[1][key] || 0) + Number(b2[1][key] || 0);
-            });
-
-            return {
-              ...previousValue,
-              s: s,
-              f: f,
-              b: b,
-            };
-          },
-          {
-            fullFilePath: item.fullFilePath,
-            b: [[], []],
-            f: [[], []],
-            s: [[], []],
-          },
-        );
-
+      const find = convertClickHouseCoverageToIstanbul(
+        coverageHitQuerySqlResultJson.filter(
+          (i) => i.fullFilePath === item.fullFilePath,
+        ),
+        item.fullFilePath,
+      );
       if (find) {
-        const { s: merged_s, f: merged_f, b: merged_b } = find;
-
-        merged_s[0].forEach((j: any, jindex) => {
-          initCov.s[j] = Number(merged_s[1][jindex]);
-        });
-
-        merged_f[0].forEach((j: any, jindex) => {
-          initCov.f[j] = Number(merged_f[1][jindex]);
-        });
-
-        merged_b[0].forEach((j: any, jindex) => {
-          const realB = decodeKey(j);
-          const [a, b] = realB;
-          const realB1 = Number(merged_b[1][jindex]);
-          initCov.b[a][b] = isNaN(realB1) ? 0 : Number(realB1);
-        });
+        result[item.fullFilePath] = {
+          ...fileCoverageItem,
+          ...fuzhi(find, initCov),
+          path: item.fullFilePath,
+        };
+      } else {
+        result[item.fullFilePath] = {
+          ...fileCoverageItem,
+          ...initCov,
+          path: item.fullFilePath,
+        };
       }
-
-      result[item.fullFilePath] = {
-        ...fileCoverageItem,
-        ...initCov,
-      };
     });
     return result;
   }
