@@ -1,6 +1,14 @@
 // @ts-nocheck
 import { decodeKey } from '../../../utils/ekey';
 
+function mergeAndSum(obj1, obj2) {
+  const merged = { ...obj1 };
+  for (const [key, value] of Object.entries(obj2)) {
+    merged[key] = Number(merged[key] || 0) + Number(value);
+  }
+  return merged;
+}
+
 export function convertClickHouseCoverageToIstanbul(
   arr: any[],
   fullFilePath: string,
@@ -18,12 +26,27 @@ export function convertClickHouseCoverageToIstanbul(
 
       // [1,2,3,7,8] => [2,3,4,5,6]
 
-      const s = [[], []];
-      s[0] = [...new Set([...s1[0], ...s2[0]])].sort();
-      s1[0].forEach((key, index) => {
-        const t = Number(s1[1][index] || 0) + Number(s2[1][index] || 0);
+      const s1_obj = s1[0].reduce((pre, cur, index) => {
+        pre[cur] = s1[1][index];
+        return pre
+      }, {});
 
-        s[1][index] = t;
+      const s2_obj = s2[0].reduce((pre, cur, index) => {
+        pre[cur] = s2[1][index];
+        return pre
+      }, {});
+
+      const s_obj = mergeAndSum(s1_obj, s2_obj);
+
+      if (currentValue.fullFilePath.includes('src/api/utils.ts')) {
+        // console.log(s);
+      }
+
+      const s = [[], []];
+
+      Object.entries(s_obj).forEach(([key, value]) => {
+        s[0].push(key);
+        s[1].push(value);
       });
 
       const f = [[], []];
@@ -75,8 +98,8 @@ export function fuzhi(find, initCov) {
     initCov.b[a][b] = Number(merged_b[1][jindex]);
   });
   // console.log(find,initCov,'initCov')
-  if (find.fullFilePath.includes('src/api/utils.ts')){
-    console.log(initCov.s)
+  if (find.fullFilePath.includes('src/api/utils.ts')) {
+    console.log(initCov.s);
   }
 
   return {
