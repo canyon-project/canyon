@@ -22,47 +22,58 @@ export function convertClickHouseCoverageToIstanbul(
         return previousValue;
       }
 
-      // NOTE: 这里需要用index，不能用key
-
-      // [1,2,3,7,8] => [2,3,4,5,6]
-
+      // 处理 s
       const s1_obj = s1[0].reduce((pre, cur, index) => {
         pre[cur] = s1[1][index];
-        return pre
+        return pre;
       }, {});
 
       const s2_obj = s2[0].reduce((pre, cur, index) => {
         pre[cur] = s2[1][index];
-        return pre
+        return pre;
       }, {});
 
       const s_obj = mergeAndSum(s1_obj, s2_obj);
-
-      if (currentValue.fullFilePath.includes('src/api/utils.ts')) {
-        // console.log(s);
-      }
-
       const s = [[], []];
-
       Object.entries(s_obj).forEach(([key, value]) => {
         s[0].push(key);
         s[1].push(value);
       });
 
+      // 重构 f 的处理
+      const f1_obj = f1[0].reduce((pre, cur, index) => {
+        pre[cur] = f1[1][index];
+        return pre;
+      }, {});
+
+      const f2_obj = f2[0].reduce((pre, cur, index) => {
+        pre[cur] = f2[1][index];
+        return pre;
+      }, {});
+
+      const f_obj = mergeAndSum(f1_obj, f2_obj);
       const f = [[], []];
-
-      f[0] = [...new Set([...f1[0], ...f2[0]])].sort();
-
-      f[0].forEach((key, index) => {
-        f[1][index] = Number(f1[1][index] || 0) + Number(f2[1][index] || 0);
+      Object.entries(f_obj).forEach(([key, value]) => {
+        f[0].push(key);
+        f[1].push(value);
       });
 
+      // 重构 b 的处理
+      const b1_obj = b1[0].reduce((pre, cur, index) => {
+        pre[cur] = b1[1][index];
+        return pre;
+      }, {});
+
+      const b2_obj = b2[0].reduce((pre, cur, index) => {
+        pre[cur] = b2[1][index];
+        return pre;
+      }, {});
+
+      const b_obj = mergeAndSum(b1_obj, b2_obj);
       const b = [[], []];
-
-      b[0] = [...new Set([...b1[0], ...b2[0]])].sort();
-
-      b[0].forEach((key, index) => {
-        b[1][index] = Number(b1[1][index] || 0) + Number(b2[1][index] || 0);
+      Object.entries(b_obj).forEach(([key, value]) => {
+        b[0].push(key);
+        b[1].push(value);
       });
 
       return {
