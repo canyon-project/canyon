@@ -1,29 +1,59 @@
+// @ts-nocheck
 import { PrismaService } from '../../../prisma/prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClickHouseClient } from '@clickhouse/client';
 import { getCommits } from '../../../adapter/gitlab.adapter';
 import { coverageHitQuerySql } from '../../coverage/sql/coverage-hit-query.sql';
-import { CoverageHitQuerySqlResultJsonInterface } from '../../coverage/types/coverage-final.types';
+import {
+  CoverageHitQuerySqlResultJsonInterface,
+  CoverageMapQuerySqlResultJsonInterface,
+} from '../../coverage/types/coverage-final.types';
 import { mergeHit } from '../../coverage/helpers/mergeHit';
 import { genHitByMap } from '../../../utils/genHitByMap';
 import { CoverageFinalService } from '../../coverage/services/core/coverage-final.service';
 import { CoverageMapService } from '../../coverage/services/core/coverage-map.service';
+import { coverageMapQuerySql } from '../../coverage/sql/coverage-map-query.sql';
+import { percent } from 'canyon-data';
 
-function genSUmar(
-  sqlRes: { coverageID: string }[],
-  coverages: string[],
-  initCovObj,
-) {
-  return mergeHit(
-    sqlRes.filter(({ coverageID }) => {
-      return coverages.includes(coverageID);
-    }),
-    initCovObj,
-    coverages.length,
-  );
+function ffffff(covHit, covMap) {
+  const hitMap = new Map();
+  for (let i = 0; i < covHit.length; i++) {
+    const covHitItem = covHit[i];
+    const path = covHitItem.fullFilePath;
+    if (!hitMap.has(path)) {
+      hitMap.set(path, {
+        s: new Set(covHitItem.s),
+      });
+    } else {
+      const hitMapItem = hitMap.get(path);
+      covHitItem.s.forEach((val) => hitMapItem.s.add(val));
+    }
+  }
+  let num1 = 0;
+  let num2 = 0;
+
+  const map = new Map();
+  for (let i = 0; i < covMap.length; i++) {
+    const covMapItem = covMap[i];
+    const path = covMapItem.fullFilePath;
+    if (!map.has(path)) {
+      map.set(path, {
+        s: new Set(covMapItem.s),
+      });
+    }
+    for (const [path, { s: totalSet }] of map.entries()) {
+      num1 += totalSet.size;
+    }
+
+    for (const [path, { s: hitSet }] of hitMap.entries()) {
+      num2 += hitSet.size;
+    }
+  }
+  return {
+    total: num1,
+    covered: num2,
+  };
 }
-
-// TODO   // 需要准备map数据
 
 @Injectable()
 export class GetRepoCommitByCommitShaServices {
@@ -36,119 +66,102 @@ export class GetRepoCommitByCommitShaServices {
   ) {}
 
   async invoke(pathWithNamespace: string, sha: string) {
-    const time9 = Date.now();
     const project = await this.prisma.project.findFirst({
       where: {
         pathWithNamespace: pathWithNamespace,
       },
     });
 
-    const startFindCoverage = Date.now();
     const coverageList = await this.prisma.coverage.findMany({
       where: {
-        repoID: project?.id || '',
-        sha: sha,
+        id: '89e4d234b07d32df717aa3c1da7ef68df4e8f68d7e4d86a720f1c643f4790ce5',
       },
     });
-    const endFindCoverage = Date.now();
-    console.log(
-      `findMany coverage耗时: ${endFindCoverage - startFindCoverage}ms`,
+
+    // const buildGroupList = coverageList.map(({ buildProvider, buildID }) => ({
+    //   buildProvider,
+    //   buildID,
+    // }));
+
+    const coverageMapRelationList =
+      await this.prisma.coverageMapRelation.groupBy({
+        by: ['coverageMapHashID', 'fullFilePath'],
+        where: {
+          coverageID: {
+            in: coverageList.map((coverage) => coverage.id),
+          },
+        },
+      });
+
+    const deduplicateHashIDList = [
+      ...new Set(coverageMapRelationList.map((i) => i.coverageMapHashID)),
+    ];
+    console.log(deduplicateHashIDList.length);
+    const coverageHitQuerySqlResultJson = await this.clickhouseClient
+      .query({
+        query: `SELECT
+                  coverage_id as coverageID,
+                  full_file_path as fullFilePath,
+                  tupleElement(sumMapMerge(s), 1) AS s
+                FROM default.coverage_hit_agg
+                  WHERE coverage_id IN (${coverageList.map(({ id }) => `'${id}'`).join(', ')})
+                GROUP BY coverage_id, full_file_path;`,
+        format: 'JSONEachRow',
+      })
+      .then((r) => r.json());
+
+    const coverageMapQuerySqlResultJson = await this.clickhouseClient
+      .query({
+        query: `SELECT
+    hash,
+    mapKeys(statement_map) AS s,
+    mapKeys(fn_map) AS f,
+    mapKeys(branch_map) AS b
+FROM coverage_map
+    WHERE hash IN (${deduplicateHashIDList.map((hash) => `'${hash}'`).join(', ')});`,
+        format: 'JSONEachRow',
+      })
+      .then((r) => r.json())
+      .then((r) => {
+        return r.map((i) => {
+          const s = coverageMapRelationList.find(
+            (j) => j.coverageMapHashID === i.hash,
+          );
+          return {
+            ...i,
+            ...s,
+          };
+        });
+      });
+
+    const m = new Map();
+
+    for (let i = 0; i < coverageMapQuerySqlResultJson.length; i++) {
+      const key = coverageMapQuerySqlResultJson[i].fullFilePath;
+      const value = coverageMapQuerySqlResultJson[i];
+      m.set(key, value);
+    }
+
+
+    const arr = []
+
+
+    for (const [k,v] of m.entries()) {
+      arr.push(v);
+    }
+
+    console.log(arr.length,coverageHitQuerySqlResultJson.length)
+
+    const { covered, total } = ffffff(
+      coverageHitQuerySqlResultJson,
+      arr,
     );
 
-    const buildGroupList = coverageList.map(({ buildProvider, buildID }) => ({
-      buildProvider,
-      buildID,
-    }));
-
-    const deduplicatedBuildGroupList = this.deduplicateArray(buildGroupList);
-
-    const resultList: any[] = [];
-    // 并行执行 ClickHouse 查询和 coverageFinalService.invoke
-    const startHit = Date.now();
-    const [dbRes, ...coverageFinalResults] = await Promise.all([
-      this.clickhouseClient
-        .query({
-          query: coverageHitQuerySql(coverageList, {}),
-          format: 'JSONEachRow',
-        })
-        .then(r=>{
-          console.log(Date.now() - startHit,'startHit')
-          return r
-        })
-        .then((r) => r.json<CoverageHitQuerySqlResultJsonInterface>()),
-      ...deduplicatedBuildGroupList.map(async ({ buildID, buildProvider }) => {
-        const startTime = Date.now();
-        // 这里多查了一次hit表，需要优化
-        const coverageFinalResult = await this.coverageMapService.invoke(
-          coverageList[0].provider,
-          coverageList[0].repoID,
-          coverageList[0].sha,
-          buildProvider,
-          buildID,
-        );
-        console.log(Date.now() - startTime, 'coverageFinalService耗时');
-        return coverageFinalResult;
-      }),
-    ]);
-    console.log(Date.now() - time9, 'time9');
-    // await fetch(`http://localhost:3000/save`, {
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   method: 'POST',
-    //   body: JSON.stringify(coverageList),
-    // });
-    deduplicatedBuildGroupList.forEach(({ buildID, buildProvider }, index) => {
-      const initCovObj = coverageFinalResults[index];
-      const group = {
-        buildID,
-        buildProvider,
-        coverage: genSUmar(
-          dbRes,
-          coverageList
-            .filter(
-              (item) =>
-                item.buildProvider === buildProvider &&
-                item.buildID === buildID,
-            )
-            .map(({ id }) => id),
-          initCovObj,
-        ),
-        modeList: [
-          {
-            type: 'auto',
-            caseList: coverageList
-              .filter(
-                (item) =>
-                  ['mpaas', 'flytest'].includes(item.reportProvider) &&
-                  item.buildProvider === buildProvider &&
-                  item.buildID === buildID,
-              )
-              .map((i) => ({
-                coverage: genSUmar(dbRes, [i.id], initCovObj),
-                ...i,
-              })),
-          },
-          {
-            type: 'manual',
-            caseList: coverageList
-              .filter(
-                (item) =>
-                  ['person'].includes(item.reportProvider) &&
-                  item.buildProvider === buildProvider &&
-                  item.buildID === buildID,
-              )
-              .map((i) => ({
-                coverage: genSUmar(dbRes, [i.id], initCovObj),
-                ...i,
-              })),
-          },
-        ],
-      };
-      resultList.push(group);
-    });
-
-    return resultList;
+    return {
+      covered,
+      total,
+      percent: percent(covered, total),
+    };
   }
 
   private deduplicateArray(arr: any[]): any[] {
