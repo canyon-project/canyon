@@ -38,7 +38,6 @@ export class CoverageFinalService {
     reportID?: string,
     filePath?: string,
   ) {
-    console.log('train+弱提示', reportID);
     const prismaCoverageFindManyStartTime = new Date().getTime();
     // 第一步：查询coverage表，获取所有的 coverageID。注意，此时不过滤reportProvider和reportID，这一步很关键，因为我们需要获取到所有的文件内容
     const coverages = await this.prisma.coverage.findMany({
@@ -113,10 +112,6 @@ export class CoverageFinalService {
           fullFilePath: i.fullFilePath,
         };
       });
-    console.log(
-      coverageHitQuerySqlResultJson.length,
-      'coverageHitQuerySqlResultJson',
-    );
     const ckQuerySqlCur = new Date().getTime() - ckQuerySqlStart;
     const res = this.mergeCoverageMapAndHitQuerySqlResultsTOIstanbul(
       coverageMapQuerySqlResultJsonWithfilePath,

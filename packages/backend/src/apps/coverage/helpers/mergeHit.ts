@@ -7,10 +7,12 @@ import {
 } from 'canyon-data';
 import { convertClickHouseCoverageToIstanbul, fuzhi } from './coverage';
 
-export const mergeHit = (coverageHitQuerySqlResultJson, initCovObj) => {
+export const mergeHit = (coverageHitQuerySqlResultJson, initCovObj,len) => {
+  const time10 = Date.now();
   initCovObj = resetCoverageDataMap(initCovObj);
   const r = [];
   Object.values(initCovObj).forEach((item123) => {
+    const time11 = Date.now();
     const find = convertClickHouseCoverageToIstanbul(
       coverageHitQuerySqlResultJson.filter((i) => {
         // 这边要改，要取reletaion表反查
@@ -18,6 +20,8 @@ export const mergeHit = (coverageHitQuerySqlResultJson, initCovObj) => {
       }),
       item123.path,
     );
+    if (len > 1) {
+    }
 
     // 这里要改，还原0
     const initCov = item123;
@@ -41,5 +45,6 @@ export const mergeHit = (coverageHitQuerySqlResultJson, initCovObj) => {
     [],
   );
   const sum: any = getSummaryByPath('', summary);
+  console.log(Date.now() - time10, 'time10');
   return sum;
 };
