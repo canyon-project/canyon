@@ -71,12 +71,14 @@ export class GetRepoCommitByCommitShaServices {
         pathWithNamespace: pathWithNamespace,
       },
     });
-
     const coverageList = await this.prisma.coverage.findMany({
       where: {
-        id: '89e4d234b07d32df717aa3c1da7ef68df4e8f68d7e4d86a720f1c643f4790ce5',
+        repoID: project?.id || '',
+        sha: sha,
       },
     });
+
+    // console.log(coverageList.length)
 
     // const buildGroupList = coverageList.map(({ buildProvider, buildID }) => ({
     //   buildProvider,
@@ -110,6 +112,14 @@ export class GetRepoCommitByCommitShaServices {
       })
       .then((r) => r.json());
 
+    // SELECT
+    // ANY(hash),  -- 返回该分组中的任意一个hash值（实际上所有值都相同）
+    // ANY(other_column1),  -- 其他列同理
+    // ANY(other_column2)
+    // FROM coverage_map
+    // WHERE hash IN ('0002b10d50119ed4226073f722350b6f2c4db2289b179cee65d71e4b256cba47', 'ssss')
+    // GROUP BY hash;
+
     const coverageMapQuerySqlResultJson = await this.clickhouseClient
       .query({
         query: `SELECT
@@ -142,20 +152,15 @@ FROM coverage_map
       m.set(key, value);
     }
 
+    const arr = [];
 
-    const arr = []
-
-
-    for (const [k,v] of m.entries()) {
+    for (const [k, v] of m.entries()) {
       arr.push(v);
     }
 
-    console.log(arr.length,coverageHitQuerySqlResultJson.length)
+    console.log(arr.length, coverageHitQuerySqlResultJson.length);
 
-    const { covered, total } = ffffff(
-      coverageHitQuerySqlResultJson,
-      arr,
-    );
+    const { covered, total } = ffffff(coverageHitQuerySqlResultJson, arr);
 
     return {
       covered,
