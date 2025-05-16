@@ -7,6 +7,7 @@ import { CoverageHitQuerySqlResultJsonInterface } from '../../coverage/types/cov
 import { mergeHit } from '../../coverage/helpers/mergeHit';
 import { genHitByMap } from '../../../utils/genHitByMap';
 import { CoverageFinalService } from '../../coverage/services/core/coverage-final.service';
+import { CoverageMapService } from '../../coverage/services/core/coverage-map.service';
 
 function genSUmar(
   sqlRes: { coverageID: string }[],
@@ -18,6 +19,7 @@ function genSUmar(
       return coverages.includes(coverageID);
     }),
     initCovObj,
+    coverages.length,
   );
 }
 
@@ -30,9 +32,11 @@ export class GetRepoCommitByCommitShaServices {
     @Inject('CLICKHOUSE_CLIENT')
     private readonly clickhouseClient: ClickHouseClient,
     private readonly coverageFinalService: CoverageFinalService,
+    private readonly coverageMapService: CoverageMapService,
   ) {}
 
   async invoke(pathWithNamespace: string, sha: string) {
+    const time9 = Date.now();
     const project = await this.prisma.project.findFirst({
       where: {
         pathWithNamespace: pathWithNamespace,
@@ -60,17 +64,22 @@ export class GetRepoCommitByCommitShaServices {
 
     const resultList: any[] = [];
     // 并行执行 ClickHouse 查询和 coverageFinalService.invoke
+    const startHit = Date.now();
     const [dbRes, ...coverageFinalResults] = await Promise.all([
       this.clickhouseClient
         .query({
           query: coverageHitQuerySql(coverageList, {}),
           format: 'JSONEachRow',
         })
+        .then(r=>{
+          console.log(Date.now() - startHit,'startHit')
+          return r
+        })
         .then((r) => r.json<CoverageHitQuerySqlResultJsonInterface>()),
       ...deduplicatedBuildGroupList.map(async ({ buildID, buildProvider }) => {
         const startTime = Date.now();
         // 这里多查了一次hit表，需要优化
-        const coverageFinalResult = await this.coverageFinalService.invoke(
+        const coverageFinalResult = await this.coverageMapService.invoke(
           coverageList[0].provider,
           coverageList[0].repoID,
           coverageList[0].sha,
@@ -81,10 +90,16 @@ export class GetRepoCommitByCommitShaServices {
         return coverageFinalResult;
       }),
     ]);
-
+    console.log(Date.now() - time9, 'time9');
+    // await fetch(`http://localhost:3000/save`, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   method: 'POST',
+    //   body: JSON.stringify(coverageList),
+    // });
     deduplicatedBuildGroupList.forEach(({ buildID, buildProvider }, index) => {
-      const initCovObj = coverageFinalResults[index].data;
-
+      const initCovObj = coverageFinalResults[index];
       const group = {
         buildID,
         buildProvider,
