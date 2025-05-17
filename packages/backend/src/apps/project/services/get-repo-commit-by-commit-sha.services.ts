@@ -15,7 +15,7 @@ import { CoverageMapService } from '../../coverage/services/core/coverage-map.se
 import { coverageMapQuerySql } from '../../coverage/sql/coverage-map-query.sql';
 import { percent } from 'canyon-data';
 
-function ffffff(covHit, covMap) {
+function calcCoverageSumary(covHit, covMap) {
   const hitMap = new Map();
   for (let i = 0; i < covHit.length; i++) {
     const covHitItem = covHit[i];
@@ -32,27 +32,30 @@ function ffffff(covHit, covMap) {
   let num1 = 0;
   let num2 = 0;
 
-  const map = new Map();
+  // const map = new Map();
+
+  // 遍历hitMap
+  for (const [key, value] of hitMap.entries()) {
+    num1 += value.s.size;
+  }
+
+  // 遍历covMap
   for (let i = 0; i < covMap.length; i++) {
     const covMapItem = covMap[i];
-    const path = covMapItem.fullFilePath;
-    if (!map.has(path)) {
-      map.set(path, {
-        s: new Set(covMapItem.s),
-      });
-    }
-    for (const [path, { s: totalSet }] of map.entries()) {
-      num1 += totalSet.size;
-    }
-
-    for (const [path, { s: hitSet }] of hitMap.entries()) {
-      num2 += hitSet.size;
-    }
+    num2 += covMapItem.s.length;
   }
+
   return {
-    total: num1,
-    covered: num2,
+    total: num2,
+    covered: num1,
+    percent: percent(num1, num2),
   };
+}
+
+function filterCoverageHit(releationIDList, covHit) {
+  return covHit.filter((val) => {
+    return releationIDList.includes(val.coverageID);
+  });
 }
 
 @Injectable()
@@ -78,12 +81,10 @@ export class GetRepoCommitByCommitShaServices {
       },
     });
 
-    // console.log(coverageList.length)
-
-    // const buildGroupList = coverageList.map(({ buildProvider, buildID }) => ({
-    //   buildProvider,
-    //   buildID,
-    // }));
+    const buildGroupList = coverageList.map(({ buildProvider, buildID }) => ({
+      buildProvider,
+      buildID,
+    }));
 
     const coverageMapRelationList =
       await this.prisma.coverageMapRelation.groupBy({
@@ -98,7 +99,6 @@ export class GetRepoCommitByCommitShaServices {
     const deduplicateHashIDList = [
       ...new Set(coverageMapRelationList.map((i) => i.coverageMapHashID)),
     ];
-    console.log(deduplicateHashIDList.length);
     const coverageHitQuerySqlResultJson = await this.clickhouseClient
       .query({
         query: `SELECT
@@ -131,42 +131,96 @@ FROM coverage_map
     WHERE hash IN (${deduplicateHashIDList.map((hash) => `'${hash}'`).join(', ')});`,
         format: 'JSONEachRow',
       })
-      .then((r) => r.json())
-      .then((r) => {
-        return r.map((i) => {
-          const s = coverageMapRelationList.find(
-            (j) => j.coverageMapHashID === i.hash,
-          );
-          return {
-            ...i,
-            ...s,
-          };
+      .then((r) => r.json());
+
+    const coverageMapQuerySqlResultJsonWidth = [];
+
+    for (let i = 0; i < coverageMapRelationList.length; i++) {
+      const coverageMapRelationItem = coverageMapRelationList[i];
+      const coverageMapQuerySqlResultJsonItem =
+        coverageMapQuerySqlResultJson.find(
+          (item) => item.hash === coverageMapRelationItem.coverageMapHashID,
+        );
+
+      if (coverageMapQuerySqlResultJsonItem) {
+        coverageMapQuerySqlResultJsonWidth.push({
+          ...coverageMapQuerySqlResultJsonItem,
+          fullFilePath: coverageMapRelationItem.fullFilePath,
         });
-      });
-
-    const m = new Map();
-
-    for (let i = 0; i < coverageMapQuerySqlResultJson.length; i++) {
-      const key = coverageMapQuerySqlResultJson[i].fullFilePath;
-      const value = coverageMapQuerySqlResultJson[i];
-      m.set(key, value);
+      }
     }
 
-    const arr = [];
+    const deduplicatedBuildGroupList = this.deduplicateArray(buildGroupList);
 
-    for (const [k, v] of m.entries()) {
-      arr.push(v);
-    }
+    // ??
+    const resultList = [];
+    deduplicatedBuildGroupList.forEach(({ buildID, buildProvider }, index) => {
+      const group = {
+        buildID,
+        buildProvider,
+        summary: calcCoverageSumary(
+          filterCoverageHit(
+            coverageList
+              .filter(
+                (item) =>
+                  item.buildProvider === buildProvider &&
+                  item.buildID === buildID,
+              )
+              .map((item) => item.id),
+            coverageHitQuerySqlResultJson,
+          ),
+          coverageMapQuerySqlResultJsonWidth,
+        ),
+        modeList: [
+          {
+            mode: 'auto',
+            summary: calcCoverageSumary(
+              filterCoverageHit(
+                coverageList.filter(
+                  (item) =>
+                    ['mpaas', 'flytest'].includes(item.reportProvider) &&
+                    item.buildProvider === buildProvider &&
+                    item.buildID === buildID,
+                ).map((item) => item.id),
+                coverageHitQuerySqlResultJson,
+              ),
+              coverageMapQuerySqlResultJsonWidth,
+            ),
+          },
+          {
+            mode: 'personal',
+            summary: calcCoverageSumary(
+              filterCoverageHit(
+                coverageList.filter(
+                  (item) =>
+                    ['person'].includes(item.reportProvider) &&
+                    item.buildProvider === buildProvider &&
+                    item.buildID === buildID,
+                ).map((item) => item.id),
+                coverageHitQuerySqlResultJson,
+              ),
+              coverageMapQuerySqlResultJsonWidth,
+            ),
+          },
+        ],
+      };
+      resultList.push(group);
+    });
 
-    console.log(arr.length, coverageHitQuerySqlResultJson.length);
+    return resultList;
 
-    const { covered, total } = ffffff(coverageHitQuerySqlResultJson, arr);
-
-    return {
-      covered,
-      total,
-      percent: percent(covered, total),
-    };
+    // // ??
+    //
+    // const { covered, total } = calcCoverageSumary(
+    //   coverageHitQuerySqlResultJson,
+    //   coverageMapQuerySqlResultJsonWidth,
+    // );
+    //
+    // return {
+    //   covered,
+    //   total,
+    //   percent: percent(covered, total),
+    // };
   }
 
   private deduplicateArray(arr: any[]): any[] {
