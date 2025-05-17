@@ -176,12 +176,14 @@ FROM coverage_map
             mode: 'auto',
             summary: calcCoverageSumary(
               filterCoverageHit(
-                coverageList.filter(
-                  (item) =>
-                    ['mpaas', 'flytest'].includes(item.reportProvider) &&
-                    item.buildProvider === buildProvider &&
-                    item.buildID === buildID,
-                ).map((item) => item.id),
+                coverageList
+                  .filter(
+                    (item) =>
+                      ['mpaas', 'flytest'].includes(item.reportProvider) &&
+                      item.buildProvider === buildProvider &&
+                      item.buildID === buildID,
+                  )
+                  .map((item) => item.id),
                 coverageHitQuerySqlResultJson,
               ),
               coverageMapQuerySqlResultJsonWidth,
@@ -191,12 +193,14 @@ FROM coverage_map
             mode: 'personal',
             summary: calcCoverageSumary(
               filterCoverageHit(
-                coverageList.filter(
-                  (item) =>
-                    ['person'].includes(item.reportProvider) &&
-                    item.buildProvider === buildProvider &&
-                    item.buildID === buildID,
-                ).map((item) => item.id),
+                coverageList
+                  .filter(
+                    (item) =>
+                      ['person'].includes(item.reportProvider) &&
+                      item.buildProvider === buildProvider &&
+                      item.buildID === buildID,
+                  )
+                  .map((item) => item.id),
                 coverageHitQuerySqlResultJson,
               ),
               coverageMapQuerySqlResultJsonWidth,
