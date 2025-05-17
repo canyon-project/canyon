@@ -188,6 +188,22 @@ FROM coverage_map
               ),
               coverageMapQuerySqlResultJsonWidth,
             ),
+            caseList: coverageList
+              .filter(
+                (item) =>
+                  ['mpaas', 'flytest'].includes(item.reportProvider) &&
+                  item.buildProvider === buildProvider &&
+                  item.buildID === buildID,
+              )
+              .map((i) => {
+                return {
+                  ...i,
+                  summary: calcCoverageSumary(
+                    filterCoverageHit([i.id], coverageHitQuerySqlResultJson),
+                    coverageMapQuerySqlResultJsonWidth,
+                  ),
+                };
+              }),
           },
           {
             mode: 'personal',
@@ -205,6 +221,22 @@ FROM coverage_map
               ),
               coverageMapQuerySqlResultJsonWidth,
             ),
+            caseList: coverageList
+              .filter(
+                (item) =>
+                  ['person'].includes(item.reportProvider) &&
+                  item.buildProvider === buildProvider &&
+                  item.buildID === buildID,
+              )
+              .map((i) => {
+                return {
+                  ...i,
+                  summary: calcCoverageSumary(
+                    filterCoverageHit([i.id], coverageHitQuerySqlResultJson),
+                    coverageMapQuerySqlResultJsonWidth,
+                  ),
+                };
+              }),
           },
         ],
       };
