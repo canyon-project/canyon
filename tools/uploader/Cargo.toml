@@ -1,5 +1,5 @@
 [package]
-name = "uploader"
+name = "canyon_uploader"
 version = "0.1.0"
 edition = "2021"
 
