@@ -107,17 +107,17 @@ type CoverageCollection = std::collections::BTreeMap<String, FileCoverage>;
 #[tokio::main]
 async fn main() {
     let args = Cli::parse();
-    
+
     let default_report = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InR6aGFuZ21AdHJpcC5jb20iLCJpZCI6Ijg0MTciLCJpYXQiOjE3Mzg0OTgzOTQsImV4cCI6MjA1NDA3NDM5NH0.Er2VNHsTlk4Ta94NHh0c01uTJ5tnujJ4WPFfFgHjHOA";
 
     match args.command {
         Some(Commands::Version) => {
-            println!("canyon-uploader 版本 1.2.10");
+            println!("canyon-uploader 版本 1.2.11");
         }
         Some(Commands::Map { coverage_dir,dsn,provider,report_id }) => {
 
 
-            let version = "1.2.10";
+            let version = "1.2.11";
             let result = generate_header(version);
 
             log("info", &result);
