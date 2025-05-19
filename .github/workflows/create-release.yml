@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pnpm-artifact
-          path: tools/canyon-extension/canyon-extension.zip  # Replace with your actual build output path
+          path: tools/extension/canyon-extension.zip  # Replace with your actual build output path
 
   publish:
     needs: [build-multi, build-pnpm]
