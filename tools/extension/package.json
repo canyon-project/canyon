@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node zip.js",
+    "do-build": "tsc -b && vite build && node zip.js",
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'"
   },
   "dependencies": {
