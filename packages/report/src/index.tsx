@@ -1,12 +1,12 @@
-import { FC, useEffect } from 'react';
-import { ConfigProvider, theme } from 'antd';
-import enUS from 'antd/es/locale/en_US';
-import jaJP from 'antd/es/locale/ja_JP';
-import zhCN from 'antd/es/locale/zh_CN';
-import { LanguageProvider } from './locales';
-import ReportComponent from './components/Report';
-import { ReportProps } from './types';
-import { emptyFileCoverageData } from './components/helpers/const';
+import { FC, useEffect } from "react";
+import { ConfigProvider, theme } from "antd";
+import enUS from "antd/es/locale/en_US";
+import jaJP from "antd/es/locale/ja_JP";
+import zhCN from "antd/es/locale/zh_CN";
+import { LanguageProvider } from "./locales";
+import ReportComponent from "./components/Report";
+import { ReportProps } from "./types";
+import { emptyFileCoverageData } from "./components/helpers/const";
 
 const languages = {
   cn: zhCN,
@@ -18,7 +18,7 @@ const { darkAlgorithm } = theme;
 
 const onSelectDefault = () => {
   return Promise.resolve({
-    fileContent: '',
+    fileContent: "",
     fileCoverage: emptyFileCoverageData,
     fileCodeChange: [],
   });
@@ -26,15 +26,15 @@ const onSelectDefault = () => {
 
 const Report: FC<ReportProps> = (props) => {
   const {
-    theme = 'light',
-    language = 'en',
+    theme = "light",
+    language = "en",
     dataSource = {},
     onSelect = onSelectDefault,
     defaultOnlyShowChanged = false,
-    value = '',
-    name = 'untitled',
+    value = "",
+    name = "untitled",
   } = props;
-  const isDark = theme === 'dark';
+  const isDark = theme === "dark";
   // 创建一个新的对象，包含所有的 props 及其默认值
   const mergedProps = {
     theme,
@@ -99,7 +99,7 @@ const Report: FC<ReportProps> = (props) => {
 
   useEffect(() => {
     // 创建一个 <style> 元素
-    const styleElement = document.createElement('style');
+    const styleElement = document.createElement("style");
     // 将 CSS 字符串赋值给 <style> 元素的 innerHTML
     styleElement.innerHTML = css;
     // 将 <style> 元素插入到 <head> 标签中
@@ -117,7 +117,7 @@ const Report: FC<ReportProps> = (props) => {
         locale={languages[language]}
         theme={{
           token: {
-            colorPrimary: '#0071c2',
+            colorPrimary: "#0071c2",
             borderRadius: 2,
           },
           algorithm: isDark ? [darkAlgorithm] : [],

@@ -1,6 +1,13 @@
-import { FC } from 'react';
-import { ReportProps } from '../types.ts';
-import { Editor } from '@monaco-editor/react';
+import { useTrans } from "../locales";
+import { ReportProps } from "../types";
+import { FC, useEffect, useMemo, useState } from "react";
+import TopControl from "./widgets/TopControl";
+import { FileCoverageData } from "istanbul-lib-coverage";
+import SummaryHeader from "./widgets/SummaryHeader";
+import SummaryList from "./widgets/SummaryList";
+import SummaryTree from "./widgets/SummaryTree";
+import CoverageDetail from "./widgets/CoverageDetail";
+import { generateCoreDataForEachComponent } from "./helpers/generateCoreDataForEachComponent";
 
 const ReportComponent: FC<ReportProps> = ({
   theme,
@@ -9,14 +16,107 @@ const ReportComponent: FC<ReportProps> = ({
   dataSource,
   name,
 }) => {
+  console.log(theme, onSelect, value);
+  const t = useTrans();
+
+  // 内部状态
+  const [filenameKeywords, setFilenameKeywords] = useState("");
+  const [showMode, setShowMode] = useState("tree");
+  const [fileCoverage, setFileCoverage] = useState<FileCoverageData>({
+    path: "",
+    statementMap: {},
+    fnMap: {},
+    branchMap: {},
+    s: {},
+    f: {},
+    b: {},
+  });
+  const [fileContent, setFileContent] = useState<string>("");
+  const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
+  const [onlyChange, setOnlyChange] = useState(Boolean(false));
+
+  function onChangeOnlyChange(v) {
+    setOnlyChange(v);
+  }
+  async function newOnSelect(val: string) {
+    const res = await onSelect(val);
+    setFileContent(res.fileContent);
+    setFileCoverage(res.fileCoverage);
+    setFileCodeChange(res.fileCodeChange);
+    return res;
+  }
+  useEffect(() => {
+    newOnSelect(value);
+  }, []);
+  const isFile = useMemo(() => {
+    console.log(value, "value");
+    return value.includes(".");
+  }, [value]);
+  const mode = useMemo(() => {
+    if (isFile) {
+      return "file";
+    } else {
+      return showMode;
+    }
+  }, [showMode, value]);
+
+  const { treeDataSource, rootDataSource, listDataSource } = useMemo(() => {
+    return generateCoreDataForEachComponent({
+      dataSource,
+      filenameKeywords,
+      value,
+      onlyChange,
+    });
+  }, [dataSource, value, filenameKeywords, onlyChange]);
+
   return (
-    <div>
-      <Editor
-        language={'json'}
-        height={'500px'}
-        value={JSON.stringify({ name: 'zt' })}
+    <>
+      <TopControl
+        onlyChange={onlyChange}
+        filenameKeywords={filenameKeywords}
+        showMode={showMode}
+        onChangeShowMode={(val) => {
+          setShowMode(val);
+        }}
+        onChangeOnlyChange={onChangeOnlyChange}
+        total={listDataSource.length}
+        onChangeKeywords={(val) => {
+          setFilenameKeywords(val);
+        }}
       />
-    </div>
+      <SummaryHeader
+        reportName={name}
+        data={rootDataSource}
+        value={value}
+        onSelect={newOnSelect}
+      />
+      {mode === "file" &&
+        Object.keys(fileCoverage).length > 0 &&
+        Object.keys(fileContent).length > 0 && (
+          <CoverageDetail
+            fileContent={fileContent}
+            fileCodeChange={fileCodeChange}
+            fileCoverage={fileCoverage}
+          />
+        )}
+      <div>
+        <SummaryTree
+          style={{
+            display: mode === "tree" ? "block" : "none",
+          }}
+          dataSource={treeDataSource}
+          onSelect={newOnSelect}
+        />
+        <SummaryList
+          style={{
+            display: mode === "list" ? "block" : "none",
+          }}
+          dataSource={listDataSource}
+          onSelect={newOnSelect}
+          filenameKeywords={filenameKeywords}
+        />
+      </div>
+    </>
   );
 };
 
