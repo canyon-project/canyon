@@ -1,13 +1,13 @@
-import { CoverageSummaryData, FileCoverageData } from 'istanbul-lib-coverage';
+import { CoverageSummaryData, FileCoverageData } from "istanbul-lib-coverage";
 enum ThemeEnum {
-  Light = 'light',
-  Dark = 'dark',
+  Light = "light",
+  Dark = "dark",
 }
 
 export enum LanguageEnum {
-  CN = 'cn',
-  EN = 'en',
-  JA = 'ja',
+  CN = "cn",
+  EN = "en",
+  JA = "ja",
 }
 export interface ReportProps {
   theme: ThemeEnum | string;
@@ -24,11 +24,11 @@ export interface ReportProps {
 }
 
 export interface CommonProps {
-  theme?: 'light' | 'dark';
-  locale?: 'en' | 'zh';
+  theme?: "light" | "dark";
+  locale?: "en" | "zh";
 }
 
 export interface CommonChildrenProps {
-  theme: 'light' | 'dark';
-  locale: 'en' | 'zh';
+  theme: "light" | "dark";
+  locale: "en" | "zh";
 }

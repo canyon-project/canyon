@@ -1,6 +1,6 @@
 {
   "name": "canyontest-report",
-  "version": "0.0.1-beta.16",
+  "version": "0.0.1-beta.17",
   "type": "module",
   "main": "./dist/canyon-report.umd.cjs",
   "module": "./dist/canyon-report.js",
@@ -15,7 +15,6 @@
     "dist"
   ],
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
     "prepublishOnly": "vite build",
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
@@ -23,21 +22,23 @@
   },
   "prettier": "eslint-config-canyon/prettier",
   "dependencies": {
-    "react": "19.0.0",
-    "react-dom": "19.0.0",
+    "@monaco-editor/react": "^4.7.0",
     "antd": "5.23.2",
     "istanbul-lib-coverage": "*",
-    "@monaco-editor/react": "^4.7.0"
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-highlight-words": "^0.21.0",
+    "canyon-data": "2.0.0-beta.22"
   },
   "devDependencies": {
-    "eslint-config-canyon": "*",
+    "@types/istanbul-lib-coverage": "^2.0.6",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
     "@vitejs/plugin-react": "*",
+    "babel-plugin-react-compiler": "*",
+    "eslint-config-canyon": "*",
     "globals": "*",
     "typescript": "*",
-    "vite": "*",
-    "babel-plugin-react-compiler": "*",
-    "@types/istanbul-lib-coverage": "^2.0.6"
+    "vite": "*"
   }
 }
