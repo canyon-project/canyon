@@ -15,7 +15,7 @@ class CoverageReport {
   }
 
   initOptions(force) {
-    console.log("initOptions");
+
   }
 
   async add(data) {
