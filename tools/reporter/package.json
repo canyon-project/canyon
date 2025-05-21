@@ -1,6 +1,6 @@
 {
   "name": "canyon-reporter",
-  "version": "0.0.0-beta.3",
+  "version": "0.0.0-beta.4",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "canyon-library-istanbul-coverage": "1.0.0-beta.1",
+    "canyon-library-istanbul-coverage": "1.0.0-beta.2",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-report": "^3.0.1"
   },
