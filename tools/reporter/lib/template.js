@@ -3,13 +3,14 @@ const path = require("path");
 const fs = require("node:fs");
 const {getCommonPathPrefix} = require("./utils");
 const {sourceMapFixer} = require("canyon-library-istanbul-coverage");
+const {J} = require("vitest/dist/chunks/reporters.d.DG9VKi4m");
 
 const generateHtml = ({coverage,reportName,_instrumentCwd,date}) => {
   const commonPath = getCommonPathPrefix(Object.keys(JSON.parse(coverage)));
   const instrumentCwd = _instrumentCwd || commonPath;
 
-  const newCoverage = sourceMapFixer(JSON.parse(coverage),instrumentCwd)
-
+  // const newCoverage = sourceMapFixer(JSON.parse(coverage),instrumentCwd)
+  const newCoverage = JSON.parse(coverage);
   var map = libCoverage.createCoverageMap(newCoverage);
   const obj = {}
   map.files().forEach(function(f) {
