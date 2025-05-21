@@ -1,1 +1,3 @@
 不能在reporter中使用，拿到的coverage已经reMap过了
+
+感觉只能在服务端扭转一下了
