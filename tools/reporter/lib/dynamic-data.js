@@ -1,34 +1,20 @@
 const fs = require("fs");
 const path = require("path");
+const {getCommonPathPrefix} = require("./utils");
+const {sourceMapFixer} = require("canyon-library-istanbul-coverage");
 
 function getDirectoryFromPath(filePath) {
   return filePath.substring(0, filePath.lastIndexOf("/"));
 }
-
-const getCommonPathPrefix = (paths) => {
-  if (paths.length === 0) return '';
-  const splitPaths = paths.map(path => path.split('/'));
-  const minLength = Math.min(...splitPaths.map(p => p.length));
-
-  let commonPrefix = [];
-  for (let i = 0; i < minLength; i++) {
-    const segment = splitPaths[0][i];
-    if (splitPaths.every(path => path[i] === segment)) {
-      commonPrefix.push(segment);
-    } else {
-      break;
-    }
-  }
-  return commonPrefix.join('/');
-};
-
 
 const generateDynamicData = ({coverage,_instrumentCwd}) => {
   const commonPath = getCommonPathPrefix(Object.keys(JSON.parse(coverage)));
 
   const instrumentCwd = _instrumentCwd || commonPath;
 
-  for (const key in JSON.parse(coverage)) {
+  const newCoverage = sourceMapFixer(JSON.parse(coverage),instrumentCwd)
+
+  for (const key in newCoverage) {
     // 示例
     const directory = getDirectoryFromPath(key.replaceAll(instrumentCwd+'/', ""));
     fs.mkdirSync(path.join(process.cwd(), `coverage/dynamic-data/${directory}`), { recursive: true });
@@ -39,7 +25,7 @@ const generateDynamicData = ({coverage,_instrumentCwd}) => {
     const jsonData = {
       content: data,
       coverage: {
-        ...JSON.parse(coverage)[key],
+        ...newCoverage[key],
         path: key.replaceAll(instrumentCwd+'/', ""),
       },
     };

@@ -1,26 +1,16 @@
 const libCoverage = require('istanbul-lib-coverage');
 const path = require("path");
 const fs = require("node:fs");
-const getCommonPathPrefix = (paths) => {
-  if (paths.length === 0) return '';
-  const splitPaths = paths.map(path => path.split('/'));
-  const minLength = Math.min(...splitPaths.map(p => p.length));
+const {getCommonPathPrefix} = require("./utils");
+const {sourceMapFixer} = require("canyon-library-istanbul-coverage");
 
-  let commonPrefix = [];
-  for (let i = 0; i < minLength; i++) {
-    const segment = splitPaths[0][i];
-    if (splitPaths.every(path => path[i] === segment)) {
-      commonPrefix.push(segment);
-    } else {
-      break;
-    }
-  }
-  return commonPrefix.join('/');
-};
 const generateHtml = ({coverage,reportName,_instrumentCwd,date}) => {
   const commonPath = getCommonPathPrefix(Object.keys(JSON.parse(coverage)));
   const instrumentCwd = _instrumentCwd || commonPath;
-  var map = libCoverage.createCoverageMap(JSON.parse(coverage));
+
+  const newCoverage = sourceMapFixer(JSON.parse(coverage),instrumentCwd)
+
+  var map = libCoverage.createCoverageMap(newCoverage);
   const obj = {}
   map.files().forEach(function(f) {
     var fc = map.fileCoverageFor(f),

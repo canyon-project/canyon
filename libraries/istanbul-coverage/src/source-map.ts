@@ -22,5 +22,10 @@ export function sourceMapFixer(coverage:[string, any][],instrumentCwd:string) {
         [file]: data
       }
     }
-  })
+  }).reduce((previousValue, currentValue) => {
+    return {
+      ...previousValue,
+      ...currentValue
+    }
+  },{})
 }
