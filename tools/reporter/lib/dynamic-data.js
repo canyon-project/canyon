@@ -12,8 +12,8 @@ const generateDynamicData = ({coverage,_instrumentCwd}) => {
 
   const instrumentCwd = _instrumentCwd || commonPath;
 
-  const newCoverage = sourceMapFixer(JSON.parse(coverage),instrumentCwd)
-
+  // const newCoverage = sourceMapFixer(JSON.parse(coverage),instrumentCwd)
+  const newCoverage = JSON.parse(coverage);
   for (const key in newCoverage) {
     // 示例
     const directory = getDirectoryFromPath(key.replaceAll(instrumentCwd+'/', ""));
