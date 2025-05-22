@@ -64,14 +64,13 @@ In the CI environment, we need to configure some environment variables for repor
 
   __In the CI phase, we need to control when plugins are active to prevent instrumentation on production branches.__
 
-  ```js {2,3} copy
+  ```js filename="babel.config.js" {3,4} copy
   module.exports = {
-    plugins: (process.env.CI &&
-              process.env.CI_COMMIT_REF_NAME !== 'release')
-              ? [
-                'canyon',
-                'istanbul'
-              ]:[],
+    plugins: [
+    'istanbul',
+    'canyon'
+    // Attention should be paid to the order of plugins. The canyon plugin should be placed after the istanbul plugin
+    ],
   };
   ```
 
