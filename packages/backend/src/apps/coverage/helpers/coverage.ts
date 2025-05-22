@@ -108,10 +108,6 @@ export function fuzhi(find, initCov) {
     initCov.b[a] = [];
     initCov.b[a][b] = Number(merged_b[1][jindex]);
   });
-  // console.log(find,initCov,'initCov')
-  if (find.fullFilePath.includes('src/api/utils.ts')) {
-    console.log(initCov.s);
-  }
 
   return {
     path: initCov.path,
