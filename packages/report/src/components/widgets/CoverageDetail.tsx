@@ -27,7 +27,7 @@ const FileCoverageDetail: FC<{
       console.log('脚本加载成功');
       // 这里可以执行依赖该脚本的代码
       // @ts-ignore
-      CanyonReportSpa.initCanyonSpa(
+      window.CanyonReportSpa.initCanyonSpa(
         document.getElementById('canyon-report-box'),
         {
           coverage: fileCoverage,
