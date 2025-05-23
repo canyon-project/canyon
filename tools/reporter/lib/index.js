@@ -3,6 +3,7 @@ const path = require("path");
 const {generateHtml} = require("./template");
 const {copyDirectory} = require("./utils");
 const {generateDynamicData} = require("./dynamic-data");
+const {generateFont} = require("./font");
 
 class CoverageReport {
   constructor(options = {}) {
@@ -46,6 +47,7 @@ class CoverageReport {
       date: new Date().toLocaleString(),
     });
     fs.writeFileSync(path.join(targetDir, "index.html"), html);
+    generateFont(targetDir)
     return {};
   }
 }
