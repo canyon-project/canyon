@@ -12,6 +12,88 @@
       opacity: 0.8;
       text-decoration: underline;
     }
+
+    @font-face {
+      font-family: "IBMPlexMono";
+      src: url("./fonts/IBMPlexMono-Regular.woff2");
+      font-weight: normal;
+      font-style: normal;
+    }
+    #container {
+      width: 800px;
+      height: 600px;
+      border: 1px solid #ccc;
+    }
+
+
+    .YourHighlightClass {
+      padding: 0 !important;
+      color: white !important;
+      background: rgb(244, 176, 27) !important;
+    }
+
+    /*新版canyon-report*/
+
+    .line-number-wrapper {
+      display: flex;
+      /*从右边开始*/
+      justify-content: flex-end;
+      /*text-align: right;*/
+    }
+
+    .line-number-wrapper .line-number {
+      /*width: 60px;*/
+      padding-right: 5px;
+    }
+
+    .line-number-wrapper .line-change {
+      width: 4px;
+      /*display: block;*/
+    }
+
+    .line-number-wrapper .line-coverage {
+      width: 60px;
+      padding-right: 5px;
+      color: rgba(0, 0, 0, 0.5);
+    }
+
+    .dark .line-number-wrapper .line-coverage {
+      width: 60px;
+      padding-right: 5px;
+      color: #eaeaea;
+    }
+
+    /*额外的*/
+    .content-class-no-found-branch {
+      background: rgba(255, 229, 100, 0.6) !important;
+    }
+
+    .content-class-no-found{
+      background: rgba(255, 128, 160, 0.3);
+    }
+
+    .dark .content-class-no-found {
+      background: #ff000033;
+    }
+
+    .insert-e-decoration::before {
+      content: 'E';
+      background-color: black;
+      color: yellow;
+      padding: 0 2px;
+      border-radius: 2px;
+      margin-right: 5px;
+    }
+
+    .insert-i-decoration::before {
+      content: 'I';
+      background-color: black;
+      color: yellow;
+      padding: 0 2px;
+      border-radius: 2px;
+      margin-right: 5px;
+    }
+
   </style>
   <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
   <script src="https://unpkg.com/dayjs@1.11.13/dayjs.min.js"></script>
@@ -21,7 +103,10 @@
   <script src="https://unpkg.com/axios@1.7.9/dist/axios.min.js"></script>
   <script src="https://unpkg.com/ahooks@3.8.4/dist/ahooks.js"></script>
   <script src="https://unpkg.com/@ant-design/icons@5.6.0/dist/index.umd.js"></script>
-  <script src="https://unpkg.com/@monaco-editor/loader@1.4.0/lib/umd/monaco-loader.min.js"></script>
+  <script type="module">
+    import monaco from 'https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/+esm';
+    window.monaco = monaco;
+  </script>
 </head>
 <body>
 <div id="root"></div>
