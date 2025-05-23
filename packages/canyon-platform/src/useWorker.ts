@@ -7,6 +7,8 @@ const UNPKG_URL = await fetch(`/api/base`)
   .then((r) => r.UNPKG_URL || "https://unpkg.com");
 
 console.log(UNPKG_URL, "UNPKG_URL");
+// @ts-ignore
+window.UNPKG_URL = UNPKG_URL;
 loader.config({
   paths: { vs: `${UNPKG_URL}/monaco-editor@0.52.2/min/vs` },
 });

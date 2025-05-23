@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --force",
     "do-build": "node --max_old_space_size=16384 ./node_modules/vite/bin/vite.js build",
     "postinstall": "npm run codegen",
     "codegen": "graphql-codegen --config codegen.ts",
@@ -21,7 +21,7 @@
     "antd": "^5.23.2",
     "axios": "^1.7.9",
     "canyon-data": "^2.0.0-beta.23",
-    "canyon-report": "0.0.8-beta.74",
+    "canyontest-report18": "0.0.1-beta.21",
     "clsx": "^2.1.1",
     "copy-to-clipboard": "^3.3.3",
     "dayjs": "^1.11.13",
