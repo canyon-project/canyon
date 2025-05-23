@@ -7,7 +7,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 
-import CanyonReport from "canyon-report";
+import CanyonReport from "canyontest-report18";
 import { GetProjectByIdDocument } from "@/helpers/backend/gen/graphql.ts";
 import { getCoverageSummaryMapService, handleSelectFile } from "../helper";
 const { useToken } = theme;
