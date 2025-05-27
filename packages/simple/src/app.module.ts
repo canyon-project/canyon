@@ -11,6 +11,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { CoverageModule } from './apps/coverage/coverage.module';
 // import { ProjectModule } from './apps/project/project.module';
 // import { SourcecodeModule } from './apps/sourcecode/sourcecode.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import {SimpleCoverage} from "./apps/coverage/entities/simple-coverage.entity";
 
 @Module({
   imports: [
