@@ -22,10 +22,10 @@ import { CoverageModule } from './apps/coverage/coverage.module';
     // ProjectModule,
     CoverageModule,
     // SourcecodeModule,
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../../frontend', 'dist'),
-      exclude: ['/graphql'], // 这样就不会触发 path-to-regexp 解析错误
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '../../frontend', 'dist'),
+    //   exclude: ['/graphql'], // 这样就不会触发 path-to-regexp 解析错误
+    // }),
   ],
   controllers: [],
   providers: [],
