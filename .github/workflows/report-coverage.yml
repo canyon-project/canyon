@@ -20,7 +20,7 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
-      - run: ppm run test
+      - run: pnpm run test
       - run: |
           if [ ! -f "packages/frontend/coverage/coverage-final.json" ]; then
             echo "Coverage file not found!"
