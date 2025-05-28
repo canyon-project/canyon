@@ -7,7 +7,7 @@
     "do-dev": "vite",
     "do-build": "vite build",
     "format": "prettier --write 'src/*.{js,ts,jsx,tsx}'",
-    "do-test": "vitest run"
+    "do-test": "vitest run --coverage"
   },
   "prettier": "eslint-config-canyon/prettier",
   "dependencies": {
