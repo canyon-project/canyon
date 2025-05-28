@@ -8,6 +8,7 @@
   "scripts": {
     "dev": "pnpm -r do-dev",
     "build": "pnpm -r do-build",
+    "test": "pnpm -r do-test",
     "clean": "node ./scripts/clean.mjs",
     "preinstall": "node ./scripts/check.mjs",
     "migrate": "prisma migrate dev --schema ./packages/backend/prisma/schema.prisma"
