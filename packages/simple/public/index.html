@@ -252,7 +252,7 @@
       fileCoverageRequest,
     ]).then(([fileContent, fileCoverage, fileCodeChange]) => {
       return {
-        fileContent: getDecode(fileContent.content),
+        fileContent: (fileContent.content),
         fileCoverage: fileCoverage,
         fileCodeChange:[]
       };
