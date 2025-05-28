@@ -21,7 +21,7 @@ async function main() {
 
     // 准备要发送的完整数据
     const payload = {
-      coverage: Object.keys(coverageData).length,
+      coverage: coverageData,
       "provider": "gitlab",
       "slug": "auto",
       "branch": GITHUB_REF,
@@ -32,7 +32,10 @@ async function main() {
       "buildProvider": "github_actions",
     };
 
-    console.log(payload,'payload')
+    console.log({
+      ...payload,
+      coverage:Object.keys(coverageData).length
+    },'payload')
 
     const SERVER_URL = `https://simple.canyonjs.org/coverage/client`
 
