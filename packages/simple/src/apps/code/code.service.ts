@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 // import { PrismaService } from '../prisma/prisma.service';
 // import { getFileInfo } from '../adapter/gitlab.adapter';
 // import { PrismaService } from '../../prisma/prisma.service';
-import { getFileInfo } from '../../adapter/gitlab.adapter';
+import { getGitHubFileInfo } from '../../adapter/github.adapter';
 import { InjectRepository } from '@nestjs/typeorm';
 import { SimpleCoverage } from '../coverage/entities/simple-coverage.entity';
 import { Repository } from 'typeorm';
@@ -18,14 +18,14 @@ export class CodeService {
     const gitProvider = await this.simpleGitProviderRepository.findOne({
       where: {},
     });
-    return getFileInfo(
+    return getGitHubFileInfo(
       {
-        projectID: encodeURIComponent(repoID),
-        filepath: encodeURIComponent(filepath),
+        projectID: (repoID),
+        filepath: (filepath),
         commitSha: sha,
       },
       gitProvider?.privateToken || '',
-      gitProvider?.url || '',
+      // gitProvider?.url || '',
     );
   }
 }
