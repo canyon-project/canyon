@@ -7,8 +7,9 @@ import { genSummaryMapByCoverageMap, getSummaryByPath } from 'canyon-data';
 import {
   compressedData,
   remapCoverageByOld,
-  remapCoverageWithInstrumentCwd,
+  // remapCoverageWithInstrumentCwd,
 } from 'canyon-map';
+import { remapCoverageWithInstrumentCwd } from '../../coverage';
 // 核心逻辑，需要用buildID获取所有关联的map，而不是单纯的通过coverageId获取到的
 @Injectable()
 export class CoverageClientService {

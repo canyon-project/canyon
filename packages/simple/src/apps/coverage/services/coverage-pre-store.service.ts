@@ -86,7 +86,6 @@ export class CoveragePreStoreService {
         // covType: reportID ? 'agg' : 'all',
       },
     });
-
     if (coverage?.hit) {
       return decompressedData<CoverageMapData>(coverage.hit).then((r) => {
         return {
