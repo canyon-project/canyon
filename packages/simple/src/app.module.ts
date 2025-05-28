@@ -13,11 +13,13 @@ import { CoverageModule } from './apps/coverage/coverage.module';
 // import { SourcecodeModule } from './apps/sourcecode/sourcecode.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SimpleCoverage } from './apps/coverage/entities/simple-coverage.entity';
+import { CodeModule } from './apps/code/code.module';
+import {SimpleGitProvider} from "./apps/code/entities/simple-git-provider.entity";
 
 const DATABASE_URL = process.env.DATABASE_URL;
 // @ts-ignore
 const [, username, password, host, port, database] = DATABASE_URL.match(
-  /postgres:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)/,
+  /postgres(?:ql):\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)/,
 );
 
 @Module({
@@ -29,7 +31,7 @@ const [, username, password, host, port, database] = DATABASE_URL.match(
       username: username,
       password: password,
       database: database,
-      entities: [SimpleCoverage],
+      entities: [SimpleCoverage,SimpleGitProvider],
     }),
     // ClickHouseModule,
     // PrismaModule,
@@ -38,11 +40,11 @@ const [, username, password, host, port, database] = DATABASE_URL.match(
     // AuthModule,
     // ProjectModule,
     CoverageModule,
-    // SourcecodeModule,
-    // ServeStaticModule.forRoot({
-    //   rootPath: join(__dirname, '../../frontend', 'dist'),
-    //   exclude: ['/graphql'], // 这样就不会触发 path-to-regexp 解析错误
-    // }),
+    CodeModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'public'),
+      exclude: ['/graphql'], // 这样就不会触发 path-to-regexp 解析错误
+    }),
   ],
   controllers: [],
   providers: [],
