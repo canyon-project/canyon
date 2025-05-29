@@ -33,12 +33,15 @@ export class ProjectService {
   constructor(private readonly prisma: PrismaService) {}
   async checkProjectUrl(user, projectUrl) {
     let project = "";
-    if (isNaN(Number(projectUrl))) {
+    const projectUrlSplit = projectUrl.split("/");
+    const lastOne = projectUrlSplit[projectUrlSplit.length - 1]
+    if (isNaN(Number(lastOne))) {
       project = `${parseGitLabUrl(projectUrl).groupName}%2F${
         parseGitLabUrl(projectUrl).repositoryName
       }`;
     } else {
-      project = projectUrl;
+      // 兼容项目ID格式
+      project = lastOne;
     }
     const gitProvider = await this.prisma.gitProvider.findFirst({
       where: {
@@ -112,20 +115,20 @@ export class ProjectService {
       })
       .then(
         ({
-          id,
-          name,
-          pathWithNamespace,
-          description,
-          bu,
-          createdAt,
-          coverage,
-          defaultBranch,
-          tags,
-          // language,
-          members,
-          // instrumentCwd,
-          autoInstrument,
-        }) => {
+           id,
+           name,
+           pathWithNamespace,
+           description,
+           bu,
+           createdAt,
+           coverage,
+           defaultBranch,
+           tags,
+           // language,
+           members,
+           // instrumentCwd,
+           autoInstrument,
+         }) => {
           return {
             id,
             name,
