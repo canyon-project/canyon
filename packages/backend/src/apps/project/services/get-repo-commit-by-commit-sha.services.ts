@@ -2,17 +2,6 @@
 import { PrismaService } from '../../../prisma/prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClickHouseClient } from '@clickhouse/client';
-import { getCommits } from '../../../adapter/gitlab.adapter';
-import { coverageHitQuerySql } from '../../coverage/sql/coverage-hit-query.sql';
-import {
-  CoverageHitQuerySqlResultJsonInterface,
-  CoverageMapQuerySqlResultJsonInterface,
-} from '../../coverage/types/coverage-final.types';
-import { mergeHit } from '../../coverage/helpers/mergeHit';
-import { genHitByMap } from '../../../utils/genHitByMap';
-import { CoverageFinalService } from '../../coverage/services/core/coverage-final.service';
-import { CoverageMapService } from '../../coverage/services/core/coverage-map.service';
-import { coverageMapQuerySql } from '../../coverage/sql/coverage-map-query.sql';
 import { percent } from 'canyon-data';
 
 function calcCoverageSumary(covHit, covMap) {
@@ -64,8 +53,6 @@ export class GetRepoCommitByCommitShaServices {
     private readonly prisma: PrismaService,
     @Inject('CLICKHOUSE_CLIENT')
     private readonly clickhouseClient: ClickHouseClient,
-    private readonly coverageFinalService: CoverageFinalService,
-    private readonly coverageMapService: CoverageMapService,
   ) {}
 
   async invoke(pathWithNamespace: string, sha: string) {
@@ -112,14 +99,6 @@ export class GetRepoCommitByCommitShaServices {
       })
       .then((r) => r.json());
 
-    // SELECT
-    // ANY(hash),  -- 返回该分组中的任意一个hash值（实际上所有值都相同）
-    // ANY(other_column1),  -- 其他列同理
-    // ANY(other_column2)
-    // FROM coverage_map
-    // WHERE hash IN ('0002b10d50119ed4226073f722350b6f2c4db2289b179cee65d71e4b256cba47', 'ssss')
-    // GROUP BY hash;
-
     const coverageMapQuerySqlResultJson = await this.clickhouseClient
       .query({
         query: `SELECT
@@ -152,7 +131,6 @@ FROM coverage_map
 
     const deduplicatedBuildGroupList = this.deduplicateArray(buildGroupList);
 
-    // ??
     const resultList = [];
     deduplicatedBuildGroupList.forEach(({ buildID, buildProvider }, index) => {
       const group = {
@@ -244,19 +222,6 @@ FROM coverage_map
     });
 
     return resultList;
-
-    // // ??
-    //
-    // const { covered, total } = calcCoverageSumary(
-    //   coverageHitQuerySqlResultJson,
-    //   coverageMapQuerySqlResultJsonWidth,
-    // );
-    //
-    // return {
-    //   covered,
-    //   total,
-    //   percent: percent(covered, total),
-    // };
   }
 
   private deduplicateArray(arr: any[]): any[] {
