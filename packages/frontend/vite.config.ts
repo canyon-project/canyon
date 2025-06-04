@@ -28,7 +28,7 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
-    target: 'ES2022',
+    // target: 'ES2022',
   },
   server: {
     port: 8000,
