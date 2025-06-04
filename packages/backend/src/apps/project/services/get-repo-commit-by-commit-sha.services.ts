@@ -184,7 +184,7 @@ FROM coverage_map
               }),
           },
           {
-            mode: 'personal',
+            mode: 'manual',
             summary: calcCoverageSumary(
               filterCoverageHit(
                 coverageList

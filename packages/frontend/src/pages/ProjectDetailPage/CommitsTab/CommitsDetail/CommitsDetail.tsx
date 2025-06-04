@@ -14,7 +14,8 @@ import {
   Input,
   Radio,
   Space,
-  Divider, Spin,
+  Divider,
+  Spin,
 } from 'antd';
 import {
   CheckCircleOutlined,
@@ -25,14 +26,15 @@ import {
   RobotOutlined,
 } from '@ant-design/icons';
 import type { TabsProps, TableProps } from 'antd';
-import CoverageDetail from '@/components/CoverageDetail.tsx';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Editor } from '@monaco-editor/react';
-import CoverageOverviewPanel from "@/pages/ProjectDetailPage/CommitsTab/CommitsDetail/CoverageOverviewPanel.tsx";
+import CoverageOverviewPanel from '@/pages/ProjectDetailPage/CommitsTab/CommitsDetail/CoverageOverviewPanel.tsx';
 // import { useQuery } from '@apollo/client';
 // import { GetProjectCommitCoverageDocument } from '@/graphql/gen/graphql.ts';
+
+import CoverageDetail from '@/components/CoverageDetail.tsx';
 
 // 更新数据类型定义
 export interface CaseData {
@@ -89,9 +91,9 @@ interface BuildData {
 // 主组件
 const CommitsDetail: FC<{
   selectedCommit: string;
-}> = ({ selectedCommit }) => {
-  console.log(selectedCommit, 'selectedCommit');
-  const [activeBuild, setActiveBuild] = useState<string>('121974026');
+}> = ({ selectedCommit, selectedBuildID, onBuildIDChange }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  // const [activeBuild, setActiveBuild] = useState<string>();
   const params = useParams();
   console.log(params, 'params');
   const repoID = encodeURIComponent(params.org + '/' + params.repo);
@@ -103,10 +105,15 @@ const CommitsDetail: FC<{
     },
     {
       refreshDeps: [selectedCommit],
+      onSuccess(v) {
+        onBuildIDChange(v[0]?.buildID);
+      },
     },
   );
 
-  const [coverageDetailOpen, setCoverageDetailOpen] = useState(false);
+  const [coverageDetailOpen, setCoverageDetailOpen] = useState(
+    searchParams.get('coverage_detail_open') === 'true',
+  );
 
   // 根据搜索条件筛选流水线
   // 更新 pipeline tab 的渲染，添加 commit 信息
@@ -161,6 +168,7 @@ const CommitsDetail: FC<{
   return (
     <div className="shadow" style={{ flex: 1 }}>
       <Spin spinning={loading}>
+        {/*{JSON.stringify(coverageDetailOpen)}*/}
         {!loading && (
           <>
             <div className="mb-4">
@@ -183,10 +191,19 @@ const CommitsDetail: FC<{
 
             <Tabs
               items={buildTabs}
-              activeKey={activeBuild}
-              onChange={setActiveBuild}
+              activeKey={selectedBuildID}
+              onChange={(val) => {
+                onBuildIDChange(val);
+              }}
               // type="card"
               className="build-tabs"
+            />
+
+            <CoverageDetail
+              open={coverageDetailOpen}
+              onClose={() => {
+                setCoverageDetailOpen(false);
+              }}
             />
           </>
         )}
