@@ -72,11 +72,6 @@ const CoveragePage = () => {
 
   return (
     <Spin spinning={loading}>
-      {/*<Editor*/}
-      {/*  value={JSON.stringify(data, null, 2)}*/}
-      {/*  height={'500px'}*/}
-      {/*  language={'json'}*/}
-      {/*/>*/}
       <Report value={activatedPath} onSelect={onSelect} dataSource={data} />
     </Spin>
   );
