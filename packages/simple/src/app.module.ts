@@ -14,13 +14,19 @@ import { CoverageModule } from './apps/coverage/coverage.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SimpleCoverage } from './apps/coverage/entities/simple-coverage.entity';
 import { CodeModule } from './apps/code/code.module';
-import {SimpleGitProvider} from "./apps/code/entities/simple-git-provider.entity";
+import { SimpleGitProvider } from './apps/code/entities/simple-git-provider.entity';
 
 const DATABASE_URL = process.env.DATABASE_URL;
+console.log(DATABASE_URL, 'DATABASE_URL');
 // @ts-ignore
-const [, username, password, host, port, database] = DATABASE_URL.match(
-  /postgres(?:ql):\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/([^?]+)/,
-);
+const [, username, password, host, port, database] = [
+  '',
+  'postgres',
+  '123456',
+  'localhost',
+  5432,
+  'postgres'
+];
 
 @Module({
   imports: [
@@ -31,7 +37,7 @@ const [, username, password, host, port, database] = DATABASE_URL.match(
       username: username,
       password: password,
       database: database,
-      entities: [SimpleCoverage,SimpleGitProvider],
+      entities: [SimpleCoverage, SimpleGitProvider],
     }),
     // ClickHouseModule,
     // PrismaModule,
