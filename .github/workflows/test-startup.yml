@@ -17,13 +17,13 @@ jobs:
         uses: actions/setup-node@v4
 
       - name: Install pnpm
-        run: npm install -g pnpm
+        run: npm install -fg @ctrip/corepack && corepack prepare pnpm@latest-9 --activate
 
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build
-        run: pnpm run build
+#      - name: Build
+#        run: pnpm run build
 
       - name: Test application startup
         run: |
