@@ -8,7 +8,7 @@ on:
 
 jobs:
   test-startup:
-    runs-on: centos-7  # 使用 CentOS 7 环境
+    runs-on: ubuntu-latest  # 使用 CentOS 7 环境
 
     steps:
       - uses: actions/checkout@v4
