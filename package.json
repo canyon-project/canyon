@@ -28,7 +28,7 @@
       "@types/react-dom": "18.3.1",
       "antd": "5.23.2",
       "vite": "6.0.11",
-      "canyon-data": "2.0.0-beta.24"
+      "canyon-data": "2.0.0-beta.25"
     },
     "ignoredBuiltDependencies": [
       "@apollo/protobufjs",

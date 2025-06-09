@@ -29,4 +29,16 @@ export const emptySummary = {
     skipped: 0,
     pct: 0,
   },
+  changebranches: {
+    covered: 0,
+    total: 0,
+    skipped: 0,
+    pct: 0,
+  },
+  changefunctions: {
+    covered: 0,
+    total: 0,
+    skipped: 0,
+    pct: 0,
+  },
 };
