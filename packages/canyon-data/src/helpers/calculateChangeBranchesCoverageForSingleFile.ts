@@ -12,6 +12,7 @@ export function calculateChangeBranchesCoverageForSingleFile(
       const startAndEnd = [value2.start.line, value2.end.line];
       if (newLine.some(line => line >= startAndEnd[0] && line <= startAndEnd[1])) {
         total++;
+        // @ts-ignore
         if (coverage.b[key][key2] > 0) {
           covered++;
         }
