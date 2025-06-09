@@ -23,5 +23,9 @@ export const summaryToDbSummary = (summary) => {
     linesTotal: summary.lines.total,
     newlinesCovered: summary.newlines.covered,
     newlinesTotal: summary.newlines.total,
+    changebranchesCovered: summary.changebranches.covered,
+    changebranchesTotal: summary.changebranches.total,
+    changefunctionsCovered: summary.changefunctions.covered,
+    changefunctionsTotal: summary.changefunctions.total,
   };
 };

@@ -50,34 +50,39 @@ model BuildProvider {
 }
 
 model Coverage {
-  id                String   @id @default(cuid())
-  sha               String   @map("sha")
-  branch            String
-  compareTarget     String   @map("compare_target")
-  provider          String
-  buildProvider     String   @map("build_provider") // 通过侦测CI环境变量来判断
-  buildID           String   @map("build_id")
-  projectID         String   @map("project_id")
-  reporter          String
-  reportID          String   @map("report_id") // 未来聚合的一句，区分case
-  covType           String   @map("cov_type") // 普通类型，all、agg
+  id                     String @id @default(cuid())
+  sha                    String @map("sha")
+  branch                 String
+  compareTarget          String @map("compare_target")
+  provider               String
+  buildProvider          String @map("build_provider") // 通过侦测CI环境变量来判断
+  buildID                String @map("build_id")
+  projectID              String @map("project_id")
+  reporter               String
+  reportID               String @map("report_id") // 未来聚合的一句，区分case
+  covType                String @map("cov_type") // 普通类型，all、agg
   // 代码覆盖率
-  branchesTotal     Int      @map("branches_total")
-  branchesCovered   Int      @map("branches_covered")
-  functionsTotal    Int      @map("functions_total")
-  functionsCovered  Int      @map("functions_covered")
-  linesTotal        Int      @map("lines_total")
-  linesCovered      Int      @map("lines_covered")
-  statementsTotal   Int      @map("statements_total")
-  statementsCovered Int      @map("statements_covered")
-  newlinesTotal     Int      @map("newlines_total")
-  newlinesCovered   Int      @map("newlines_covered")
-  summary           Bytes
+  branchesTotal          Int    @map("branches_total")
+  branchesCovered        Int    @map("branches_covered")
+  functionsTotal         Int    @map("functions_total")
+  functionsCovered       Int    @map("functions_covered")
+  linesTotal             Int    @map("lines_total")
+  linesCovered           Int    @map("lines_covered")
+  statementsTotal        Int    @map("statements_total")
+  statementsCovered      Int    @map("statements_covered")
+  newlinesTotal          Int    @map("newlines_total")
+  newlinesCovered        Int    @map("newlines_covered")
+  changebranchesCovered  Int    @map("changebranches_covered")
+  changebranchesTotal    Int    @map("changebranches_total")
+  changefunctionsCovered Int    @map("changefunctions_covered")
+  changefunctionsTotal   Int    @map("changefunctions_total")
+
+  summary   Bytes
   // 代码覆盖率详情
-  hit               Bytes
+  hit       Bytes
   // 通用
-  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
 
   @@map("coverage")
 }

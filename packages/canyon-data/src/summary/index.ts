@@ -34,6 +34,8 @@ export function mergeSummary(first: any, second: any): any {
     "functions",
     "branchesTrue",
     "newlines",
+    "changebranches",
+    "changefunctions",
   ];
   keys.forEach((key) => {
     if (second[key]) {

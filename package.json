@@ -7,8 +7,8 @@
   "license": "MIT",
   "scripts": {
     "prepare": "husky",
-    "build": "pnpm -r  --stream do-build",
-    "test": "pnpm -r  --stream do-test",
+    "build": "pnpm -r --stream do-build",
+    "test": "pnpm -r --stream do-test",
     "clean": "node ./scripts/clean.mjs",
     "preinstall": "node ./scripts/check.mjs",
     "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma"
