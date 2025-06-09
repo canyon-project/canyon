@@ -39,10 +39,15 @@ export function mergeSummary(first: any, second: any): any {
   ];
   keys.forEach((key) => {
     if (second[key]) {
-      ret[key].total += second[key].total;
-      ret[key].covered += second[key].covered;
-      ret[key].skipped += second[key].skipped;
-      ret[key].pct = percent(ret[key].covered, ret[key].total);
+      // 如果第一个没有key，则直接赋值
+      if (!ret[key]) {
+        ret[key] = JSON.parse(JSON.stringify(second[key]));
+      } else {
+        ret[key].total += second[key].total;
+        ret[key].covered += second[key].covered;
+        ret[key].skipped += second[key].skipped;
+        ret[key].pct = percent(ret[key].covered, ret[key].total);
+      }
     }
   });
 
