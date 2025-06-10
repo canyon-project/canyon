@@ -63,6 +63,7 @@ export default declare((api, config, dirname) => {
           const env_projectID = envs.CI_PROJECT_ID
           const env_branch = envs.CI_COMMIT_BRANCH
           const env_buildID = envs.CI_JOB_ID
+          const env_CI_MERGE_REQUEST_ID = envs.CI_MERGE_REQUEST_ID
           const env_buildProvider = 'gitlab_runner'
 
           const servePa:{provider?:string,compareTarget?:string}&any = trim({
@@ -78,6 +79,7 @@ export default declare((api, config, dirname) => {
             ci: config.ci || process.env['CI'] || false,
             buildID: config.buildID || env_buildID || '-',
             buildProvider: config.buildProvider || env_buildProvider,
+            mergeRequestID: config.mergeRequestID || env_CI_MERGE_REQUEST_ID || '-',
           })
 
           // if (onlyOne){
