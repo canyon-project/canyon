@@ -65,11 +65,13 @@ const [selectedCommit, setSelectedCommit] = useState({
         repo={repo}
         selectedCommit={selectedCommit}
         selectedBuildID={selectedBuildID}
-        onBuildIDChange={(buildID) => {
-          setSelectedBuildID(buildID);
+        onBuildIDChange={(build) => {
+          // console.log(build,'build')
+          setSelectedBuildID(build.buildID);
           // 获取当前参数
           const params = new URLSearchParams(searchParams);
-          params.set('build_id', buildID);
+          params.set('build_id', build.buildID);
+          params.set('build_provider', build.buildProvider);
           setSearchParams(params);
         }}
       />

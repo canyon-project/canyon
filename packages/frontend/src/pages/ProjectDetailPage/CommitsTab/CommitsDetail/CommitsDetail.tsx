@@ -9,7 +9,7 @@ import { useParams, useSearchParams } from 'react-router-dom';
 import CoverageOverviewPanel from '@/pages/ProjectDetailPage/CommitsTab/CommitsDetail/CoverageOverviewPanel.tsx';
 
 import CoverageDetail from '@/components/CoverageDetail.tsx';
-import RIf from "@/components/RIf.tsx";
+import RIf from '@/components/RIf.tsx';
 
 // 更新数据类型定义
 export interface CaseData {
@@ -28,6 +28,7 @@ const CommitsDetail = ({
   onBuildIDChange,
   repo,
 }) => {
+  console.log(selectedCommit,'!!!!!')
   const [searchParams, setSearchParams] = useSearchParams();
   // const [activeBuild, setActiveBuild] = useState<string>();
   const params = useParams();
@@ -42,7 +43,8 @@ const CommitsDetail = ({
     {
       refreshDeps: [selectedCommit],
       onSuccess(v) {
-        onBuildIDChange(v[0]?.buildID);
+        console.log(v,'???')
+        onBuildIDChange(v[0]);
       },
     },
   );
@@ -66,7 +68,7 @@ const CommitsDetail = ({
         <Space>
           <img
             className={'w-[16px]'}
-            src={`/providers/${index % 2 === 1 ? 'gitlab' : 'mpaas'}.svg`}
+            src={`/providers/${build.buildProvider}.svg`}
             alt=""
           />
           <span className="font-medium">{build.buildID}</span>
@@ -129,12 +131,15 @@ const CommitsDetail = ({
               items={buildTabs}
               activeKey={selectedBuildID}
               onChange={(val) => {
-                onBuildIDChange(val);
+                const build = (data || []).find((item) => {
+                  return item.buildID === val;
+                });
+
+                onBuildIDChange(build);
               }}
               // type="card"
               className="build-tabs"
             />
-
 
             <RIf condition={coverageDetailOpen}>
               <CoverageDetail
