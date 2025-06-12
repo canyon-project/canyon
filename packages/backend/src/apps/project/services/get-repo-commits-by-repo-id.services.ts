@@ -10,11 +10,11 @@ export class GetRepoCommitsByRepoIdServices {
     @Inject('CLICKHOUSE_CLIENT')
     private readonly clickhouseClient: ClickHouseClient,
   ) {}
-  async invoke(pathWithNamespace) {
+  async invoke(repoID) {
     const project = await this.prisma.project
       .findFirst({
         where: {
-          pathWithNamespace: pathWithNamespace,
+          id: repoID,
         },
       })
       .then((r) => {
@@ -25,6 +25,9 @@ export class GetRepoCommitsByRepoIdServices {
     const coverageList = await this.prisma.coverage.findMany({
       where: {
         repoID: project?.id || '',
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
 

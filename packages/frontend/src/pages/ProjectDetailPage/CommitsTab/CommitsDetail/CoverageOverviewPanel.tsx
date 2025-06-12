@@ -1,10 +1,7 @@
-import { Badge, Collapse, Progress, Space, Table, Tooltip } from 'antd';
+import { Badge, Button, Collapse, Progress, Space, Table, Tooltip } from 'antd';
 import { RobotOutlined, UserOutlined } from '@ant-design/icons';
 import type { TableProps } from 'antd';
 import { CaseData } from './CommitsDetail';
-import { calculateCoveragePercentage } from '@/helper/coverage.ts';
-
-import CoverageDetail from '@/components/CoverageDetail.tsx';
 import { useSearchParams } from 'react-router-dom';
 
 interface CoverageOverviewPanelProps {
@@ -107,33 +104,25 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                 className="font-medium"
                 onClick={() => {
                   setCoverageDetailOpen(true);
-                  // sea
                   searchParams.set('coverage_detail_open', 'true');
                   setSearchParams(searchParams);
                 }}
               >
-                E2E覆盖率1:
+                E2E覆盖率:
               </span>
             </Tooltip>
-            <Progress
-              percent={build?.coverage?.e2eCoverage}
-              size="small"
-              status={
-                build?.coverage?.e2eCoverage < 60 ? 'exception' : 'active'
-              }
-              strokeColor={
-                build?.coverage?.e2eCoverage >= 80
-                  ? 'green'
-                  : build?.coverage?.e2eCoverage >= 60
-                    ? 'blue'
-                    : build?.coverage?.e2eCoverage >= 40
-                      ? 'orange'
-                      : 'red'
-              }
-              style={{
-                width: '80px',
+
+            <Button
+              type={'primary'}
+              size={'small'}
+              onClick={() => {
+                setCoverageDetailOpen(true);
+                searchParams.set('coverage_detail_open', 'true');
+                setSearchParams(searchParams);
               }}
-            />
+            >
+              查看
+            </Button>
           </div>
         </div>
       </div>

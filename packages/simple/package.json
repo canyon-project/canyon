@@ -7,7 +7,6 @@
   "license": "UNLICENSED",
   "scripts": {
     "do-build": "nest build",
-    "do-dev": "nest start",
     "format": "prettier --write 'src/*.{js,ts,jsx,tsx}'"
   },
   "prettier": "eslint-config-canyon/prettier",

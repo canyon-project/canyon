@@ -6,16 +6,29 @@ import { SettingOutlined } from '@ant-design/icons';
 import { useParams } from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
+import RIf from '@/components/RIf.tsx';
 
 // 核心代码
 
 const ProjectDetailPage = () => {
-  // console.log(params.org);
-
-
+  const params = useParams();
+  console.log(params, 'params');
+  const { data, loading } = useRequest(
+    () => {
+      return axios
+        .get(`/api/repo/${params.org}%2F${params.repo}`)
+        .then((res) => res.data);
+    },
+    {
+      refreshDeps: [],
+      onSuccess(v) {
+        console.log(v);
+      },
+    },
+  );
 
   return (
-    <div>
+    <RIf condition={data}>
       <div className={'h-[48px] flex items-center justify-between px-[16px]'}>
         <Breadcrumb
           items={[
@@ -24,7 +37,7 @@ const ProjectDetailPage = () => {
               href: '/projects',
             },
             {
-              title: 'xtaro-hotel-search',
+              title: params.repo,
             },
           ]}
         />
@@ -40,19 +53,14 @@ const ProjectDetailPage = () => {
       <Tabs
         defaultActiveKey="commits"
         items={[
-          // {
-          //   key: 'coverage',
-          //   label: 'Coverage',
-          //   children: <div>co</div>,
-          // },
           {
             key: 'commits',
             label: 'Commits',
-            children: <CommitsTab />,
+            children: <CommitsTab repo={data} />,
           },
         ]}
       />
-    </div>
+    </RIf>
   );
 };
 

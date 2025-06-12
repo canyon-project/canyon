@@ -1,40 +1,15 @@
 'use client';
 
-import { FC } from 'react';
-import { useState } from 'react';
-import {
-  Table,
-  Badge,
-  Tabs,
-  Empty,
-  Tooltip,
-  Progress,
-  Tag,
-  Collapse,
-  Input,
-  Radio,
-  Space,
-  Divider,
-  Spin,
-} from 'antd';
-import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  WarningOutlined,
-  RedoOutlined,
-  UserOutlined,
-  RobotOutlined,
-} from '@ant-design/icons';
-import type { TabsProps, TableProps } from 'antd';
+import { FC, useState } from 'react';
+import type { TabsProps } from 'antd';
+import { Badge, Empty, Space, Spin, Tabs } from 'antd';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { Editor } from '@monaco-editor/react';
 import CoverageOverviewPanel from '@/pages/ProjectDetailPage/CommitsTab/CommitsDetail/CoverageOverviewPanel.tsx';
-// import { useQuery } from '@apollo/client';
-// import { GetProjectCommitCoverageDocument } from '@/graphql/gen/graphql.ts';
 
 import CoverageDetail from '@/components/CoverageDetail.tsx';
+import RIf from "@/components/RIf.tsx";
 
 // 更新数据类型定义
 export interface CaseData {
@@ -46,52 +21,13 @@ export interface CaseData {
   reportProvider: string;
 }
 
-export interface CoverageReport {
-  type: 'manual' | 'automated';
-  coveragePercentage: number;
-  cases: CaseData[];
-}
-
-// 添加新的覆盖率类型
-interface CoverageMetrics {
-  e2eCoverage: number;
-  unitTestCoverage: number;
-}
-
-// 添加进度统计类型
-interface BuildProgress {
-  totalCases: number;
-  successCases: number;
-  failedCases: number;
-  pendingCases: number;
-}
-
-// 更新流水线数据接口
-interface AggregationProgress {
-  total: number;
-  current: number;
-  status: 'aggregating' | 'completed' | 'failed';
-}
-
-// 更新 BuildData 接口，添加 commit 相关信息
-interface BuildData {
-  id: string;
-  name: string;
-  buildID: string;
-  sha: string;
-  commitMessage: string;
-  hasReported: boolean;
-  lastUpdated: string;
-  progress: BuildProgress;
-  coverage: CoverageMetrics;
-  reports?: CoverageReport[];
-  aggregationProgress: AggregationProgress;
-}
-
 // 主组件
-const CommitsDetail: FC<{
-  selectedCommit: string;
-}> = ({ selectedCommit, selectedBuildID, onBuildIDChange }) => {
+const CommitsDetail = ({
+  selectedCommit,
+  selectedBuildID,
+  onBuildIDChange,
+  repo,
+}) => {
   const [searchParams, setSearchParams] = useSearchParams();
   // const [activeBuild, setActiveBuild] = useState<string>();
   const params = useParams();
@@ -199,12 +135,18 @@ const CommitsDetail: FC<{
               className="build-tabs"
             />
 
-            <CoverageDetail
-              open={coverageDetailOpen}
-              onClose={() => {
-                setCoverageDetailOpen(false);
-              }}
-            />
+
+            <RIf condition={coverageDetailOpen}>
+              <CoverageDetail
+                repo={repo}
+                open={coverageDetailOpen}
+                onClose={() => {
+                  setCoverageDetailOpen(false);
+                  searchParams.set('coverage_detail_open', 'false');
+                  setSearchParams(searchParams);
+                }}
+              />
+            </RIf>
           </>
         )}
       </Spin>
