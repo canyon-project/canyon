@@ -5,7 +5,6 @@ import { PrismaService } from '../../../../prisma/prisma.service';
 import { coverageMapQuerySql } from '../../sql/coverage-map-query.sql';
 import { coverageHitQuerySql } from '../../sql/coverage-hit-query.sql';
 import { genHitByMap } from '../../../../utils/genHitByMap';
-import { decodeKey } from '../../../../utils/ekey';
 import {
   CoverageHitQuerySqlResultJsonInterface,
   CoverageMapQuerySqlResultJsonInterface,
@@ -75,6 +74,7 @@ export class CoverageFinalService {
       (i) => i.coverageMapHashID,
     );
     const ckQuerySqlStart = new Date().getTime();
+
     const [coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson] =
       await Promise.all([
         this.clickhouseClient
@@ -94,14 +94,6 @@ export class CoverageFinalService {
           .then((r) => r.json<CoverageMapQuerySqlResultJsonInterface>()),
       ]);
 
-    // await fetch(`http://localhost:3000/save`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(coverageHitQuerySqlResultJson),
-    // });
-
     const coverageMapQuerySqlResultJsonWithfilePath =
       coverageMapRelationList.map((i) => {
         const sss = coverageMapQuerySqlResultJson.find(
@@ -118,7 +110,6 @@ export class CoverageFinalService {
       coverageHitQuerySqlResultJson,
     );
     const instrumentCwd = coverages[0].instrumentCwd;
-    // return res;
 
     const ddd = removeCoverageInstrumentCwd(res, instrumentCwd);
 

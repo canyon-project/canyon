@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "do-build": "nest build",
-    "do-dev": "nest start",
+    "do-dev": "nest start --watch",
     "preinstall": "prisma generate && nest build",
     "format": "prettier --write 'src/*.{js,ts,jsx,tsx}'"
   },

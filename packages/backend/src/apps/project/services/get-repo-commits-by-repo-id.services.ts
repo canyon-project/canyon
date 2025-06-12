@@ -1,15 +1,10 @@
 import { PrismaService } from '../../../prisma/prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
-import { ClickHouseClient } from '@clickhouse/client';
 import { getCommits } from '../../../adapter/gitlab.adapter';
 
 @Injectable()
 export class GetRepoCommitsByRepoIdServices {
-  constructor(
-    private readonly prisma: PrismaService,
-    @Inject('CLICKHOUSE_CLIENT')
-    private readonly clickhouseClient: ClickHouseClient,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
   async invoke(repoID) {
     const project = await this.prisma.project
       .findFirst({
@@ -58,7 +53,7 @@ export class GetRepoCommitsByRepoIdServices {
       }
       return prev;
     }, {});
-
+    console.log('ssssddddxxx');
     return Object.values(coverageListObject);
   }
 }

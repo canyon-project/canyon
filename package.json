@@ -6,7 +6,7 @@
   "author": "wr.zhang25@gmail.com",
   "license": "MIT",
   "scripts": {
-    "dev": "pnpm -r do-dev",
+    "dev": "pnpm --stream -r do-dev",
     "build": "pnpm -r do-build",
     "test": "pnpm -r do-test",
     "clean": "node ./scripts/clean.mjs",

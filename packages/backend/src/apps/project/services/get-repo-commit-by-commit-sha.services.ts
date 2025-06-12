@@ -86,6 +86,7 @@ export class GetRepoCommitByCommitShaServices {
     const deduplicateHashIDList = [
       ...new Set(coverageMapRelationList.map((i) => i.coverageMapHashID)),
     ];
+
     const coverageHitQuerySqlResultJson = await this.clickhouseClient
       .query({
         query: `SELECT

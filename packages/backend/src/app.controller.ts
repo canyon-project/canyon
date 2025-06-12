@@ -7,7 +7,7 @@ export class AppController {
 
   @Get('api/base')
   getHello() {
-    return this.appService.getHello();
+    return {};
   }
 
   @Get('vi/health')
