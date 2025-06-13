@@ -3,7 +3,13 @@ module.exports = {
     '@vue/cli-plugin-babel/preset'
   ],
   plugins: [
-      'istanbul',
+      [
+        'istanbul',
+        {
+          // https://github.com/istanbuljs/nyc?tab=readme-ov-file#common-configuration-options
+          extension:['.js', '.cjs', '.mjs', '.ts', '.tsx', '.jsx','.vue']
+        }
+      ],
       'canyon'
   ]
 }
