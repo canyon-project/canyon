@@ -12,6 +12,10 @@ export default {
     title: "文档",
     type: "page",
   },
+  api: {
+    title: "API",
+    type: "page",
+  },
   support: {
     title: "支持",
     type: "page",
