@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-canyon",
-  "version": "2.0.21",
+  "version": "2.0.22",
   "description": "A Babel plugin cooperates with istanbul to report the coverage",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
