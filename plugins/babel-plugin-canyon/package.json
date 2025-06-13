@@ -1,7 +1,16 @@
 {
   "name": "babel-plugin-canyon",
-  "version": "2.0.20",
-  "description": "",
+  "version": "2.0.21",
+  "description": "A Babel plugin cooperates with istanbul to report the coverage",
+  "author": "Travis Zhang<https://github.com/travzhang>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/canyon-project/canyon"
+  },
+  "bugs": {
+    "url": "https://github.com/canyon-project/canyon/issues"
+  },
+  "homepage": "https://github.com/canyon-project/canyon#readme",
   "scripts": {
     "release": "babel src --extensions \".ts\" --out-dir lib",
     "pretest": "npm run release",
@@ -9,13 +18,18 @@
     "prepublishOnly": "npm run release",
     "format": "biome check --write --unsafe ./src"
   },
-  "keywords": [],
+  "keywords": [
+    "babel-plugin",
+    "canyon",
+    "coverage",
+    "javascript",
+    "instrumentation"
+  ],
   "main": "lib/index.js",
   "files": [
     "lib"
   ],
-  "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@babel/preset-typescript": "^7.26.0",
     "@biomejs/biome": "1.9.4",
