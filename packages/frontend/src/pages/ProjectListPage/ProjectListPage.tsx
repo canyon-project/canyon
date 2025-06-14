@@ -20,9 +20,15 @@ import { ColumnsType } from 'antd/es/table';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import {useRequest} from "ahooks";
+import axios from "axios";
 const { Text } = Typography;
 const ProjectListPage = () => {
-  const data = [];
+  const {data,loading} = useRequest(
+    () => axios('/api/repo').then(({data}) => data),
+    {
+    },
+  )
 
   const { t } = useTranslation();
 
@@ -148,11 +154,11 @@ const ProjectListPage = () => {
     {
       title: t('common.option'),
       key: 'option',
-      render: (_, { id }) => (
+      render: (_, { id,pathWithNamespace }) => (
         <>
           <Link
             to={{
-              pathname: `/gitlab/canyon-project/canyon`,
+              pathname: `/gitlab/${pathWithNamespace}`,
             }}
           >
             {t('common.detail')}
@@ -213,7 +219,7 @@ const ProjectListPage = () => {
             <Input.Search
               placeholder={t('projects.search_keywords')}
               className={'!w-[420px] mb-3'}
-              onSearch={(value) => {
+              onSearch={() => {
                 // setKeyword(value);
                 // setCurrent(1);
               }}
@@ -246,7 +252,7 @@ const ProjectListPage = () => {
             borderRadius: 2,
           }}
         >
-          <Table columns={columns} dataSource={data} />
+          <Table loading={loading} columns={columns} dataSource={data||[]} />
         </div>
       </div>
     </div>

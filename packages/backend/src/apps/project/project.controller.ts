@@ -13,6 +13,14 @@ export class ProjectController {
     private readonly repoService: RepoService,
   ) {}
 
+  // 获取 repository
+  @ApiOperation({ summary: 'Get repositories' })
+  @ApiResponse({ status: 200, description: 'Successfully retrieved repositories' })
+  @Get('api/repo')
+  async getRepos(@Query('page') page: number, @Query('limit') limit: number) {
+    return this.repoService.getRepoList(page, limit);
+  }
+
   @ApiOperation({ summary: 'Get repository by ID' })
   @ApiParam({ name: 'repoID', description: 'Repository ID' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved repository' })
