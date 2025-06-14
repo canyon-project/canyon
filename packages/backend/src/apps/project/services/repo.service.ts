@@ -51,6 +51,8 @@ export class RepoService {
     }
 
 
-    return list
+    return list.sort((a, b) => {
+      return new Date(b.lastReportTime).getTime() - new Date(a.lastReportTime).getTime();
+    })
   }
 }
