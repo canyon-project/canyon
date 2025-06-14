@@ -53,7 +53,6 @@ export class GetRepoCommitsByRepoIdServices {
       }
       return prev;
     }, {});
-    console.log('ssssddddxxx');
     return Object.values(coverageListObject);
   }
 }

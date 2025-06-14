@@ -1,14 +1,9 @@
-// import { useQuery } from '@apollo/client';
-// import { GetProjectsDocument } from '@/graphql/gen/graphql.ts';
 import { Breadcrumb, Button, Divider, Space, Tabs } from 'antd';
-import CommitsTab from './CommitsTab';
 import { SettingOutlined } from '@ant-design/icons';
-import { useParams } from 'react-router-dom';
+import {Outlet, useParams} from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
 import RIf from '@/components/RIf.tsx';
-
-// 核心代码
 
 const ProjectDetailPage = () => {
   const params = useParams();
@@ -56,10 +51,15 @@ const ProjectDetailPage = () => {
           {
             key: 'commits',
             label: 'Commits',
-            children: <CommitsTab repo={data} />,
           },
         ]}
       />
+      <Outlet context={{
+        repo: data,
+        commit: {
+          s:'x'
+        },
+      }}/>
     </RIf>
   );
 };

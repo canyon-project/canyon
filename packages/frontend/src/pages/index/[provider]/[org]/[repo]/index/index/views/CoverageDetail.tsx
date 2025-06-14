@@ -5,7 +5,7 @@ import { useRequest } from 'ahooks';
 import axios from 'axios';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { handleSelectFile } from '@/helper';
-import { getFirstSix } from '@/utils/getFirstSix.ts';
+import { getFirstSix } from '@/helper/getFirstSix.ts';
 const CoverageDetail = ({ open, onClose, repo }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const params = useParams();

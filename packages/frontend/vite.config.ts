@@ -4,31 +4,21 @@ import { defineConfig } from 'vite';
 import Pages from 'vite-plugin-pages';
 import tailwindcss from '@tailwindcss/vite';
 
-const ReactCompilerConfig = {
-  target: '19', // '17' | '18' | '19'
-};
-
 export default defineConfig({
   plugins: [
-    react({
-      babel: {
-        plugins: [['babel-plugin-react-compiler', ReactCompilerConfig]],
-      },
-    }),
+    react(),
     Pages({
-      dirs: 'src/routes',
+      exclude: ['**/views/**', '**/components/**'],
     }),
     tailwindcss(),
   ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      // 'canyon-report': path.resolve(__dirname, '../report/src/index.tsx'),
     },
   },
   build: {
     sourcemap: true,
-    // target: 'ES2022',
   },
   server: {
     port: 8000,

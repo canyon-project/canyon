@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { List, Badge, Spin, Input, Tooltip, Space } from 'antd';
 import { SearchOutlined, TagsOutlined } from '@ant-design/icons';
-import { formatDistanceToNow } from 'date-fns';
+// import { formatDistanceToNow } from 'date-fns';
 
 // 扩展 Commit 接口，添加 branches 属性
 interface Commit {
@@ -26,10 +26,10 @@ interface CommitsListProps {
 }
 
 const CommitsList = ({
-  commits,
-  selectedCommit,
-  onCommitSelect,
-}: CommitsListProps) => {
+                       commits,
+                       selectedCommit,
+                       onCommitSelect,
+                     }: CommitsListProps) => {
   const [searchText, setSearchText] = useState('');
   const [filteredCommits, setFilteredCommits] = useState(commits);
 
@@ -121,10 +121,10 @@ const CommitsList = ({
                   onClick={() => onCommitSelect(commit)}
                   className={`hover:bg-gray-50 dark:hover:bg-gray-800
                    transition-colors ${
-                     selectedCommit?.sha === commit.sha
-                       ? 'border-l-2 border-l-blue-500 bg-blue-50 dark:bg-gray-800 dark:bg-opacity-50 dark:border-l-blue-400'
-                       : 'dark:border-gray-700'
-                   }`}
+                    selectedCommit?.sha === commit.sha
+                      ? 'border-l-2 border-l-blue-500 bg-blue-50 dark:bg-gray-800 dark:bg-opacity-50 dark:border-l-blue-400'
+                      : 'dark:border-gray-700'
+                  }`}
                   style={{
                     cursor: 'pointer',
                     padding: '8px 12px',
