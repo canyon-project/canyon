@@ -1,5 +1,5 @@
 import CommitsList
-  from "./views/CommitsList";
+  from "./views/CommitsList.tsx";
 import {Outlet, useNavigate, useOutletContext, useParams, useSearchParams} from "react-router-dom";
 import {useState} from "react";
 import {useRequest} from "ahooks";

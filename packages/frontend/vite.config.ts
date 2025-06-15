@@ -26,7 +26,7 @@ export default defineConfig({
     proxy: {
       '^/graphql|^/api': {
         changeOrigin: true,
-        target: 'http://localhost:8080',
+        target: 'http://canyonjs.fws.qa.nt.ctripcorp.com',
       },
     },
   },
