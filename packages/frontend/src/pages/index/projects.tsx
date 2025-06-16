@@ -158,7 +158,7 @@ const ProjectListPage = () => {
         <>
           <Link
             to={{
-              pathname: `/gitlab/${pathWithNamespace}`,
+              pathname: `/gitlab/${pathWithNamespace}/commits`,
             }}
           >
             {t('common.detail')}
