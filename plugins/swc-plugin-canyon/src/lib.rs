@@ -72,7 +72,7 @@ fn expr_to_json(expr: &Expr) -> Value {
 fn lit_to_json(lit: &Lit) -> Value {
     match lit {
         Lit::Str(str_) => json!(str_.value),
-        Lit::Num(num_) => json!(num_.value),
+        Lit::Num(num_) => json!(num_.value as i64),
         Lit::Bool(bool_) => json!(bool_.value),
         _ => json!(null)  // 其他字面量转换为 null
     }
