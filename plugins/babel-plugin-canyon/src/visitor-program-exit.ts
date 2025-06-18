@@ -49,6 +49,17 @@ export const visitorProgramExit = (api,path,serviceParams) => {
             }
 
 
+            const keysToRemove = ["hash", "_coverageSchema"];
+            keysToRemove.forEach(key => {
+              const index = properties.findIndex(prop =>
+                t.isIdentifier(prop.key, { name: key })
+              );
+
+              if (index !== -1) {
+                properties.splice(index, 1); // 删除属性
+              }
+            });
+
             const addAttributes = serviceParams.addAttributes || Object.keys(serviceParams);
 
             for (let i = 0; i < addAttributes.length; i++) {
