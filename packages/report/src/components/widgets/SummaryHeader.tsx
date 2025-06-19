@@ -76,6 +76,8 @@ const SummaryMetric: FC<{
           display: "flex",
           gap: "10px",
           marginBottom: "10px",
+          maxWidth:'1000px',
+          flexWrap: 'wrap'
         }}
       >
         {Object.entries(summaryTreeItem.summary)
