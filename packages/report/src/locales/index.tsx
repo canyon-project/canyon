@@ -20,7 +20,9 @@ export const translations = {
         branches: "分支",
         functions: "函数",
         lines: "行数",
-        newlines: "新行"
+        newlines: "新行",
+        changebranches: "变更分支",
+        changefunctions: "变更函数"
       }
     }
   },
@@ -43,7 +45,9 @@ export const translations = {
         branches: "Branches",
         functions: "Functions",
         lines: "Lines",
-        newlines: "Newlines"
+        newlines: "Newlines",
+        changebranches: "Changed Branches",
+        changefunctions: "Changed Functions"
       }
     }
   },
@@ -66,7 +70,9 @@ export const translations = {
         branches: "ブランチ",
         functions: "関数",
         lines: "行",
-        newlines: "新しい行"
+        newlines: "新しい行",
+        changebranches: "変更されたブランチ",
+        changefunctions: "変更された関数"
       }
     }
   },
