@@ -2,7 +2,7 @@ use std::fs;
 use std::fs::write;
 use std::path::Path;
 use rand::Rng;
-use swc_core::ecma::ast::{ArrayLit, IdentName, Lit, Number, PropOrSpread, Str};
+use swc_core::ecma::ast::{ArrayLit, IdentName, Lit, PropOrSpread, Str};
 use swc_core::ecma::{
     ast::{
         Expr, KeyValueProp, ObjectLit, Program,
@@ -160,8 +160,23 @@ impl TransformVisitor {
             // 创建父目录及其所有缺失的父目录
             fs::create_dir_all(parent_dir).expect("Unable to create directories");
 
+            // 创建一个新的map，使用原map的path作为key
+            let mut final_map = serde_json::Map::new();
+            
+            // 将 HashMap<Atom, Value> 转换为 Map<String, Value>
+            let converted_map: serde_json::Map<String, Value> = map.iter()
+                .map(|(k, v)| (k.to_string(), v.clone()))
+                .collect();
+
+            // 获取path值
+            if let Some(path_value) = map.iter().find(|(k, _)| k.as_ref() == "path") {
+                if let Some(path_str) = path_value.1.as_str() {
+                    final_map.insert(path_str.to_string(), Value::Object(converted_map));
+                }
+            }
+
             // 使用 `write` 方法进行同步写入
-            write(file_path, serde_json::to_string(&map).expect("Unable to serialize JSON"))
+            write(file_path, serde_json::to_string(&final_map).expect("Unable to serialize JSON"))
                 .expect("Unable to write file");
 
             // 过滤掉指定的属性
