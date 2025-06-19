@@ -19,17 +19,15 @@ const navbar = (
     projectLink="https://github.com/canyon-project/canyon"
     projectIcon={<GitHubIcon height="24" />}
     logo={
-      <Link href={"/"}>
-        <div className="flex hover:nx-opacity-75 items-center">
-          <img src="/logo.svg" style={{ width: "32px" }} alt="" />
-          <div className="mx-2 font-extrabold hidden md:inline select-none">
-            CANYON
-          </div>
-          <div className="text-gray-600 font-normal hidden lg:!inline whitespace-no-wrap">
-            JavaScript code coverage solution
-          </div>
+      <div className="flex hover:nx-opacity-75 items-center">
+        <img src="/logo.svg" style={{ width: "32px" }} alt="" />
+        <div className="mx-2 font-extrabold hidden md:inline select-none">
+          CANYON
         </div>
-      </Link>
+        <div className="text-gray-600 font-normal hidden lg:!inline whitespace-no-wrap">
+          JavaScript code coverage solution
+        </div>
+      </div>
     }
     // ... Your additional navbar options
   />
