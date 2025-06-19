@@ -1,6 +1,6 @@
 import { FileCoverageData } from "istanbul-lib-coverage";
 import {percent} from "../util.ts";
-function genRange(range) {
+function genRange(range:any) {
   if (range && range?.start?.line && range?.start?.line){
     return [range.start.line, range.end.line];
   } else {
