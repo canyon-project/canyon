@@ -1,4 +1,4 @@
-import { FileCoverageData, Range } from "istanbul-lib-coverage";
+import { FileCoverageData } from "istanbul-lib-coverage";
 import {percent} from "../util.ts";
 export function calculateChangeBranchesCoverageForSingleFile(
   coverage: FileCoverageData,
@@ -7,17 +7,19 @@ export function calculateChangeBranchesCoverageForSingleFile(
   let total = 0;
   let covered = 0;
 
-  Object.entries(coverage.branchMap).forEach(([key,value])=>{
-    Object.entries(value.locations).forEach(([key2,value2])=>{
-      const startAndEnd = [value2.start.line, value2.end.line];
+  Object.entries(coverage.b).forEach(([_,hitList],index) => {
+    for (let i = 0; i < hitList.length; i++) {
+      const hit = hitList[i];
+      const value = coverage.branchMap[index].locations[i];
+      const startAndEnd = [value.start.line, value.end.line];
       if (newLine.some(line => line >= startAndEnd[0] && line <= startAndEnd[1])) {
         total++;
         // @ts-ignore
-        if (coverage.b[key][key2] > 0) {
+        if (hit > 0) {
           covered++;
         }
       }
-    })
+    }
   })
   return {
     total,

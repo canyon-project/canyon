@@ -7,11 +7,11 @@ import {
 
 test('calculateChangeBranchesCoverageForSingleFile', () => {
 
-  const d = calculateChangeBranchesCoverageForSingleFile(cov["src/domains/common/components/CenterSwiper/CenterSwiper.tsx"], [1, 2, 3, 4, 5, 6, 7, 8, 24,29])
+  const d = calculateChangeBranchesCoverageForSingleFile(cov, [14, 25, 55, 115])
   expect(d).toMatchObject({
-    total: 1,
-    covered: 1,
-    pct: 100,
+    total: 5,
+    covered: 4,
+    pct: 80,
     skipped: 0
   })
 })
