@@ -1,6 +1,19 @@
 // @ts-nocheck
 import { getBranchTypeByIndex, getBranchTypeIndex } from './getBranchType';
 import zlib from 'zlib';
+
+
+/*NOTE:
+*
+* start、end可能为{}
+* line、column可能为null
+*
+* 注意单if场景，如果是单if，并且start、end完全相等，则没有else
+*
+* 观察此文件，看哪些还有可能是null，null在ck中一律为 0
+* */
+
+
 export const transformCoverageStatementMapToCk = (statementMap) => {
   return Object.fromEntries(
     Object.entries(statementMap).map(([k, v]) => [
