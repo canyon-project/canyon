@@ -130,6 +130,7 @@ const SummaryMetric: FC<{
   );
 };
 
+
 const SummaryBar: FC<{ pct: number }> = ({ pct }) => {
   return (
     <div
