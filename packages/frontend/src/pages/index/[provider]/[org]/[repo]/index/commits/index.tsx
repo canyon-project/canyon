@@ -1,7 +1,7 @@
 import CommitsList
   from "./views/CommitsList.tsx";
 import {Outlet, useNavigate, useOutletContext, useParams, useSearchParams} from "react-router-dom";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useRequest} from "ahooks";
 import axios from "axios";
 
@@ -11,17 +11,13 @@ const Commits = () => {
   const navigate = useNavigate();
   const params = useParams();
   const [selectedCommit, setSelectedCommit] = useState({
-    sha: searchParams.get('sha'),
+    sha: null,
   });
 
   const [selectedBuildID, setSelectedBuildID] = useState(
     searchParams.get('build_id'),
   );
 
-  console.log(selectedBuildID, 'selectedBuildID', searchParams.get('build_id'));
-
-  // 获取仓库commits覆盖率上报记录通过仓库ID /repo/{repositoryId}/commits getRepoCommitsByRepoId
-  // 获取仓库commits详细信息通过仓库ID /repo/{repositoryId}/commits/{commitId} getRepoCommitByCommitSHA
   const { data, loading } = useRequest(() => {
     return axios
       .get(`/api/repo/${repo.id}/commits`)
@@ -42,13 +38,23 @@ const Commits = () => {
           };
         });
       });
+  },{
+    onSuccess: (commits) => {
+    //   如果有选中的 commit，则设置为 selectedCommit
+      if (params.sha){
+        const commit = commits.find(c => c.sha === params.sha);
+        if (commit) {
+          setSelectedCommit(commit);
+        }
+      }
+    }
   });
 
   const handleCommitSelect = (commit) => {
     setSelectedCommit(commit);
 
     // nav
-    navigate(`/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}/-/`)
+    navigate(`/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}`)
 
     // 获取当前参数
   };

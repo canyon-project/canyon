@@ -3,14 +3,30 @@ import Report from 'canyon-report';
 import { useEffect, useState } from 'react';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {useNavigate, useOutletContext, useParams, useSearchParams} from 'react-router-dom';
 import { handleSelectFile } from '@/helper';
 import { getFirstSix } from '@/helper/getFirstSix.ts';
-const CoverageDetail = ({ open, onClose, repo }) => {
+const FilePath = () => {
+
+  const {repo,commit} = useOutletContext()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams();
+  // const params = useParams();
+
+
+  // const [searchParams, setSearchParams] = useSearchParams();
+  // const navigate = useNavigate();
   const params = useParams();
-  console.log(params);
-  const sha = searchParams.get('sha') || '';
+  function getToFilePath(path) {
+    setOpen(false)
+    setTimeout(() => {
+      navigate(`/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}${path}?build_provider=${searchParams.get('build_provider')}&build_id=${searchParams.get('build_id')}`)
+
+    },0.5 * 1000);
+  }
+
+
+  const sha = params.sha
   const buildProvider = searchParams.get('build_provider') || 'gitlab_runner';
   const buildID = searchParams.get('build_id') || '';
   const repoID = searchParams.get('repo_id') || repo.id;
@@ -18,9 +34,7 @@ const CoverageDetail = ({ open, onClose, repo }) => {
   const reportID = searchParams.get('report_id') || '';
   const reportProvider = searchParams.get('report_provider') || '';
 
-  const [activatedPath, setActivatedPath] = useState(
-    searchParams.get('file_path') || '',
-  );
+  const [activatedPath, setActivatedPath] = useState(params['*']?.replace('-/',''));
 
   const { data, loading } = useRequest(
     () =>
@@ -38,7 +52,7 @@ const CoverageDetail = ({ open, onClose, repo }) => {
     {},
   );
 
-  const nav = useNavigate();
+
 
   const onSelect = (val) => {
     setActivatedPath(val);
@@ -67,15 +81,25 @@ const CoverageDetail = ({ open, onClose, repo }) => {
 
   // 导航
   useEffect(() => {
-    searchParams.set('file_path', activatedPath);
-    setSearchParams(searchParams);
-  }, [activatedPath]);
+    if (commit?.sha){
+      getToFilePath(`/-/${activatedPath}`)
+      setOpen(true)
+    }
+  }, [activatedPath,commit]);
+
+
+
+  const [open,setOpen] = useState(false);
+
+
 
   return (
     <Drawer
       width={'75%'}
       open={open}
-      onClose={onClose}
+      onClose={()=>{
+        getToFilePath('')
+      }}
       title={`${params.repo} ${getFirstSix(searchParams.get('sha'))} 手工测试 API响应测试`}
     >
       <Spin spinning={loading}>
@@ -85,4 +109,4 @@ const CoverageDetail = ({ open, onClose, repo }) => {
   );
 };
 
-export default CoverageDetail;
+export default FilePath;

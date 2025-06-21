@@ -3,6 +3,20 @@ import { PrismaService } from '../../../prisma/prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClickHouseClient } from '@clickhouse/client';
 import { percent } from 'canyon-data';
+import axios from "axios";
+
+
+function getTestCaseInfo(list,reportID,reportProvider) {
+  return list.find(item=>item.reportID === reportID&&item.reportProvider === reportProvider)||{
+    "caseName": reportID,
+    "passedCount": 0,
+    "failedCount": 0,
+    "totalCount": 0,
+    "passRate": "100%",
+    reportProvider,
+    reportID,
+  }
+}
 
 function calcCoverageSumary(covHit, covMap) {
   const hitMap = new Map();
@@ -58,7 +72,7 @@ export class GetRepoCommitByCommitShaServices {
   async invoke(pathWithNamespace: string, sha: string) {
     const project = await this.prisma.project.findFirst({
       where: {
-        pathWithNamespace: pathWithNamespace,
+        id: pathWithNamespace,
       },
     });
     const coverageList = await this.prisma.coverage.findMany({
@@ -67,6 +81,15 @@ export class GetRepoCommitByCommitShaServices {
         sha: sha,
       },
     });
+
+
+
+    const testCaseInfoList = await Promise.all(coverageList.filter(item=>['mpaas','flytest'].includes(item.buildProvider)).map(item=>{
+
+        return axios.get(`${atob('aHR0cDovL3Rlc3QtY2FzZS5jYW55b24uZndzLnFhLm50LmN0cmlwY29ycC5jb20=')}/report?report_id=${item.reportID}&report_provider=${item.reportProvider}`).then(r=>{
+          return r.data;
+        })
+      }))
 
     const buildGroupList = coverageList.map(({ buildProvider, buildID }) => ({
       buildProvider,
@@ -181,6 +204,7 @@ FROM coverage_map
                     filterCoverageHit([i.id], coverageHitQuerySqlResultJson),
                     coverageMapQuerySqlResultJsonWidth,
                   ),
+                  ...getTestCaseInfo(testCaseInfoList,i.reportID,i.reportProvider)
                 };
               }),
           },
@@ -214,6 +238,7 @@ FROM coverage_map
                     filterCoverageHit([i.id], coverageHitQuerySqlResultJson),
                     coverageMapQuerySqlResultJsonWidth,
                   ),
+                  ...getTestCaseInfo(testCaseInfoList,i.reportID,i.reportProvider)
                 };
               }),
           },
