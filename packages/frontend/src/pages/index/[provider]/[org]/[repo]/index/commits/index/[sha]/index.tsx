@@ -26,7 +26,7 @@ const Sha = () => {
 
     setSearchParams(searchParams)
   }
-  return <div className={'w-full'}>
+  return <div className={'w-full shadow'}>
     <RIf condition={commit?.sha}>
       <CommitCoverageOverview commit={commit} repo={repo} onChange={onChange} selectedBuildID={selectedBuildID} />
     </RIf>

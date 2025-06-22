@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { List, Badge, Spin, Input, Tooltip, Space } from 'antd';
 import { SearchOutlined, TagsOutlined } from '@ant-design/icons';
+import { Scrollbars } from 'react-custom-scrollbars';
 // import { formatDistanceToNow } from 'date-fns';
 
 // 扩展 Commit 接口，添加 branches 属性
@@ -85,7 +86,7 @@ const CommitsList = ({
   };
 
   return (
-    <div className="flex h-full flex-col shadow dark:shadow-gray-800 w-[200px]">
+    <div className="flex h-full flex-col shadow dark:shadow-gray-800 w-[200px] mb-5">
       <div className="space-y-1 px-2 pt-2 dark:bg-gray-900">
         <Input
           placeholder="Search commits"
@@ -110,7 +111,16 @@ const CommitsList = ({
             </span>
           </div>
         ) : (
-          <>
+          <Scrollbars
+            // This will activate auto hide
+            autoHide
+            // Hide delay in ms
+            autoHideTimeout={1000}
+            // Duration for hide animation in ms.
+            autoHideDuration={200}
+            // This will activate auto-height
+            autoHeight
+            autoHeightMax={'calc(100vh - 200px)'}>
             <List
               size="small"
               dataSource={filteredCommits}
@@ -186,7 +196,7 @@ const CommitsList = ({
                 </List.Item>
               )}
             />
-          </>
+          </Scrollbars>
         )}
       </div>
     </div>
