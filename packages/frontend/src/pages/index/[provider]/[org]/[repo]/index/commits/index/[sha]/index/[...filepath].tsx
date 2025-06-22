@@ -1,5 +1,5 @@
 import { Drawer, Spin } from 'antd';
-import Report from 'canyon-report';
+import Report from 'canyontest-report';
 import { useEffect, useState } from 'react';
 import { useRequest } from 'ahooks';
 import axios from 'axios';

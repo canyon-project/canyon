@@ -84,7 +84,7 @@ export class GetRepoCommitByCommitShaServices {
 
 
 
-    const testCaseInfoList = await Promise.all(coverageList.filter(item=>['mpaas','flytest'].includes(item.buildProvider)).map(item=>{
+    const testCaseInfoList = await Promise.all(coverageList.filter(item=>['mpaas','flytest'].includes(item.reportProvider)).map(item=>{
 
         return axios.get(`${atob('aHR0cDovL3Rlc3QtY2FzZS5jYW55b24uZndzLnFhLm50LmN0cmlwY29ycC5jb20=')}/report?report_id=${item.reportID}&report_provider=${item.reportProvider}`).then(r=>{
           return r.data;
