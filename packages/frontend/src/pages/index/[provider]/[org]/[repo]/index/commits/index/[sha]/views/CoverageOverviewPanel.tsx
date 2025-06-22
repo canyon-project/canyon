@@ -140,68 +140,6 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
       {build.modeList && (
         <Collapse defaultActiveKey={['manual', 'automated']}>
           <Collapse.Panel
-            key="manual"
-            header={
-              <div className="flex items-center justify-between w-full pr-8">
-                <Space className="font-medium">
-                  <UserOutlined />
-                  手工测试覆盖率
-                </Space>
-                {/*{JSON.stringify(build.modeList||[])}*/}
-                {build.modeList?.find((r) => r.mode === 'manual') && (
-                  <Progress
-                    percent={
-                      build.modeList?.find((r) => r.mode === 'manual')!
-                        .coveragePercentage
-                    }
-                    size="small"
-                    status={
-                      build.modeList?.find((r) => r.mode === 'manual')!
-                        .coveragePercentage < 60
-                        ? 'exception'
-                        : 'active'
-                    }
-                    strokeColor={
-                      build.modeList?.find((r) => r.mode === 'manual')!
-                        .coveragePercentage >= 80
-                        ? 'green'
-                        : build.modeList?.find((r) => r.mode === 'manual')!
-                              .coveragePercentage >= 60
-                          ? 'blue'
-                          : build.modeList?.find((r) => r.mode === 'manual')!
-                                .coveragePercentage >= 40
-                            ? 'orange'
-                            : 'red'
-                    }
-                    style={{
-                      width: '80px',
-                    }}
-                  />
-                )}
-              </div>
-            }
-            className="border-0"
-          >
-            {build.modeList
-              ?.filter((r) => r.mode === 'manual')
-              .map((report) => (
-                <div key={report.reportID} className="mb-4">
-                  {/*{JSON.stringify(report.caseList||[])}*/}
-                  <Table
-                    columns={caseColumns}
-                    dataSource={report.caseList}
-                    rowKey="caseId"
-                    size="small"
-                    pagination={false}
-                    className="border border-gray-200"
-                    style={{
-                      borderBottom: 0,
-                    }}
-                  />
-                </div>
-              ))}
-          </Collapse.Panel>
-          <Collapse.Panel
             key="automated"
             header={
               <div className="flex items-center justify-between w-full pr-8">
@@ -254,6 +192,68 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                     size="small"
                     pagination={false}
                     className="border border-gray-200 "
+                    style={{
+                      borderBottom: 0,
+                    }}
+                  />
+                </div>
+              ))}
+          </Collapse.Panel>
+          <Collapse.Panel
+            key="manual"
+            header={
+              <div className="flex items-center justify-between w-full pr-8">
+                <Space className="font-medium">
+                  <UserOutlined />
+                  手工测试覆盖率
+                </Space>
+                {/*{JSON.stringify(build.modeList||[])}*/}
+                {build.modeList?.find((r) => r.mode === 'manual') && (
+                  <Progress
+                    percent={
+                      build.modeList?.find((r) => r.mode === 'manual')!
+                        .coveragePercentage
+                    }
+                    size="small"
+                    status={
+                      build.modeList?.find((r) => r.mode === 'manual')!
+                        .coveragePercentage < 60
+                        ? 'exception'
+                        : 'active'
+                    }
+                    strokeColor={
+                      build.modeList?.find((r) => r.mode === 'manual')!
+                        .coveragePercentage >= 80
+                        ? 'green'
+                        : build.modeList?.find((r) => r.mode === 'manual')!
+                          .coveragePercentage >= 60
+                          ? 'blue'
+                          : build.modeList?.find((r) => r.mode === 'manual')!
+                            .coveragePercentage >= 40
+                            ? 'orange'
+                            : 'red'
+                    }
+                    style={{
+                      width: '80px',
+                    }}
+                  />
+                )}
+              </div>
+            }
+            className="border-0"
+          >
+            {build.modeList
+              ?.filter((r) => r.mode === 'manual')
+              .map((report) => (
+                <div key={report.reportID} className="mb-4">
+                  {/*{JSON.stringify(report.caseList||[])}*/}
+                  <Table
+                    columns={caseColumns}
+                    dataSource={report.caseList}
+                    rowKey="caseId"
+                    size="small"
+                    pagination={false}
+                    className="border border-gray-200"
                     style={{
                       borderBottom: 0,
                     }}
