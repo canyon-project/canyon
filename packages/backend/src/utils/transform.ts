@@ -1,24 +1,39 @@
 // @ts-nocheck
 import { getBranchTypeByIndex, getBranchTypeIndex } from './getBranchType';
-import zlib from 'zlib';
+import * as zlib from 'zlib';
 
+function formartNum(num) {
+  if (num) {
+    if (num > 0 && num < 99999999) {
+      return num;
+    } else {
+      return null;
+    }
+  } else {
+    return null;
+  }
+}
 
 /*NOTE:
-*
-* start、end可能为{}
-* line、column可能为null
-*
-* 注意单if场景，如果是单if，并且start、end完全相等，则没有else
-*
-* 观察此文件，看哪些还有可能是null，null在ck中一律为 0
-* */
-
+ *
+ * start、end可能为{}
+ * line、column可能为null
+ *
+ * 注意单if场景，如果是单if，并且start、end完全相等，则没有else
+ *
+ * 观察此文件，看哪些还有可能是null，null在ck中一律为 0
+ * */
 
 export const transformCoverageStatementMapToCk = (statementMap) => {
   return Object.fromEntries(
     Object.entries(statementMap).map(([k, v]) => [
       Number(k),
-      [v.start.line, v.start.column, v.end.line, v.end.column],
+      [
+        formartNum(v.start.line),
+        formartNum(v.start.column),
+        formartNum(v.end.line),
+        formartNum(v.end.column),
+      ],
     ]),
   );
 };
@@ -29,18 +44,18 @@ export const transformCoverageFnMapToCk = (fnMap) => {
       Number(k),
       [
         v.name,
-        v.line,
+        formartNum(v.line),
         [
-          v.decl.start.line,
-          v.decl.start.column,
-          v.decl.end.line,
-          v.decl.end.column,
+          formartNum(v.decl.start.line),
+          formartNum(v.decl.start.column),
+          formartNum(v.decl.end.line),
+          formartNum(v.decl.end.column),
         ],
         [
-          v.loc.start.line,
-          v.loc.start.column,
-          v.loc.end.line,
-          v.loc.end.column,
+          formartNum(v.loc.start.line),
+          formartNum(v.loc.start.column),
+          formartNum(v.loc.end.line),
+          formartNum(v.loc.end.column),
         ],
       ],
     ]),
@@ -53,18 +68,18 @@ export const transformCoverageBranchMapToCk = (branchMap) => {
       Number(k),
       [
         getBranchTypeIndex(v.type),
-        v.line,
+        formartNum(v.line),
         [
-          v.loc.start.line,
-          v.loc.start.column,
-          v.loc.end.line,
-          v.loc.end.column,
+          formartNum(v.loc.start.line),
+          formartNum(v.loc.start.column),
+          formartNum(v.loc.end.line),
+          formartNum(v.loc.end.column),
         ],
         v.locations.map((loc) => [
-          loc.start.line,
-          loc.start.column,
-          loc.end.line,
-          loc.end.column,
+          formartNum(loc.start.line),
+          formartNum(loc.start.column),
+          formartNum(loc.end.line),
+          formartNum(loc.end.column),
         ]),
       ],
     ]),
@@ -77,18 +92,19 @@ export const transformCkToCoverageStatementMap = (statement_map) =>
       // 可能是null
       acc[key] = {
         start: {
-          line: startLine||null,
-          column: startColumn||null,
+          line: startLine || null,
+          column: startColumn || null,
         },
         end: {
-          line: endLine||null,
-          column: endColumn||null,
+          line: endLine || null,
+          column: endColumn || null,
         },
       };
       return acc;
     },
     {},
   );
+
 export const transformCkToCoverageFnMap = (fn_map) =>
   Object.entries(fn_map).reduce(
     (
@@ -105,25 +121,25 @@ export const transformCkToCoverageFnMap = (fn_map) =>
     ) => {
       acc[key] = {
         name,
-        line:line||undefined,
+        line: line || null,
         decl: {
           start: {
-            line: startLine||null,
-            column: startColumn||null,
+            line: startLine || null,
+            column: startColumn || null,
           },
           end: {
-            line: endLine||null,
-            column: endColumn||null,
+            line: endLine || null,
+            column: endColumn || null,
           },
         },
         loc: {
           start: {
-            line: startLine2||null,
-            column: startColumn2||null,
+            line: startLine2 || null,
+            column: startColumn2 || null,
           },
           end: {
-            line: endLine2||null,
-            column: endColumn2||null,
+            line: endLine2 || null,
+            column: endColumn2 || null,
           },
         },
       };
@@ -131,38 +147,33 @@ export const transformCkToCoverageFnMap = (fn_map) =>
     },
     {},
   );
+
 export const transformCkToCoverageBranchMap = (branch_map) =>
   Object.entries(branch_map).reduce(
     (acc, [key, [type, line, loc, locations]]) => {
       acc[key] = {
         type: getBranchTypeByIndex(type),
-        line:line||undefined,
+        line: line || null,
         loc: {
           start: {
-            line: loc[0]||null,
-            column: loc[1]||null,
+            line: loc[0] || null,
+            column: loc[1] || null,
           },
           end: {
-            line: loc[2]||null,
-            column: loc[3]||null,
+            line: loc[2] || null,
+            column: loc[3] || null,
           },
         },
         locations: locations.map(
           ([startLine, startColumn, endLine, endColumn]) => {
-            // if ([startLine, startColumn, endLine, endColumn].includes(0)) {
-            //   return {
-            //     start: {},
-            //     end: {},
-            //   };
-            // }
             return {
               start: {
-                line: startLine||null,
-                column: startColumn||null,
+                line: startLine || null,
+                column: startColumn || null,
               },
               end: {
-                line: endLine||null,
-                column: endColumn||null,
+                line: endLine || null,
+                column: endColumn || null,
               },
             };
           },
