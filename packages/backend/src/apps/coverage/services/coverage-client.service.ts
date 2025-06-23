@@ -94,7 +94,7 @@ export class CoverageClientService {
           reportID: reportID,
           reportProvider: reportProvider,
           branch, // 定
-          compareTarget,
+          compareTarget:compareTarget||'',
           reporter: '1',
           buildID,
           buildProvider,
