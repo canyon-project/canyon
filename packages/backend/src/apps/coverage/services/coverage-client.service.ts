@@ -103,8 +103,8 @@ export class CoverageClientService {
         },
       })
       .catch((err) => {
-        // console.log(r)
-        return JSON.stringify(err)
+        // console.log(err.message)
+        return String(err.message)
       });
 
     if (coverageType === 'hit') {
