@@ -83,7 +83,7 @@ export class CoverageClientService {
 
     //   如果是map的话，那逻辑就一样了
     // 不管怎么样，先插入
-    await this.prisma.coverage
+    const coverageCreateRes = await this.prisma.coverage
       .create({
         data: {
           id: coverageID,
@@ -102,8 +102,9 @@ export class CoverageClientService {
           provider: provider,
         },
       })
-      .catch(() => {
+      .catch((err) => {
         // console.log(r)
+        return JSON.stringify(err)
       });
 
     if (coverageType === 'hit') {
@@ -166,6 +167,7 @@ export class CoverageClientService {
         return {
           re1,
           re2,
+          coverageCreateRes
         };
       } else {
         const mapList: any[] = this.genMapList(instrumentCwd, coverage);
@@ -178,6 +180,7 @@ export class CoverageClientService {
     return {
       type: coverageType, // hit or map
       coverageTable: coverageList,
+      coverageCreateRes
     };
   }
 
