@@ -28,7 +28,10 @@ function trim(obj) {
 let onlyOne = true
 
 export default declare((api, config, dirname) => {
-  api.assertVersion(7);
+  // 需要主动设置 assertVersion7 false
+  if (config.assertVersion7 !== false) {
+    api.assertVersion(7);
+  }
   return {
     visitor: {
       Program: {
