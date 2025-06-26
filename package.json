@@ -28,7 +28,7 @@
       "react-dom": "^19",
       "@types/react": "^19",
       "@types/react-dom": "^19",
-      "antd": "latest",
+      "antd": "https://pkg.pr.new/ant-design/ant-design/antd@54184",
       "@ant-design/icons": "latest",
       "@vitejs/plugin-react": "4.4.1",
       "globals": "16.0.0",
