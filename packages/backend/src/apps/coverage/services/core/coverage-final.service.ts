@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClickHouseClient } from '@clickhouse/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { coverageMapQuerySql } from '../../sql/coverage-map-query.sql';
-import { coverageHitQuerySql } from '../../sql/coverage-hit-query.sql';
+import { coverageHitQuerySql, coverageHitQuerySqlParallel } from '../../sql/coverage-hit-query.sql';
 import { genHitByMap } from '../../../../utils/genHitByMap';
 import {
   CoverageHitQuerySqlResultJsonInterface,
@@ -75,17 +75,25 @@ export class CoverageFinalService {
     );
     const ckQuerySqlStart = new Date().getTime();
 
+    // 使用并行查询替代单个大查询
+    const coverageHitQuerySqls = coverageHitQuerySqlParallel(coverages, {
+      reportProvider,
+      reportID,
+    }, 100); // 每批100个coverage_id
+
     const [coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson] =
       await Promise.all([
-        this.clickhouseClient
-          .query({
-            query: coverageHitQuerySql(coverages, {
-              reportProvider,
-              reportID,
-            }),
-            format: 'JSONEachRow',
-          })
-          .then((r) => r.json<CoverageHitQuerySqlResultJsonInterface>()),
+        // 并行执行多个小的查询
+        Promise.all(
+          coverageHitQuerySqls.map(sql =>
+            this.clickhouseClient
+              .query({
+                query: sql,
+                format: 'JSONEachRow',
+              })
+              .then((r) => r.json<CoverageHitQuerySqlResultJsonInterface>())
+          )
+        ).then(results => results.flat()), // 合并所有查询结果
         await this.clickhouseClient
           .query({
             query: coverageMapQuerySql(deduplicateHashIDList),
