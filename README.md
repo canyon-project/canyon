@@ -62,7 +62,7 @@ Canyon (pronounced /ˈkænjən/) is a JavaScript code coverage collection platfo
 
 ## WeChat Group
 
-<img src="./screenshots/wechat35.png" style="width: 200px"/>
+<img src="./screenshots/wechat36.png" style="width: 200px"/>
 
 ## Developing
 
