@@ -29,6 +29,12 @@ const IndexPage = () => {
     getItem(t('menus.settings'), 'settings', <SettingOutlined />),
   ];
   useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/') {
+      navigate('/projects'); // Default navigation to projects
+    }
+  }, []);
+  useEffect(() => {
     if (activeMenuKey === 'projects') {
       navigate('/projects');
     }
