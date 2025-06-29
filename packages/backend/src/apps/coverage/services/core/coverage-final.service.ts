@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ClickHouseClient } from '@clickhouse/client';
 import { PrismaService } from '../../../../prisma/prisma.service';
 import { coverageMapQuerySql } from '../../sql/coverage-map-query.sql';
-import { coverageHitQuerySql, coverageHitQuerySqlParallel } from '../../sql/coverage-hit-query.sql';
+import { coverageHitQuerySqlParallel } from '../../sql/coverage-hit-query.sql';
 import { genHitByMap } from '../../../../utils/genHitByMap';
 import {
   CoverageHitQuerySqlResultJsonInterface,

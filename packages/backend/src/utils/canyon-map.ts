@@ -23,34 +23,3 @@ function genHitByMap(mapValue: any) {
     ),
   };
 }
-export const reorganizeCompleteCoverageObjects = (
-  map: {
-    [key: string]: object;
-  },
-  hit: {
-    [key: string]: object;
-  },
-) => {
-  // 重组的时候以map为基准，map可能是只查询一部分。
-  const obj = {};
-  for (const mapKey in map) {
-    if (hit[mapKey]) {
-      // @ts-ignore
-      obj[mapKey] = {
-        ...map[mapKey],
-        ...hit[mapKey],
-        // @ts-ignore
-        inputSourceMap: map[mapKey].inputSourceMap,
-        path: mapKey,
-      };
-    } else {
-      // @ts-ignore
-      obj[mapKey] = {
-        ...map[mapKey],
-        ...genHitByMap(map[mapKey]),
-        path: mapKey,
-      };
-    }
-  }
-  return obj;
-};

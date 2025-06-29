@@ -4,42 +4,6 @@
 2. branch用了位运算
 * */
 
-export function coverageHitQuerySql(
-  coverages: {
-    id: string;
-    reportProvider: string;
-    reportID: string;
-  }[],
-  {
-    reportProvider,
-    reportID,
-  }: {
-    reportProvider?: string;
-    reportID?: string;
-  },
-): string {
-  const filterCovs = coverages.filter((i) => {
-    const reportProviderOff =
-      !reportProvider || i.reportProvider === reportProvider;
-    const reportIDOff = !reportID || i.reportID === reportID;
-    return reportProviderOff && reportIDOff;
-  });
-
-  const in_condition =
-    filterCovs.length > 0
-      ? `${filterCovs.map((h) => `'${h.id}'`).join(', ')}`
-      : `''`;
-  return `SELECT
-            coverage_id as coverageID,
-            full_file_path as fullFilePath,
-            sumMapMerge(s) AS s,
-            sumMapMerge(f) AS f,
-            sumMapMerge(b) AS b
-          FROM default.coverage_hit_agg
-          WHERE coverage_id IN (${in_condition})
-          GROUP BY coverage_id, full_file_path;`;
-}
-
 /**
  * 生成并行查询的 SQL 语句数组
  * 将大的 IN 查询拆分成多个小的并行查询以提高性能
@@ -149,7 +113,7 @@ export function coverageHitQuerySqlParallelSimple(
  * 2. 避免大 IN 子句导致的性能问题
  * 3. 利用 ClickHouse 的并行处理能力
  * 4. 当 coverage_id 数量很大时，性能提升明显
- * 
+ *
  * 使用建议：
  * - 当 coverage_id 数量 > 100 时，建议使用并行查询
  * - batchSize 建议设置为 50-200 之间，根据数据量和 ClickHouse 配置调整
