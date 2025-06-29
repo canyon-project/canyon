@@ -94,19 +94,34 @@ export function convertClickHouseCoverageToIstanbul(
 
 export function fuzhi(find, initCov) {
   const { s: merged_s, f: merged_f, b: merged_b } = find;
+  
+  // 以 initCov 为基准，合并 s 数据
   merged_s[0].forEach((j: any, jindex) => {
-    initCov.s[j] = Number(merged_s[1][jindex]);
+    const existingValue = Number(initCov.s[j] || 0);
+    const newValue = Number(merged_s[1][jindex]);
+    initCov.s[j] = existingValue + newValue;
   });
 
+  // 以 initCov 为基准，合并 f 数据
   merged_f[0].forEach((j: any, jindex) => {
-    initCov.f[j] = Number(merged_f[1][jindex]);
+    const existingValue = Number(initCov.f[j] || 0);
+    const newValue = Number(merged_f[1][jindex]);
+    initCov.f[j] = existingValue + newValue;
   });
 
+  // 以 initCov 为基准，合并 b 数据
   merged_b[0].forEach((j: any, jindex) => {
     const realB = decodeKey(j);
     const [a, b] = realB;
-    initCov.b[a] = [];
-    initCov.b[a][b] = Number(merged_b[1][jindex]);
+    
+    // 确保 initCov.b[a] 存在
+    if (!initCov.b[a]) {
+      initCov.b[a] = [];
+    }
+    
+    const existingValue = Number(initCov.b[a][b] || 0);
+    const newValue = Number(merged_b[1][jindex]);
+    initCov.b[a][b] = existingValue + newValue;
   });
 
   return {
