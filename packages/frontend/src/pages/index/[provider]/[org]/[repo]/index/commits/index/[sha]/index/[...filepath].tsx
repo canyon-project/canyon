@@ -48,7 +48,7 @@ const FilePath = () => {
           reportID,
           reportProvider,
         },
-      }).then(({ data }) => data.data),
+      }).then(({ data }) => data),
     {},
   );
 

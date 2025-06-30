@@ -1,10 +1,9 @@
-// @ts-nocheck
 import { PrismaService } from '../../../prisma/prisma.service';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClickHouseClient } from '@clickhouse/client';
 import { percent } from 'canyon-data';
 import axios from "axios";
-import { coverageHitQuerySqlParallelSimple } from '../../coverage/sql/coverage-hit-query.sql';
+import {CoverageMapQuerySqlResultJsonInterface} from "../../coverage/types/coverage-final.types";
 
 
 function getTestCaseInfo(list,reportID,reportProvider) {
@@ -111,19 +110,18 @@ export class GetRepoCommitByCommitShaServices {
       ...new Set(coverageMapRelationList.map((i) => i.coverageMapHashID)),
     ];
 
-    const coverageHitQuerySqlResultJson = await Promise.all(
-      coverageHitQuerySqlParallelSimple(
-        coverageList.map(({ id }) => id),
-        100 // 每批100个coverage_id
-      ).map(sql =>
-        this.clickhouseClient
-          .query({
-            query: sql,
-            format: 'JSONEachRow',
-          })
-          .then((r) => r.json())
-      )
-    ).then(results => results.flat()); // 合并所有查询结果
+    const coverageHitQuerySqlResultJson = await this.clickhouseClient
+      .query({
+        query: `SELECT
+                  coverage_id as coverageID,
+                  full_file_path as fullFilePath,
+                  tupleElement(sumMapMerge(s), 1) AS s
+                FROM default.coverage_hit_agg
+                  WHERE coverage_id IN (${coverageList.map(({ id }) => `'${id}'`).join(', ')})
+                GROUP BY coverage_id, full_file_path;`,
+        format: 'JSONEachRow',
+      })
+      .then((r) => r.json());
 
     const coverageMapQuerySqlResultJson = await this.clickhouseClient
       .query({
@@ -138,19 +136,24 @@ FROM coverage_map
       })
       .then((r) => r.json());
 
-    const coverageMapQuerySqlResultJsonWidth = [];
+    const coverageMapQuerySqlResultJsonWidth:(CoverageMapQuerySqlResultJsonInterface&{fullFilePath:string})[] = [];
 
     for (let i = 0; i < coverageMapRelationList.length; i++) {
       const coverageMapRelationItem = coverageMapRelationList[i];
       const coverageMapQuerySqlResultJsonItem =
         coverageMapQuerySqlResultJson.find(
+          // @ts-ignore
           (item) => item.hash === coverageMapRelationItem.coverageMapHashID,
         );
 
       if (coverageMapQuerySqlResultJsonItem) {
+        // @ts-ignore
         coverageMapQuerySqlResultJsonWidth.push({
+          // @ts-ignore
           ...coverageMapQuerySqlResultJsonItem,
-          fullFilePath: coverageMapRelationItem.fullFilePath,
+          // @ts-ignore
+          fullFilePath: coverageMapRelationItem.fullFilePath||'',
+          // @ts-ignore
         });
       }
     }
@@ -246,6 +249,7 @@ FROM coverage_map
           },
         ],
       };
+      // @ts-ignore
       resultList.push(group);
     });
 

@@ -48,7 +48,7 @@ export function handleSelectFile({
         buildID,
       },
     })
-    .then(({ data }) => data.data[filepath || '']);
+    .then(({ data }) => data[filepath || '']);
 
   // const fileCodeChangeRequest = axios
   //   .get(`/api/codechange`, {
