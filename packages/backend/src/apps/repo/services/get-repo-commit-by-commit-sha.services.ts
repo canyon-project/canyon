@@ -70,14 +70,14 @@ export class GetRepoCommitByCommitShaServices {
   ) {}
 
   async invoke(pathWithNamespace: string, sha: string) {
-    const project = await this.prisma.project.findFirst({
+    const repo = await this.prisma.repo.findFirst({
       where: {
         id: pathWithNamespace,
       },
     });
     const coverageList = await this.prisma.coverage.findMany({
       where: {
-        repoID: project?.id || '',
+        repoID: repo?.id || '',
         sha: sha,
       },
     });

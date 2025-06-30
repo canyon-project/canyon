@@ -15,7 +15,7 @@ export class CodeService {
     });
     return getFileInfo(
       {
-        projectID: repoID,
+        repoID: repoID,
         filepath: encodeURIComponent(filepath),
         commitSha: sha,
       },

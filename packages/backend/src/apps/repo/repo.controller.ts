@@ -6,7 +6,7 @@ import { ApiTags, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 
 @ApiTags('Repository')
 @Controller('')
-export class ProjectController {
+export class RepoController {
   constructor(
     private readonly getRepoCommitsByRepoIdServices: GetRepoCommitsByRepoIdServices,
     private readonly getRepoCommitByCommitSHAServices: GetRepoCommitByCommitShaServices,

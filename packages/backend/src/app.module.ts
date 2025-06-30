@@ -7,7 +7,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './apps/user/user.module';
 import { AuthModule } from './apps/auth/auth.module';
 import { CoverageModule } from './apps/coverage/coverage.module';
-import { ProjectModule } from './apps/project/project.module';
+import { RepoModule } from './apps/repo/repo.module';
 import { CodeModule } from './apps/code/code.module';
 
 @Module({
@@ -16,7 +16,7 @@ import { CodeModule } from './apps/code/code.module';
     PrismaModule,
     UserModule,
     AuthModule,
-    ProjectModule,
+    RepoModule,
     CoverageModule,
     CodeModule,
     ServeStaticModule.forRoot({

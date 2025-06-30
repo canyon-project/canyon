@@ -47,7 +47,7 @@ export interface Commit {
   };
 }
 
-export interface ProjectInfo {
+export interface RepoInfo {
   id: number;
   description: string;
   main_language: string;
@@ -126,16 +126,16 @@ export interface ProjectInfo {
 
 export const getFileInfo = async (
   {
-    projectID,
+    repoID,
     filepath,
     commitSha,
-  }: { projectID: string; filepath: string; commitSha: string },
+  }: { repoID: string; filepath: string; commitSha: string },
   token: string,
   gitProviderUrl: string,
 ) => {
   return await axios
     .get<FileInfo>(
-      `${gitProviderUrl}/api/v4/projects/${projectID}/repository/files/${filepath}`,
+      `${gitProviderUrl}/api/v4/projects/${repoID}/repository/files/${filepath}`,
       {
         params: {
           ref: commitSha,
@@ -149,7 +149,7 @@ export const getFileInfo = async (
     .then(({ data }) => data);
 };
 export const getCommits = async (
-  { projectID, commitShas }: { projectID: string; commitShas: string[] },
+  { repoID, commitShas }: { repoID: string; commitShas: string[] },
   token: string,
   gitProviderUrl: string,
 ) => {
@@ -157,7 +157,7 @@ export const getCommits = async (
     commitShas.map((commitSha) => {
       return axios
         .get<Commit>(
-          `${gitProviderUrl}/api/v4/projects/${projectID}/repository/commits/${commitSha}`,
+          `${gitProviderUrl}/api/v4/projects/${repoID}/repository/commits/${commitSha}`,
           {
             headers: {
               // Authorization: `Bearer ${token}`,
@@ -177,13 +177,13 @@ export const getCommits = async (
   );
 };
 
-export async function getProjectByID(
-  projectID: string,
+export async function getRepoByID(
+  repoID: string,
   token: string,
   gitProviderUrl: string,
 ) {
   return await axios
-    .get<ProjectInfo>(`${gitProviderUrl}/api/v4/projects/${projectID}`, {
+    .get<RepoInfo>(`${gitProviderUrl}/api/v4/projects/${repoID}`, {
       headers: {
         // Authorization: `Bearer ${token}`,
         'private-token': token,

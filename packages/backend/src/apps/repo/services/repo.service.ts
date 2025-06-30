@@ -6,11 +6,11 @@ export class RepoService {
   constructor(private readonly prisma: PrismaService) {}
   async getByRepoId(repoID: string) {
     if (repoID.includes('/')) {
-      return this.prisma.project.findFirst({
+      return this.prisma.repo.findFirst({
         where: { pathWithNamespace: repoID },
       });
     } else {
-      return this.prisma.project.findFirst({
+      return this.prisma.repo.findFirst({
         where: { id: repoID },
       });
     }
@@ -18,7 +18,7 @@ export class RepoService {
 
   async getRepoList(page: number, limit: number) {
 
-    const projectList =await this.prisma.project.findMany({
+    const repoList =await this.prisma.repo.findMany({
       // skip,
       // take: limit,
       orderBy: { createdAt: 'desc' },
@@ -39,12 +39,12 @@ export class RepoService {
 
     const list:any = []
 
-    for (let i = 0; i < projectList.length; i++) {
-      const project = projectList[i];
+    for (let i = 0; i < repoList.length; i++) {
+      const repo = repoList[i];
       // const coverage = coverageList;
-      const filterCoverageList = coverageList.filter(cover => cover.repoID === project.id);
+      const filterCoverageList = coverageList.filter(cover => cover.repoID === repo.id);
       list.push({
-        ...project,
+        ...repo,
         reportTimes: filterCoverageList.length,
         lastReportTime: filterCoverageList[0] ? filterCoverageList[0].updatedAt : '1970-01-01T00:00:00.000Z',
       });

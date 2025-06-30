@@ -6,7 +6,7 @@ import { getCommits } from '../../../adapter/gitlab.adapter';
 export class GetRepoCommitsByRepoIdServices {
   constructor(private readonly prisma: PrismaService) {}
   async invoke(repoID) {
-    const project = await this.prisma.project
+    const repo = await this.prisma.repo
       .findFirst({
         where: {
           id: repoID,
@@ -19,7 +19,7 @@ export class GetRepoCommitsByRepoIdServices {
 
     const coverageList = await this.prisma.coverage.findMany({
       where: {
-        repoID: project?.id || '',
+        repoID: repo?.id || '',
       },
       orderBy: {
         createdAt: 'desc',
@@ -34,7 +34,7 @@ export class GetRepoCommitsByRepoIdServices {
 
     const commitList = await getCommits(
       {
-        projectID: project?.id || '',
+        repoID: repo?.id || '',
         commitShas: [...new Set(coverageList.map((coverage) => coverage.sha))],
       },
       gitProvider?.privateToken || '',
