@@ -8,7 +8,7 @@ import { UserModule } from './apps/user/user.module';
 import { AuthModule } from './apps/auth/auth.module';
 import { CoverageModule } from './apps/coverage/coverage.module';
 import { ProjectModule } from './apps/project/project.module';
-import { SourcecodeModule } from './apps/sourcecode/sourcecode.module';
+import { CodeModule } from './apps/code/code.module';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { SourcecodeModule } from './apps/sourcecode/sourcecode.module';
     AuthModule,
     ProjectModule,
     CoverageModule,
-    SourcecodeModule,
+    CodeModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../../frontend', 'dist'),
     }),

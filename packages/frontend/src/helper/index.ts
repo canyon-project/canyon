@@ -28,7 +28,7 @@ export function handleSelectFile({
   buildProvider,
 }: HandleSelectFile) {
   const fileContentRequest = axios
-    .get(`/api/sourcecode`, {
+    .get(`/api/code`, {
       params: {
         repoID: repoID,
         sha: sha,
@@ -63,7 +63,7 @@ export function handleSelectFile({
     fileContentRequest,
     fileCoverageRequest,
     // fileCodeChangeRequest,
-  ]).then(([fileContent, fileCoverage, fileCodeChange]) => {
+  ]).then(([fileContent, fileCoverage]) => {
     return {
       fileContent: getDecode(fileContent.content),
       fileCoverage: fileCoverage,

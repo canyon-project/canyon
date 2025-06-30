@@ -1,13 +1,11 @@
 import { Injectable } from '@nestjs/common';
-// import { PrismaService } from '../prisma/prisma.service';
-// import { getFileInfo } from '../adapter/gitlab.adapter';
 import { PrismaService } from '../../prisma/prisma.service';
 import { getFileInfo } from '../../adapter/gitlab.adapter';
 
 @Injectable()
-export class SourcecodeService {
+export class CodeService {
   constructor(private readonly prisma: PrismaService) {}
-  async getsourcecode(repoID, sha, filepath): Promise<any> {
+  async getCode(repoID, sha, filepath): Promise<any> {
     const gitProvider = await this.prisma.gitProvider.findFirst({
       where: {
         id: {
