@@ -1,133 +1,26 @@
-// @ts-nocheck
-import { decodeKey } from '../../../utils/ekey';
+import {genHitByMap} from "../../../utils/genHitByMap";
+// 重组覆盖率hit、map数据
+// NOTE: 核心是要以map为基准
+export function restructureCoverageData(hit, map) {
+  const baseFileCoverage = genHitByMap(map)
 
-function mergeAndSum(obj1, obj2) {
-  const merged = { ...obj1 };
-  for (const [key, value] of Object.entries(obj2)) {
-    merged[key] = Number(merged[key] || 0) + Number(value);
-  }
-  return merged;
-}
-
-export function convertClickHouseCoverageToIstanbul(
-  arr: any[],
-  fullFilePath: string,
-) {
-  return arr.reduce(
-    (previousValue, currentValue, currentIndex, array) => {
-      const { s: s1, f: f1, b: b1 } = currentValue;
-      const { s: s2, f: f2, b: b2 } = previousValue;
-
-      if (currentValue.s[0].length === 0) {
-        return previousValue;
-      }
-
-      // 处理 s
-      const s1_obj = s1[0].reduce((pre, cur, index) => {
-        pre[cur] = s1[1][index];
-        return pre;
-      }, {});
-
-      const s2_obj = s2[0].reduce((pre, cur, index) => {
-        pre[cur] = s2[1][index];
-        return pre;
-      }, {});
-
-      const s_obj = mergeAndSum(s1_obj, s2_obj);
-      const s = [[], []];
-      Object.entries(s_obj).forEach(([key, value]) => {
-        s[0].push(key);
-        s[1].push(value);
-      });
-
-      // 重构 f 的处理
-      const f1_obj = f1[0].reduce((pre, cur, index) => {
-        pre[cur] = f1[1][index];
-        return pre;
-      }, {});
-
-      const f2_obj = f2[0].reduce((pre, cur, index) => {
-        pre[cur] = f2[1][index];
-        return pre;
-      }, {});
-
-      const f_obj = mergeAndSum(f1_obj, f2_obj);
-      const f = [[], []];
-      Object.entries(f_obj).forEach(([key, value]) => {
-        f[0].push(key);
-        f[1].push(value);
-      });
-
-      // 重构 b 的处理
-      const b1_obj = b1[0].reduce((pre, cur, index) => {
-        pre[cur] = b1[1][index];
-        return pre;
-      }, {});
-
-      const b2_obj = b2[0].reduce((pre, cur, index) => {
-        pre[cur] = b2[1][index];
-        return pre;
-      }, {});
-
-      const b_obj = mergeAndSum(b1_obj, b2_obj);
-      const b = [[], []];
-      Object.entries(b_obj).forEach(([key, value]) => {
-        b[0].push(key);
-        b[1].push(value);
-      });
-
-      return {
-        ...previousValue,
-        s: s,
-        f: f,
-        b: b,
-      };
-    },
-    {
-      fullFilePath: fullFilePath,
-      b: [[], []],
-      f: [[], []],
-      s: [[], []],
-    },
-  );
-}
-
-export function fuzhi(find, initCov) {
-  const { s: merged_s, f: merged_f, b: merged_b } = find;
-  
-  // 以 initCov 为基准，合并 s 数据
-  merged_s[0].forEach((j: any, jindex) => {
-    const existingValue = Number(initCov.s[j] || 0);
-    const newValue = Number(merged_s[1][jindex]);
-    initCov.s[j] = existingValue + newValue;
-  });
-
-  // 以 initCov 为基准，合并 f 数据
-  merged_f[0].forEach((j: any, jindex) => {
-    const existingValue = Number(initCov.f[j] || 0);
-    const newValue = Number(merged_f[1][jindex]);
-    initCov.f[j] = existingValue + newValue;
-  });
-
-  // 以 initCov 为基准，合并 b 数据
-  merged_b[0].forEach((j: any, jindex) => {
-    const realB = decodeKey(j);
-    const [a, b] = realB;
-    
-    // 确保 initCov.b[a] 存在
-    if (!initCov.b[a]) {
-      initCov.b[a] = [];
-    }
-    
-    const existingValue = Number(initCov.b[a][b] || 0);
-    const newValue = Number(merged_b[1][jindex]);
-    initCov.b[a][b] = existingValue + newValue;
-  });
-
+  Object.entries(baseFileCoverage.s).forEach(([keyIndex])=>{
+    const key = keyIndex
+    baseFileCoverage.s[key] = hit.s[key] || 0;
+  })
+  Object.entries(baseFileCoverage.f).forEach(([keyIndex])=>{
+    const key = keyIndex
+    baseFileCoverage.f[key] = hit.f[key] || 0;
+  })
+  Object.entries(baseFileCoverage.b).forEach(([keyIndex, value])=>{
+    const key = keyIndex
+    // @ts-ignore
+    baseFileCoverage.b[key] = value.map((cKeyIndex, index) => {
+      return hit.b[key]?.[index] || 0
+    });
+  })
   return {
-    path: initCov.path,
-    b: initCov.b,
-    f: initCov.f,
-    s: initCov.s,
+    ...map,
+    ...baseFileCoverage,
   };
 }

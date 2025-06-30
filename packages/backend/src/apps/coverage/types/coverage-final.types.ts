@@ -1,5 +1,4 @@
 export interface CoverageHitQuerySqlResultJsonInterface {
-  coverageID: string;
   fullFilePath: string;
   s: [string[], number[]];
   f: [string[], number[]];

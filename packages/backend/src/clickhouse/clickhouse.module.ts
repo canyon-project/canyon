@@ -1,6 +1,5 @@
 import { Module, Global } from '@nestjs/common';
 import { createClient } from '@clickhouse/client';
-import * as process from 'node:process';
 
 @Global()
 @Module({

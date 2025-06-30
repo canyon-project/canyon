@@ -1,8 +1,9 @@
-// @ts-nocheck
 import { getBranchTypeByIndex } from './getBranchType';
+import {decodeKey} from "./ekey";
 
 export const transformCkToCoverageStatementMap = (statement_map) =>
   Object.entries(statement_map).reduce(
+    // @ts-ignore
     (acc, [key, [startLine, startColumn, endLine, endColumn]]) => {
       // 可能是null
       acc[key] = {
@@ -26,10 +27,15 @@ export const transformCkToCoverageFnMap = (fn_map) =>
       acc,
       [
         key,
+        // @ts-ignore
         [
+          // @ts-ignore
           name,
+          // @ts-ignore
           line,
+          // @ts-ignore
           [startLine, startColumn, endLine, endColumn],
+          // @ts-ignore
           [startLine2, startColumn2, endLine2, endColumn2],
         ],
       ],
@@ -63,8 +69,10 @@ export const transformCkToCoverageFnMap = (fn_map) =>
     {},
   );
 
+
 export const transformCkToCoverageBranchMap = (branch_map) =>
   Object.entries(branch_map).reduce(
+    // @ts-ignore
     (acc, [key, [type, line, loc, locations]]) => {
       acc[key] = {
         type: getBranchTypeByIndex(type),
@@ -98,3 +106,43 @@ export const transformCkToCoverageBranchMap = (branch_map) =>
     },
     {},
   );
+
+function transform(h) {
+  const indexList = h[0];
+  const valueList = h[1];
+  const o = {}
+  for (let i = 0; i < indexList.length; i++) {
+    o[indexList[i]] = Number(valueList[i]);
+  }
+  return o
+}
+
+function transformB(h) {
+  const indexList = h[0];
+  const valueList = h[1];
+  const o = {}
+  for (let i = 0; i < indexList.length; i++) {
+    const [x,y] = decodeKey(indexList[i]);
+    if (!o[x]) {
+      o[x] = [];
+    }
+    o[x][y] = Number(valueList[i]);
+  }
+  return o
+}
+
+export const transformClickHouseCoverageHitToIstanbul = (hit) => {
+  if (!hit){
+    return {
+      s: {},
+      f: {},
+      b: {},
+    }
+  }
+  const { s, f, b } = hit;
+  return {
+    s: transform(s),
+    f: transform(f),
+    b: transformB(b)
+  }
+}

@@ -33,10 +33,7 @@ export class CoverageController {
         filePath,
       )
       .then((r) => {
-        return {
-          performance: r.performance,
-          data: genSummaryMapByCoverageMap(r.data),
-        };
+        return genSummaryMapByCoverageMap(r);
       });
   }
 
