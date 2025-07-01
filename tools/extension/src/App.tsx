@@ -5,6 +5,8 @@ import {
   DownloadOutlined,
   GithubOutlined,
   CheckCircleOutlined,
+  GitlabFilled,
+  GithubFilled,
 } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -34,8 +36,11 @@ export default function CanyonPage() {
           </h2>
 
           <div className="grid grid-cols-[auto_1fr] gap-y-3 mb-4">
-            <Text className="text-gray-600">Project ID:</Text>
-            <Text className="pl-1">118075</Text>
+            <Text className="text-gray-600">Repo:</Text>
+            <Text className="pl-1 gap-1 flex">
+              <GithubFilled />
+              <span>canyon-project/canyon</span>
+            </Text>
 
             <Text className="text-gray-600">Commit Sha:</Text>
             <Text className="pl-1">
@@ -67,6 +72,11 @@ export default function CanyonPage() {
               <Input className="max-w-[100px]" value="7" />
               <Text>s</Text>
             </div>
+            <Text className="text-gray-600">Build ID:</Text>
+            <Text className="pl-1">
+              <GitlabFilled />
+              7758258
+            </Text>
 
             <div className="flex items-center text-gray-600">
               <Text>Report ID</Text>
