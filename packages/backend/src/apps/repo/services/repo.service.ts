@@ -1,5 +1,5 @@
 import { PrismaService } from '../../../prisma/prisma.service';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class RepoService {
@@ -16,11 +16,15 @@ export class RepoService {
     }
   }
 
-  async getRepoList(page: number, limit: number) {
+  async getRepoList(keyword='') {
 
     const repoList =await this.prisma.repo.findMany({
-      // skip,
-      // take: limit,
+      where:{
+        OR: [
+          { id: { contains: keyword, mode: 'insensitive' } },
+          { pathWithNamespace: { contains: keyword, mode: 'insensitive' } },
+        ],
+      },
       orderBy: { createdAt: 'desc' },
     })
 

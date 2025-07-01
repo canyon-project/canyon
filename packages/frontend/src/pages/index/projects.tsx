@@ -22,15 +22,22 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import {useRequest} from "ahooks";
 import axios from "axios";
+import {useEffect, useState} from 'react';
 const { Text } = Typography;
 const ProjectListPage = () => {
-  const {data,loading} = useRequest(
-    () => axios('/api/repo').then(({data}) => data),
+  const [keyword, setKeyword] = useState('');
+  const {data,loading, run} = useRequest(
+    (params = {}) => axios('/api/repo', { params: { keyword: params.keyword || '' } }).then(({data}) => data),
     {
+      manual: true,
     },
   )
 
   const { t } = useTranslation();
+
+  useEffect(() => {
+    run({ keyword });
+  }, []);
 
   const columns: ColumnsType = [
     {
@@ -219,9 +226,10 @@ const ProjectListPage = () => {
             <Input.Search
               placeholder={t('projects.search_keywords')}
               className={'!w-[420px] mb-3'}
+              value={keyword}
+              onChange={e => setKeyword(e.target.value)}
               onSearch={() => {
-                // setKeyword(value);
-                // setCurrent(1);
+                run({ keyword });
               }}
             />
             <Space className={'ml-5'}>

@@ -17,8 +17,8 @@ export class RepoController {
   @ApiOperation({ summary: 'Get repositories' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved repositories' })
   @Get('api/repo')
-  async getRepos(@Query('page') page: number, @Query('limit') limit: number) {
-    return this.repoService.getRepoList(page, limit);
+  async getRepos(@Query('keyword') keyword: string) {
+    return this.repoService.getRepoList(keyword);
   }
 
   @ApiOperation({ summary: 'Get repository by ID' })
