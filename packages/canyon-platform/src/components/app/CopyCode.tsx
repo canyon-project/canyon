@@ -1,28 +1,16 @@
 import "./CopyCode.css";
 
 import { CopyOutlined } from "@ant-design/icons";
-import { FC, useEffect } from "react";
+import { Button, message } from "antd";
+import { FC } from "react";
 // @ts-ignore
 import { CopyToClipboard } from "react-copy-to-clipboard";
-// @ts-ignore
-import { codeToHtml } from "https://esm.sh/shiki@1.0.0";
-const CopyCode: FC<{ code: string }> = ({ code }) => {
-  const fileContent = code;
-  const [content, setContent] = useState("");
+import Editor from "@monaco-editor/react";
 
-  useEffect(() => {
-    if (fileContent) {
-      codeToHtml(fileContent, {
-        lang: "json",
-        theme: "tokyo-night",
-      }).then((html) => {
-        setContent(html);
-      });
-    }
-  }, [fileContent]);
+const CopyCode: FC<{ code: string }> = ({ code }) => {
   return (
     <div className={"relative copy-code"}>
-      <div className={"absolute right-[10px] top-[10px]"}>
+      <div className={"absolute right-[10px] top-[10px] z-10"}>
         <CopyToClipboard text={code} onCopy={() => message.success("Copied!")}>
           <Button
             type={"link"}
@@ -32,8 +20,21 @@ const CopyCode: FC<{ code: string }> = ({ code }) => {
         </CopyToClipboard>
       </div>
 
-      <div className={"p-2 bg-[#1a1b26] rounded-lg pb-[1px]"}>
-        <div dangerouslySetInnerHTML={{ __html: content }} />
+      <div className={"p-2 rounded-lg pb-[1px]"}>
+        <Editor
+          height="200px"
+          defaultLanguage="json"
+          value={code}
+          options={{
+            readOnly: true,
+            minimap: { enabled: false },
+            scrollBeyondLastLine: false,
+            fontSize: 12,
+            lineNumbers: "on",
+            wordWrap: "on",
+            automaticLayout: true,
+          }}
+        />
       </div>
     </div>
   );
