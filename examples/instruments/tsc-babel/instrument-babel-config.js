@@ -1,6 +1,11 @@
 module.exports = {
   plugins: [
     'istanbul',
-    'canyon'
+    [
+      'canyon',
+      {
+        ci:true
+      }
+    ]
   ]
 }

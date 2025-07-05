@@ -47,3 +47,5 @@ Cargo.lock
 .turbo
 pnpm-lock.yaml
 package-lock.json
+
+.canyon_output
