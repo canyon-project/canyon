@@ -1,0 +1,21 @@
+{
+  "name": "tsc-swc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "tsc": "tsc",
+    "instrument": "babel uninstrumented-lib --config-file ./instrument-babel-config.js --out-dir lib",
+    "build": "(tsc || true) && npm run instrument"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "babel-plugin-istanbul": "latest",
+    "babel-plugin-canyon": "latest",
+    "@babel/cli": "^7.24.1"
+  }
+}
