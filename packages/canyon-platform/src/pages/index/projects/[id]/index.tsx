@@ -2,10 +2,9 @@ import Icon, {
   AimOutlined,
   BranchesOutlined,
   EditOutlined,
-  SettingOutlined,
 } from "@ant-design/icons";
 import { useMutation, useQuery } from "@apollo/client";
-import { TourProps } from "antd";
+import { Space, TourProps } from "antd";
 import { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import ReactECharts from "echarts-for-react";
@@ -23,18 +22,10 @@ import {
   GetProjectRecordsDocument,
   ProjectRecordsModel,
 } from "@/helpers/backend/gen/graphql.ts";
-import { usePageStore } from "@/store/page.ts";
 
 const { useToken } = theme;
 const { Title, Text } = Typography;
-
-const plainOptions = [
-  "statements",
-  "branches",
-  "functions",
-  "lines",
-  "newlines",
-];
+import npmSvg from '../../../../assets/npm.svg'
 
 const ProjectOverviewPage = () => {
   const { token } = useToken();
@@ -135,12 +126,15 @@ const ProjectOverviewPage = () => {
         </div>
       ),
       dataIndex: "sha",
-      width: "100px",
-      render(_, { webUrl }): JSX.Element {
+      width: "120px",
+      render(_, { webUrl,buildProvider }): JSX.Element {
         return (
-          <a href={webUrl} target={"_blank"} rel="noreferrer">
-            {_?.slice(0, 7)}
-          </a>
+          <Space>
+            <a href={webUrl} target={"_blank"} rel="noreferrer">
+              {_?.slice(0, 7)}
+            </a>
+            {buildProvider==='jenkins_npm'&&<img className={'w-[20px]'} src={npmSvg} alt="" />}
+          </Space>
         );
       },
     },
@@ -172,34 +166,34 @@ const ProjectOverviewPage = () => {
         );
       },
     },
-    {
-      title: <>{t("Build")}</>,
-      align: "center",
-      width: "70px",
-      render(_, record) {
-        if (!record.buildURL) {
-          return <span>-</span>;
-        }
-        return (
-          <a
-            href={record.buildURL}
-            target={"_blank"}
-            rel="noreferrer"
-            className={"flex item-center justify-center"}
-          >
-            <img
-              className={"w-[16px]"}
-              src={`/gitproviders/${record.buildProvider || "gitlab"}.svg`}
-              alt=""
-            />
-          </a>
-        );
-      },
-    },
+    // {
+    //   title: <>{t("Build")}</>,
+    //   align: "center",
+    //   width: "70px",
+    //   render(_, record) {
+    //     if (!record.buildURL) {
+    //       return <span>-</span>;
+    //     }
+    //     return (
+    //       <a
+    //         href={record.buildURL}
+    //         target={"_blank"}
+    //         rel="noreferrer"
+    //         className={"flex item-center justify-center"}
+    //       >
+    //         <img
+    //           className={"w-[16px]"}
+    //           src={`/gitproviders/${record.buildProvider || "gitlab"}.svg`}
+    //           alt=""
+    //         />
+    //       </a>
+    //     );
+    //   },
+    // },
     {
       title: t("projects.message"),
       dataIndex: "message",
-      width: "160px",
+      width: "200px",
       ellipsis: true,
     },
     ...[defaultCoverageDim, "newlines"].map((item) => {
