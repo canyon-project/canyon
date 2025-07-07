@@ -1,15 +1,12 @@
 [workspace]
-members = [
-    "tools/uploader",
-    "plugins/swc-plugin-canyon"
-]
+members = ["tools/uploader", "plugins/swc-plugin-canyon", "tools/agent"]
 
 
 resolver = "2"
 
 
 [workspace.package]
-authors      = ["Allen Zhang <wr_zhang25@163.com>"]
+authors      = ["Travis Zhang<https://github.com/travzhang>"]
 edition      = "2021"
 homepage     = "https://github.com/canyon-project/canyon"
 license      = "Apache-2.0"
