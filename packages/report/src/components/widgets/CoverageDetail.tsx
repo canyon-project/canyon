@@ -7,6 +7,7 @@ const FileCoverageDetail: FC<{
   fileContent: string;
   fileCodeChange: number[];
   fileCoverage: any;
+  theme: string
 }> = ({ fileContent, fileCoverage, fileCodeChange }) => {
   useEffect(() => {
     import(
@@ -17,6 +18,7 @@ const FileCoverageDetail: FC<{
         coverage: fileCoverage,
         content: fileContent,
         diff: fileCodeChange,
+        theme: theme
       });
     });
   }, []);

@@ -97,6 +97,7 @@ const ReportComponent: FC<ReportProps> = ({
             fileContent={fileContent}
             fileCodeChange={fileCodeChange}
             fileCoverage={fileCoverage}
+            theme={theme}
           />
         )}
       <div>
