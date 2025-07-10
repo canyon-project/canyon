@@ -1,8 +1,5 @@
-import { FC, useEffect, useMemo, useRef, useState } from 'react';
-// import { initCanyonSpa } from 'canyon-report-spa';
+import { FC, useEffect } from 'react';
 
-import { theme } from 'antd';
-const { useToken } = theme;
 const FileCoverageDetail: FC<{
   fileContent: string;
   fileCodeChange: number[];
