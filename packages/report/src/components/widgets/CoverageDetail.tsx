@@ -5,7 +5,7 @@ const FileCoverageDetail: FC<{
   fileCodeChange: number[];
   fileCoverage: any;
   theme: string
-}> = ({ fileContent, fileCoverage, fileCodeChange }) => {
+}> = ({ fileContent, fileCoverage, fileCodeChange,theme }) => {
   useEffect(() => {
     import(
       /* @vite-ignore */
