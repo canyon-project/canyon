@@ -16,6 +16,7 @@
     "@ant-design/icons": "^5.6.0",
     "@apollo/client": "^3.12.7",
     "@graphql-typed-document-node/core": "^3.2.0",
+    "@ibm/plex-mono": "^1.1.0",
     "@monaco-editor/react": "^4.6.0",
     "ahooks": "^3.8.4",
     "antd": "^5.23.2",
