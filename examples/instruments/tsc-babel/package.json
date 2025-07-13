@@ -16,6 +16,6 @@
     "typescript": "^5.8.3",
     "babel-plugin-istanbul": "latest",
     "babel-plugin-canyon": "latest",
-    "@babel/cli": "^7.24.1"
+    "@babel/cli": "^7.28.0"
   }
 }

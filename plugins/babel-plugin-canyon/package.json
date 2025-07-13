@@ -31,24 +31,24 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/preset-typescript": "^7.26.0",
+    "@babel/preset-typescript": "^7.27.1",
     "@biomejs/biome": "1.9.4",
     "@types/babel__core": "^7.20.5",
-    "@types/babel__generator": "^7.6.8",
+    "@types/babel__generator": "^7.27.0",
     "@types/babel__helper-plugin-utils": "^7.10.3",
-    "jest": "^29.7.0",
-    "typescript": "^5.6.3",
-    "@babel/cli": "^7.24.1",
-    "@babel/core": "^7.24.1",
-    "@babel/plugin-transform-modules-commonjs": "^7.24.1",
-    "@babel/register": "^7.23.7",
+    "jest": "^30.0.4",
+    "typescript": "^5.8.3",
+    "@babel/cli": "^7.28.0",
+    "@babel/core": "^7.28.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.27.1",
+    "@babel/register": "^7.27.1",
     "babel-plugin-istanbul": "6.1.1",
     "cross-env": "^7.0.3",
-    "@types/node": "^22.10.2"
+    "@types/node": "^24.0.13"
   },
   "dependencies": {
-    "@babel/helper-plugin-utils": "^7.0.0",
-    "@babel/generator": "^7.25.6"
+    "@babel/helper-plugin-utils": "^7.27.1",
+    "@babel/generator": "^7.28.0"
   },
   "peerDependencies": {
     "axios": "*"

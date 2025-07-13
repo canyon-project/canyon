@@ -15,8 +15,8 @@
     "istanbul-lib-report": "^3.0.1"
   },
   "devDependencies": {
-    "@vitest/coverage-istanbul": "^3.0.4",
+    "@vitest/coverage-istanbul": "^3.2.4",
     "nyc": "^17.1.0",
-    "vitest": "^3.0.4"
+    "vitest": "^3.2.4"
   }
 }
