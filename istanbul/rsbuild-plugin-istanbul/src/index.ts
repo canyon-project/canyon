@@ -1,5 +1,5 @@
 import { createInstrumenter } from 'istanbul-lib-instrument';
-import type { RsbuildPlugin, RsbuildPluginAPI } from '@rsbuild/core';
+import type {RsbuildPlugin, RsbuildPluginAPI} from '@rsbuild/core';
 
 
 export interface IstanbulPluginOptions {
@@ -37,9 +37,14 @@ export const pluginIstanbul = (
       generatorOpts: { ...opts?.generatorOpts },
     });
 
-    // @ts-ignore
-    api.transform({ test: /\.(js|cjs|mjs|ts|tsx|jsx|vue)$/ }, ({ code,resource }) => {
+    api.transform({
+      test: /\.(js|cjs|mjs|ts|tsx|jsx|vue)$/,
+      enforce:'post'
+      // @ts-ignore
+    }, ({ code,resource }) => {
+
       const filename = resolveFilename(resource);
+      if (filename.includes('node_modules')) return; // 排除 node_modules
       const instrumented = instrumenter.instrumentSync(code, filename, undefined);
       const resultMap = instrumenter.lastSourceMap();
       return { code: instrumented, map: resultMap };
