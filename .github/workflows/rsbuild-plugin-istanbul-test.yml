@@ -1,0 +1,40 @@
+name: rsbuild-plugin-istanbul Test
+
+# Controls when the action will run.
+on:
+  # Triggers the workflow on pull request events but only for the main branch
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Pnpm
+        run: npm i -g corepack@latest --force && corepack enable
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install Dependencies
+        run: cd istanbul/rsbuild-plugin-istanbul && pnpm install && npx playwright install chromium
+
+      - name: Run Test
+        run: cd istanbul/rsbuild-plugin-istanbul && pnpm run test

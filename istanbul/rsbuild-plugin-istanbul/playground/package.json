@@ -1,0 +1,9 @@
+{
+  "name": "playground",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "npx rsbuild dev",
+    "build": "npx rsbuild build"
+  }
+}
