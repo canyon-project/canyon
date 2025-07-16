@@ -1,6 +1,6 @@
 {
   "name": "rsbuild-plugin-istanbul",
-  "version": "0.0.1-beta.3",
+  "version": "0.0.1-beta.5",
   "repository": "https://github.com/canyon-project/canyon/tree/main/istanbul/rsbuild-plugin-istanbul",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "license": "MIT",
@@ -23,7 +23,7 @@
     "dev": "rslib build --watch",
     "lint": "biome check .",
     "lint:write": "biome check . --write",
-    "prepare": "simple-git-hooks",
+    "prepare": "simple-git-hooks && npm run build",
     "test": "playwright test",
     "bump": "npx bumpp"
   },
