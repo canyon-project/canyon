@@ -1,16 +1,48 @@
-import type { RsbuildPlugin } from '@rsbuild/core';
+import { createInstrumenter } from 'istanbul-lib-instrument';
+import type { RsbuildPlugin, RsbuildPluginAPI } from '@rsbuild/core';
 
-export type PluginExampleOptions = {
-  foo?: string;
-  bar?: boolean;
-};
 
-export const pluginExample = (
-  options: PluginExampleOptions = {},
+export interface IstanbulPluginOptions {
+  include?: string | string[];
+  exclude?: string | string[];
+  extension?: string | string[];
+  requireEnv?: boolean;
+  cypress?: boolean;
+  checkProd?: boolean;
+  forceBuildInstrument?: boolean;
+  cwd?: string;
+  nycrcPath?: string;
+  generatorOpts?: any;
+}
+
+function resolveFilename(id: string): string {
+  const [filename] = id.split('?vue');
+  return filename;
+}
+
+export const pluginIstanbul = (
+  opts: IstanbulPluginOptions = {},
 ): RsbuildPlugin => ({
-  name: 'plugin-example',
+  name: 'rsbuild-plugin-istanbul',
+  async setup(api: RsbuildPluginAPI) {
+    const instrumenter = createInstrumenter({
+      // @ts-ignore
+      coverageGlobalScopeFunc: false,
+      coverageGlobalScope: 'globalThis',
+      preserveComments: true,
+      produceSourceMap: true,
+      autoWrap: true,
+      esModules: true,
+      compact: false,
+      generatorOpts: { ...opts?.generatorOpts },
+    });
 
-  setup() {
-    console.log('Hello Rsbuild!', options);
+    // @ts-ignore
+    api.transform({ test: /\.(js|cjs|mjs|ts|tsx|jsx|vue)$/ }, ({ code,resource }) => {
+      const filename = resolveFilename(resource);
+      const instrumented = instrumenter.instrumentSync(code, filename, undefined);
+      const resultMap = instrumenter.lastSourceMap();
+      return { code: instrumented, map: resultMap };
+    });
   },
 });
