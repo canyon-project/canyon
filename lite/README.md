@@ -9,3 +9,4 @@ Todo List
   - [] 上报接口 /coverage/client 与主仓库接口保持一致
   - [] 代码覆盖率数据存储，prisma pg存储
   - [] 查询 /coverage/map、/coverage/summary/map
+  - [] app.canyonjs.org
