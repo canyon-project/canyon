@@ -10,3 +10,4 @@ Todo List
   - [] 代码覆盖率数据存储，prisma pg存储
   - [] 查询 /coverage/map、/coverage/summary/map
   - [] app.canyonjs.org
+  - [] 变更代码覆盖率
