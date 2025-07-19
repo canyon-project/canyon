@@ -1,6 +1,6 @@
 {
   "name": "rsbuild-plugin-istanbul",
-  "version": "0.0.1-beta.6",
+  "version": "0.0.1-alpha.1",
   "repository": "https://github.com/canyon-project/canyon/tree/main/istanbul/rsbuild-plugin-istanbul",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "license": "MIT",
