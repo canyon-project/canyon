@@ -49,8 +49,9 @@ const ReportComponent: FC<ReportProps> = ({
     newOnSelect(value);
   }, []);
   const isFile = useMemo(() => {
-    console.log(value, "value");
-    return value.includes(".");
+    // Check if it's a file by common frontend file extensions
+    const isFile = /\.(js|jsx|ts|tsx|vue)$/.test(value);
+    return isFile;
   }, [value]);
   const mode = useMemo(() => {
     if (isFile) {

@@ -47,7 +47,7 @@ const SummaryTree: FC<{
                       onSelect(text);
                     }}
                   >
-                    {text.includes(".") && checkSuffix(text) ? (
+                    {/\.(js|jsx|ts|tsx|vue)$/.test(text) && checkSuffix(text) ? (
                       <FileOutlined style={{ fontSize: "16px" }} />
                     ) : (
                       <FolderFilled style={{ fontSize: "16px" }} />
