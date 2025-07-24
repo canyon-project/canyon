@@ -37,7 +37,7 @@ const Sha = () => {
         sha: prm.sha,
       }),
     {
-      onSuccess() {},
+      onSuccess() { },
     },
   );
 
@@ -77,7 +77,9 @@ const Sha = () => {
           dataSource={coverageSummaryMapData}
           onSelect={(val: string) => {
             setActivatedPath(val);
-            if (!val.includes(".")) {
+            // Check if it's a file by common frontend file extensions
+            const isFile = /\.(js|jsx|ts|tsx|vue)$/.test(val);
+            if (!isFile) {
               return Promise.resolve({
                 fileContent: "",
                 fileCoverage: {},
