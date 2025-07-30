@@ -63,7 +63,7 @@ export default async function RootLayout({ children }) {
             // banner={banner}
             navbar={navbar}
             pageMap={await getPageMap()}
-            docsRepositoryBase="https://github.com/canyon-project/docs-ja/tree/main"
+            docsRepositoryBase="https://github.com/canyon-project/canyon/tree/main/website/ja"
             footer={footer}
             // ... Your additional layout options
           >
