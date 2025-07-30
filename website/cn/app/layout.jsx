@@ -9,8 +9,32 @@ import { GitHubIcon } from "nextra/icons";
 import { ConfigProvider } from "antd";
 
 export const metadata = {
-  // Define your metadata here
-  // For more information on metadata API, see: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
+  title: {
+    template: "%s - Canyon",
+    default: "Canyon - JavaScript 代码覆盖率解决方案",
+  },
+  description: "更准确的收集 JavaScript 覆盖率数据的开源解决方案",
+  keywords: ["JavaScript", "代码覆盖率", "测试", "E2E", "Babel", "Istanbul"],
+  authors: [{ name: "Canyon Team" }],
+  creator: "Canyon Team",
+  publisher: "Canyon Team",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: "website",
+    locale: "zh_CN",
+    url: "https://cn.docs.canyonjs.org",
+    title: "Canyon - JavaScript 代码覆盖率解决方案",
+    description: "更准确的收集 JavaScript 覆盖率数据的开源解决方案",
+    siteName: "Canyon Documentation",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Canyon - JavaScript 代码覆盖率解决方案",
+    description: "更准确的收集 JavaScript 覆盖率数据的开源解决方案",
+  },
 };
 
 // const banner = <Banner storageKey="some-key">Nextra 4.0 is released 🎉</Banner>
@@ -25,7 +49,7 @@ const navbar = (
           CANYON
         </div>
         <div className="text-gray-600 font-normal hidden lg:!inline whitespace-no-wrap">
-          JavaScript code coverage solution
+          JavaScript 代码覆盖率解决方案
         </div>
       </div>
     }
@@ -38,7 +62,7 @@ export default async function RootLayout({ children }) {
   return (
     <html
       // Not required, but good for SEO
-      lang="en"
+      lang="zh-CN"
       // Required to be set
       dir="ltr"
       // Suggested by `next-themes` package https://github.com/pacocoursey/next-themes#with-app
@@ -48,7 +72,7 @@ export default async function RootLayout({ children }) {
       // ... Your additional head options
       >
         <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-        <title>JavaScript code coverage solution - CANYON</title>
+        <title>JavaScript 代码覆盖率解决方案 - CANYON</title>
         {/* Your additional tags should be passed as `children` of `<Head>` element */}
       </Head>
       <body>
@@ -63,7 +87,7 @@ export default async function RootLayout({ children }) {
             // banner={banner}
             navbar={navbar}
             pageMap={await getPageMap()}
-            docsRepositoryBase="https://github.com/canyon-project/canyon/tree/main/website/en"
+            docsRepositoryBase="https://github.com/canyon-project/canyon/tree/main/website/cn"
             footer={footer}
             // ... Your additional layout options
           >

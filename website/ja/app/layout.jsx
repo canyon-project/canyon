@@ -9,8 +9,42 @@ import { GitHubIcon } from "nextra/icons";
 import { ConfigProvider } from "antd";
 
 export const metadata = {
-  // Define your metadata here
-  // For more information on metadata API, see: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
+  title: {
+    template: "%s - Canyon",
+    default: "Canyon - JavaScript コードカバレッジソリューション",
+  },
+  description:
+    "より正確なJavaScriptカバレッジデータの収集を実現するオープンソースソリューション",
+  keywords: [
+    "JavaScript",
+    "コードカバレッジ",
+    "テスト",
+    "E2E",
+    "Babel",
+    "Istanbul",
+  ],
+  authors: [{ name: "Canyon Team" }],
+  creator: "Canyon Team",
+  publisher: "Canyon Team",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: "website",
+    locale: "ja_JP",
+    url: "https://ja.docs.canyonjs.org",
+    title: "Canyon - JavaScript コードカバレッジソリューション",
+    description:
+      "より正確なJavaScriptカバレッジデータの収集を実現するオープンソースソリューション",
+    siteName: "Canyon Documentation",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Canyon - JavaScript コードカバレッジソリューション",
+    description:
+      "より正確なJavaScriptカバレッジデータの収集を実現するオープンソースソリューション",
+  },
 };
 
 // const banner = <Banner storageKey="some-key">Nextra 4.0 is released 🎉</Banner>
