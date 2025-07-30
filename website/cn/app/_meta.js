@@ -29,7 +29,7 @@ export default {
         href: "https://docs.canyonjs.org",
       },
       ja: {
-        title: "日文",
+        title: "日本語",
         href: "https://ja.docs.canyonjs.org",
       },
     },

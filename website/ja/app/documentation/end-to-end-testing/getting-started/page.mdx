@@ -1,14 +1,14 @@
 import { Steps, Callout, Cards } from "nextra/components";
 
-# 入门
+# はじめに
 
-与单元测试不同的是，端到端测试会揭起浏览器，我们目标是收集浏览器内的覆盖率数据。所以复杂度会相对较高。以下是大致流程。
+単体テストとは異なり、エンドツーエンドテストはブラウザを起動します。私たちの目標はブラウザ内のカバレッジデータを収集することです。そのため複雑度は相対的に高くなります。以下が大まかな流れです。
 
-- 暴露出浏览器的全局变量，在正确的时机把覆盖率数据写到本地
-- 在UI自动化完成后使用 [canyon-uploader](/documentation/ecosystem/canyon-uploader) 读取本地 `.canyon_output` 目录下的覆盖率数据聚合上报。
-- 将caseID关联 [Report ID](/documentation/core-concepts/report-id) ，保证case可回溯。
+- ブラウザのグローバル変数を公開し、適切なタイミングでカバレッジデータをローカルに書き込む
+- UI自動化完了後、[canyon-uploader](/documentation/ecosystem/canyon-uploader)を使用してローカルの`.canyon_output`ディレクトリ下のカバレッジデータを読み取り、集約して報告する
+- caseIDを[Report ID](/documentation/core-concepts/report-id)に関連付け、caseの追跡可能性を保証する
 
-## 框架
+## フレームワーク
 
 <Cards>
   <Cards.Card
