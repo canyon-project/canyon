@@ -221,11 +221,11 @@ export class AppController {
       {
         "month": 6,
         "year": 2025,
-        "uiTestBranchCoverage": 66.31,
-        "uiTestLineCoverage": 82.83,
+        "uiTestBranchCoverage": 65.81,
+        "uiTestLineCoverage": 81.83,
         "uiTestChangedLineCoverage": 94.52,
-        "utBranchCoverage": 70.15,
-        "utLineCoverage": 73.11,
+        "utBranchCoverage": 69.05,
+        "utLineCoverage": 71.90,
         "codeChangeNum": 91203
       }
     ];
