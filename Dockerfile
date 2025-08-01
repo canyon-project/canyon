@@ -4,6 +4,7 @@
 FROM node:24-alpine AS frontend-builder
 WORKDIR /app
 COPY packages/frontend/package.json ./packages/frontend/
+COPY scripts ./scripts
 COPY package.json pnpm-workspace.yaml ./
 RUN corepack enable && corepack prepare pnpm@latest --activate
 RUN pnpm install
