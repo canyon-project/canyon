@@ -66,11 +66,11 @@ const LoginForm: FC<{
       onFinishFailed={onFinishFailed}
     >
       <Form.Item<FieldType>
-        label="Username"
+        label="Email"
         name="username"
-        rules={[{ required: true, message: "Please input your username!" }]}
+        rules={[{ required: true, message: "Please input your email!" }]}
       >
-        <Input placeholder={"Username or Email"} />
+        <Input placeholder={"Email"} />
       </Form.Item>
 
       <Form.Item<FieldType>
