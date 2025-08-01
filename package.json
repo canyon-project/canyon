@@ -6,7 +6,8 @@
     "dev": "nx run-many --target=dev --all",
     "build": "nx run-many --target=build --all",
     "lint": "nx run-many --target=lint --all",
-    "test": "nx run-many --target=test --all"
+    "test": "nx run-many --target=test --all",
+    "preinstall": "node ./scripts/check.mjs"
   },
   "devDependencies": {
     "nx": "latest",
