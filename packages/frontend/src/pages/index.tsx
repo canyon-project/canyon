@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import Layout from '../components/Layout';
+import { useAuth } from '../contexts/AuthContext';
 
 const IndexPage: React.FC = () => {
+  const { user, isAuthenticated } = useAuth();
+  
   const demos = [
     {
       id: 'echarts',
@@ -33,20 +37,27 @@ const IndexPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              🚀 前端组件示例集合
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              探索现代前端开发中常用的组件和库，包括数据可视化、样式框架和代码编辑器
-            </p>
+    <Layout>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        {/* Header */}
+        <header className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                🚀 Canyon 项目
+              </h1>
+              {isAuthenticated && user ? (
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                  欢迎回来，{user.name || user.username}！探索现代前端开发中常用的组件和库
+                </p>
+              ) : (
+                <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                  探索现代前端开发中常用的组件和库，包括数据可视化、样式框架和代码编辑器
+                </p>
+              )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -157,8 +168,9 @@ const IndexPage: React.FC = () => {
             <p>© 2024 前端组件示例集合. 使用 React + TypeScript + Vite 构建.</p>
           </div>
         </div>
-      </footer>
-    </div>
+        </footer>
+      </div>
+    </Layout>
   );
 };
 

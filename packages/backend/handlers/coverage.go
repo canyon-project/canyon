@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"backend3/models"
-	"backend3/services"
+	"backend/models"
+	"backend/services"
 	"net/http"
 	"strconv"
 

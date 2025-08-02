@@ -1,7 +1,7 @@
 package services
 
 import (
-	"backend3/models"
+	"backend/models"
 	"math"
 
 	"gorm.io/gorm"
@@ -69,7 +69,7 @@ func (s *CoverageService) GetCoverageList(req models.CoverageListRequest) (*mode
 // GetCoverageByID retrieves a single coverage record by ID
 func (s *CoverageService) GetCoverageByID(id string) (*models.Coverage, error) {
 	var coverage models.Coverage
-	
+
 	if err := s.db.Where("id = ?", id).First(&coverage).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, nil
