@@ -85,6 +85,7 @@ func main() {
 
 	// Initialize handlers
 	coverageHandler := handlers.NewCoverageHandler(coverageService)
+	clickhouseCoverageHandler := handlers.NewClickHouseCoverageHandler() // ClickHouse handler
 	authHandler := handlers.NewAuthHandler(authService)
 	configHandler := handlers.NewConfigHandler()
 
@@ -126,9 +127,20 @@ func main() {
 			protected.POST("/config", configHandler.SetConfig)
 		}
 
-		// Coverage routes
+		// Coverage routes (existing)
 		v1.GET("/coverage", coverageHandler.GetCoverageList)
 		v1.GET("/coverage/:id", coverageHandler.GetCoverageByID)
+		
+		// ClickHouse Coverage routes (new)
+		clickhouse := v1.Group("/clickhouse")
+		{
+			clickhouse.POST("/coverage/hit", clickhouseCoverageHandler.PostCoverageHit)
+			clickhouse.POST("/coverage/hits/batch", clickhouseCoverageHandler.PostCoverageHitsBatch)
+			clickhouse.POST("/coverage/map", clickhouseCoverageHandler.PostCoverageMap)
+			clickhouse.GET("/coverage/map/:hash", clickhouseCoverageHandler.GetCoverageMap)
+			clickhouse.GET("/coverage/:coverage_id/aggregation", clickhouseCoverageHandler.GetCoverageAggregation)
+			clickhouse.GET("/coverage/:coverage_id/hits", clickhouseCoverageHandler.GetCoverageHits)
+		}
 	}
 
 	// 启动服务器 - 允许所有IP访问

@@ -16,6 +16,8 @@ var DB *gorm.DB
 
 // InitDB initializes the database connection
 func InitDB() *gorm.DB {
+	// Initialize ClickHouse first
+	InitClickHouse()
 	// Load environment variables - 尝试多个可能的路径
 	envPaths := []string{
 		".env",          // 当前目录
