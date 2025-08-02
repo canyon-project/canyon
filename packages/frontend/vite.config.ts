@@ -7,6 +7,14 @@ export default defineConfig({
   plugins: [
       react(),
     Pages({
+      dirs:[
+        {
+          dir: 'src/pages', baseRoute: '',
+        },
+        {
+          dir: 'src/cov-pages', baseRoute: ':provider/:org/:repo',
+        }
+      ],
       exclude: ["**/helper/**", "**/components/**"],
     }),
     tailwindcss(),],

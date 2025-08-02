@@ -7,7 +7,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 import routes from "~react-pages";
-
+console.log(routes,'routes')
 const languages = {
     cn: zhCN,
     en: enUS,
