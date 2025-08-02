@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
@@ -39,29 +40,62 @@ func InitClickHouse() driver.Conn {
 	}
 
 	// Get ClickHouse connection parameters from environment
-	host := os.Getenv("CLICKHOUSE_HOST")
-	if host == "" {
-		host = "localhost"
-	}
+	var host, port, database, username, password string
+	
+	// Try CLICKHOUSE_URL first
+	clickhouseURL := os.Getenv("CLICKHOUSE_URL")
+	if clickhouseURL != "" {
+		parsedURL, err := url.Parse(clickhouseURL)
+		if err != nil {
+			log.Fatal("Failed to parse CLICKHOUSE_URL:", err)
+		}
+		
+		host = parsedURL.Hostname()
+		port = parsedURL.Port()
+		if port == "" {
+			port = "9000"
+		}
+		
+		database = parsedURL.Path
+		if database != "" && database[0] == '/' {
+			database = database[1:] // Remove leading slash
+		}
+		if database == "" {
+			database = "default"
+		}
+		
+		username = parsedURL.User.Username()
+		if username == "" {
+			username = "default"
+		}
+		
+		password, _ = parsedURL.User.Password()
+	} else {
+		// Fallback to individual environment variables
+		host = os.Getenv("CLICKHOUSE_HOST")
+		if host == "" {
+			host = "localhost"
+		}
 
-	port := os.Getenv("CLICKHOUSE_PORT")
-	if port == "" {
-		port = "9000"
-	}
+		port = os.Getenv("CLICKHOUSE_PORT")
+		if port == "" {
+			port = "9000"
+		}
 
-	database := os.Getenv("CLICKHOUSE_DATABASE")
-	if database == "" {
-		database = "default"
-	}
+		database = os.Getenv("CLICKHOUSE_DATABASE")
+		if database == "" {
+			database = "default"
+		}
 
-	username := os.Getenv("CLICKHOUSE_USERNAME")
-	if username == "" {
-		username = "default"
-	}
+		username = os.Getenv("CLICKHOUSE_USERNAME")
+		if username == "" {
+			username = "default"
+		}
 
-	password := os.Getenv("CLICKHOUSE_PASSWORD")
-	if password == "" {
-		password = ""
+		password = os.Getenv("CLICKHOUSE_PASSWORD")
+		if password == "" {
+			password = ""
+		}
 	}
 
 	// Create connection
@@ -120,29 +154,38 @@ func GetClickHouseStdConn() *sql.DB {
 		log.Println("未找到 .env 文件，使用系统环境变量")
 	}
 
-	host := os.Getenv("CLICKHOUSE_HOST")
-	if host == "" {
-		host = "localhost"
+	var dsn string
+	
+	// Try CLICKHOUSE_URL first
+	clickhouseURL := os.Getenv("CLICKHOUSE_URL")
+	if clickhouseURL != "" {
+		dsn = clickhouseURL
+	} else {
+		// Fallback to individual environment variables
+		host := os.Getenv("CLICKHOUSE_HOST")
+		if host == "" {
+			host = "localhost"
+		}
+
+		port := os.Getenv("CLICKHOUSE_PORT")
+		if port == "" {
+			port = "9000"
+		}
+
+		database := os.Getenv("CLICKHOUSE_DATABASE")
+		if database == "" {
+			database = "default"
+		}
+
+		username := os.Getenv("CLICKHOUSE_USERNAME")
+		if username == "" {
+			username = "default"
+		}
+
+		password := os.Getenv("CLICKHOUSE_PASSWORD")
+
+		dsn = fmt.Sprintf("clickhouse://%s:%s@%s:%s/%s", username, password, host, port, database)
 	}
-
-	port := os.Getenv("CLICKHOUSE_PORT")
-	if port == "" {
-		port = "9000"
-	}
-
-	database := os.Getenv("CLICKHOUSE_DATABASE")
-	if database == "" {
-		database = "default"
-	}
-
-	username := os.Getenv("CLICKHOUSE_USERNAME")
-	if username == "" {
-		username = "default"
-	}
-
-	password := os.Getenv("CLICKHOUSE_PASSWORD")
-
-	dsn := fmt.Sprintf("clickhouse://%s:%s@%s:%s/%s", username, password, host, port, database)
 	
 	db, err := sql.Open("clickhouse", dsn)
 	if err != nil {
