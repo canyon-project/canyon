@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { authService, User } from '../services/auth';
+import { authService, type User } from '../services/auth';
 
 interface AuthContextType {
   user: User | null;
@@ -57,18 +57,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   useEffect(() => {
     const initAuth = async () => {
       setLoading(true);
-      
+
       if (authService.isAuthenticated()) {
         // 先从本地存储获取用户信息
         const storedUser = authService.getStoredUser();
         if (storedUser) {
           setUser(storedUser);
         }
-        
+
         // 然后刷新用户信息
         await refreshUser();
       }
-      
+
       setLoading(false);
     };
 

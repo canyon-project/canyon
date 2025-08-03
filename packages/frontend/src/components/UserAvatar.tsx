@@ -3,7 +3,7 @@ import { Avatar, Dropdown, Button, message } from 'antd';
 import { UserOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useNavigate } from 'react-router-dom';
-import { authService, User } from '../services/auth';
+import { authService, type User } from '../services/auth';
 
 interface UserAvatarProps {
   user: User;
