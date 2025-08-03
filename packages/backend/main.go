@@ -97,7 +97,7 @@ func main() {
 	r.Use(middleware.ErrorHandler())
 
 	// 健康检查接口 - 放在外面
-	r.GET("/v1/health", func(c *gin.Context) {
+	r.GET("/vi/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status":  "ok",
 			"message": "服务运行正常",
