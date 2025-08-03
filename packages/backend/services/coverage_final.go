@@ -4,9 +4,9 @@ import (
     "backend/db"
     "backend/models"
     "context"
-    "encoding/json"
     "fmt"
     "strings"
+    "strconv"
 )
 
 // CoverageQueryParams represents query parameters for coverage
@@ -123,12 +123,30 @@ func (s *CoverageFinalService) getCoverageMapFromClickHouse(relations []models.C
 
     query := fmt.Sprintf(`
 		SELECT
-			statement_map as statementMap,
-			fn_map as fnMap,
-			branch_map as branchMap,
-			restore_statement_map as restoreStatementMap,
-			restore_fn_map as restoreFnMap,
-			restore_branch_map as restoreBranchMap,
+			CASE 
+				WHEN length(toString(statement_map)) > 0 THEN toString(statement_map)
+				ELSE '{}'
+			END as statementMap,
+			CASE 
+				WHEN length(toString(fn_map)) > 0 THEN toString(fn_map)
+				ELSE '{}'
+			END as fnMap,
+			CASE 
+				WHEN length(toString(branch_map)) > 0 THEN toString(branch_map)
+				ELSE '{}'
+			END as branchMap,
+			CASE 
+				WHEN length(toString(restore_statement_map)) > 0 THEN toString(restore_statement_map)
+				ELSE '{}'
+			END as restoreStatementMap,
+			CASE 
+				WHEN length(toString(restore_fn_map)) > 0 THEN toString(restore_fn_map)
+				ELSE '{}'
+			END as restoreFnMap,
+			CASE 
+				WHEN length(toString(restore_branch_map)) > 0 THEN toString(restore_branch_map)
+				ELSE '{}'
+			END as restoreBranchMap,
 			hash as coverageMapHashID
 		FROM default.coverage_map
 		WHERE hash IN ('%s')
@@ -171,21 +189,9 @@ func (s *CoverageFinalService) getCoverageMapFromClickHouse(relations []models.C
         // 打印第一行的详细信息
         if rowCount == 1 {
             fmt.Printf("DEBUG: First row - HashID: %s, FullFilePath: %s\n", item.CoverageMapHashID, item.FullFilePath)
-            fmt.Printf("DEBUG: First row - StatementMap keys: %d\n", len(item.StatementMap))
-            fmt.Printf("DEBUG: First row - FnMap keys: %d\n", len(item.FnMap))
-            fmt.Printf("DEBUG: First row - BranchMap keys: %d\n", len(item.BranchMap))
-
-            // 使用 JSON 格式打印 StatementMap
-            statementMapJSON, _ := json.MarshalIndent(item.StatementMap, "", "  ")
-            fmt.Printf("DEBUG: First row - StatementMap JSON:\n%s\n", string(statementMapJSON))
-
-            // 使用 JSON 格式打印 FnMap
-            fnMapJSON, _ := json.MarshalIndent(item.FnMap, "", "  ")
-            fmt.Printf("DEBUG: First row - FnMap JSON:\n%s\n", string(fnMapJSON))
-
-            // 使用 JSON 格式打印 BranchMap
-            branchMapJSON, _ := json.MarshalIndent(item.BranchMap, "", "  ")
-            fmt.Printf("DEBUG: First row - BranchMap JSON:\n%s\n", string(branchMapJSON))
+            fmt.Printf("DEBUG: First row - Raw StatementMap: '%s'\n", item.StatementMap)
+            fmt.Printf("DEBUG: First row - Raw FnMap: '%s'\n", item.FnMap)
+            fmt.Printf("DEBUG: First row - Raw BranchMap: '%s'\n", item.BranchMap)
         }
 
         results = append(results, item)
@@ -558,14 +564,14 @@ func (s *CoverageFinalService) removeInstrumentCwd(coverageMap map[string]interf
 
 // CoverageMapWithFilePath represents coverage map data with file path
 type CoverageMapWithFilePath struct {
-    StatementMap        map[uint32][4]uint32               `json:"statementMap"`
-    FnMap               map[uint32]models.FunctionMapEntry `json:"fnMap"`
-    BranchMap           map[uint32]models.BranchMapEntry   `json:"branchMap"`
-    RestoreStatementMap map[uint32][4]uint32               `json:"restoreStatementMap"`
-    RestoreFnMap        map[uint32]models.FunctionMapEntry `json:"restoreFnMap"`
-    RestoreBranchMap    map[uint32]models.BranchMapEntry   `json:"restoreBranchMap"`
-    CoverageMapHashID   string                             `json:"coverageMapHashID"`
-    FullFilePath        string                             `json:"fullFilePath"`
+	StatementMap        string `json:"statementMap"`
+	FnMap               string `json:"fnMap"`
+	BranchMap           string `json:"branchMap"`
+	RestoreStatementMap string `json:"restoreStatementMap"`
+	RestoreFnMap        string `json:"restoreFnMap"`
+	RestoreBranchMap    string `json:"restoreBranchMap"`
+	CoverageMapHashID   string `json:"coverageMapHashID"`
+	FullFilePath        string `json:"fullFilePath"`
 }
 
 // CoverageHitResult represents coverage hit result from ClickHouse
@@ -576,22 +582,7 @@ type CoverageHitResult struct {
     B            []interface{} `json:"b"`
 }
 
-// --- 转换函数 ---
-func convertStatementMap(raw map[uint32][4]uint32) map[uint32][4]uint32 {
-    result := make(map[uint32][4]uint32)
-    for k, v := range raw {
-        result[k] = v
-    }
-    return result
-}
 
-func convertFnMap(raw map[uint32]models.FunctionMapEntry) map[uint32]models.FunctionMapEntry {
-    return raw
-}
-
-func convertBranchMap(raw map[uint32]models.BranchMapEntry) map[uint32]models.BranchMapEntry {
-    return raw
-}
 
 func toUint32(val interface{}) uint32 {
     switch v := val.(type) {
@@ -651,47 +642,34 @@ func arrayOfTupleTo4Uint32(val interface{}) [][4]uint32 {
 
 // --- 在merge前做类型转换 ---
 func (s *CoverageFinalService) convertCoverageMapData(raw []CoverageMapWithFilePath) []struct {
-    StatementMap        map[uint32][4]uint32
-    FnMap               map[uint32]models.FunctionMapEntry
-    BranchMap           map[uint32]models.BranchMapEntry
-    RestoreStatementMap map[uint32][4]uint32
-    RestoreFnMap        map[uint32]models.FunctionMapEntry
-    RestoreBranchMap    map[uint32]models.BranchMapEntry
-    CoverageMapHashID   string
-    FullFilePath        string
+	StatementMap        map[uint32][4]uint32
+	FnMap               map[uint32]models.FunctionMapEntry
+	BranchMap           map[uint32]models.BranchMapEntry
+	RestoreStatementMap map[uint32][4]uint32
+	RestoreFnMap        map[uint32]models.FunctionMapEntry
+	RestoreBranchMap    map[uint32]models.BranchMapEntry
+	CoverageMapHashID   string
+	FullFilePath        string
 } {
-    var result []struct {
-        StatementMap        map[uint32][4]uint32
-        FnMap               map[uint32]models.FunctionMapEntry
-        BranchMap           map[uint32]models.BranchMapEntry
-        RestoreStatementMap map[uint32][4]uint32
-        RestoreFnMap        map[uint32]models.FunctionMapEntry
-        RestoreBranchMap    map[uint32]models.BranchMapEntry
-        CoverageMapHashID   string
-        FullFilePath        string
-    }
-    for _, item := range raw {
-        result = append(result, struct {
-            StatementMap        map[uint32][4]uint32
-            FnMap               map[uint32]models.FunctionMapEntry
-            BranchMap           map[uint32]models.BranchMapEntry
-            RestoreStatementMap map[uint32][4]uint32
-            RestoreFnMap        map[uint32]models.FunctionMapEntry
-            RestoreBranchMap    map[uint32]models.BranchMapEntry
-            CoverageMapHashID   string
-            FullFilePath        string
-        }{
-            StatementMap:        convertStatementMap(item.StatementMap),
-            FnMap:               convertFnMap(item.FnMap),
-            BranchMap:           convertBranchMap(item.BranchMap),
-            RestoreStatementMap: convertStatementMap(item.RestoreStatementMap),
-            RestoreFnMap:        convertFnMap(item.RestoreFnMap),
-            RestoreBranchMap:    convertBranchMap(item.RestoreBranchMap),
-            CoverageMapHashID:   item.CoverageMapHashID,
-            FullFilePath:        item.FullFilePath,
-        })
-    }
-    return result
+	var result []struct {
+		StatementMap        map[uint32][4]uint32
+		FnMap               map[uint32]models.FunctionMapEntry
+		BranchMap           map[uint32]models.BranchMapEntry
+		RestoreStatementMap map[uint32][4]uint32
+		RestoreFnMap        map[uint32]models.FunctionMapEntry
+		RestoreBranchMap    map[uint32]models.BranchMapEntry
+		CoverageMapHashID   string
+		FullFilePath        string
+	}
+	for _, item := range raw {
+		parsedItem, err := s.parseCoverageMapFromJSON(item)
+		if err != nil {
+			fmt.Printf("Warning: failed to parse coverage map for %s: %v\n", item.CoverageMapHashID, err)
+			continue
+		}
+		result = append(result, parsedItem)
+	}
+	return result
 }
 
 // tupleToMapUint32 converts Tuple(Array(UInt32), Array(UInt64)) to map[uint32]uint32
@@ -749,4 +727,502 @@ func convertHitResult(raw []CoverageHitResult) []struct {
         })
     }
     return result
+}
+
+// parseCoverageMapFromJSON 解析 JSON 字符串并转换为相应的数据结构
+func (s *CoverageFinalService) parseCoverageMapFromJSON(item CoverageMapWithFilePath) (struct {
+	StatementMap        map[uint32][4]uint32
+	FnMap               map[uint32]models.FunctionMapEntry
+	BranchMap           map[uint32]models.BranchMapEntry
+	RestoreStatementMap map[uint32][4]uint32
+	RestoreFnMap        map[uint32]models.FunctionMapEntry
+	RestoreBranchMap    map[uint32]models.BranchMapEntry
+	CoverageMapHashID   string
+	FullFilePath        string
+}, error) {
+	result := struct {
+		StatementMap        map[uint32][4]uint32
+		FnMap               map[uint32]models.FunctionMapEntry
+		BranchMap           map[uint32]models.BranchMapEntry
+		RestoreStatementMap map[uint32][4]uint32
+		RestoreFnMap        map[uint32]models.FunctionMapEntry
+		RestoreBranchMap    map[uint32]models.BranchMapEntry
+		CoverageMapHashID   string
+		FullFilePath        string
+	}{
+		CoverageMapHashID: item.CoverageMapHashID,
+		FullFilePath:      item.FullFilePath,
+	}
+
+	// 解析 StatementMap
+	if item.StatementMap != "" && item.StatementMap != "{}" {
+		statementMap, err := s.parseClickHouseMap(item.StatementMap)
+		if err != nil {
+			fmt.Printf("Warning: failed to parse StatementMap '%s': %v\n", item.StatementMap, err)
+			result.StatementMap = make(map[uint32][4]uint32)
+		} else {
+			result.StatementMap = make(map[uint32][4]uint32)
+			for k, v := range statementMap {
+				if key, err := strconv.ParseUint(k, 10, 32); err == nil {
+					if tuple, ok := v.([4]uint32); ok {
+						result.StatementMap[uint32(key)] = tuple
+					}
+				}
+			}
+		}
+	} else {
+		result.StatementMap = make(map[uint32][4]uint32)
+	}
+
+	// 解析 FnMap
+	if item.FnMap != "" && item.FnMap != "{}" {
+		fnMap, err := s.parseClickHouseMap(item.FnMap)
+		if err != nil {
+			fmt.Printf("Warning: failed to parse FnMap '%s': %v\n", item.FnMap, err)
+			result.FnMap = make(map[uint32]models.FunctionMapEntry)
+		} else {
+			result.FnMap = make(map[uint32]models.FunctionMapEntry)
+			for k, v := range fnMap {
+				if key, err := strconv.ParseUint(k, 10, 32); err == nil {
+					if fnEntry, err := s.parseFunctionMapEntry(v); err == nil {
+						result.FnMap[uint32(key)] = fnEntry
+					}
+				}
+			}
+		}
+	} else {
+		result.FnMap = make(map[uint32]models.FunctionMapEntry)
+	}
+
+	// 解析 BranchMap
+	if item.BranchMap != "" && item.BranchMap != "{}" {
+		branchMap, err := s.parseClickHouseMap(item.BranchMap)
+		if err != nil {
+			fmt.Printf("Warning: failed to parse BranchMap '%s': %v\n", item.BranchMap, err)
+			result.BranchMap = make(map[uint32]models.BranchMapEntry)
+		} else {
+			result.BranchMap = make(map[uint32]models.BranchMapEntry)
+			for k, v := range branchMap {
+				if key, err := strconv.ParseUint(k, 10, 32); err == nil {
+					if branchEntry, err := s.parseBranchMapEntry(v); err == nil {
+						result.BranchMap[uint32(key)] = branchEntry
+					}
+				}
+			}
+		}
+	} else {
+		result.BranchMap = make(map[uint32]models.BranchMapEntry)
+	}
+
+	// 解析 RestoreStatementMap
+	if item.RestoreStatementMap != "" && item.RestoreStatementMap != "{}" {
+		restoreStatementMap, err := s.parseClickHouseMap(item.RestoreStatementMap)
+		if err != nil {
+			fmt.Printf("Warning: failed to parse RestoreStatementMap '%s': %v\n", item.RestoreStatementMap, err)
+			result.RestoreStatementMap = make(map[uint32][4]uint32)
+		} else {
+			result.RestoreStatementMap = make(map[uint32][4]uint32)
+			for k, v := range restoreStatementMap {
+				if key, err := strconv.ParseUint(k, 10, 32); err == nil {
+					if tuple, ok := v.([4]uint32); ok {
+						result.RestoreStatementMap[uint32(key)] = tuple
+					}
+				}
+			}
+		}
+	} else {
+		result.RestoreStatementMap = make(map[uint32][4]uint32)
+	}
+
+	// 解析 RestoreFnMap
+	if item.RestoreFnMap != "" && item.RestoreFnMap != "{}" {
+		restoreFnMap, err := s.parseClickHouseMap(item.RestoreFnMap)
+		if err != nil {
+			fmt.Printf("Warning: failed to parse RestoreFnMap '%s': %v\n", item.RestoreFnMap, err)
+			result.RestoreFnMap = make(map[uint32]models.FunctionMapEntry)
+		} else {
+			result.RestoreFnMap = make(map[uint32]models.FunctionMapEntry)
+			for k, v := range restoreFnMap {
+				if key, err := strconv.ParseUint(k, 10, 32); err == nil {
+					if fnEntry, err := s.parseFunctionMapEntry(v); err == nil {
+						result.RestoreFnMap[uint32(key)] = fnEntry
+					}
+				}
+			}
+		}
+	} else {
+		result.RestoreFnMap = make(map[uint32]models.FunctionMapEntry)
+	}
+
+	// 解析 RestoreBranchMap
+	if item.RestoreBranchMap != "" && item.RestoreBranchMap != "{}" {
+		restoreBranchMap, err := s.parseClickHouseMap(item.RestoreBranchMap)
+		if err != nil {
+			fmt.Printf("Warning: failed to parse RestoreBranchMap '%s': %v\n", item.RestoreBranchMap, err)
+			result.RestoreBranchMap = make(map[uint32]models.BranchMapEntry)
+		} else {
+			result.RestoreBranchMap = make(map[uint32]models.BranchMapEntry)
+			for k, v := range restoreBranchMap {
+				if key, err := strconv.ParseUint(k, 10, 32); err == nil {
+					if branchEntry, err := s.parseBranchMapEntry(v); err == nil {
+						result.RestoreBranchMap[uint32(key)] = branchEntry
+					}
+				}
+			}
+		}
+	} else {
+		result.RestoreBranchMap = make(map[uint32]models.BranchMapEntry)
+	}
+
+	return result, nil
+}
+
+// parseClickHouseMap 解析 ClickHouse 的特殊 Map 格式
+// 例如: {0:(1,36,85,10), 1:(2,37,86,11)} -> map[string]interface{}
+func (s *CoverageFinalService) parseClickHouseMap(input string) (map[string]interface{}, error) {
+	result := make(map[string]interface{})
+	
+	// 移除开头和结尾的大括号
+	input = strings.TrimSpace(input)
+	if !strings.HasPrefix(input, "{") || !strings.HasSuffix(input, "}") {
+		return nil, fmt.Errorf("invalid format: must start with { and end with }")
+	}
+	
+	input = input[1 : len(input)-1] // 移除 { 和 }
+	if input == "" {
+		return result, nil
+	}
+	
+	// 分割键值对
+	pairs := s.splitClickHousePairs(input)
+	for _, pair := range pairs {
+		key, value, err := s.parseClickHousePair(pair)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse pair '%s': %v", pair, err)
+		}
+		result[key] = value
+	}
+	
+	return result, nil
+}
+
+// splitClickHousePairs 分割 ClickHouse Map 的键值对
+func (s *CoverageFinalService) splitClickHousePairs(input string) []string {
+	var pairs []string
+	var current string
+	var parenCount int
+	var inString bool
+	var escapeNext bool
+	
+	for i := 0; i < len(input); i++ {
+		char := input[i]
+		
+		if escapeNext {
+			current += string(char)
+			escapeNext = false
+			continue
+		}
+		
+		if char == '\\' {
+			escapeNext = true
+			current += string(char)
+			continue
+		}
+		
+		if char == '\'' && !escapeNext {
+			inString = !inString
+			current += string(char)
+			continue
+		}
+		
+		if !inString {
+			if char == '(' {
+				parenCount++
+			} else if char == ')' {
+				parenCount--
+			} else if char == ',' && parenCount == 0 {
+				pairs = append(pairs, strings.TrimSpace(current))
+				current = ""
+				continue
+			}
+		}
+		
+		current += string(char)
+	}
+	
+	if current != "" {
+		pairs = append(pairs, strings.TrimSpace(current))
+	}
+	
+	return pairs
+}
+
+// parseClickHousePair 解析单个键值对
+func (s *CoverageFinalService) parseClickHousePair(pair string) (string, interface{}, error) {
+	// 找到第一个冒号
+	colonIndex := -1
+	var parenCount int
+	var inString bool
+	var escapeNext bool
+	
+	for i := 0; i < len(pair); i++ {
+		char := pair[i]
+		
+		if escapeNext {
+			escapeNext = false
+			continue
+		}
+		
+		if char == '\\' {
+			escapeNext = true
+			continue
+		}
+		
+		if char == '\'' && !escapeNext {
+			inString = !inString
+			continue
+		}
+		
+		if !inString && char == ':' && parenCount == 0 {
+			colonIndex = i
+			break
+		}
+		
+		if !inString {
+			if char == '(' {
+				parenCount++
+			} else if char == ')' {
+				parenCount--
+			}
+		}
+	}
+	
+	if colonIndex == -1 {
+		return "", nil, fmt.Errorf("no colon found in pair")
+	}
+	
+	key := strings.TrimSpace(pair[:colonIndex])
+	valueStr := strings.TrimSpace(pair[colonIndex+1:])
+	
+	// 解析值
+	value, err := s.parseClickHouseValue(valueStr)
+	if err != nil {
+		return "", nil, fmt.Errorf("failed to parse value '%s': %v", valueStr, err)
+	}
+	
+	return key, value, nil
+}
+
+// parseClickHouseValue 解析 ClickHouse 的值
+func (s *CoverageFinalService) parseClickHouseValue(valueStr string) (interface{}, error) {
+	valueStr = strings.TrimSpace(valueStr)
+	
+	// 检查是否是元组 (a,b,c,d)
+	if strings.HasPrefix(valueStr, "(") && strings.HasSuffix(valueStr, ")") {
+		return s.parseClickHouseTuple(valueStr[1 : len(valueStr)-1])
+	}
+	
+	// 检查是否是数组 [a,b,c,d]
+	if strings.HasPrefix(valueStr, "[") && strings.HasSuffix(valueStr, "]") {
+		return s.parseClickHouseArray(valueStr[1 : len(valueStr)-1])
+	}
+	
+	// 检查是否是字符串 'string'
+	if strings.HasPrefix(valueStr, "'") && strings.HasSuffix(valueStr, "'") {
+		return valueStr[1 : len(valueStr)-1], nil
+	}
+	
+	// 尝试解析为数字
+	if val, err := strconv.ParseUint(valueStr, 10, 32); err == nil {
+		return uint32(val), nil
+	}
+	
+	return valueStr, nil
+}
+
+// parseClickHouseTuple 解析 ClickHouse 元组
+func (s *CoverageFinalService) parseClickHouseTuple(tupleStr string) (interface{}, error) {
+	elements := s.splitClickHouseElements(tupleStr)
+	
+	// 检查是否是 4 个 uint32 的元组
+	if len(elements) == 4 {
+		var result [4]uint32
+		for i, elem := range elements {
+			if val, err := strconv.ParseUint(strings.TrimSpace(elem), 10, 32); err == nil {
+				result[i] = uint32(val)
+			} else {
+				return nil, fmt.Errorf("failed to parse tuple element '%s' as uint32", elem)
+			}
+		}
+		return result, nil
+	}
+	
+	// 其他情况，返回字符串数组
+	var result []string
+	for _, elem := range elements {
+		result = append(result, strings.TrimSpace(elem))
+	}
+	return result, nil
+}
+
+// parseClickHouseArray 解析 ClickHouse 数组
+func (s *CoverageFinalService) parseClickHouseArray(arrayStr string) (interface{}, error) {
+	elements := s.splitClickHouseElements(arrayStr)
+	
+	// 检查是否是元组数组
+	if len(elements) > 0 && strings.HasPrefix(strings.TrimSpace(elements[0]), "(") {
+		var result [][4]uint32
+		for _, elem := range elements {
+			if tuple, err := s.parseClickHouseTuple(strings.TrimSpace(elem)[1 : len(strings.TrimSpace(elem))-1]); err == nil {
+				if tuple4, ok := tuple.([4]uint32); ok {
+					result = append(result, tuple4)
+				}
+			}
+		}
+		return result, nil
+	}
+	
+	// 其他情况，返回字符串数组
+	var result []string
+	for _, elem := range elements {
+		result = append(result, strings.TrimSpace(elem))
+	}
+	return result, nil
+}
+
+// splitClickHouseElements 分割 ClickHouse 元组或数组的元素
+func (s *CoverageFinalService) splitClickHouseElements(input string) []string {
+	var elements []string
+	var current string
+	var parenCount int
+	var inString bool
+	var escapeNext bool
+	
+	for i := 0; i < len(input); i++ {
+		char := input[i]
+		
+		if escapeNext {
+			current += string(char)
+			escapeNext = false
+			continue
+		}
+		
+		if char == '\\' {
+			escapeNext = true
+			current += string(char)
+			continue
+		}
+		
+		if char == '\'' && !escapeNext {
+			inString = !inString
+			current += string(char)
+			continue
+		}
+		
+		if !inString {
+			if char == '(' {
+				parenCount++
+			} else if char == ')' {
+				parenCount--
+			} else if char == ',' && parenCount == 0 {
+				elements = append(elements, strings.TrimSpace(current))
+				current = ""
+				continue
+			}
+		}
+		
+		current += string(char)
+	}
+	
+	if current != "" {
+		elements = append(elements, strings.TrimSpace(current))
+	}
+	
+	return elements
+}
+
+// parseFunctionMapEntry 解析 FunctionMapEntry
+func (s *CoverageFinalService) parseFunctionMapEntry(value interface{}) (models.FunctionMapEntry, error) {
+	var result models.FunctionMapEntry
+	
+	// 检查是否是数组格式
+	if arr, ok := value.([]string); ok && len(arr) >= 4 {
+		result.Name = arr[0]
+		if line, err := strconv.ParseUint(arr[1], 10, 32); err == nil {
+			result.Line = uint32(line)
+		}
+		if startLoc, err := s.parseTuple4(arr[2]); err == nil {
+			result.StartLoc = startLoc
+		}
+		if endLoc, err := s.parseTuple4(arr[3]); err == nil {
+			result.EndLoc = endLoc
+		}
+		return result, nil
+	}
+	
+	return result, fmt.Errorf("invalid FunctionMapEntry format")
+}
+
+// parseBranchMapEntry 解析 BranchMapEntry
+func (s *CoverageFinalService) parseBranchMapEntry(value interface{}) (models.BranchMapEntry, error) {
+	var result models.BranchMapEntry
+	
+	// 检查是否是数组格式
+	if arr, ok := value.([]string); ok && len(arr) >= 4 {
+		if branchType, err := strconv.ParseUint(arr[0], 10, 8); err == nil {
+			result.Type = uint8(branchType)
+		}
+		if line, err := strconv.ParseUint(arr[1], 10, 32); err == nil {
+			result.Line = uint32(line)
+		}
+		if loc, err := s.parseTuple4(arr[2]); err == nil {
+			result.Loc = loc
+		}
+		if locations, err := s.parseTupleArray(arr[3]); err == nil {
+			result.Locations = locations
+		}
+		return result, nil
+	}
+	
+	return result, fmt.Errorf("invalid BranchMapEntry format")
+}
+
+// parseTuple4 解析 4 元组
+func (s *CoverageFinalService) parseTuple4(value interface{}) ([4]uint32, error) {
+	var result [4]uint32
+	
+	if tuple, ok := value.([4]uint32); ok {
+		return tuple, nil
+	}
+	
+	if arr, ok := value.([]string); ok && len(arr) == 4 {
+		for i, elem := range arr {
+			if val, err := strconv.ParseUint(elem, 10, 32); err == nil {
+				result[i] = uint32(val)
+			}
+		}
+		return result, nil
+	}
+	
+	return result, fmt.Errorf("invalid tuple4 format")
+}
+
+// parseTupleArray 解析元组数组
+func (s *CoverageFinalService) parseTupleArray(value interface{}) ([][4]uint32, error) {
+	var result [][4]uint32
+	
+	if tupleArray, ok := value.([][4]uint32); ok {
+		return tupleArray, nil
+	}
+	
+	if arr, ok := value.([]string); ok {
+		for _, elem := range arr {
+			if tuple, err := s.parseTuple4(elem); err == nil {
+				result = append(result, tuple)
+			}
+		}
+		return result, nil
+	}
+	
+	return result, fmt.Errorf("invalid tuple array format")
 }
