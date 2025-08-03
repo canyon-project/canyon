@@ -2,10 +2,11 @@ package db
 
 import (
 	"context"
+	"os"
+	"time"
+	"log"
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
-	"log"
-	"
 )
 
 // ClickHouseDB represents the ClickHouse database connection
@@ -19,17 +20,17 @@ func InitClickHouse() driver.Conn {
 		clickhouseHost = "127.0.0.1:8123"
 	}
 
-
+	clickhouseUser := os.Getenv("CLICKHOUSE_USER")
 	if clickhouseUser == "" {
 		clickhouseUser = "default"
 	}
 
-
+	clickhousePassword := os.Getenv("CLICKHOUSE_PASSWORD")
 	if clickhousePassword == "" {
 		clickhousePassword = "123456" // 默认密码
 	}
 
-
+	clickhouseDatabase := os.Getenv("CLICKHOUSE_DATABASE")
 	if clickhouseDatabase == "" {
 		clickhouseDatabase = "default"
 	}
@@ -39,7 +40,7 @@ func InitClickHouse() driver.Conn {
 	// 使用 HTTP 协议连接 ClickHouse
 	log.Printf("尝试使用 HTTP 协议连接: %s", clickhouseHost)
 
-
+	conn, err := clickhouse.Open(&clickhouse.Options{
 		Addr: []string{clickhouseHost},
 		Auth: clickhouse.Auth{
 			Database: clickhouseDatabase,
@@ -68,7 +69,7 @@ func InitClickHouse() driver.Conn {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-
+	if err := conn.Ping(ctx); err != nil {
 		log.Printf("ClickHouse ping 失败: %v", err)
 		log.Fatal("Failed to ping ClickHouse:", err)
 	}
