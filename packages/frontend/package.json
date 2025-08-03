@@ -15,6 +15,7 @@
     "ahooks": "^3.9.0",
     "antd": "https://pkg.pr.new/ant-design/ant-design/antd@54492",
     "axios": "^1.11.0",
+    "canyon-ui": "0.1.0-beta.5",
     "dayjs": "^1.11.13",
     "echarts": "^6.0.0",
     "echarts-for-react": "^3.0.2",

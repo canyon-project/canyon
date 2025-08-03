@@ -1,45 +1,62 @@
-import { ReactNode } from 'react';
-import { Layout as AntLayout, Button, Space } from 'antd';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import UserAvatar from './UserAvatar';
+import { BaseLayout } from 'canyon-ui';
+import { MenuProps } from 'antd';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { FolderOutlined, SettingOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
-const { Header, Content } = AntLayout;
-
-interface LayoutProps {
-  children: ReactNode;
+type MenuItem = Required<MenuProps>['items'][number];
+function getItem(
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+  children?: MenuItem[],
+): MenuItem {
+  return {
+    key,
+    icon,
+    children,
+    label,
+  } as MenuItem;
 }
-
-const Layout = ({ children }: LayoutProps) => {
-  const { user, isAuthenticated } = useAuth();
+const Layout = ({
+                  children,
+                }) => {
+  const { t } = useTranslation();
+  const [activeMenuKey, setActiveMenuKey] = useState<string>('');
   const navigate = useNavigate();
 
+  const items: MenuItem[] = [
+    getItem(t('menus.projects'), 'projects', <FolderOutlined />),
+    getItem(t('menus.settings'), 'settings', <SettingOutlined />),
+  ];
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/') {
+      navigate('/projects'); // Default navigation to projects
+    }
+  }, []);
+  useEffect(() => {
+    if (activeMenuKey === 'projects') {
+      navigate('/projects');
+    }
+    if (activeMenuKey === 'settings') {
+      navigate('/settings');
+    }
+  }, [activeMenuKey]);
   return (
-    <AntLayout className="min-h-screen">
-      <Header className="flex items-center justify-between bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center">
-          <Link to="/" className="text-xl font-bold text-blue-600 hover:text-blue-700">
-            Canyon
-          </Link>
-        </div>
-        
-        <div className="flex items-center">
-          {isAuthenticated && user ? (
-            <UserAvatar user={user} />
-          ) : (
-            <Space>
-              <Button type="primary" onClick={() => navigate('/login')}>
-                登录
-              </Button>
-            </Space>
-          )}
-        </div>
-      </Header>
-      
-      <Content className="flex-1">
-        {children}
-      </Content>
-    </AntLayout>
+    <div>
+      <BaseLayout
+        value={activeMenuKey}
+        onChange={(v) => setActiveMenuKey(v)}
+        menuItems={items}
+        logo={<img src={'/logo.svg'} className={'w-[36px]'} />}
+      >
+        {
+          children
+        }
+      </BaseLayout>
+    </div>
   );
 };
 
