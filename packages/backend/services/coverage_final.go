@@ -4,7 +4,6 @@ import (
 	"backend/db"
 	"backend/models"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"math"
@@ -180,17 +179,14 @@ func (s *CoverageFinalService) queryCoverageMapFromClickHouse(hashIDs []string) 
 	}
 
 	sql := fmt.Sprintf(`
-		SELECT 
-			COALESCE(JSONExtractRaw(toString(statement_map)), '{}') as statementMap, 
-			COALESCE(JSONExtractRaw(toString(fn_map)), '{}') as fnMap, 
-			COALESCE(JSONExtractRaw(toString(branch_map)), '{}') as branchMap,
-			COALESCE(JSONExtractRaw(toString(restore_statement_map)), '{}') as restoreStatementMap, 
-			COALESCE(JSONExtractRaw(toString(restore_fn_map)), '{}') as restoreFnMap, 
-			COALESCE(JSONExtractRaw(toString(restore_branch_map)), '{}') as restoreBranchMap,
-			hash as coverageMapHashID
+		SELECT statement_map as statementMap, fn_map as fnMap, branch_map as branchMap,
+		       restore_statement_map as restoreStatementMap, restore_fn_map as restoreFnMap, restore_branch_map as restoreBranchMap,
+		       hash as coverageMapHashID
 		FROM coverage_map
 		WHERE hash IN (%s)
 	`, strings.Join(hashList, ", "))
+
+	log.Printf("Executing coverage map query with %d hash IDs", len(hashIDs))
 
 	// Execute query using ClickHouse client
 	if db.ClickHouseClient == nil {
@@ -207,66 +203,50 @@ func (s *CoverageFinalService) queryCoverageMapFromClickHouse(hashIDs []string) 
 	defer rows.Close()
 
 	var results []CoverageMapQueryResult
+	rowCount := 0
 	for rows.Next() {
+		rowCount++
 		var result CoverageMapQueryResult
-		var statementMapJSON, fnMapJSON, branchMapJSON string
-		var restoreStatementMapJSON, restoreFnMapJSON, restoreBranchMapJSON string
+		var statementMapRaw map[uint32][]interface{}
+		var fnMapRaw map[uint32][]interface{}
+		var branchMapRaw map[uint32][]interface{}
+		var restoreStatementMapRaw map[uint32][]interface{}
+		var restoreFnMapRaw map[uint32][]interface{}
+		var restoreBranchMapRaw map[uint32][]interface{}
 
 		err := rows.Scan(
-			&statementMapJSON, &fnMapJSON, &branchMapJSON,
-			&restoreStatementMapJSON, &restoreFnMapJSON, &restoreBranchMapJSON,
+			&statementMapRaw, &fnMapRaw, &branchMapRaw,
+			&restoreStatementMapRaw, &restoreFnMapRaw, &restoreBranchMapRaw,
 			&result.CoverageMapHashID,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
-		// Parse JSON fields - handle potential parsing errors gracefully
-		if statementMapJSON == "" || statementMapJSON == "null" {
-			result.StatementMap = make(map[string][4]int)
-		} else if err := json.Unmarshal([]byte(statementMapJSON), &result.StatementMap); err != nil {
-			log.Printf("Failed to parse statementMap JSON (%s): %v", statementMapJSON, err)
-			result.StatementMap = make(map[string][4]int)
+		// Debug: Print raw data types for first few rows
+		if rowCount <= 3 {
+			log.Printf("Map row %d - Hash: %s, statementMapRaw keys: %d, fnMapRaw keys: %d", 
+				rowCount, result.CoverageMapHashID, len(statementMapRaw), len(fnMapRaw))
 		}
-		
-		if fnMapJSON == "" || fnMapJSON == "null" {
-			result.FnMap = make(map[string][4]interface{})
-		} else if err := json.Unmarshal([]byte(fnMapJSON), &result.FnMap); err != nil {
-			log.Printf("Failed to parse fnMap JSON (%s): %v", fnMapJSON, err)
-			result.FnMap = make(map[string][4]interface{})
-		}
-		
-		if branchMapJSON == "" || branchMapJSON == "null" {
-			result.BranchMap = make(map[string][]interface{})
-		} else if err := json.Unmarshal([]byte(branchMapJSON), &result.BranchMap); err != nil {
-			log.Printf("Failed to parse branchMap JSON (%s): %v", branchMapJSON, err)
-			result.BranchMap = make(map[string][]interface{})
-		}
-		
-		if restoreStatementMapJSON == "" || restoreStatementMapJSON == "null" {
-			result.RestoreStatementMap = make(map[string][4]int)
-		} else if err := json.Unmarshal([]byte(restoreStatementMapJSON), &result.RestoreStatementMap); err != nil {
-			log.Printf("Failed to parse restoreStatementMap JSON (%s): %v", restoreStatementMapJSON, err)
-			result.RestoreStatementMap = make(map[string][4]int)
-		}
-		
-		if restoreFnMapJSON == "" || restoreFnMapJSON == "null" {
-			result.RestoreFnMap = make(map[string][4]interface{})
-		} else if err := json.Unmarshal([]byte(restoreFnMapJSON), &result.RestoreFnMap); err != nil {
-			log.Printf("Failed to parse restoreFnMap JSON (%s): %v", restoreFnMapJSON, err)
-			result.RestoreFnMap = make(map[string][4]interface{})
-		}
-		
-		if restoreBranchMapJSON == "" || restoreBranchMapJSON == "null" {
-			result.RestoreBranchMap = make(map[string][]interface{})
-		} else if err := json.Unmarshal([]byte(restoreBranchMapJSON), &result.RestoreBranchMap); err != nil {
-			log.Printf("Failed to parse restoreBranchMap JSON (%s): %v", restoreBranchMapJSON, err)
-			result.RestoreBranchMap = make(map[string][]interface{})
+
+		// Convert ClickHouse Map types to Go maps
+		result.StatementMap = s.convertClickHouseMapToStatementMap(statementMapRaw)
+		result.FnMap = s.convertClickHouseMapToFnMap(fnMapRaw)
+		result.BranchMap = s.convertClickHouseMapToBranchMap(branchMapRaw)
+		result.RestoreStatementMap = s.convertClickHouseMapToStatementMap(restoreStatementMapRaw)
+		result.RestoreFnMap = s.convertClickHouseMapToFnMap(restoreFnMapRaw)
+		result.RestoreBranchMap = s.convertClickHouseMapToBranchMap(restoreBranchMapRaw)
+
+		// Debug: Print converted results for first few rows
+		if rowCount <= 3 {
+			log.Printf("Map row %d - StatementMap keys: %d, FnMap keys: %d, BranchMap keys: %d", 
+				rowCount, len(result.StatementMap), len(result.FnMap), len(result.BranchMap))
 		}
 
 		results = append(results, result)
 	}
 
+	log.Printf("Coverage map query processed %d rows, returning %d results", rowCount, len(results))
 	return results, nil
 }
 
@@ -294,9 +274,9 @@ func (s *CoverageFinalService) queryCoverageHitFromClickHouse(coverageList []mod
 	sql := fmt.Sprintf(`
 		SELECT
 			full_file_path as fullFilePath,
-			COALESCE(JSONExtractRaw(toString(sumMapMerge(s))), '[[],[]]') AS s,
-			COALESCE(JSONExtractRaw(toString(sumMapMerge(f))), '[[],[]]') AS f,
-			COALESCE(JSONExtractRaw(toString(sumMapMerge(b))), '[[],[]]') AS b
+			sumMapMerge(s) AS s,
+			sumMapMerge(f) AS f,
+			sumMapMerge(b) AS b
 		FROM default.coverage_hit_agg
 		WHERE coverage_id IN (%s)
 		GROUP BY full_file_path
@@ -317,40 +297,38 @@ func (s *CoverageFinalService) queryCoverageHitFromClickHouse(coverageList []mod
 	defer rows.Close()
 
 	var results []CoverageHitQueryResult
+	hitRowCount := 0
 	for rows.Next() {
+		hitRowCount++
 		var result CoverageHitQueryResult
-		var sJSON, fJSON, bJSON string
+		var sRaw, fRaw, bRaw []interface{} // ClickHouse sumMapMerge returns Tuple
 
-		err := rows.Scan(&result.FullFilePath, &sJSON, &fJSON, &bJSON)
+		err := rows.Scan(&result.FullFilePath, &sRaw, &fRaw, &bRaw)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
-		// Parse JSON arrays - handle potential parsing errors gracefully
-		if sJSON == "" || sJSON == "null" {
-			result.S = [2][]string{[]string{}, []string{}}
-		} else if err := json.Unmarshal([]byte(sJSON), &result.S); err != nil {
-			log.Printf("Failed to parse s JSON (%s): %v", sJSON, err)
-			result.S = [2][]string{[]string{}, []string{}}
+		// Debug: Print raw data types for first few rows
+		if hitRowCount <= 3 {
+			log.Printf("Hit row %d - File: %s, sRaw type: %T, fRaw type: %T, bRaw type: %T", 
+				hitRowCount, result.FullFilePath, sRaw, fRaw, bRaw)
 		}
-		
-		if fJSON == "" || fJSON == "null" {
-			result.F = [2][]string{[]string{}, []string{}}
-		} else if err := json.Unmarshal([]byte(fJSON), &result.F); err != nil {
-			log.Printf("Failed to parse f JSON (%s): %v", fJSON, err)
-			result.F = [2][]string{[]string{}, []string{}}
-		}
-		
-		if bJSON == "" || bJSON == "null" {
-			result.B = [2][]string{[]string{}, []string{}}
-		} else if err := json.Unmarshal([]byte(bJSON), &result.B); err != nil {
-			log.Printf("Failed to parse b JSON (%s): %v", bJSON, err)
-			result.B = [2][]string{[]string{}, []string{}}
+
+		// Convert ClickHouse Tuple types to the expected format
+		result.S = s.convertClickHouseMapToHitArray(sRaw)
+		result.F = s.convertClickHouseMapToHitArray(fRaw)
+		result.B = s.convertClickHouseMapToHitArray(bRaw)
+
+		// Debug: Print converted data for first few rows
+		if hitRowCount <= 3 {
+			log.Printf("Hit row %d - S keys: %d, F keys: %d, B keys: %d", 
+				hitRowCount, len(result.S[0]), len(result.F[0]), len(result.B[0]))
 		}
 
 		results = append(results, result)
 	}
 
+	log.Printf("Coverage hit query processed %d rows, returning %d results", hitRowCount, len(results))
 	return results, nil
 }
 
@@ -362,22 +340,40 @@ func (s *CoverageFinalService) mergeCoverageMapAndHitData(
 ) map[string]interface{} {
 	result := make(map[string]interface{})
 
+	log.Printf("Merging data: %d map items, %d hit items, %d hash mappings", 
+		len(mapData), len(hitData), len(hashToFilePath))
+
 	// Create hit data lookup
 	hitLookup := make(map[string]CoverageHitQueryResult)
 	for _, hit := range hitData {
 		hitLookup[hit.FullFilePath] = hit
 	}
 
+	processedCount := 0
 	for _, mapItem := range mapData {
 		filePath := hashToFilePath[mapItem.CoverageMapHashID]
 		if filePath == "" {
 			continue
 		}
 
+		processedCount++
+		
+		// Debug: Print first few items
+		if processedCount <= 3 {
+			log.Printf("Processing item %d: Hash=%s, FilePath=%s, StatementMap keys=%d", 
+				processedCount, mapItem.CoverageMapHashID, filePath, len(mapItem.StatementMap))
+		}
+
 		// Transform map data to Istanbul format
 		statementMap := s.transformStatementMap(mapItem.StatementMap)
 		fnMap := s.transformFnMap(mapItem.FnMap)
 		branchMap := s.transformBranchMap(mapItem.BranchMap)
+
+		// Debug: Print transformed data for first few items
+		if processedCount <= 3 {
+			log.Printf("Transformed item %d: StatementMap keys=%d, FnMap keys=%d, BranchMap keys=%d", 
+				processedCount, len(statementMap), len(fnMap), len(branchMap))
+		}
 
 		// Get hit data for this file
 		hit, exists := hitLookup[filePath]
@@ -445,6 +441,7 @@ func (s *CoverageFinalService) mergeCoverageMapAndHitData(
 		result[filePath] = fileCoverage
 	}
 
+	log.Printf("Merge completed: processed %d items, returning %d files", processedCount, len(result))
 	return result
 }
 
@@ -452,28 +449,38 @@ func (s *CoverageFinalService) mergeCoverageMapAndHitData(
 func (s *CoverageFinalService) transformStatementMap(statementMap map[string][4]int) map[string]interface{} {
 	result := make(map[string]interface{})
 	for key, coords := range statementMap {
-		startLine := &coords[0]
-		startColumn := &coords[1]
-		endLine := &coords[2]
-		endColumn := &coords[3]
+		startLine := coords[0]
+		startColumn := coords[1]
+		endLine := coords[2]
+		endColumn := coords[3]
 		
-		if coords[0] == 0 {
-			startLine = nil
+		// Create the statement map item as a map for JSON serialization
+		statementItem := map[string]interface{}{
+			"start": map[string]interface{}{
+				"line":   startLine,
+				"column": startColumn,
+			},
+			"end": map[string]interface{}{
+				"line":   endLine,
+				"column": endColumn,
+			},
 		}
-		if coords[1] == 0 {
-			startColumn = nil
+		
+		// Handle null values
+		if startLine == 0 {
+			statementItem["start"].(map[string]interface{})["line"] = nil
 		}
-		if coords[2] == 0 {
-			endLine = nil
+		if startColumn == 0 {
+			statementItem["start"].(map[string]interface{})["column"] = nil
 		}
-		if coords[3] == 0 {
-			endColumn = nil
+		if endLine == 0 {
+			statementItem["end"].(map[string]interface{})["line"] = nil
+		}
+		if endColumn == 0 {
+			statementItem["end"].(map[string]interface{})["column"] = nil
 		}
 
-		result[key] = StatementMapItem{
-			Start: Location{Line: startLine, Column: startColumn},
-			End:   Location{Line: endLine, Column: endColumn},
-		}
+		result[key] = statementItem
 	}
 	return result
 }
@@ -540,12 +547,33 @@ func (s *CoverageFinalService) transformFnMap(fnMap map[string][4]interface{}) m
 			}
 		}
 
-		result[key] = FnMapItem{
-			Name: name,
-			Line: line,
-			Decl: Location{Line: declStart.Line, Column: declStart.Column},
-			Loc:  Location{Line: locStart.Line, Column: locStart.Column},
+		// Create function map item as a map for JSON serialization
+		fnItem := map[string]interface{}{
+			"name": name,
+			"line": line,
+			"decl": map[string]interface{}{
+				"start": map[string]interface{}{
+					"line":   declStart.Line,
+					"column": declStart.Column,
+				},
+				"end": map[string]interface{}{
+					"line":   declEnd.Line,
+					"column": declEnd.Column,
+				},
+			},
+			"loc": map[string]interface{}{
+				"start": map[string]interface{}{
+					"line":   locStart.Line,
+					"column": locStart.Column,
+				},
+				"end": map[string]interface{}{
+					"line":   locEnd.Line,
+					"column": locEnd.Column,
+				},
+			},
 		}
+		
+		result[key] = fnItem
 	}
 	return result
 }
@@ -584,30 +612,51 @@ func (s *CoverageFinalService) transformBranchMap(branchMap map[string][]interfa
 		}
 
 		// Get locations
-		var locations []Location
+		var locations []interface{}
 		if locationsData, ok := data[3].([]interface{}); ok {
 			for _, locItem := range locationsData {
 				if locCoords, ok := locItem.([]interface{}); ok && len(locCoords) >= 4 {
-					var location Location
-					if startLine, ok := locCoords[0].(float64); ok && startLine != 0 {
-						lineInt := int(startLine)
-						location.Line = &lineInt
+					var startLine, startCol interface{}
+					if sl, ok := locCoords[0].(float64); ok && sl != 0 {
+						startLine = int(sl)
 					}
-					if startCol, ok := locCoords[1].(float64); ok && startCol != 0 {
-						colInt := int(startCol)
-						location.Column = &colInt
+					if sc, ok := locCoords[1].(float64); ok && sc != 0 {
+						startCol = int(sc)
+					}
+					
+					location := map[string]interface{}{
+						"start": map[string]interface{}{
+							"line":   startLine,
+							"column": startCol,
+						},
+						"end": map[string]interface{}{
+							"line":   startLine, // For branches, start and end are usually the same
+							"column": startCol,
+						},
 					}
 					locations = append(locations, location)
 				}
 			}
 		}
 
-		result[key] = BranchMapItem{
-			Type:      branchType,
-			Line:      line,
-			Loc:       loc,
-			Locations: locations,
+		// Create branch map item as a map for JSON serialization
+		branchItem := map[string]interface{}{
+			"type": branchType,
+			"line": line,
+			"loc": map[string]interface{}{
+				"start": map[string]interface{}{
+					"line":   loc.Line,
+					"column": loc.Column,
+				},
+				"end": map[string]interface{}{
+					"line":   loc.Line,
+					"column": loc.Column,
+				},
+			},
+			"locations": locations,
 		}
+		
+		result[key] = branchItem
 	}
 	return result
 }
@@ -842,4 +891,98 @@ func (s *CoverageFinalService) GetCoverageSummaryMap(params CoverageQueryParams)
 	}
 
 	return summary, nil
+}
+
+// ClickHouse Map type conversion functions
+func (s *CoverageFinalService) convertClickHouseMapToStatementMap(raw map[uint32][]interface{}) map[string][4]int {
+	result := make(map[string][4]int)
+	if raw == nil {
+		return result
+	}
+
+	// Convert from ClickHouse Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32))
+	for k, v := range raw {
+		key := fmt.Sprintf("%d", k)
+		if len(v) >= 4 {
+			var coordArray [4]int
+			for i := 0; i < 4; i++ {
+				if coord, ok := v[i].(uint32); ok {
+					coordArray[i] = int(coord)
+				} else if coord, ok := v[i].(int64); ok {
+					coordArray[i] = int(coord)
+				} else if coord, ok := v[i].(float64); ok {
+					coordArray[i] = int(coord)
+				}
+			}
+			result[key] = coordArray
+		}
+	}
+	
+	return result
+}
+
+func (s *CoverageFinalService) convertClickHouseMapToFnMap(raw map[uint32][]interface{}) map[string][4]interface{} {
+	result := make(map[string][4]interface{})
+	if raw == nil {
+		return result
+	}
+
+	// Convert from ClickHouse Map type
+	for k, v := range raw {
+		key := fmt.Sprintf("%d", k)
+		if len(v) >= 4 {
+			var fnArray [4]interface{}
+			for i := 0; i < 4; i++ {
+				fnArray[i] = v[i]
+			}
+			result[key] = fnArray
+		}
+	}
+	
+	return result
+}
+
+func (s *CoverageFinalService) convertClickHouseMapToBranchMap(raw map[uint32][]interface{}) map[string][]interface{} {
+	result := make(map[string][]interface{})
+	if raw == nil {
+		return result
+	}
+
+	// Convert from ClickHouse Map type
+	for k, v := range raw {
+		key := fmt.Sprintf("%d", k)
+		result[key] = v
+	}
+	
+	return result
+}
+
+// convertClickHouseMapToHitArray converts ClickHouse Tuple type to [2][]string format
+func (s *CoverageFinalService) convertClickHouseMapToHitArray(raw []interface{}) [2][]string {
+	result := [2][]string{[]string{}, []string{}}
+	
+	if raw == nil || len(raw) < 2 {
+		return result
+	}
+
+	// ClickHouse sumMapMerge returns a tuple of (keys, values)
+	// First element should be keys array
+	if keysArray, ok := raw[0].([]interface{}); ok {
+		keys := make([]string, len(keysArray))
+		for i, key := range keysArray {
+			keys[i] = fmt.Sprintf("%v", key)
+		}
+		result[0] = keys
+	}
+	
+	// Second element should be values array
+	if valuesArray, ok := raw[1].([]interface{}); ok {
+		values := make([]string, len(valuesArray))
+		for i, value := range valuesArray {
+			values[i] = fmt.Sprintf("%v", value)
+		}
+		result[1] = values
+	}
+	
+	return result
 }
