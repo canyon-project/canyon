@@ -5,6 +5,7 @@ import (
 	"backend/db"
 	"backend/handlers"
 	"backend/middleware"
+	"backend/routes"
 	"backend/services"
 	"flag"
 	"github.com/gin-gonic/gin"
@@ -83,7 +84,6 @@ func main() {
 	coverageService := services.NewCoverageService(database)
 	authService := services.NewAuthService(database)
 	repoService := services.NewRepoService(database)
-	coverageFinalService := services.NewCoverageFinalService(database)
 
 	// Initialize handlers
 	coverageHandler := handlers.NewCoverageHandler(coverageService)
@@ -91,7 +91,6 @@ func main() {
 	authHandler := handlers.NewAuthHandler(authService)
 	configHandler := handlers.NewConfigHandler()
 	repoHandler := handlers.NewRepoHandler(repoService)
-	coverageFinalHandler := handlers.NewCoverageFinalHandler(coverageFinalService)
 
 	// 创建 Gin 路由器
 	r := gin.Default()
@@ -99,6 +98,9 @@ func main() {
 	// 使用中间件
 	r.Use(middleware.CORS())
 	r.Use(middleware.ErrorHandler())
+
+	// 设置路由
+	routes.SetupCoverageRoutes(r, database)
 
 	// 健康检查接口 - 放在外面
 	r.GET("/vi/health", func(c *gin.Context) {
@@ -134,10 +136,6 @@ func main() {
 		// Coverage routes (existing)
 		v1.GET("/coverage", coverageHandler.GetCoverageList)
 		v1.GET("/coverage/:id", coverageHandler.GetCoverageByID)
-
-		// Coverage final routes (new)
-		v1.GET("/coverage/summary/map", coverageFinalHandler.GetCoverageSummaryMap)
-		v1.GET("/coverage/map", coverageFinalHandler.GetCoverageMap)
 
 		// Repository routes (new)
 		v1.GET("/repo", repoHandler.GetRepos)

@@ -33,6 +33,7 @@ type Coverage struct {
 	ChangefunctionsTotal   int       `json:"changefunctionsTotal" gorm:"column:changefunctions_total"`
 	Summary                []byte    `json:"-" gorm:"column:summary"`
 	Hit                    []byte    `json:"-" gorm:"column:hit"`
+	InstrumentCwd          string    `json:"instrumentCwd" gorm:"column:instrument_cwd"`
 	CreatedAt              time.Time `json:"createdAt" gorm:"column:created_at"`
 	UpdatedAt              time.Time `json:"updatedAt" gorm:"column:updated_at"`
 }
