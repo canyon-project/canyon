@@ -7,13 +7,13 @@ import (
 	"backend/middleware"
 	"backend/services"
 	"flag"
+	"github.com/gin-gonic/gin"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-	"github.com/gin-gonic/gin"
 )
 
 // StaticFileHandler 处理静态文件服务，支持 SPA 路由
@@ -124,7 +124,7 @@ func main() {
 		protected.Use(handlers.AuthMiddleware())
 		{
 			protected.GET("/profile", authHandler.GetProfile)
-			
+
 			// Config management routes (protected)
 			protected.GET("/config", configHandler.ListConfigs)
 			protected.GET("/config/:key", configHandler.GetConfig)
@@ -134,17 +134,17 @@ func main() {
 		// Coverage routes (existing)
 		v1.GET("/coverage", coverageHandler.GetCoverageList)
 		v1.GET("/coverage/:id", coverageHandler.GetCoverageByID)
-		
+
 		// Coverage final routes (new)
 		v1.GET("/coverage/summary/map", coverageFinalHandler.GetCoverageSummaryMap)
 		v1.GET("/coverage/map", coverageFinalHandler.GetCoverageMap)
-		
+
 		// Repository routes (new)
 		v1.GET("/repo", repoHandler.GetRepos)
 		v1.GET("/repo/:repoID", repoHandler.GetRepoByID)
 		v1.GET("/repo/:repoID/commits", repoHandler.GetRepoCommits)
 		v1.GET("/repo/:repoID/commits/:sha", repoHandler.GetRepoCommitByCommitSHA)
-		
+
 		// ClickHouse Coverage routes (new)
 		clickhouse := v1.Group("/clickhouse")
 		{
@@ -161,8 +161,8 @@ func main() {
 	serverAddr := "0.0.0.0:" + *port
 	log.Printf("服务器启动在端口: %s，允许所有IP访问", *port)
 
-    // 静态文件服务（放在最后，作为 fallback）
-    r.Use(StaticFileHandler("/static"))
+	// 静态文件服务（放在最后，作为 fallback）
+	r.Use(StaticFileHandler("/static"))
 
 	r.Run(serverAddr)
 }

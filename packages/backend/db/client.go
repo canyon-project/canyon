@@ -55,8 +55,6 @@ func InitDB() *gorm.DB {
 	// Initialize default config values
 	initDefaultConfig(db)
 
-	log.Println("数据库迁移完成")
-
 	DB = db
 	return db
 }
