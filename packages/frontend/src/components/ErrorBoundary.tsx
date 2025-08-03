@@ -1,27 +1,26 @@
-import React, { Component, ReactNode } from 'react';
+import React from 'react';
 import { Result, Button } from 'antd';
 
-interface Props {
-  children: ReactNode;
-}
-
-interface State {
+interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
 }
 
-class ErrorBoundary extends Component<Props, State> {
-  constructor(props: Props) {
+class ErrorBoundary extends React.Component<
+  React.PropsWithChildren<{}>,
+  ErrorBoundaryState
+> {
+  constructor(props: React.PropsWithChildren<{}>) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    console.error('Error caught by boundary:', error, errorInfo);
   }
 
   render() {
@@ -29,11 +28,11 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <Result
           status="500"
-          title="出现了一些问题"
-          subTitle="抱歉，应用程序遇到了意外错误。"
+          title="Something went wrong"
+          subTitle="Sorry, an unexpected error occurred."
           extra={
             <Button type="primary" onClick={() => window.location.reload()}>
-              刷新页面
+              Reload Page
             </Button>
           }
         />

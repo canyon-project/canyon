@@ -82,12 +82,16 @@ func main() {
 	// Initialize services
 	coverageService := services.NewCoverageService(database)
 	authService := services.NewAuthService(database)
+	repoService := services.NewRepoService(database)
+	coverageFinalService := services.NewCoverageFinalService(database)
 
 	// Initialize handlers
 	coverageHandler := handlers.NewCoverageHandler(coverageService)
 	clickhouseCoverageHandler := handlers.NewClickHouseCoverageHandler() // ClickHouse handler
 	authHandler := handlers.NewAuthHandler(authService)
 	configHandler := handlers.NewConfigHandler()
+	repoHandler := handlers.NewRepoHandler(repoService)
+	coverageFinalHandler := handlers.NewCoverageFinalHandler(coverageFinalService)
 
 	// 创建 Gin 路由器
 	r := gin.Default()
@@ -130,6 +134,16 @@ func main() {
 		// Coverage routes (existing)
 		v1.GET("/coverage", coverageHandler.GetCoverageList)
 		v1.GET("/coverage/:id", coverageHandler.GetCoverageByID)
+		
+		// Coverage final routes (new)
+		v1.GET("/coverage/summary/map", coverageFinalHandler.GetCoverageSummaryMap)
+		v1.GET("/coverage/map", coverageFinalHandler.GetCoverageMap)
+		
+		// Repository routes (new)
+		v1.GET("/repo", repoHandler.GetRepos)
+		v1.GET("/repo/:repoID", repoHandler.GetRepoByID)
+		v1.GET("/repo/:repoID/commits", repoHandler.GetRepoCommits)
+		v1.GET("/repo/:repoID/commits/:sha", repoHandler.GetRepoCommitByCommitSHA)
 		
 		// ClickHouse Coverage routes (new)
 		clickhouse := v1.Group("/clickhouse")
