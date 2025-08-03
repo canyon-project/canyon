@@ -13,14 +13,11 @@
     "@ant-design/icons": "^6.0.0",
     "@ibm/plex-mono": "^1.1.0",
     "ahooks": "^3.9.0",
-    "antd": "^5.26.7",
+    "antd": "https://pkg.pr.new/ant-design/ant-design/antd@54492",
     "axios": "^1.11.0",
-    "connect-history-api-fallback": "^2.0.0",
     "dayjs": "^1.11.13",
     "echarts": "^6.0.0",
     "echarts-for-react": "^3.0.2",
-    "express": "^5.1.0",
-    "http-proxy-middleware": "^3.0.5",
     "i18next": "^25.3.2",
     "i18next-browser-languagedetector": "^8.2.0",
     "monaco-editor": "^0.52.2",
@@ -43,7 +40,7 @@
     "tailwindcss": "^4.1.11",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "6",
+    "vite": "npm:rolldown-vite@latest",
     "vite-plugin-pages": "^0.33.1"
   }
 }
