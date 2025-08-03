@@ -13,6 +13,9 @@ import (
 // ClickHouseDB represents the ClickHouse database connection
 var ClickHouseDB driver.Conn
 
+// ClickHouseClient is an alias for ClickHouseDB for compatibility
+var ClickHouseClient driver.Conn
+
 // InitClickHouse initializes the ClickHouse connection using HTTP protocol
 func InitClickHouse() driver.Conn {
 	// Load environment variables - 尝试多个可能的路径
@@ -98,5 +101,6 @@ func InitClickHouse() driver.Conn {
 	log.Println("ClickHouse HTTP 连接成功")
 
 	ClickHouseDB = conn
+	ClickHouseClient = conn // Set the client alias
 	return conn
 }
