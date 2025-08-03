@@ -53,10 +53,10 @@ func InitDB() *gorm.DB {
 	}
 
 	// Auto migrate the schema
-	err = db.AutoMigrate(&models.User{}, &models.Coverage{}, &models.Config{})
-	if err != nil {
-		log.Fatal("Failed to migrate database:", err)
-	}
+	// err = db.AutoMigrate(&models.User{}, &models.Coverage{}, &models.Config{})
+	// if err != nil {
+	// 	log.Fatal("Failed to migrate database:", err)
+	// }
 
 	// Initialize default config values
 	initDefaultConfig(db)
