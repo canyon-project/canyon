@@ -7,6 +7,7 @@ import (
 	"log"
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/joho/godotenv"
 )
 
 // ClickHouseDB represents the ClickHouse database connection
@@ -14,6 +15,26 @@ var ClickHouseDB driver.Conn
 
 // InitClickHouse initializes the ClickHouse connection using HTTP protocol
 func InitClickHouse() driver.Conn {
+	// Load environment variables - 尝试多个可能的路径
+	envPaths := []string{
+		".env",          // 当前目录
+		"/opt/app/.env", // 部署目录
+		"../../.env",    // 上级目录
+	}
+
+	envLoaded := false
+	for _, envPath := range envPaths {
+		if err := godotenv.Load(envPath); err == nil {
+			log.Printf("ClickHouse: 成功加载环境变量文件: %s", envPath)
+			envLoaded = true
+			break
+		}
+	}
+
+	if !envLoaded {
+		log.Println("ClickHouse: 未找到 .env 文件，使用系统环境变量")
+	}
+
 	// 从环境变量获取配置，如果没有则使用默认值
 	clickhouseHost := os.Getenv("CLICKHOUSE_HOST")
 	if clickhouseHost == "" {
