@@ -1,9 +1,10 @@
 import { BaseLayout } from 'canyon-ui';
-import { MenuProps } from 'antd';
-import { Outlet, useNavigate } from 'react-router-dom';
+// import { MenuProps } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import { FolderOutlined, SettingOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from 'react';
+import React, {type FC, type ReactNode, useEffect, useState} from 'react';
 import { useTranslation } from 'react-i18next';
+import type {MenuProps} from "antd";
 
 type MenuItem = Required<MenuProps>['items'][number];
 function getItem(
@@ -19,7 +20,9 @@ function getItem(
     label,
   } as MenuItem;
 }
-const Layout = ({
+const Layout:FC<{
+  children: ReactNode;
+}> = ({
                   children,
                 }) => {
   const { t } = useTranslation();
