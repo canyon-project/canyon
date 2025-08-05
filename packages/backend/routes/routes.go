@@ -13,12 +13,10 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	// 初始化服务
 	repoService := services.NewRepoService()
 	coverageService := services.NewCoverageService()
-	clickhouseService := services.NewClickHouseService()
 
 	// 初始化处理器
 	repoHandler := handlers.NewRepoHandler(repoService)
 	coverageHandler := handlers.NewCoverageHandler(coverageService)
-	clickhouseHandler := handlers.NewClickHouseHandler(clickhouseService)
 
 	// 健康检查接口(别改我！！！)
 	r.GET("/vi/health", handlers.HealthCheck)
@@ -33,12 +31,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	r.GET("/api/coverage/summary/map", coverageHandler.GetCoverageSummaryMap)
 	r.GET("/api/coverage/map", coverageHandler.GetCoverageMap)
 
-	// ClickHouse 路由
-	r.GET("/api/clickhouse/test", clickhouseHandler.TestClickHouseConnection)
-	r.GET("/api/clickhouse/coverage-hit-agg/:id", clickhouseHandler.GetCoverageHitAgg)
-	r.GET("/api/clickhouse/coverage-map/:hash", clickhouseHandler.GetCoverageMap)
-	r.GET("/api/clickhouse/coverage-hit-agg/repo/:repoID/sha/:sha", clickhouseHandler.GetCoverageHitAggBySHA)
-	r.GET("/api/clickhouse/debug/raw/:id", clickhouseHandler.TestRawQuery)
+
 
 	// API v1 路由组（保持兼容性）
 	api := r.Group("/api/v1")
