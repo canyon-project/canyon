@@ -1015,8 +1015,8 @@ func (s *CoverageService) queryClickHouseForSummary(
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	// 查询coverage_hit_agg - 使用与现有方法完全相同的查询格式
-	coverageHitQuery := s.buildCoverageHitQuery(coverageList, "", "") // 不过滤reportProvider和reportID
+	// 查询coverage_hit_agg - 使用自定义查询以获取coverage_id
+	coverageHitQuery := s.buildCoverageHitQueryWithCoverageID(coverageList)
 	hitRows, err := conn.Query(ctx, coverageHitQuery)
 	if err != nil {
 		return nil, nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
@@ -1026,10 +1026,11 @@ func (s *CoverageService) queryClickHouseForSummary(
 	var coverageHitData []models.CoverageHitSummaryResult
 	for hitRows.Next() {
 		var (
-			fullFilePath string
+			coverageID, fullFilePath string
 			sTuple, fTuple, bTuple []interface{}
 		)
 		err := hitRows.Scan(
+			&coverageID,
 			&fullFilePath,
 			&sTuple,
 			&fTuple,
@@ -1041,6 +1042,7 @@ func (s *CoverageService) queryClickHouseForSummary(
 
 		// 转换tuple slice为uint32 map - 使用与现有方法相同的逻辑
 		result := models.CoverageHitSummaryResult{
+			CoverageID:   coverageID,
 			FullFilePath: fullFilePath,
 			S:            s.convertTupleSliceToUint32Map(sTuple),
 			F:            s.convertTupleSliceToUint32Map(fTuple),
@@ -1364,9 +1366,21 @@ func (s *CoverageService) filterCoverageHit(
 	coverageList []models.Coverage,
 	coverageHitData []models.CoverageHitSummaryResult,
 ) []models.CoverageHitSummaryResult {
-	// 由于hit数据是按full_file_path分组的，我们直接返回所有数据
-	// 在计算覆盖率时，我们会根据coverageList来过滤
-	return coverageHitData
+	// 构建coverageID集合
+	coverageIDSet := make(map[string]bool)
+	for _, coverage := range coverageList {
+		coverageIDSet[coverage.ID] = true
+	}
+
+	// 过滤出匹配的hit数据
+	var filtered []models.CoverageHitSummaryResult
+	for _, hit := range coverageHitData {
+		if coverageIDSet[hit.CoverageID] {
+			filtered = append(filtered, hit)
+		}
+	}
+
+	return filtered
 }
 
 // extractKeysFromStatementMap 从语句映射中提取键
@@ -1387,8 +1401,8 @@ func (s *CoverageService) extractKeysFromFunctionMap(functionMap map[uint32][]in
 	return keys
 }
 
-// buildCoverageHitQueryForSummary 构建coverage_hit_agg查询SQL - 摘要版本
-func (s *CoverageService) buildCoverageHitQueryForSummary(coverageList []models.Coverage) string {
+// buildCoverageHitQueryWithCoverageID 构建包含coverage_id的coverage_hit_agg查询SQL
+func (s *CoverageService) buildCoverageHitQueryWithCoverageID(coverageList []models.Coverage) string {
 	if len(coverageList) == 0 {
 		return `SELECT '' as coverageID, '' as fullFilePath, [] as s, [] as f, [] as b WHERE 1=0`
 	}
@@ -1403,7 +1417,9 @@ func (s *CoverageService) buildCoverageHitQueryForSummary(coverageList []models.
 		SELECT
 			coverage_id as coverageID,
 			full_file_path as fullFilePath,
-			tupleElement(sumMapMerge(s), 1) AS s
+			sumMapMerge(s) AS s,
+			sumMapMerge(f) AS f,
+			sumMapMerge(b) AS b
 		FROM default.coverage_hit_agg
 		WHERE coverage_id IN (%s)
 		GROUP BY coverage_id, full_file_path

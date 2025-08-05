@@ -80,6 +80,7 @@ func (Coverage) TableName() string {
 
 // CoverageHitSummaryResult ClickHouse查询结果 - 覆盖率命中摘要
 type CoverageHitSummaryResult struct {
+	CoverageID   string            `json:"coverageID"`
 	FullFilePath string            `json:"fullFilePath"`
 	S            map[uint32]uint32 `json:"s"`
 	F            map[uint32]uint32 `json:"f"`
