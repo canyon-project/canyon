@@ -917,20 +917,29 @@ func (s *CoverageService) GetCoverageSummaryByRepoAndSHA(repoID, sha string) (in
 		return nil, err
 	}
 
-	// 第六步：查询ClickHouse数据
-	coverageHitData, coverageMapData, err := s.queryClickHouseForSummary(coverageList, coverageMapRelationList)
+	// 第六步：去重hash ID列表
+	deduplicateHashIDList := s.deduplicateHashIDList(coverageMapRelationList)
+
+	// 第七步：查询ClickHouse数据 - 完全按照老流程
+	coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson, err := s.queryClickHouseDataOldWay(coverageList, deduplicateHashIDList)
 	if err != nil {
 		return nil, err
 	}
 
-	// 第七步：合并覆盖率映射数据
-	coverageMapWithFilePath := s.mergeCoverageMapWithFilePath(coverageMapRelationList, coverageMapData)
+	// 第八步：合并coverage map与file path - 按照老流程
+	coverageMapQuerySqlResultJsonWidth := s.mergeCoverageMapWithFilePathOldWay(coverageMapRelationList, coverageMapQuerySqlResultJson)
 
-	// 第八步：去重构建组列表
+	// 第九步：去重构建组列表
 	deduplicatedBuildGroupList := s.deduplicateBuildGroupList(buildGroupList)
 
-	// 第九步：构建结果列表
-	resultList := s.buildResultList(deduplicatedBuildGroupList, coverageList, coverageHitData, coverageMapWithFilePath, testCaseInfoList)
+	// 第十步：构建结果列表 - 完全按照老流程
+	resultList := s.buildResultListOldWay(
+		deduplicatedBuildGroupList,
+		coverageList,
+		coverageHitQuerySqlResultJson,
+		coverageMapQuerySqlResultJsonWidth,
+		testCaseInfoList,
+	)
 
 	return resultList, nil
 }
@@ -1027,26 +1036,24 @@ func (s *CoverageService) queryClickHouseForSummary(
 	for hitRows.Next() {
 		var (
 			coverageID, fullFilePath string
-			sTuple, fTuple, bTuple []interface{}
+			sTuple []interface{}
 		)
 		err := hitRows.Scan(
 			&coverageID,
 			&fullFilePath,
 			&sTuple,
-			&fTuple,
-			&bTuple,
 		)
 		if err != nil {
 			return nil, nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
 		}
 
-		// 转换tuple slice为uint32 map - 使用与现有方法相同的逻辑
+		// 转换tuple slice为uint32 map - 使用与老流程相同的逻辑
 		result := models.CoverageHitSummaryResult{
 			CoverageID:   coverageID,
 			FullFilePath: fullFilePath,
 			S:            s.convertTupleSliceToUint32Map(sTuple),
-			F:            s.convertTupleSliceToUint32Map(fTuple),
-			B:            s.convertTupleSliceToUint32Map(bTuple),
+			F:            make(map[uint32]uint32), // 暂时为空，与老流程一致
+			B:            make(map[uint32]uint32), // 暂时为空，与老流程一致
 		}
 		coverageHitData = append(coverageHitData, result)
 	}
@@ -1076,29 +1083,23 @@ func (s *CoverageService) queryClickHouseForSummary(
 	for mapRows.Next() {
 		var result models.CoverageMapSummaryResult
 		var (
-			statementMap, restoreStatementMap map[uint32][]interface{}
-			fnMapStr, branchMapStr            string
-			restoreFnMapStr, restoreBranchMapStr string
+			sKeys, fKeys, bKeys []interface{}
 		)
 		
 		err := mapRows.Scan(
-			&statementMap,
-			&fnMapStr,
-			&branchMapStr,
-			&restoreStatementMap,
-			&restoreFnMapStr,
-			&restoreBranchMapStr,
 			&result.Hash,
+			&sKeys,
+			&fKeys,
+			&bKeys,
 		)
 		if err != nil {
 			return nil, nil, fmt.Errorf("扫描coverage_map数据失败: %w", err)
 		}
 
-		// 使用与现有方法相同的解析逻辑
-		stmtMap := utils.ConvertStatementMap(statementMap)
-		result.S = s.extractKeysFromStatementMap(stmtMap)
-		result.F = s.extractKeysFromFunctionMapString(fnMapStr)
-		result.B = s.extractKeysFromBranchMapString(branchMapStr)
+		// 使用与老流程相同的解析逻辑
+		result.S = s.convertInterfaceSliceToUint32Slice(sKeys)
+		result.F = s.convertInterfaceSliceToUint32Slice(fKeys)
+		result.B = s.convertInterfaceSliceToUint32Slice(bKeys)
 		coverageMapData = append(coverageMapData, result)
 	}
 
@@ -1404,7 +1405,7 @@ func (s *CoverageService) extractKeysFromFunctionMap(functionMap map[uint32][]in
 // buildCoverageHitQueryWithCoverageID 构建包含coverage_id的coverage_hit_agg查询SQL
 func (s *CoverageService) buildCoverageHitQueryWithCoverageID(coverageList []models.Coverage) string {
 	if len(coverageList) == 0 {
-		return `SELECT '' as coverageID, '' as fullFilePath, [] as s, [] as f, [] as b WHERE 1=0`
+		return `SELECT '' as coverageID, '' as fullFilePath, [] as s WHERE 1=0`
 	}
 
 	// 构建IN条件
@@ -1417,9 +1418,7 @@ func (s *CoverageService) buildCoverageHitQueryWithCoverageID(coverageList []mod
 		SELECT
 			coverage_id as coverageID,
 			full_file_path as fullFilePath,
-			sumMapMerge(s) AS s,
-			sumMapMerge(f) AS f,
-			sumMapMerge(b) AS b
+			tupleElement(sumMapMerge(s), 1) AS s
 		FROM default.coverage_hit_agg
 		WHERE coverage_id IN (%s)
 		GROUP BY coverage_id, full_file_path
@@ -1438,10 +1437,11 @@ func (s *CoverageService) buildCoverageMapQueryForSummary(hashList []string) str
 	}
 	
 	return fmt.Sprintf(`
-		SELECT hash,
-		       statement_map as statementMap,
-		       toString(fn_map) as fnMap,
-		       toString(branch_map) as branchMap
+		SELECT
+			hash,
+			mapKeys(statement_map) AS s,
+			mapKeys(fn_map) AS f,
+			mapKeys(branch_map) AS b
 		FROM coverage_map
 		WHERE hash IN (%s)
 	`, strings.Join(hashConditions, ", "))
@@ -1492,4 +1492,413 @@ func (s *CoverageService) convertInterfaceSliceToUint32Slice(input []interface{}
 		}
 	}
 	return result
+}
+
+// deduplicateHashIDList 去重hash ID列表 - 按照老流程
+func (s *CoverageService) deduplicateHashIDList(coverageMapRelationList []struct {
+	CoverageMapHashID string `gorm:"column:coverage_map_hash_id"`
+	FullFilePath      string `gorm:"column:full_file_path"`
+}) []string {
+	hashSet := make(map[string]bool)
+	var result []string
+	
+	for _, relation := range coverageMapRelationList {
+		if !hashSet[relation.CoverageMapHashID] {
+			hashSet[relation.CoverageMapHashID] = true
+			result = append(result, relation.CoverageMapHashID)
+		}
+	}
+	
+	return result
+}
+
+// queryClickHouseDataOldWay 按照老流程查询ClickHouse数据
+func (s *CoverageService) queryClickHouseDataOldWay(coverageList []models.Coverage, deduplicateHashIDList []string) ([]map[string]interface{}, []map[string]interface{}, error) {
+	// 构建coverage_id列表
+	coverageIDs := make([]string, len(coverageList))
+	for i, coverage := range coverageList {
+		coverageIDs[i] = fmt.Sprintf("'%s'", coverage.ID)
+	}
+	
+	// 构建hash列表
+	hashConditions := make([]string, len(deduplicateHashIDList))
+	for i, hash := range deduplicateHashIDList {
+		hashConditions[i] = fmt.Sprintf("'%s'", hash)
+	}
+	
+	// 查询coverage_hit_agg - 完全按照老流程
+	coverageHitQuery := fmt.Sprintf(`
+		SELECT
+			coverage_id as coverageID,
+			full_file_path as fullFilePath,
+			tupleElement(sumMapMerge(s), 1) AS s
+		FROM default.coverage_hit_agg
+		WHERE coverage_id IN (%s)
+		GROUP BY coverage_id, full_file_path
+	`, strings.Join(coverageIDs, ", "))
+	
+	// 查询coverage_map - 完全按照老流程
+	coverageMapQuery := fmt.Sprintf(`
+		SELECT
+			hash,
+			mapKeys(statement_map) AS s,
+			mapKeys(fn_map) AS f,
+			mapKeys(branch_map) AS b
+		FROM coverage_map
+		WHERE hash IN (%s)
+	`, strings.Join(hashConditions, ", "))
+	
+	// 执行查询
+	ckDB := db.GetClickHouseDB()
+	
+	// 查询coverage_hit_agg
+	hitRows, err := ckDB.Query(context.Background(), coverageHitQuery)
+	if err != nil {
+		return nil, nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
+	}
+	defer hitRows.Close()
+	
+	var coverageHitQuerySqlResultJson []map[string]interface{}
+	for hitRows.Next() {
+		var coverageID, fullFilePath string
+		var sTuple []interface{}
+		
+		err := hitRows.Scan(&coverageID, &fullFilePath, &sTuple)
+		if err != nil {
+			return nil, nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
+		}
+		
+		// 转换tuple slice为uint32 slice
+		sKeys := s.convertInterfaceSliceToUint32Slice(sTuple)
+		
+		result := map[string]interface{}{
+			"coverageID":   coverageID,
+			"fullFilePath": fullFilePath,
+			"s":           sKeys,
+		}
+		coverageHitQuerySqlResultJson = append(coverageHitQuerySqlResultJson, result)
+	}
+	
+	// 查询coverage_map
+	mapRows, err := ckDB.Query(context.Background(), coverageMapQuery)
+	if err != nil {
+		return nil, nil, fmt.Errorf("查询coverage_map失败: %w", err)
+	}
+	defer mapRows.Close()
+	
+	var coverageMapQuerySqlResultJson []map[string]interface{}
+	for mapRows.Next() {
+		var hash string
+		var sKeys, fKeys, bKeys []interface{}
+		
+		err := mapRows.Scan(&hash, &sKeys, &fKeys, &bKeys)
+		if err != nil {
+			return nil, nil, fmt.Errorf("扫描coverage_map数据失败: %w", err)
+		}
+		
+		result := map[string]interface{}{
+			"hash": hash,
+			"s":    s.convertInterfaceSliceToUint32Slice(sKeys),
+			"f":    s.convertInterfaceSliceToUint32Slice(fKeys),
+			"b":    s.convertInterfaceSliceToUint32Slice(bKeys),
+		}
+		coverageMapQuerySqlResultJson = append(coverageMapQuerySqlResultJson, result)
+	}
+	
+	return coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson, nil
+}
+
+// mergeCoverageMapWithFilePathOldWay 按照老流程合并coverage map与file path
+func (s *CoverageService) mergeCoverageMapWithFilePathOldWay(
+	coverageMapRelationList []struct {
+		CoverageMapHashID string `gorm:"column:coverage_map_hash_id"`
+		FullFilePath      string `gorm:"column:full_file_path"`
+	},
+	coverageMapQuerySqlResultJson []map[string]interface{},
+) []map[string]interface{} {
+	var coverageMapQuerySqlResultJsonWidth []map[string]interface{}
+	
+	for _, coverageMapRelationItem := range coverageMapRelationList {
+		// 找到对应的coverage map数据
+		var coverageMapQuerySqlResultJsonItem map[string]interface{}
+		for _, item := range coverageMapQuerySqlResultJson {
+			if item["hash"] == coverageMapRelationItem.CoverageMapHashID {
+				coverageMapQuerySqlResultJsonItem = item
+				break
+			}
+		}
+		
+		if coverageMapQuerySqlResultJsonItem != nil {
+			// 复制数据并添加fullFilePath
+			result := make(map[string]interface{})
+			for k, v := range coverageMapQuerySqlResultJsonItem {
+				result[k] = v
+			}
+			result["fullFilePath"] = coverageMapRelationItem.FullFilePath
+			coverageMapQuerySqlResultJsonWidth = append(coverageMapQuerySqlResultJsonWidth, result)
+		}
+	}
+	
+	return coverageMapQuerySqlResultJsonWidth
+}
+
+// buildResultListOldWay 按照老流程构建结果列表
+func (s *CoverageService) buildResultListOldWay(
+	deduplicatedBuildGroupList []map[string]string,
+	coverageList []models.Coverage,
+	coverageHitQuerySqlResultJson []map[string]interface{},
+	coverageMapQuerySqlResultJsonWidth []map[string]interface{},
+	testCaseInfoList []interface{},
+) []interface{} {
+	var resultList []interface{}
+	
+	for _, buildGroup := range deduplicatedBuildGroupList {
+		buildID := buildGroup["buildID"]
+		buildProvider := buildGroup["buildProvider"]
+		
+		// 过滤当前build group的coverage
+		var currentCoverageList []models.Coverage
+		for _, coverage := range coverageList {
+			if coverage.BuildProvider == buildProvider && coverage.BuildID == buildID {
+				currentCoverageList = append(currentCoverageList, coverage)
+			}
+		}
+		
+		// 构建coverage ID列表
+		var coverageIDs []string
+		for _, coverage := range currentCoverageList {
+			coverageIDs = append(coverageIDs, coverage.ID)
+		}
+		
+		// 过滤hit数据
+		filteredHitData := s.filterCoverageHitOldWay(coverageIDs, coverageHitQuerySqlResultJson)
+		
+		// 计算总体summary
+		summary := s.calcCoverageSummaryOldWay(filteredHitData, coverageMapQuerySqlResultJsonWidth)
+		
+		// 构建auto mode
+		autoMode := s.buildAutoModeOldWay(currentCoverageList, coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJsonWidth, testCaseInfoList)
+		
+		// 构建manual mode
+		manualMode := s.buildManualModeOldWay(currentCoverageList, coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJsonWidth, testCaseInfoList)
+		
+		group := map[string]interface{}{
+			"buildID":      buildID,
+			"buildProvider": buildProvider,
+			"summary":      summary,
+			"modeList":     []interface{}{autoMode, manualMode},
+		}
+		
+		resultList = append(resultList, group)
+	}
+	
+	return resultList
+}
+
+// filterCoverageHitOldWay 按照老流程过滤coverage hit数据
+func (s *CoverageService) filterCoverageHitOldWay(coverageIDs []string, coverageHitQuerySqlResultJson []map[string]interface{}) []map[string]interface{} {
+	var result []map[string]interface{}
+	
+	for _, hitData := range coverageHitQuerySqlResultJson {
+		coverageID := hitData["coverageID"].(string)
+		for _, id := range coverageIDs {
+			if coverageID == id {
+				result = append(result, hitData)
+				break
+			}
+		}
+	}
+	
+	return result
+}
+
+// calcCoverageSummaryOldWay 按照老流程计算覆盖率摘要
+func (s *CoverageService) calcCoverageSummaryOldWay(covHit []map[string]interface{}, covMap []map[string]interface{}) map[string]interface{} {
+	// 构建hitMap
+	hitMap := make(map[string]map[uint32]bool)
+	for _, hitItem := range covHit {
+		path := hitItem["fullFilePath"].(string)
+		sKeys := hitItem["s"].([]uint32)
+		
+		if _, exists := hitMap[path]; !exists {
+			hitMap[path] = make(map[uint32]bool)
+		}
+		
+		for _, key := range sKeys {
+			hitMap[path][key] = true
+		}
+	}
+	
+	// 计算covered数量
+	var covered int
+	for _, hitSet := range hitMap {
+		covered += len(hitSet)
+	}
+	
+	// 计算total数量
+	var total int
+	for _, mapItem := range covMap {
+		sKeys := mapItem["s"].([]uint32)
+		total += len(sKeys)
+	}
+	
+	// 计算百分比
+	var percent float64
+	if total > 0 {
+		percent = float64(covered) / float64(total) * 100
+	}
+	
+	return map[string]interface{}{
+		"total":   total,
+		"covered": covered,
+		"percent": percent,
+	}
+}
+
+// buildAutoModeOldWay 按照老流程构建auto mode
+func (s *CoverageService) buildAutoModeOldWay(
+	coverageList []models.Coverage,
+	coverageHitQuerySqlResultJson []map[string]interface{},
+	coverageMapQuerySqlResultJsonWidth []map[string]interface{},
+	testCaseInfoList []interface{},
+) map[string]interface{} {
+	// 过滤auto mode的coverage
+	var autoCoverageList []models.Coverage
+	for _, coverage := range coverageList {
+		if coverage.ReportProvider == "mpaas" || coverage.ReportProvider == "flytest" {
+			autoCoverageList = append(autoCoverageList, coverage)
+		}
+	}
+	
+	// 构建coverage ID列表
+	var coverageIDs []string
+	for _, coverage := range autoCoverageList {
+		coverageIDs = append(coverageIDs, coverage.ID)
+	}
+	
+	// 过滤hit数据
+	filteredHitData := s.filterCoverageHitOldWay(coverageIDs, coverageHitQuerySqlResultJson)
+	
+	// 计算summary
+	summary := s.calcCoverageSummaryOldWay(filteredHitData, coverageMapQuerySqlResultJsonWidth)
+	
+	// 构建caseList
+	var caseList []interface{}
+	for _, coverage := range autoCoverageList {
+		// 计算单个case的summary
+		singleHitData := s.filterCoverageHitOldWay([]string{coverage.ID}, coverageHitQuerySqlResultJson)
+		caseSummary := s.calcCoverageSummaryOldWay(singleHitData, coverageMapQuerySqlResultJsonWidth)
+		
+		// 获取测试用例信息
+		testCaseInfo := s.getTestCaseInfoOldWay(testCaseInfoList, coverage.ReportID, coverage.ReportProvider)
+		
+		caseItem := map[string]interface{}{
+			"id":              coverage.ID,
+			"repoID":          coverage.RepoID,
+			"sha":             coverage.SHA,
+			"buildProvider":   coverage.BuildProvider,
+			"buildID":         coverage.BuildID,
+			"reportProvider":  coverage.ReportProvider,
+			"reportID":        coverage.ReportID,
+			"summary":         caseSummary,
+		}
+		
+		// 合并测试用例信息
+		for k, v := range testCaseInfo {
+			caseItem[k] = v
+		}
+		
+		caseList = append(caseList, caseItem)
+	}
+	
+	return map[string]interface{}{
+		"mode":     "auto",
+		"summary":  summary,
+		"caseList": caseList,
+	}
+}
+
+// buildManualModeOldWay 按照老流程构建manual mode
+func (s *CoverageService) buildManualModeOldWay(
+	coverageList []models.Coverage,
+	coverageHitQuerySqlResultJson []map[string]interface{},
+	coverageMapQuerySqlResultJsonWidth []map[string]interface{},
+	testCaseInfoList []interface{},
+) map[string]interface{} {
+	// 过滤manual mode的coverage
+	var manualCoverageList []models.Coverage
+	for _, coverage := range coverageList {
+		if coverage.ReportProvider == "person" {
+			manualCoverageList = append(manualCoverageList, coverage)
+		}
+	}
+	
+	// 构建coverage ID列表
+	var coverageIDs []string
+	for _, coverage := range manualCoverageList {
+		coverageIDs = append(coverageIDs, coverage.ID)
+	}
+	
+	// 过滤hit数据
+	filteredHitData := s.filterCoverageHitOldWay(coverageIDs, coverageHitQuerySqlResultJson)
+	
+	// 计算summary
+	summary := s.calcCoverageSummaryOldWay(filteredHitData, coverageMapQuerySqlResultJsonWidth)
+	
+	// 构建caseList
+	var caseList []interface{}
+	for _, coverage := range manualCoverageList {
+		// 计算单个case的summary
+		singleHitData := s.filterCoverageHitOldWay([]string{coverage.ID}, coverageHitQuerySqlResultJson)
+		caseSummary := s.calcCoverageSummaryOldWay(singleHitData, coverageMapQuerySqlResultJsonWidth)
+		
+		// 获取测试用例信息
+		testCaseInfo := s.getTestCaseInfoOldWay(testCaseInfoList, coverage.ReportID, coverage.ReportProvider)
+		
+		caseItem := map[string]interface{}{
+			"id":              coverage.ID,
+			"repoID":          coverage.RepoID,
+			"sha":             coverage.SHA,
+			"buildProvider":   coverage.BuildProvider,
+			"buildID":         coverage.BuildID,
+			"reportProvider":  coverage.ReportProvider,
+			"reportID":        coverage.ReportID,
+			"summary":         caseSummary,
+		}
+		
+		// 合并测试用例信息
+		for k, v := range testCaseInfo {
+			caseItem[k] = v
+		}
+		
+		caseList = append(caseList, caseItem)
+	}
+	
+	return map[string]interface{}{
+		"mode":     "manual",
+		"summary":  summary,
+		"caseList": caseList,
+	}
+}
+
+// getTestCaseInfoOldWay 按照老流程获取测试用例信息
+func (s *CoverageService) getTestCaseInfoOldWay(testCaseInfoList []interface{}, reportID, reportProvider string) map[string]interface{} {
+	for _, item := range testCaseInfoList {
+		if itemMap, ok := item.(map[string]interface{}); ok {
+			if itemMap["reportID"] == reportID && itemMap["reportProvider"] == reportProvider {
+				return itemMap
+			}
+		}
+	}
+	
+	// 如果没找到，返回默认值
+	return map[string]interface{}{
+		"caseName":     reportID,
+		"passedCount":  0,
+		"failedCount":  0,
+		"totalCount":   0,
+		"passRate":     "100%",
+		"reportProvider": reportProvider,
+		"reportID":     reportID,
+	}
 }
