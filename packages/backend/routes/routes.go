@@ -21,6 +21,9 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/vi/health", handlers.HealthCheck)
 
 	// Repository 路由
+	// r.GET("/api/repo", repoHandler.GetRepos)
+	
+	// Repository 路由
 	r.GET("/api/repo", repoHandler.GetRepos)
 	r.GET("/api/repo/:repoID", repoHandler.GetRepoByID)
 	r.GET("/api/repo/:repoID/commits", repoHandler.GetRepoCommits)

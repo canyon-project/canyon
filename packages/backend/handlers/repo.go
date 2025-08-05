@@ -3,6 +3,7 @@ package handlers
 import (
 	"backend/dto"
 	"backend/services"
+	"encoding/base64"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -45,7 +46,17 @@ func (h *RepoHandler) GetRepoByID(c *gin.Context) {
 		return
 	}
 
-	result, err := h.repoService.GetByRepoId(repoID)
+	// 尝试Base64解码，如果失败则使用原始字符串
+	var decodedRepoID string
+	decodedBytes, err := base64.StdEncoding.DecodeString(repoID)
+	if err != nil {
+		// 如果不是base64编码，直接使用原始字符串
+		decodedRepoID = repoID
+	} else {
+		decodedRepoID = string(decodedBytes)
+	}
+
+	result, err := h.repoService.GetByRepoId(decodedRepoID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -62,7 +73,17 @@ func (h *RepoHandler) GetRepoCommits(c *gin.Context) {
 		return
 	}
 
-	result, err := h.repoService.GetCommitsByRepoId(repoID)
+	// 尝试Base64解码，如果失败则使用原始字符串
+	var decodedRepoID string
+	decodedBytes, err := base64.StdEncoding.DecodeString(repoID)
+	if err != nil {
+		// 如果不是base64编码，直接使用原始字符串
+		decodedRepoID = repoID
+	} else {
+		decodedRepoID = string(decodedBytes)
+	}
+
+	result, err := h.repoService.GetCommitsByRepoId(decodedRepoID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

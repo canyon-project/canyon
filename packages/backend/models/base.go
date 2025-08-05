@@ -13,8 +13,8 @@ type JSON json.RawMessage
 // BaseModel 基础模型
 type BaseModel struct {
 	ID        string         `gorm:"primarykey" json:"id"`
-	CreatedAt time.Time      `gorm:"column:created_at" json:"created_at"`
-	UpdatedAt time.Time      `gorm:"column:updated_at" json:"updated_at"`
+	CreatedAt time.Time      `gorm:"column:created_at" json:"createdAt"`
+	UpdatedAt time.Time      `gorm:"column:updated_at" json:"updatedAt"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
 }
 
@@ -28,7 +28,7 @@ type User struct {
 	Avatar    string    `json:"avatar"`
 	Favor     string    `json:"favor"`
 	Settings  JSON      `gorm:"type:json" json:"settings"`
-	CreatedAt time.Time `gorm:"column:created_at" json:"created_at"`
+	CreatedAt time.Time `gorm:"column:created_at" json:"createdAt"`
 }
 
 // TableName 指定表名
@@ -39,14 +39,19 @@ func (User) TableName() string {
 // Repo 仓库模型
 type Repo struct {
 	ID                string    `gorm:"primarykey" json:"id"`
-	PathWithNamespace string    `gorm:"column:path_with_namespace" json:"path_with_namespace"`
+	PathWithNamespace string    `gorm:"column:path_with_namespace" json:"pathWithNamespace"`
 	Description       string    `json:"description"`
 	Bu                string    `json:"bu"`
 	Tags              JSON      `gorm:"type:json" json:"tags"`
 	Members           JSON      `gorm:"type:json" json:"members"`
 	Scopes            JSON      `gorm:"type:json" json:"scopes"`
-	CreatedAt         time.Time `gorm:"column:created_at" json:"created_at"`
-	UpdatedAt         time.Time `gorm:"column:updated_at" json:"updated_at"`
+	CreatedAt         time.Time `gorm:"column:created_at" json:"createdAt"`
+	UpdatedAt         time.Time `gorm:"column:updated_at" json:"updatedAt"`
+	// 前端期望的额外字段
+	ReportTimes     int       `json:"reportTimes"`
+	MaxCoverage     float64   `json:"maxCoverage"`
+	LastReportTime  time.Time `json:"lastReportTime"`
+	Favored         bool      `json:"favored"`
 }
 
 // TableName 指定表名
@@ -57,20 +62,20 @@ func (Repo) TableName() string {
 // Coverage 覆盖率模型
 type Coverage struct {
 	ID             string    `gorm:"primarykey" json:"id"`
-	InstrumentCwd  string    `gorm:"column:instrument_cwd" json:"instrument_cwd"`
+	InstrumentCwd  string    `gorm:"column:instrument_cwd" json:"instrumentCwd"`
 	SHA            string    `gorm:"column:sha" json:"sha"`
 	Branch         string    `json:"branch"`
-	CompareTarget  string    `gorm:"column:compare_target" json:"compare_target"`
+	CompareTarget  string    `gorm:"column:compare_target" json:"compareTarget"`
 	Provider       string    `json:"provider"`
-	BuildProvider  string    `gorm:"column:build_provider" json:"build_provider"`
-	BuildID        string    `gorm:"column:build_id" json:"build_id"`
-	RepoID         string    `gorm:"column:repo_id" json:"repo_id"`
+	BuildProvider  string    `gorm:"column:build_provider" json:"buildProvider"`
+	BuildID        string    `gorm:"column:build_id" json:"buildId"`
+	RepoID         string    `gorm:"column:repo_id" json:"repoId"`
 	Reporter       string    `json:"reporter"`
-	ReportProvider string    `gorm:"column:report_provider" json:"report_provider"`
-	ReportID       string    `gorm:"column:report_id" json:"report_id"`
-	ScopeID        string    `gorm:"column:scope_id" json:"scope_id"`
-	CreatedAt      time.Time `gorm:"column:created_at" json:"created_at"`
-	UpdatedAt      time.Time `gorm:"column:updated_at" json:"updated_at"`
+	ReportProvider string    `gorm:"column:report_provider" json:"reportProvider"`
+	ReportID       string    `gorm:"column:report_id" json:"reportId"`
+	ScopeID        string    `gorm:"column:scope_id" json:"scopeId"`
+	CreatedAt      time.Time `gorm:"column:created_at" json:"createdAt"`
+	UpdatedAt      time.Time `gorm:"column:updated_at" json:"updatedAt"`
 }
 
 // TableName 指定表名

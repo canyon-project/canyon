@@ -11,7 +11,7 @@ const ProjectDetailPage = () => {
   const { data, loading } = useRequest(
     () => {
       return axios
-        .get(`/api/repo/${params.org}%2F${params.repo}`)
+        .get(`/api/repo/${btoa(params.org+'/'+params.repo)}`)
         .then((res) => res.data);
     },
     {

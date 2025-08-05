@@ -161,25 +161,29 @@ const ProjectListPage = () => {
     {
       title: t('common.option'),
       key: 'option',
-      render: (_, { id,pathWithNamespace }) => (
-        <>
-          <Link
-            to={{
-              pathname: `/gitlab/${pathWithNamespace}/commits`,
-            }}
-          >
-            {t('common.detail')}
-          </Link>
-          <Divider type={'vertical'} />
-          <Link
-            to={{
-              pathname: `/projects/${id}/settings`,
-            }}
-          >
-            {t('common.settings')}
-          </Link>
-        </>
-      ),
+      render: (_, { id,pathWithNamespace }) => {
+        // Base64编码pathWithNamespace，处理包含斜杠的路径
+        // const encodedPath = btoa(pathWithNamespace);
+        return (
+          <>
+            <Link
+              to={{
+                pathname: `/gitlab/${pathWithNamespace}/commits`,
+              }}
+            >
+              {t('common.detail')}
+            </Link>
+            <Divider type={'vertical'} />
+            <Link
+              to={{
+                pathname: `/projects/${id}/settings`,
+              }}
+            >
+              {t('common.settings')}
+            </Link>
+          </>
+        );
+      },
     },
   ];
 
@@ -260,7 +264,7 @@ const ProjectListPage = () => {
             borderRadius: 2,
           }}
         >
-          <Table loading={loading} columns={columns} dataSource={data||[]} />
+          <Table loading={loading} columns={columns} dataSource={data?.data||[]} />
         </div>
       </div>
     </div>

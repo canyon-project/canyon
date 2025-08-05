@@ -23,13 +23,14 @@ const Commits = () => {
       .get(`/api/repo/${repo.id}/commits`)
       .then((res) => res.data)
       .then((res) => {
-        return res.map((item) => {
+        console.log(res, 'res');
+        return res.commits.map((item) => {
           return {
             id: item.sha,
             sha: item.sha,
-            commitMessage: item.commitDetail.message,
-            author: item.commitDetail.author_name,
-            timestamp: item.commitDetail.authored_date,
+            commitMessage: 'item.commitDetail.message',
+            author: 'item.commitDetail.author_name',
+            timestamp: 'item.commitDetail.authored_date',
             pipelineCount: 3,
             aggregationStatus: 1,
             hasE2E: false,
