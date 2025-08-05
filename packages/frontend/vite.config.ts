@@ -1,29 +1,34 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import Pages from "vite-plugin-pages";
-import tailwindcss from "@tailwindcss/vite";
-// https://vite.dev/config/
+import react from '@vitejs/plugin-react';
+import * as path from 'path';
+import { defineConfig } from 'vite';
+import Pages from 'vite-plugin-pages';
+import tailwindcss from '@tailwindcss/vite';
+
 export default defineConfig({
   plugins: [
-      react(),
+    react(),
     Pages({
-      dirs:[
-        {
-          dir: 'src/pages', baseRoute: '',
-        },
-        {
-          dir: 'src/cov-pages', baseRoute: ':provider/:org/:repo',
-        }
-      ],
-      exclude: ["**/helper/**", "**/components/**"],
+      exclude: ['**/views/**', '**/components/**'],
     }),
-    tailwindcss(),],
-  server:{
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      // 'canyontest-report': path.resolve(__dirname, '../report/src/index.tsx'),
+    },
+  },
+  build: {
+    sourcemap: true,
+  },
+  server: {
+    port: 8000,
+    host: '0.0.0.0',
     proxy: {
-      '/api': {
-        target: 'http://localhost:8080',
+      '^/graphql|^/api': {
         changeOrigin: true,
-      }
-    }
-  }
-})
+        target: 'http://localhost:8080',
+      },
+    },
+  },
+});
