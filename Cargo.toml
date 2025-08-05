@@ -5,7 +5,7 @@ members  = [
 ]
 
 [workspace.package]
-authors      = ["Allen Zhang <wr.zhang25@gmail.com>"]
+authors      = ["Travis Zhang <wr.zhang25@gmail.com>"]
 edition    = "2021"
 license    = "MIT"
 homepage     = "https://github.com/canyon-project/canyon"
