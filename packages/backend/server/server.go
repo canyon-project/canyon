@@ -62,7 +62,7 @@ func (s *Server) setupMiddleware() {
 // setupRoutes 设置路由
 func (s *Server) setupRoutes() {
 	// 设置所有路由
-	routes.SetupRoutes(s.Router, s.Database)
+	routes.SetupRoutes(s.Router)
 
 	// 静态文件服务（放在最后，作为 fallback）
 	s.Router.Use(middleware.StaticFileHandler("/static"))

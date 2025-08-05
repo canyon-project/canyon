@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ClickHouseDB driver.Conn
+	ClickHouseDB    driver.Conn
 	ClickHouseSqlDB *sql.DB
 )
 
@@ -81,14 +81,6 @@ func GetClickHouseDB() driver.Conn {
 	return ClickHouseDB
 }
 
-// GetClickHouseSqlDB 获取ClickHouse SQL连接
-func GetClickHouseSqlDB() *sql.DB {
-	if ClickHouseSqlDB == nil {
-		log.Fatal("ClickHouse SQL数据库未初始化")
-	}
-	return ClickHouseSqlDB
-}
-
 // CloseClickHouse 关闭ClickHouse连接
 func CloseClickHouse() error {
 	if ClickHouseDB != nil {
@@ -109,9 +101,9 @@ func ClickHouseHealthCheck() error {
 	if ClickHouseDB == nil {
 		return fmt.Errorf("ClickHouse连接未初始化")
 	}
-	
+
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	
+
 	return ClickHouseDB.Ping(ctx)
 }

@@ -1,11 +1,9 @@
 package config
 
 import (
+	"github.com/joho/godotenv"
 	"log"
 	"os"
-	"path/filepath"
-
-	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -69,24 +67,4 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
-}
-
-// GetWorkingDir 获取工作目录
-func GetWorkingDir() string {
-	wd, err := os.Getwd()
-	if err != nil {
-		log.Printf("获取工作目录失败: %v", err)
-		return "."
-	}
-	return wd
-}
-
-// GetAbsolutePath 获取绝对路径
-func GetAbsolutePath(relativePath string) string {
-	absPath, err := filepath.Abs(relativePath)
-	if err != nil {
-		log.Printf("获取绝对路径失败: %v", err)
-		return relativePath
-	}
-	return absPath
 }
