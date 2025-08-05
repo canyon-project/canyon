@@ -1,0 +1,21 @@
+---
+title: Change Code Coverage
+---
+
+# Change Code Coverage
+
+Change code coverage allows you to focus on the testing situation of the changed code this time.
+
+## Calculation Logic
+
+1. git diff gets `added lines` and `deleted lines` for each file
+2. By traversing the coverage data of the changed file, compare whether `added lines` are covered in `all dimensions`
+3. Calculate the change code coverage of a single file. Formula: `(added lines - uncovered lines) / added lines`
+
+> [!TIP]
+>
+> Among them, many `added lines` do not belong to any of `branch`, `function`, or `statement`, but participate in the calculation and are considered `covered` by default.
+
+## View our example
+
+[simple](https://simple.canyonjs.org/) 

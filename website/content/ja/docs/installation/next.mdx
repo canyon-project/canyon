@@ -1,0 +1,37 @@
+# Next.js
+
+import { Steps } from "nextra/components";
+
+Next.jsのインストールと設定。
+
+<Steps>
+
+  ### プロジェクトの作成
+  まず、以下のコマンドを使用して新しいReactプロジェクト`next.js`を作成します。
+
+  ```sh npm2yarn copy
+  npx create-next-app@latest
+  ```
+
+  ### Canyonとその設定の追加
+
+  > [!TIP]
+  >
+  > 最新のNext.jsコンパイラーはデフォルトでSWCを使用します。Babelプラグインの設定については、[こちら](https://nextjs.org/docs/advanced-features/customizing-babel-config)を参照してください。
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### Babelプラグインの設定
+
+  ```js filename="babel.config.js" {3} copy
+  module.exports = {
+    presets: ["next/babel"],
+    plugins: ["istanbul", "canyon"],
+  };
+  ```
+
+  ### 完了
+  [最初のカバレッジデータ - 検証](/docs/getting-started/first-coverage#検証)に進んでください。
+</Steps> 

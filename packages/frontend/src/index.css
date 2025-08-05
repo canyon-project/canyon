@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+a {
+  color: #0071c2;
+}
+a:hover {
+  color: #0071c2;
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+@font-face {
+  font-family: "IBMPlexMono";
+  src: url("@ibm/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*菜单右边的边框去掉*/
+
+.ant-menu-light.ant-menu-root {
+  border-inline-end: none !important;
+}

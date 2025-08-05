@@ -1,0 +1,17 @@
+{
+  "name": "frontend",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter frontend dev"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "pnpm --filter frontend build"
+      }
+    }
+  }
+}

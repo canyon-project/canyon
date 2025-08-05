@@ -1,0 +1,66 @@
+---
+title: ソースコードカバレッジの復元
+---
+
+# ソースコードカバレッジの復元
+
+フロントエンドアプリケーションは様々なコンパイル形式があり、多くの場合、事前コンパイルされたASTがbabelに渡されて変換されるため、カバレッジをソースコードに直接マッピングできません。そのため、ソースコードカバレッジを復元する必要があります。
+
+## Source Map
+
+>
+> フロントエンド開発では、通常JavaScriptコードが圧縮、難読化、またはプリプロセッサ（TypeScript、Babelなど）を使用して変換され、パフォーマンスと互換性を向上させます。これらの処理により、最終的にデプロイされるコードは元のソースコードと大きく異なり、デバッグが困難になります。Source Mapは、コンパイルされたコードと元のコードの間のマッピング関係を記録することでこの問題を解決し、開発者がブラウザの開発者ツールで元のコードを表示・デバッグできるようにします。 -- [web.dev](https://web.dev/articles/source-maps)
+
+ほとんどの場合、sourceMapファイルを手動で取得する必要はありません。これは、ほとんどのビルドツールが`事前コンパイルされたASTがbabelに渡されて変換される`プロセス中にsourceMapファイルを渡すためです。
+
+ただし、一部の場合、sourceMapファイルを設定する必要がある場合があります。
+
+## sourceMapオプションを有効にする場合
+
+```js filename="webpack.config.js" {4}
+const path = require('path');
+
+module.exports = {
+  entry: './build/main.js',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js'
+  },
+  module:{
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        use:['babel-loader'],
+        exclude:'/node_modules/'
+      }
+    ]
+  }
+};
+```
+
+この例では、webpackのエントリーファイルは`./build/main.js`で、これはtscがtsファイルをコンパイルした結果です。tsconfig.jsonで`sourceMap`を`true`に設定する必要があります。__これによりsourceMapデータの伝達が保証されます。__
+
+```json filename="tsconfig.json" {3}
+{
+  "compilerOptions": {
+    "sourceMap": true
+  }
+}
+```
+
+## sourceMapを手動で設定する場合
+
+sourceMapの生成方法が以下の場合、手動でsourceMapを設定する必要があります。
+
+| カテゴリ              | devtool                       |  説明                                    |
+|-------------------|-------------------------------|-----------------------------------------|
+| source mapファイルを生成、ソースコードを表示しない   | hidden-source-map             |  ファイル末尾でmapファイルを参照しない                 |
+| source mapファイルを生成、ソースコードを表示しない   | nosources-source-map           | ファイル末尾でmapファイルを参照しない                 |
+
+### sourceMapを手動で設定する方法
+
+この時、[hitとmapの分離](/docs/core-concepts/separate-hit-and-map)を使用し、`canyon-uploader`を使用してビルド段階でローカルのsourceMapファイルを検出する必要があります。Canyonはそれらを初期カバレッジデータとマッチングしてアップロードします。
+
+> [!NOTE]
+>
+> これもJavaScriptが過度に柔軟であることの欠点です。正確なソースコードカバレッジデータを収集するには、これらのsourceMapファイルを接続して、コードインストルメンテーションがソースコードに正しくマッピングできるようにする必要があります。 

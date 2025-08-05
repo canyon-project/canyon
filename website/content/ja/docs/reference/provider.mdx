@@ -1,0 +1,23 @@
+---
+title: サポートされているCIプロバイダー
+---
+
+# サポートされているCIプロバイダー
+
+import { Callout } from 'nextra/components'
+
+<Callout type="info" emoji="ℹ️">
+  CanyonはすべてのCIプロバイダーをサポートできます。あなたのCIプロバイダーがリストにない場合は、wr.zhang25@gmail.comまでお知らせください。
+</Callout>
+
+以下はCanyonがサポートするCIプロバイダーのリストとその環境変数です：
+
+| Provider                                                       | Project ID | SHA | Branch |
+| ------------------------------------------------------------ | -- | -- | -- |
+| [Azure Pipelines](https://azure.microsoft.com/en-us/services/devops/pipelines/) | BUILD_REPOSITORY_NAME | BUILD_SOURCEVERSION | BUILD_SOURCEBRANCH |
+| [CircleCI](https://circleci.com/)                            | CIRCLE_REPOSITORY_URL | CIRCLE_SHA1 | CIRCLE_BRANCH |
+| [Drone](https://drone.io/)                                   | DRONE_REPO | DRONE_COMMIT_SHA | DRONE_BRANCH |
+| [Github Actions](https://github.com/features/actions)        | GITHUB_REPOSITORY | GITHUB_SHA | GITHUB_REF |
+| [GitLab CI](https://about.gitlab.com/gitlab-ci/)             | CI_PROJECT_ID | CI_COMMIT_SHA | CI_COMMIT_BRANCH |
+| [Jenkins](https://jenkins.io/)                               | GIT_REPOSITORY | GIT_COMMIT | GIT_BRANCH |
+| [Travis CI](https://travis-ci.org/)                          | TRAVIS_REPO_SLUG | TRAVIS_COMMIT | TRAVIS_BRANCH |

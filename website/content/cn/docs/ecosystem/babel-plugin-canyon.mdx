@@ -1,0 +1,84 @@
+---
+title: babel-plugin-canyon
+---
+
+# babel-plugin-canyon
+
+一款 Babel 插件，用于侦测 CI 环境变量。配合 istanbuljs 完成代码插桩。
+
+## 使用
+
+安装:
+
+```sh
+npm install --save-dev babel-plugin-canyon
+```
+
+在 `babel.config.js` 中添加这些配置:
+
+```js
+module.exports = {
+  plugins:
+    process.env.CI_COMMIT_REF_NAME === "test-coverage"
+      ? ["istanbul", "canyon"]
+      : [],
+      // 需注意插件顺序，canyon插件应在istanbul插件之后
+};
+```
+
+它会做两件事情：
+
+1. 侦测 CI 流水线变量
+2. 检查上一步istanbul插桩产物并保存到本地(keepMap为false时)
+
+## 配置
+
+babel.config.js
+
+```js
+module.exports = {
+  plugins: [
+    "istanbul",
+    [
+      "canyon",
+      {
+        // #region == Step 1: CI 变量配置 或者 手动显示配置
+        dsn: "http://yourdomain.com/coverage/client", // 覆盖率上报地址，侦测CI流水线变量的KEY为 DSN
+        reporter: "your_token", // 用户token，用于区分不同的用户，侦测CI流水线变量的KEY为 REPORTER
+        // #endregion
+        // #region == Step 2: CI Provider 自动侦测，一般不需要手动配置，具体请查看 Support Provider 文档
+        projectID: "230614", // 仓库ID
+        sha: "xxxxxxxxx", // Git Commit SHA
+        branch: "master", // Git 仓库分支
+        // #endregion
+        // #region == Step 3: 覆盖率额外功能配置(可选)
+        reportID: "case_id", // 用于区分不同的测试用例
+        compareTarget: "develop", // 比较目标，用作当前 SHA 的基线，用于计算更改行的覆盖率
+        // #endregion
+        // #region == Step 4: hit和map数据分离(可选)
+        keepMap: true, // 保留coverage map，可选，默认为true，为false时，会生成.canyon_output文件!!!
+        // #endregion
+        // #region == Step 5: 其他配置(可选)
+        instrumentCwd: "/path/to", // 插桩的工作目录，多仓库模式时可能需要手动配置
+        provider: "gitlab", // 源代码 provider(可选)，默认为 gitlab
+        oneByOne: false, // 配置代理服务器，可选，默认为false。为true时会在编译时逐一上报每个文件的初始覆盖率数据。也可以是代理服务器配置。
+        // #endregion
+      },
+    ],
+  ],
+};
+```
+
+| 配置项        | 描述                                                                                                          | 是否必填                                       | 默认值        |
+| ------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------- |
+| dsn           | 覆盖率上报地址，侦测CI流水线变量的KEY为 DSN                                                                   | 是（根据情况在CI变量配置或手动显示配置中填写） | 无            |
+| reporter      | 用户token，用于区分不同的用户，侦测CI流水线变量的KEY为 REPORTER                                               | 是（根据情况在CI变量配置或手动显示配置中填写） | 无            |
+| projectID     | 仓库ID                                                                                                        | 一般不需要手动配置（自动侦测CI Provider）      | 无            |
+| sha           | Git Commit SHA                                                                                                | 一般不需要手动配置（自动侦测CI Provider）      | 无            |
+| branch        | Git仓库分支                                                                                                   | 一般不需要手动配置（自动侦测CI Provider）      | 无            |
+| reportID      | 用于区分不同的测试用例                                                                                        | 可选                                           | 无            |
+| compareTarget | 比较目标，用作当前SHA的基线，用于计算更改行的覆盖率                                                           | 可选                                           | 无            |
+| keepMap       | 保留coverage map，可选，默认为true，为false时，会生成.canyon_output文件                                       | 可选                                           | true          |
+| instrumentCwd | 插桩的工作目录，多仓库模式时可能需要手动配置                                                                  | 可选                                           | process.cwd() |
+| provider      | 源代码provider（可选），默认为gitlab                                                                          | 可选                                           | gitlab        |
+| oneByOne      | 配置代理服务器，可选，默认为false。为true时会在编译时逐一上报每个文件的初始覆盖率数据。也可以是代理服务器配置 | 可选                                           | false         |

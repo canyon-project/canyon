@@ -1,0 +1,62 @@
+---
+title: Lynx
+---
+
+# Lynx
+
+import { Steps } from "nextra/components";
+
+Install and configure Lynx.
+
+<Steps>
+
+  ### Create Project
+
+  [Lynx](https://lynxjs.org/) documentation
+
+  ### Add Canyon and its configuration
+
+  > [!TIP]
+  >
+  > Lynx compiler uses swc by default. Plugin configuration related [documentation](https://lynxjs.org/zh/api/rspeedy/rspeedy.tools.swc.html#toolsswc-property)
+
+
+  ```sh npm2yarn copy
+  npm install swc-plugin-coverage-instrument swc-plugin-canyon -D
+  ```
+
+  ### Configure swc plugin
+
+  ```js filename="lynx.config.ts" {19,20} copy
+  import { defineConfig } from '@lynx-js/rspeedy'
+  import { pluginQRCode } from '@lynx-js/qrcode-rsbuild-plugin'
+  import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+
+  export default defineConfig({
+    plugins: [
+      pluginQRCode({
+        schema(url) {
+          return `${url}?fullscreen=true`
+        },
+      }),
+      pluginReactLynx(),
+    ],
+    tools:{
+      swc:{
+        jsc:{
+          experimental:{
+            plugins:[
+                ['swc-plugin-coverage-instrument',{}],
+                ['swc-plugin-canyon',{}]
+            ]
+          }
+        }
+      }
+    }
+  })
+
+  ```
+
+  ### That's it
+  Continue to view [First Coverage Data - Check](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5).
+</Steps> 

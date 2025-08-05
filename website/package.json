@@ -1,0 +1,31 @@
+{
+  "name": "docs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next",
+    "build": "next build",
+    "start": "next start"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "antd": "^5.26.7",
+    "next": "^15.3.5",
+    "nextra": "^4.2.17",
+    "nextra-theme-docs": "^4.2.17",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/node": "24.0.10",
+    "@types/react": "19.1.8",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.11"
+  }
+}

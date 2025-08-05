@@ -1,0 +1,63 @@
+---
+title: Webpack
+---
+
+# Webpack
+
+import { Steps } from "nextra/components";
+
+Webpackをインストールして設定します。
+
+<Steps>
+
+  ### プロジェクトを作成
+
+  Webpack [ドキュメント](https://webpack.js.org/)
+
+  ### Canyonとその設定を追加
+
+  > [!TIP]
+  >
+  > babel方式を使用することをお勧めします。これは最もシンプルで安定した設定方法です。
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### babelプラグインを設定
+
+  ```js filename="babel.config.js" {3} copy
+  module.exports = {
+    presets: ["@babel/preset-env"],
+    plugins: ["istanbul", "canyon"],
+  };
+  ```
+
+  ### webpackを設定
+
+  ```js filename="webpack.config.js" copy
+  const path = require('path');
+
+  module.exports = {
+    entry: './src/index.js',
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'bundle.js',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+          },
+        },
+      ],
+    },
+  };
+  ```
+
+  ### これで完了
+  [最初のカバレッジデータ - チェック](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)を続けて確認してください。
+</Steps> 

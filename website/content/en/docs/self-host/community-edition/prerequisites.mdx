@@ -1,0 +1,49 @@
+---
+title: Prerequisites
+---
+
+# Prerequisites
+
+Prerequisites for installing Canyon on your own infrastructure.
+
+Canyon is a self-hosted API development platform packaged as a set of Docker containers. You can install and run Canyon on any operating system that can run [Docker Engine](https://docs.docker.com/engine). You can use Canyon on your local computer or on your chosen cloud provider.
+
+## System Requirements
+
+Canyon is designed to run well in both small and large deployments. The minimum requirements to run Canyon are an operating system that supports Docker and 4 CPU cores + 4GB RAM to generate build images, and at least 1 CPU core + 2GB RAM to host the generated output files.
+
+### Install Node.js, npm, pnpm
+
+#### Node.js + npm
+
+Install [`Node.js`](https://nodejs.org/en) (v18+) and [`npm`](https://www.npmjs.com) (v9+).
+
+- [Node.js + npm Installation Guide](https://nodejs.org/en/download)
+
+### pnpm
+
+Install [`pnpm`](https://pnpm.io) (recommended v9).
+
+- [pnpm Installation Guide](https://pnpm.io/installation)
+
+### Docker
+
+Install [`Docker`](https://www.docker.com) (v20+).
+
+- [Docker Installation Guide](https://docs.docker.com/engine/install)
+
+### Postgres Database
+
+Canyon uses a Postgres database to store basic data (requires 14.x or higher). You can use any Postgres database provider of your choice - hosted locally or on a cloud provider. Make sure you have a valid Postgres database URL in the following format:
+
+```
+postgres://username:password@localhost:5432/dbname
+```
+
+#### Create Tables
+
+```shell
+pnpm run migrate
+```
+
+Or use the table creation [SQL](https://github.com/canyon-project/canyon/blob/main/packages/canyon-backend/prisma/create_table.sql) directly.

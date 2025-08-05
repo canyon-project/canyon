@@ -1,0 +1,52 @@
+---
+title: Playwright
+---
+
+# Playwright
+
+In Playwright, get the context, write coverage data to local files during test execution, and finally use the canyon-uploader tool to aggregate and upload.
+
+## Writing Coverage Data to Local Files
+
+Here's a nodejs code example:
+
+```ts copy
+import * as fs from 'fs';
+import * as path from 'path';
+import {test as baseTest} from '@playwright/test';
+
+const canyonOutputDirPath = path.join(process.cwd(), '.canyon_output');
+
+export const test = baseTest.extend({
+  context: async ({context}, use) => {
+    await context.addInitScript(() =>
+      window.addEventListener('beforeunload', () =>
+        (window as any).collectIstanbulCoverage((window as any).__coverage__)
+      ),
+    );
+    await fs.promises.mkdir(canyonOutputDirPath, {recursive: true});
+    await context.exposeFunction('collectIstanbulCoverage', (coverageJSON) => {
+      console.log('Coverage collected',coverageJSON);
+      if (coverageJSON) {
+        fs.writeFileSync(path.join(canyonOutputDirPath, `coverage-final-${new Date().valueOf()}.json`), JSON.stringify(coverageJSON));
+      }
+    });
+    await use(context);
+    for (const page of context.pages()) {
+      await page.evaluate(() => (window as any).collectIstanbulCoverage((window as any).__coverage__));
+    }
+  }
+});
+
+export const expect = test.expect;
+
+
+```
+
+## Aggregate Upload
+
+Use the canyon-uploader tool to aggregate and upload. For specific usage, please see the [canyon-uploader](/docs/ecosystem/canyon-uploader) documentation.
+
+```bash copy
+./canyon-uploader map --dsn=https://canyonjs.org
+```

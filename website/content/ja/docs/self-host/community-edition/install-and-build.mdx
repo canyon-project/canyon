@@ -1,0 +1,60 @@
+---
+title: インストールとビルド
+---
+
+# インストールとビルド
+
+Canyon Community Editionのインストールとビルド方法を学びます。
+
+## 環境設定
+
+インストールを開始する前に、環境変数を設定する必要があります。
+
+```yaml
+# Prisma Config
+DATABASE_URL=postgres://username:password@localhost:5432/dbname
+```
+
+## Node.js
+
+プロジェクトをクローン
+
+```shell
+git clone https://github.com/canyon-project/canyon
+```
+
+依存関係をインストールし、プロジェクトをビルド
+
+```shell
+pnpm install && pnpm run build
+```
+
+.envファイルを修正し、データベーステーブルを作成
+
+```shell
+pnpm run migrate
+```
+
+nodejsを使用してプロジェクトを実行
+
+```shell
+node packages/canyon-backend/dist/main.js
+```
+
+
+## Docker
+
+dockerでcanyonを実行するには、環境変数ファイルパスとポート番号を指定するだけです
+
+```shell
+docker run -d -p 8080:8080 -v /your/path/.env:/app/.env zhangtao25/canyon:main
+```
+
+## 正常な起動
+
+正常に起動すると、2つのメインサービスがあります：
+
+- Canyon frontend
+- Canyon backend
+
+`http://localhost:8000/login`にアクセスしてCanyonにログインしてください。 

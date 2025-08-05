@@ -1,0 +1,14 @@
+{
+  "npmScope": "canyon",
+  "affected": {
+    "defaultBase": "main"
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^test"]
+    }
+  }
+}

@@ -1,0 +1,66 @@
+---
+title: Restore Source Code Coverage
+---
+
+# Restore Source Code Coverage
+
+Frontend applications have various compilation forms, and in many cases, the pre-compiled AST is handed over to babel for transformation, which makes it impossible to directly map coverage to source code. Therefore, we need to restore source code coverage.
+
+## Source Map
+
+>
+> In frontend development, JavaScript code is usually compressed, obfuscated, or transformed using preprocessors (such as TypeScript, Babel) to improve performance and compatibility. These processes make the final deployed code very different from the original source code, making debugging difficult. Source Map solves this problem by recording the mapping relationship between compiled code and original code, allowing developers to view and debug original code in browser developer tools. -- [web.dev](https://web.dev/articles/source-maps)
+
+In most cases, you don't need to manually obtain sourceMap files, because most build tools pass sourceMap files during the process of `pre-compiled AST handed over to babel for transformation`.
+
+However, in some cases, you may need to configure sourceMap files.
+
+## Cases for enabling sourceMap options
+
+```js filename="webpack.config.js" {4}
+const path = require('path');
+
+module.exports = {
+  entry: './build/main.js',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js'
+  },
+  module:{
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        use:['babel-loader'],
+        exclude:'/node_modules/'
+      }
+    ]
+  }
+};
+```
+
+In this example, webpack's entry file is `./build/main.js`, which is the product of tsc compiling ts files. We need to set `sourceMap` to `true` in tsconfig.json to __ensure the transmission of sourceMap data.__
+
+```json filename="tsconfig.json" {3}
+{
+  "compilerOptions": {
+    "sourceMap": true
+  }
+}
+```
+
+## Cases for manual sourceMap setup
+
+When your sourceMap generation method is one of the following cases, you need to manually set sourceMap.
+
+| Category              | devtool                       |  Description                                    |
+|-------------------|-------------------------------|-----------------------------------------|
+| Generate source map file, don't show source code   | hidden-source-map             |  File doesn't reference map file at the end                 |
+| Generate source map file, don't show source code   | nosources-source-map           | File doesn't reference map file at the end                 |
+
+### How to manually set sourceMap
+
+At this time, you need to use [Separate hit and map](/docs/core-concepts/separate-hit-and-map), and use `canyon-uploader` to detect local sourceMap files during the build phase. Canyon will match them with initial coverage data and upload.
+
+> [!NOTE]
+>
+> This is also a disadvantage of JavaScript being too flexible. To collect accurate source code coverage data, we need to connect these sourceMap files so that code instrumentation can correctly map to source code. 

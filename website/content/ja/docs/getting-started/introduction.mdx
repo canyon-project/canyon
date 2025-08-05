@@ -1,0 +1,65 @@
+# 紹介
+
+## 概要
+
+Canyon（峡谷を意味し、発音は /ˈkænjən/）は、JavaScript コードカバレッジ収集プラットフォームです。開発者とQAエンジニアがエンドツーエンドテストプロセスでテストケースのコードカバレッジを収集する際に直面する困難を解決します。3つの主要コンポーネントで構成されています：
+
+- 様々なCIプロバイダーに適応し、環境変数を検出する一連の[プラグイン](https://github.com/canyon-project/canyon/tree/main/plugins)。
+
+- カバレッジデータの収集・処理とバックエンドAPIの提供を担当する[Node.jsサービス](https://github.com/canyon-project/canyon/tree/main/packages/canyon-backend)。
+
+- カバレッジデータの表示を担当する[Reactフロントエンドアプリケーション](https://github.com/canyon-project/canyon/tree/main/packages/canyon-platform)。
+
+![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/documentation/getting-started/introduction/home-screen.png)
+
+## なぜCanyonなのか？
+
+Canyonは、コンパイル段階でhitとmapデータを分離することで、UI自動化テストで生成される大量のカバレッジデータを効率的に処理できます。
+
+さらに、Canyonは一般的なCIプロバイダーに適応し、ビルド段階でプローブコードを挿入し、UI自動化テスト段階でカバレッジデータを収集・報告できます。
+
+これにより、開発チームは現在のUI自動化テストの__各テストケース__のカバレッジ状況を__正確__かつ__リアルタイム__で理解し、コード品質をより適切に評価・向上させることができます。
+
+### 主な機能
+
+- [正確で効率的](/docs/core-concepts/separate-hit-and-map)：hitとmapを分離し、コンパイル時に初期カバレッジデータを生成し、正確で効率的にカバレッジデータを収集
+- [SourceMap](/docs/core-concepts/restore-source-code-coverage)：正確なソースコードカバレッジ復元
+- [ビルドツール](/docs/installation/getting-started)：Next.js、Vite、Webpackなどの一般的なビルドツールのカバレッジソリューションを提供
+- [自動化フレームワーク](/docs/end-to-end-testing/getting-started)：一般的なUI自動化フレームワークの統合ソリューションを提供
+- [CIプロバイダー](/docs/reference/provider)：一般的なCIプロバイダー（Github Actions、GitLab Runner）に適応し、CI環境変数を検出
+
+### セルフホスト
+
+カバレッジデータとテストデータを完全に制御したい場合は、独自のインフラストラクチャでCanyonを[セルフホスト](/docs/self-host/community-edition/prerequisites)できます。
+
+## エコシステム
+
+| プロジェクト | ステータス | 説明 |
+|-------------|-----------|------|
+| [babel-plugin-canyon] | [![babel-plugin-canyon-status]][babel-plugin-canyon-package] | パイプライン環境変数を検出するBabelプラグイン |
+| [canyon-uploader] | [![canyon-uploader-status]][canyon-uploader-package] | ローカルの`.canyon_output`データをスキャンしてサーバーにアップロード |
+| [canyon-extension] | [![canyon-extension-status]][canyon-extension-package] | カバレッジデータを手動で報告するChrome拡張機能 |
+
+[babel-plugin-canyon]: /docs/ecosystem/babel-plugin-canyon
+[vite-plugin-canyon]: https://github.com/canyon-project/vite-plugin-canyon
+[canyon-uploader]: /docs/ecosystem/canyon-uploader
+[canyon-extension]: /docs/ecosystem/canyon-extension
+[babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
+[vite-plugin-canyon-status]: https://img.shields.io/npm/v/vite-plugin-canyon.svg
+[canyon-uploader-status]: https://img.shields.io/npm/v/canyon-uploader.svg
+[canyon-extension-status]: https://img.shields.io/chrome-web-store/v/omnpafdjidgpdmlimbangcjjaaodbeof.svg
+[babel-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
+[vite-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-vite
+[canyon-uploader-package]: https://npmjs.com/package/canyon-uploader
+[canyon-extension-package]: https://chrome.google.com/webstore/detail/canyon/omnpafdjidgpdmlimbangcjjaaodbeof
+
+## アーキテクチャ
+
+以下の図は、Canyonとそのエコシステムの一部コンポーネントのアーキテクチャを示しています：
+
+1. BabelプラグインがCI/CDパイプラインでコードインストルメンテーションを完了します。
+2. プロジェクトがテスト環境にデプロイされ、ユーザーはUI自動化または手動テストを選択してインストルメントされたコードプローブをトリガーできます。
+3. 生成されたカバレッジデータがCanyonサーバーに報告されます。
+4. Canyonサーバーがデータを消費し、GitLabが提供するソースコード情報と組み合わせてカバレッジレポートを生成します。
+
+![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/documentation/getting-started/introduction/architecture.png) 

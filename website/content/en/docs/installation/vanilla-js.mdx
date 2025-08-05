@@ -1,0 +1,78 @@
+---
+title: Vanilla JavaScript
+---
+
+# Vanilla JavaScript
+
+import { Steps } from "nextra/components";
+
+Install and configure vanilla JavaScript project.
+
+<Steps>
+
+  ### Create Project
+
+  Create a simple HTML project structure:
+
+  ```html filename="index.html" copy
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Canyon Demo</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./src/main.js"></script>
+  </body>
+  </html>
+  ```
+
+  ### Add Canyon and its configuration
+
+  > [!TIP]
+  >
+  > We recommend using the babel approach, which is the simplest and most stable configuration method. Vanilla JS projects can also use babel for code transformation.
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### Configure babel plugin
+
+  ```js filename="babel.config.js" {3} copy
+  module.exports = {
+    presets: ["@babel/preset-env"],
+    plugins: ["istanbul", "canyon"],
+  };
+  ```
+
+  ### Configure build tool (optional)
+
+  If you want a better development experience, you can add a simple build tool:
+
+  ```js filename="webpack.config.js" copy
+  const path = require('path');
+
+  module.exports = {
+    entry: './src/main.js',
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'bundle.js',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+          },
+        },
+      ],
+    },
+  };
+  ```
+
+  ### That's it
+  Continue to view [First Coverage Data - Check](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5).
+</Steps> 

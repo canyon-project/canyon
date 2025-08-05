@@ -1,0 +1,20 @@
+---
+title: Canyon 上报器
+---
+
+# Canyon 上报器
+
+Canyon 上报器是一个用于上报覆盖率数据的二进制工具。提供 linux、macOS、windows 三个平台的二进制文件。
+
+最新版本可前往 [GitHub Release](https://github.com/canyon-project/canyon/releases) 下载。
+
+## 功能
+
+读取本地 `.canyon_output` 目录下的覆盖率数据聚合上报
+
+## 使用
+
+```bash
+chmod +x ./canyon-uploader
+canyon-uploader map --report-id=reportID
+```

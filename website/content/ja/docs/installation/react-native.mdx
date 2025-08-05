@@ -1,0 +1,39 @@
+---
+title: React Native
+---
+
+# React Native
+
+import { Steps } from "nextra/components";
+
+React Nativeをインストールして設定します。
+
+<Steps>
+
+  ### プロジェクトを作成
+
+  React Native [ドキュメント](https://reactnative.dev/)
+
+  ### Canyonとその設定を追加
+
+  > [!TIP]
+  >
+  > [react-native-babel-preset](https://reactnative.dev/docs/javascript-environment#javascript-syntax-transformers)を理解する必要があります。
+
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### babelプラグインを設定
+
+  ```js filename="babel.config.js" {3} copy
+  module.exports = {
+    presets: ["module:@react-native/babel-preset"],
+    plugins: ["istanbul", "canyon"],
+  };
+  ```
+
+  ### これで完了
+  [最初のカバレッジデータ - チェック](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)を続けて確認してください。
+</Steps> 

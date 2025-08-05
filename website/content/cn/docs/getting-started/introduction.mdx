@@ -1,0 +1,65 @@
+# 介绍
+
+## 概述
+
+Canyon（意为 "峡谷"，发音 /ˈkænjən/）是一个 JavaScript 代码覆盖率收集平台。我们解决了开发人员和 QA 工程师在端到端测试过程中收集测试用例代码覆盖率时遇到的困难。它由三个主要部分组成：
+
+- 负责适配各种CI提供商、侦测环境变量的一系列 [插件](https://github.com/canyon-project/canyon/tree/main/plugins)。
+
+- 负责收集处理覆盖率数据，提供后端API的 [nodejs服务](https://github.com/canyon-project/canyon/tree/main/packages/canyon-backend)。
+
+- 负责展示覆盖率数据的 [react前端应用](https://github.com/canyon-project/canyon/tree/main/packages/canyon-platform)。
+
+![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/documentation/getting-started/introduction/home-screen.png)
+
+## 为什么是Canyon?
+
+Canyon通过在编译阶段分离 hit 和 map 数据，能够高效处理 UI 自动化测试产生的大量覆盖率数据。
+
+此外，Canyon 适配了常见CI提供商，能够在构建阶段插入探针代码，在 UI 自动化测试阶段收集和上报覆盖率数据。
+
+这使得开发团队能够 __准确__ 、 __实时__ 的了解当前 UI 自动化测试 __每个用例__ 的覆盖率情况，从而更好地评估和提升代码质量。
+
+### 功能特点
+
+- [准确高效](/docs/core-concepts/separate-hit-and-map)：通过分离hit、map，编译时生成初始覆盖率数据，准确高效的收集覆盖率数据
+- [SourceMap](/docs/core-concepts/restore-source-code-coverage)：准确的源码覆盖率还原
+- [构建工具](/docs/installation/getting-started)：提供next.js、vite、webpack等常见构建工具的覆盖率方案
+- [自动化框架](/docs/end-to-end-testing/getting-started)：提供常见UI自动化框架集成方案
+- [CI提供商](/docs/reference/provider)：适配常见CI提供商（Github Actions、GitLab Runner），侦测CI环境变量
+
+### 自托管
+
+如果您希望完全掌控您的覆盖率数据和测试数据，您可以在自己的基础设施上[自托管](/docs/self-host/community-edition/prerequisites) Canyon。
+
+## 生态系统
+
+| 项目                  | 状态                                                         | 描述                                         |
+| --------------------- | ------------------------------------------------------------ | -------------------------------------------- |
+| [babel-plugin-canyon] | [![babel-plugin-canyon-status]][babel-plugin-canyon-package] | Babel 插件，用于检测流水线环境变量           |
+| [canyon-uploader]     | [![canyon-uploader-status]][canyon-uploader-package]         | 扫描本地 `.canyon_output` 数据并上传到服务器 |
+| [canyon-extension]    | [![canyon-extension-status]][canyon-extension-package]       | Chrome 插件，用于手动上报覆盖率数据          |
+
+[babel-plugin-canyon]: /docs/ecosystem/babel-plugin-canyon
+[vite-plugin-canyon]: https://github.com/canyon-project/vite-plugin-canyon
+[canyon-uploader]: /docs/ecosystem/canyon-uploader
+[canyon-extension]: /docs/ecosystem/canyon-extension
+[babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
+[vite-plugin-canyon-status]: https://img.shields.io/npm/v/vite-plugin-canyon.svg
+[canyon-uploader-status]: https://img.shields.io/npm/v/canyon-uploader.svg
+[canyon-extension-status]: https://img.shields.io/chrome-web-store/v/omnpafdjidgpdmlimbangcjjaaodbeof.svg
+[babel-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
+[vite-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-vite
+[canyon-uploader-package]: https://npmjs.com/package/canyon-uploader
+[canyon-extension-package]: https://chrome.google.com/webstore/detail/canyon/omnpafdjidgpdmlimbangcjjaaodbeof
+
+## 架构
+
+以下图示展示了 Canyon 及其生态系统的一些组件架构：
+
+1. Babel 插件在 CI/CD 流水线中完成代码插桩。
+2. 项目发布到测试环境，用户可以选择 UI 自动化或手动测试来触发插桩代码探针。
+3. 生成的覆盖率数据上报至 Canyon 服务器。
+4. Canyon 服务器消费数据，并结合 GitLab 提供的源代码信息生成覆盖率报告。
+
+![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/documentation/getting-started/introduction/architecture.png) 

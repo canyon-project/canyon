@@ -1,0 +1,78 @@
+---
+title: バニラ JavaScript
+---
+
+# バニラ JavaScript
+
+import { Steps } from "nextra/components";
+
+バニラJavaScriptプロジェクトをインストールして設定します。
+
+<Steps>
+
+  ### プロジェクトを作成
+
+  シンプルなHTMLプロジェクト構造を作成：
+
+  ```html filename="index.html" copy
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Canyon Demo</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="./src/main.js"></script>
+  </body>
+  </html>
+  ```
+
+  ### Canyonとその設定を追加
+
+  > [!TIP]
+  >
+  > babel方式を使用することをお勧めします。これは最もシンプルで安定した設定方法です。バニラJSプロジェクトでもbabelを使用してコード変換できます。
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### babelプラグインを設定
+
+  ```js filename="babel.config.js" {3} copy
+  module.exports = {
+    presets: ["@babel/preset-env"],
+    plugins: ["istanbul", "canyon"],
+  };
+  ```
+
+  ### ビルドツールを設定（オプション）
+
+  より良い開発体験を望む場合は、シンプルなビルドツールを追加できます：
+
+  ```js filename="webpack.config.js" copy
+  const path = require('path');
+
+  module.exports = {
+    entry: './src/main.js',
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'bundle.js',
+    },
+    module: {
+      rules: [
+        {
+          test: /\.js$/,
+          exclude: /node_modules/,
+          use: {
+            loader: 'babel-loader',
+          },
+        },
+      ],
+    },
+  };
+  ```
+
+  ### これで完了
+  [最初のカバレッジデータ - チェック](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)を続けて確認してください。
+</Steps> 

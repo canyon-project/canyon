@@ -1,0 +1,49 @@
+---
+title: 前提条件
+---
+
+# 前提条件
+
+独自のインフラストラクチャにCanyonをインストールするための前提条件。
+
+Canyonは、Dockerコンテナのセットとしてパッケージ化されたセルフホストAPI開発プラットフォームです。[Docker Engine](https://docs.docker.com/engine)を実行できるオペレーティングシステムであれば、どこでもCanyonをインストールして実行できます。ローカルコンピュータまたは選択したクラウドプロバイダーでCanyonを使用できます。
+
+## システム要件
+
+Canyonは、小規模および大規模なデプロイメントの両方で良好に動作するように設計されています。Canyonを実行するための最小要件は、Dockerをサポートするオペレーティングシステムと、ビルドイメージを生成するための4つのCPUコア+ 4GB RAM、および生成された出力ファイルをホストするための少なくとも1つのCPUコア+ 2GB RAMです。
+
+### Node.js、npm、pnpmのインストール
+
+#### Node.js + npm
+
+[`Node.js`](https://nodejs.org/en) (v18+)と[`npm`](https://www.npmjs.com) (v9+)をインストールします。
+
+- [Node.js + npmインストールガイド](https://nodejs.org/en/download)
+
+### pnpm
+
+[`pnpm`](https://pnpm.io) (推奨v9)をインストールします。
+
+- [pnpmインストールガイド](https://pnpm.io/installation)
+
+### Docker
+
+[`Docker`](https://www.docker.com) (v20+)をインストールします。
+
+- [Dockerインストールガイド](https://docs.docker.com/engine/install)
+
+### Postgresデータベース
+
+Canyonは、基本データを保存するためにPostgresデータベースを使用します（14.x以上が必要）。選択した任意のPostgresデータベースプロバイダー（ローカルまたはクラウドプロバイダーでホスト）を使用できます。以下の形式の有効なPostgresデータベースURLがあることを確認してください：
+
+```
+postgres://username:password@localhost:5432/dbname
+```
+
+#### テーブルの作成
+
+```shell
+pnpm run migrate
+```
+
+または、テーブル作成[SQL](https://github.com/canyon-project/canyon/blob/main/packages/canyon-backend/prisma/create_table.sql)を直接使用します。

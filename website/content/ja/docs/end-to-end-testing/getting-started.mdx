@@ -1,0 +1,18 @@
+import { Steps, Callout, Cards } from "nextra/components";
+
+# はじめに
+
+ユニットテストとは異なり、エンドツーエンドテストはブラウザを起動し、ブラウザ内のカバレッジデータを収集することが目標です。そのため、複雑さは比較的高くなります。以下が一般的なプロセスです。
+
+- ブラウザのグローバル変数を公開し、適切なタイミングでカバレッジデータをローカルに書き込みます
+- UI自動化が完了した後、[canyon-uploader](/docs/ecosystem/canyon-uploader)を使用してローカルの`.canyon_output`ディレクトリからカバレッジデータを読み取り、集約して報告します。
+- caseIDを[Report ID](/docs/core-concepts/report-id)に関連付けて、ケースの追跡可能性を確保します。
+
+## フレームワーク
+
+<Cards>
+  <Cards.Card
+    title="Playwright"
+    href="/docs/end-to-end-testing/playwright"
+  />
+</Cards>
