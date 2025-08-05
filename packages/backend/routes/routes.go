@@ -24,9 +24,10 @@ func SetupRoutes(r *gin.Engine) {
 	r.GET("/api/repo", repoHandler.GetRepos)
 	r.GET("/api/repo/:repoID", repoHandler.GetRepoByID)
 	r.GET("/api/repo/:repoID/commits", repoHandler.GetRepoCommits)
-	r.GET("/api/repo/:repoID/commits/:sha", repoHandler.GetRepoCommitBySHA)
+	// 移除旧的路由: r.GET("/api/repo/:repoID/commits/:sha", repoHandler.GetRepoCommitBySHA)
 
 	// Coverage 路由
+	r.GET("/api/coverage/summary", coverageHandler.GetCoverageSummary) // 新的主要接口
 	r.GET("/api/coverage/summary/map", coverageHandler.GetCoverageSummaryMap)
 	r.GET("/api/coverage/map", coverageHandler.GetCoverageMap)
 }

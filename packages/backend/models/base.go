@@ -77,3 +77,25 @@ type Coverage struct {
 func (Coverage) TableName() string {
 	return "canyonjs_coverage"
 }
+
+// CoverageHitSummaryResult ClickHouse查询结果 - 覆盖率命中摘要
+type CoverageHitSummaryResult struct {
+	FullFilePath string            `json:"fullFilePath"`
+	S            map[uint32]uint32 `json:"s"`
+	F            map[uint32]uint32 `json:"f"`
+	B            map[uint32]uint32 `json:"b"`
+}
+
+// CoverageMapSummaryResult ClickHouse查询结果 - 覆盖率映射摘要
+type CoverageMapSummaryResult struct {
+	Hash string   `json:"hash"`
+	S    []uint32 `json:"s"`
+	F    []uint32 `json:"f"`
+	B    []uint32 `json:"b"`
+}
+
+// CoverageMapSummaryResultWithFilePath 带文件路径的覆盖率映射摘要结果
+type CoverageMapSummaryResultWithFilePath struct {
+	CoverageMapSummaryResult
+	FullFilePath string `json:"fullFilePath"`
+}

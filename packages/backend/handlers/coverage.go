@@ -21,6 +21,32 @@ func NewCoverageHandler(coverageService *services.CoverageService) *CoverageHand
 	}
 }
 
+// GetCoverageSummary 获取覆盖率摘要 - 新的主要接口
+func (h *CoverageHandler) GetCoverageSummary(c *gin.Context) {
+	var query dto.CoverageSummaryQueryDto
+	if err := c.ShouldBindQuery(&query); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 验证必需参数
+	if query.Provider == "" || query.RepoID == "" || query.SHA == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "provider, repoID, and sha are required",
+		})
+		return
+	}
+
+	// 调用新的服务方法获取覆盖率摘要
+	result, err := h.coverageService.GetCoverageSummaryByRepoAndSHA(query.RepoID, query.SHA)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
 // GetCoverageSummaryMap 获取覆盖率摘要映射
 func (h *CoverageHandler) GetCoverageSummaryMap(c *gin.Context) {
 	var query dto.CoverageQueryDto
