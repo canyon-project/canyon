@@ -1,0 +1,207 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    a {
+      color: #0071c2;
+    }
+    a:hover {
+      color: #0071c2;
+      opacity: 0.8;
+      text-decoration: underline;
+    }
+
+    @font-face {
+      font-family: "IBMPlexMono";
+      src: url("./fonts/IBMPlexMono-Regular.woff2");
+      font-weight: normal;
+      font-style: normal;
+    }
+    #container {
+      width: 800px;
+      height: 600px;
+      border: 1px solid #ccc;
+    }
+
+
+    .YourHighlightClass {
+      padding: 0 !important;
+      color: white !important;
+      background: rgb(244, 176, 27) !important;
+    }
+
+    /*新版canyon-report*/
+
+    .line-number-wrapper {
+      display: flex;
+      /*从右边开始*/
+      justify-content: flex-end;
+      /*text-align: right;*/
+    }
+
+    .line-number-wrapper .line-number {
+      /*width: 60px;*/
+      padding-right: 5px;
+    }
+
+    .line-number-wrapper .line-change {
+      width: 4px;
+      /*display: block;*/
+    }
+
+    .line-number-wrapper .line-coverage {
+      width: 60px;
+      padding-right: 5px;
+      color: rgba(0, 0, 0, 0.5);
+    }
+
+    .dark .line-number-wrapper .line-coverage {
+      width: 60px;
+      padding-right: 5px;
+      color: #eaeaea;
+    }
+
+    /*额外的*/
+    .content-class-no-found-branch {
+      background: rgba(255, 229, 100, 0.6) !important;
+    }
+
+    .content-class-no-found{
+      background: rgba(255, 128, 160, 0.3);
+    }
+
+    .dark .content-class-no-found {
+      background: #ff000033;
+    }
+
+    .insert-e-decoration::before {
+      content: 'E';
+      background-color: black;
+      color: yellow;
+      padding: 0 2px;
+      border-radius: 2px;
+      margin-right: 5px;
+    }
+
+    .insert-i-decoration::before {
+      content: 'I';
+      background-color: black;
+      color: yellow;
+      padding: 0 2px;
+      border-radius: 2px;
+      margin-right: 5px;
+    }
+
+  </style>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+  <script src="https://unpkg.com/dayjs@1.11.13/dayjs.min.js"></script>
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/antd@5.23.2/dist/antd.min.js"></script>
+  <script src="https://unpkg.com/axios@1.7.9/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/ahooks@3.8.4/dist/ahooks.js"></script>
+  <script src="https://unpkg.com/@ant-design/icons@5.6.0/dist/index.umd.js"></script>
+  <script type="module">
+    import * as monaco from 'https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/+esm';
+    window.monaco = monaco;
+  </script>
+</head>
+<body>
+<div id="root"></div>
+</body>
+<script src="https://unpkg.com/canyontest-report18/dist/canyon-report.umd.cjs"></script>
+<script>
+  // needMock
+</script>
+<script type="text/babel">
+  const { createRoot } = ReactDOM;
+  const { useEffect,useState } = React;
+  const { ConfigProvider } = antd;
+  const dataSource = window.data;
+  const reportName = window.reportName;
+  const date = window.date;
+  const dynamicLoadingSource = (val) => {
+    return new Promise((resolve) => {
+      if (!val.includes(".")) {
+        resolve({
+          fileCoverage: undefined,
+          fileContent: undefined,
+          fileCodeChange: [],
+        });
+      } else {
+        const script = document.createElement("script");
+        script.src = 'dynamic-data/'+val+'.js';
+        script.onload = () => {
+          resolve({
+            fileCoverage: window[val].coverage,
+            fileContent: window[val].content,
+            fileCodeChange: [],
+          });
+          document.body.removeChild(script);
+          window[val] = undefined;
+        };
+        document.body.appendChild(script);
+      }
+    });
+  };
+
+  function App() {
+    const [value, setValue] = useState(window.location.hash.slice(1));
+    const onSelect = (val) => {
+      window.location.hash = val;
+      return dynamicLoadingSource(val).then((r) => {
+        setValue(val);
+        return r;
+      });
+    };
+    return (
+      <div className={"p-[10px] pb-0"}>
+        <div style={{ minHeight: "calc(100vh - 50px)" }}>
+          <ConfigProvider
+            theme={{
+              token: {
+                colorPrimary: "#0071c2",
+              },
+              // algorithm: isDark ? [darkAlgorithm] : [],
+            }}
+          >
+            <CanyonReport
+              name={reportName}
+              dataSource={dataSource.reduce((acc, cur) => {
+                acc[cur.path] = cur;
+                return acc;
+              }, {})}
+              onSelect={onSelect}
+              value={value}
+            />
+          </ConfigProvider>
+        </div>
+        <footer
+          style={{
+            color: "rgba(0,0,0,0.5)",
+            fontSize: "12px",
+            textAlign: "center",
+            padding: "10px",
+          }}
+          className={"text-center p-[10px]"}
+        >
+          Code coverage generated by{" "}
+          <a
+            href="https://github.com/canyon-project/canyon/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            canyon
+          </a>{" "}
+          at {date}
+        </footer>
+      </div>
+    );
+  }
+  createRoot(document.getElementById("root")).render(
+    <App />,
+  );
+</script>
+</html>
