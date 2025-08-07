@@ -23,7 +23,7 @@ func NewCoverageHandler(coverageService *services.CoverageService) *CoverageHand
 
 // GetCoverageSummary 获取一个commit的覆盖率概览 - 新的主要接口
 // @Summary 获取一个commit的覆盖率概览
-// @Description 根据仓库ID和SHA获取覆盖率摘要信息，包括总体覆盖率统计和构建组信息
+// @Description 根据仓库ID和SHA获取指定commit的覆盖率概览信息，包括总体覆盖率统计和构建组信息
 // @Tags coverage
 // @Accept json
 // @Produce json
@@ -35,10 +35,10 @@ func NewCoverageHandler(coverageService *services.CoverageService) *CoverageHand
 // @Param reportProvider query string false "报告提供商" example(jest)
 // @Param reportID query string false "报告ID" example(report-456)
 // @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "覆盖率摘要信息"
+// @Success 200 {object} map[string]interface{} "覆盖率概览信息"
 // @Failure 400 {object} map[string]interface{} "请求参数错误"
 // @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/summary [get]
+// @Router /coverage/overview/commits [get]
 func (h *CoverageHandler) GetCoverageSummary(c *gin.Context) {
 	var query dto.CoverageSummaryQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -143,4 +143,86 @@ func (h *CoverageHandler) GetCoverageMap(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, result)
+}
+
+// GetCoverageSummaryForPull 获取一个pull request的覆盖率概览
+// @Summary 获取一个pull request的覆盖率概览
+// @Description 根据仓库ID和PR号获取指定pull request的覆盖率概览信息
+// @Tags coverage
+// @Accept json
+// @Produce json
+// @Param provider query string true "提供商名称" example(github)
+// @Param repoID query string true "仓库ID" example(owner/repo)
+// @Param pullNumber query string true "PR号" example(123)
+// @Param buildProvider query string false "构建提供商" example(jenkins)
+// @Param buildID query string false "构建ID" example(build-123)
+// @Param reportProvider query string false "报告提供商" example(jest)
+// @Param reportID query string false "报告ID" example(report-456)
+// @Param filePath query string false "文件路径" example(src/main.go)
+// @Success 200 {object} map[string]interface{} "PR覆盖率概览信息"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /coverage/overview/pulls [get]
+func (h *CoverageHandler) GetCoverageSummaryForPull(c *gin.Context) {
+	var query dto.CoveragePullQueryDto
+	if err := c.ShouldBindQuery(&query); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 验证必需参数
+	if query.Provider == "" || query.RepoID == "" || query.PullNumber == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "provider, repoID, and pullNumber are required",
+		})
+		return
+	}
+
+	// TODO: 实现获取PR覆盖率概览的逻辑
+	c.JSON(http.StatusOK, gin.H{
+		"message": "TODO: 实现获取PR覆盖率概览的功能",
+		"status":  "not_implemented",
+		"params":  query,
+	})
+}
+
+// GetCoverageSummaryForCommits 获取多个commits的覆盖率概览
+// @Summary 获取多个commits的覆盖率概览
+// @Description 根据仓库ID和多个SHA获取指定commits的覆盖率概览信息
+// @Tags coverage
+// @Accept json
+// @Produce json
+// @Param provider query string true "提供商名称" example(github)
+// @Param repoID query string true "仓库ID" example(owner/repo)
+// @Param shas query string true "提交SHA列表，用逗号分隔" example(abc123def456,def456ghi789)
+// @Param buildProvider query string false "构建提供商" example(jenkins)
+// @Param buildID query string false "构建ID" example(build-123)
+// @Param reportProvider query string false "报告提供商" example(jest)
+// @Param reportID query string false "报告ID" example(report-456)
+// @Param filePath query string false "文件路径" example(src/main.go)
+// @Success 200 {object} map[string]interface{} "多commits覆盖率概览信息"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /coverage/overview/multiple-commits [get]
+func (h *CoverageHandler) GetCoverageSummaryForCommits(c *gin.Context) {
+	var query dto.CoverageCommitsQueryDto
+	if err := c.ShouldBindQuery(&query); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// 验证必需参数
+	if query.Provider == "" || query.RepoID == "" || query.SHAs == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "provider, repoID, and shas are required",
+		})
+		return
+	}
+
+	// TODO: 实现获取多个commits覆盖率概览的逻辑
+	c.JSON(http.StatusOK, gin.H{
+		"message": "TODO: 实现获取多个commits覆盖率概览的功能",
+		"status":  "not_implemented",
+		"params":  query,
+	})
 }

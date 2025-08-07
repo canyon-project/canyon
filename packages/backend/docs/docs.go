@@ -112,9 +112,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/coverage/summary": {
+        "/api/coverage/overview/commits": {
             "get": {
-                "description": "根据仓库ID和SHA获取覆盖率摘要信息，包括总体覆盖率统计和构建组信息",
+                "description": "根据仓库ID和SHA获取指定commit的覆盖率概览信息，包括总体覆盖率统计和构建组信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -180,7 +180,183 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "覆盖率摘要信息",
+                        "description": "覆盖率概览信息",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coverage/overview/pulls": {
+            "get": {
+                "description": "根据仓库ID和PR号获取指定pull request的覆盖率概览信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "coverage"
+                ],
+                "summary": "获取一个pull request的覆盖率概览",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "提供商名称",
+                        "name": "provider",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "仓库ID",
+                        "name": "repoID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "PR号",
+                        "name": "pullNumber",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "构建提供商",
+                        "name": "buildProvider",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "构建ID",
+                        "name": "buildID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "报告提供商",
+                        "name": "reportProvider",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "报告ID",
+                        "name": "reportID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件路径",
+                        "name": "filePath",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PR覆盖率概览信息",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "400": {
+                        "description": "请求参数错误",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "服务器内部错误",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/coverage/overview/multiple-commits": {
+            "get": {
+                "description": "根据仓库ID和多个SHA获取指定commits的覆盖率概览信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "coverage"
+                ],
+                "summary": "获取多个commits的覆盖率概览",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "提供商名称",
+                        "name": "provider",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "仓库ID",
+                        "name": "repoID",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "提交SHA列表，用逗号分隔",
+                        "name": "shas",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "构建提供商",
+                        "name": "buildProvider",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "构建ID",
+                        "name": "buildID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "报告提供商",
+                        "name": "reportProvider",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "报告ID",
+                        "name": "reportID",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "文件路径",
+                        "name": "filePath",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "多commits覆盖率概览信息",
                         "schema": {
                             "type": "object"
                         }

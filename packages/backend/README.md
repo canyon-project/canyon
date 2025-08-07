@@ -70,7 +70,9 @@ http://localhost:8080/swagger/index.html
 - `GET /api/repo/{repoID}/commits` - 获取仓库提交记录
 
 #### 覆盖率管理
-- `GET /api/coverage/summary` - 获取一个commit的覆盖率概览
+- `GET /api/coverage/overview/commits` - 获取一个commit的覆盖率概览
+- `GET /api/coverage/overview/pulls` - 获取一个pull request的覆盖率概览
+- `GET /api/coverage/overview/multiple-commits` - 获取多个commits的覆盖率概览
 - `GET /api/coverage/summary/map` - 获取覆盖率摘要映射
 - `GET /api/coverage/map` - 获取覆盖率映射
 
