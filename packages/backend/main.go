@@ -1,6 +1,26 @@
+// Package main Canyon Backend API
+//
+// Canyon 是一个代码覆盖率管理平台的后端服务
+//
+//	Schemes: http, https
+//	Host: localhost:8080
+//	BasePath: /api
+//	Version: 1.0.0
+//
+//	Consumes:
+//	- application/json
+//
+//	Produces:
+//	- application/json
+//
+//	Security:
+//	- bearer
+//
+// swagger:meta
 package main
 
 import (
+	_ "backend/docs" // 导入 Swagger 文档
 	"backend/server"
 	"backend/utils"
 	"flag"
@@ -9,6 +29,26 @@ import (
 	"os/signal"
 	"syscall"
 )
+
+// @title Canyon Backend API
+// @version 1.0
+// @description Canyon 代码覆盖率管理平台后端 API
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
 	// 解析命令行参数
