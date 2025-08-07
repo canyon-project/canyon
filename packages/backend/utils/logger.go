@@ -33,6 +33,5 @@ func SetupLogger(logFile string) error {
 	gin.DefaultWriter = multiWriter
 	gin.DefaultErrorWriter = multiWriter
 
-	log.Printf("日志输出到: %s", logFile)
 	return nil
 }

@@ -62,13 +62,10 @@ GROUP BY coverage_id, full_file_path;
 
 -- 查询
 
-SELECT
-  coverage_id,
-  full_file_path,
-  sumMapMerge(s) AS s,
-  sumMapMerge(f) AS f
-FROM default.coverage_hit_agg
-GROUP BY coverage_id, full_file_path;
-
--- 问题
--- map表，聚合为一行的时候，应该是到build_provider、build_id维度，目前是到coverage_id,report_id维度，map_id，根据build
+-- SELECT
+--   coverage_id,
+--   full_file_path,
+--   sumMapMerge(s) AS s,
+--   sumMapMerge(f) AS f
+-- FROM default.coverage_hit_agg
+-- GROUP BY coverage_id, full_file_path;

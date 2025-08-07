@@ -26,21 +26,14 @@ func LoadConfig() *Config {
 		"../../.env",    // 上级目录
 	}
 
-	var envLoaded bool
 	for _, envPath := range envPaths {
 		if _, err := os.Stat(envPath); err == nil {
 			if err := godotenv.Load(envPath); err != nil {
-				log.Printf("警告: 无法加载环境变量文件 %s: %v", envPath, err)
+				// 静默处理环境变量文件加载失败
 			} else {
-				log.Printf("成功加载环境变量文件: %s", envPath)
-				envLoaded = true
 				break
 			}
 		}
-	}
-
-	if !envLoaded {
-		log.Println("警告: 未找到环境变量文件，将使用系统环境变量")
 	}
 
 	config := &Config{

@@ -21,8 +21,6 @@ func main() {
 		log.Fatal("配置日志失败:", err)
 	}
 
-	log.Println("启动 backend 服务...")
-
 	// 创建服务器实例
 	srv := server.NewServer()
 
@@ -37,7 +35,6 @@ func main() {
 		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
 		<-c
 
-		log.Println("正在关闭服务器...")
 		if err := srv.Shutdown(); err != nil {
 			log.Printf("服务器关闭失败: %v", err)
 		}

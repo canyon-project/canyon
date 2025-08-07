@@ -61,8 +61,6 @@ func InitClickHouse() driver.Conn {
 		log.Fatalf("ClickHouse连接测试失败: %v", err)
 	}
 
-	log.Println("ClickHouse连接成功")
-
 	// 设置全局变量
 	ClickHouseDB = conn
 

@@ -8,7 +8,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -27,21 +26,21 @@ func (s *CoverageService) GetCoverageMap(query dto.CoverageQueryDto) (interface{
 	// 第一步：查询coverage表，获取所有的coverageID
 	pgDB := db.GetDB()
 	var coverageList []models.Coverage
-	
-	coverageQuery := pgDB.Where("provider = ? AND repo_id = ? AND sha = ?", 
+
+	coverageQuery := pgDB.Where("provider = ? AND repo_id = ? AND sha = ?",
 		query.Provider, query.RepoID, query.SHA)
-	
+
 	if query.BuildProvider != "" {
 		coverageQuery = coverageQuery.Where("build_provider = ?", query.BuildProvider)
 	}
 	if query.BuildID != "" {
 		coverageQuery = coverageQuery.Where("build_id = ?", query.BuildID)
 	}
-	
+
 	if err := coverageQuery.Find(&coverageList).Error; err != nil {
 		return nil, fmt.Errorf("查询coverage列表失败: %w", err)
 	}
-	
+
 	if len(coverageList) == 0 {
 		return map[string]interface{}{}, nil
 	}
@@ -51,20 +50,20 @@ func (s *CoverageService) GetCoverageMap(query dto.CoverageQueryDto) (interface{
 	for i, coverage := range coverageList {
 		coverageIDs[i] = coverage.ID
 	}
-	
+
 	var coverageMapRelations []struct {
 		CoverageMapHashID string `gorm:"column:coverage_map_hash_id"`
 		FullFilePath      string `gorm:"column:full_file_path"`
 	}
-	
+
 	relationQuery := pgDB.Table("canyonjs_coverage_map_relation").
 		Select("coverage_map_hash_id, full_file_path").
 		Where("coverage_id IN ?", coverageIDs)
-	
+
 	if query.FilePath != "" {
 		relationQuery = relationQuery.Where("file_path = ?", query.FilePath)
 	}
-	
+
 	if err := relationQuery.Group("coverage_map_hash_id, full_file_path").
 		Find(&coverageMapRelations).Error; err != nil {
 		return nil, fmt.Errorf("查询coverageMapRelation失败: %w", err)
@@ -97,7 +96,7 @@ func (s *CoverageService) queryClickHouseData(
 	coverageList []models.Coverage,
 	reportProvider, reportID string,
 ) ([]models.CoverageMapQueryResult, []models.CoverageHitQueryResult, error) {
-	
+
 	conn := db.GetClickHouseDB()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -120,11 +119,11 @@ func (s *CoverageService) queryClickHouseData(
 	for mapRows.Next() {
 		var result models.CoverageMapQueryResult
 		var (
-			statementMap, restoreStatementMap map[uint32][]interface{}
-			fnMapStr, branchMapStr            string
+			statementMap, restoreStatementMap    map[uint32][]interface{}
+			fnMapStr, branchMapStr               string
 			restoreFnMapStr, restoreBranchMapStr string
 		)
-		
+
 		err := mapRows.Scan(
 			&statementMap,
 			&fnMapStr,
@@ -160,7 +159,7 @@ func (s *CoverageService) queryClickHouseData(
 	var coverageHitResult []models.CoverageHitQueryResult
 	for hitRows.Next() {
 		var (
-			fullFilePath string
+			fullFilePath           string
 			sTuple, fTuple, bTuple []interface{}
 		)
 		err := hitRows.Scan(
@@ -191,12 +190,12 @@ func (s *CoverageService) buildCoverageMapQuery(hashList []string) string {
 	if len(hashList) == 0 {
 		return ""
 	}
-	
+
 	hashConditions := make([]string, len(hashList))
 	for i, hash := range hashList {
 		hashConditions[i] = fmt.Sprintf("'%s'", hash)
 	}
-	
+
 	return fmt.Sprintf(`
 		SELECT statement_map as statementMap,
 		       toString(fn_map) as fnMap,
@@ -330,7 +329,7 @@ func (s *CoverageService) convertToIstanbulStatementMap(statementMap map[uint32]
 	for key := range statementMap {
 		keys = append(keys, key)
 	}
-	
+
 	// 排序keys
 	for i := 0; i < len(keys); i++ {
 		for j := i + 1; j < len(keys); j++ {
@@ -339,26 +338,26 @@ func (s *CoverageService) convertToIstanbulStatementMap(statementMap map[uint32]
 			}
 		}
 	}
-	
+
 	// 构建有序map
 	result := OrderedInterfaceMap{
 		Keys:   make([]string, len(keys)),
 		Values: make(map[string]interface{}),
 	}
-	
+
 	// 按排序后的key构建结果
 	for i, key := range keys {
 		stmt := statementMap[key]
 		keyStr := fmt.Sprintf("%d", key)
 		result.Keys[i] = keyStr
-		
+
 		// 转换line和column，0值转为null
 		// 现在 StatementInfo 直接存储了起始和结束位置
 		startLine := s.convertZeroToNull(stmt.StartLine)
 		startColumn := s.convertZeroToNull(stmt.StartColumn)
 		endLine := s.convertZeroToNull(stmt.EndLine)
 		endColumn := s.convertZeroToNull(stmt.EndColumn)
-		
+
 		result.Values[keyStr] = map[string]interface{}{
 			"start": map[string]interface{}{
 				"line":   startLine,
@@ -370,7 +369,7 @@ func (s *CoverageService) convertToIstanbulStatementMap(statementMap map[uint32]
 			},
 		}
 	}
-	
+
 	return result
 }
 
@@ -381,7 +380,7 @@ func (s *CoverageService) convertToIstanbulFnMap(fnMap map[uint32]models.Functio
 	for key := range fnMap {
 		keys = append(keys, key)
 	}
-	
+
 	// 排序keys
 	for i := 0; i < len(keys); i++ {
 		for j := i + 1; j < len(keys); j++ {
@@ -390,19 +389,19 @@ func (s *CoverageService) convertToIstanbulFnMap(fnMap map[uint32]models.Functio
 			}
 		}
 	}
-	
+
 	// 构建有序map
 	result := OrderedInterfaceMap{
 		Keys:   make([]string, len(keys)),
 		Values: make(map[string]interface{}),
 	}
-	
+
 	// 按排序后的key构建结果
 	for i, key := range keys {
 		fn := fnMap[key]
 		keyStr := fmt.Sprintf("%d", key)
 		result.Keys[i] = keyStr
-		
+
 		result.Values[keyStr] = map[string]interface{}{
 			"name": fn.Name,
 			"line": s.convertZeroToNull(fn.Line),
@@ -428,7 +427,7 @@ func (s *CoverageService) convertToIstanbulFnMap(fnMap map[uint32]models.Functio
 			},
 		}
 	}
-	
+
 	return result
 }
 
@@ -458,7 +457,7 @@ func (s *CoverageService) convertToIstanbulBranchMap(branchMap map[uint32]models
 	for key := range branchMap {
 		keys = append(keys, key)
 	}
-	
+
 	// 排序keys
 	for i := 0; i < len(keys); i++ {
 		for j := i + 1; j < len(keys); j++ {
@@ -467,19 +466,19 @@ func (s *CoverageService) convertToIstanbulBranchMap(branchMap map[uint32]models
 			}
 		}
 	}
-	
+
 	// 构建有序map
 	result := OrderedInterfaceMap{
 		Keys:   make([]string, len(keys)),
 		Values: make(map[string]interface{}),
 	}
-	
+
 	// 按排序后的key构建结果
 	for i, key := range keys {
 		branch := branchMap[key]
 		keyStr := fmt.Sprintf("%d", key)
 		result.Keys[i] = keyStr
-		
+
 		// 转换locations
 		locations := make([]map[string]interface{}, len(branch.Paths))
 		for j, path := range branch.Paths {
@@ -494,10 +493,10 @@ func (s *CoverageService) convertToIstanbulBranchMap(branchMap map[uint32]models
 				},
 			}
 		}
-		
+
 		// 使用正确的分支类型映射
 		branchType := s.getBranchTypeByIndex(branch.Type)
-		
+
 		result.Values[keyStr] = map[string]interface{}{
 			"type": branchType,
 			"line": s.convertZeroToNull(branch.Line),
@@ -514,20 +513,20 @@ func (s *CoverageService) convertToIstanbulBranchMap(branchMap map[uint32]models
 			"locations": locations,
 		}
 	}
-	
+
 	return result
 }
 
 // convertBranchHits 转换分支覆盖率计数
 func (s *CoverageService) convertBranchHits(branchHits map[uint32]uint32, branchMap map[string]interface{}) map[string]interface{} {
 	result := make(map[string]interface{})
-	
+
 	for keyStr, branchInfo := range branchMap {
 		if branch, ok := branchInfo.(map[string]interface{}); ok {
 			if locations, ok := branch["locations"].([]map[string]interface{}); ok {
 				// 为每个分支路径创建计数数组
 				counts := make([]uint32, len(locations))
-				
+
 				// 从branchHits中获取计数
 				if key, err := strconv.ParseUint(keyStr, 10, 32); err == nil {
 					if hitCount, exists := branchHits[uint32(key)]; exists {
@@ -537,12 +536,12 @@ func (s *CoverageService) convertBranchHits(branchHits map[uint32]uint32, branch
 						}
 					}
 				}
-				
+
 				result[keyStr] = counts
 			}
 		}
 	}
-	
+
 	return result
 }
 
@@ -590,15 +589,15 @@ func (s *CoverageService) convertZeroToNull(value uint32) interface{} {
 // tuple格式: [keys_array, values_array]
 func (s *CoverageService) convertTupleSliceToUint32Map(tupleSlice []interface{}) map[uint32]uint32 {
 	result := make(map[uint32]uint32)
-	
+
 	if len(tupleSlice) != 2 {
 		return result
 	}
-	
+
 	// 尝试不同的类型转换
 	var keys []uint32
 	var values []uint64
-	
+
 	// 处理keys
 	switch k := tupleSlice[0].(type) {
 	case []uint32:
@@ -613,7 +612,7 @@ func (s *CoverageService) convertTupleSliceToUint32Map(tupleSlice []interface{})
 	default:
 		return result
 	}
-	
+
 	// 处理values
 	switch v := tupleSlice[1].(type) {
 	case []uint64:
@@ -642,18 +641,18 @@ func (s *CoverageService) convertTupleSliceToUint32Map(tupleSlice []interface{})
 	default:
 		return result
 	}
-	
+
 	// 确保keys和values长度一致
 	minLen := len(keys)
 	if len(values) < minLen {
 		minLen = len(values)
 	}
-	
+
 	// 转换为map
 	for i := 0; i < minLen; i++ {
 		result[keys[i]] = uint32(values[i])
 	}
-	
+
 	return result
 }
 
@@ -668,7 +667,7 @@ func (om OrderedMap) MarshalJSON() ([]byte, error) {
 	// 对keys进行数字排序
 	sortedKeys := make([]string, len(om.Keys))
 	copy(sortedKeys, om.Keys)
-	
+
 	// 使用数字排序而不是字符串排序
 	for i := 0; i < len(sortedKeys); i++ {
 		for j := i + 1; j < len(sortedKeys); j++ {
@@ -679,7 +678,7 @@ func (om OrderedMap) MarshalJSON() ([]byte, error) {
 			}
 		}
 	}
-	
+
 	result := "{"
 	for i, key := range sortedKeys {
 		if i > 0 {
@@ -702,7 +701,7 @@ func (om OrderedInterfaceMap) MarshalJSON() ([]byte, error) {
 	// 对keys进行数字排序
 	sortedKeys := make([]string, len(om.Keys))
 	copy(sortedKeys, om.Keys)
-	
+
 	// 使用数字排序而不是字符串排序
 	for i := 0; i < len(sortedKeys); i++ {
 		for j := i + 1; j < len(sortedKeys); j++ {
@@ -713,7 +712,7 @@ func (om OrderedInterfaceMap) MarshalJSON() ([]byte, error) {
 			}
 		}
 	}
-	
+
 	result := "{"
 	for i, key := range sortedKeys {
 		if i > 0 {
@@ -745,7 +744,7 @@ func (s *CoverageService) buildOrderedHitMap(mapData interface{}, hitData map[ui
 	default:
 		return OrderedMap{Keys: []string{}, Values: make(map[string]uint32)}
 	}
-	
+
 	// 排序索引
 	for i := 0; i < len(indices); i++ {
 		for j := i + 1; j < len(indices); j++ {
@@ -754,24 +753,24 @@ func (s *CoverageService) buildOrderedHitMap(mapData interface{}, hitData map[ui
 			}
 		}
 	}
-	
+
 	// 构建有序map
 	orderedMap := OrderedMap{
 		Keys:   make([]string, len(indices)),
 		Values: make(map[string]uint32),
 	}
-	
+
 	for i, index := range indices {
 		keyStr := fmt.Sprintf("%d", index)
 		orderedMap.Keys[i] = keyStr
-		
+
 		if hitCount, exists := hitData[index]; exists {
 			orderedMap.Values[keyStr] = hitCount
 		} else {
 			orderedMap.Values[keyStr] = 0
 		}
 	}
-	
+
 	return orderedMap
 }
 
@@ -789,29 +788,29 @@ func (s *CoverageService) decodeKey(encodedKey uint32) (uint32, uint32) {
 func (s *CoverageService) buildOrderedBranchHitMap(branchMap map[uint32]models.BranchInfo, hitData map[uint32]uint32) OrderedInterfaceMap {
 	// 首先处理hitData，将编码的键解码为分支结构
 	decodedHitData := make(map[uint32][]uint32)
-	
+
 	// 解码hitData中的键
 	for encodedKey, hitCount := range hitData {
 		branchId, branchLength := s.decodeKey(encodedKey)
-		
+
 		if decodedHitData[branchId] == nil {
 			decodedHitData[branchId] = make([]uint32, 0)
 		}
-		
+
 		// 确保数组足够大
 		for len(decodedHitData[branchId]) <= int(branchLength) {
 			decodedHitData[branchId] = append(decodedHitData[branchId], 0)
 		}
-		
+
 		decodedHitData[branchId][branchLength] = hitCount
 	}
-	
+
 	// 获取所有的分支索引并排序
 	var indices []uint32
 	for key := range branchMap {
 		indices = append(indices, key)
 	}
-	
+
 	// 排序索引
 	for i := 0; i < len(indices); i++ {
 		for j := i + 1; j < len(indices); j++ {
@@ -820,27 +819,27 @@ func (s *CoverageService) buildOrderedBranchHitMap(branchMap map[uint32]models.B
 			}
 		}
 	}
-	
+
 	// 构建有序map
 	result := OrderedInterfaceMap{
 		Keys:   make([]string, len(indices)),
 		Values: make(map[string]interface{}),
 	}
-	
+
 	// 按排序后的索引构建结果
 	for i, index := range indices {
 		keyStr := fmt.Sprintf("%d", index)
 		result.Keys[i] = keyStr
 		branch := branchMap[index]
-		
+
 		// 为每个分支路径创建计数数组
 		pathCount := len(branch.Paths)
 		if pathCount == 0 {
 			pathCount = 2 // 默认至少有2个分支路径
 		}
-		
+
 		counts := make([]uint32, pathCount)
-		
+
 		// 从解码后的hitData中获取计数
 		if branchHits, exists := decodedHitData[index]; exists {
 			// 复制计数数据，确保不超出数组边界
@@ -848,10 +847,10 @@ func (s *CoverageService) buildOrderedBranchHitMap(branchMap map[uint32]models.B
 				counts[j] = branchHits[j]
 			}
 		}
-		
+
 		result.Values[keyStr] = counts
 	}
-	
+
 	return result
 }
 
@@ -869,7 +868,7 @@ func (s *CoverageService) removeCoverageInstrumentCwd(
 		// 移除instrumentCwd前缀
 		newPath := strings.TrimPrefix(filePath, instrumentCwd)
 		newPath = strings.TrimPrefix(newPath, "/")
-		
+
 		// 更新coverage中的path字段
 		if coverageMap, ok := coverage.(map[string]interface{}); ok {
 			coverageMap["path"] = newPath
@@ -905,7 +904,6 @@ func (s *CoverageService) GetCoverageSummaryByRepoAndSHA(repoID, sha string) (in
 	testCaseInfoList, err := s.getTestCaseInfoList(coverageList)
 	if err != nil {
 		// 测试用例信息获取失败不影响主要功能，记录日志但继续执行
-		log.Printf("警告: 获取测试用例信息失败: %v", err)
 	}
 
 	// 第四步：构建构建组列表
@@ -947,7 +945,7 @@ func (s *CoverageService) GetCoverageSummaryByRepoAndSHA(repoID, sha string) (in
 // getTestCaseInfoList 获取测试用例信息列表
 func (s *CoverageService) getTestCaseInfoList(coverageList []models.Coverage) ([]interface{}, error) {
 	var testCaseInfoList []interface{}
-	
+
 	// 过滤出需要获取测试用例信息的覆盖率项
 	var needTestCaseItems []models.Coverage
 	for _, item := range coverageList {
@@ -961,13 +959,13 @@ func (s *CoverageService) getTestCaseInfoList(coverageList []models.Coverage) ([
 	// TODO: 实现HTTP客户端调用外部API
 	for _, item := range needTestCaseItems {
 		testCaseInfo := map[string]interface{}{
-			"caseName":      item.ReportID,
-			"passedCount":   0,
-			"failedCount":   0,
-			"totalCount":    0,
-			"passRate":      "100%",
+			"caseName":       item.ReportID,
+			"passedCount":    0,
+			"failedCount":    0,
+			"totalCount":     0,
+			"passRate":       "100%",
 			"reportProvider": item.ReportProvider,
-			"reportID":      item.ReportID,
+			"reportID":       item.ReportID,
 		}
 		testCaseInfoList = append(testCaseInfoList, testCaseInfo)
 	}
@@ -1036,7 +1034,7 @@ func (s *CoverageService) queryClickHouseForSummary(
 	for hitRows.Next() {
 		var (
 			coverageID, fullFilePath string
-			sTuple []interface{}
+			sTuple                   []interface{}
 		)
 		err := hitRows.Scan(
 			&coverageID,
@@ -1085,7 +1083,7 @@ func (s *CoverageService) queryClickHouseForSummary(
 		var (
 			sKeys, fKeys, bKeys []interface{}
 		)
-		
+
 		err := mapRows.Scan(
 			&result.Hash,
 			&sKeys,
@@ -1308,13 +1306,13 @@ func (s *CoverageService) getTestCaseInfo(testCaseInfoList []interface{}, report
 
 	// 返回默认信息
 	return map[string]interface{}{
-		"caseName":      reportID,
-		"passedCount":   0,
-		"failedCount":   0,
-		"totalCount":    0,
-		"passRate":      "100%",
+		"caseName":       reportID,
+		"passedCount":    0,
+		"failedCount":    0,
+		"totalCount":     0,
+		"passRate":       "100%",
 		"reportProvider": reportProvider,
-		"reportID":      reportID,
+		"reportID":       reportID,
 	}
 }
 
@@ -1430,12 +1428,12 @@ func (s *CoverageService) buildCoverageMapQueryForSummary(hashList []string) str
 	if len(hashList) == 0 {
 		return ""
 	}
-	
+
 	hashConditions := make([]string, len(hashList))
 	for i, hash := range hashList {
 		hashConditions[i] = fmt.Sprintf("'%s'", hash)
 	}
-	
+
 	return fmt.Sprintf(`
 		SELECT
 			hash,
@@ -1501,14 +1499,14 @@ func (s *CoverageService) deduplicateHashIDList(coverageMapRelationList []struct
 }) []string {
 	hashSet := make(map[string]bool)
 	var result []string
-	
+
 	for _, relation := range coverageMapRelationList {
 		if !hashSet[relation.CoverageMapHashID] {
 			hashSet[relation.CoverageMapHashID] = true
 			result = append(result, relation.CoverageMapHashID)
 		}
 	}
-	
+
 	return result
 }
 
@@ -1519,13 +1517,13 @@ func (s *CoverageService) queryClickHouseDataOldWay(coverageList []models.Covera
 	for i, coverage := range coverageList {
 		coverageIDs[i] = fmt.Sprintf("'%s'", coverage.ID)
 	}
-	
+
 	// 构建hash列表
 	hashConditions := make([]string, len(deduplicateHashIDList))
 	for i, hash := range deduplicateHashIDList {
 		hashConditions[i] = fmt.Sprintf("'%s'", hash)
 	}
-	
+
 	// 查询coverage_hit_agg - 完全按照老流程
 	coverageHitQuery := fmt.Sprintf(`
 		SELECT
@@ -1536,7 +1534,7 @@ func (s *CoverageService) queryClickHouseDataOldWay(coverageList []models.Covera
 		WHERE coverage_id IN (%s)
 		GROUP BY coverage_id, full_file_path
 	`, strings.Join(coverageIDs, ", "))
-	
+
 	// 查询coverage_map - 完全按照老流程
 	coverageMapQuery := fmt.Sprintf(`
 		SELECT
@@ -1547,55 +1545,55 @@ func (s *CoverageService) queryClickHouseDataOldWay(coverageList []models.Covera
 		FROM coverage_map
 		WHERE hash IN (%s)
 	`, strings.Join(hashConditions, ", "))
-	
+
 	// 执行查询
 	ckDB := db.GetClickHouseDB()
-	
+
 	// 查询coverage_hit_agg
 	hitRows, err := ckDB.Query(context.Background(), coverageHitQuery)
 	if err != nil {
 		return nil, nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
 	}
 	defer hitRows.Close()
-	
+
 	var coverageHitQuerySqlResultJson []map[string]interface{}
 	for hitRows.Next() {
 		var coverageID, fullFilePath string
 		var sTuple []interface{}
-		
+
 		err := hitRows.Scan(&coverageID, &fullFilePath, &sTuple)
 		if err != nil {
 			return nil, nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
 		}
-		
+
 		// 转换tuple slice为uint32 slice
 		sKeys := s.convertInterfaceSliceToUint32Slice(sTuple)
-		
+
 		result := map[string]interface{}{
 			"coverageID":   coverageID,
 			"fullFilePath": fullFilePath,
-			"s":           sKeys,
+			"s":            sKeys,
 		}
 		coverageHitQuerySqlResultJson = append(coverageHitQuerySqlResultJson, result)
 	}
-	
+
 	// 查询coverage_map
 	mapRows, err := ckDB.Query(context.Background(), coverageMapQuery)
 	if err != nil {
 		return nil, nil, fmt.Errorf("查询coverage_map失败: %w", err)
 	}
 	defer mapRows.Close()
-	
+
 	var coverageMapQuerySqlResultJson []map[string]interface{}
 	for mapRows.Next() {
 		var hash string
 		var sKeys, fKeys, bKeys []interface{}
-		
+
 		err := mapRows.Scan(&hash, &sKeys, &fKeys, &bKeys)
 		if err != nil {
 			return nil, nil, fmt.Errorf("扫描coverage_map数据失败: %w", err)
 		}
-		
+
 		result := map[string]interface{}{
 			"hash": hash,
 			"s":    s.convertInterfaceSliceToUint32Slice(sKeys),
@@ -1604,7 +1602,7 @@ func (s *CoverageService) queryClickHouseDataOldWay(coverageList []models.Covera
 		}
 		coverageMapQuerySqlResultJson = append(coverageMapQuerySqlResultJson, result)
 	}
-	
+
 	return coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJson, nil
 }
 
@@ -1617,7 +1615,7 @@ func (s *CoverageService) mergeCoverageMapWithFilePathOldWay(
 	coverageMapQuerySqlResultJson []map[string]interface{},
 ) []map[string]interface{} {
 	var coverageMapQuerySqlResultJsonWidth []map[string]interface{}
-	
+
 	for _, coverageMapRelationItem := range coverageMapRelationList {
 		// 找到对应的coverage map数据
 		var coverageMapQuerySqlResultJsonItem map[string]interface{}
@@ -1627,7 +1625,7 @@ func (s *CoverageService) mergeCoverageMapWithFilePathOldWay(
 				break
 			}
 		}
-		
+
 		if coverageMapQuerySqlResultJsonItem != nil {
 			// 复制数据并添加fullFilePath
 			result := make(map[string]interface{})
@@ -1638,7 +1636,7 @@ func (s *CoverageService) mergeCoverageMapWithFilePathOldWay(
 			coverageMapQuerySqlResultJsonWidth = append(coverageMapQuerySqlResultJsonWidth, result)
 		}
 	}
-	
+
 	return coverageMapQuerySqlResultJsonWidth
 }
 
@@ -1651,11 +1649,11 @@ func (s *CoverageService) buildResultListOldWay(
 	testCaseInfoList []interface{},
 ) []interface{} {
 	var resultList []interface{}
-	
+
 	for _, buildGroup := range deduplicatedBuildGroupList {
 		buildID := buildGroup["buildID"]
 		buildProvider := buildGroup["buildProvider"]
-		
+
 		// 过滤当前build group的coverage
 		var currentCoverageList []models.Coverage
 		for _, coverage := range coverageList {
@@ -1663,42 +1661,42 @@ func (s *CoverageService) buildResultListOldWay(
 				currentCoverageList = append(currentCoverageList, coverage)
 			}
 		}
-		
+
 		// 构建coverage ID列表
 		var coverageIDs []string
 		for _, coverage := range currentCoverageList {
 			coverageIDs = append(coverageIDs, coverage.ID)
 		}
-		
+
 		// 过滤hit数据
 		filteredHitData := s.filterCoverageHitOldWay(coverageIDs, coverageHitQuerySqlResultJson)
-		
+
 		// 计算总体summary
 		summary := s.calcCoverageSummaryOldWay(filteredHitData, coverageMapQuerySqlResultJsonWidth)
-		
+
 		// 构建auto mode
 		autoMode := s.buildAutoModeOldWay(currentCoverageList, coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJsonWidth, testCaseInfoList)
-		
+
 		// 构建manual mode
 		manualMode := s.buildManualModeOldWay(currentCoverageList, coverageHitQuerySqlResultJson, coverageMapQuerySqlResultJsonWidth, testCaseInfoList)
-		
+
 		group := map[string]interface{}{
-			"buildID":      buildID,
+			"buildID":       buildID,
 			"buildProvider": buildProvider,
-			"summary":      summary,
-			"modeList":     []interface{}{autoMode, manualMode},
+			"summary":       summary,
+			"modeList":      []interface{}{autoMode, manualMode},
 		}
-		
+
 		resultList = append(resultList, group)
 	}
-	
+
 	return resultList
 }
 
 // filterCoverageHitOldWay 按照老流程过滤coverage hit数据
 func (s *CoverageService) filterCoverageHitOldWay(coverageIDs []string, coverageHitQuerySqlResultJson []map[string]interface{}) []map[string]interface{} {
 	var result []map[string]interface{}
-	
+
 	for _, hitData := range coverageHitQuerySqlResultJson {
 		coverageID := hitData["coverageID"].(string)
 		for _, id := range coverageIDs {
@@ -1708,7 +1706,7 @@ func (s *CoverageService) filterCoverageHitOldWay(coverageIDs []string, coverage
 			}
 		}
 	}
-	
+
 	return result
 }
 
@@ -1719,35 +1717,35 @@ func (s *CoverageService) calcCoverageSummaryOldWay(covHit []map[string]interfac
 	for _, hitItem := range covHit {
 		path := hitItem["fullFilePath"].(string)
 		sKeys := hitItem["s"].([]uint32)
-		
+
 		if _, exists := hitMap[path]; !exists {
 			hitMap[path] = make(map[uint32]bool)
 		}
-		
+
 		for _, key := range sKeys {
 			hitMap[path][key] = true
 		}
 	}
-	
+
 	// 计算covered数量
 	var covered int
 	for _, hitSet := range hitMap {
 		covered += len(hitSet)
 	}
-	
+
 	// 计算total数量
 	var total int
 	for _, mapItem := range covMap {
 		sKeys := mapItem["s"].([]uint32)
 		total += len(sKeys)
 	}
-	
+
 	// 计算百分比
 	var percent float64
 	if total > 0 {
 		percent = float64(covered) / float64(total) * 100
 	}
-	
+
 	return map[string]interface{}{
 		"total":   total,
 		"covered": covered,
@@ -1769,48 +1767,48 @@ func (s *CoverageService) buildAutoModeOldWay(
 			autoCoverageList = append(autoCoverageList, coverage)
 		}
 	}
-	
+
 	// 构建coverage ID列表
 	var coverageIDs []string
 	for _, coverage := range autoCoverageList {
 		coverageIDs = append(coverageIDs, coverage.ID)
 	}
-	
+
 	// 过滤hit数据
 	filteredHitData := s.filterCoverageHitOldWay(coverageIDs, coverageHitQuerySqlResultJson)
-	
+
 	// 计算summary
 	summary := s.calcCoverageSummaryOldWay(filteredHitData, coverageMapQuerySqlResultJsonWidth)
-	
+
 	// 构建caseList
 	var caseList []interface{}
 	for _, coverage := range autoCoverageList {
 		// 计算单个case的summary
 		singleHitData := s.filterCoverageHitOldWay([]string{coverage.ID}, coverageHitQuerySqlResultJson)
 		caseSummary := s.calcCoverageSummaryOldWay(singleHitData, coverageMapQuerySqlResultJsonWidth)
-		
+
 		// 获取测试用例信息
 		testCaseInfo := s.getTestCaseInfoOldWay(testCaseInfoList, coverage.ReportID, coverage.ReportProvider)
-		
+
 		caseItem := map[string]interface{}{
-			"id":              coverage.ID,
-			"repoID":          coverage.RepoID,
-			"sha":             coverage.SHA,
-			"buildProvider":   coverage.BuildProvider,
-			"buildID":         coverage.BuildID,
-			"reportProvider":  coverage.ReportProvider,
-			"reportID":        coverage.ReportID,
-			"summary":         caseSummary,
+			"id":             coverage.ID,
+			"repoID":         coverage.RepoID,
+			"sha":            coverage.SHA,
+			"buildProvider":  coverage.BuildProvider,
+			"buildID":        coverage.BuildID,
+			"reportProvider": coverage.ReportProvider,
+			"reportID":       coverage.ReportID,
+			"summary":        caseSummary,
 		}
-		
+
 		// 合并测试用例信息
 		for k, v := range testCaseInfo {
 			caseItem[k] = v
 		}
-		
+
 		caseList = append(caseList, caseItem)
 	}
-	
+
 	return map[string]interface{}{
 		"mode":     "auto",
 		"summary":  summary,
@@ -1832,48 +1830,48 @@ func (s *CoverageService) buildManualModeOldWay(
 			manualCoverageList = append(manualCoverageList, coverage)
 		}
 	}
-	
+
 	// 构建coverage ID列表
 	var coverageIDs []string
 	for _, coverage := range manualCoverageList {
 		coverageIDs = append(coverageIDs, coverage.ID)
 	}
-	
+
 	// 过滤hit数据
 	filteredHitData := s.filterCoverageHitOldWay(coverageIDs, coverageHitQuerySqlResultJson)
-	
+
 	// 计算summary
 	summary := s.calcCoverageSummaryOldWay(filteredHitData, coverageMapQuerySqlResultJsonWidth)
-	
+
 	// 构建caseList
 	var caseList []interface{}
 	for _, coverage := range manualCoverageList {
 		// 计算单个case的summary
 		singleHitData := s.filterCoverageHitOldWay([]string{coverage.ID}, coverageHitQuerySqlResultJson)
 		caseSummary := s.calcCoverageSummaryOldWay(singleHitData, coverageMapQuerySqlResultJsonWidth)
-		
+
 		// 获取测试用例信息
 		testCaseInfo := s.getTestCaseInfoOldWay(testCaseInfoList, coverage.ReportID, coverage.ReportProvider)
-		
+
 		caseItem := map[string]interface{}{
-			"id":              coverage.ID,
-			"repoID":          coverage.RepoID,
-			"sha":             coverage.SHA,
-			"buildProvider":   coverage.BuildProvider,
-			"buildID":         coverage.BuildID,
-			"reportProvider":  coverage.ReportProvider,
-			"reportID":        coverage.ReportID,
-			"summary":         caseSummary,
+			"id":             coverage.ID,
+			"repoID":         coverage.RepoID,
+			"sha":            coverage.SHA,
+			"buildProvider":  coverage.BuildProvider,
+			"buildID":        coverage.BuildID,
+			"reportProvider": coverage.ReportProvider,
+			"reportID":       coverage.ReportID,
+			"summary":        caseSummary,
 		}
-		
+
 		// 合并测试用例信息
 		for k, v := range testCaseInfo {
 			caseItem[k] = v
 		}
-		
+
 		caseList = append(caseList, caseItem)
 	}
-	
+
 	return map[string]interface{}{
 		"mode":     "manual",
 		"summary":  summary,
@@ -1890,15 +1888,15 @@ func (s *CoverageService) getTestCaseInfoOldWay(testCaseInfoList []interface{}, 
 			}
 		}
 	}
-	
+
 	// 如果没找到，返回默认值
 	return map[string]interface{}{
-		"caseName":     reportID,
-		"passedCount":  0,
-		"failedCount":  0,
-		"totalCount":   0,
-		"passRate":     "100%",
+		"caseName":       reportID,
+		"passedCount":    0,
+		"failedCount":    0,
+		"totalCount":     0,
+		"passRate":       "100%",
 		"reportProvider": reportProvider,
-		"reportID":     reportID,
+		"reportID":       reportID,
 	}
 }

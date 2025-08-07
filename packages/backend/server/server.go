@@ -27,18 +27,13 @@ func NewServer() *Server {
 func (s *Server) Initialize() error {
 	// 加载配置
 	s.Config = config.LoadConfig()
-	log.Println("配置加载完成")
 
 	// 初始化PostgreSQL数据库连接
 	s.Database = db.InitDB()
-	log.Println("PostgreSQL数据库连接完成")
 
 	// 初始化ClickHouse连接（如果配置了的话）
 	if s.Config.ClickHouseHost != "" {
 		db.InitClickHouse()
-		log.Println("ClickHouse连接完成")
-	} else {
-		log.Println("ClickHouse未配置，跳过连接")
 	}
 
 	// 创建 Gin 路由器
@@ -76,7 +71,6 @@ func (s *Server) Start(port string) error {
 	}
 
 	serverAddr := "0.0.0.0:" + port
-	log.Printf("服务器启动在端口: %s，允许所有IP访问", port)
 
 	return s.Router.Run(serverAddr)
 }
@@ -95,6 +89,5 @@ func (s *Server) Shutdown() error {
 		return err
 	}
 
-	log.Println("服务器已关闭")
 	return nil
 }

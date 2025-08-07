@@ -62,8 +62,6 @@ func GenSummaryMapByCoverageMap(coverageMap interface{}) CoverageSummaryDataMap 
 		if !ok {
 			continue
 		}
-		// 打印fileCoverage
-		fmt.Println("fileCoverage", fileCoverage)
 		// 检查是否已经是计算好的覆盖率数据
 		if isPreCalculatedCoverage(fileCoverage) {
 			// 直接使用已经计算好的覆盖率数据
@@ -107,55 +105,37 @@ func extractPreCalculatedCoverage(fileCoverage map[string]interface{}) CoverageS
 	// 提取各种覆盖率数据
 	if linesData, ok := fileCoverage["lines"].(map[string]interface{}); ok {
 		summary.Lines = extractCoverageTotals(linesData)
-		fmt.Printf("Lines: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-			summary.Lines.Total, summary.Lines.Covered, summary.Lines.Skipped, summary.Lines.Pct)
 	}
 
 	if statementsData, ok := fileCoverage["statements"].(map[string]interface{}); ok {
 		summary.Statements = extractCoverageTotals(statementsData)
-		fmt.Printf("Statements: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-			summary.Statements.Total, summary.Statements.Covered, summary.Statements.Skipped, summary.Statements.Pct)
 	}
 
 	if branchesData, ok := fileCoverage["branches"].(map[string]interface{}); ok {
 		summary.Branches = extractCoverageTotals(branchesData)
-		fmt.Printf("Branches: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-			summary.Branches.Total, summary.Branches.Covered, summary.Branches.Skipped, summary.Branches.Pct)
 	}
 
 	if functionsData, ok := fileCoverage["functions"].(map[string]interface{}); ok {
 		summary.Functions = extractCoverageTotals(functionsData)
-		fmt.Printf("Functions: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-			summary.Functions.Total, summary.Functions.Covered, summary.Functions.Skipped, summary.Functions.Pct)
 	}
 
 	if branchesTrueData, ok := fileCoverage["branchesTrue"].(map[string]interface{}); ok {
 		summary.BranchesTrue = extractCoverageTotals(branchesTrueData)
-		fmt.Printf("BranchesTrue: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-			summary.BranchesTrue.Total, summary.BranchesTrue.Covered, summary.BranchesTrue.Skipped, summary.BranchesTrue.Pct)
 	} else {
 		// 如果没有 branchesTrue，使用 branches 的数据
 		summary.BranchesTrue = summary.Branches
-		fmt.Printf("BranchesTrue (using branches): total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-			summary.BranchesTrue.Total, summary.BranchesTrue.Covered, summary.BranchesTrue.Skipped, summary.BranchesTrue.Pct)
 	}
 
 	if newlinesData, ok := fileCoverage["newlines"].(map[string]interface{}); ok {
 		summary.Newlines = extractCoverageTotals(newlinesData)
-		fmt.Printf("Newlines: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-			summary.Newlines.Total, summary.Newlines.Covered, summary.Newlines.Skipped, summary.Newlines.Pct)
 	}
 
 	if changeBranchesData, ok := fileCoverage["changebranches"].(map[string]interface{}); ok {
 		summary.ChangeBranches = extractCoverageTotals(changeBranchesData)
-		fmt.Printf("ChangeBranches: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-			summary.ChangeBranches.Total, summary.ChangeBranches.Covered, summary.ChangeBranches.Skipped, summary.ChangeBranches.Pct)
 	}
 
 	if changeFunctionsData, ok := fileCoverage["changefunctions"].(map[string]interface{}); ok {
 		summary.ChangeFunctions = extractCoverageTotals(changeFunctionsData)
-		fmt.Printf("ChangeFunctions: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-			summary.ChangeFunctions.Total, summary.ChangeFunctions.Covered, summary.ChangeFunctions.Skipped, summary.ChangeFunctions.Pct)
 	}
 
 	return summary
@@ -165,15 +145,12 @@ func extractPreCalculatedCoverage(fileCoverage map[string]interface{}) CoverageS
 func extractCoverageTotals(data map[string]interface{}) CoverageTotals {
 	totals := CoverageTotals{}
 
-	fmt.Printf("Raw data: %+v\n", data)
-
 	if total, ok := data["total"]; ok {
 		if totalInt, ok := total.(int); ok {
 			totals.Total = totalInt
 		} else if totalFloat, ok := total.(float64); ok {
 			totals.Total = int(totalFloat)
 		}
-		fmt.Printf("Total: %v -> %d\n", data["total"], totals.Total)
 	}
 
 	if covered, ok := data["covered"]; ok {
@@ -182,7 +159,6 @@ func extractCoverageTotals(data map[string]interface{}) CoverageTotals {
 		} else if coveredFloat, ok := covered.(float64); ok {
 			totals.Covered = int(coveredFloat)
 		}
-		fmt.Printf("Covered: %v -> %d\n", data["covered"], totals.Covered)
 	}
 
 	if skipped, ok := data["skipped"]; ok {
@@ -191,7 +167,6 @@ func extractCoverageTotals(data map[string]interface{}) CoverageTotals {
 		} else if skippedFloat, ok := skipped.(float64); ok {
 			totals.Skipped = int(skippedFloat)
 		}
-		fmt.Printf("Skipped: %v -> %d\n", data["skipped"], totals.Skipped)
 	}
 
 	if pct, ok := data["pct"]; ok {
@@ -200,7 +175,6 @@ func extractCoverageTotals(data map[string]interface{}) CoverageTotals {
 		} else if pctInt, ok := pct.(int); ok {
 			totals.Pct = float64(pctInt)
 		}
-		fmt.Printf("Pct: %v -> %.2f\n", data["pct"], totals.Pct)
 	}
 
 	return totals
@@ -220,43 +194,27 @@ func calculateFileCoverageSummary(fileCoverage map[string]interface{}) CoverageS
 
 	// 计算语句覆盖率
 	summary.Statements = calculateStatementsCoverage(fileCoverage)
-	fmt.Printf("Statements: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-		summary.Statements.Total, summary.Statements.Covered, summary.Statements.Skipped, summary.Statements.Pct)
 
 	// 计算函数覆盖率
 	summary.Functions = calculateFunctionsCoverage(fileCoverage)
-	fmt.Printf("Functions: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-		summary.Functions.Total, summary.Functions.Covered, summary.Functions.Skipped, summary.Functions.Pct)
 
 	// 计算分支覆盖率
 	summary.Branches = calculateBranchesCoverage(fileCoverage)
-	fmt.Printf("Branches: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-		summary.Branches.Total, summary.Branches.Covered, summary.Branches.Skipped, summary.Branches.Pct)
 
 	// 计算行覆盖率（基于语句覆盖率）
 	summary.Lines = calculateLinesCoverage(fileCoverage)
-	fmt.Printf("Lines: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-		summary.Lines.Total, summary.Lines.Covered, summary.Lines.Skipped, summary.Lines.Pct)
 
 	// 分支真值覆盖率（暂时与分支覆盖率相同）
 	summary.BranchesTrue = summary.Branches
-	fmt.Printf("BranchesTrue: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-		summary.BranchesTrue.Total, summary.BranchesTrue.Covered, summary.BranchesTrue.Skipped, summary.BranchesTrue.Pct)
 
 	// 新行覆盖率（暂时为空）
 	summary.Newlines = CoverageTotals{}
-	fmt.Printf("Newlines: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-		summary.Newlines.Total, summary.Newlines.Covered, summary.Newlines.Skipped, summary.Newlines.Pct)
 
 	// 变更分支覆盖率（暂时为空）
 	summary.ChangeBranches = CoverageTotals{}
-	fmt.Printf("ChangeBranches: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-		summary.ChangeBranches.Total, summary.ChangeBranches.Covered, summary.ChangeBranches.Skipped, summary.ChangeBranches.Pct)
 
 	// 变更函数覆盖率（暂时为空）
 	summary.ChangeFunctions = CoverageTotals{}
-	fmt.Printf("ChangeFunctions: total=%d, covered=%d, skipped=%d, pct=%.2f\n",
-		summary.ChangeFunctions.Total, summary.ChangeFunctions.Covered, summary.ChangeFunctions.Skipped, summary.ChangeFunctions.Pct)
 
 	return summary
 }
@@ -268,11 +226,8 @@ func calculateStatementsCoverage(fileCoverage map[string]interface{}) CoverageTo
 	// 获取语句命中数据
 	sData, ok := fileCoverage["s"]
 	if !ok {
-		fmt.Printf("No 's' data found\n")
 		return totals
 	}
-
-	fmt.Printf("sData type: %T, value: %+v\n", sData, sData)
 
 	// 计算语句覆盖率
 	switch s := sData.(type) {
@@ -321,14 +276,12 @@ func calculateStatementsCoverage(fileCoverage map[string]interface{}) CoverageTo
 			// 第一个元素是键的数组
 			keysData, ok := s[0].([]interface{})
 			if !ok {
-				fmt.Printf("Keys data is not []interface{}\n")
 				return totals
 			}
 
 			// 第二个元素是值的映射
 			valuesData, ok := s[1].(map[string]interface{})
 			if !ok {
-				fmt.Printf("Values data is not map[string]interface{}\n")
 				return totals
 			}
 
@@ -361,40 +314,29 @@ func calculateStatementsCoverage(fileCoverage map[string]interface{}) CoverageTo
 	default:
 		// 处理 services.OrderedMap 类型
 		val := reflect.ValueOf(sData)
-		fmt.Printf("Reflection: val.Kind() = %v, val.Type() = %v\n", val.Kind(), val.Type())
 
 		if val.Kind() == reflect.Struct {
 			// 检查是否有 Keys 和 Values 字段
 			keysField := val.FieldByName("Keys")
 			valuesField := val.FieldByName("Values")
 
-			fmt.Printf("Keys field valid: %v, Values field valid: %v\n", keysField.IsValid(), valuesField.IsValid())
-
 			if keysField.IsValid() && valuesField.IsValid() {
-				fmt.Printf("Keys field type: %v, Values field type: %v\n", keysField.Type(), valuesField.Type())
-
 				// 获取 Keys 字段
 				keys := keysField.Interface()
-				fmt.Printf("Keys interface type: %T, value: %+v\n", keys, keys)
 
 				if keysSlice, ok := keys.([]string); ok {
-					fmt.Printf("Keys slice: %+v\n", keysSlice)
 					total := len(keysSlice)
 					covered := 0
 
 					// 获取 Values 字段
 					values := valuesField.Interface()
-					fmt.Printf("Values interface type: %T, value: %+v\n", values, values)
 
 					if valuesMap, ok := values.(map[string]uint32); ok {
-						fmt.Printf("Values map: %+v\n", valuesMap)
 						for _, key := range keysSlice {
 							if hits, exists := valuesMap[key]; exists && hits > 0 {
 								covered++
 							}
 						}
-					} else {
-						fmt.Printf("Failed to convert values to map[string]uint32\n")
 					}
 
 					totals.Total = total
@@ -406,16 +348,8 @@ func calculateStatementsCoverage(fileCoverage map[string]interface{}) CoverageTo
 						totals.Pct = 100.0
 					}
 					totals.Pct = math.Round(totals.Pct*100) / 100
-
-					fmt.Printf("Calculated totals: total=%d, covered=%d, pct=%.2f\n", totals.Total, totals.Covered, totals.Pct)
-				} else {
-					fmt.Printf("Failed to convert keys to []string\n")
 				}
 			}
-		}
-
-		if totals.Total == 0 {
-			fmt.Printf("Unsupported s data type: %T\n", sData)
 		}
 	}
 
@@ -429,11 +363,8 @@ func calculateFunctionsCoverage(fileCoverage map[string]interface{}) CoverageTot
 	// 获取函数命中数据
 	fData, ok := fileCoverage["f"]
 	if !ok {
-		fmt.Printf("No 'f' data found\n")
 		return totals
 	}
-
-	fmt.Printf("fData type: %T, value: %+v\n", fData, fData)
 
 	// 计算函数覆盖率
 	switch f := fData.(type) {
@@ -482,14 +413,12 @@ func calculateFunctionsCoverage(fileCoverage map[string]interface{}) CoverageTot
 			// 第一个元素是键的数组
 			keysData, ok := f[0].([]interface{})
 			if !ok {
-				fmt.Printf("Keys data is not []interface{}\n")
 				return totals
 			}
 
 			// 第二个元素是值的映射
 			valuesData, ok := f[1].(map[string]interface{})
 			if !ok {
-				fmt.Printf("Values data is not map[string]interface{}\n")
 				return totals
 			}
 
@@ -556,10 +485,6 @@ func calculateFunctionsCoverage(fileCoverage map[string]interface{}) CoverageTot
 				}
 			}
 		}
-
-		if totals.Total == 0 {
-			fmt.Printf("Unsupported f data type: %T\n", fData)
-		}
 	}
 
 	return totals
@@ -572,11 +497,8 @@ func calculateBranchesCoverage(fileCoverage map[string]interface{}) CoverageTota
 	// 获取分支命中数据
 	bData, ok := fileCoverage["b"]
 	if !ok {
-		fmt.Printf("No 'b' data found\n")
 		return totals
 	}
-
-	fmt.Printf("bData type: %T, value: %+v\n", bData, bData)
 
 	// 计算分支覆盖率
 	switch b := bData.(type) {
@@ -633,14 +555,12 @@ func calculateBranchesCoverage(fileCoverage map[string]interface{}) CoverageTota
 			// 第一个元素是键的数组
 			keysData, ok := b[0].([]interface{})
 			if !ok {
-				fmt.Printf("Keys data is not []interface{}\n")
 				return totals
 			}
 
 			// 第二个元素是值的映射
 			valuesData, ok := b[1].(map[string]interface{})
 			if !ok {
-				fmt.Printf("Values data is not map[string]interface{}\n")
 				return totals
 			}
 
@@ -724,10 +644,6 @@ func calculateBranchesCoverage(fileCoverage map[string]interface{}) CoverageTota
 				}
 			}
 		}
-
-		if totals.Total == 0 {
-			fmt.Printf("Unsupported b data type: %T\n", bData)
-		}
 	}
 
 	return totals
@@ -809,52 +725,30 @@ func MergeSummary(first, second CoverageSummaryData) CoverageSummaryData {
 	return ret
 }
 
-// mergeCoverageTotals 合并覆盖率总计
+// mergeCoverageTotals 合并两个覆盖率总计数据
 func mergeCoverageTotals(first, second CoverageTotals) CoverageTotals {
-	if first.Total == 0 && second.Total == 0 {
-		return CoverageTotals{Total: 0, Covered: 0, Skipped: 0, Pct: 100}
-	}
+	totals := CoverageTotals{}
 
-	total := first.Total + second.Total
-	covered := first.Covered + second.Covered
-	skipped := first.Skipped + second.Skipped
+	// 合并总数
+	totals.Total = first.Total + second.Total
+	totals.Covered = first.Covered + second.Covered
+	totals.Skipped = first.Skipped + second.Skipped
 
-	var pct float64
-	if total > 0 {
-		pct = float64(covered) / float64(total) * 100
+	// 计算合并后的百分比
+	if totals.Total > 0 {
+		totals.Pct = float64(totals.Covered) / float64(totals.Total) * 100
+		totals.Pct = math.Round(totals.Pct*100) / 100
 	} else {
-		pct = 100.0
+		totals.Pct = 100.0
 	}
 
-	return CoverageTotals{
-		Total:   total,
-		Covered: covered,
-		Skipped: skipped,
-		Pct:     math.Round(pct*100) / 100,
-	}
+	return totals
 }
 
-// GetSummaryByPath 根据路径获取摘要
+// GetSummaryByPath 根据路径获取摘要数据
 func GetSummaryByPath(path string, summary CoverageSummaryDataMap) CoverageSummaryData {
-	emptySummary := CoverageSummaryData{
-		Lines:           CoverageTotals{Total: 0, Covered: 0, Skipped: 0, Pct: 100},
-		Statements:      CoverageTotals{Total: 0, Covered: 0, Skipped: 0, Pct: 100},
-		Branches:        CoverageTotals{Total: 0, Covered: 0, Skipped: 0, Pct: 100},
-		Functions:       CoverageTotals{Total: 0, Covered: 0, Skipped: 0, Pct: 100},
-		BranchesTrue:    CoverageTotals{Total: 0, Covered: 0, Skipped: 0, Pct: 100},
-		Newlines:        CoverageTotals{Total: 0, Covered: 0, Skipped: 0, Pct: 100},
-		ChangeBranches:  CoverageTotals{Total: 0, Covered: 0, Skipped: 0, Pct: 100},
-		ChangeFunctions: CoverageTotals{Total: 0, Covered: 0, Skipped: 0, Pct: 100},
+	if data, exists := summary[path]; exists {
+		return data.CoverageSummaryData
 	}
-
-	summaryObj := emptySummary
-
-	// 过滤匹配路径的摘要
-	for filePath, fileSummary := range summary {
-		if filePath == path || (path != "" && len(filePath) > len(path) && filePath[:len(path)] == path && filePath[len(path)] == '/') {
-			summaryObj = MergeSummary(summaryObj, fileSummary.CoverageSummaryData)
-		}
-	}
-
-	return summaryObj
+	return CoverageSummaryData{}
 }

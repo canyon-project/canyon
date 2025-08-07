@@ -54,8 +54,6 @@ func InitDB() *gorm.DB {
 		log.Fatalf("数据库连接测试失败: %v", err)
 	}
 
-	log.Println("数据库连接成功")
-
 	// 设置全局变量
 	DB = db
 	SqlDB = sqlDB
