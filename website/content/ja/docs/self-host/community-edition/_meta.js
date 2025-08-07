@@ -1,5 +1,5 @@
 export default {
-  "prerequisites": "前提条件",
-  "install-and-build": "インストールとビルド",
-  "setup-and-access": "設定とアクセス"
+  "prerequisites": "前置条件",
+  "install-and-build": "安装和构建",
+  "setup-and-access": "设置和访问"
 } 

@@ -1,67 +1,67 @@
 import { Steps, Callout, Cards } from "nextra/components";
 
-# 最初のカバレッジデータ
+# 第一个覆盖率数据
 
 > [!NOTE]
 >
-> Canyonは[一般的なフレームワークのインストールガイド](/docs/installation/getting-started)を提供し、素早く始められるようサポートします。
+> Canyon 提供[常见框架的安装指南](/docs/installation/getting-started)，帮助您快速上手。
 
-以下の手順に従って最初のカバレッジデータレポートを完了してください：
+跟着以下步骤完成第一个覆盖率数据上报：
 
-## 新規プロジェクトとして開始
+## 作为新项目开始
 
 <Steps>
-  ### インストール
+  ### 安装
 
-フロントエンドエンジニアリングとモジュラー開発では、Babelが不可欠です。Babelプロジェクトでは、2つのBabelプラグインをインストールするだけで素早く始められます。
+在前端工程化和模块化开发中离不开Babel，对于Babel项目只需安装两个Babel插件，即可快速开始。
 
 ```sh npm2yarn
 npm install babel-plugin-istanbul babel-plugin-canyon -D
 ```
 
-[Babel設定ファイル](https://babeljs.io/docs/config-files#configuration-file-types)に[`istanbul`](https://www.npmjs.com/package/babel-plugin-istanbul)と[`canyon`](https://www.npmjs.com/package/babel-plugin-canyon)プラグインを追加します：
+在 [Babel 配置文件](https://babeljs.io/docs/config-files#configuration-file-types) 中添加 [`istanbul`](https://www.npmjs.com/package/babel-plugin-istanbul) 和 [`canyon`](https://www.npmjs.com/package/babel-plugin-canyon) 插件：
 
   ```js filename="babel.config.js" {3,4} copy
   module.exports = {
     plugins: [
       'istanbul',
       'canyon'
-      // プラグインの順序に注意してください。canyonプラグインはistanbulプラグインの後に配置する必要があります
+      // 需注意插件顺序，canyon插件应在istanbul插件之后
       ],
   };
   ```
 
-### 検証
+### 检查
 
-設定後、プロジェクトを起動し、コンソールで**window.\_\_coverage\_\_**を出力します。出力が下の画像と一致する場合、コードインストルメンテーションが成功したことを意味します。
+配置完成后，启动项目并在控制台打印 **window.\_\_coverage\_\_**。如果输出与下图一致，则表示代码插桩成功。
 
 ![coverage-canyon-console](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/documentation/getting-started/first-coverage/coverage-canyon-console.png)
 
-### CI環境変数の設定
+### 配置 CI 环境变量
 
-CI環境では、カバレッジデータを報告するためにいくつかの環境変数を設定する必要があります。
+在 CI 环境中，我们需要配置一些环境变量以便上报覆盖率数据。
 
 > [!TIP]
 >
-> Canyonはコンパイル時にパイプライン変数を検出し、複数の[パイプラインプロバイダー](/docs/reference/provider)に適応しています。<br/>
-> お使いのパイプラインプロバイダーが見つからない場合は、[明示的な設定](/docs/ecosystem/babel-plugin-canyon#configuration)を試してください。
+> canyon会在编译时侦测流水线变量，我们适配了多个[流水线供应商](/docs/reference/provider)。<br/>
+> 没有您的流水线供应商？尝试[显式配置](/docs/ecosystem/babel-plugin-canyon#配置)。
 
-1. `DSN`と`REPORTER`
+1. `DSN` 和 `REPORTER`
 
-- **DSN**: カバレッジデータ報告のサービスアドレス、\{\{url\}\}/coverage/client、ここで\{\{url\}\}はCanyonサービスアドレスです。
-- **REPORTER**: ユーザートークン、Canyonユーザー設定ページで確認できます。
+- **DSN**：覆盖率数据上报的服务地址，\{\{url\}\}/coverage/client，其中 \{\{url\}\} 为 Canyon 服务地址。
+- **REPORTER**：用户 token，可在Canyon用户设置页面查看。
 
-2. CIプラットフォーム変数の設定
+2. 配置 CI 平台变量
 
 ![gitlab](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/documentation/getting-started/first-coverage/gitlab-var-config.png)
 
 <Callout type="info" emoji="ℹ️">
-  プロジェクトID、ブランチ、SHAは手動で設定する必要はありません。Canyonプラグインが自動的にパイプライン環境変数を検出します。
+  其中，项目 ID、分支和 SHA 无需手动配置，Canyon 插件会自动侦测流水线环境变量。
 </Callout>
 
-  ### Babelプラグインのアクティベーション条件の更新
+  ### 更新babel插件生效条件
 
-  __CI段階では、本番ブランチでのインストルメンテーションを防ぐために、プラグインのアクティベーション条件を制御する必要があります。__
+  __在 CI 阶段，我们需要控制插件生效的条件，以防止在生产分支插桩。__
 
   ```js {2,3} copy
   module.exports = {
@@ -74,23 +74,23 @@ CI環境では、カバレッジデータを報告するためにいくつかの
   };
   ```
 
-  ### カバレッジデータの報告
+  ### 上报覆盖率数据
 
-  CI完了を待ち、ページをテスト環境にデプロイします。
+  等待 CI 完成后，页面发布到测试环境。
 
-  この時点で、カバレッジデータはブラウザに保存されています。ユーザーが操作したりUI自動化テストが実行されたりすると、window.__coverage___データが継続的に蓄積されます。
+  此时，覆盖率数据已存储在浏览器中。随着用户操作或UI自动化测试的执行，window.__coverage___数据会不断累积。
 
-  このデータをCanyonサーバーに正確に報告することで、カバレッジデータのリアルタイム表示が可能になります。
+  将这些数据准确无误的上报至 Canyon 服务端，即可实现覆盖率数据的实时展示。
 
-  カバレッジデータを報告する方法は以下の通りです：
+  以下是上报覆盖率数据的几种方式：
 
   <Cards>
   <Cards.Card
-    title="UI自動化テスト"
+    title="UI 自动化测试"
     href="/docs/end-to-end-testing/playwright"
   />
   <Cards.Card
-    title="手動テスト"
+    title="手动测试"
     href="/docs/ecosystem/canyon-extension"
   />
 </Cards>

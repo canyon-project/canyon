@@ -1,5 +1,5 @@
 export default {
-  "babel-plugin-canyon": "Babel プラグイン Canyon",
-  "canyon-uploader": "Canyon アップローダー",
-  "canyon-extension": "Canyon 拡張機能"
+  "babel-plugin-canyon": "Babel 插件 Canyon",
+  "canyon-uploader": "Canyon 上传器",
+  "canyon-extension": "Canyon 扩展"
 }

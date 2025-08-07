@@ -1,49 +1,50 @@
 ---
-title: 前提条件
+title: 先决条件
 ---
 
-# 前提条件
+# 先决条件
 
-独自のインフラストラクチャにCanyonをインストールするための前提条件。
+在您自己的基础架构上安装 Canyon 的先决条件。
 
-Canyonは、Dockerコンテナのセットとしてパッケージ化されたセルフホストAPI開発プラットフォームです。[Docker Engine](https://docs.docker.com/engine)を実行できるオペレーティングシステムであれば、どこでもCanyonをインストールして実行できます。ローカルコンピュータまたは選択したクラウドプロバイダーでCanyonを使用できます。
+Canyon 是一个自托管 API 开发平台，打包为一组 Docker 容器。您可以在任何可以运行[Docker Engine](https://docs.docker.com/engine) 的操作系统上安装和运行 Canyon 。您可以在本地计算机或您选择的云提供商上使用 Canyon。
 
-## システム要件
+## 系统要求
 
-Canyonは、小規模および大規模なデプロイメントの両方で良好に動作するように設計されています。Canyonを実行するための最小要件は、Dockerをサポートするオペレーティングシステムと、ビルドイメージを生成するための4つのCPUコア+ 4GB RAM、および生成された出力ファイルをホストするための少なくとも1つのCPUコア+ 2GB RAMです。
+Canyon 的设计使其在小型和大型部署中都能良好运行。运行 Canyon 的最低要求是支持 Docker 的操作系统和 4 个 CPU 核心 + 4GB RAM 来生成构建映像，以及至少 1 个 CPU 核心 + 2GB RAM 来托管生成的输出文件。
 
-### Node.js、npm、pnpmのインストール
+### 安装 Node.js、npm、pnpm
 
 #### Node.js + npm
 
-[`Node.js`](https://nodejs.org/en) (v18+)と[`npm`](https://www.npmjs.com) (v9+)をインストールします。
+安装 [`Node.js`](https://nodejs.org/en) (v18+) 和 [`npm`](https://www.npmjs.com) (v9+).
 
-- [Node.js + npmインストールガイド](https://nodejs.org/en/download)
+- [Node.js + npm 安装手册](https://nodejs.org/en/download)
+
 
 ### pnpm
 
-[`pnpm`](https://pnpm.io) (推奨v9)をインストールします。
+安装 [`pnpm`](https://pnpm.io) (建议使用v9).
 
-- [pnpmインストールガイド](https://pnpm.io/installation)
+- [pnpm 安装手册](https://pnpm.io/installation)
 
 ### Docker
 
-[`Docker`](https://www.docker.com) (v20+)をインストールします。
+安装 [`Docker`](https://www.docker.com) (v20+).
 
-- [Dockerインストールガイド](https://docs.docker.com/engine/install)
+- [Docker 安装手册](https://docs.docker.com/engine/install)
 
-### Postgresデータベース
+### Postgres数据库
 
-Canyonは、基本データを保存するためにPostgresデータベースを使用します（14.x以上が必要）。選択した任意のPostgresデータベースプロバイダー（ローカルまたはクラウドプロバイダーでホスト）を使用できます。以下の形式の有効なPostgresデータベースURLがあることを確認してください：
+Canyon 使用 Postgres 数据库来存储基础数据（需要14.x以上）。您可以使用您选择的任何 Postgres 数据库提供商 - 托管在本地或云提供商上。确保您拥有以下格式的有效 Postgres 数据库 URL：
 
 ```
 postgres://username:password@localhost:5432/dbname
 ```
 
-#### テーブルの作成
+#### 创建表
 
 ```shell
 pnpm run migrate
 ```
 
-または、テーブル作成[SQL](https://github.com/canyon-project/canyon/blob/main/packages/canyon-backend/prisma/create_table.sql)を直接使用します。
+或者直接使用建表 [SQL](https://github.com/canyon-project/canyon/blob/main/packages/canyon-backend/prisma/create_table.sql)。

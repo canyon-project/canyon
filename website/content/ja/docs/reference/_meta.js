@@ -1,3 +1,3 @@
 export default {
-  "provider": "プロバイダー"
+  "provider": "提供商"
 }

@@ -1,3 +1,3 @@
 export default {
-  "community-edition": "コミュニティ版"
+  "community-edition": "社区版"
 }

@@ -6,26 +6,26 @@ title: Lynx
 
 import { Steps } from "nextra/components";
 
-Lynxをインストールして設定します。
+安装和配置 Lynx 。
 
 <Steps>
 
-  ### プロジェクトを作成
+  ### 创建项目
 
-  [Lynx](https://lynxjs.org/) ドキュメント
+  [Lynx](https://lynxjs.org/) 文档
 
-  ### Canyonとその設定を追加
+  ### 添加 Canyon 及其配置
 
   > [!TIP]
   >
-  > Lynxコンパイラはデフォルトでswcを使用します。プラグイン設定関連[ドキュメント](https://lynxjs.org/zh/api/rspeedy/rspeedy.tools.swc.html#toolsswc-property)
+  > Lynx编译器默认使用swc。插件配置相关[文档](https://lynxjs.org/zh/api/rspeedy/rspeedy.tools.swc.html#toolsswc-property)
 
 
   ```sh npm2yarn copy
   npm install swc-plugin-coverage-instrument swc-plugin-canyon -D
   ```
 
-  ### swcプラグインを設定
+  ### 配置 swc 插件
 
   ```js filename="lynx.config.ts" {19,20} copy
   import { defineConfig } from '@lynx-js/rspeedy'
@@ -57,6 +57,6 @@ Lynxをインストールして設定します。
 
   ```
 
-  ### これで完了
-  [最初のカバレッジデータ - チェック](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)を続けて確認してください。
+  ### 就是这样
+  继续查看 [第一个覆盖率数据 - 检查](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)。
 </Steps> 

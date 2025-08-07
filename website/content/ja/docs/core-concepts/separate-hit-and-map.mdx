@@ -1,22 +1,24 @@
 import { Callout } from "nextra/components";
 
-# hitとmapの分離
+# 分离hit和map
 
-CIでBabelコンパイルによって生成された初期カバレッジソースファイルを収集
+在CI中收集参与babel编译产生的初始覆盖率源文件
 
-## 理由
+## 原因
 
-1. **完全なコンパイルファイルの収集**: コンパイルプロセス中、`babel-plugin-canyon`プラグインを通じて、各コンパイルファイルの初期カバレッジファイルを解析し、`.canyon_out`フォルダに保存します。
+1. **收集完整的参与编译文件**: 在编译后过程中，通过`babel-plugin-canyon`插件，分析解析
+   每个参与编译文件的覆盖初始文件，并保存至`.canyon_out`文件夹。
 
-2. **早期収集で負荷軽減**: 初期カバレッジファイルを報告しない場合、UI自動化テストでこれらのカバレッジファイルが報告され、膨大な転送負荷が発生します。早期収集により転送負荷を90%以上削減できます。
+2. **提前收集，减轻压力**: 当您没有上报初始覆盖率文件，UI自动化测试中都会上报这些覆盖率文件
+   这会产生巨大的传输压力。提前收集可以减少90%以上的传输压力。
 
 > [!TIP]
 >
-> これは必須ではありませんが、正確で安定したカバレッジデータ収集が必要な場合は、強く推奨します。
+> 这不是必须的，但是如果您需要准确、稳定的收集覆盖率数据，强烈建议您配置。
 
-## 初期カバレッジデータの報告
+## 上报初始覆盖率数据
 
-babel-plugin-canyonプラグインは、コンパイル中にコンパイルファイルの初期カバレッジファイルを生成し、.canyon_outputフォルダに保存します。canyon-uploaderコマンドラインツールを提供しており、CIでCanyonサーバーに報告できます。
+babel-plugin-canyon插件在编译时会生成参与编译文件的原始出覆盖率文件并保存至.canyon_output文件夹，我们提供了canyon-uploader的命令行工具，您可在CI中上报至Canyon服务端。
 
 ```yml filename=".github/workflows/report-canyon-output.yml" {19,20} copy
 name: Report Canyon Output
@@ -30,20 +32,20 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18" # プロジェクト要件に応じてNode.jsバージョンを変更できます
+          node-version: "18" # 可以根据项目需求修改 Node.js 版本
       - name: Install dependencies
         run: npm install
       - name: Generate output
         run: npm run build
 
-      # .canyon_outputファイル内容の報告
+      # 上报 .canyon_output 文件内容
       - name: Report output
         run: canyon-uploader map --dsn=https://canyonjs.org
 ```
 
-## Babelプラグインの更新
+## 更新 babel 插件
 
-keepMapオプションをfalseに設定
+配置 keepMap 选项为 false
 
 ```js filename="babel.config.js" {7} copy
 module.exports = {
@@ -59,8 +61,9 @@ module.exports = {
 };
 ```
 
-## 準備完了
+## 准备好了
 
-ページのwindow.coverageオブジェクトを確認し、スクリーンショットを参照してください。window.coverageにはmapデータが含まれなくなり、UI自動化カバレッジ収集プロセス中の大量の転送コストを大幅に削減できます。
+此时检查页面的window.coverage对象，看截图。window.coverage中已经没有map数据，这样
+可以大大减轻UI自动化覆盖率收集过程中的大量传输成本。
 
 ![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/jietu1.png) 

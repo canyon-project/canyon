@@ -1,4 +1,4 @@
 export default {
-  "getting-started": "はじめに",
+  "getting-started": "开始",
   "playwright": "Playwright"
 }

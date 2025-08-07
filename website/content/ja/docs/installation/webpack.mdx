@@ -6,25 +6,25 @@ title: Webpack
 
 import { Steps } from "nextra/components";
 
-Webpackをインストールして設定します。
+安装和配置 Webpack。
 
 <Steps>
 
-  ### プロジェクトを作成
+  ### 创建项目
 
-  Webpack [ドキュメント](https://webpack.js.org/)
+  Webpack [文档](https://webpack.js.org/)
 
-  ### Canyonとその設定を追加
+  ### 添加 Canyon 及其配置
 
   > [!TIP]
   >
-  > babel方式を使用することをお勧めします。これは最もシンプルで安定した設定方法です。
+  > 推荐使用 babel 方式，这是最简单和最稳定的配置方式。
 
   ```sh npm2yarn copy
   npm install babel-plugin-istanbul babel-plugin-canyon -D
   ```
 
-  ### babelプラグインを設定
+  ### 配置 babel 插件
 
   ```js filename="babel.config.js" {3} copy
   module.exports = {
@@ -33,7 +33,7 @@ Webpackをインストールして設定します。
   };
   ```
 
-  ### webpackを設定
+  ### 配置 webpack
 
   ```js filename="webpack.config.js" copy
   const path = require('path');
@@ -58,6 +58,6 @@ Webpackをインストールして設定します。
   };
   ```
 
-  ### これで完了
-  [最初のカバレッジデータ - チェック](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)を続けて確認してください。
+  ### 就是这样
+  继续查看 [第一个覆盖率数据 - 检查](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)。
 </Steps> 

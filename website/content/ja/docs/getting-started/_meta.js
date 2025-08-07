@@ -1,4 +1,4 @@
 export default {
-  introduction: "紹介",
-  "first-coverage": "最初のカバレッジデータ"
+  introduction: "介绍",
+  "first-coverage": "第一个覆盖率数据"
 } 

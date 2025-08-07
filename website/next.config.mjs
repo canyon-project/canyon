@@ -9,7 +9,7 @@ const withNextra = nextra({
 export default withNextra({
     // ... Add regular Next.js options here
     i18n: {
-        locales: ['en', 'cn', 'ja'],
+        locales: ['en', 'cn', 'ja', 'ko', 'fr', 'hk'],
         defaultLocale: 'en'
     },
   webpack(config) {

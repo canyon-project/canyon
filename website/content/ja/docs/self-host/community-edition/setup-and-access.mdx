@@ -1,21 +1,21 @@
 ---
-title: 設定とアクセス
+title: 设置和访问
 ---
 
-# 設定とアクセス
+# 设置和访问
 
-Canyon Community Editionの設定とアクセス方法を学びます。
+了解如何设置和访问 Canyon 社区版。
 
-## システム設定
+## 系统设置
 
-Canyonのすべての機能を使用するには、以下のデータテーブルを設定する必要があります：
+想要使用 Canyon 的所有功能，您必须配置以下数据表：
 
-1. `CANYON_SERVER`: Canyonサーバーアドレス
-2. `GITLAB_SERVER`: GitLabサーバーアドレス
-3. `GITLAB_CLIENT_ID`: GitLabクライアントID
-4. `GITLAB_CLIENT_SECRET`: GitLabクライアントシークレット
+1. `CANYON_SERVER`: Canyon 服务器地址
+2. `GITLAB_SERVER`: GitLab 服务器地址
+3. `GITLAB_CLIENT_ID`: GitLab 客户端 ID
+4. `GITLAB_CLIENT_SECRET`: GitLab 客户端密钥
 
-注意：コールバックアドレスは`<CANYON_SERVER>/oauth`です。GitLabで正しく設定されていることを確認してください。
+NOTE: 回调地址为 `<CANYON_SERVER>/oauth`，请确保在 GitLab 中配置正确。
 
 import { Callout } from 'nextra/components';
 
@@ -28,10 +28,10 @@ values  ('1', 'CANYON_SERVER', 'https://canyonjs.org'),
 ```
 
 <Callout type="info" emoji="ℹ️">
-  [GitLabをOAuth 2.0認証アイデンティティプロバイダーとして設定](https://docs.gitlab.com/ee/integration/oauth_provider.html)
+  [将 GitLab 配置为 OAuth 2.0 身份验证身份提供者](https://docs.gitlab.com/ee/integration/oauth_provider.html)
 </Callout>
 
-現在はGitLabのみサポートされており、今後より多くのGitサービスプロバイダーがサポートされる予定です。
+目前只支持 GitLab，后续会支持更多的 Git 服务商。
 
 ```sql copy
 insert into public.git_provider (id, url, type, name, disabled, private_token)
@@ -39,18 +39,18 @@ values  ('gitlab', 'https://gitlab.com', 'gitlab', 'GitLab', false, 'xxx');
 ```
 
 <Callout type="info" emoji="ℹ️">
-  [GitLab Private Tokenを生成](https://docs.gitlab.com/user/profile/personal_access_tokens/#create-a-personal-access-token)
+  [生成 GitLab Private Token](https://docs.gitlab.com/user/profile/personal_access_tokens/#create-a-personal-access-token)
 </Callout>
 
-## 管理者ログイン
+## 管理员登录
 
-以下のユーザーを作成します。これらの認証情報でログインできます：email: canyon, password: 123456
+创建以下用户。您可以使用以下凭据登录： email: canyon，password: 123456
 
 ```sql copy
 INSERT INTO "user" (id, email, password, nickname, avatar, favor)
 VALUES ('canyon', 'canyon@canyon.com', '123456', 'Canyon', '/avatar.jpg', '');
 ```
 
-## GitLab OAuth2ログイン
+## gitlab oauth2 登陆
 
 ![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/documentation/self-host/community-edition/login.png) 

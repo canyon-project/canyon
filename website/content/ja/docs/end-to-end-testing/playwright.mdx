@@ -4,11 +4,11 @@ title: Playwright
 
 # Playwright
 
-Playwrightでは、コンテキストを取得し、テスト実行中にカバレッジデータをローカルファイルに書き込み、最後にcanyon-uploaderツールを使用して集約・アップロードします。
+在 Playwright 中，获取上下文，在用例执行时将覆盖率数据写入到本地文件，最后使用 canyon-uploader 工具聚合上报。
 
-## カバレッジデータをローカルファイルに書き込み
+## 覆盖率数据写入本地文件
 
-以下はnodejsのコード例です：
+以下是 nodejs 代码示例：
 
 ```ts copy
 import * as fs from 'fs';
@@ -41,11 +41,9 @@ export const test = baseTest.extend({
 export const expect = test.expect;
 
 
-```
+## 聚合上报
 
-## 集約アップロード
-
-canyon-uploaderツールを使用して集約・アップロードします。詳細な使用方法については[canyon-uploader](/docs/ecosystem/canyon-uploader)ドキュメントを参照してください。
+使用 canyon-uploader 工具聚合上报，具体使用方式请查看 [canyon-uploader](/docs/ecosystem/canyon-uploader) 文档。
 
 ```bash copy
 ./canyon-uploader map --dsn=https://canyonjs.org

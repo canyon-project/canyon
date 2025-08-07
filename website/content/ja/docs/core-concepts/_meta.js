@@ -1,5 +1,5 @@
 export default {
-  "separate-hit-and-map": "HitとMapの分離",
-  "restore-source-code-coverage": "ソースコードカバレッジの復元",
-  "change-code-coverage": "変更コードカバレッジ"
+  "separate-hit-and-map": "分离hit和map",
+  "restore-source-code-coverage": "还原源码覆盖率",
+  "change-code-coverage": "变更代码覆盖率"
 } 

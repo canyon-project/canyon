@@ -4,17 +4,17 @@ title: babel-plugin-canyon
 
 # babel-plugin-canyon
 
-CI環境変数を検出するためのBabelプラグイン。istanbuljsと連携してコードインストルメンテーションを完了します。
+一款 Babel 插件，用于侦测 CI 环境变量。配合 istanbuljs 完成代码插桩。
 
-## 使用方法
+## 使用
 
-インストール:
+安装:
 
 ```sh
 npm install --save-dev babel-plugin-canyon
 ```
 
-`babel.config.js`にこれらの設定を追加:
+在 `babel.config.js` 中添加这些配置:
 
 ```js
 module.exports = {
@@ -22,16 +22,16 @@ module.exports = {
     process.env.CI_COMMIT_REF_NAME === "test-coverage"
       ? ["istanbul", "canyon"]
       : [],
-      // プラグインの順序に注意してください。canyonプラグインはistanbulプラグインの後に配置する必要があります
+      // 需注意插件顺序，canyon插件应在istanbul插件之后
 };
 ```
 
-2つのことを行います：
+它会做两件事情：
 
-1. CIパイプライン変数を検出
-2. 前のistanbulインストルメンテーション出力をチェックし、ローカルに保存（keepMapがfalseの場合）
+1. 侦测 CI 流水线变量
+2. 检查上一步istanbul插桩产物并保存到本地(keepMap为false时)
 
-## 設定
+## 配置
 
 babel.config.js
 
@@ -42,26 +42,26 @@ module.exports = {
     [
       "canyon",
       {
-        // #region == Step 1: CI変数設定または手動明示設定
-        dsn: "http://yourdomain.com/coverage/client", // カバレッジレポートアドレス、CIパイプライン変数検出KEYはDSN
-        reporter: "your_token", // ユーザートークン、異なるユーザーを区別するために使用、CIパイプライン変数検出KEYはREPORTER
+        // #region == Step 1: CI 变量配置 或者 手动显示配置
+        dsn: "http://yourdomain.com/coverage/client", // 覆盖率上报地址，侦测CI流水线变量的KEY为 DSN
+        reporter: "your_token", // 用户token，用于区分不同的用户，侦测CI流水线变量的KEY为 REPORTER
         // #endregion
-        // #region == Step 2: CI Provider自動検出、通常は手動設定不要、詳細はSupport Providerドキュメントを参照
-        projectID: "230614", // リポジトリID
+        // #region == Step 2: CI Provider 自动侦测，一般不需要手动配置，具体请查看 Support Provider 文档
+        projectID: "230614", // 仓库ID
         sha: "xxxxxxxxx", // Git Commit SHA
-        branch: "master", // Gitリポジトリブランチ
+        branch: "master", // Git 仓库分支
         // #endregion
-        // #region == Step 3: カバレッジ追加機能設定（オプション）
-        reportID: "case_id", // 異なるテストケースを区別するために使用
-        compareTarget: "develop", // 比較ターゲット、現在のSHAのベースラインとして使用、変更行のカバレッジ計算用
+        // #region == Step 3: 覆盖率额外功能配置(可选)
+        reportID: "case_id", // 用于区分不同的测试用例
+        compareTarget: "develop", // 比较目标，用作当前 SHA 的基线，用于计算更改行的覆盖率
         // #endregion
-        // #region == Step 4: hitとmapデータ分離（オプション）
-        keepMap: true, // カバレッジマップを保持、オプション、デフォルトはtrue、falseの場合、.canyon_outputファイルが生成されます!!!
+        // #region == Step 4: hit和map数据分离(可选)
+        keepMap: true, // 保留coverage map，可选，默认为true，为false时，会生成.canyon_output文件!!!
         // #endregion
-        // #region == Step 5: その他の設定（オプション）
-        instrumentCwd: "/path/to", // インストルメンテーション作業ディレクトリ、マルチリポジトリモードでは手動設定が必要な場合があります
-        provider: "gitlab", // ソースコードプロバイダー（オプション）、デフォルトはgitlab
-        oneByOne: false, // プロキシサーバーを設定、オプション、デフォルトはfalse。trueの場合、コンパイル時に各ファイルの初期カバレッジデータを一つずつレポートします。プロキシサーバー設定も可能です。
+        // #region == Step 5: 其他配置(可选)
+        instrumentCwd: "/path/to", // 插桩的工作目录，多仓库模式时可能需要手动配置
+        provider: "gitlab", // 源代码 provider(可选)，默认为 gitlab
+        oneByOne: false, // 配置代理服务器，可选，默认为false。为true时会在编译时逐一上报每个文件的初始覆盖率数据。也可以是代理服务器配置。
         // #endregion
       },
     ],
@@ -69,16 +69,16 @@ module.exports = {
 };
 ```
 
-| 設定項目        | 説明                                                                                                          | 必須                                                                       | デフォルト値        |
+| 配置项        | 描述                                                                                                          | 是否必填                                       | 默认值        |
 | ------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------- |
-| dsn           | カバレッジレポートアドレス、CIパイプライン変数検出KEYはDSN                                                                   | はい（CI変数設定または手動明示設定で必要に応じて記入） | なし            |
-| reporter      | ユーザートークン、異なるユーザーを区別するために使用、CIパイプライン変数検出KEYはREPORTER                                               | はい（CI変数設定または手動明示設定で必要に応じて記入） | なし            |
-| projectID     | リポジトリID                                                                                                        | 通常は手動設定不要（CI Provider自動検出）      | なし            |
-| sha           | Git Commit SHA                                                                                                | 通常は手動設定不要（CI Provider自動検出）      | なし            |
-| branch        | Gitリポジトリブランチ                                                                                                   | 通常は手動設定不要（CI Provider自動検出）      | なし            |
-| reportID      | 異なるテストケースを区別するために使用                                                                                        | オプション                                           | なし            |
-| compareTarget | 比較ターゲット、現在のSHAのベースラインとして使用、変更行のカバレッジ計算用                                                           | オプション                                           | なし            |
-| keepMap       | カバレッジマップを保持、オプション、デフォルトはtrue、falseの場合、.canyon_outputファイルが生成されます                                       | オプション                                           | true          |
-| instrumentCwd | インストルメンテーション作業ディレクトリ、マルチリポジトリモードでは手動設定が必要な場合があります                                                                  | オプション                                           | process.cwd() |
-| provider      | ソースコードプロバイダー（オプション）、デフォルトはgitlab                                                                          | オプション                                           | gitlab        |
-| oneByOne      | プロキシサーバーを設定、オプション、デフォルトはfalse。trueの場合、コンパイル時に各ファイルの初期カバレッジデータを一つずつレポートします。プロキシサーバー設定も可能です | オプション                                           | false         |
+| dsn           | 覆盖率上报地址，侦测CI流水线变量的KEY为 DSN                                                                   | 是（根据情况在CI变量配置或手动显示配置中填写） | 无            |
+| reporter      | 用户token，用于区分不同的用户，侦测CI流水线变量的KEY为 REPORTER                                               | 是（根据情况在CI变量配置或手动显示配置中填写） | 无            |
+| projectID     | 仓库ID                                                                                                        | 一般不需要手动配置（自动侦测CI Provider）      | 无            |
+| sha           | Git Commit SHA                                                                                                | 一般不需要手动配置（自动侦测CI Provider）      | 无            |
+| branch        | Git仓库分支                                                                                                   | 一般不需要手动配置（自动侦测CI Provider）      | 无            |
+| reportID      | 用于区分不同的测试用例                                                                                        | 可选                                           | 无            |
+| compareTarget | 比较目标，用作当前SHA的基线，用于计算更改行的覆盖率                                                           | 可选                                           | 无            |
+| keepMap       | 保留coverage map，可选，默认为true，为false时，会生成.canyon_output文件                                       | 可选                                           | true          |
+| instrumentCwd | 插桩的工作目录，多仓库模式时可能需要手动配置                                                                  | 可选                                           | process.cwd() |
+| provider      | 源代码provider（可选），默认为gitlab                                                                          | 可选                                           | gitlab        |
+| oneByOne      | 配置代理服务器，可选，默认为false。为true时会在编译时逐一上报每个文件的初始覆盖率数据。也可以是代理服务器配置 | 可选                                           | false         |
