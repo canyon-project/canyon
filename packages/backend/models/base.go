@@ -105,3 +105,17 @@ type CoverageMapSummaryResultWithFilePath struct {
 	CoverageMapSummaryResult
 	FullFilePath string `json:"fullFilePath"`
 }
+
+// Config 配置模型
+type Config struct {
+	ID        string    `gorm:"primarykey" json:"id"`
+	Key       string    `json:"key"`
+	Value     string    `json:"value"`
+	CreatedAt time.Time `gorm:"column:created_at" json:"createdAt"`
+	UpdatedAt time.Time `gorm:"column:updated_at" json:"updatedAt"`
+}
+
+// TableName 指定表名
+func (Config) TableName() string {
+	return "canyonjs_config"
+}

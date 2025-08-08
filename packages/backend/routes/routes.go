@@ -14,10 +14,12 @@ func SetupRoutes(r *gin.Engine) {
 	// 初始化服务
 	repoService := services.NewRepoService()
 	coverageService := services.NewCoverageService()
+	configService := services.NewConfigService()
 
 	// 初始化处理器
 	repoHandler := handlers.NewRepoHandler(repoService)
 	coverageHandler := handlers.NewCoverageHandler(coverageService)
+	configHandler := handlers.NewConfigHandler(configService)
 
 	// 健康检查接口(别改我！！！)
 	r.GET("/vi/health", handlers.HealthCheck)
@@ -66,6 +68,81 @@ func SetupRoutes(r *gin.Engine) {
 			// @Failure 500 {object} map[string]interface{}
 			// @Router /repo/{repoID}/commits [get]
 			repo.GET("/:repoID/commits", repoHandler.GetRepoCommits)
+		}
+
+		// Config 路由
+		config := api.Group("/config")
+		{
+			// @Summary 获取所有配置
+			// @Description 获取系统中的所有配置项
+			// @Tags config
+			// @Accept json
+			// @Produce json
+			// @Success 200 {array} models.Config "配置列表"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /config [get]
+			config.GET("", configHandler.GetAllConfigs)
+
+			// @Summary 根据key获取配置
+			// @Description 根据配置key获取对应的配置值
+			// @Tags config
+			// @Accept json
+			// @Produce json
+			// @Param key path string true "配置key"
+			// @Success 200 {object} models.Config "配置信息"
+			// @Failure 400 {object} map[string]interface{} "请求参数错误"
+			// @Failure 404 {object} map[string]interface{} "配置不存在"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /config/{key} [get]
+			config.GET("/:key", configHandler.GetConfigByKey)
+
+			// @Summary 创建配置
+			// @Description 创建新的配置项
+			// @Tags config
+			// @Accept json
+			// @Produce json
+			// @Param config body map[string]string true "配置信息"
+			// @Success 201 {object} models.Config "创建的配置"
+			// @Failure 400 {object} map[string]interface{} "请求参数错误"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /config [post]
+			config.POST("", configHandler.CreateConfig)
+
+			// @Summary 更新配置
+			// @Description 更新指定key的配置值
+			// @Tags config
+			// @Accept json
+			// @Produce json
+			// @Param key path string true "配置key"
+			// @Param config body map[string]string true "配置信息"
+			// @Success 200 {object} models.Config "更新后的配置"
+			// @Failure 400 {object} map[string]interface{} "请求参数错误"
+			// @Failure 404 {object} map[string]interface{} "配置不存在"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /config/{key} [put]
+			config.PUT("/:key", configHandler.UpdateConfig)
+
+			// @Summary 删除配置
+			// @Description 删除指定key的配置项
+			// @Tags config
+			// @Accept json
+			// @Produce json
+			// @Param key path string true "配置key"
+			// @Success 200 {object} map[string]interface{} "删除成功"
+			// @Failure 400 {object} map[string]interface{} "请求参数错误"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /config/{key} [delete]
+			config.DELETE("/:key", configHandler.DeleteConfig)
+
+			// @Summary 初始化配置
+			// @Description 从配置文件加载默认配置到数据库
+			// @Tags config
+			// @Accept json
+			// @Produce json
+			// @Success 200 {object} map[string]interface{} "初始化成功"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /config/init [post]
+			config.POST("/init", configHandler.InitConfigs)
 		}
 
 		// Coverage 路由

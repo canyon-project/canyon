@@ -84,26 +84,3 @@ CREATE TABLE "public"."canyonjs_diff" (
 
     CONSTRAINT "canyonjs_diff_pkey" PRIMARY KEY ("id")
 );
-
--- CreateTable
-CREATE TABLE "public"."canyonjs_config" (
-    "id" TEXT NOT NULL,
-    "key" TEXT NOT NULL,
-    "value" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "canyonjs_config_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "public"."git_provider" (
-    "id" TEXT NOT NULL,
-    "url" TEXT NOT NULL,
-    "type" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "disabled" BOOLEAN NOT NULL,
-    "private_token" TEXT NOT NULL,
-
-    CONSTRAINT "git_provider_pkey" PRIMARY KEY ("id")
-);
