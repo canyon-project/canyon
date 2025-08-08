@@ -185,6 +185,76 @@ func (s *CoverageService) queryClickHouseData(
 	return coverageMapResult, coverageHitResult, nil
 }
 
+// queryHitPerCoverage 按coverage_id与文件路径查询ClickHouse的S/F/B命中数据
+func (s *CoverageService) queryHitPerCoverage(
+	coverageList []models.Coverage,
+	reportProvider, reportID string,
+) ([]models.CoverageHitSummaryResult, error) {
+	// 过滤coverage（与buildCoverageHitQuery一致的过滤逻辑）
+	var filteredCoverages []models.Coverage
+	for _, coverage := range coverageList {
+		reportProviderOff := reportProvider == "" || coverage.ReportProvider == reportProvider
+		reportIDOff := reportID == "" || coverage.ReportID == reportID
+		if reportProviderOff && reportIDOff {
+			filteredCoverages = append(filteredCoverages, coverage)
+		}
+	}
+
+	if len(filteredCoverages) == 0 {
+		return []models.CoverageHitSummaryResult{}, nil
+	}
+
+	// 构建IN条件
+	coverageIDs := make([]string, len(filteredCoverages))
+	for i, coverage := range filteredCoverages {
+		coverageIDs[i] = fmt.Sprintf("'%s'", coverage.ID)
+	}
+
+	query := fmt.Sprintf(`
+        SELECT
+            coverage_id as coverageID,
+            full_file_path as fullFilePath,
+            sumMapMerge(s) AS s,
+            sumMapMerge(f) AS f,
+            sumMapMerge(b) AS b
+        FROM default.coverage_hit_agg
+        WHERE coverage_id IN (%s)
+        GROUP BY coverage_id, full_file_path
+    `, strings.Join(coverageIDs, ", "))
+
+	conn := db.GetClickHouseDB()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	rows, err := conn.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
+	}
+	defer rows.Close()
+
+	var results []models.CoverageHitSummaryResult
+	for rows.Next() {
+		var (
+			coverageID, fullFilePath string
+			sTuple, fTuple, bTuple   []interface{}
+		)
+
+		if err := rows.Scan(&coverageID, &fullFilePath, &sTuple, &fTuple, &bTuple); err != nil {
+			return nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
+		}
+
+		results = append(results, models.CoverageHitSummaryResult{
+			CoverageID:   coverageID,
+			FullFilePath: fullFilePath,
+			S:            s.convertTupleSliceToUint32Map(sTuple),
+			F:            s.convertTupleSliceToUint32Map(fTuple),
+			B:            s.convertTupleSliceToUint32Map(bTuple),
+		})
+	}
+
+	return results, nil
+}
+
 // buildCoverageMapQuery 构建coverage_map查询SQL
 func (s *CoverageService) buildCoverageMapQuery(hashList []string) string {
 	if len(hashList) == 0 {
@@ -1990,17 +2060,138 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 		return nil, fmt.Errorf("查询coverageMapRelation失败: %w", err)
 	}
 
-	// 第五步：并行查询ClickHouse
-	coverageMapResult, coverageHitResult, err := s.queryClickHouseData(
+	// 第五步：获取最新commit并构建“旧commit -> 变更文件集合”
+	latestCommit := commits[0]
+	// 保障选择最新：按CommittedDate选最大
+	for _, c := range commits {
+		if c.CommittedDate.After(latestCommit.CommittedDate) {
+			latestCommit = c
+		}
+	}
+	latestSHA := latestCommit.ID
+
+	// 将coverage按SHA分组，并建立coverageID到覆盖率记录的映射
+	coverageIDToItem := make(map[string]models.Coverage)
+	for _, cov := range allCoverageList {
+		coverageIDToItem[cov.ID] = cov
+	}
+
+	// 为每个旧commit与最新commit做diff，记录差异文件（包含old/new path）
+	changedFilesBySHA := make(map[string]map[string]bool)
+	for _, c := range commits {
+		if c.ID == latestSHA {
+			continue
+		}
+		diffs, err := gitlabService.GetCommitDiff(projectID, c.ID, latestSHA)
+		if err != nil {
+			// 若失败，跳过该commit的差异过滤
+			continue
+		}
+		if changedFilesBySHA[c.ID] == nil {
+			changedFilesBySHA[c.ID] = make(map[string]bool)
+		}
+		for _, d := range diffs {
+			if d.OldPath != "" {
+				changedFilesBySHA[c.ID][d.OldPath] = true
+			}
+			if d.NewPath != "" {
+				changedFilesBySHA[c.ID][d.NewPath] = true
+			}
+		}
+	}
+
+	// 第六步：查询coverage_map（重用现有方法），以及按coverage_id查询hit数据
+	coverageMapResult, _, err := s.queryClickHouseData(
 		coverageMapRelations, allCoverageList, query.ReportProvider, query.ReportID)
 	if err != nil {
 		return nil, err
 	}
 
-	// 第六步：合并数据
-	result := s.mergeCoverageMapAndHitResults(coverageMapResult, coverageHitResult, coverageMapRelations)
+	perCoverageHits, err := s.queryHitPerCoverage(allCoverageList, query.ReportProvider, query.ReportID)
+	if err != nil {
+		return nil, err
+	}
 
-	// 第七步：移除instrumentCwd路径（使用第一个coverage的instrumentCwd）
+	// 第七步：基于最新commit过滤旧commit中“与最新不同”的文件覆盖率，并合并剩余hit
+	// 聚合为按文件路径的汇总命中图
+	type agg struct {
+		S map[uint32]uint32
+		F map[uint32]uint32
+		B map[uint32]uint32
+	}
+	aggregatedByPath := make(map[string]*agg)
+
+	for _, row := range perCoverageHits {
+		cov, ok := coverageIDToItem[row.CoverageID]
+		if !ok {
+			continue
+		}
+
+		include := true
+		if cov.SHA != latestSHA {
+			// 归一化路径：移除instrumentCwd前缀后，与GitLab diff中的repo相对路径对齐
+			normalized := strings.TrimPrefix(row.FullFilePath, cov.InstrumentCwd)
+			normalized = strings.TrimPrefix(normalized, "/")
+			if changedSet, exists := changedFilesBySHA[cov.SHA]; exists {
+				if changedSet[normalized] {
+					include = false // 该文件在旧commit与最新commit间有差异，排除旧commit对此文件的贡献
+				}
+			}
+		}
+
+		if !include {
+			continue
+		}
+
+		// 合并到汇总
+		a := aggregatedByPath[row.FullFilePath]
+		if a == nil {
+			a = &agg{S: make(map[uint32]uint32), F: make(map[uint32]uint32), B: make(map[uint32]uint32)}
+			aggregatedByPath[row.FullFilePath] = a
+		}
+		for k, v := range row.S {
+			a.S[k] += v
+		}
+		for k, v := range row.F {
+			a.F[k] += v
+		}
+		for k, v := range row.B {
+			a.B[k] += v
+		}
+	}
+
+	// 转换为与合并函数兼容的结构
+	var filteredHitResults []models.CoverageHitQueryResult
+	for path, a := range aggregatedByPath {
+		filteredHitResults = append(filteredHitResults, models.CoverageHitQueryResult{
+			FullFilePath: path,
+			S:            a.S,
+			F:            a.F,
+			B:            a.B,
+		})
+	}
+
+	// 构建允许的文件路径集合，仅输出这些文件的覆盖率
+	allowedPaths := make(map[string]bool)
+	for path := range aggregatedByPath {
+		allowedPaths[path] = true
+	}
+
+	// 过滤relations到允许的文件集合
+	var filteredRelations []struct {
+		CoverageMapHashID string `gorm:"column:coverage_map_hash_id"`
+		FullFilePath      string `gorm:"column:full_file_path"`
+	}
+	for _, r := range coverageMapRelations {
+		if allowedPaths[r.FullFilePath] {
+			filteredRelations = append(filteredRelations, r)
+		}
+	}
+
+	// 第八步：合并数据（仅限允许的文件路径）
+	result := s.mergeCoverageMapAndHitResults(coverageMapResult, filteredHitResults, filteredRelations)
+
+	// 第九步：移除instrumentCwd路径（使用第一个coverage的instrumentCwd）
 	if len(allCoverageList) > 0 {
 		result = s.removeCoverageInstrumentCwd(result, allCoverageList[0].InstrumentCwd)
 	}
