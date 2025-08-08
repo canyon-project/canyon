@@ -260,6 +260,12 @@ func (h *CoverageHandler) GetCoverageMapForPull(c *gin.Context) {
 		return
 	}
 
+	// 准备请求ID，并回写到响应头，便于链路追踪
+	if query.RequestID == "" {
+		query.RequestID = utils.GenerateRequestID()
+	}
+	c.Header("X-Request-ID", query.RequestID)
+
 	// 调用服务获取PR覆盖率映射数据
 	result, err := h.coverageService.GetCoverageMapForPull(query)
 	if err != nil {

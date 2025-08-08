@@ -110,4 +110,6 @@ type CoveragePullMapQueryDto struct {
 	ReportID string `form:"reportID" json:"reportID" example:"report-456"`
 	// @Description 文件路径
 	FilePath string `form:"filePath" json:"filePath" example:"src/main.go"`
+	// @Description 请求ID（可选，用于日志追踪）
+	RequestID string `form:"requestID" json:"requestID" example:"req-123"`
 }
