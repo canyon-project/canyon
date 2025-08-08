@@ -2060,31 +2060,31 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 		return nil, fmt.Errorf("查询coverageMapRelation失败: %w", err)
 	}
 
-    // 第五步：选择“最新且有覆盖率”的baseline commit，并构建“旧commit -> 变更文件集合”
-    // 统计哪些commit有覆盖率
-    coveredSHASet := make(map[string]bool)
-    for _, cov := range allCoverageList {
-        coveredSHASet[cov.SHA] = true
-    }
-    // 在有覆盖率的commit中选取时间最新的一个作为baseline
-    var baselineCommit models.JSON // 占位避免未用导入，实际我们直接用GitLabCommit
-    _ = baselineCommit
-    var baseline GitLabCommit
-    var baselineFound bool
-    for _, c := range commits {
-        if !coveredSHASet[c.ID] {
-            continue
-        }
-        if !baselineFound || c.CommittedDate.After(baseline.CommittedDate) {
-            baseline = c
-            baselineFound = true
-        }
-    }
-    if !baselineFound {
-        // 理论上不会发生（因为上方已校验有coverage），兜底直接返回空
-        return map[string]interface{}{}, nil
-    }
-    latestSHA := baseline.ID
+	// 第五步：选择“最新且有覆盖率”的baseline commit，并构建“旧commit -> 变更文件集合”
+	// 统计哪些commit有覆盖率
+	coveredSHASet := make(map[string]bool)
+	for _, cov := range allCoverageList {
+		coveredSHASet[cov.SHA] = true
+	}
+	// 在有覆盖率的commit中选取时间最新的一个作为baseline
+	var baselineCommit models.JSON // 占位避免未用导入，实际我们直接用GitLabCommit
+	_ = baselineCommit
+	var baseline GitLabCommit
+	var baselineFound bool
+	for _, c := range commits {
+		if !coveredSHASet[c.ID] {
+			continue
+		}
+		if !baselineFound || c.CommittedDate.After(baseline.CommittedDate) {
+			baseline = c
+			baselineFound = true
+		}
+	}
+	if !baselineFound {
+		// 理论上不会发生（因为上方已校验有coverage），兜底直接返回空
+		return map[string]interface{}{}, nil
+	}
+	latestSHA := baseline.ID
 
 	// 将coverage按SHA分组，并建立coverageID到覆盖率记录的映射
 	coverageIDToItem := make(map[string]models.Coverage)
@@ -2094,8 +2094,8 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 
 	// 为每个旧commit与最新commit做diff，记录差异文件（包含old/new path）
 	changedFilesBySHA := make(map[string]map[string]bool)
-    for _, c := range commits {
-        if !coveredSHASet[c.ID] || c.ID == latestSHA {
+	for _, c := range commits {
+		if !coveredSHASet[c.ID] || c.ID == latestSHA {
 			continue
 		}
 		diffs, err := gitlabService.GetCommitDiff(projectID, c.ID, latestSHA)
