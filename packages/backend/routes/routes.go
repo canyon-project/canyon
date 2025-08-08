@@ -15,11 +15,13 @@ func SetupRoutes(r *gin.Engine) {
 	repoService := services.NewRepoService()
 	coverageService := services.NewCoverageService()
 	configService := services.NewConfigService()
+	gitlabService := services.NewGitLabService()
 
 	// 初始化处理器
 	repoHandler := handlers.NewRepoHandler(repoService)
 	coverageHandler := handlers.NewCoverageHandler(coverageService)
 	configHandler := handlers.NewConfigHandler(configService)
+	codeHandler := handlers.NewCodeHandler(gitlabService)
 
 	// 健康检查接口(别改我！！！)
 	r.GET("/vi/health", handlers.HealthCheck)
@@ -68,6 +70,48 @@ func SetupRoutes(r *gin.Engine) {
 			// @Failure 500 {object} map[string]interface{}
 			// @Router /repo/{repoID}/commits [get]
 			repo.GET("/:repoID/commits", repoHandler.GetRepoCommits)
+		}
+
+		// Code 路由
+		code := api.Group("/code")
+		{
+			// @Summary 获取Pull Request信息
+			// @Description 根据项目ID和Pull Request ID获取详细信息
+			// @Tags code
+			// @Accept json
+			// @Produce json
+			// @Param projectID path int true "项目ID"
+			// @Param pullRequestID path int true "Pull Request ID"
+			// @Success 200 {object} services.GitLabPullRequest "Pull Request信息"
+			// @Failure 400 {object} map[string]interface{} "请求参数错误"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /code/pulls/{projectID}/{pullRequestID} [get]
+			code.GET("/pulls/:projectID/:pullRequestID", codeHandler.GetPullRequest)
+
+			// @Summary 获取Pull Request变更信息
+			// @Description 根据项目ID和Pull Request ID获取变更详情
+			// @Tags code
+			// @Accept json
+			// @Produce json
+			// @Param projectID path int true "项目ID"
+			// @Param pullRequestID path int true "Pull Request ID"
+			// @Success 200 {array} map[string]interface{} "变更信息"
+			// @Failure 400 {object} map[string]interface{} "请求参数错误"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /code/pulls/{projectID}/{pullRequestID}/changes [get]
+			code.GET("/pulls/:projectID/:pullRequestID/changes", codeHandler.GetPullRequestChanges)
+
+			// @Summary 根据路径获取项目信息
+			// @Description 根据项目路径获取项目详细信息
+			// @Tags code
+			// @Accept json
+			// @Produce json
+			// @Param path path string true "项目路径"
+			// @Success 200 {object} map[string]interface{} "项目信息"
+			// @Failure 400 {object} map[string]interface{} "请求参数错误"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /code/projects/{path} [get]
+			code.GET("/projects/:path", codeHandler.GetProjectByPath)
 		}
 
 		// Config 路由
