@@ -290,6 +290,25 @@ func SetupRoutes(r *gin.Engine) {
 			// @Failure 500 {object} map[string]interface{}
 			// @Router /coverage/map [get]
 			coverage.GET("/map", coverageHandler.GetCoverageMap)
+
+			// @Summary 获取PR的覆盖率映射
+			// @Description 根据PR号获取该PR包含的所有commits的详细覆盖率映射数据
+			// @Tags coverage
+			// @Accept json
+			// @Produce json
+			// @Param provider query string true "提供商名称" example(github)
+			// @Param repoID query string true "仓库ID" example(owner/repo)
+			// @Param pullNumber query string true "PR号" example(123)
+			// @Param buildProvider query string false "构建提供商" example(jenkins)
+			// @Param buildID query string false "构建ID" example(build-123)
+			// @Param reportProvider query string false "报告提供商" example(jest)
+			// @Param reportID query string false "报告ID" example(report-456)
+			// @Param filePath query string false "文件路径" example(src/main.go)
+			// @Success 200 {object} map[string]interface{} "PR覆盖率映射数据"
+			// @Failure 400 {object} map[string]interface{} "请求参数错误"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /coverage/map/pull [get]
+			coverage.GET("/map/pull", coverageHandler.GetCoverageMapForPull)
 		}
 	}
 }

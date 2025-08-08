@@ -1900,3 +1900,110 @@ func (s *CoverageService) getTestCaseInfoOldWay(testCaseInfoList []interface{}, 
 		"reportID":       reportID,
 	}
 }
+
+// GetCoverageMapForPull 获取PR的覆盖率映射
+// @Description 根据PR号获取该PR包含的所有commits的覆盖率映射数据
+func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDto) (interface{}, error) {
+	// 第一步：根据PR号获取commits
+	gitlabService := NewGitLabService()
+
+	// 解析项目ID（假设repoID格式为 "owner/repo" 或数字ID）
+	projectID, err := strconv.Atoi(query.RepoID)
+	if err != nil {
+		// 如果不是数字，尝试从路径获取项目信息
+		projectInfo, err := gitlabService.GetProjectByPath(query.RepoID)
+		if err != nil {
+			return nil, fmt.Errorf("无法解析项目ID: %w", err)
+		}
+		if id, ok := projectInfo["id"].(float64); ok {
+			projectID = int(id)
+		} else {
+			return nil, fmt.Errorf("无法获取项目ID")
+		}
+	}
+
+	// 解析PR号
+	pullNumber, err := strconv.Atoi(query.PullNumber)
+	if err != nil {
+		return nil, fmt.Errorf("无效的PR号: %w", err)
+	}
+
+	// 获取PR的commits
+	commits, err := gitlabService.GetPullRequestCommits(projectID, pullNumber)
+	if err != nil {
+		return nil, fmt.Errorf("获取PR commits失败: %w", err)
+	}
+
+	if len(commits) == 0 {
+		return map[string]interface{}{}, nil
+	}
+
+	// 第二步：收集所有commits的SHA
+	shas := make([]string, len(commits))
+	for i, commit := range commits {
+		shas[i] = commit.ID
+	}
+
+	// 第三步：查询所有commits的coverage数据
+	pgDB := db.GetDB()
+	var allCoverageList []models.Coverage
+
+	coverageQuery := pgDB.Where("provider = ? AND repo_id = ? AND sha IN ?",
+		query.Provider, query.RepoID, shas)
+
+	if query.BuildProvider != "" {
+		coverageQuery = coverageQuery.Where("build_provider = ?", query.BuildProvider)
+	}
+	if query.BuildID != "" {
+		coverageQuery = coverageQuery.Where("build_id = ?", query.BuildID)
+	}
+
+	if err := coverageQuery.Find(&allCoverageList).Error; err != nil {
+		return nil, fmt.Errorf("查询coverage列表失败: %w", err)
+	}
+
+	if len(allCoverageList) == 0 {
+		return map[string]interface{}{}, nil
+	}
+
+	// 第四步：查询coverageMapRelation，获取coverage_map的hash
+	coverageIDs := make([]string, len(allCoverageList))
+	for i, coverage := range allCoverageList {
+		coverageIDs[i] = coverage.ID
+	}
+
+	var coverageMapRelations []struct {
+		CoverageMapHashID string `gorm:"column:coverage_map_hash_id"`
+		FullFilePath      string `gorm:"column:full_file_path"`
+	}
+
+	relationQuery := pgDB.Table("canyonjs_coverage_map_relation").
+		Select("coverage_map_hash_id, full_file_path").
+		Where("coverage_id IN ?", coverageIDs)
+
+	if query.FilePath != "" {
+		relationQuery = relationQuery.Where("file_path = ?", query.FilePath)
+	}
+
+	if err := relationQuery.Group("coverage_map_hash_id, full_file_path").
+		Find(&coverageMapRelations).Error; err != nil {
+		return nil, fmt.Errorf("查询coverageMapRelation失败: %w", err)
+	}
+
+	// 第五步：并行查询ClickHouse
+	coverageMapResult, coverageHitResult, err := s.queryClickHouseData(
+		coverageMapRelations, allCoverageList, query.ReportProvider, query.ReportID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 第六步：合并数据
+	result := s.mergeCoverageMapAndHitResults(coverageMapResult, coverageHitResult, coverageMapRelations)
+
+	// 第七步：移除instrumentCwd路径（使用第一个coverage的instrumentCwd）
+	if len(allCoverageList) > 0 {
+		result = s.removeCoverageInstrumentCwd(result, allCoverageList[0].InstrumentCwd)
+	}
+
+	return result, nil
+}
