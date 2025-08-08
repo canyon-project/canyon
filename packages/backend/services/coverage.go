@@ -2149,7 +2149,37 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 				changedFilesBySHA[c.ID][d.NewPath] = true
 			}
 		}
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map/pull", "GET", 0, requestID, traceID, spanDiff, "", "INFO", "collected changed files for commit", map[string]interface{}{"commit": c.ShortID, "changedCount": len(changedFilesBySHA[c.ID])}, nil, query.RepoID, latestSHA, stepStart, time.Now())
+		// 收集对比文件列表
+		var changedFiles []string
+		for fp := range changedFilesBySHA[c.ID] {
+			changedFiles = append(changedFiles, fp)
+		}
+		_ = reqLog.RequestLogStep(
+			utils.GenerateRequestID(),
+			query.Provider,
+			"backend",
+			"/coverage/map/pull",
+			"GET",
+			0,
+			requestID,
+			traceID,
+			spanDiff,
+			"",
+			"INFO",
+			"collected changed files for commit",
+			map[string]interface{}{
+				"commit":       c.ShortID,
+				"from":         c.ID,
+				"to":           latestSHA,
+				"changedCount": len(changedFiles),
+				"changedFiles": changedFiles,
+			},
+			nil,
+			query.RepoID,
+			latestSHA,
+			stepStart,
+			time.Now(),
+		)
 	}
 
 	// 第六步：查询coverage_map（重用现有方法），以及按coverage_id查询hit数据
