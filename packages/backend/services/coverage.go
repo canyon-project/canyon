@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // CoverageService 覆盖率服务
@@ -136,79 +138,92 @@ func (s *CoverageService) queryClickHouseData(
 		hashList[i] = relation.CoverageMapHashID
 	}
 
-	// 查询coverage_map
-	coverageMapQuery := s.buildCoverageMapQuery(hashList)
-	mapRows, err := conn.Query(ctx, coverageMapQuery)
-	if err != nil {
-		return nil, nil, fmt.Errorf("查询coverage_map失败: %w", err)
-	}
-	defer mapRows.Close()
+	var (
+		coverageMapResult []models.CoverageMapQueryResult
+		coverageHitResult []models.CoverageHitQueryResult
+	)
 
-	var coverageMapResult []models.CoverageMapQueryResult
-	for mapRows.Next() {
-		var result models.CoverageMapQueryResult
-		var (
-			statementMap, restoreStatementMap    map[uint32][]interface{}
-			fnMapStr, branchMapStr               string
-			restoreFnMapStr, restoreBranchMapStr string
-		)
+	g, gctx := errgroup.WithContext(ctx)
 
-		err := mapRows.Scan(
-			&statementMap,
-			&fnMapStr,
-			&branchMapStr,
-			&restoreStatementMap,
-			&restoreFnMapStr,
-			&restoreBranchMapStr,
-			&result.CoverageMapHashID,
-		)
+	// 并行查询 coverage_map
+	g.Go(func() error {
+		coverageMapQuery := s.buildCoverageMapQuery(hashList)
+		mapRows, err := conn.Query(gctx, coverageMapQuery)
 		if err != nil {
-			return nil, nil, fmt.Errorf("扫描coverage_map数据失败: %w", err)
+			return fmt.Errorf("查询coverage_map失败: %w", err)
 		}
+		defer mapRows.Close()
 
-		// 解析数据
-		result.StatementMap = utils.ConvertStatementMap(statementMap)
-		result.FnMap = utils.ParseFunctionMapSimple(fnMapStr)
-		result.BranchMap = utils.ParseBranchMapSimple(branchMapStr)
-		result.RestoreStatementMap = utils.ConvertStatementMap(restoreStatementMap)
-		result.RestoreFnMap = utils.ParseFunctionMapSimple(restoreFnMapStr)
-		result.RestoreBranchMap = utils.ParseBranchMapSimple(restoreBranchMapStr)
+		for mapRows.Next() {
+			var result models.CoverageMapQueryResult
+			var (
+				statementMap, restoreStatementMap    map[uint32][]interface{}
+				fnMapStr, branchMapStr               string
+				restoreFnMapStr, restoreBranchMapStr string
+			)
 
-		coverageMapResult = append(coverageMapResult, result)
-	}
+			if err := mapRows.Scan(
+				&statementMap,
+				&fnMapStr,
+				&branchMapStr,
+				&restoreStatementMap,
+				&restoreFnMapStr,
+				&restoreBranchMapStr,
+				&result.CoverageMapHashID,
+			); err != nil {
+				return fmt.Errorf("扫描coverage_map数据失败: %w", err)
+			}
 
-	// 查询coverage_hit_agg
-	coverageHitQuery := s.buildCoverageHitQuery(coverageList, reportProvider, reportID)
-	hitRows, err := conn.Query(ctx, coverageHitQuery)
-	if err != nil {
-		return nil, nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
-	}
-	defer hitRows.Close()
+			// 解析数据
+			result.StatementMap = utils.ConvertStatementMap(statementMap)
+			result.FnMap = utils.ParseFunctionMapSimple(fnMapStr)
+			result.BranchMap = utils.ParseBranchMapSimple(branchMapStr)
+			result.RestoreStatementMap = utils.ConvertStatementMap(restoreStatementMap)
+			result.RestoreFnMap = utils.ParseFunctionMapSimple(restoreFnMapStr)
+			result.RestoreBranchMap = utils.ParseBranchMapSimple(restoreBranchMapStr)
 
-	var coverageHitResult []models.CoverageHitQueryResult
-	for hitRows.Next() {
-		var (
-			fullFilePath           string
-			sTuple, fTuple, bTuple []interface{}
-		)
-		err := hitRows.Scan(
-			&fullFilePath,
-			&sTuple,
-			&fTuple,
-			&bTuple,
-		)
+			coverageMapResult = append(coverageMapResult, result)
+		}
+		return nil
+	})
+
+	// 并行查询 coverage_hit_agg
+	g.Go(func() error {
+		coverageHitQuery := s.buildCoverageHitQuery(coverageList, reportProvider, reportID)
+		hitRows, err := conn.Query(gctx, coverageHitQuery)
 		if err != nil {
-			return nil, nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
+			return fmt.Errorf("查询coverage_hit_agg失败: %w", err)
 		}
+		defer hitRows.Close()
 
-		// 转换tuple slice为uint32 map
-		result := models.CoverageHitQueryResult{
-			FullFilePath: fullFilePath,
-			S:            s.convertTupleSliceToUint32Map(sTuple),
-			F:            s.convertTupleSliceToUint32Map(fTuple),
-			B:            s.convertTupleSliceToUint32Map(bTuple),
+		for hitRows.Next() {
+			var (
+				fullFilePath           string
+				sTuple, fTuple, bTuple []interface{}
+			)
+			if err := hitRows.Scan(
+				&fullFilePath,
+				&sTuple,
+				&fTuple,
+				&bTuple,
+			); err != nil {
+				return fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
+			}
+
+			// 转换tuple slice为uint32 map
+			result := models.CoverageHitQueryResult{
+				FullFilePath: fullFilePath,
+				S:            s.convertTupleSliceToUint32Map(sTuple),
+				F:            s.convertTupleSliceToUint32Map(fTuple),
+				B:            s.convertTupleSliceToUint32Map(bTuple),
+			}
+			coverageHitResult = append(coverageHitResult, result)
 		}
-		coverageHitResult = append(coverageHitResult, result)
+		return nil
+	})
+
+	if err := g.Wait(); err != nil {
+		return nil, nil, err
 	}
 
 	return coverageMapResult, coverageHitResult, nil
