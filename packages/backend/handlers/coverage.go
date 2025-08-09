@@ -111,16 +111,13 @@ func (h *CoverageHandler) GetCoverageSummaryMap(c *gin.Context) {
 	reqLog := services.NewRequestLogService()
 	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/summary/map", "GET", 0, query.RequestID, query.RequestID, "summary-map-start", "", "INFO", "handle GetCoverageSummaryMap start", map[string]interface{}{"repoID": query.RepoID, "sha": query.SHA}, nil, query.RepoID, query.SHA, stepStart, time.Now())
 
-	// 调用服务获取覆盖率数据
-	coverageMap, err := h.coverageService.GetCoverageMap(query)
+	// 调用服务直接在数据库计算摘要（深度优化版本）
+	summaryMap, err := h.coverageService.GetCoverageSummaryMapFast(query)
 	if err != nil {
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/summary/map", "GET", http.StatusInternalServerError, query.RequestID, query.RequestID, "summary-map-error", "summary-map-start", "ERROR", "GetCoverageMap failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, query.SHA, stepStart, time.Now())
+		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/summary/map", "GET", http.StatusInternalServerError, query.RequestID, query.RequestID, "summary-map-error", "summary-map-start", "ERROR", "GetCoverageSummaryMapFast failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, query.SHA, stepStart, time.Now())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
-	// 生成摘要映射 (对应 NestJS 中的 genSummaryMapByCoverageMap)
-	summaryMap := utils.GenSummaryMapByCoverageMap(coverageMap)
 
 	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/summary/map", "GET", http.StatusOK, query.RequestID, query.RequestID, "summary-map-done", "summary-map-start", "INFO", "GetCoverageSummaryMap done", map[string]interface{}{"files": len(summaryMap)}, nil, query.RepoID, query.SHA, stepStart, time.Now())
 	c.JSON(http.StatusOK, summaryMap)
