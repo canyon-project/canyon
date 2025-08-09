@@ -1,0 +1,67 @@
+import { FC, useEffect } from 'react';
+import { ConfigProvider, theme } from 'antd';
+import enUS from 'antd/es/locale/en_US';
+import jaJP from 'antd/es/locale/ja_JP';
+import zhCN from 'antd/es/locale/zh_CN';
+import { LanguageProvider } from './locales';
+import ReportComponent from './components/Report';
+import { ReportProps } from './types';
+import { emptyFileCoverageData } from './components/helpers/const';
+
+const languages = {
+  cn: zhCN,
+  en: enUS,
+  ja: jaJP,
+};
+
+const { darkAlgorithm } = theme;
+
+const onSelectDefault = () => {
+  return Promise.resolve({
+    fileContent: '',
+    fileCoverage: emptyFileCoverageData,
+    fileCodeChange: [],
+  });
+};
+
+const Report: FC<ReportProps> = (props) => {
+  const {
+    theme = 'light',
+    language = 'en',
+    dataSource = {},
+    onSelect = onSelectDefault,
+    defaultOnlyShowChanged = false,
+    value = '',
+    name = 'untitled',
+  } = props;
+  const isDark = theme === 'dark';
+  // 创建一个新的对象，包含所有的 props 及其默认值
+  const mergedProps = {
+    theme,
+    language,
+    dataSource,
+    onSelect,
+    defaultOnlyShowChanged,
+    value,
+    name,
+  };
+
+  return (
+    <LanguageProvider language={language}>
+      <ConfigProvider
+        locale={languages[language]}
+        theme={{
+          token: {
+            colorPrimary: '#0071c2',
+            borderRadius: 2,
+          },
+          algorithm: isDark ? [darkAlgorithm] : [],
+        }}
+      >
+        <ReportComponent {...mergedProps} />
+      </ConfigProvider>
+    </LanguageProvider>
+  );
+};
+
+export default Report;

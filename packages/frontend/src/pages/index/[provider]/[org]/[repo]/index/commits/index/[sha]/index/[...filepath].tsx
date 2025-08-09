@@ -6,6 +6,7 @@ import axios from 'axios';
 import {useNavigate, useOutletContext, useParams, useSearchParams} from 'react-router-dom';
 import { handleSelectFile } from '@/helper';
 import { getFirstSix } from '@/helper/getFirstSix.ts';
+import RIf from '@/components/RIf';
 const FilePath = () => {
 
   const {repo,commit} = useOutletContext()
@@ -93,6 +94,8 @@ const FilePath = () => {
 
 
 
+  console.log(activatedPath,data)
+  
   return (
     <Drawer
       width={'75%'}
@@ -103,7 +106,10 @@ const FilePath = () => {
       title={`${params.repo} ${getFirstSix(searchParams.get('sha'))} 手工测试 API响应测试`}
     >
       <Spin spinning={loading}>
+        <RIf condition={data}>
         <Report value={activatedPath} onSelect={onSelect} dataSource={data} />
+        </RIf>
+
       </Spin>
     </Drawer>
   );
