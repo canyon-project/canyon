@@ -48,10 +48,8 @@ const ProjectDetailPage = () => {
       <Tabs
         defaultActiveKey="commits"
         items={[
-          {
-            key: 'commits',
-            label: 'Commits',
-          },
+          { key: 'commits', label: 'Commits' },
+          { key: 'pulls', label: 'Pulls' },
         ]}
       />
       <Outlet context={{
