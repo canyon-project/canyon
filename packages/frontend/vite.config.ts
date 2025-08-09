@@ -15,7 +15,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      'canyontest-report': path.resolve(__dirname, '../report/src/index.tsx'),
+      // 'canyontest-report': path.resolve(__dirname, '../report/src/index.tsx'),
     },
   },
   build: {
