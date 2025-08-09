@@ -2528,3 +2528,103 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 
 	return result, nil
 }
+
+// GetCoverageSummaryForPull 获取PR覆盖率概览（合并所有构建，不区分buildID/buildProvider）
+// @Description 根据PR号获取该PR包含的所有commits的覆盖率汇总摘要
+func (s *CoverageService) GetCoverageSummaryForPull(query dto.CoveragePullQueryDto) (interface{}, error) {
+	reqLog := NewRequestLogService()
+	requestID := query.RequestID
+	if requestID == "" {
+		requestID = utils.GenerateRequestID()
+	}
+	traceID := requestID
+
+	spanProject := fmt.Sprintf("project-%s", requestID)
+	spanCommits := fmt.Sprintf("commits-%s", requestID)
+	spanCoverages := fmt.Sprintf("coverages-%s", requestID)
+	spanRelations := fmt.Sprintf("relations-%s", requestID)
+	spanCK := fmt.Sprintf("ck-summary-%s", requestID)
+
+	// 解析项目ID
+	gitlabService := NewGitLabService()
+	stepStart := time.Now()
+	projectID, err := strconv.Atoi(query.RepoID)
+	if err != nil {
+		projectInfo, err := gitlabService.GetProjectByPath(query.RepoID)
+		if err != nil {
+			_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 0, requestID, traceID, spanProject, "", "ERROR", "GetProjectByPath failed", map[string]interface{}{"repoID": query.RepoID}, map[string]interface{}{"error": err.Error()}, query.RepoID, "", stepStart, time.Now())
+			return nil, fmt.Errorf("无法解析项目ID: %w", err)
+		}
+		if id, ok := projectInfo["id"].(float64); ok {
+			projectID = int(id)
+		} else {
+			_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 0, requestID, traceID, spanProject, "", "ERROR", "project id missing in response", map[string]interface{}{"repoID": query.RepoID}, nil, query.RepoID, "", stepStart, time.Now())
+			return nil, fmt.Errorf("无法获取项目ID")
+		}
+	}
+	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 0, requestID, traceID, spanProject, "", "INFO", "project resolved", map[string]interface{}{"projectID": projectID}, nil, query.RepoID, "", stepStart, time.Now())
+
+	// 解析PR号并获取commits
+	pullNumber, err := strconv.Atoi(query.PullNumber)
+	if err != nil {
+		return nil, fmt.Errorf("无效的PR号: %w", err)
+	}
+	stepStart = time.Now()
+	commits, err := gitlabService.GetPullRequestCommits(projectID, pullNumber)
+	if err != nil {
+		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 0, requestID, traceID, spanCommits, "", "ERROR", "GetPullRequestCommits failed", map[string]interface{}{"projectID": projectID, "pullNumber": pullNumber}, map[string]interface{}{"error": err.Error()}, query.RepoID, "", stepStart, time.Now())
+		return nil, fmt.Errorf("获取PR commits失败: %w", err)
+	}
+	if len(commits) == 0 {
+		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 200, requestID, traceID, spanCommits, "", "INFO", "no commits in PR", map[string]interface{}{"pullNumber": pullNumber}, nil, query.RepoID, "", stepStart, time.Now())
+		return map[string]interface{}{"total": 0, "covered": 0, "percent": 0.0}, nil
+	}
+
+	// 收集所有commits的SHA
+	shas := make([]string, len(commits))
+	for i, commit := range commits {
+		shas[i] = commit.ID
+	}
+
+	// 查询这些SHA对应的所有coverage（不区分build）
+	pgDB := db.GetDB()
+	var allCoverageList []models.Coverage
+	stepStart = time.Now()
+	if err := pgDB.Where("provider = ? AND repo_id = ? AND sha IN ?", query.Provider, query.RepoID, shas).Find(&allCoverageList).Error; err != nil {
+		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 0, requestID, traceID, spanCoverages, "", "ERROR", "query coverage list failed", map[string]interface{}{"shasCount": len(shas)}, map[string]interface{}{"error": err.Error()}, query.RepoID, "", stepStart, time.Now())
+		return nil, fmt.Errorf("查询coverage列表失败: %w", err)
+	}
+	if len(allCoverageList) == 0 {
+		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 200, requestID, traceID, spanCoverages, "", "INFO", "no coverage found for PR commits", map[string]interface{}{"commits": len(commits)}, nil, query.RepoID, "", stepStart, time.Now())
+		return map[string]interface{}{"total": 0, "covered": 0, "percent": 0.0}, nil
+	}
+
+	// 查询coverageMapRelation（合并去重）
+	coverageMapRelationList, err := s.getCoverageMapRelationList(allCoverageList)
+	if err != nil {
+		return nil, err
+	}
+	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 0, requestID, traceID, spanRelations, "", "INFO", "relations fetched", map[string]interface{}{"relations": len(coverageMapRelationList)}, nil, query.RepoID, "", stepStart, time.Now())
+
+	// 去重hash ID并查询ClickHouse
+	deduplicateHashIDList := s.deduplicateHashIDList(coverageMapRelationList)
+	stepStart = time.Now()
+	hitJson, mapJson, err := s.queryClickHouseDataOldWay(allCoverageList, deduplicateHashIDList)
+	if err != nil {
+		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 0, requestID, traceID, spanCK, "", "ERROR", "query clickhouse summary failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, "", stepStart, time.Now())
+		return nil, err
+	}
+
+	// 合并filePath
+	mapWithPath := s.mergeCoverageMapWithFilePathOldWay(coverageMapRelationList, mapJson)
+
+	// 过滤hit并计算汇总摘要（合并所有构建）
+	var coverageIDs []string
+	for _, cov := range allCoverageList {
+		coverageIDs = append(coverageIDs, cov.ID)
+	}
+	filteredHit := s.filterCoverageHitOldWay(coverageIDs, hitJson)
+	summary := s.calcCoverageSummaryOldWay(filteredHit, mapWithPath)
+
+	return summary, nil
+}

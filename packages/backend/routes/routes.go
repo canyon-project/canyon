@@ -70,6 +70,18 @@ func SetupRoutes(r *gin.Engine) {
 			// @Failure 500 {object} map[string]interface{}
 			// @Router /repo/{repoID}/commits [get]
 			repo.GET("/:repoID/commits", repoHandler.GetRepoCommits)
+
+			// @Summary 获取仓库关联覆盖率的Pull Requests
+			// @Description 基于覆盖率表中存在的commit，查询关联到的Pull Requests 并去重返回
+			// @Tags repository
+			// @Accept json
+			// @Produce json
+			// @Param repoID path string true "仓库ID"
+			// @Success 200 {object} map[string]interface{} "Pull Request 列表"
+			// @Failure 400 {object} map[string]interface{} "请求参数错误"
+			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+			// @Router /repo/{repoID}/pulls [get]
+			repo.GET("/:repoID/pulls", repoHandler.GetRepoPulls)
 		}
 
 		// Code 路由
@@ -236,8 +248,6 @@ func SetupRoutes(r *gin.Engine) {
 				// @Param provider query string true "提供商名称" example(github)
 				// @Param repoID query string true "仓库ID" example(owner/repo)
 				// @Param pullNumber query string true "PR号" example(123)
-				// @Param buildProvider query string false "构建提供商" example(jenkins)
-				// @Param buildID query string false "构建ID" example(build-123)
 				// @Param reportProvider query string false "报告提供商" example(jest)
 				// @Param reportID query string false "报告ID" example(report-456)
 				// @Param filePath query string false "文件路径" example(src/main.go)

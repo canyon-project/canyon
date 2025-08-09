@@ -186,8 +186,6 @@ func (h *CoverageHandler) GetCoverageMap(c *gin.Context) {
 // @Param provider query string true "提供商名称" example(github)
 // @Param repoID query string true "仓库ID" example(owner/repo)
 // @Param pullNumber query string true "PR号" example(123)
-// @Param buildProvider query string false "构建提供商" example(jenkins)
-// @Param buildID query string false "构建ID" example(build-123)
 // @Param reportProvider query string false "报告提供商" example(jest)
 // @Param reportID query string false "报告ID" example(report-456)
 // @Param filePath query string false "文件路径" example(src/main.go)
@@ -219,13 +217,16 @@ func (h *CoverageHandler) GetCoverageSummaryForPull(c *gin.Context) {
 	reqLog := services.NewRequestLogService()
 	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 0, query.RequestID, query.RequestID, "pull-summary-start", "", "INFO", "handle GetCoverageSummaryForPull start", map[string]interface{}{"repoID": query.RepoID, "pull": query.PullNumber}, nil, query.RepoID, "", stepStart, time.Now())
 
-	// TODO: 实现获取PR覆盖率概览的逻辑
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", http.StatusOK, query.RequestID, query.RequestID, "pull-summary-done", "pull-summary-start", "INFO", "GetCoverageSummaryForPull not implemented", nil, nil, query.RepoID, "", stepStart, time.Now())
-	c.JSON(http.StatusOK, gin.H{
-		"message": "TODO: 实现获取PR覆盖率概览的功能",
-		"status":  "not_implemented",
-		"params":  query,
-	})
+	// 获取PR覆盖率概览（合并所有构建，不区分buildID/buildProvider）
+	result, err := h.coverageService.GetCoverageSummaryForPull(query)
+	if err != nil {
+		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", http.StatusInternalServerError, query.RequestID, query.RequestID, "pull-summary-error", "pull-summary-start", "ERROR", "GetCoverageSummaryForPull failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, "", stepStart, time.Now())
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", http.StatusOK, query.RequestID, query.RequestID, "pull-summary-done", "pull-summary-start", "INFO", "GetCoverageSummaryForPull done", nil, nil, query.RepoID, "", stepStart, time.Now())
+	c.JSON(http.StatusOK, result)
 }
 
 // GetCoverageSummaryForCommits 获取多个commits的覆盖率概览

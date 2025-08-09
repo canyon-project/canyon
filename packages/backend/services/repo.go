@@ -4,8 +4,12 @@ import (
 	"backend/db"
 	"backend/models"
 	"fmt"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // RepoService 仓库服务
@@ -20,23 +24,23 @@ func NewRepoService() *RepoService {
 func (s *RepoService) GetRepoList(keyword string) (interface{}, error) {
 	database := db.GetDB()
 	var repos []models.Repo
-	
+
 	query := database.Model(&models.Repo{})
-	
+
 	// 如果有关键词，进行模糊搜索
 	if keyword != "" {
 		searchPattern := "%" + strings.ToLower(keyword) + "%"
 		query = query.Where(
-			"LOWER(path_with_namespace) LIKE ? OR LOWER(description) LIKE ?", 
+			"LOWER(path_with_namespace) LIKE ? OR LOWER(description) LIKE ?",
 			searchPattern, searchPattern,
 		)
 	}
-	
+
 	// 按创建时间倒序排列，限制返回数量避免数据过多
 	if err := query.Order("created_at DESC").Limit(100).Find(&repos).Error; err != nil {
 		return nil, fmt.Errorf("查询仓库列表失败: %w", err)
 	}
-	
+
 	// 为每个仓库计算额外的字段
 	for i := range repos {
 		// 查询该仓库的覆盖率记录统计
@@ -45,7 +49,7 @@ func (s *RepoService) GetRepoList(keyword string) (interface{}, error) {
 			MaxCoverage    float64   `json:"maxCoverage"`
 			LastReportTime time.Time `json:"lastReportTime"`
 		}
-		
+
 		if err := database.Model(&models.Coverage{}).
 			Select("COUNT(*) as report_times, MAX(created_at) as last_report_time").
 			Where("repo_id = ?", repos[i].ID).
@@ -58,11 +62,11 @@ func (s *RepoService) GetRepoList(keyword string) (interface{}, error) {
 			repos[i].ReportTimes = coverageStats.ReportTimes
 			repos[i].LastReportTime = coverageStats.LastReportTime
 		}
-		
+
 		// 设置默认值
 		repos[i].Favored = false // 这里可以根据用户偏好设置
 	}
-	
+
 	return map[string]interface{}{
 		"data":  repos,
 		"total": len(repos),
@@ -73,7 +77,7 @@ func (s *RepoService) GetRepoList(keyword string) (interface{}, error) {
 func (s *RepoService) GetByRepoId(repoID string) (interface{}, error) {
 	database := db.GetDB()
 	var repo models.Repo
-	
+
 	// 判断repoID是否包含斜杠，如果包含则使用path_with_namespace字段查询
 	if strings.Contains(repoID, "/") {
 		if err := database.Where("path_with_namespace = ?", repoID).First(&repo).Error; err != nil {
@@ -84,14 +88,14 @@ func (s *RepoService) GetByRepoId(repoID string) (interface{}, error) {
 			return nil, fmt.Errorf("查询仓库信息失败: %w", err)
 		}
 	}
-	
+
 	return repo, nil
 }
 
 // GetCommitsByRepoId 根据仓库ID获取提交记录
 func (s *RepoService) GetCommitsByRepoId(repoID string) (interface{}, error) {
 	database := db.GetDB()
-	
+
 	// 首先验证仓库是否存在
 	var repo models.Repo
 	if strings.Contains(repoID, "/") {
@@ -103,7 +107,7 @@ func (s *RepoService) GetCommitsByRepoId(repoID string) (interface{}, error) {
 			return nil, fmt.Errorf("仓库不存在: %w", err)
 		}
 	}
-	
+
 	// 查询该仓库的所有覆盖率记录，按SHA分组
 	var commits []struct {
 		SHA           string `json:"sha"`
@@ -113,7 +117,7 @@ func (s *RepoService) GetCommitsByRepoId(repoID string) (interface{}, error) {
 		CreatedAt     string `json:"createdAt"`
 		LatestID      string `json:"latestId"`
 	}
-	
+
 	if err := database.Model(&models.Coverage{}).
 		Select("sha, branch, compare_target, provider, MAX(created_at) as created_at, MAX(id) as latest_id").
 		Where("repo_id = ?", repo.ID). // 使用repo.ID而不是repoID
@@ -122,7 +126,7 @@ func (s *RepoService) GetCommitsByRepoId(repoID string) (interface{}, error) {
 		Scan(&commits).Error; err != nil {
 		return nil, fmt.Errorf("查询提交记录失败: %w", err)
 	}
-	
+
 	return map[string]interface{}{
 		"repo":    repo,
 		"commits": commits,
@@ -130,16 +134,108 @@ func (s *RepoService) GetCommitsByRepoId(repoID string) (interface{}, error) {
 	}, nil
 }
 
+// GetPullsByRepoId 根据仓库ID获取与覆盖率关联的Pull Requests
+// 逻辑：
+// 1) 解析 repoID -> 确定项目（支持数字ID或 path_with_namespace）
+// 2) 从覆盖率表按该仓库聚合出最近的 commit SHA 列表（去重）
+// 3) 对每个 SHA 调用 GitLab API 查询关联的 Merge Requests，合并去重返回
+func (s *RepoService) GetPullsByRepoId(repoID string) (interface{}, error) {
+	database := db.GetDB()
+
+	// 解析仓库，拿到实际的 Repo 记录与项目ID
+	var repo models.Repo
+	var projectID string
+	if strings.Contains(repoID, "/") {
+		if err := database.Where("path_with_namespace = ?", repoID).First(&repo).Error; err != nil {
+			return nil, fmt.Errorf("仓库不存在: %w", err)
+		}
+		projectID = repo.ID
+	} else {
+		if err := database.Where("id = ?", repoID).First(&repo).Error; err != nil {
+			return nil, fmt.Errorf("仓库不存在: %w", err)
+		}
+		projectID = repo.ID
+	}
+
+	// 取该仓库覆盖率表中的去重 SHA（最近优先）
+	var shas []string
+	if err := database.Model(&models.Coverage{}).
+		Select("sha").
+		Where("repo_id = ?", repo.ID).
+		Group("sha").
+		Order("MAX(created_at) DESC").
+		Limit(200).
+		Pluck("sha", &shas).Error; err != nil {
+		return nil, fmt.Errorf("查询仓库提交SHA失败: %w", err)
+	}
+
+	// 逐个SHA查询关联的MR并去重
+	git := NewGitLabService()
+	mrKey := func(m GitLabPullRequest) string { return fmt.Sprintf("%d:%d", m.ProjectID, m.IID) }
+	seen := map[string]bool{}
+	var (
+		pulls []GitLabPullRequest
+		mu    sync.Mutex
+	)
+
+	// GitLab项目ID允许是数字或带命名空间的路径，这里直接尝试数字，否则回退路径
+	// 先尝试将 projectID 当作数字，否则使用路径查询
+	pid := 0
+	if v, err := strconv.Atoi(projectID); err == nil {
+		pid = v
+	} else {
+		// 尝试用路径拿到ID
+		proj, err := git.GetProjectByPath(repo.PathWithNamespace)
+		if err == nil {
+			if id, ok := proj["id"].(float64); ok {
+				pid = int(id)
+			}
+		}
+	}
+
+	if pid != 0 {
+		var eg errgroup.Group
+		eg.SetLimit(8) // 控制并发，避免打爆GitLab API
+		for _, sha := range shas {
+			sha := sha
+			eg.Go(func() error {
+				mrs, err := git.GetMergeRequestsByCommit(pid, sha)
+				if err != nil {
+					// 忽略单个错误，不中断整体
+					return nil
+				}
+				mu.Lock()
+				for _, mr := range mrs {
+					key := mrKey(mr)
+					if !seen[key] {
+						seen[key] = true
+						pulls = append(pulls, mr)
+					}
+				}
+				mu.Unlock()
+				return nil
+			})
+		}
+		_ = eg.Wait()
+	}
+
+	return map[string]interface{}{
+		"repo":  repo,
+		"pulls": pulls,
+		"total": len(pulls),
+	}, nil
+}
+
 // GetCommitBySHA 根据提交SHA获取提交详情
 func (s *RepoService) GetCommitBySHA(repoID, sha string) (interface{}, error) {
 	database := db.GetDB()
-	
+
 	// 首先验证仓库是否存在
 	var repo models.Repo
 	if err := database.Where("id = ?", repoID).First(&repo).Error; err != nil {
 		return nil, fmt.Errorf("仓库不存在: %w", err)
 	}
-	
+
 	// 查询该SHA的所有覆盖率记录
 	var coverages []models.Coverage
 	if err := database.Where("repo_id = ? AND sha = ?", repoID, sha).
@@ -147,11 +243,11 @@ func (s *RepoService) GetCommitBySHA(repoID, sha string) (interface{}, error) {
 		Find(&coverages).Error; err != nil {
 		return nil, fmt.Errorf("查询提交详情失败: %w", err)
 	}
-	
+
 	if len(coverages) == 0 {
 		return nil, fmt.Errorf("未找到SHA为 %s 的提交记录", sha)
 	}
-	
+
 	return map[string]interface{}{
 		"repo":      repo,
 		"sha":       sha,

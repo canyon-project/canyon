@@ -122,6 +122,41 @@ func (h *RepoHandler) GetRepoCommits(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// GetRepoPulls 获取仓库的Pull Requests（基于覆盖率关联的commits）
+// @Summary 获取仓库关联覆盖率的Pull Requests
+// @Description 基于覆盖率表中存在的commit，查询关联到的Pull Requests 并去重返回
+// @Tags repository
+// @Accept json
+// @Produce json
+// @Param repoID path string true "仓库ID" example(owner/repo)
+// @Success 200 {object} map[string]interface{} "Pull Request 列表"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /repo/{repoID}/pulls [get]
+func (h *RepoHandler) GetRepoPulls(c *gin.Context) {
+	repoID := c.Param("repoID")
+	if repoID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "repoID is required"})
+		return
+	}
+
+	// 支持Base64路径
+	var decodedRepoID string
+	if decodedBytes, err := base64.StdEncoding.DecodeString(repoID); err == nil {
+		decodedRepoID = string(decodedBytes)
+	} else {
+		decodedRepoID = repoID
+	}
+
+	result, err := h.repoService.GetPullsByRepoId(decodedRepoID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
+
 // GetRepoCommitBySHA 根据提交SHA获取提交详情
 // @Summary 根据提交SHA获取提交详情
 // @Description 根据仓库ID和提交SHA获取详细的提交信息

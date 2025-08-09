@@ -94,6 +94,49 @@ type GitLabCommit struct {
 	CommittedDate time.Time `json:"committed_date"`
 }
 
+// GetMergeRequestsByCommit 获取包含某个commit的Merge Requests
+func (s *GitLabService) GetMergeRequestsByCommit(projectID int, sha string) ([]GitLabPullRequest, error) {
+	config, err := s.GetGitLabConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	// 构建API URL
+	apiURL := fmt.Sprintf("%s/api/v4/projects/%d/repository/commits/%s/merge_requests", config.BaseURL, projectID, sha)
+
+	// 创建HTTP请求
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %v", err)
+	}
+
+	// 添加认证头 - 使用private-token
+	req.Header.Set("private-token", config.Token)
+	req.Header.Set("Content-Type", "application/json")
+
+	// 发送请求
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("发送请求失败: %v", err)
+	}
+	defer resp.Body.Close()
+
+	// 检查响应状态
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("GitLab API请求失败: %s, 响应: %s", resp.Status, string(body))
+	}
+
+	// 解析响应
+	var mrs []GitLabPullRequest
+	if err := json.NewDecoder(resp.Body).Decode(&mrs); err != nil {
+		return nil, fmt.Errorf("解析响应失败: %v", err)
+	}
+
+	return mrs, nil
+}
+
 // GitLabDiff GitLab差异文件结构
 type GitLabDiff struct {
 	OldPath     string `json:"old_path"`
