@@ -67,7 +67,7 @@ const PullCoverageOverview = () => {
   const { data: fileMap } = useRequest(() => {
     if (!pull) return Promise.resolve([] as any[]);
     return axios
-      .get(`/api/coverage/map/pull?provider=gitlab&repoID=${repo.id}&pullNumber=${pull.iid}`)
+      .get(`/api/coverage/summary/map/pull?provider=gitlab&repoID=${repo.id}&pullNumber=${pull.iid}`)
       .then(res => res.data)
       .then((obj) => {
         if (!obj) return [];

@@ -29,7 +29,7 @@ const FilePath = () => {
 
   const { data, loading } = useRequest(
     () =>
-      axios(`/api/coverage/map/pull`, {
+      axios(`/api/coverage/summary/map/pull`, {
         params: {
           repoID: repo.id,
           provider: 'gitlab',

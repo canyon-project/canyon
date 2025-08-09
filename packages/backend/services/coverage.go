@@ -2529,6 +2529,229 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 	return result, nil
 }
 
+// GetCoverageSummaryMapForPull 获取PR的覆盖率摘要映射（参考 GetCoverageMapForPull 合并逻辑 + GetCoverageSummaryMapFast 计算逻辑）
+func (s *CoverageService) GetCoverageSummaryMapForPull(query dto.CoveragePullMapQueryDto) (map[string]interface{}, error) {
+	// 1) 通过 PR 获取 commits 列表，收集 SHA
+	gitlabService := NewGitLabService()
+	reqLog := NewRequestLogService()
+	requestID := query.RequestID
+	if requestID == "" {
+		requestID = utils.GenerateRequestID()
+	}
+	traceID := requestID
+	spanProject := fmt.Sprintf("project-%s", requestID)
+	spanCommits := fmt.Sprintf("commits-%s", requestID)
+	// spanCoverages := fmt.Sprintf("coverages-%s", requestID)
+	stepStart := time.Now()
+
+	// 解析项目ID
+	projectID, err := strconv.Atoi(query.RepoID)
+	if err != nil {
+		projectInfo, err := gitlabService.GetProjectByPath(query.RepoID)
+		if err != nil {
+			_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/summary/map/pull", "GET", 0, requestID, traceID, spanProject, "", "ERROR", "GetProjectByPath failed", map[string]interface{}{"repoID": query.RepoID}, map[string]interface{}{"error": err.Error()}, query.RepoID, "", stepStart, time.Now())
+			return nil, fmt.Errorf("无法解析项目ID: %w", err)
+		}
+		if id, ok := projectInfo["id"].(float64); ok {
+			projectID = int(id)
+		} else {
+			return nil, fmt.Errorf("无法获取项目ID")
+		}
+	}
+
+	// 获取PR commits
+	pullNumber, err := strconv.Atoi(query.PullNumber)
+	if err != nil {
+		return nil, fmt.Errorf("无效的PR号: %w", err)
+	}
+	commits, err := gitlabService.GetPullRequestCommits(projectID, pullNumber)
+	if err != nil {
+		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/summary/map/pull", "GET", 0, requestID, traceID, spanCommits, "", "ERROR", "GetPullRequestCommits failed", map[string]interface{}{"projectID": projectID, "pullNumber": pullNumber}, map[string]interface{}{"error": err.Error()}, query.RepoID, "", stepStart, time.Now())
+		return nil, fmt.Errorf("获取PR commits失败: %w", err)
+	}
+	if len(commits) == 0 {
+		return map[string]interface{}{}, nil
+	}
+
+	shas := make([]string, len(commits))
+	for i, c := range commits {
+		shas[i] = c.ID
+	}
+
+	// 2) 查找这些 SHA 的所有 coverage（不区分 build），获取 relations
+	pgDB := db.GetDB()
+	var allCoverageList []models.Coverage
+	if err := pgDB.Where("provider = ? AND repo_id = ? AND sha IN ?", query.Provider, query.RepoID, shas).Find(&allCoverageList).Error; err != nil {
+		return nil, fmt.Errorf("查询coverage列表失败: %w", err)
+	}
+	if len(allCoverageList) == 0 {
+		return map[string]interface{}{}, nil
+	}
+
+	// relations（可选 filePath 过滤）
+	coverageIDs := make([]string, len(allCoverageList))
+	for i, cov := range allCoverageList {
+		coverageIDs[i] = cov.ID
+	}
+	var relations []struct {
+		CoverageMapHashID string `gorm:"column:coverage_map_hash_id"`
+		FullFilePath      string `gorm:"column:full_file_path"`
+	}
+	relQuery := pgDB.Table("canyonjs_coverage_map_relation").
+		Select("coverage_map_hash_id, full_file_path").
+		Where("coverage_id IN ?", coverageIDs)
+	if query.FilePath != "" {
+		relQuery = relQuery.Where("file_path = ?", query.FilePath)
+	}
+	if err := relQuery.Group("coverage_map_hash_id, full_file_path").Find(&relations).Error; err != nil {
+		return nil, fmt.Errorf("查询coverageMapRelation失败: %w", err)
+	}
+
+	// 3) 参考 GetCoverageSummaryMapFast：从 ClickHouse 聚合 per-file totals 和 covered
+	// 3.1 构造 coverage_id IN 列表
+	covIDs := make([]string, len(allCoverageList))
+	for i, c := range allCoverageList {
+		covIDs[i] = fmt.Sprintf("'%s'", c.ID)
+	}
+	// 3.2 可选的文件过滤
+	fileFilter := ""
+	if query.FilePath != "" {
+		fileFilter = fmt.Sprintf(" AND full_file_path = '%s'", strings.ReplaceAll(query.FilePath, "'", "''"))
+	}
+
+	conn := db.GetClickHouseDB()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	// per-file hits
+	hitsSQL := fmt.Sprintf(`
+        SELECT
+            full_file_path as path,
+            tupleElement(sumMapMerge(s), 1) as s_keys,
+            tupleElement(sumMapMerge(f), 1) as f_keys,
+            tupleElement(sumMapMerge(b), 1) as b_keys
+        FROM default.coverage_hit_agg
+        WHERE coverage_id IN (%s)%s
+        GROUP BY full_file_path
+    `, strings.Join(covIDs, ", "), fileFilter)
+
+	type fileHits struct {
+		S []interface{}
+		F []interface{}
+		B []interface{}
+	}
+	perFileHits := make(map[string]fileHits)
+	hitRows, err := conn.Query(ctx, hitsSQL)
+	if err != nil {
+		return nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
+	}
+	defer hitRows.Close()
+	for hitRows.Next() {
+		var path string
+		var sTuple, fTuple, bTuple []interface{}
+		if err := hitRows.Scan(&path, &sTuple, &fTuple, &bTuple); err != nil {
+			return nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
+		}
+		perFileHits[path] = fileHits{S: sTuple, F: fTuple, B: bTuple}
+	}
+
+	// map totals by hash
+	hashSet := make(map[string]struct{})
+	for _, r := range relations {
+		hashSet[r.CoverageMapHashID] = struct{}{}
+	}
+	if len(hashSet) == 0 {
+		return map[string]interface{}{}, nil
+	}
+	hashList := make([]string, 0, len(hashSet))
+	for h := range hashSet {
+		hashList = append(hashList, h)
+	}
+	hashConds := make([]string, len(hashList))
+	for i, h := range hashList {
+		hashConds[i] = fmt.Sprintf("'%s'", h)
+	}
+
+	mapsSQL := fmt.Sprintf(`
+        SELECT
+            hash,
+            mapKeys(statement_map) as s_keys,
+            mapKeys(fn_map) as f_keys,
+            mapKeys(branch_map) as b_keys,
+            arrayMap(x -> length(x.4), mapValues(branch_map)) as b_path_sizes
+        FROM coverage_map
+        WHERE hash IN (%s)
+    `, strings.Join(hashConds, ", "))
+
+	type mapSizes struct{ SKeys, FKeys, BKeys, BPathSizes []interface{} }
+	perHashSizes := make(map[string]mapSizes)
+	mapRows, err := conn.Query(ctx, mapsSQL)
+	if err != nil {
+		return nil, fmt.Errorf("查询coverage_map失败: %w", err)
+	}
+	defer mapRows.Close()
+	for mapRows.Next() {
+		var hash string
+		var sKeys, fKeys, bKeys, bPathSizes []interface{}
+		if err := mapRows.Scan(&hash, &sKeys, &fKeys, &bKeys, &bPathSizes); err != nil {
+			return nil, fmt.Errorf("扫描coverage_map数据失败: %w", err)
+		}
+		perHashSizes[hash] = mapSizes{SKeys: sKeys, FKeys: fKeys, BKeys: bKeys, BPathSizes: bPathSizes}
+	}
+
+	// 4) 聚合为 per-file summary
+	result := make(map[string]interface{})
+	for _, r := range relations {
+		sizes, ok := perHashSizes[r.CoverageMapHashID]
+		if !ok {
+			continue
+		}
+
+		totalS := len(sizes.SKeys)
+		totalF := len(sizes.FKeys)
+		totalB := 0
+		for _, v := range sizes.BPathSizes {
+			switch vv := v.(type) {
+			case []uint32:
+				totalB += len(vv)
+			case []interface{}:
+				totalB += len(vv)
+			}
+		}
+
+		hits := perFileHits[r.FullFilePath]
+		coveredS := len(s.convertInterfaceSliceToUint32Slice(hits.S))
+		coveredF := len(s.convertInterfaceSliceToUint32Slice(hits.F))
+		coveredB := len(s.convertInterfaceSliceToUint32Slice(hits.B))
+
+		// 直接按行/语句一致处理 lines == statements
+		// 直接按行/语句一致处理 lines == statements
+		percent := func(c, t int) float64 {
+			if t == 0 {
+				return 100.0
+			}
+			return float64(c) / float64(t) * 100.0
+		}
+
+		summary := map[string]interface{}{
+			"statements": map[string]interface{}{"total": totalS, "covered": coveredS, "skipped": 0, "pct": percent(coveredS, totalS)},
+			"functions":  map[string]interface{}{"total": totalF, "covered": coveredF, "skipped": 0, "pct": percent(coveredF, totalF)},
+			"branches":   map[string]interface{}{"total": totalB, "covered": coveredB, "skipped": 0, "pct": percent(coveredB, totalB)},
+			"lines":      map[string]interface{}{"total": totalS, "covered": coveredS, "skipped": 0, "pct": percent(coveredS, totalS)},
+			"path":       r.FullFilePath,
+			"change":     false,
+		}
+		result[r.FullFilePath] = summary
+	}
+
+	// 5) 去掉插桩前缀
+	if len(allCoverageList) > 0 {
+		result = s.removeCoverageInstrumentCwd(result, allCoverageList[0].InstrumentCwd)
+	}
+
+	return result, nil
+}
+
 // GetCoverageSummaryForPull 获取PR覆盖率概览（合并所有构建，不区分buildID/buildProvider）
 // @Description 根据PR号获取该PR包含的所有commits的覆盖率汇总摘要
 func (s *CoverageService) GetCoverageSummaryForPull(query dto.CoveragePullQueryDto) (interface{}, error) {

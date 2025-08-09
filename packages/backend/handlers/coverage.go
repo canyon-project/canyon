@@ -328,3 +328,43 @@ func (h *CoverageHandler) GetCoverageMapForPull(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+// GetCoverageSummaryMapForPull 获取PR的覆盖率摘要映射
+// @Summary 获取PR的覆盖率摘要映射
+// @Description 根据PR号获取该PR包含的所有commits的覆盖率摘要（每文件统计 totals/covered/pct）
+// @Tags coverage
+// @Accept json
+// @Produce json
+// @Param provider query string true "提供商名称" example(github)
+// @Param repoID query string true "仓库ID" example(owner/repo)
+// @Param pullNumber query string true "PR号" example(123)
+// @Param filePath query string false "文件路径" example(src/main.go)
+// @Success 200 {object} map[string]interface{} "PR覆盖率摘要映射数据"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /coverage/summary/map/pull [get]
+func (h *CoverageHandler) GetCoverageSummaryMapForPull(c *gin.Context) {
+	var query dto.CoveragePullMapQueryDto
+	if err := c.ShouldBindQuery(&query); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if query.Provider == "" || query.RepoID == "" || query.PullNumber == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, and pullNumber are required"})
+		return
+	}
+
+	if query.RequestID == "" {
+		query.RequestID = utils.GenerateRequestID()
+	}
+	c.Header("X-Request-ID", query.RequestID)
+
+	result, err := h.coverageService.GetCoverageSummaryMapForPull(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
+}
