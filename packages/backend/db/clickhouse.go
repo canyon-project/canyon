@@ -41,8 +41,8 @@ func InitClickHouse() driver.Conn {
 			"max_execution_time": 60,
 		},
 		DialTimeout:      time.Second * 30,
-		MaxOpenConns:     10,
-		MaxIdleConns:     5,
+		MaxOpenConns:     30,
+		MaxIdleConns:     15,
 		ConnMaxLifetime:  time.Hour,
 		ConnOpenStrategy: clickhouse.ConnOpenInOrder,
 	}
