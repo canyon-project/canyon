@@ -27,7 +27,8 @@ func NewCodeHandler(gitlabService *services.GitLabService) *CodeHandler {
 // @Accept json
 // @Produce json
 // @Param repoID query int true "仓库ID"
-// @Param sha query string true "提交SHA"
+// @Param sha query string false "提交SHA（与pullNumber二选一）"
+// @Param pullNumber query int false "Pull Request ID（与sha二选一）"
 // @Param filepath query string true "文件路径（URL 编码或普通路径均可）"
 // @Success 200 {object} map[string]interface{} "文件内容（content 字段为 Base64 编码）"
 // @Failure 400 {object} map[string]interface{} "请求参数错误"
@@ -36,10 +37,16 @@ func NewCodeHandler(gitlabService *services.GitLabService) *CodeHandler {
 func (h *CodeHandler) GetFileContent(c *gin.Context) {
 	repoIDStr := c.Query("repoID")
 	sha := c.Query("sha")
+	pullNumberStr := c.Query("pullNumber")
 	filepath := c.Query("filepath")
 
-	if repoIDStr == "" || sha == "" || filepath == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "repoID, sha, filepath 为必填参数"})
+	if repoIDStr == "" || filepath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "repoID, filepath 为必填参数"})
+		return
+	}
+
+	if sha == "" && pullNumberStr == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "sha 与 pullNumber 至少提供一个"})
 		return
 	}
 
@@ -47,6 +54,28 @@ func (h *CodeHandler) GetFileContent(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "repoID 必须是数字"})
 		return
+	}
+
+	// 如果未提供sha但提供了pullNumber，则从PR解析head sha
+	if sha == "" && pullNumberStr != "" {
+		pullID, err := strconv.Atoi(pullNumberStr)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "pullNumber 必须是数字"})
+			return
+		}
+		pr, err := h.gitlabService.GetPullRequest(repoID, pullID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		if pr != nil && pr.DiffRefs.HeadSha != "" {
+			sha = pr.DiffRefs.HeadSha
+		} else if pr != nil && len(pr.Commits) > 0 {
+			sha = pr.Commits[len(pr.Commits)-1].ID
+		} else {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "无法从Pull Request解析head sha"})
+			return
+		}
 	}
 
 	content, err := h.gitlabService.GetFileContentBase64(repoID, sha, filepath)

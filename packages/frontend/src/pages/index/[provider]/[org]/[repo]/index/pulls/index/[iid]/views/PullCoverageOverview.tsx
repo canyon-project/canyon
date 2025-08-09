@@ -1,5 +1,5 @@
-import {Badge, Card, Progress, Space, Table, Tooltip} from 'antd';
-import {useOutletContext, useParams} from 'react-router-dom';
+import {Badge, Button, Card, Progress, Space, Table, Tooltip} from 'antd';
+import {useNavigate, useOutletContext, useParams} from 'react-router-dom';
 import {useRequest} from 'ahooks';
 import axios from 'axios';
 
@@ -55,6 +55,7 @@ const columns = [
 const PullCoverageOverview = () => {
   const { repo, pull } = useOutletContext<any>();
   const params = useParams();
+  const navigate = useNavigate();
 
   const { data: summary } = useRequest(() => {
     if (!pull) return Promise.resolve(null);
@@ -84,6 +85,13 @@ const PullCoverageOverview = () => {
     return 0;
   })();
 
+  const handleOpenDetail = () => {
+    // 优先使用第一个文件作为默认打开路径
+    const firstPath = (fileMap && fileMap.length > 0) ? (fileMap[0] as any).path : '';
+    const suffix = firstPath ? `/-/${firstPath}` : '/-/';
+    navigate(`/${params.provider}/${params.org}/${params.repo}/pulls/${pull.iid}${suffix}`);
+  };
+
   return (
     <div className={'flex-1 space-y-4'}>
       <Card size="small">
@@ -92,6 +100,7 @@ const PullCoverageOverview = () => {
           <div className="flex items-center gap-3">
             <span className="text-xs text-gray-500">overall</span>
             <Progress type="circle" percent={Number(overallPercent.toFixed(1))} size={46} />
+            <Button type="primary" size="small" onClick={handleOpenDetail}>查看</Button>
           </div>
         </Space>
       </Card>

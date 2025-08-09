@@ -1,8 +1,8 @@
-import {useOutletContext, useParams} from 'react-router-dom';
+import {Outlet, useOutletContext, useParams} from 'react-router-dom';
 import PullCoverageOverview from './views/PullCoverageOverview';
 
 const PullDetail = () => {
-  const { pull } = useOutletContext<any>();
+  const { repo, pull } = useOutletContext<any>();
   const params = useParams();
 
   if (!pull || String(pull.iid) !== params.iid) {
@@ -20,6 +20,8 @@ const PullDetail = () => {
         </div>
       </div>
       <PullCoverageOverview />
+      <Outlet context={{ repo, pull }} />
+
     </div>
   );
 };
