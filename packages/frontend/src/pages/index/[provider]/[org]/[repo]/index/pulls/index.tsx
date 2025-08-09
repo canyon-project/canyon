@@ -31,6 +31,15 @@ const Pulls = () => {
       });
   }, {
     onSuccess(pulls) {
+      // 根据路由参数预选中
+      const iidParam = params.iid as string | undefined;
+      if (iidParam) {
+        const found = (pulls || []).find((p: any) => String(p.iid) === iidParam);
+        if (found) {
+          setSelectedPull(found);
+          return;
+        }
+      }
       if (!selectedPull && pulls && pulls.length > 0) {
         setSelectedPull(pulls[0]);
       }
@@ -39,8 +48,7 @@ const Pulls = () => {
 
   const handlePullSelect = (pull: any) => {
     setSelectedPull(pull);
-    // 如需跳详情，可在此导航，例如：
-    // navigate(`/${params.provider}/${params.org}/${params.repo}/pulls/${pull.iid}`)
+    navigate(`/${params.provider}/${params.org}/${params.repo}/pulls/${pull.iid}`);
   };
 
   return (
