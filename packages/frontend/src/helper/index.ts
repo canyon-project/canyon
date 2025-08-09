@@ -121,3 +121,45 @@ export function handleSelectFilePull({
     },
   );
 }
+
+export function handleSelectFileMultipleCommits({
+  repoID,
+  shas,
+  filepath,
+  provider = 'gitlab',
+}: {
+  repoID: string;
+  shas: string; // 逗号分隔
+  filepath: string;
+  provider?: string;
+}) {
+  // 使用第一个 SHA 作为读取文件内容的基线
+  const firstSha = (shas || '').split(',')[0] || '';
+
+  const fileContentRequest = axios
+    .get(`/api/code`, {
+      params: { repoID, sha: firstSha, filepath },
+    })
+    .then(({ data }) => data);
+
+  const fileCoverageRequest = axios
+    .get(`/api/coverage/map/multiple-commits`, {
+      params: {
+        provider,
+        repoID,
+        shas,
+        filePath: filepath,
+      },
+    })
+    .then(({ data }) => data[filepath || '']);
+
+  return Promise.all([fileContentRequest, fileCoverageRequest]).then(
+    ([fileContent, fileCoverage]) => {
+      return {
+        fileContent: getDecode(fileContent.content),
+        fileCoverage,
+        fileCodeChange: [],
+      };
+    },
+  );
+}

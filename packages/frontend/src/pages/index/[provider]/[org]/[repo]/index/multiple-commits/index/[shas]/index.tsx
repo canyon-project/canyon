@@ -1,4 +1,4 @@
-import {useOutletContext, useParams} from 'react-router-dom';
+import {Link, Outlet, useNavigate, useOutletContext, useParams} from 'react-router-dom';
 import {useRequest} from 'ahooks';
 import axios from 'axios';
 import {Card, Progress, Table, Tooltip} from 'antd';
@@ -42,14 +42,27 @@ const MultipleCommitsDetail = () => {
     return +(covered / total * 100).toFixed(1);
   })();
 
+  const navigate = useNavigate();
+  const onOpenFile = (path: string) => {
+    navigate(`/${params.provider}/${params.org}/${params.repo}/multiple-commits/${shas}/-/${path}`);
+  };
+
   return (
     <div className={'flex-1 p-4 space-y-4'}>
       <Card size="small" title={<span className="text-sm">多 commits 覆盖率汇总</span>} extra={<span className="font-mono text-xs">{shas}</span>}>
         <Progress type="circle" percent={overallPercent} size={52} />
       </Card>
       <Card size="small" title={<span className="text-sm">文件覆盖率</span>}>
-        <Table size="small" rowKey={(r:any)=>r.path} columns={columns as any} dataSource={files || []} pagination={false}/>
+        <Table
+          size="small"
+          rowKey={(r:any)=>r.path}
+          columns={columns as any}
+          dataSource={files || []}
+          pagination={false}
+          onRow={(record:any) => ({ onClick: () => onOpenFile(record.path) })}
+        />
       </Card>
+      <Outlet context={{ repo }} />
     </div>
   );
 };
