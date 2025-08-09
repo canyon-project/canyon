@@ -50,6 +50,7 @@ const ProjectDetailPage = () => {
         items={[
           { key: 'commits', label: 'Commits' },
           { key: 'pulls', label: 'Pulls' },
+          { key: 'multiple-commits', label: 'Multiple Commits' },
         ]}
       />
       <Outlet context={{

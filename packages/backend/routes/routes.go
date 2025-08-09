@@ -348,6 +348,12 @@ func SetupRoutes(r *gin.Engine) {
 			// @Failure 500 {object} map[string]interface{} "服务器内部错误"
 			// @Router /coverage/summary/map/pull [get]
 			coverage.GET("/summary/map/pull", coverageHandler.GetCoverageSummaryMapForPull)
+
+			// 多 commits 覆盖率（映射 & 摘要映射）
+			// @Router /coverage/map/multiple-commits [get]
+			coverage.GET("/map/multiple-commits", coverageHandler.GetCoverageMapForMultipleCommits)
+			// @Router /coverage/summary/map/multiple-commits [get]
+			coverage.GET("/summary/map/multiple-commits", coverageHandler.GetCoverageSummaryMapForMultipleCommits)
 		}
 	}
 }

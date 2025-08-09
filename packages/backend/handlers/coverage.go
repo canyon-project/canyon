@@ -368,3 +368,81 @@ func (h *CoverageHandler) GetCoverageSummaryMapForPull(c *gin.Context) {
 
 	c.JSON(http.StatusOK, result)
 }
+
+// GetCoverageMapForMultipleCommits 获取多commits的覆盖率映射（详细）
+// @Summary 获取多commits的覆盖率映射
+// @Description 根据仓库ID和多个提交SHA，合并这些提交的覆盖率映射（支持filePath过滤），并参考第一个commit作为基线进行变更文件过滤
+// @Tags coverage
+// @Accept json
+// @Produce json
+// @Param provider query string true "提供商名称" example(github)
+// @Param repoID query string true "仓库ID" example(owner/repo)
+// @Param shas query string true "提交SHA列表，用逗号分隔" example(abc,def,ghi)
+// @Param filePath query string false "文件路径" example(src/main.go)
+// @Success 200 {object} map[string]interface{} "覆盖率映射数据"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /coverage/map/multiple-commits [get]
+func (h *CoverageHandler) GetCoverageMapForMultipleCommits(c *gin.Context) {
+	var query dto.CoverageCommitsQueryDto
+	if err := c.ShouldBindQuery(&query); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if query.Provider == "" || query.RepoID == "" || query.SHAs == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, and shas are required"})
+		return
+	}
+
+	if query.RequestID == "" {
+		query.RequestID = utils.GenerateRequestID()
+	}
+	c.Header("X-Request-ID", query.RequestID)
+
+	result, err := h.coverageService.GetCoverageMapForMultipleCommits(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
+
+// GetCoverageSummaryMapForMultipleCommits 获取多commits的覆盖率摘要映射
+// @Summary 获取多commits的覆盖率摘要映射
+// @Description 根据仓库ID和多个提交SHA，合并这些提交的覆盖率摘要（每文件 totals/covered/pct），以第一个commit为基线
+// @Tags coverage
+// @Accept json
+// @Produce json
+// @Param provider query string true "提供商名称" example(github)
+// @Param repoID query string true "仓库ID" example(owner/repo)
+// @Param shas query string true "提交SHA列表，用逗号分隔" example(abc,def,ghi)
+// @Param filePath query string false "文件路径" example(src/main.go)
+// @Success 200 {object} map[string]interface{} "覆盖率摘要映射数据"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /coverage/summary/map/multiple-commits [get]
+func (h *CoverageHandler) GetCoverageSummaryMapForMultipleCommits(c *gin.Context) {
+	var query dto.CoverageCommitsQueryDto
+	if err := c.ShouldBindQuery(&query); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	if query.Provider == "" || query.RepoID == "" || query.SHAs == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, and shas are required"})
+		return
+	}
+
+	if query.RequestID == "" {
+		query.RequestID = utils.GenerateRequestID()
+	}
+	c.Header("X-Request-ID", query.RequestID)
+
+	result, err := h.coverageService.GetCoverageSummaryMapForMultipleCommits(query)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, result)
+}
