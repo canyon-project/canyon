@@ -20,6 +20,44 @@ func NewCodeHandler(gitlabService *services.GitLabService) *CodeHandler {
 	}
 }
 
+// GetFileContent 获取指定提交下的文件内容（Base64）
+// @Summary 获取指定提交下的文件内容
+// @Description 根据仓库ID、提交SHA与文件路径获取该文件在该提交下的内容（Base64 编码）
+// @Tags code
+// @Accept json
+// @Produce json
+// @Param repoID query int true "仓库ID"
+// @Param sha query string true "提交SHA"
+// @Param filepath query string true "文件路径（URL 编码或普通路径均可）"
+// @Success 200 {object} map[string]interface{} "文件内容（content 字段为 Base64 编码）"
+// @Failure 400 {object} map[string]interface{} "请求参数错误"
+// @Failure 500 {object} map[string]interface{} "服务器内部错误"
+// @Router /code [get]
+func (h *CodeHandler) GetFileContent(c *gin.Context) {
+	repoIDStr := c.Query("repoID")
+	sha := c.Query("sha")
+	filepath := c.Query("filepath")
+
+	if repoIDStr == "" || sha == "" || filepath == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "repoID, sha, filepath 为必填参数"})
+		return
+	}
+
+	repoID, err := strconv.Atoi(repoIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "repoID 必须是数字"})
+		return
+	}
+
+	content, err := h.gitlabService.GetFileContentBase64(repoID, sha, filepath)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"content": content})
+}
+
 // GetPullRequest 获取Pull Request信息
 // @Summary 获取Pull Request信息
 // @Description 根据项目ID和Pull Request ID获取详细信息，包括commits信息和最新commit与其他commits的差异文件列表

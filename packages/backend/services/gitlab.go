@@ -391,3 +391,44 @@ func (s *GitLabService) GetProjectByPath(path string) (map[string]interface{}, e
 
 	return project, nil
 }
+
+// GetFileContentBase64 获取某项目在指定 commit 下某文件的内容（Base64）
+func (s *GitLabService) GetFileContentBase64(projectID int, sha string, filepath string) (string, error) {
+	config, err := s.GetGitLabConfig()
+	if err != nil {
+		return "", err
+	}
+
+	// GitLab API: GET /projects/:id/repository/files/:file_path?ref=:sha
+	encodedPath := url.QueryEscape(filepath)
+	apiURL := fmt.Sprintf("%s/api/v4/projects/%d/repository/files/%s?ref=%s", config.BaseURL, projectID, encodedPath, url.QueryEscape(sha))
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		return "", fmt.Errorf("创建请求失败: %v", err)
+	}
+	req.Header.Set("private-token", config.Token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return "", fmt.Errorf("发送请求失败: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return "", fmt.Errorf("GitLab API请求失败: %s, 响应: %s", resp.Status, string(body))
+	}
+
+	var payload struct {
+		Content  string `json:"content"`
+		Encoding string `json:"encoding"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&payload); err != nil {
+		return "", fmt.Errorf("解析响应失败: %v", err)
+	}
+	// GitLab 返回的是 base64 编码，直接回传
+	return payload.Content, nil
+}
