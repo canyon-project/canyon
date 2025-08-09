@@ -316,6 +316,11 @@ func (s *CoverageService) GetCoverageSummaryMapFast(query dto.CoverageQueryDto) 
 		result[r.FullFilePath] = summary
 	}
 
+	// 5) 去掉插桩前缀（与旧逻辑一致）
+	if len(coverageList) > 0 {
+		result = s.removeCoverageInstrumentCwd(result, coverageList[0].InstrumentCwd)
+	}
+
 	return result, nil
 }
 
