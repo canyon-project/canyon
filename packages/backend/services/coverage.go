@@ -157,30 +157,23 @@ func (s *CoverageService) queryClickHouseData(
 		for mapRows.Next() {
 			var result models.CoverageMapQueryResult
 			var (
-				statementMap, restoreStatementMap    map[uint32][]interface{}
-				fnMapStr, branchMapStr               string
-				restoreFnMapStr, restoreBranchMapStr string
+				statementMap           map[uint32][]interface{}
+				fnMapStr, branchMapStr string
 			)
 
 			if err := mapRows.Scan(
 				&statementMap,
 				&fnMapStr,
 				&branchMapStr,
-				&restoreStatementMap,
-				&restoreFnMapStr,
-				&restoreBranchMapStr,
 				&result.CoverageMapHashID,
 			); err != nil {
 				return fmt.Errorf("扫描coverage_map数据失败: %w", err)
 			}
 
-			// 解析数据
+			// 解析数据（不再使用 restore* 字段）
 			result.StatementMap = utils.ConvertStatementMap(statementMap)
 			result.FnMap = utils.ParseFunctionMapSimple(fnMapStr)
 			result.BranchMap = utils.ParseBranchMapSimple(branchMapStr)
-			result.RestoreStatementMap = utils.ConvertStatementMap(restoreStatementMap)
-			result.RestoreFnMap = utils.ParseFunctionMapSimple(restoreFnMapStr)
-			result.RestoreBranchMap = utils.ParseBranchMapSimple(restoreBranchMapStr)
 
 			coverageMapResult = append(coverageMapResult, result)
 		}
@@ -311,16 +304,13 @@ func (s *CoverageService) buildCoverageMapQuery(hashList []string) string {
 	}
 
 	return fmt.Sprintf(`
-		SELECT statement_map as statementMap,
-		       toString(fn_map) as fnMap,
-		       toString(branch_map) as branchMap,
-		       restore_statement_map as restoreStatementMap,
-		       toString(restore_fn_map) as restoreFnMap,
-		       toString(restore_branch_map) as restoreBranchMap,
-		       hash as coverageMapHashID
-		FROM coverage_map
-		WHERE hash IN (%s)
-	`, strings.Join(hashConditions, ", "))
+        SELECT statement_map as statementMap,
+               toString(fn_map) as fnMap,
+               toString(branch_map) as branchMap,
+               hash as coverageMapHashID
+        FROM coverage_map
+        WHERE hash IN (%s)
+    `, strings.Join(hashConditions, ", "))
 }
 
 // buildCoverageHitQuery 构建coverage_hit_agg查询SQL
