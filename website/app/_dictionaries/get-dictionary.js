@@ -6,9 +6,6 @@ const dictionaries = {
   en: () => import('./en'),
   cn: () => import('./cn'),
   ja: () => import('./ja'),
-  ko: () => import('./ko'),
-  fr: () => import('./fr'),
-  hk: () => import('./hk'),
 }
 
 export async function getDictionary(locale) {

@@ -59,9 +59,6 @@ export default async function RootLayout({ children,params }) {
               { locale: 'en', name: 'English' },
               { locale: 'cn', name: '简体中文' },
               { locale: 'ja', name: '日本語' },
-              { locale: 'ko', name: '한국어' },
-              { locale: 'fr', name: 'Français' },
-              { locale: 'hk', name: '繁體中文' }
             ]}
             editLink={dictionary.editPage}
             lastUpdated={<LastUpdated>{dictionary.lastUpdated}</LastUpdated>}
