@@ -16,7 +16,7 @@ async function updatePackage() {
     const pkg = JSON.parse(data);
 
     // Update package name
-    pkg.name = 'canyont-report18';
+    pkg.name = 'canyon-report18';
 
     // Update React dependencies
     pkg.dependencies.react = '18.3.1';
