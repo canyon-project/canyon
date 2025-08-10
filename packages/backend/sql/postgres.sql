@@ -38,6 +38,7 @@ CREATE TABLE "public"."canyonjs_coverage" (
     "provider" TEXT NOT NULL,
     "build_provider" TEXT NOT NULL,
     "build_id" TEXT NOT NULL,
+    "build_target" TEXT NOT NULL,
     "repo_id" TEXT NOT NULL,
     "reporter" TEXT NOT NULL,
     "report_provider" TEXT NOT NULL,

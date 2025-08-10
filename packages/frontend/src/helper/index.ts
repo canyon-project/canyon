@@ -35,53 +35,16 @@ export function handleSelectFile(params: any) {
   });
 }
 
-export function handleSelectFilePull({
-  repoID,
-  filepath,
-  pullNumber,
-  provider = 'gitlab',
-  headSha,
-}: {
-  repoID: string;
-  filepath: string;
-  pullNumber: string | number;
-  provider?: string;
-  headSha?: string; // 可选，若提供则优先使用sha，否则使用pullNumber
-}) {
-  const codeParams: Record<string, any> = {
+// 废弃：请使用 handleSelectFileBySubject(subject='pull')
+export function handleSelectFilePull(params: any) {
+  const { repoID, filepath, pullNumber, provider } = params || {};
+  return handleSelectFileBySubject({
     repoID,
+    subject: 'pull',
+    subjectID: String(pullNumber),
     filepath,
-  };
-  if (headSha) {
-    codeParams.sha = headSha;
-  } else {
-    codeParams.pullNumber = pullNumber;
-  }
-
-  const fileContentRequest = axios
-    .get(`/api/code`, { params: codeParams })
-    .then(({ data }) => data);
-
-  const fileCoverageRequest = axios
-    .get(`/api/coverage/map/pull`, {
-      params: {
-        provider,
-        repoID,
-        pullNumber,
-        filePath: filepath,
-      },
-    })
-    .then(({ data }) => data[filepath || '']);
-
-  return Promise.all([fileContentRequest, fileCoverageRequest]).then(
-    ([fileContent, fileCoverage]) => {
-      return {
-        fileContent: getDecode(fileContent.content),
-        fileCoverage,
-        fileCodeChange: [],
-      };
-    },
-  );
+    provider: provider || 'gitlab',
+  });
 }
 
 // 废弃：请使用 handleSelectFileBySubject(subject='multiple-commits')
