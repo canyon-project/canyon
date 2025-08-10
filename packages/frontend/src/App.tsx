@@ -5,6 +5,7 @@ import { useRoutes } from 'react-router-dom';
 
 import routes from '~react-pages';
 import { ConfigProvider, theme } from 'antd';
+import CoverageReport from "@/components/CoverageReport.tsx";
 const languages = {
   cn: zhCN,
   en: enUS,
@@ -16,26 +17,31 @@ const lng = (localStorage.getItem('language') ||
 
 const { darkAlgorithm } = theme;
 
+// /report/-/gitlab/canyon-project/canyon-demo/pulls/9/-/src/App.tsx
+
+routes.push({
+  path:'/report/-/:provider/:org/:repo/:subject/:subjectID/-*',
+  element: <CoverageReport/>
+})
+
 console.log(routes, 'routes');
 const App = () => {
   const isDark = localStorage.getItem('theme')
     ? localStorage.getItem('theme') === 'dark'
     : false;
   return (
-    <div>
-      <ConfigProvider
-        locale={languages[lng]}
-        theme={{
-          token: {
-            colorPrimary: '#0071c2',
-            borderRadius: 2,
-          },
-          algorithm: isDark ? [darkAlgorithm] : [],
-        }}
-      >
-        {useRoutes(routes)}
-      </ConfigProvider>
-    </div>
+    <ConfigProvider
+      locale={languages[lng]}
+      theme={{
+        token: {
+          colorPrimary: '#0071c2',
+          borderRadius: 2,
+        },
+        algorithm: isDark ? [darkAlgorithm] : [],
+      }}
+    >
+      {useRoutes(routes)}
+    </ConfigProvider>
   );
 };
 
