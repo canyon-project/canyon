@@ -10,24 +10,49 @@
 <body>
   <script>
     (function() {
-      // 获取当前页面的路径
-      const currentPath = window.location.pathname;
-      
-      // 检查是否包含 /documentation/ 路径
-      if (currentPath.includes('/documentation/')) {
-        // 将 /documentation/ 替换为 /docs/
-        const newPath = currentPath.replace('/documentation/', '/docs/');
+      try {
+        // 获取当前页面的完整URL信息
+        const currentPath = window.location.pathname;
+        const searchParams = window.location.search;
+        const hash = window.location.hash;
         
-        // 构建新的URL
-        const newUrl = 'https://docs.canyonjs.io' + newPath;
+        // 构建目标URL
+        let targetUrl = 'https://docs.canyonjs.io';
+        
+        // 检查是否包含 /documentation/ 路径
+        if (currentPath.includes('/documentation/')) {
+          // 将 /documentation/ 替换为 /docs/
+          const newPath = currentPath.replace('/documentation/', '/docs/');
+          targetUrl += newPath;
+        } else if (currentPath !== '/' && currentPath !== '/index.html') {
+          // 如果有其他路径，尝试直接跳转（Railway 可能会处理）
+          targetUrl += currentPath;
+        }
+        
+        // 添加查询参数和哈希
+        if (searchParams) {
+          targetUrl += searchParams;
+        }
+        if (hash) {
+          targetUrl += hash;
+        }
         
         // 执行跳转
-        window.location.href = newUrl;
-      } else {
-        // 如果没有 /documentation/ 路径，直接跳转到 docs.canyonjs.io
+        console.log('Redirecting to:', targetUrl);
+        window.location.href = targetUrl;
+        
+      } catch (error) {
+        console.error('Redirect error:', error);
+        // 如果出错，直接跳转到主页
         window.location.href = 'https://docs.canyonjs.io';
       }
     })();
   </script>
+  
+  <!-- 添加一个加载提示 -->
+  <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+    <h2>正在跳转...</h2>
+    <p>如果没有自动跳转，请 <a href="https://docs.canyonjs.io" target="_blank">点击这里</a></p>
+  </div>
 </body>
 </html>

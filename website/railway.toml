@@ -1,0 +1,13 @@
+[build]
+builder = "static"
+
+[deploy]
+startCommand = ""
+
+[[redirects]]
+source = "/*"
+destination = "/index.html"
+status = 200
+
+[static]
+publicDir = "."
