@@ -1,6 +1,6 @@
-import {useParams, useSearchParams} from "react-router-dom";
+import {useNavigate, useParams, useSearchParams} from "react-router-dom";
 import Report from 'canyontest-report';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useRequest} from "ahooks";
 import axios from "axios";
 import {handleSelectFileBySubject} from "@/helper";
@@ -9,6 +9,7 @@ import {Spin} from "antd";
 function CoverageReportContent({ repo }: { repo: any }) {
   const [searchParams] = useSearchParams();
   const params = useParams();
+  const navigate = useNavigate();
   const subjectID = params.subjectID;
   const subject = params.subject as any;
   const buildProvider = searchParams.get('build_provider') || 'gitlab_runner';
@@ -17,6 +18,11 @@ function CoverageReportContent({ repo }: { repo: any }) {
   const reportID = searchParams.get('report_id') || '';
   const reportProvider = searchParams.get('report_provider') || '';
   const [activatedPath, setActivatedPath] = useState(params['*']?.replace('-/',''));
+
+  // 组装基础路径（带上现有 query），供选择文件时调整 URL
+  const sp = searchParams.toString();
+  const basePathPrefix = `/${params.provider}/${params.org}/${params.repo}/${params.subject}/${params.subjectID}`;
+  const basePath = sp ? `${basePathPrefix}?${sp}` : basePathPrefix;
 
   const { data, loading } = useRequest(
     () => axios(`/api/coverage/summary/map`, {
@@ -55,6 +61,25 @@ function CoverageReportContent({ repo }: { repo: any }) {
       fileCodeChange: res.fileCodeChange,
     }));
   };
+
+  // 实现与 CoverageFileDrawer 类似的导航插入逻辑
+  const getToFilePath = (path: string) => {
+    const qIndex = basePath.indexOf('?');
+    if (qIndex >= 0) {
+      const prefix = basePath.slice(0, qIndex);
+      const qs = basePath.slice(qIndex + 1);
+      navigate(`${prefix}${path}?${qs}`);
+    } else {
+      navigate(`${basePath}${path}`);
+    }
+  };
+
+  useEffect(() => {
+    if (subjectID != null) {
+      getToFilePath(`/-/${activatedPath || ''}`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activatedPath, subjectID]);
 
   return (
     <Spin spinning={loading}>
