@@ -1,13 +1,7 @@
 [build]
-builder = "static"
-
-[deploy]
-startCommand = ""
+builder = "nixpacks"
 
 [[redirects]]
 source = "/*"
 destination = "/index.html"
 status = 200
-
-[static]
-publicDir = "."

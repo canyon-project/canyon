@@ -1,0 +1,15 @@
+{
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/documentation/(.*)",
+      "destination": "https://docs.canyonjs.io/docs/$1",
+      "permanent": true
+    }
+  ]
+}
