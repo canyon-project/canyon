@@ -99,7 +99,9 @@ function CoverageReport() {
   if (loading || !repo) {
     return <Spin spinning={true} />;
   }
-  return <CoverageReportContent repo={repo} />;
+  return <div className="p-[10px]">
+    <CoverageReportContent repo={repo} />
+  </div>;
 }
 
 export default CoverageReport

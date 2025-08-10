@@ -86,7 +86,10 @@ const CoverageFileDrawer = ({
       width={'75%'}
       open={open}
       onClose={() => { getToFilePath(''); }}
-      title={title}
+      title={<div>
+        {title}
+        <a href={`/report/-${window.location.href.replace(window.location.origin, '')}`} target="_blank">在新窗口打开</a>
+      </div>}
     >
       <Spin spinning={loading}>
         <RIf condition={!!data}>
