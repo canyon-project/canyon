@@ -15,13 +15,6 @@ const destinationFilePath = path.join(__dirname, '../.env');
     } catch (err) {
         try {
             await fs.copyFile(sourceFilePath, destinationFilePath);
-
-            let envStr = ``
-            Object.entries(process.env).forEach(([key, value]) => {
-                envStr += `${key}=${value}\n`
-            });
-            await fs.writeFile(destinationFilePath, envStr);
-
             console.log('The .env file has been successfully created');
         } catch (error) {
             console.error('Error copying file:', error);
