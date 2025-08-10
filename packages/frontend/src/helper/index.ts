@@ -143,11 +143,12 @@ export function handleSelectFileMultipleCommits({
     .then(({ data }) => data);
 
   const fileCoverageRequest = axios
-    .get(`/api/coverage/map/multiple-commits`, {
+    .get(`/api/coverage/map/subject`, {
       params: {
         provider,
         repoID,
-        shas,
+        subject: 'multiple-commits',
+        subjectID: shas,
         filePath: filepath,
       },
     })
@@ -162,4 +163,62 @@ export function handleSelectFileMultipleCommits({
       };
     },
   );
+}
+
+export function handleSelectFileBySubject({
+  repoID,
+  subject,
+  subjectID,
+  filepath,
+  provider = 'gitlab',
+  buildProvider,
+  buildID,
+  reportProvider,
+  reportID,
+}: {
+  repoID: string;
+  subject: 'commit' | 'commits' | 'pull' | 'pulls' | 'multiple-commits' | 'multi-commits';
+  subjectID: string; // sha | pullNumber | shas
+  filepath: string;
+  provider?: string;
+  buildProvider?: string;
+  buildID?: string;
+  reportProvider?: string;
+  reportID?: string;
+}) {
+  // 代码内容读取：commit 用 sha；pull 用 pullNumber；multiple-commits 用第一个 sha
+  const codeParams: Record<string, any> = { repoID, filepath };
+  if (subject === 'pull' || subject === 'pulls') {
+    codeParams.pullNumber = subjectID;
+  } else if (subject === 'multiple-commits' || subject === 'multi-commits') {
+    codeParams.sha = (subjectID || '').split(',')[0] || '';
+  } else {
+    codeParams.sha = subjectID;
+  }
+
+  const fileContentRequest = axios.get(`/api/code`, { params: codeParams }).then(({ data }) => data);
+
+  const fileCoverageParams: Record<string, any> = {
+    provider,
+    repoID,
+    subject,
+    subjectID,
+    filePath: filepath,
+  };
+  if (buildProvider) fileCoverageParams.buildProvider = buildProvider;
+  if (buildID) fileCoverageParams.buildID = buildID;
+  if (reportProvider) fileCoverageParams.reportProvider = reportProvider;
+  if (reportID) fileCoverageParams.reportID = reportID;
+
+  const fileCoverageRequest = axios
+    .get(`/api/coverage/map/subject`, { params: fileCoverageParams })
+    .then(({ data }) => data[filepath || '']);
+
+  return Promise.all([fileContentRequest, fileCoverageRequest]).then(([fileContent, fileCoverage]) => {
+    return {
+      fileContent: getDecode(fileContent.content),
+      fileCoverage,
+      fileCodeChange: [],
+    };
+  });
 }

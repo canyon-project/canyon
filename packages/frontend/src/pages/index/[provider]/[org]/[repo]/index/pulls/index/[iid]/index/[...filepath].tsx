@@ -6,7 +6,7 @@ import axios from 'axios';
 import {useNavigate, useOutletContext, useParams, useSearchParams} from 'react-router-dom';
 import RIf from '@/components/RIf';
 // import { getFirstSix } from '@/helper/getFirstSix';
-import { handleSelectFilePull } from '@/helper';
+import { handleSelectFileBySubject } from '@/helper';
 
 const FilePath = () => {
   const { repo, pull } = useOutletContext<any>();
@@ -48,11 +48,12 @@ const FilePath = () => {
         fileCodeChange: [],
       });
     }
-    return handleSelectFilePull({
+    return handleSelectFileBySubject({
       repoID: repo.id,
+      subject: 'pull',
+      subjectID: String(pull.iid),
       filepath: val,
-      pullNumber: pull.iid,
-      headSha,
+      provider: 'gitlab',
     }).then((res) => {
       return {
         fileContent: res.fileContent,

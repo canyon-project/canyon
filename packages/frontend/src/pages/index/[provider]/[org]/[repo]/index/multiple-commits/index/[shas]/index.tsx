@@ -20,13 +20,13 @@ const MultipleCommitsDetail = () => {
 
   const { data: summary } = useRequest(() => {
     return axios
-      .get(`/api/coverage/summary/map/multiple-commits?provider=gitlab&repoID=${repo.id}&shas=${shas}`)
+      .get(`/api/coverage/summary/map/subject?subject=multiple-commits&subjectID=${shas}&provider=gitlab&repoID=${repo.id}`)
       .then(res => res.data);
   }, { refreshDeps: [repo?.id, shas] });
 
   const { data: files } = useRequest(() => {
     return axios
-      .get(`/api/coverage/summary/map/multiple-commits?provider=gitlab&repoID=${repo.id}&shas=${shas}`)
+      .get(`/api/coverage/summary/map/subject?subject=multiple-commits&subjectID=${shas}&provider=gitlab&repoID=${repo.id}`)
       .then(res => res.data)
       .then((obj) => Object.values(obj || {} as any));
   }, { refreshDeps: [repo?.id, shas] });

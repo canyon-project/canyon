@@ -60,14 +60,14 @@ const PullCoverageOverview = () => {
   const { data: summary } = useRequest(() => {
     if (!pull) return Promise.resolve(null);
     return axios
-      .get(`/api/coverage/overview/pulls?provider=gitlab&repoID=${repo.id}&pullNumber=${pull.iid}`)
+      .get(`/api/coverage/overview/subject?subject=pull&subjectID=${pull.iid}&provider=gitlab&repoID=${repo.id}`)
       .then(res => res.data);
   }, { refreshDeps: [pull?.iid, repo?.id] });
 
   const { data: fileMap } = useRequest(() => {
     if (!pull) return Promise.resolve([] as any[]);
     return axios
-      .get(`/api/coverage/summary/map/pull?provider=gitlab&repoID=${repo.id}&pullNumber=${pull.iid}`)
+      .get(`/api/coverage/summary/map/subject?subject=pull&subjectID=${pull.iid}&provider=gitlab&repoID=${repo.id}`)
       .then(res => res.data)
       .then((obj) => {
         if (!obj) return [];
