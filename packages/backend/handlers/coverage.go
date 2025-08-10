@@ -369,6 +369,147 @@ func (h *CoverageHandler) GetCoverageSummaryMapForPull(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
+// GetCoverageOverviewBySubject 统一入口：根据 subject/subjectID 获取覆盖率概览
+func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
+	subject := c.Query("subject")     // commit | pull | multiple-commits
+	subjectID := c.Query("subjectID") // sha | pullNumber | shas (comma)
+	provider := c.Query("provider")
+	repoID := c.Query("repoID")
+	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, subject, subjectID are required"})
+		return
+	}
+
+	switch subject {
+	case "commit", "commits":
+		result, err := h.coverageService.GetCoverageSummaryByRepoAndSHA(repoID, subjectID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, result)
+		return
+	case "pull", "pulls":
+		// 复用现有 PR 概览
+		var q dto.CoveragePullQueryDto
+		q.Provider = provider
+		q.RepoID = repoID
+		q.PullNumber = subjectID
+		result, err := h.coverageService.GetCoverageSummaryForPull(q)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, result)
+		return
+	case "multiple-commits", "multi-commits":
+		c.JSON(http.StatusBadRequest, gin.H{"error": "overview for multiple-commits is not supported yet"})
+		return
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid subject"})
+		return
+	}
+}
+
+// GetCoverageSummaryMapBySubject 统一入口：根据 subject/subjectID 获取覆盖率摘要映射
+func (h *CoverageHandler) GetCoverageSummaryMapBySubject(c *gin.Context) {
+	subject := c.Query("subject")
+	subjectID := c.Query("subjectID")
+	provider := c.Query("provider")
+	repoID := c.Query("repoID")
+	filePath := c.Query("filePath")
+	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, subject, subjectID are required"})
+		return
+	}
+
+	switch subject {
+	case "commit", "commits":
+		q := dto.CoverageQueryDto{Provider: provider, RepoID: repoID, SHA: subjectID, FilePath: filePath}
+		result, err := h.coverageService.GetCoverageSummaryMapFast(q)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, result)
+		return
+	case "pull", "pulls":
+		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath}
+		result, err := h.coverageService.GetCoverageSummaryMapForPull(q)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, result)
+		return
+	case "multiple-commits", "multi-commits":
+		q := dto.CoverageCommitsQueryDto{Provider: provider, RepoID: repoID, SHAs: subjectID}
+		// CoverageCommitsQueryDto 没有 filePath 字段用于摘要，简易处理：附带 filePath 通过 query 传递（服务会读取 query.FilePath 吗？有字段）
+		q.FilePath = filePath
+		result, err := h.coverageService.GetCoverageSummaryMapForMultipleCommits(q)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, result)
+		return
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid subject"})
+		return
+	}
+}
+
+// GetCoverageMapBySubject 统一入口：根据 subject/subjectID 获取覆盖率映射（详细）
+func (h *CoverageHandler) GetCoverageMapBySubject(c *gin.Context) {
+	subject := c.Query("subject")
+	subjectID := c.Query("subjectID")
+	provider := c.Query("provider")
+	repoID := c.Query("repoID")
+	filePath := c.Query("filePath")
+	buildProvider := c.Query("buildProvider")
+	buildID := c.Query("buildID")
+	reportProvider := c.Query("reportProvider")
+	reportID := c.Query("reportID")
+	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, subject, subjectID are required"})
+		return
+	}
+
+	switch subject {
+	case "commit", "commits":
+		q := dto.CoverageQueryDto{Provider: provider, RepoID: repoID, SHA: subjectID, FilePath: filePath, BuildProvider: buildProvider, BuildID: buildID, ReportProvider: reportProvider, ReportID: reportID}
+		result, err := h.coverageService.GetCoverageMap(q)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, result)
+		return
+	case "pull", "pulls":
+		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath, BuildProvider: buildProvider, BuildID: buildID, ReportProvider: reportProvider, ReportID: reportID}
+		result, err := h.coverageService.GetCoverageMapForPull(q)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, result)
+		return
+	case "multiple-commits", "multi-commits":
+		q := dto.CoverageCommitsQueryDto{Provider: provider, RepoID: repoID, SHAs: subjectID}
+		q.FilePath = filePath
+		result, err := h.coverageService.GetCoverageMapForMultipleCommits(q)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, result)
+		return
+	default:
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid subject"})
+		return
+	}
+}
+
 // GetCoverageMapForMultipleCommits 获取多commits的覆盖率映射（详细）
 // @Summary 获取多commits的覆盖率映射
 // @Description 根据仓库ID和多个提交SHA，合并这些提交的覆盖率映射（支持filePath过滤），并参考第一个commit作为基线进行变更文件过滤
