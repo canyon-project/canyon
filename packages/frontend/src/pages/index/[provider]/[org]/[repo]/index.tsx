@@ -1,12 +1,14 @@
 import { Breadcrumb, Button, Divider, Space, Tabs } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
-import {Outlet, useParams} from 'react-router-dom';
+import {Outlet, useLocation, useNavigate, useParams} from 'react-router-dom';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
 import RIf from '@/components/RIf.tsx';
 
 const ProjectDetailPage = () => {
   const params = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   console.log(params, 'params');
   const { data, loading } = useRequest(
     () => {
@@ -46,7 +48,16 @@ const ProjectDetailPage = () => {
       </div>
       <Divider style={{ margin: '0' }} />
       <Tabs
-        defaultActiveKey="commits"
+        activeKey={
+          location.pathname.includes('/pulls')
+            ? 'pulls'
+            : location.pathname.includes('/multiple-commits')
+              ? 'multiple-commits'
+              : 'commits'
+        }
+        onChange={(key) => {
+          navigate(`/${params.provider}/${params.org}/${params.repo}/${key}`);
+        }}
         items={[
           { key: 'commits', label: 'Commits' },
           { key: 'pulls', label: 'Pulls' },
