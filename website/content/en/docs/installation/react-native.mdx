@@ -1,0 +1,37 @@
+# React Native
+
+import { Steps } from "nextra/components";
+
+Install and configure React Native.
+
+<Steps>
+
+  ### Create Project
+
+  React Native [documentation](https://reactnative.dev/)
+
+  ### Add Canyon and Its Configuration
+
+  > [!TIP]
+  >
+  > You need to understand [react-native-babel-preset](https://reactnative.dev/docs/javascript-environment#javascript-syntax-transformers).
+
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### Configure babel Plugin
+
+  ```js filename="babel.config.js" {3} copy
+  module.exports = {
+    presets: ["module:@react-native/babel-preset"],
+    plugins: ["istanbul", "canyon"],
+  };
+  ```
+
+  ### That's It
+  Continue to [First Coverage Data - Check](/docs/getting-started/first-coverage#check).
+</Steps>
+
+

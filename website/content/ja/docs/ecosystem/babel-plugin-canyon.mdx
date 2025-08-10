@@ -1,0 +1,87 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# babel-plugin-canyon
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/plugins/babel-plugin-canyon'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+
+CI環境変数を検出するためのBabelプラグインです。istanbuljsと連携してコード計装を完了します。
+
+## 使用方法
+
+インストール:
+
+```sh
+npm install --save-dev babel-plugin-canyon
+```
+
+`babel.config.js`に以下の設定を追加します:
+
+```js
+module.exports = {
+  plugins:
+    process.env.CI_COMMIT_REF_NAME === "test-coverage"
+      ? ["istanbul", "canyon"]
+      : [],
+      // プラグインの順序に注意してください。canyonプラグインはistanbulプラグインの後に配置する必要があります
+};
+```
+
+このプラグインは2つのことを行います：
+
+1. CI パイプライン変数の検出
+2. 前のステップのistanbul計装成果物をチェックしてローカルに保存（keepMapがfalseの場合）
+
+## 設定
+
+babel.config.js
+
+```js
+module.exports = {
+  plugins: [
+    "istanbul",
+    [
+      "canyon",
+      {
+        // #region == ステップ1: CI変数設定または手動での明示的な設定
+        dsn: "http://yourdomain.com/coverage/client", // カバレッジレポート送信先アドレス、CIパイプライン変数のキーはDSN
+        reporter: "your_token", // ユーザートークン、異なるユーザーを区別するため、CIパイプライン変数のキーはREPORTER
+        // #endregion
+        // #region == ステップ2: CIプロバイダーの自動検出、通常は手動設定不要、詳細はSupport Providerドキュメントを参照
+        projectID: "230614", // リポジトリID
+        sha: "xxxxxxxxx", // Git Commit SHA
+        branch: "master", // Gitリポジトリブランチ
+        // #endregion
+        // #region == ステップ3: カバレッジ追加機能設定（オプション）
+        reportID: "case_id", // 異なるテストケースを区別するため
+        compareTarget: "develop", // 比較対象、現在のSHAのベースラインとして使用し、変更行のカバレッジを計算
+        // #endregion
+        // #region == ステップ4: hitとmapデータの分離（オプション）
+        keepMap: true, // coverageマップを保持、オプション、デフォルトはtrue、falseの場合は.canyon_outputファイルが生成されます!!!
+        // #endregion
+        // #region == ステップ5: その他の設定（オプション）
+        instrumentCwd: "/path/to", // 計装の作業ディレクトリ、マルチリポジトリモードでは手動設定が必要な場合があります
+        provider: "gitlab", // ソースコードプロバイダー（オプション）、デフォルトはgitlab
+        oneByOne: false, // プロキシサーバーの設定、オプション、デフォルトはfalse。trueの場合、コンパイル時に各ファイルの初期カバレッジデータを個別に報告します。プロキシサーバー設定にすることも可能。
+        // #endregion
+      },
+    ],
+  ],
+};
+```
+
+| 設定項目        | 説明                                                                                                          | 必須                                           | デフォルト値   |
+| ------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------- |
+| dsn           | カバレッジレポート送信先アドレス、CIパイプライン変数のキーはDSN                                                   | はい（状況に応じてCI変数設定または手動で明示的に設定）| なし          |
+| reporter      | ユーザートークン、異なるユーザーを区別するため、CIパイプライン変数のキーはREPORTER                                  | はい（状況に応じてCI変数設定または手動で明示的に設定）| なし          |
+| projectID     | リポジトリID                                                                                                     | 通常は手動設定不要（CIプロバイダーを自動検出）      | なし          |
+| sha           | Git Commit SHA                                                                                                | 通常は手動設定不要（CIプロバイダーを自動検出）      | なし          |
+| branch        | Gitリポジトリブランチ                                                                                            | 通常は手動設定不要（CIプロバイダーを自動検出）      | なし          |
+| reportID      | 異なるテストケースを区別するため                                                                                  | オプション                                      | なし          |
+| compareTarget | 比較対象、現在のSHAのベースラインとして使用し、変更行のカバレッジを計算                                              | オプション                                      | なし          |
+| keepMap       | coverageマップを保持、オプション、デフォルトはtrue、falseの場合は.canyon_outputファイルが生成されます                | オプション                                      | true          |
+| instrumentCwd | 計装の作業ディレクトリ、マルチリポジトリモードでは手動設定が必要な場合があります                                     | オプション                                      | process.cwd() |
+| provider      | ソースコードプロバイダー（オプション）、デフォルトはgitlab                                                          | オプション                                      | gitlab        |
+| oneByOne      | プロキシサーバーの設定、オプション、デフォルトはfalse。trueの場合、コンパイル時に各ファイルの初期カバレッジデータを個別に報告します。プロキシサーバー設定にすることも可能 | オプション                                      | false         |

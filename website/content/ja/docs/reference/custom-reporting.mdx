@@ -1,0 +1,31 @@
+# カスタムデータレポート
+
+特定のシナリオ、特にアプリ内に埋め込まれたH5ページでカバレッジデータを報告する必要がある場合、PC向けのCanyon Chrome拡張機能のようなものがないため、カバレッジデータの報告機能をカスタム実装する必要があります。
+
+## 適用シナリオ
+
+- アプリ内に埋め込まれたH5ページ
+- Canyon Chrome拡張機能が使用できない環境
+- カスタムレポートロジックが必要なシナリオ
+- モバイルWebアプリケーション
+
+## 実装方法
+
+以下は基本的なカスタムレポート実装方法です：
+
+```javascript copy
+const coverageFirstValue = Object.values(window.__coverage__||{})[0];
+if (coverageFirstValue) {
+  fetch(coverageFirstValue.dsn,{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${coverageFirstValue.reporter}`
+    },
+    body: JSON.stringify({
+      coverage: window.__coverage__,
+      ...coverageFirstValue
+    })
+  })
+}
+```

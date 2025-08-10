@@ -1,0 +1,40 @@
+# Next.js
+
+import { Steps } from "nextra/components";
+
+Install and configure Next.js.
+
+<Steps>
+
+  ### Create Project
+  First, create a new React project `next.js` using the following command.
+
+  ```sh npm2yarn copy
+  npx create-next-app@latest
+  ```
+
+  ### Add Canyon and Its Configuration
+
+  > [!TIP]
+  >
+  > The latest next.js compiler uses swc by default. For babel plugin configuration, please check [here](https://nextjs.org/docs/advanced-features/customizing-babel-config).
+
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### Configure babel Plugin
+
+  ```js filename="babel.config.js" {3} copy
+  module.exports = {
+    presets: ["next/babel"],
+    plugins: ["istanbul", "canyon"],
+  };
+  ```
+
+  ### That's It
+  Continue to [First Coverage Data - Check](/docs/getting-started/first-coverage#check).
+</Steps>
+
+

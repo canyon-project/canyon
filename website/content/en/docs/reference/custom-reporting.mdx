@@ -1,0 +1,31 @@
+# Custom Data Reporting
+
+In some scenarios, especially when H5 pages embedded in apps need to report coverage data, since there is no Canyon Chrome plugin similar to the PC version, it is necessary to customize the implementation of coverage data reporting functionality.
+
+## Applicable Scenarios
+
+- H5 pages embedded in apps
+- Environments where Canyon Chrome plugin cannot be used
+- Scenarios requiring custom reporting logic
+- Mobile web applications
+
+## Implementation Plan
+
+The following is a basic custom reporting implementation plan:
+
+```javascript copy
+const coverageFirstValue = Object.values(window.__coverage__||{})[0];
+if (coverageFirstValue) {
+  fetch(coverageFirstValue.dsn,{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${coverageFirstValue.reporter}`
+    },
+    body: JSON.stringify({
+      coverage: window.__coverage__,
+      ...coverageFirstValue
+    })
+  })
+}
+```
