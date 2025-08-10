@@ -16,7 +16,7 @@ const CommitCoverageOverview = ({
   const { data, loading } = useRequest(
     () => {
       return axios
-        .get(`/api/coverage/overview/commits?provider=gitlab&repoID=${repo.id}&sha=${commit?.sha}`)
+        .get(`/api/coverage/overview?subject=commit&subjectID=${commit?.sha}&provider=gitlab&repoID=${repo.id}`)
         .then((res) => res.data);
     },
     {

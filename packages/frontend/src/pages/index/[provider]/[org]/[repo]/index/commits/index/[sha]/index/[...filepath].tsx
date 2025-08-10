@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
 import {useNavigate, useOutletContext, useParams, useSearchParams} from 'react-router-dom';
-import { handleSelectFile } from '@/helper';
+import { handleSelectFileBySubject } from '@/helper';
 import { getFirstSix } from '@/helper/getFirstSix.ts';
 import RIf from '@/components/RIf';
 const FilePath = () => {
@@ -64,13 +64,16 @@ const FilePath = () => {
         fileCodeChange: [],
       });
     }
-    return handleSelectFile({
-      filepath: val,
-      reportID,
-      sha,
+    return handleSelectFileBySubject({
       repoID,
-      buildID,
+      subject: 'commit',
+      subjectID: sha,
+      filepath: val,
+      provider,
       buildProvider,
+      buildID,
+      reportProvider,
+      reportID,
     }).then((res) => {
       return {
         fileContent: res.fileContent,
