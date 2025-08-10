@@ -26,11 +26,12 @@ const FilePath = () => {
 
   const { data, loading } = useRequest(
     () =>
-      axios(`/api/coverage/summary/map/multiple-commits`, {
+      axios(`/api/coverage/summary/map`, {
         params: {
           repoID: repo.id,
           provider: 'gitlab',
-          shas,
+          subject: 'multiple-commits',
+          subjectID: shas,
         },
       }).then(({ data }) => data),
     { refreshDeps: [repo?.id, shas] },
