@@ -1,16 +1,8 @@
-import { Drawer, Spin } from 'antd';
-import Report from 'canyontest-report';
-import { useEffect, useState } from 'react';
-import { useRequest } from 'ahooks';
-import axios from 'axios';
-import {useNavigate, useOutletContext, useParams, useSearchParams} from 'react-router-dom';
-import { handleSelectFileBySubject } from '@/helper';
-import { getFirstSix } from '@/helper/getFirstSix.ts';
-import RIf from '@/components/RIf';
+import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
+import CoverageFileDrawer from '@/components/CoverageFileDrawer';
 const FilePath = () => {
 
   const {repo,commit} = useOutletContext<any>()
-  const navigate = useNavigate()
   const [searchParams] = useSearchParams();
   // const params = useParams();
 
@@ -18,104 +10,24 @@ const FilePath = () => {
   // const [searchParams, setSearchParams] = useSearchParams();
   // const navigate = useNavigate();
   const params = useParams();
-  function getToFilePath(path: string) {
-    setOpen(false)
-    setTimeout(() => {
-      navigate(`/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}${path}?build_provider=${searchParams.get('build_provider')}&build_id=${searchParams.get('build_id')}`)
-
-    },0.5 * 1000);
-  }
+  const basePath = `/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}`;
 
 
   const sha = params.sha
+  // 保留查询参数，用于拼接 basePath 使 URL 状态可分享
   const buildProvider = searchParams.get('build_provider') || 'gitlab_runner';
   const buildID = searchParams.get('build_id') || '';
-  const repoID = searchParams.get('repo_id') || repo.id;
-  const provider = searchParams.get('provider') || 'gitlab';
-  const reportID = searchParams.get('report_id') || '';
-  const reportProvider = searchParams.get('report_provider') || '';
+  const initialPath = (params['*'] as string | undefined)?.replace('-/','');
 
-  const [activatedPath, setActivatedPath] = useState(params['*']?.replace('-/',''));
-
-  const { data, loading } = useRequest(
-    () =>
-      axios(`/api/coverage/summary/map`, {
-        params: {
-          subject: 'commit',
-          subjectID: sha,
-          buildProvider: buildProvider,
-          buildID: buildID,
-          repoID: repoID,
-          provider: provider,
-          reportID,
-          reportProvider,
-        },
-      }).then(({ data }) => data),
-    {},
-  );
-
-
-
-  const onSelect = (val: string) => {
-    setActivatedPath(val);
-    if (!val.includes('.')) {
-      return Promise.resolve({
-        fileContent: '',
-        fileCoverage: {},
-        fileCodeChange: [],
-      });
-    }
-    return handleSelectFileBySubject({
-      repoID,
-      subject: 'commit',
-      subjectID: sha || '',
-      filepath: val,
-      provider,
-      buildProvider,
-      buildID,
-      reportProvider,
-      reportID,
-    }).then((res) => {
-      return {
-        fileContent: res.fileContent,
-        fileCoverage: res.fileCoverage,
-        fileCodeChange: res.fileCodeChange,
-      };
-    });
-  };
-
-  // 导航
-  useEffect(() => {
-    if (commit?.sha){
-      getToFilePath(`/-/${activatedPath}`)
-      setOpen(true)
-    }
-  }, [activatedPath,commit]);
-
-
-
-  const [open,setOpen] = useState(false);
-
-
-
-  console.log(activatedPath,data)
-  
   return (
-    <Drawer
-      width={'75%'}
-      open={open}
-      onClose={()=>{
-        getToFilePath('')
-      }}
-      title={`${params.repo} ${getFirstSix(searchParams.get('sha'))} 手工测试 API响应测试`}
-    >
-      <Spin spinning={loading}>
-        <RIf condition={data}>
-        <Report value={activatedPath} onSelect={onSelect} dataSource={data} />
-        </RIf>
-
-      </Spin>
-    </Drawer>
+    <CoverageFileDrawer
+      repo={repo}
+      subject={'commit'}
+      subjectID={sha || ''}
+      basePath={`${basePath}?build_provider=${buildProvider}&build_id=${buildID}`}
+      initialPath={initialPath}
+      title={`${params.repo} Commit 详情覆盖率`}
+    />
   );
 };
 
