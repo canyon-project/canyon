@@ -36,7 +36,15 @@ const CoverageFileDrawer = ({
   const getToFilePath = (path: string) => {
     setOpen(false);
     setTimeout(() => {
-      navigate(`${basePath}${path}`);
+      // 确保 path 片段在查询参数之前：/base/-/file?query
+      const qIndex = basePath.indexOf('?');
+      if (qIndex >= 0) {
+        const prefix = basePath.slice(0, qIndex);
+        const qs = basePath.slice(qIndex + 1);
+        navigate(`${prefix}${path}?${qs}`);
+      } else {
+        navigate(`${basePath}${path}`);
+      }
     }, 500);
   };
 
