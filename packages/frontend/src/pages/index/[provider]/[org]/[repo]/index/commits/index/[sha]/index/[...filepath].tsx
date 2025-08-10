@@ -9,16 +9,16 @@ import { getFirstSix } from '@/helper/getFirstSix.ts';
 import RIf from '@/components/RIf';
 const FilePath = () => {
 
-  const {repo,commit} = useOutletContext()
+  const {repo,commit} = useOutletContext<any>()
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   // const params = useParams();
 
 
   // const [searchParams, setSearchParams] = useSearchParams();
   // const navigate = useNavigate();
   const params = useParams();
-  function getToFilePath(path) {
+  function getToFilePath(path: string) {
     setOpen(false)
     setTimeout(() => {
       navigate(`/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}${path}?build_provider=${searchParams.get('build_provider')}&build_id=${searchParams.get('build_id')}`)
@@ -41,7 +41,8 @@ const FilePath = () => {
     () =>
       axios(`/api/coverage/summary/map`, {
         params: {
-          sha: sha,
+          subject: 'commit',
+          subjectID: sha,
           buildProvider: buildProvider,
           buildID: buildID,
           repoID: repoID,
@@ -55,7 +56,7 @@ const FilePath = () => {
 
 
 
-  const onSelect = (val) => {
+  const onSelect = (val: string) => {
     setActivatedPath(val);
     if (!val.includes('.')) {
       return Promise.resolve({
@@ -67,7 +68,7 @@ const FilePath = () => {
     return handleSelectFileBySubject({
       repoID,
       subject: 'commit',
-      subjectID: sha,
+      subjectID: sha || '',
       filepath: val,
       provider,
       buildProvider,
