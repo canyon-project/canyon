@@ -3,7 +3,7 @@ import Report from 'canyontest-report';
 import { useEffect, useState } from 'react';
 import { useRequest } from 'ahooks';
 import axios from 'axios';
-import {useNavigate, useOutletContext, useParams, useSearchParams} from 'react-router-dom';
+import {useNavigate, useOutletContext, useParams} from 'react-router-dom';
 import RIf from '@/components/RIf';
 // import { getFirstSix } from '@/helper/getFirstSix';
 import { handleSelectFileBySubject } from '@/helper';
@@ -11,7 +11,6 @@ import { handleSelectFileBySubject } from '@/helper';
 const FilePath = () => {
   const { repo, pull } = useOutletContext<any>();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const params = useParams();
 
   const [activatedPath, setActivatedPath] = useState<string | undefined>(params['*']?.replace('-/',''));
@@ -24,16 +23,16 @@ const FilePath = () => {
     }, 500);
   }
 
-  // 可选：如果URL中有sha则优先用sha，否则使用pullNumber模式
-  const headSha = searchParams.get('sha') || undefined;
+  // 可选：如果URL中有sha则优先用sha，否则使用pullNumber模式（已由后端支持）
 
   const { data, loading } = useRequest(
     () =>
-      axios(`/api/coverage/summary/map/pull`, {
+      axios(`/api/coverage/summary/map`, {
         params: {
           repoID: repo.id,
           provider: 'gitlab',
-          pullNumber: pull.iid,
+          subject: 'pull',
+          subjectID: String(pull.iid),
         },
       }).then(({ data }) => data),
     { refreshDeps: [repo?.id, pull?.iid] },
@@ -72,10 +71,9 @@ const FilePath = () => {
 
   return (
     <div>
-        ssssxxxx
-            <Drawer
+      <Drawer
       width={'75%'}
-      open={true}
+      open={open}
       onClose={() => {
         getToFilePath('');
       }}
