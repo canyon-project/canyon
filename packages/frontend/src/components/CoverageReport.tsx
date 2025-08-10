@@ -7,7 +7,7 @@ import {handleSelectFile} from "@/helper";
 import {Spin} from "antd";
 
 function CoverageReport() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const params = useParams();
   const subjectID = params.subjectID
   const subject = params.subject
