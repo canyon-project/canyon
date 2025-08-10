@@ -1,3 +1,3 @@
-declare module 'canyontest-report';
+declare module 'canyon-report';
 
 
