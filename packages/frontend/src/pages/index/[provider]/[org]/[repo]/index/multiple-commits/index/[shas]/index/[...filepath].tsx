@@ -5,7 +5,7 @@ import { useRequest } from 'ahooks';
 import axios from 'axios';
 import {useNavigate, useOutletContext, useParams} from 'react-router-dom';
 import RIf from '@/components/RIf';
-import { handleSelectFileMultipleCommits } from '@/helper';
+import { handleSelectFileBySubject } from '@/helper';
 
 const FilePath = () => {
   const { repo } = useOutletContext<any>();
@@ -41,10 +41,12 @@ const FilePath = () => {
     if (!val.includes('.')) {
       return Promise.resolve({ fileContent: '', fileCoverage: {}, fileCodeChange: [] });
     }
-    return handleSelectFileMultipleCommits({
+    return handleSelectFileBySubject({
       repoID: repo.id,
-      shas,
+      subject: 'multiple-commits',
+      subjectID: shas,
       filepath: val,
+      provider: 'gitlab',
     }).then((res) => ({
       fileContent: res.fileContent,
       fileCoverage: res.fileCoverage,
