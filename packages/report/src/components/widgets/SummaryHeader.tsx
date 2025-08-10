@@ -88,8 +88,8 @@ const SummaryMetric: FC<{
               "functions",
               "lines",
               "newlines",
-              "changebranches",
-              "changefunctions"
+              // "changebranches",
+              // "changefunctions"
               ]
 
             return order.indexOf(key1) - order.indexOf(key2);
@@ -101,8 +101,8 @@ const SummaryMetric: FC<{
               "functions",
               "lines",
               "newlines",
-              "changebranches",
-              "changefunctions"
+              // "changebranches",
+              // "changefunctions"
             ].includes(key),
           )
           .map(([key, value]) => {
