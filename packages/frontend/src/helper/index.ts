@@ -19,57 +19,19 @@ interface HandleSelectFile {
   buildID?: string;
   buildProvider?: string;
 }
-export function handleSelectFile({
-  repoID,
-  sha,
-  filepath,
-  reportID,
-  buildID,
-  buildProvider,
-}: HandleSelectFile) {
-  const fileContentRequest = axios
-    .get(`/api/code`, {
-      params: {
-        repoID: repoID,
-        sha: sha,
-        filepath: filepath,
-      },
-    })
-    .then(({ data }) => data);
-  const fileCoverageRequest = axios
-    .get(`/api/coverage/map`, {
-      params: {
-        repoID,
-        reportID: reportID,
-        sha: sha,
-        filePath: filepath,
-        provider: 'gitlab',
-        buildProvider,
-        buildID,
-      },
-    })
-    .then(({ data }) => data[filepath || '']);
-
-  // const fileCodeChangeRequest = axios
-  //   .get(`/api/codechange`, {
-  //     // operationName: 'GetCodeChange',
-  //     params: {
-  //       sha: sha,
-  //       filepath: filepath,
-  //     },
-  //   })
-  //   .then(({ data }) => data);
-  return Promise.all([
-    fileContentRequest,
-    fileCoverageRequest,
-    // fileCodeChangeRequest,
-  ]).then(([fileContent, fileCoverage]) => {
-    return {
-      fileContent: getDecode(fileContent.content),
-      fileCoverage: fileCoverage,
-      fileCodeChange: [],
-      // fileCodeChange: fileCodeChange.additions || [],
-    };
+// 兼容旧函数名，内部转发到 subject 版本
+export function handleSelectFile(params: any) {
+  const { repoID, sha, filepath, reportID, buildID, buildProvider } = params || {};
+  return handleSelectFileBySubject({
+    repoID,
+    subject: 'commit',
+    subjectID: sha,
+    filepath,
+    provider: 'gitlab',
+    buildProvider,
+    buildID,
+    reportProvider: params?.reportProvider,
+    reportID,
   });
 }
 

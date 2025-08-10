@@ -3,7 +3,7 @@ import Report from 'canyontest-report';
 import {useState} from "react";
 import {useRequest} from "ahooks";
 import axios from "axios";
-import {handleSelectFile} from "@/helper";
+import {handleSelectFileBySubject} from "@/helper";
 import {Spin} from "antd";
 
 function CoverageReport() {
@@ -46,14 +46,16 @@ function CoverageReport() {
         fileCodeChange: [],
       });
     }
-    return handleSelectFile({
+    return handleSelectFileBySubject({
+      repoID: '86927',
+      subject: subject as any,
+      subjectID: String(subjectID),
       filepath: val,
-      reportID,
-      subject,
-      subjectID,
-      repoID:'86927',
-      buildID,
+      provider,
       buildProvider,
+      buildID,
+      reportProvider,
+      reportID,
     }).then((res) => {
       return {
         fileContent: res.fileContent,
