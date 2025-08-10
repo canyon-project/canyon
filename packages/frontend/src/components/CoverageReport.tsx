@@ -21,7 +21,7 @@ function CoverageReportContent({ repo }: { repo: any }) {
 
   // 组装基础路径（带上现有 query），供选择文件时调整 URL
   const sp = searchParams.toString();
-  const basePathPrefix = `/${params.provider}/${params.org}/${params.repo}/${params.subject}/${params.subjectID}`;
+  const basePathPrefix = `/report/-/${params.provider}/${params.org}/${params.repo}/${params.subject}/${params.subjectID}`;
   const basePath = sp ? `${basePathPrefix}?${sp}` : basePathPrefix;
 
   const { data, loading } = useRequest(
