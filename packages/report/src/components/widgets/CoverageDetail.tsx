@@ -7,6 +7,7 @@ const FileCoverageDetail: FC<{
   theme: string
 }> = ({ fileContent, fileCoverage, fileCodeChange,theme }) => {
   useEffect(() => {
+    // canyon-report-spa 源码地址 https://github.com/canyon-project/spa
     import(
       /* @vite-ignore */
       `${window.UNPKG_URL || 'https://unpkg.com'}/canyon-report-spa/dist/index.js`
