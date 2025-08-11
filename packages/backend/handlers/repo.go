@@ -22,16 +22,6 @@ func NewRepoHandler(repoService *services.RepoService) *RepoHandler {
 }
 
 // GetRepos 获取仓库列表
-// @Summary 获取仓库列表
-// @Description 根据关键词搜索仓库列表
-// @Tags repository
-// @Accept json
-// @Produce json
-// @Param keyword query string false "搜索关键词" example(react)
-// @Success 200 {object} map[string]interface{} "仓库列表"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /repo [get]
 func (h *RepoHandler) GetRepos(c *gin.Context) {
 	var query dto.RepoQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -49,16 +39,6 @@ func (h *RepoHandler) GetRepos(c *gin.Context) {
 }
 
 // GetRepoByID 根据仓库ID获取仓库信息
-// @Summary 根据仓库ID获取仓库信息
-// @Description 根据仓库ID获取详细的仓库信息
-// @Tags repository
-// @Accept json
-// @Produce json
-// @Param repoID path string true "仓库ID" example(owner/repo)
-// @Success 200 {object} map[string]interface{} "仓库详细信息"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /repo/{repoID} [get]
 func (h *RepoHandler) GetRepoByID(c *gin.Context) {
 	repoID := c.Param("repoID")
 	if repoID == "" {
@@ -86,16 +66,6 @@ func (h *RepoHandler) GetRepoByID(c *gin.Context) {
 }
 
 // GetRepoCommits 获取仓库提交记录
-// @Summary 获取仓库提交记录
-// @Description 获取指定仓库的提交记录列表
-// @Tags repository
-// @Accept json
-// @Produce json
-// @Param repoID path string true "仓库ID" example(owner/repo)
-// @Success 200 {object} map[string]interface{} "提交记录列表"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /repo/{repoID}/commits [get]
 func (h *RepoHandler) GetRepoCommits(c *gin.Context) {
 	repoID := c.Param("repoID")
 	if repoID == "" {
@@ -123,16 +93,6 @@ func (h *RepoHandler) GetRepoCommits(c *gin.Context) {
 }
 
 // GetRepoPulls 获取仓库的Pull Requests（基于覆盖率关联的commits）
-// @Summary 获取仓库关联覆盖率的Pull Requests
-// @Description 基于覆盖率表中存在的commit，查询关联到的Pull Requests 并去重返回
-// @Tags repository
-// @Accept json
-// @Produce json
-// @Param repoID path string true "仓库ID" example(owner/repo)
-// @Success 200 {object} map[string]interface{} "Pull Request 列表"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /repo/{repoID}/pulls [get]
 func (h *RepoHandler) GetRepoPulls(c *gin.Context) {
 	repoID := c.Param("repoID")
 	if repoID == "" {
@@ -158,17 +118,6 @@ func (h *RepoHandler) GetRepoPulls(c *gin.Context) {
 }
 
 // GetRepoCommitBySHA 根据提交SHA获取提交详情
-// @Summary 根据提交SHA获取提交详情
-// @Description 根据仓库ID和提交SHA获取详细的提交信息
-// @Tags repository
-// @Accept json
-// @Produce json
-// @Param repoID path string true "仓库ID" example(owner/repo)
-// @Param sha path string true "提交SHA" example(abc123def456)
-// @Success 200 {object} map[string]interface{} "提交详细信息"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /repo/{repoID}/commits/{sha} [get]
 func (h *RepoHandler) GetRepoCommitBySHA(c *gin.Context) {
 	repoID := c.Param("repoID")
 	sha := c.Param("sha")

@@ -23,23 +23,6 @@ func NewCoverageHandler(coverageService *services.CoverageService) *CoverageHand
 }
 
 // GetCoverageSummary 获取一个commit的覆盖率概览 - 新的主要接口
-// @Summary 获取一个commit的覆盖率概览
-// @Description 根据仓库ID和SHA获取指定commit的覆盖率概览信息，包括总体覆盖率统计和构建组信息
-// @Tags coverage
-// @Accept json
-// @Produce json
-// @Param provider query string true "提供商名称" example(github)
-// @Param repoID query string true "仓库ID" example(owner/repo)
-// @Param sha query string true "提交SHA" example(abc123def456)
-// @Param buildProvider query string false "构建提供商" example(jenkins)
-// @Param buildID query string false "构建ID" example(build-123)
-// @Param reportProvider query string false "报告提供商" example(jest)
-// @Param reportID query string false "报告ID" example(report-456)
-// @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "覆盖率概览信息"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/overview/commits [get]
 func (h *CoverageHandler) GetCoverageSummary(c *gin.Context) {
 	var query dto.CoverageSummaryQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -78,23 +61,6 @@ func (h *CoverageHandler) GetCoverageSummary(c *gin.Context) {
 }
 
 // GetCoverageSummaryMap 获取覆盖率摘要映射
-// @Summary 获取覆盖率摘要映射
-// @Description 获取覆盖率数据的摘要映射，包含文件级别的覆盖率统计信息
-// @Tags coverage
-// @Accept json
-// @Produce json
-// @Param provider query string true "提供商名称" example(github)
-// @Param repoID query string true "仓库ID" example(owner/repo)
-// @Param sha query string true "提交SHA" example(abc123def456)
-// @Param buildProvider query string false "构建提供商" example(jenkins)
-// @Param buildID query string false "构建ID" example(build-123)
-// @Param reportProvider query string false "报告提供商" example(jest)
-// @Param reportID query string false "报告ID" example(report-456)
-// @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "覆盖率摘要映射"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/summary/map [get]
 func (h *CoverageHandler) GetCoverageSummaryMap(c *gin.Context) {
 	var query dto.CoverageQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -124,23 +90,6 @@ func (h *CoverageHandler) GetCoverageSummaryMap(c *gin.Context) {
 }
 
 // GetCoverageMap 获取覆盖率映射
-// @Summary 获取覆盖率映射
-// @Description 获取详细的覆盖率映射数据，包含语句、函数、分支等详细的覆盖率信息
-// @Tags coverage
-// @Accept json
-// @Produce json
-// @Param provider query string true "提供商名称" example(github)
-// @Param repoID query string true "仓库ID" example(owner/repo)
-// @Param sha query string true "提交SHA" example(abc123def456)
-// @Param buildProvider query string false "构建提供商" example(jenkins)
-// @Param buildID query string false "构建ID" example(build-123)
-// @Param reportProvider query string false "报告提供商" example(jest)
-// @Param reportID query string false "报告ID" example(report-456)
-// @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "覆盖率映射数据"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/map [get]
 func (h *CoverageHandler) GetCoverageMap(c *gin.Context) {
 	var query dto.CoverageQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -178,21 +127,6 @@ func (h *CoverageHandler) GetCoverageMap(c *gin.Context) {
 }
 
 // GetCoverageSummaryForPull 获取一个pull request的覆盖率概览
-// @Summary 获取一个pull request的覆盖率概览
-// @Description 根据仓库ID和PR号获取指定pull request的覆盖率概览信息
-// @Tags coverage
-// @Accept json
-// @Produce json
-// @Param provider query string true "提供商名称" example(github)
-// @Param repoID query string true "仓库ID" example(owner/repo)
-// @Param pullNumber query string true "PR号" example(123)
-// @Param reportProvider query string false "报告提供商" example(jest)
-// @Param reportID query string false "报告ID" example(report-456)
-// @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "PR覆盖率概览信息"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/overview/pulls [get]
 func (h *CoverageHandler) GetCoverageSummaryForPull(c *gin.Context) {
 	var query dto.CoveragePullQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -230,23 +164,6 @@ func (h *CoverageHandler) GetCoverageSummaryForPull(c *gin.Context) {
 }
 
 // GetCoverageSummaryForCommits 获取多个commits的覆盖率概览
-// @Summary 获取多个commits的覆盖率概览
-// @Description 根据仓库ID和多个SHA获取指定commits的覆盖率概览信息
-// @Tags coverage
-// @Accept json
-// @Produce json
-// @Param provider query string true "提供商名称" example(github)
-// @Param repoID query string true "仓库ID" example(owner/repo)
-// @Param shas query string true "提交SHA列表，用逗号分隔" example(abc123def456,def456ghi789)
-// @Param buildProvider query string false "构建提供商" example(jenkins)
-// @Param buildID query string false "构建ID" example(build-123)
-// @Param reportProvider query string false "报告提供商" example(jest)
-// @Param reportID query string false "报告ID" example(report-456)
-// @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "多commits覆盖率概览信息"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/overview/multiple-commits [get]
 func (h *CoverageHandler) GetCoverageSummaryForCommits(c *gin.Context) {
 	var query dto.CoverageCommitsQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -281,23 +198,6 @@ func (h *CoverageHandler) GetCoverageSummaryForCommits(c *gin.Context) {
 }
 
 // GetCoverageMapForPull 获取PR的覆盖率映射
-// @Summary 获取PR的覆盖率映射
-// @Description 根据PR号获取该PR包含的所有commits的详细覆盖率映射数据
-// @Tags coverage
-// @Accept json
-// @Produce json
-// @Param provider query string true "提供商名称" example(github)
-// @Param repoID query string true "仓库ID" example(owner/repo)
-// @Param pullNumber query string true "PR号" example(123)
-// @Param buildProvider query string false "构建提供商" example(jenkins)
-// @Param buildID query string false "构建ID" example(build-123)
-// @Param reportProvider query string false "报告提供商" example(jest)
-// @Param reportID query string false "报告ID" example(report-456)
-// @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "PR覆盖率映射数据"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/map/pull [get]
 func (h *CoverageHandler) GetCoverageMapForPull(c *gin.Context) {
 	var query dto.CoveragePullMapQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -330,19 +230,6 @@ func (h *CoverageHandler) GetCoverageMapForPull(c *gin.Context) {
 }
 
 // GetCoverageSummaryMapForPull 获取PR的覆盖率摘要映射
-// @Summary 获取PR的覆盖率摘要映射
-// @Description 根据PR号获取该PR包含的所有commits的覆盖率摘要（每文件统计 totals/covered/pct）
-// @Tags coverage
-// @Accept json
-// @Produce json
-// @Param provider query string true "提供商名称" example(github)
-// @Param repoID query string true "仓库ID" example(owner/repo)
-// @Param pullNumber query string true "PR号" example(123)
-// @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "PR覆盖率摘要映射数据"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/summary/map/pull [get]
 func (h *CoverageHandler) GetCoverageSummaryMapForPull(c *gin.Context) {
 	var query dto.CoveragePullMapQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -511,19 +398,6 @@ func (h *CoverageHandler) GetCoverageMapBySubject(c *gin.Context) {
 }
 
 // GetCoverageMapForMultipleCommits 获取多commits的覆盖率映射（详细）
-// @Summary 获取多commits的覆盖率映射
-// @Description 根据仓库ID和多个提交SHA，合并这些提交的覆盖率映射（支持filePath过滤），并参考第一个commit作为基线进行变更文件过滤
-// @Tags coverage
-// @Accept json
-// @Produce json
-// @Param provider query string true "提供商名称" example(github)
-// @Param repoID query string true "仓库ID" example(owner/repo)
-// @Param shas query string true "提交SHA列表，用逗号分隔" example(abc,def,ghi)
-// @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "覆盖率映射数据"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/map/multiple-commits [get]
 func (h *CoverageHandler) GetCoverageMapForMultipleCommits(c *gin.Context) {
 	var query dto.CoverageCommitsQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {
@@ -550,19 +424,6 @@ func (h *CoverageHandler) GetCoverageMapForMultipleCommits(c *gin.Context) {
 }
 
 // GetCoverageSummaryMapForMultipleCommits 获取多commits的覆盖率摘要映射
-// @Summary 获取多commits的覆盖率摘要映射
-// @Description 根据仓库ID和多个提交SHA，合并这些提交的覆盖率摘要（每文件 totals/covered/pct），以第一个commit为基线
-// @Tags coverage
-// @Accept json
-// @Produce json
-// @Param provider query string true "提供商名称" example(github)
-// @Param repoID query string true "仓库ID" example(owner/repo)
-// @Param shas query string true "提交SHA列表，用逗号分隔" example(abc,def,ghi)
-// @Param filePath query string false "文件路径" example(src/main.go)
-// @Success 200 {object} map[string]interface{} "覆盖率摘要映射数据"
-// @Failure 400 {object} map[string]interface{} "请求参数错误"
-// @Failure 500 {object} map[string]interface{} "服务器内部错误"
-// @Router /coverage/summary/map/multiple-commits [get]
 func (h *CoverageHandler) GetCoverageSummaryMapForMultipleCommits(c *gin.Context) {
 	var query dto.CoverageCommitsQueryDto
 	if err := c.ShouldBindQuery(&query); err != nil {

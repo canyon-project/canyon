@@ -8,14 +8,6 @@ import (
 )
 
 // HealthCheck 健康检查处理器
-// @Summary 健康检查
-// @Description 检查服务健康状态，包括数据库连接状态
-// @Tags health
-// @Accept json
-// @Produce json
-// @Success 200 {object} map[string]interface{} "服务健康状态"
-// @Failure 503 {object} map[string]interface{} "服务不可用"
-// @Router /vi/health [get]
 func HealthCheck(c *gin.Context) {
 	response := gin.H{
 		"status":  "ok",
