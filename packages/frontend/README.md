@@ -81,3 +81,4 @@ pnpm -F frontend do-test
 - 新页面请遵循文件式路由的目录组织，落位于 `src/pages/index/[provider]/[org]/[repo]/index/...`
 - 网络请求使用 Axios，并统一以 `/api` 为前缀
 - 代码风格：使用 `eslint-config-canyon` 与 Prettier
+
