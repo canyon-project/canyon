@@ -109,7 +109,7 @@ func (s *RepoService) GetCommitsByRepoId(repoID string) (interface{}, error) {
 	}
 
 	// 查询该仓库的所有覆盖率记录，按SHA分组
-	var commits []struct {
+	type CommitAgg struct {
 		SHA           string `json:"sha"`
 		Branch        string `json:"branch"`
 		CompareTarget string `json:"compareTarget"`
@@ -117,20 +117,87 @@ func (s *RepoService) GetCommitsByRepoId(repoID string) (interface{}, error) {
 		CreatedAt     string `json:"createdAt"`
 		LatestID      string `json:"latestId"`
 	}
+	var aggList []CommitAgg
 
 	if err := database.Model(&models.Coverage{}).
 		Select("sha, branch, compare_target, provider, MAX(created_at) as created_at, MAX(id) as latest_id").
 		Where("repo_id = ?", repo.ID). // 使用repo.ID而不是repoID
 		Group("sha, branch, compare_target, provider").
 		Order("MAX(created_at) DESC").
-		Scan(&commits).Error; err != nil {
+		Limit(200).
+		Scan(&aggList).Error; err != nil {
 		return nil, fmt.Errorf("查询提交记录失败: %w", err)
 	}
 
+	// 解析 GitLab 项目 ID
+	git := NewGitLabService()
+	pid := 0
+	if v, err := strconv.Atoi(repo.ID); err == nil {
+		pid = v
+	} else {
+		// 尝试通过命名空间路径获取项目 ID
+		if proj, err := git.GetProjectByPath(repo.PathWithNamespace); err == nil {
+			if id, ok := proj["id"].(float64); ok {
+				pid = int(id)
+			}
+		}
+	}
+
+	// 结果结构，包含 message 与 author_name
+	type CommitWithDetail struct {
+		SHA           string `json:"sha"`
+		Branch        string `json:"branch"`
+		CompareTarget string `json:"compareTarget"`
+		Provider      string `json:"provider"`
+		CreatedAt     string `json:"createdAt"`
+		LatestID      string `json:"latestId"`
+		Message       string `json:"message"`
+		AuthorName    string `json:"author_name"`
+	}
+	result := make([]CommitWithDetail, len(aggList))
+	for i := range aggList {
+		result[i] = CommitWithDetail{
+			SHA:           aggList[i].SHA,
+			Branch:        aggList[i].Branch,
+			CompareTarget: aggList[i].CompareTarget,
+			Provider:      aggList[i].Provider,
+			CreatedAt:     aggList[i].CreatedAt,
+			LatestID:      aggList[i].LatestID,
+		}
+	}
+
+	// 如果无法解析到 GitLab 项目 ID，直接返回基础聚合数据
+	if pid == 0 {
+		return map[string]interface{}{
+			"repo":    repo,
+			"commits": result,
+			"total":   len(result),
+		}, nil
+	}
+
+	// 并发补充每个 commit 的 message 与 author_name
+	var eg errgroup.Group
+	eg.SetLimit(8)
+	for i := range result {
+		i := i
+		eg.Go(func() error {
+			detail, err := git.GetCommitBySHA(pid, result[i].SHA)
+			if err != nil {
+				// 忽略单个失败，尽量返回更多数据
+				return nil
+			}
+			result[i].Message = detail.Message
+			result[i].AuthorName = detail.AuthorName
+			// 若需要，也可用 detail.CreatedAt 覆盖 CreatedAt
+			return nil
+		})
+	}
+	_ = eg.Wait()
+
 	return map[string]interface{}{
 		"repo":    repo,
-		"commits": commits,
-		"total":   len(commits),
+		"commits": result,
+		"total":   len(result),
 	}, nil
 }
 

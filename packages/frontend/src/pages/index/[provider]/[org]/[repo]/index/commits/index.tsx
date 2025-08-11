@@ -23,19 +23,23 @@ const Commits = () => {
       .get(`/api/repo/${repo.id}/commits`)
       .then((res) => res.data)
       .then((res) => {
-        console.log(res, 'res');
-        return res.commits.map((item) => {
+        // 将后端返回的 commits 转换为前端列表所需结构；
+        // 后端字段：sha, branch, compareTarget, provider, createdAt, latestId
+        return (res.commits || []).map((item) => {
+          const sha = item.sha;
           return {
-            id: item.sha,
-            sha: item.sha,
-            commitMessage: 'item.commitDetail.message',
-            author: 'item.commitDetail.author_name',
-            timestamp: 'item.commitDetail.authored_date',
-            pipelineCount: 3,
-            aggregationStatus: 1,
+            id: sha,
+            sha: sha,
+            // 使用后端返回的真实字段
+            commitMessage: item.message || '',
+            author: item.author_name || '',
+            timestamp: item.createdAt || new Date().toISOString(),
+            // 临时：其余字段先保留默认
+            pipelineCount: 1,
+            aggregationStatus: 'completed',
             hasE2E: false,
             hasUnitTest: false,
-            branches: ['dev'], // 新增属性，存储 commit 所在的分支
+            branches: item.branch ? [item.branch] : ['dev'],
           };
         });
       });

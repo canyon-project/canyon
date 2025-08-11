@@ -94,6 +94,42 @@ type GitLabCommit struct {
 	CommittedDate time.Time `json:"committed_date"`
 }
 
+// GetCommitBySHA 获取单个 commit 详情（含 message/author 等）
+func (s *GitLabService) GetCommitBySHA(projectID int, sha string) (*GitLabCommit, error) {
+	config, err := s.GetGitLabConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	apiURL := fmt.Sprintf("%s/api/v4/projects/%d/repository/commits/%s", config.BaseURL, projectID, sha)
+
+	req, err := http.NewRequest("GET", apiURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("创建请求失败: %v", err)
+	}
+	req.Header.Set("private-token", config.Token)
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 30 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("发送请求失败: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("GitLab API请求失败: %s, 响应: %s", resp.Status, string(body))
+	}
+
+	var commit GitLabCommit
+	if err := json.NewDecoder(resp.Body).Decode(&commit); err != nil {
+		return nil, fmt.Errorf("解析响应失败: %v", err)
+	}
+
+	return &commit, nil
+}
+
 // GetMergeRequestsByCommit 获取包含某个commit的Merge Requests
 func (s *GitLabService) GetMergeRequestsByCommit(projectID int, sha string) ([]GitLabPullRequest, error) {
 	config, err := s.GetGitLabConfig()
