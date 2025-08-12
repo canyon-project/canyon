@@ -123,9 +123,9 @@ function main() {
   const pullNumber = String(arg).replace('--pull=', '');
   const cwd = path.resolve(__dirname, '..');
   const pullDir = path.join(cwd, 'pulls', pullNumber);
-  const mergedDir = path.join(pullDir, 'merged');
-  ensureDir(mergedDir);
-  const logger = createLogger(path.join(mergedDir, 'hard-merge.log'));
+  const coverageDir = path.join(cwd, 'coverage');
+  ensureDir(coverageDir);
+  const logger = createLogger(path.join(coverageDir, 'hard-merge.log'));
   logger.info('开始硬合并', { pull: pullNumber, root: pullDir });
   const commitsDir = path.join(pullDir, 'commits');
   const commitNames = listDirs(commitsDir);
@@ -190,7 +190,7 @@ function main() {
     });
   }
 
-  const outDir = mergedDir;
+  const outDir = coverageDir;
   ensureDir(outDir);
   const outFile = path.join(outDir, 'coverage-final.json');
   fs.writeFileSync(outFile, JSON.stringify(coverageMap.toJSON(), null, 2));
