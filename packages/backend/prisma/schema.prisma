@@ -23,6 +23,24 @@ model User {
   @@map("canyonjs_user")
 }
 
+model Project {
+  id                String @id
+  name              String
+  pathWithNamespace String @map("path_with_namespace")
+  description       String
+  bu                String
+  tags              Json
+  members           Json
+  autoInstrument    Json?  @map("auto_instrument")
+  coverage          String
+  defaultBranch     String @map("default_branch")
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("project")
+}
+
 model Repo {
   id                String @id
   pathWithNamespace String @map("path_with_namespace")

@@ -21,7 +21,29 @@ export class CoverageFinalService {
     private readonly prisma: PrismaService,
     @Inject('CLICKHOUSE_CLIENT')
     private readonly clickhouseClient: ClickHouseClient,
-  ) {}
+  ) {
+    // 同步老project数据
+    // this.prisma.project.findMany({
+    //   where: {}
+    // }).then(r=>{
+    //   this.prisma.repo.createMany({
+    //     data:r.map(c=>{
+    //       return {
+    //         id :c.id.split('-')[1],
+    //         pathWithNamespace:c.pathWithNamespace,
+    //         description       :c.description,
+    //         bu                :c.bu,
+    //         tags              :[],
+    //         members           :[],
+    //         scopes            :[],
+    //       }
+    //     }),
+    //     skipDuplicates:true
+    //   }).then(ccc=>{
+    //     console.log(ccc)
+    //   })
+    // })
+  }
   async invoke(
     provider: string,
     repoID: string,
