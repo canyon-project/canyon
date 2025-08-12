@@ -1,0 +1,22 @@
+{
+  "name": "hard-merge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "bootstrap": "pnpm -r --filter ./pulls/*/commits/*/repo i",
+    "pretest": "pnpm bootstrap",
+    "test": "pnpm -r --filter ./pulls/*/commits/*/repo test",
+    "precoverage": "pnpm bootstrap",
+    "coverage": "pnpm -r coverage && pnpm hard-merge:pull 1",
+    "hard-merge:pull": "node ./scripts/hard-merge.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "packageManager": "pnpm@10.13.0",
+  "dependencies": {
+    "istanbul-lib-coverage": "^3.2.0"
+  }
+}
