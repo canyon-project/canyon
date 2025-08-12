@@ -4,12 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "bootstrap": "pnpm -r --filter ./pulls/*/commits/*/repo i",
-    "pretest": "pnpm bootstrap",
-    "test": "pnpm -r --filter ./pulls/*/commits/*/repo test",
-    "precoverage": "pnpm bootstrap",
-    "coverage": "pnpm -r coverage && pnpm hard-merge:pull 1",
-    "hard-merge:pull": "node ./scripts/hard-merge.js"
+    "coverage": "pnpm -r coverage && pnpm hard-merge:pull 1 && pnpm report",
+    "hard-merge:pull": "node ./scripts/hard-merge.js",
+    "report": "node ./scripts/generate-html.js"
   },
   "keywords": [],
   "author": "",
@@ -17,6 +14,9 @@
   "private": true,
   "packageManager": "pnpm@10.13.0",
   "dependencies": {
-    "istanbul-lib-coverage": "^3.2.0"
+    "canyon-reporter": "0.0.8-beta.76",
+    "istanbul-lib-coverage": "^3.2.0",
+    "istanbul-lib-report": "^3.0.1",
+    "istanbul-reports": "^3.1.7"
   }
 }
