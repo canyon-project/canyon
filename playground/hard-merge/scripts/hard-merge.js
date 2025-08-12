@@ -91,7 +91,8 @@ function intersectUnchanged(baselineMap, otherMap) {
   return set;
 }
 
-function filterCoverageByRelSet(coverageObj, fromRepoRoot, allowedRelSet) {
+function filterCoverageByRelSet(coverageObj, fromRepoRoot, baselineRepoRoot, allowedRelSet) {
+  console.log(baselineRepoRoot,'baselineRepoRoot')
   const out = {};
   for (const absPath of Object.keys(coverageObj)) {
     let rel;
@@ -101,10 +102,15 @@ function filterCoverageByRelSet(coverageObj, fromRepoRoot, allowedRelSet) {
       continue;
     }
 
-
-    console.log(`rel`, rel, allowedRelSet);
+    // console.log(`rel`, rel, allowedRelSet);
+    if (allowedRelSet.has(rel)){
+      const baseLineAbsPath = path.join(baselineRepoRoot, rel);
+      out[baseLineAbsPath] = {
+        ...coverageObj[absPath],
+        path:baseLineAbsPath
+      };
+    }
   }
-  console.log(out,'out')
   return out;
 }
 
@@ -160,17 +166,20 @@ function main() {
     const otherCoverage = readJSON(covFile);
     const otherHashes = buildHashMap(srcRoot);
     const unchanged = intersectUnchanged(baselineHashes, otherHashes);
+    // 将相对 src/ 的路径加上前缀，便于与 repo 根相对路径匹配（如 src/add.js）
+    const unchangedWithPrefix = new Set(Array.from(unchanged).map((rel) => path.join('src', rel)));
     logger.info('提交对比结果', {
       commit: name,
       otherFiles: otherHashes.size,
-      unchanged: unchanged.size,
+      unchanged: unchangedWithPrefix.size,
       excluded: otherHashes.size - unchanged.size,
     });
 
     const filtered = filterCoverageByRelSet(
       otherCoverage,
       repoRoot,
-      unchanged,
+      baselineRepo,
+      unchangedWithPrefix,
     );
 
     coverageMap.merge(filtered);
