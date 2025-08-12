@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "vitest run --reporter=verbose",
-    "coverage": "vitest run --coverage.enabled --coverage.reporter=json --coverage.reportsDirectory=coverage"
+    "coverage": "vitest run --coverage.enabled --coverage.reportsDirectory=coverage"
   },
   "devDependencies": {
     "vitest": "^1.6.0",

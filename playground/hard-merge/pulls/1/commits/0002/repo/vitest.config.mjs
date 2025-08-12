@@ -5,7 +5,7 @@ export default {
     coverage: {
       provider: 'istanbul',
       reportsDirectory: 'coverage',
-      reporter: ['json']
+      reporter: ['json','html']
     }
   }
 };

@@ -9,7 +9,7 @@ const reports = require('istanbul-reports');
 
 const cwd = path.resolve(__dirname, '..');
 const inFile = path.join(cwd, 'coverage', 'coverage-final.json');
-const outDir = path.join(cwd, 'coverage', '');
+const outDir = path.join(cwd, 'coverage', 'html');
 
 if (!fs.existsSync(inFile)) {
   console.error('未找到合并后的覆盖率文件：', inFile);
@@ -21,7 +21,7 @@ const coverageMap = libCoverage.createCoverageMap(json);
 const context = libReport.createContext({ dir: outDir, coverageMap });
 
 // 生成 HTML 与简要文本汇总
-reports.create('canyon-reporter', { skipEmpty: false, skipFull: false }).execute(context);
+reports.create('html', { skipEmpty: false, skipFull: false }).execute(context);
 reports.create('text-summary').execute(context);
 
 console.log('已生成 HTML 覆盖率报告：', outDir);
