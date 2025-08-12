@@ -92,7 +92,6 @@ function intersectUnchanged(baselineMap, otherMap) {
 }
 
 function filterCoverageByRelSet(coverageObj, fromRepoRoot, baselineRepoRoot, allowedRelSet) {
-  console.log(baselineRepoRoot,'baselineRepoRoot')
   const out = {};
   for (const absPath of Object.keys(coverageObj)) {
     let rel;
@@ -101,8 +100,6 @@ function filterCoverageByRelSet(coverageObj, fromRepoRoot, baselineRepoRoot, all
     } catch (_) {
       continue;
     }
-
-    // console.log(`rel`, rel, allowedRelSet);
     if (allowedRelSet.has(rel)){
       const baseLineAbsPath = path.join(baselineRepoRoot, rel);
       out[baseLineAbsPath] = {
