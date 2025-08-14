@@ -1,4 +1,4 @@
-import { BaseLayout } from 'canyon-ui';
+import { BaseLayout } from '@/components/ui';
 import { MenuProps } from 'antd';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { FolderOutlined, SettingOutlined } from '@ant-design/icons';

@@ -21,7 +21,6 @@
     "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
     "publish-18": "node scripts/publish-18.js"
   },
-  "prettier": "eslint-config-canyon/prettier",
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
     "@monaco-editor/react": "^4.7.0",
@@ -39,7 +38,6 @@
     "@types/react-dom": "19.0.0",
     "@vitejs/plugin-react": "*",
     "babel-plugin-react-compiler": "*",
-    "eslint-config-canyon": "*",
     "globals": "*",
     "typescript": "*",
     "vite": "*"
