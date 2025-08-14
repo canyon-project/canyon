@@ -6,6 +6,7 @@ import (
 	"backend/models"
 	"backend/utils"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -2331,6 +2332,21 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 	}
 	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map/pull", "GET", 0, requestID, traceID, spanRelations, "", "INFO", "relations fetched", map[string]interface{}{"relations": len(coverageMapRelations)}, nil, query.RepoID, "", stepStart, time.Now())
 
+	// 若启用代码块级（函数级）合并，预取未分组的 relations，供路径->hash 映射
+	var coverageMapRelationsAll []struct {
+		CoverageID        string `gorm:"column:coverage_id"`
+		CoverageMapHashID string `gorm:"column:coverage_map_hash_id"`
+		FullFilePath      string `gorm:"column:full_file_path"`
+	}
+	if query.BlockMerge {
+		if err := pgDB.Table("canyonjs_coverage_map_relation").
+			Select("coverage_id, coverage_map_hash_id, full_file_path").
+			Where("coverage_id IN ?", coverageIDs).
+			Find(&coverageMapRelationsAll).Error; err != nil {
+			return nil, fmt.Errorf("查询coverageMapRelation(all)失败: %w", err)
+		}
+	}
+
 	// 第五步：选择“最新且有覆盖率”的baseline commit，并构建“旧commit -> 变更文件集合”
 	// 统计哪些commit有覆盖率
 	coveredSHASet := make(map[string]bool)
@@ -2449,6 +2465,27 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 	}
 	aggregatedByPath := make(map[string]*agg)
 
+	// 构建辅助索引：hash -> mapResult、(coverageID|path) -> hash、baseline 的 coverageID 集合
+	hashToMap := make(map[string]models.CoverageMapQueryResult)
+	for _, m := range coverageMapResult {
+		hashToMap[m.CoverageMapHashID] = m
+	}
+	coverageIDPathToHash := make(map[string]string)
+	baselineCoverageIDs := make(map[string]bool)
+	if query.BlockMerge {
+		for _, c := range allCoverageList {
+			if c.SHA == latestSHA {
+				baselineCoverageIDs[c.ID] = true
+			}
+		}
+		for _, r := range coverageMapRelationsAll {
+			coverageIDPathToHash[r.CoverageID+"|"+r.FullFilePath] = r.CoverageMapHashID
+		}
+	}
+
+	// GitLab 文件内容缓存
+	fileContentCache := make(map[string]string)
+
 	for _, row := range perCoverageHits {
 		cov, ok := coverageIDToItem[row.CoverageID]
 		if !ok {
@@ -2468,10 +2505,77 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 		}
 
 		if !include {
+			if !query.BlockMerge {
+				continue
+			}
+			// 代码块级（函数级）合并：仅吸收“相同函数块”的命中
+			// 找到 baseline 与当前覆盖在该路径下的 hash
+			var baseCoverageID string
+			for id := range baselineCoverageIDs {
+				baseCoverageID = id
+				break
+			}
+			if baseCoverageID == "" {
+				continue
+			}
+			baseKey := baseCoverageID + "|" + row.FullFilePath
+			otherKey := cov.ID + "|" + row.FullFilePath
+			baseHash, okA := coverageIDPathToHash[baseKey]
+			otherHash, okB := coverageIDPathToHash[otherKey]
+			if !okA || !okB {
+				continue
+			}
+			baseMap, ok1 := hashToMap[baseHash]
+			otherMap, ok2 := hashToMap[otherHash]
+			if !ok1 || !ok2 {
+				continue
+			}
+			// 拉取 baseline/other 文件内容（转换为仓库相对路径）
+			normalize := func(abs, cwd string) string {
+				p := strings.TrimPrefix(abs, cwd)
+				return strings.TrimPrefix(p, "/")
+			}
+			gitPathBase := normalize(row.FullFilePath, coverageIDToItem[baseCoverageID].InstrumentCwd)
+			gitPathOther := normalize(row.FullFilePath, cov.InstrumentCwd)
+			fetchContent := func(sha, path string) (string, error) {
+				key := sha + "|" + path
+				if s, ok := fileContentCache[key]; ok {
+					return s, nil
+				}
+				gl := NewGitLabService()
+				b64, err := gl.GetFileContentBase64(projectID, sha, path)
+				if err != nil {
+					return "", err
+				}
+				decoded, err := base64.StdEncoding.DecodeString(b64)
+				if err != nil {
+					return "", err
+				}
+				s := string(decoded)
+				fileContentCache[key] = s
+				return s, nil
+			}
+			baseContent, err1 := fetchContent(latestSHA, gitPathBase)
+			otherContent, err2 := fetchContent(cov.SHA, gitPathOther)
+			if err1 != nil || err2 != nil {
+				continue
+			}
+			contrib := s.mergeFunctionHitsByBlock(baseContent, baseMap.FnMap, otherContent, otherMap.FnMap, row.F)
+			if len(contrib) == 0 {
+				continue
+			}
+			a := aggregatedByPath[row.FullFilePath]
+			if a == nil {
+				a = &agg{S: make(map[uint32]uint32), F: make(map[uint32]uint32), B: make(map[uint32]uint32)}
+				aggregatedByPath[row.FullFilePath] = a
+			}
+			for k, v := range contrib {
+				a.F[k] += v
+			}
 			continue
 		}
 
-		// 合并到汇总
+		// 文件未变更：整文件合并
 		a := aggregatedByPath[row.FullFilePath]
 		if a == nil {
 			a = &agg{S: make(map[uint32]uint32), F: make(map[uint32]uint32), B: make(map[uint32]uint32)}

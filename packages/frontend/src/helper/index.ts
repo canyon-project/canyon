@@ -105,7 +105,10 @@ export function handleSelectFileBySubject({
   if (reportID) fileCoverageParams.reportID = reportID;
 
   const fileCoverageRequest = axios
-    .get(`/api/coverage/map`, { params: fileCoverageParams })
+    .get(`/api/coverage/map`, { params: {
+      ...fileCoverageParams,
+      blockMerge:true
+    } })
     .then(({ data }) => data[filepath || '']);
 
   return Promise.all([fileContentRequest, fileCoverageRequest]).then(([fileContent, fileCoverage]) => {

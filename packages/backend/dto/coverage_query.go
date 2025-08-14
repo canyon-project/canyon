@@ -120,4 +120,6 @@ type CoveragePullMapQueryDto struct {
 	FilePath string `form:"filePath" json:"filePath" example:"src/main.go"`
 	// @Description 请求ID（可选，用于日志追踪）
 	RequestID string `form:"requestID" json:"requestID" example:"req-123"`
+	// @Description 是否启用代码块级（函数级）合并；默认false，仅文件级
+	BlockMerge bool `form:"blockMerge" json:"blockMerge" example:"false"`
 }
