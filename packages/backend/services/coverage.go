@@ -2558,12 +2558,41 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 			baseContent, err1 := fetchContent(latestSHA, gitPathBase)
 			otherContent, err2 := fetchContent(cov.SHA, gitPathOther)
 			if err1 != nil || err2 != nil {
+				_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map/pull", "GET", 0, requestID, traceID, spanMerge, "", "WARN", "block merge skip: fetch content failed", map[string]interface{}{
+					"path":        row.FullFilePath,
+					"baselineSHA": latestSHA,
+					"otherSHA":    cov.SHA,
+					"errorBase":   err1,
+					"errorOther":  err2,
+				}, nil, query.RepoID, latestSHA, time.Now(), time.Now())
 				continue
 			}
 			contrib := s.mergeFunctionHitsByBlock(baseContent, baseMap.FnMap, otherContent, otherMap.FnMap, row.F)
 			if len(contrib) == 0 {
+				_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map/pull", "GET", 0, requestID, traceID, spanMerge, "", "INFO", "block merge no matched functions", map[string]interface{}{
+					"path":         row.FullFilePath,
+					"baselineHash": baseHash,
+					"otherHash":    otherHash,
+					"baseFnCount":  len(baseMap.FnMap),
+					"otherFnCount": len(otherMap.FnMap),
+				}, nil, query.RepoID, latestSHA, time.Now(), time.Now())
 				continue
 			}
+			// 统计匹配数量与累计增量
+			matched := len(contrib)
+			sumInc := 0
+			for _, v := range contrib {
+				sumInc += int(v)
+			}
+			_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map/pull", "GET", 0, requestID, traceID, spanMerge, "", "INFO", "block merge applied", map[string]interface{}{
+				"path":         row.FullFilePath,
+				"baselineHash": baseHash,
+				"otherHash":    otherHash,
+				"baseFnCount":  len(baseMap.FnMap),
+				"otherFnCount": len(otherMap.FnMap),
+				"matchedFns":   matched,
+				"sumInc":       sumInc,
+			}, nil, query.RepoID, latestSHA, time.Now(), time.Now())
 			a := aggregatedByPath[row.FullFilePath]
 			if a == nil {
 				a = &agg{S: make(map[uint32]uint32), F: make(map[uint32]uint32), B: make(map[uint32]uint32)}
