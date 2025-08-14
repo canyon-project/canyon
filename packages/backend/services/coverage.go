@@ -2567,39 +2567,54 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 				}, nil, query.RepoID, latestSHA, time.Now(), time.Now())
 				continue
 			}
-			contrib := s.mergeFunctionHitsByBlock(baseContent, baseMap.FnMap, otherContent, otherMap.FnMap, row.F)
-			if len(contrib) == 0 {
-				_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map/pull", "GET", 0, requestID, traceID, spanMerge, "", "INFO", "block merge no matched functions", map[string]interface{}{
-					"path":         row.FullFilePath,
-					"baselineHash": baseHash,
-					"otherHash":    otherHash,
-					"baseFnCount":  len(baseMap.FnMap),
-					"otherFnCount": len(otherMap.FnMap),
+			contribFn := s.mergeFunctionHitsByBlock(baseContent, baseMap.FnMap, otherContent, otherMap.FnMap, row.F)
+			contribSt := s.mergeStatementHitsByBlock(baseContent, baseMap.StatementMap, otherContent, otherMap.StatementMap, row.S)
+			if len(contribFn) == 0 && len(contribSt) == 0 {
+				_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map/pull", "GET", 0, requestID, traceID, spanMerge, "", "INFO", "block merge no matched functions/statements", map[string]interface{}{
+					"path":           row.FullFilePath,
+					"baselineHash":   baseHash,
+					"otherHash":      otherHash,
+					"baseFnCount":    len(baseMap.FnMap),
+					"otherFnCount":   len(otherMap.FnMap),
+					"baseStmtCount":  len(baseMap.StatementMap),
+					"otherStmtCount": len(otherMap.StatementMap),
 				}, nil, query.RepoID, latestSHA, time.Now(), time.Now())
 				continue
 			}
 			// 统计匹配数量与累计增量
-			matched := len(contrib)
-			sumInc := 0
-			for _, v := range contrib {
-				sumInc += int(v)
+			matchedFn := len(contribFn)
+			sumFn := 0
+			for _, v := range contribFn {
+				sumFn += int(v)
+			}
+			matchedSt := len(contribSt)
+			sumSt := 0
+			for _, v := range contribSt {
+				sumSt += int(v)
 			}
 			_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map/pull", "GET", 0, requestID, traceID, spanMerge, "", "INFO", "block merge applied", map[string]interface{}{
-				"path":         row.FullFilePath,
-				"baselineHash": baseHash,
-				"otherHash":    otherHash,
-				"baseFnCount":  len(baseMap.FnMap),
-				"otherFnCount": len(otherMap.FnMap),
-				"matchedFns":   matched,
-				"sumInc":       sumInc,
+				"path":           row.FullFilePath,
+				"baselineHash":   baseHash,
+				"otherHash":      otherHash,
+				"baseFnCount":    len(baseMap.FnMap),
+				"otherFnCount":   len(otherMap.FnMap),
+				"baseStmtCount":  len(baseMap.StatementMap),
+				"otherStmtCount": len(otherMap.StatementMap),
+				"matchedFns":     matchedFn,
+				"sumFn":          sumFn,
+				"matchedStmts":   matchedSt,
+				"sumSt":          sumSt,
 			}, nil, query.RepoID, latestSHA, time.Now(), time.Now())
 			a := aggregatedByPath[row.FullFilePath]
 			if a == nil {
 				a = &agg{S: make(map[uint32]uint32), F: make(map[uint32]uint32), B: make(map[uint32]uint32)}
 				aggregatedByPath[row.FullFilePath] = a
 			}
-			for k, v := range contrib {
+			for k, v := range contribFn {
 				a.F[k] += v
+			}
+			for k, v := range contribSt {
+				a.S[k] += v
 			}
 			continue
 		}
