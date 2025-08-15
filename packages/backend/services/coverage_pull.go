@@ -303,32 +303,49 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 				continue
 			}
 			// 块级合并
-			baseKey := baselineCovID + "|" + row.FullFilePath
-			otherKey := covItem.ID + "|" + row.FullFilePath
-			baseHash, okA := covPathToHash[baseKey]
-			otherHash, okB := covPathToHash[otherKey]
-			if !okA || !okB {
-				continue
-			}
-			baseMap, ok1 := hashToMap[baseHash]
-			otherMap, ok2 := hashToMap[otherHash]
-			if !ok1 || !ok2 {
-				continue
-			}
-			baseContent, err1 := fetch(headSHA, normalize(row.FullFilePath, baselineInstrumentCwd))
-			otherContent, err2 := fetch(covItem.SHA, relPath)
-			if err1 != nil || err2 != nil {
-				continue
-			}
-			contribFn := s.mergeFunctionHitsByBlock(baseContent, baseMap.FnMap, otherContent, otherMap.FnMap, row.F)
-			contribSt := s.mergeStatementHitsByBlock(baseContent, baseMap.StatementMap, otherContent, otherMap.StatementMap, row.S)
-			agg := ensure(row.FullFilePath)
-			for k, v := range contribFn {
-				agg.F[k] += v
-			}
-			for k, v := range contribSt {
-				agg.S[k] += v
-			}
+			// 打印fetch
+			fmt.Printf("fetch %s %s\n", fetch)
+			// baseKey := baselineCovID + "|" + row.FullFilePath
+			// otherKey := covItem.ID + "|" + row.FullFilePath
+			// baseHash, okA := covPathToHash[baseKey]
+			// otherHash, okB := covPathToHash[otherKey]
+			// if !okA || !okB {
+			// 	continue
+			// }
+			// baseMap, ok1 := hashToMap[baseHash]
+			// otherMap, ok2 := hashToMap[otherHash]
+			// if !ok1 || !ok2 {
+			// 	continue
+			// }
+
+			// // 仅对包含 B0.tsx 的文件打印详细调试日志（基线覆盖率对象）
+			// if strings.Contains(row.FullFilePath, "B0.tsx") {
+			// 	bc := covByID[baselineCovID]
+			// 	log.Printf("[blockMerge][baseline] path=%s baseCovID=%s baselineSHA=%s baseKey=%s baseHash=%s baseStmt=%d baseFn=%d baseBr=%d instrumentCwd=%s",
+			// 		row.FullFilePath, baselineCovID, bc.SHA, baseKey, baseHash, len(baseMap.StatementMap), len(baseMap.FnMap), len(baseMap.BranchMap), bc.InstrumentCwd,
+			// 	)
+			// 	log.Printf("[blockMerge][other] covID=%s sha=%s otherKey=%s otherHash=%s otherStmt=%d otherFn=%d otherBr=%d instrumentCwd=%s",
+			// 		covItem.ID, covItem.SHA, otherKey, otherHash, len(otherMap.StatementMap), len(otherMap.FnMap), len(otherMap.BranchMap), covItem.InstrumentCwd,
+			// 	)
+			// }
+
+			// baseContent, err1 := fetch(headSHA, normalize(row.FullFilePath, baselineInstrumentCwd))
+			// otherContent, err2 := fetch(covItem.SHA, relPath)
+			// if err1 != nil || err2 != nil {
+			// 	continue
+			// }
+			// if strings.Contains(row.FullFilePath, "B0.tsx") {
+			// 	log.Printf("[blockMerge][content] path=%s baseLen=%d otherLen=%d", row.FullFilePath, len(baseContent), len(otherContent))
+			// }
+			// contribFn := s.mergeFunctionHitsByBlock(baseContent, baseMap.FnMap, otherContent, otherMap.FnMap, row.F)
+			// contribSt := s.mergeStatementHitsByBlock(baseContent, baseMap.StatementMap, otherContent, otherMap.StatementMap, row.S)
+			// agg := ensure(row.FullFilePath)
+			// for k, v := range contribFn {
+			// 	agg.F[k] += v
+			// }
+			// for k, v := range contribSt {
+			// 	agg.S[k] += v
+			// }
 		}
 	}
 
