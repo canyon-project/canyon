@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"backend/services"
+	"backend/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -24,32 +25,32 @@ func NewConfigHandler(configService *services.ConfigService) *ConfigHandler {
 func (h *ConfigHandler) GetAllConfigs(c *gin.Context) {
 	configs, err := h.configService.GetAllConfigs()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, configs)
+	utils.Response.Success(c, configs)
 }
 
 // GetConfigByKey 根据key获取配置
 func (h *ConfigHandler) GetConfigByKey(c *gin.Context) {
 	key := c.Param("key")
 	if key == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "key is required"})
+		utils.Response.BadRequest(c, "key is required")
 		return
 	}
 
 	config, err := h.configService.GetConfigByKey(key)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "配置不存在"})
+			utils.Response.NotFound(c, "配置不存在")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, config)
+	utils.Response.Success(c, config)
 }
 
 // CreateConfig 创建配置
@@ -59,14 +60,14 @@ func (h *ConfigHandler) CreateConfig(c *gin.Context) {
 		Value string `json:"value" binding:"required"`
 	}
 
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := utils.Binding.BindAndValidate(c, &request); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
 
 	config, err := h.configService.CreateConfig(request.Key, request.Value)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
@@ -77,7 +78,7 @@ func (h *ConfigHandler) CreateConfig(c *gin.Context) {
 func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 	key := c.Param("key")
 	if key == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "key is required"})
+		utils.Response.BadRequest(c, "key is required")
 		return
 	}
 
@@ -85,48 +86,48 @@ func (h *ConfigHandler) UpdateConfig(c *gin.Context) {
 		Value string `json:"value" binding:"required"`
 	}
 
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := utils.Binding.BindAndValidate(c, &request); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
 
 	config, err := h.configService.UpdateConfig(key, request.Value)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "配置不存在"})
+			utils.Response.NotFound(c, "配置不存在")
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, config)
+	utils.Response.Success(c, config)
 }
 
 // DeleteConfig 删除配置
 func (h *ConfigHandler) DeleteConfig(c *gin.Context) {
 	key := c.Param("key")
 	if key == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "key is required"})
+		utils.Response.BadRequest(c, "key is required")
 		return
 	}
 
 	err := h.configService.DeleteConfig(key)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "配置删除成功"})
+	utils.Response.SuccessWithMessage(c, nil, "配置删除成功")
 }
 
 // InitConfigs 初始化配置
 func (h *ConfigHandler) InitConfigs(c *gin.Context) {
 	err := h.configService.InitDefaultConfigs()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "配置初始化成功"})
+	utils.Response.SuccessWithMessage(c, nil, "配置初始化成功")
 }

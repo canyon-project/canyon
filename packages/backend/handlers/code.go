@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"backend/services"
-	"net/http"
+	"backend/utils"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -28,18 +28,18 @@ func (h *CodeHandler) GetFileContent(c *gin.Context) {
 	filepath := c.Query("filepath")
 
 	if repoIDStr == "" || filepath == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "repoID, filepath 为必填参数"})
+		utils.Response.BadRequest(c, "repoID, filepath 为必填参数")
 		return
 	}
 
 	if sha == "" && pullNumberStr == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "sha 与 pullNumber 至少提供一个"})
+		utils.Response.BadRequest(c, "sha 与 pullNumber 至少提供一个")
 		return
 	}
 
 	repoID, err := strconv.Atoi(repoIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "repoID 必须是数字"})
+		utils.Response.BadRequest(c, "repoID 必须是数字")
 		return
 	}
 
@@ -47,12 +47,12 @@ func (h *CodeHandler) GetFileContent(c *gin.Context) {
 	if sha == "" && pullNumberStr != "" {
 		pullID, err := strconv.Atoi(pullNumberStr)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "pullNumber 必须是数字"})
+			utils.Response.BadRequest(c, "pullNumber 必须是数字")
 			return
 		}
 		pr, err := h.gitlabService.GetPullRequest(repoID, pullID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			utils.Response.InternalServerError(c, err)
 			return
 		}
 		if pr != nil && pr.DiffRefs.HeadSha != "" {
@@ -60,18 +60,18 @@ func (h *CodeHandler) GetFileContent(c *gin.Context) {
 		} else if pr != nil && len(pr.Commits) > 0 {
 			sha = pr.Commits[len(pr.Commits)-1].ID
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "无法从Pull Request解析head sha"})
+			utils.Response.BadRequest(c, "无法从Pull Request解析head sha")
 			return
 		}
 	}
 
 	content, err := h.gitlabService.GetFileContentBase64(repoID, sha, filepath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"content": content})
+	utils.Response.Success(c, gin.H{"content": content})
 }
 
 // GetPullRequest 获取Pull Request信息
@@ -83,24 +83,24 @@ func (h *CodeHandler) GetPullRequest(c *gin.Context) {
 	// 转换参数类型
 	projectID, err := strconv.Atoi(projectIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "项目ID必须是数字"})
+		utils.Response.BadRequest(c, "项目ID必须是数字")
 		return
 	}
 
 	pullRequestID, err := strconv.Atoi(pullRequestIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Pull Request ID必须是数字"})
+		utils.Response.BadRequest(c, "Pull Request ID必须是数字")
 		return
 	}
 
 	// 获取Pull Request信息，包含差异
 	result, err := h.gitlabService.GetPullRequestWithDiffs(projectID, pullRequestID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	utils.Response.Success(c, result)
 }
 
 // GetPullRequestChanges 获取Pull Request变更信息
@@ -112,40 +112,40 @@ func (h *CodeHandler) GetPullRequestChanges(c *gin.Context) {
 	// 转换参数类型
 	projectID, err := strconv.Atoi(projectIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "项目ID必须是数字"})
+		utils.Response.BadRequest(c, "项目ID必须是数字")
 		return
 	}
 
 	pullRequestID, err := strconv.Atoi(pullRequestIDStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Pull Request ID必须是数字"})
+		utils.Response.BadRequest(c, "Pull Request ID必须是数字")
 		return
 	}
 
 	// 获取Pull Request变更信息
 	changes, err := h.gitlabService.GetPullRequestChanges(projectID, pullRequestID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, changes)
+	utils.Response.Success(c, changes)
 }
 
 // GetProjectByPath 根据路径获取项目信息
 func (h *CodeHandler) GetProjectByPath(c *gin.Context) {
 	path := c.Param("path")
 	if path == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "项目路径不能为空"})
+		utils.Response.BadRequest(c, "项目路径不能为空")
 		return
 	}
 
 	// 获取项目信息
 	project, err := h.gitlabService.GetProjectByPath(path)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, project)
+	utils.Response.Success(c, project)
 }

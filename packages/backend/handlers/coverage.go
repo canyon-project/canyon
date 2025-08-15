@@ -4,7 +4,6 @@ import (
 	"backend/dto"
 	"backend/services"
 	"backend/utils"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -24,147 +23,112 @@ func NewCoverageHandler(coverageService *services.CoverageService) *CoverageHand
 // GetCoverageSummary 获取一个commit的覆盖率概览 - 新的主要接口
 func (h *CoverageHandler) GetCoverageSummary(c *gin.Context) {
 	var query dto.CoverageSummaryQueryDto
-	if err := c.ShouldBindQuery(&query); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := utils.Binding.BindAndValidate(c, &query); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
 
-	// 准备请求ID，并回写到响应头
-	if query.RequestID == "" {
-		query.RequestID = utils.GenerateRequestID()
-	}
-	c.Header("X-Request-ID", query.RequestID)
-
 	// 验证必需参数
 	if query.Provider == "" || query.RepoID == "" || query.SHA == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "provider, repoID, and sha are required",
-		})
+		utils.Response.BadRequest(c, "provider, repoID, and sha are required")
 		return
 	}
 
 	// 调用新的服务方法获取覆盖率摘要
 	result, err := h.coverageService.GetCoverageSummaryByRepoAndSHA(query.RepoID, query.SHA)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	utils.Response.Success(c, result)
 }
 
 // GetCoverageSummaryMap 获取覆盖率摘要映射
 func (h *CoverageHandler) GetCoverageSummaryMap(c *gin.Context) {
 	var query dto.CoverageQueryDto
-	if err := c.ShouldBindQuery(&query); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := utils.Binding.BindAndValidate(c, &query); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
-
-	if query.RequestID == "" {
-		query.RequestID = utils.GenerateRequestID()
-	}
-	c.Header("X-Request-ID", query.RequestID)
 
 	// 调用服务直接在数据库计算摘要（深度优化版本）
 	summaryMap, err := h.coverageService.GetCoverageSummaryMapFast(query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, summaryMap)
+	utils.Response.Success(c, summaryMap)
 }
 
 // GetCoverageMap 获取覆盖率映射
 func (h *CoverageHandler) GetCoverageMap(c *gin.Context) {
 	var query dto.CoverageQueryDto
-	if err := c.ShouldBindQuery(&query); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := utils.Binding.BindAndValidate(c, &query); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
 
-	if query.RequestID == "" {
-		query.RequestID = utils.GenerateRequestID()
-	}
-	c.Header("X-Request-ID", query.RequestID)
-
 	// 验证必需参数
 	if query.Provider == "" || query.RepoID == "" || query.SHA == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "provider, repoID, and sha are required",
-		})
+		utils.Response.BadRequest(c, "provider, repoID, and sha are required")
 		return
 	}
 
 	// 调用服务获取覆盖率映射数据
 	result, err := h.coverageService.GetCoverageMap(query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	utils.Response.Success(c, result)
 }
 
 // GetCoverageSummaryForPull 获取一个pull request的覆盖率概览
 func (h *CoverageHandler) GetCoverageSummaryForPull(c *gin.Context) {
 	var query dto.CoveragePullQueryDto
-	if err := c.ShouldBindQuery(&query); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := utils.Binding.BindAndValidate(c, &query); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
 
-	if query.RequestID == "" {
-		query.RequestID = utils.GenerateRequestID()
-	}
-	c.Header("X-Request-ID", query.RequestID)
-
 	// 验证必需参数
 	if query.Provider == "" || query.RepoID == "" || query.PullNumber == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "provider, repoID, and pullNumber are required",
-		})
+		utils.Response.BadRequest(c, "provider, repoID, and pullNumber are required")
 		return
 	}
 
 	// 获取PR覆盖率概览（合并所有构建，不区分buildID/buildProvider）
 	result, err := h.coverageService.GetCoverageSummaryForPull(query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, result)
+	utils.Response.Success(c, result)
 }
 
 // GetCoverageSummaryForCommits 获取多个commits的覆盖率概览
 func (h *CoverageHandler) GetCoverageSummaryForCommits(c *gin.Context) {
 	var query dto.CoverageCommitsQueryDto
-	if err := c.ShouldBindQuery(&query); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := utils.Binding.BindAndValidate(c, &query); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
 
-	if query.RequestID == "" {
-		query.RequestID = utils.GenerateRequestID()
-	}
-	c.Header("X-Request-ID", query.RequestID)
-
 	// 验证必需参数
 	if query.Provider == "" || query.RepoID == "" || query.SHAs == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "provider, repoID, and shas are required",
-		})
+		utils.Response.BadRequest(c, "provider, repoID, and shas are required")
 		return
 	}
 
 	// TODO: 实现获取多个commits覆盖率概览的逻辑
-	c.JSON(http.StatusOK, gin.H{
-		"message": "TODO: 实现获取多个commits覆盖率概览的功能",
-		"status":  "not_implemented",
-		"params":  query,
-	})
+	utils.Response.SuccessWithMessage(c, gin.H{
+		"status": "not_implemented",
+		"params": query,
+	}, "TODO: 实现获取多个commits覆盖率概览的功能")
 }
 
 // GetCoverageOverviewBySubject 统一入口：根据 subject/subjectID 获取覆盖率概览
@@ -173,8 +137,9 @@ func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
 	subjectID := c.Query("subjectID") // sha | pullNumber | shas (comma)
 	provider := c.Query("provider")
 	repoID := c.Query("repoID")
+	
 	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, subject, subjectID are required"})
+		utils.Response.BadRequest(c, "provider, repoID, subject, subjectID are required")
 		return
 	}
 
@@ -182,10 +147,10 @@ func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
 	case "commit", "commits":
 		result, err := h.coverageService.GetCoverageSummaryByRepoAndSHA(repoID, subjectID)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			utils.Response.InternalServerError(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, result)
+		utils.Response.Success(c, result)
 		return
 	case "pull", "pulls":
 		// 复用现有 PR 概览
@@ -195,16 +160,16 @@ func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
 		q.PullNumber = subjectID
 		result, err := h.coverageService.GetCoverageSummaryForPull(q)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			utils.Response.InternalServerError(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, result)
+		utils.Response.Success(c, result)
 		return
 	case "multiple-commits", "multi-commits":
-		c.JSON(http.StatusBadRequest, gin.H{"error": "overview for multiple-commits is not supported yet"})
+		utils.Response.BadRequest(c, "overview for multiple-commits is not supported yet")
 		return
 	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid subject"})
+		utils.Response.BadRequest(c, "invalid subject")
 		return
 	}
 }
@@ -216,8 +181,9 @@ func (h *CoverageHandler) GetCoverageSummaryMapBySubject(c *gin.Context) {
 	provider := c.Query("provider")
 	repoID := c.Query("repoID")
 	filePath := c.Query("filePath")
+	
 	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, subject, subjectID are required"})
+		utils.Response.BadRequest(c, "provider, repoID, subject, subjectID are required")
 		return
 	}
 
@@ -226,33 +192,32 @@ func (h *CoverageHandler) GetCoverageSummaryMapBySubject(c *gin.Context) {
 		q := dto.CoverageQueryDto{Provider: provider, RepoID: repoID, SHA: subjectID, FilePath: filePath}
 		result, err := h.coverageService.GetCoverageSummaryMapFast(q)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			utils.Response.InternalServerError(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, result)
+		utils.Response.Success(c, result)
 		return
 	case "pull", "pulls":
 		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath}
 		result, err := h.coverageService.GetCoverageSummaryMapForPull(q)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			utils.Response.InternalServerError(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, result)
+		utils.Response.Success(c, result)
 		return
 	case "multiple-commits", "multi-commits":
 		q := dto.CoverageCommitsQueryDto{Provider: provider, RepoID: repoID, SHAs: subjectID}
-		// CoverageCommitsQueryDto 没有 filePath 字段用于摘要，简易处理：附带 filePath 通过 query 传递（服务会读取 query.FilePath 吗？有字段）
 		q.FilePath = filePath
 		result, err := h.coverageService.GetCoverageSummaryMapForMultipleCommits(q)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			utils.Response.InternalServerError(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, result)
+		utils.Response.Success(c, result)
 		return
 	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid subject"})
+		utils.Response.BadRequest(c, "invalid subject")
 		return
 	}
 }
@@ -269,8 +234,9 @@ func (h *CoverageHandler) GetCoverageMapBySubject(c *gin.Context) {
 	reportProvider := c.Query("reportProvider")
 	reportID := c.Query("reportID")
 	blockMerge := c.Query("blockMerge") == "true" // 是否启用代码块级（函数级）合并，默认为 false
+	
 	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, subject, subjectID are required"})
+		utils.Response.BadRequest(c, "provider, repoID, subject, subjectID are required")
 		return
 	}
 
@@ -279,32 +245,32 @@ func (h *CoverageHandler) GetCoverageMapBySubject(c *gin.Context) {
 		q := dto.CoverageQueryDto{Provider: provider, RepoID: repoID, SHA: subjectID, FilePath: filePath, BuildProvider: buildProvider, BuildID: buildID, ReportProvider: reportProvider, ReportID: reportID}
 		result, err := h.coverageService.GetCoverageMap(q)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			utils.Response.InternalServerError(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, result)
+		utils.Response.Success(c, result)
 		return
 	case "pull", "pulls":
 		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath, BuildProvider: buildProvider, BuildID: buildID, ReportProvider: reportProvider, ReportID: reportID, BlockMerge: blockMerge}
 		result, err := h.coverageService.GetCoverageMapForPull(q)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			utils.Response.InternalServerError(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, result)
+		utils.Response.Success(c, result)
 		return
 	case "multiple-commits", "multi-commits":
 		q := dto.CoverageCommitsQueryDto{Provider: provider, RepoID: repoID, SHAs: subjectID}
 		q.FilePath = filePath
 		result, err := h.coverageService.GetCoverageMapForMultipleCommits(q)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			utils.Response.InternalServerError(c, err)
 			return
 		}
-		c.JSON(http.StatusOK, result)
+		utils.Response.Success(c, result)
 		return
 	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid subject"})
+		utils.Response.BadRequest(c, "invalid subject")
 		return
 	}
 }
@@ -312,51 +278,43 @@ func (h *CoverageHandler) GetCoverageMapBySubject(c *gin.Context) {
 // GetCoverageMapForMultipleCommits 获取多commits的覆盖率映射（详细）
 func (h *CoverageHandler) GetCoverageMapForMultipleCommits(c *gin.Context) {
 	var query dto.CoverageCommitsQueryDto
-	if err := c.ShouldBindQuery(&query); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := utils.Binding.BindAndValidate(c, &query); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
 
 	if query.Provider == "" || query.RepoID == "" || query.SHAs == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, and shas are required"})
+		utils.Response.BadRequest(c, "provider, repoID, and shas are required")
 		return
 	}
-
-	if query.RequestID == "" {
-		query.RequestID = utils.GenerateRequestID()
-	}
-	c.Header("X-Request-ID", query.RequestID)
 
 	result, err := h.coverageService.GetCoverageMapForMultipleCommits(query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, result)
+	
+	utils.Response.Success(c, result)
 }
 
 // GetCoverageSummaryMapForMultipleCommits 获取多commits的覆盖率摘要映射
 func (h *CoverageHandler) GetCoverageSummaryMapForMultipleCommits(c *gin.Context) {
 	var query dto.CoverageCommitsQueryDto
-	if err := c.ShouldBindQuery(&query); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	if err := utils.Binding.BindAndValidate(c, &query); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
 
 	if query.Provider == "" || query.RepoID == "" || query.SHAs == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "provider, repoID, and shas are required"})
+		utils.Response.BadRequest(c, "provider, repoID, and shas are required")
 		return
 	}
-
-	if query.RequestID == "" {
-		query.RequestID = utils.GenerateRequestID()
-	}
-	c.Header("X-Request-ID", query.RequestID)
 
 	result, err := h.coverageService.GetCoverageSummaryMapForMultipleCommits(query)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.Response.InternalServerError(c, err)
 		return
 	}
-	c.JSON(http.StatusOK, result)
+	
+	utils.Response.Success(c, result)
 }
