@@ -26,7 +26,7 @@ func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
 	subjectID := c.Query("subjectID") // sha | pullNumber | shas (comma)
 	provider := c.Query("provider")
 	repoID := c.Query("repoID")
-	
+
 	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
 		utils.Response.BadRequest(c, "provider, repoID, subject, subjectID are required")
 		return
@@ -38,6 +38,13 @@ func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
 		if err != nil {
 			utils.Response.InternalServerError(c, err)
 			return
+		}
+		// 兼容前端期望：直接返回 resultList 数组
+		if resultMap, ok := result.(map[string]interface{}); ok {
+			if list, exists := resultMap["resultList"]; exists {
+				utils.Response.Success(c, list)
+				return
+			}
 		}
 		utils.Response.Success(c, result)
 		return
@@ -70,7 +77,7 @@ func (h *CoverageHandler) GetCoverageSummaryMapBySubject(c *gin.Context) {
 	provider := c.Query("provider")
 	repoID := c.Query("repoID")
 	filePath := c.Query("filePath")
-	
+
 	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
 		utils.Response.BadRequest(c, "provider, repoID, subject, subjectID are required")
 		return
@@ -123,7 +130,7 @@ func (h *CoverageHandler) GetCoverageMapBySubject(c *gin.Context) {
 	reportProvider := c.Query("reportProvider")
 	reportID := c.Query("reportID")
 	blockMerge := c.Query("blockMerge") == "true" // 是否启用代码块级（函数级）合并，默认为 false
-	
+
 	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
 		utils.Response.BadRequest(c, "provider, repoID, subject, subjectID are required")
 		return
