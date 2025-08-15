@@ -8,11 +8,10 @@ import (
 
 // APIResponse 统一的API响应结构
 type APIResponse struct {
-	Success   bool        `json:"success"`
-	Data      interface{} `json:"data,omitempty"`
-	Error     string      `json:"error,omitempty"`
-	Message   string      `json:"message,omitempty"`
-	RequestID string      `json:"requestId,omitempty"`
+	Success bool        `json:"success"`
+	Data    interface{} `json:"data,omitempty"`
+	Error   string      `json:"error,omitempty"`
+	Message string      `json:"message,omitempty"`
 }
 
 // ResponseHelper 响应助手
@@ -25,42 +24,34 @@ func NewResponseHelper() *ResponseHelper {
 
 // Success 成功响应
 func (r *ResponseHelper) Success(c *gin.Context, data interface{}) {
-	requestID := c.GetString("requestID")
 	c.JSON(http.StatusOK, APIResponse{
-		Success:   true,
-		Data:      data,
-		RequestID: requestID,
+		Success: true,
+		Data:    data,
 	})
 }
 
 // SuccessWithMessage 带消息的成功响应
 func (r *ResponseHelper) SuccessWithMessage(c *gin.Context, data interface{}, message string) {
-	requestID := c.GetString("requestID")
 	c.JSON(http.StatusOK, APIResponse{
-		Success:   true,
-		Data:      data,
-		Message:   message,
-		RequestID: requestID,
+		Success: true,
+		Data:    data,
+		Message: message,
 	})
 }
 
 // Error 错误响应
 func (r *ResponseHelper) Error(c *gin.Context, statusCode int, err error) {
-	requestID := c.GetString("requestID")
 	c.JSON(statusCode, APIResponse{
-		Success:   false,
-		Error:     err.Error(),
-		RequestID: requestID,
+		Success: false,
+		Error:   err.Error(),
 	})
 }
 
 // ErrorWithMessage 带自定义消息的错误响应
 func (r *ResponseHelper) ErrorWithMessage(c *gin.Context, statusCode int, message string) {
-	requestID := c.GetString("requestID")
 	c.JSON(statusCode, APIResponse{
-		Success:   false,
-		Error:     message,
-		RequestID: requestID,
+		Success: false,
+		Error:   message,
 	})
 }
 

@@ -1,8 +1,6 @@
 package utils
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"io"
 	"log"
 	"os"
@@ -38,11 +36,4 @@ func SetupLogger(logFile string) error {
 	return nil
 }
 
-// GenerateRequestID 生成随机的请求ID（16字节随机数的hex）
-func GenerateRequestID() string {
-	b := make([]byte, 16)
-	if _, err := rand.Read(b); err != nil {
-		return ""
-	}
-	return hex.EncodeToString(b)
-}
+

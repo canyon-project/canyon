@@ -27,38 +27,10 @@ func (b *BindingHelper) BindAndValidate(c *gin.Context, obj interface{}) error {
 		}
 	}
 
-	// 设置RequestID（如果对象有RequestID字段）
-	if err := b.setRequestID(c, obj); err != nil {
-		return err
-	}
-
 	return nil
 }
 
-// setRequestID 设置RequestID到对象中
-func (b *BindingHelper) setRequestID(c *gin.Context, obj interface{}) error {
-	requestID := c.GetString("requestID")
-	if requestID == "" {
-		return nil
-	}
 
-	// 使用反射设置RequestID字段
-	v := reflect.ValueOf(obj)
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-
-	if v.Kind() != reflect.Struct {
-		return nil
-	}
-
-	field := v.FieldByName("RequestID")
-	if field.IsValid() && field.CanSet() && field.Kind() == reflect.String {
-		field.SetString(requestID)
-	}
-
-	return nil
-}
 
 // ValidateStruct 验证结构体字段
 func (b *BindingHelper) ValidateStruct(obj interface{}) []string {

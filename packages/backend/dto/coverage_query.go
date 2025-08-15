@@ -19,8 +19,6 @@ type CoverageQueryDto struct {
 	ReportID string `form:"reportID" json:"reportID" example:"report-456"`
 	// @Description 文件路径
 	FilePath string `form:"filePath" json:"filePath" example:"src/main.go"`
-	// @Description 请求ID（可选，用于日志追踪）
-	RequestID string `form:"requestID" json:"requestID" example:"req-123"`
 }
 
 // CoverageSummaryQueryDto 覆盖率摘要查询参数 - 新的路由参数结构
@@ -42,8 +40,6 @@ type CoverageSummaryQueryDto struct {
 	ReportID string `form:"reportID" json:"reportID" example:"report-456"`
 	// @Description 文件路径
 	FilePath string `form:"filePath" json:"filePath" example:"src/main.go"`
-	// @Description 请求ID（可选，用于日志追踪）
-	RequestID string `form:"requestID" json:"requestID" example:"req-123"`
 }
 
 // RepoQueryDto 仓库查询参数
@@ -72,8 +68,6 @@ type CoveragePullQueryDto struct {
 	ReportID string `form:"reportID" json:"reportID" example:"report-456"`
 	// @Description 文件路径
 	FilePath string `form:"filePath" json:"filePath" example:"src/main.go"`
-	// @Description 请求ID（可选，用于日志追踪）
-	RequestID string `form:"requestID" json:"requestID" example:"req-123"`
 }
 
 // CoverageCommitsQueryDto 多个commits覆盖率查询参数
@@ -95,8 +89,6 @@ type CoverageCommitsQueryDto struct {
 	ReportID string `form:"reportID" json:"reportID" example:"report-456"`
 	// @Description 文件路径
 	FilePath string `form:"filePath" json:"filePath" example:"src/main.go"`
-	// @Description 请求ID（可选，用于日志追踪）
-	RequestID string `form:"requestID" json:"requestID" example:"req-123"`
 	// @Description 是否启用代码块级（函数级）合并；默认false，仅文件级
 	BlockMerge bool `form:"blockMerge" json:"blockMerge" example:"false"`
 }
@@ -120,8 +112,6 @@ type CoveragePullMapQueryDto struct {
 	ReportID string `form:"reportID" json:"reportID" example:"report-456"`
 	// @Description 文件路径
 	FilePath string `form:"filePath" json:"filePath" example:"src/main.go"`
-	// @Description 请求ID（可选，用于日志追踪）
-	RequestID string `form:"requestID" json:"requestID" example:"req-123"`
 	// @Description 是否启用代码块级（函数级）合并；默认false，仅文件级
 	BlockMerge bool `form:"blockMerge" json:"blockMerge" example:"false"`
 }
