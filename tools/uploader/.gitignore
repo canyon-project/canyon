@@ -1,13 +1,28 @@
+# Rust
 /target
 Cargo.lock
+
+# IDE
 .idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
 /tmp
+*.tmp
+*.temp
+
+# Canyon specific
 .canyon_output
-
-# Added by cargo
-#
-# already existing elements were commented out
-
-#/target
-
 request_body.json
+*.log
+
+# Test artifacts
+/tests/temp/
+/tests/fixtures/temp/
