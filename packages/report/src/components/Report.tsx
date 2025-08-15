@@ -1,6 +1,7 @@
 import { useTrans } from "../locales";
-import { ReportProps } from "../types";
-import { FC, useEffect, useMemo, useState } from "react";
+import { ReportProps, ThemeEnum } from "../types";
+import { FC, useEffect, useMemo, useState, Suspense } from "react";
+import { Spin } from "antd";
 import TopControl from "./widgets/TopControl";
 import { FileCoverageData } from "istanbul-lib-coverage";
 import SummaryHeader from "./widgets/SummaryHeader";
@@ -20,6 +21,8 @@ const ReportComponent: FC<ReportProps> = ({
   const t = useTrans();
 
   // 内部状态
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [currentTheme, setCurrentTheme] = useState<ThemeEnum | string>(theme);
   const [filenameKeywords, setFilenameKeywords] = useState("");
   const [showMode, setShowMode] = useState("tree");
   const [fileCoverage, setFileCoverage] = useState<FileCoverageData>({
@@ -77,12 +80,22 @@ const ReportComponent: FC<ReportProps> = ({
         filenameKeywords={filenameKeywords}
         showMode={showMode}
         onChangeShowMode={(val) => {
-          setShowMode(val);
+          setShowMode(val as "tree" | "list");
         }}
         onChangeOnlyChange={onChangeOnlyChange}
         total={listDataSource.length}
         onChangeKeywords={(val) => {
           setFilenameKeywords(val);
+        }}
+        theme={currentTheme}
+        onChangeTheme={(newTheme) => {
+          setCurrentTheme(newTheme);
+          // 添加类名到 body 以便应用全局主题样式
+          if (newTheme === ThemeEnum.Dark) {
+            document.body.classList.add('dark-theme');
+          } else {
+            document.body.classList.remove('dark-theme');
+          }
         }}
       />
       <SummaryHeader
@@ -101,23 +114,21 @@ const ReportComponent: FC<ReportProps> = ({
             theme={theme}
           />
         )}
-      <div>
-        <SummaryTree
-          style={{
-            display: mode === "tree" ? "block" : "none",
-          }}
-          dataSource={treeDataSource}
-          onSelect={newOnSelect}
-        />
-        <SummaryList
-          style={{
-            display: mode === "list" ? "block" : "none",
-          }}
-          dataSource={listDataSource}
-          onSelect={newOnSelect}
-          filenameKeywords={filenameKeywords}
-        />
-      </div>
+      <Suspense fallback={<div className="p-8 text-center"><Spin size="large" /></div>}>
+        {mode === "tree" && (
+          <SummaryTree
+            dataSource={treeDataSource}
+            onSelect={newOnSelect}
+          />
+        )}
+        {mode === "list" && (
+          <SummaryList
+            dataSource={listDataSource}
+            onSelect={newOnSelect}
+            filenameKeywords={filenameKeywords}
+          />
+        )}
+      </Suspense>
     </>
   );
 };

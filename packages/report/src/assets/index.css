@@ -1,3 +1,20 @@
+@import './progress.css';
+@import './dark-theme.css';
+
+/* 加载容器样式 */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.dark-theme .loading-container {
+  background-color: rgba(0, 0, 0, 0.8);
+}
+
 @font-face {
     font-family: "IBMPlexMono";
     src: url("./fonts/IBMPlexMono-Regular.woff2");

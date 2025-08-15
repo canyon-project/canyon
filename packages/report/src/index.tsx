@@ -1,12 +1,14 @@
-import { FC, useEffect } from 'react';
-import { ConfigProvider, theme } from 'antd';
+import { FC, useEffect, lazy, Suspense } from 'react';
+import { ConfigProvider, theme, Spin } from 'antd';
 import enUS from 'antd/es/locale/en_US';
 import jaJP from 'antd/es/locale/ja_JP';
 import zhCN from 'antd/es/locale/zh_CN';
 import { LanguageProvider } from './locales';
-import ReportComponent from './components/Report';
 import { ReportProps } from './types';
 import { emptyFileCoverageData } from './components/helpers/const';
+
+// 使用懒加载导入组件
+const ReportComponent = lazy(() => import('./components/Report'));
 
 const languages = {
   cn: zhCN,
@@ -48,6 +50,7 @@ const Report: FC<ReportProps> = (props) => {
 
   return (
     <LanguageProvider language={language}>
+      <Suspense fallback={<div className="loading-container"><Spin size="large" tip="Loading report..." /></div>}>
       <ConfigProvider
         locale={languages[language]}
         theme={{
@@ -57,11 +60,13 @@ const Report: FC<ReportProps> = (props) => {
           },
           algorithm: isDark ? [darkAlgorithm] : [],
         }}
-      >
-        <ReportComponent {...mergedProps} />
-      </ConfigProvider>
-    </LanguageProvider>
-  );
-};
+        >
+          <ReportComponent {...mergedProps} />
+        </ConfigProvider>
+      </Suspense>
+      </LanguageProvider>
+    );
+  };
+}
 
 export default Report;

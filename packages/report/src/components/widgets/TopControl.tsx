@@ -1,8 +1,10 @@
 import { FC } from "react";
 import Icon, { BarsOutlined, SearchOutlined } from "@ant-design/icons";
-import { Divider, Space, Segmented, Input, Typography, Switch } from "antd";
+import { Divider, Space, Segmented, Input, Typography, Switch, Tooltip } from "antd";
 import PhTreeViewIcon from "../icons/PhTreeView";
 import { useTrans } from "../../locales";
+import ThemeSwitch from "./ThemeSwitch";
+import { ThemeEnum } from "../../types";
 
 const TopControl: FC<{
   total: number;
@@ -12,6 +14,8 @@ const TopControl: FC<{
   onChangeKeywords: (word: string) => void;
   onChangeOnlyChange: (checked: boolean) => void;
   onlyChange: boolean;
+  theme?: ThemeEnum | string;
+  onChangeTheme?: (theme: ThemeEnum) => void;
 }> = ({
   total,
   showMode,
@@ -20,6 +24,8 @@ const TopControl: FC<{
   filenameKeywords,
   onChangeOnlyChange,
   onlyChange,
+  theme = ThemeEnum.Light,
+  onChangeTheme,
 }) => {
   const t = useTrans();
   return (
@@ -88,6 +94,17 @@ const TopControl: FC<{
               size={"small"}
               onChange={onChangeOnlyChange}
             />
+            {onChangeTheme && (
+              <>
+                <Divider type="vertical" />
+                <Tooltip title={t("toggle_theme")}>
+                  <ThemeSwitch 
+                    theme={theme} 
+                    onChange={onChangeTheme} 
+                  />
+                </Tooltip>
+              </>
+            )}
           </div>
           <Divider type={"vertical"} />
           <Input

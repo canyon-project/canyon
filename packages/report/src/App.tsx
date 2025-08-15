@@ -1,46 +1,124 @@
-import { useState } from 'react';
-import { ConfigProvider } from 'antd';
+import { useState, useCallback, useEffect } from 'react';
+import { ConfigProvider, message } from 'antd';
 import CanyonReport from './index.tsx';
+
+// 使用常量获取全局数据，提高可维护性
 const dataSource = window.data;
 const reportName = window.reportName;
 const date = window.date;
+
+// 缓存已加载的文件数据，避免重复加载
+const fileCache = new Map();
+
+// 优化动态加载逻辑，添加错误处理和缓存机制
 const dynamicLoadingSource = (val) => {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
+    // 如果不是文件路径，返回空数据
     if (!val.includes('.')) {
-      resolve({
+      return resolve({
         fileCoverage: undefined,
         fileContent: undefined,
         fileCodeChange: [],
       });
-    } else {
-      const script = document.createElement('script');
-      script.src = 'dynamic-data/' + val + '.js';
-      script.onload = () => {
-        resolve({
-          fileCoverage: window[val].coverage,
-          fileContent: window[val].content,
-          fileCodeChange: [],
-        });
-        document.body.removeChild(script);
-        window[val] = undefined;
-      };
-      document.body.appendChild(script);
     }
+    
+    // 检查缓存中是否已有数据
+    if (fileCache.has(val)) {
+      return resolve(fileCache.get(val));
+    }
+    
+    // 动态加载脚本
+    const script = document.createElement('script');
+    script.src = 'dynamic-data/' + val + '.js';
+    
+    // 添加超时处理
+    const timeout = setTimeout(() => {
+      reject(new Error(`Loading timeout for ${val}`));
+      document.body.removeChild(script);
+    }, 10000); // 10秒超时
+    
+    script.onload = () => {
+      clearTimeout(timeout);
+      
+      if (!window[val]) {
+        reject(new Error(`Failed to load data for ${val}`));
+        document.body.removeChild(script);
+        return;
+      }
+      
+      const data = {
+        fileCoverage: window[val].coverage,
+        fileContent: window[val].content,
+        fileCodeChange: window[val].codeChange || [],
+      };
+      
+      // 缓存数据
+      fileCache.set(val, data);
+      
+      resolve(data);
+      document.body.removeChild(script);
+      window[val] = undefined;
+    };
+    
+    script.onerror = () => {
+      clearTimeout(timeout);
+      reject(new Error(`Failed to load script for ${val}`));
+      document.body.removeChild(script);
+    };
+    
+    document.body.appendChild(script);
   });
 };
 
 function App() {
   const [value, setValue] = useState(window.location.hash.slice(1));
-  const onSelect = (val) => {
+  const [loading, setLoading] = useState(false);
+  
+  // 使用 useCallback 优化函数引用稳定性
+  const onSelect = useCallback((val) => {
     window.location.hash = val;
-    return dynamicLoadingSource(val).then((r) => {
-      setValue(val);
-      return r;
-    });
-  };
+    setLoading(true);
+    
+    return dynamicLoadingSource(val)
+      .then((r) => {
+        setValue(val);
+        return r;
+      })
+      .catch((error) => {
+        console.error('Failed to load file:', error);
+        message.error(`Failed to load file: ${error.message}`);
+        return {
+          fileCoverage: undefined,
+          fileContent: undefined,
+          fileCodeChange: [],
+        };
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+  
+  // 监听 hash 变化
+  useEffect(() => {
+    const handleHashChange = () => {
+      const newValue = window.location.hash.slice(1);
+      if (newValue !== value) {
+        onSelect(newValue);
+      }
+    };
+    
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [value, onSelect]);
   return (
     <div className={'p-[10px] pb-0'}>
       <div style={{ minHeight: 'calc(100vh - 50px)' }}>
+        {/* 添加加载状态指示器 */}
+        {loading && (
+          <div className="fixed top-0 left-0 w-full h-1 bg-blue-100 overflow-hidden z-50">
+            <div className="h-full bg-blue-500 animate-progress"></div>
+          </div>
+        )}
         <ConfigProvider
           theme={{
             token: {
