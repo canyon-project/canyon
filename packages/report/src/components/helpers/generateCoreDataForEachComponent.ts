@@ -20,11 +20,6 @@ function checkStartValue(item, startValue) {
   return item.path.toLowerCase().includes(startValue.toLowerCase());
 }
 
-function checkSummaryRange(item, range) {
-  const pct = item.statements.pct;
-  return pct >= range[0] && pct <= range[1];
-}
-
 export const generateCoreDataForEachComponent = ({
   dataSource,
   filenameKeywords,
