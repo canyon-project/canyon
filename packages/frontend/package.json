@@ -4,14 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --force",
+    "dev": "vite",
     "build": "vite build",
-    "format": "biome format --write .",
-    "lint": "biome lint .",
-    "lint:fix": "biome lint --write .",
-    "check": "biome check .",
-    "check:fix": "biome check --write .",
-    "do-test": "vitest run --coverage"
+    "test": "vitest run --coverage"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
