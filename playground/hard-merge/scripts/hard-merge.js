@@ -47,9 +47,9 @@ function createLogger(defaultLogFile) {
     fs.mkdirSync(dir, { recursive: true });
   }
   const write = (level, message, extra) => {
-    const line = `[${now()}] [${level}] ${message}` + (extra ? ` ${JSON.stringify(extra)}` : '');
+    const line = `[${now()}] [${level}] ${message}${extra ? ` ${JSON.stringify(extra)}` : ''}`;
     console.log(line);
-    if (logFile) fs.appendFileSync(logFile, line + '\n');
+    if (logFile) fs.appendFileSync(logFile, `${line}\n`);
   };
   return {
     info: (m, e) => write('INFO', m, e),
@@ -163,11 +163,11 @@ function filterCoverageByRelSet(coverageObj, fromRepoRoot, baselineRepoRoot, all
     } catch (_) {
       continue;
     }
-    if (allowedRelSet.has(rel)){
+    if (allowedRelSet.has(rel)) {
       const baseLineAbsPath = path.join(baselineRepoRoot, rel);
       out[baseLineAbsPath] = {
         ...coverageObj[absPath],
-        path:baseLineAbsPath
+        path: baseLineAbsPath,
       };
     }
   }
@@ -255,7 +255,7 @@ function main() {
       otherCoverage,
       repoRoot,
       baselineRepo,
-      unchangedWithPrefix,
+      unchangedWithPrefix
     );
 
     coverageMap.merge(filtered);
@@ -274,5 +274,3 @@ function main() {
 }
 
 main();
-
-

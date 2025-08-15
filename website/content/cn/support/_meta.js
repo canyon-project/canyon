@@ -1,3 +1,3 @@
 export default {
-  resources: "资源",
+  resources: '资源',
 };

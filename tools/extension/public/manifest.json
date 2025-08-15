@@ -6,26 +6,18 @@
   "icons": {
     "128": "logo-128.png"
   },
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "permissions": ["tabs"],
+  "web_accessible_resources": [
+    {
+      "resources": ["interceptor.js"],
+      "matches": ["<all_urls>"]
+    }
   ],
-  "permissions": [
-    "tabs"
-  ],
-  "web_accessible_resources": [{
-    "resources": ["interceptor.js"],
-    "matches": ["<all_urls>"]
-  }],
   "content_scripts": [
     {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "content-scripts.js"
-      ],
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content-scripts.js"],
       "run_at": "document_start"
     }
   ],

@@ -1,8 +1,8 @@
-import { FC } from "react";
-import { Tag, Typography, theme } from "antd";
-import { CoverageSummaryData } from "istanbul-lib-coverage";
-import { getColor } from "../helpers/color";
-import { useTrans } from "../../locales";
+import { Tag, Typography, theme } from 'antd';
+import type { CoverageSummaryData } from 'istanbul-lib-coverage';
+import type { FC } from 'react';
+import { useTrans } from '../../locales';
+import { getColor } from '../helpers/color';
 
 const { Text } = Typography;
 
@@ -22,38 +22,36 @@ const SummaryNav: FC<{
   return (
     <div
       style={{
-        display: "flex",
-        gap: "6px",
-        marginBottom: "10px",
-        fontSize: "16px",
-        fontWeight: "bold",
+        display: 'flex',
+        gap: '6px',
+        marginBottom: '10px',
+        fontSize: '16px',
+        fontWeight: 'bold',
       }}
     >
-      {(reportName + "/" + value).split("/").map((item, index) => {
+      {`${reportName}/${value}`.split('/').map((item, index) => {
         return (
           <div
             key={index}
             style={{
-              display: "flex",
-              gap: "6px",
+              display: 'flex',
+              gap: '6px',
             }}
           >
             <a
               style={{
                 color: token.colorPrimary,
-                cursor: "pointer",
-                textDecoration: "none",
+                cursor: 'pointer',
+                textDecoration: 'none',
               }}
               key={index}
               onClick={() => {
-                onClick(value.split("/").slice(0, index).join("/"));
+                onClick(value.split('/').slice(0, index).join('/'));
               }}
             >
               {item}
             </a>
-            {index === value.split("/").length || !value ? null : (
-              <span>/</span>
-            )}
+            {index === value.split('/').length || !value ? null : <span>/</span>}
           </div>
         );
       })}
@@ -73,52 +71,50 @@ const SummaryMetric: FC<{
     <div>
       <div
         style={{
-          display: "flex",
-          gap: "10px",
-          marginBottom: "10px",
-          maxWidth:'1000px',
-          flexWrap: 'wrap'
+          display: 'flex',
+          gap: '10px',
+          marginBottom: '10px',
+          maxWidth: '1000px',
+          flexWrap: 'wrap',
         }}
       >
         {Object.entries(summaryTreeItem.summary)
           .sort(([key1], [key2]) => {
             const order = [
-              "statements",
-              "branches",
-              "functions",
-              "lines",
-              "newlines",
+              'statements',
+              'branches',
+              'functions',
+              'lines',
+              'newlines',
               // "changebranches",
               // "changefunctions"
-              ]
+            ];
 
             return order.indexOf(key1) - order.indexOf(key2);
           })
           .filter(([key]) =>
             [
-              "statements",
-              "branches",
-              "functions",
-              "lines",
-              "newlines",
+              'statements',
+              'branches',
+              'functions',
+              'lines',
+              'newlines',
               // "changebranches",
               // "changefunctions"
-            ].includes(key),
+            ].includes(key)
           )
           .map(([key, value]) => {
             return (
               <div
                 style={{
-                  display: "flex",
-                  gap: "3px",
-                  alignItems: "center",
+                  display: 'flex',
+                  gap: '3px',
+                  alignItems: 'center',
                 }}
                 key={key}
               >
-                <span style={{ fontWeight: "600", fontSize: "14px" }}>
-                  {value.pct}%
-                </span>
-                <Text style={{ fontSize: "14px" }} type={"secondary"}>
+                <span style={{ fontWeight: '600', fontSize: '14px' }}>{value.pct}%</span>
+                <Text style={{ fontSize: '14px' }} type={'secondary'}>
                   {t(`components.summaryMetric.${key}`)}:
                 </Text>
                 <Tag bordered={false}>
@@ -132,14 +128,13 @@ const SummaryMetric: FC<{
   );
 };
 
-
 const SummaryBar: FC<{ pct: number }> = ({ pct }) => {
   return (
     <div
       style={{
-        height: "10px",
-        width: "100%",
-        marginBottom: "10px",
+        height: '10px',
+        width: '100%',
+        marginBottom: '10px',
         backgroundColor: getColor(pct),
       }}
     />

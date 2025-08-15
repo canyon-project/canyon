@@ -4,10 +4,8 @@ export function getDecode(str: string) {
   return decodeURIComponent(
     atob(str)
       .split('')
-      .map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-      })
-      .join(''),
+      .map((c) => `%${(`00${c.charCodeAt(0).toString(16)}`).slice(-2)}`)
+      .join('')
   );
 }
 
@@ -90,7 +88,9 @@ export function handleSelectFileBySubject({
     codeParams.sha = subjectID;
   }
 
-  const fileContentRequest = axios.get(`/api/code`, { params: codeParams }).then(({ data }) => data);
+  const fileContentRequest = axios
+    .get('/api/code', { params: codeParams })
+    .then(({ data }) => data);
 
   const fileCoverageParams: Record<string, any> = {
     provider,
@@ -105,17 +105,21 @@ export function handleSelectFileBySubject({
   if (reportID) fileCoverageParams.reportID = reportID;
 
   const fileCoverageRequest = axios
-    .get(`/api/coverage/map`, { params: {
-      ...fileCoverageParams,
-      blockMerge:true
-    } })
+    .get('/api/coverage/map', {
+      params: {
+        ...fileCoverageParams,
+        blockMerge: true,
+      },
+    })
     .then(({ data }) => data[filepath || '']);
 
-  return Promise.all([fileContentRequest, fileCoverageRequest]).then(([fileContent, fileCoverage]) => {
-    return {
-      fileContent: getDecode(fileContent.content),
-      fileCoverage,
-      fileCodeChange: [],
-    };
-  });
+  return Promise.all([fileContentRequest, fileCoverageRequest]).then(
+    ([fileContent, fileCoverage]) => {
+      return {
+        fileContent: getDecode(fileContent.content),
+        fileCoverage,
+        fileCodeChange: [],
+      };
+    }
+  );
 }

@@ -3,7 +3,7 @@ import { mockCoverage } from './mockCoverage.ts';
 export function getCoverageAndCanyonData(
   reportID: any,
   intervalTime: any,
-  reporter: any,
+  reporter: any
 ): Promise<any> {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -79,7 +79,7 @@ export function upload({ canyon, coverage }: any) {
 
 export function downJson(content: string, filename: string) {
   const eleLink = document.createElement('a');
-  eleLink.download = filename + '.json';
+  eleLink.download = `${filename}.json`;
   eleLink.style.display = 'none';
   const blob = new Blob([content]);
   eleLink.href = URL.createObjectURL(blob);
@@ -90,8 +90,8 @@ export function downJson(content: string, filename: string) {
 
 function getCheckUserUrl(url: string) {
   try {
-    return url.split('/coverage/client')[0] + '/api/user';
-  } catch (e) {
+    return `${url.split('/coverage/client')[0]}/api/user`;
+  } catch (_e) {
     return url;
   }
 }
@@ -108,9 +108,8 @@ export async function checkUser({ canyon }: any) {
     .then((res) => {
       if (res.statusCode > 300) {
         return JSON.stringify(res);
-      } else {
-        return res;
       }
+      return res;
     })
     .catch((err) => {
       return err;

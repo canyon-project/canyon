@@ -1,5 +1,5 @@
 import { Result } from 'antd';
-import { FC } from 'react';
+import type { FC } from 'react';
 
 const AppResult: FC<{ error: Error | undefined; data: any }> = ({ error, data }) => {
   return (

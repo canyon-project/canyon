@@ -1,9 +1,9 @@
-import { Breadcrumb, Button, Divider, Space, Tabs } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
-import {Outlet, useLocation, useNavigate, useParams} from 'react-router-dom';
-import { useRequest } from 'ahooks';
-import axios from 'axios';
 import RIf from '@/components/RIf.tsx';
+import { SettingOutlined } from '@ant-design/icons';
+import { useRequest } from 'ahooks';
+import { Breadcrumb, Button, Divider, Space, Tabs } from 'antd';
+import axios from 'axios';
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 
 const ProjectDetailPage = () => {
   const params = useParams();
@@ -12,21 +12,19 @@ const ProjectDetailPage = () => {
   console.log(params, 'params');
   const { data, loading } = useRequest(
     () => {
-      return axios
-        .get(`/api/repo/${btoa(params.org+'/'+params.repo)}`)
-        .then((res) => res.data);
+      return axios.get(`/api/repo/${btoa(`${params.org}/${params.repo}`)}`).then((res) => res.data);
     },
     {
       refreshDeps: [],
       onSuccess(v) {
         console.log(v);
       },
-    },
+    }
   );
 
   return (
     <RIf condition={data}>
-      <div className={'h-[48px] flex items-center justify-between px-[16px]'}>
+      <div className={'flex h-[48px] items-center justify-between px-[16px]'}>
         <Breadcrumb
           items={[
             {
@@ -63,12 +61,14 @@ const ProjectDetailPage = () => {
           { key: 'pulls', label: 'Pulls' },
         ]}
       />
-      <Outlet context={{
-        repo: data,
-        commit: {
-          s:'x'
-        },
-      }}/>
+      <Outlet
+        context={{
+          repo: data,
+          commit: {
+            s: 'x',
+          },
+        }}
+      />
     </RIf>
   );
 };

@@ -1,20 +1,20 @@
-import { CoverageSummaryData, FileCoverageData } from "istanbul-lib-coverage";
+import type { CoverageSummaryData, FileCoverageData } from 'istanbul-lib-coverage';
 
 /**
  * 主题枚举
  */
 export enum ThemeEnum {
-  Light = "light",
-  Dark = "dark",
+  Light = 'light',
+  Dark = 'dark',
 }
 
 /**
  * 语言枚举
  */
 export enum LanguageEnum {
-  CN = "cn",
-  EN = "en",
-  JA = "ja",
+  CN = 'cn',
+  EN = 'en',
+  JA = 'ja',
 }
 
 /**
@@ -69,7 +69,7 @@ export interface CommonChildrenProps {
 /**
  * 显示模式类型
  */
-export type ShowModeType = "tree" | "list" | "file";
+export type ShowModeType = 'tree' | 'list' | 'file';
 
 /**
  * 树节点数据接口

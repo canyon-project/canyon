@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { defineConfig } from 'vite';
 import { compression } from 'vite-plugin-compression2';
 
 // https://vite.dev/config/
@@ -9,17 +9,18 @@ export default defineConfig({
     react({
       // 启用 babel 插件以提高性能
       babel: {
-        plugins: [
-          process.env.NODE_ENV === 'production' && 'babel-plugin-react-compiler',
-        ].filter(Boolean),
+        plugins: [process.env.NODE_ENV === 'production' && 'babel-plugin-react-compiler'].filter(
+          Boolean
+        ),
       },
     }),
     // 添加打包分析插件
-    process.env.ANALYZE && visualizer({
-      open: true,
-      gzipSize: true,
-      brotliSize: true,
-    }),
+    process.env.ANALYZE &&
+      visualizer({
+        open: true,
+        gzipSize: true,
+        brotliSize: true,
+      }),
     // 添加压缩插件
     compression({
       include: [/\.(js|css|html|svg)$/],

@@ -1,4 +1,4 @@
-import { genSummaryTreeItem } from "canyon-data";
+import { genSummaryTreeItem } from 'canyon-data';
 
 function checkSummaryOnlyChange(item, onlyChange) {
   // 如果只看改变的为false，就返回全部
@@ -8,9 +8,8 @@ function checkSummaryOnlyChange(item, onlyChange) {
   // 不然就检查item.change
   if (onlyChange && item.change) {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 function checkSummaryKeywords(item, keywords) {
   return item.path.toLowerCase().includes(keywords.toLowerCase());
@@ -35,7 +34,7 @@ export const generateCoreDataForEachComponent = ({
     (item) =>
       checkStartValue(item, value) &&
       checkSummaryOnlyChange(item, onlyChange) &&
-      checkSummaryKeywords(item, filenameKeywords),
+      checkSummaryKeywords(item, filenameKeywords)
   );
   // @ts-ignore
   const summary = listDataSource

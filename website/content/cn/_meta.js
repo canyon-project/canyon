@@ -4,15 +4,15 @@ export default {
     display: 'hidden',
     theme: {
       typesetting: 'article',
-      toc: false
-    }
+      toc: false,
+    },
   },
   docs: {
     type: 'page',
-    title: '文档'
+    title: '文档',
   },
   support: {
-    title: "支持",
-    type: "page",
+    title: '支持',
+    type: 'page',
   },
-}
+};

@@ -1,9 +1,10 @@
 import { ArrowRightOutlined, CaretRightOutlined } from '@ant-design/icons';
-import { Collapse, CollapseProps, theme } from 'antd';
-import { CSSProperties } from 'react';
+import { Collapse, type CollapseProps, theme } from 'antd';
+import type { CSSProperties } from 'react';
 
 const { useToken } = theme;
-const text = `Canyon offers a solution that involves adding a code probe during the construction of JavaScript projects and triggering the code probe upon page loading to gather code coverage data.`;
+const text =
+  'Canyon offers a solution that involves adding a code probe during the construction of JavaScript projects and triggering the code probe upon page loading to gather code coverage data.';
 
 const AppFooter = () => {
   const { token } = useToken();

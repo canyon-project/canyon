@@ -1,5 +1,5 @@
 export const emptyFileCoverageData = {
-  path: "",
+  path: '',
   statementMap: {},
   fnMap: {},
   branchMap: {},

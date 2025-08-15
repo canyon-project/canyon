@@ -1,10 +1,8 @@
-import {FC} from "react";
+import type { FC } from 'react';
 
-const Logo:FC<{
+const Logo: FC<{
   logo: React.ReactNode;
-}> = ({
-                logo
-              }) => {
+}> = ({ logo }) => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', padding: '14px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -13,7 +11,7 @@ const Logo:FC<{
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            marginBottom: 0
+            marginBottom: 0,
           }}
           onClick={() => {
             window.location.href = '/';

@@ -5,7 +5,7 @@ const FilePath = () => {
   const { repo, pull } = useOutletContext<any>();
   const params = useParams();
   const basePath = `/${params.provider}/${params.org}/${params.repo}/pulls/${pull?.iid}`;
-  const initialPath = (params['*'] as string | undefined)?.replace('-/','');
+  const initialPath = (params['*'] as string | undefined)?.replace('-/', '');
 
   return (
     <CoverageFileDrawer
@@ -20,5 +20,3 @@ const FilePath = () => {
 };
 
 export default FilePath;
-
-

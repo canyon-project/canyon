@@ -37,7 +37,7 @@ const AppMain = () => {
     {
       manual: true,
       onSuccess() {},
-    },
+    }
   );
   const {
     data: { canyon, coverage } = {
@@ -56,10 +56,10 @@ const AppMain = () => {
     loading,
     refresh,
     run,
-    error: error,
+    error,
   } = useRequest(
     (
-      { _reportID, _intervalTime, _reporter } = { _reportID: undefined, __intervalTime: undefined },
+      { _reportID, _intervalTime, _reporter } = { _reportID: undefined, __intervalTime: undefined }
     ) => {
       return getCoverageAndCanyonData(_reportID, _intervalTime, _reporter);
     },
@@ -75,7 +75,7 @@ const AppMain = () => {
       onError(err) {
         errorAlert(err);
       },
-    },
+    }
   );
   const { data: checkUserData } = useRequest(
     () =>
@@ -88,7 +88,7 @@ const AppMain = () => {
       }),
     {
       refreshDeps: [canyon.reporter, canyon.dsn, reporter],
-    },
+    }
   );
 
   const isnew = useMemo(() => {
@@ -128,7 +128,7 @@ const AppMain = () => {
                 <div>
                   <a
                     onClick={() => {
-                      downJson(JSON.stringify(coverage), canyon.projectID + '-' + canyon.sha);
+                      downJson(JSON.stringify(coverage), `${canyon.projectID}-${canyon.sha}`);
                     }}
                   >
                     {Object.keys(coverage).length}
@@ -262,7 +262,7 @@ const AppMain = () => {
           >
             Upload
           </Button>
-          <div style={{ width: '20px' }}></div>
+          <div style={{ width: '20px' }} />
           <Button
             loading={loading}
             style={{ flex: '1' }}
@@ -276,7 +276,7 @@ const AppMain = () => {
       </AppRow>
       <AppRow title={'Result'}>
         <Spin spinning={uploadLoading}>
-          <AppResult error={uploadError} data={uploadData}></AppResult>
+          <AppResult error={uploadError} data={uploadData} />
         </Spin>
       </AppRow>
       <a

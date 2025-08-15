@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { c1, c2, c3 } from '../src/c.js';
 
 describe('C 模块 (0001)', () => {
@@ -12,5 +12,3 @@ describe('C 模块 (0001)', () => {
     expect(c3({ a: 1, b: 2 })).toBe(2);
   });
 });
-
-

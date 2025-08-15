@@ -1,11 +1,11 @@
-import React from 'react';
-import {Menu, MenuProps, theme} from 'antd';
+import { Menu, type MenuProps, theme } from 'antd';
+import type React from 'react';
 import Logo from './Logo';
 import StructureLayout from './StructureLayout';
 type MenuItem = Required<MenuProps>['items'][number];
 
-function noop(v:string) {
-  console.log(v)
+function noop(v: string) {
+  console.log(v);
 }
 export const BaseLayout: React.FC<{
   children?: React.ReactNode;
@@ -13,8 +13,8 @@ export const BaseLayout: React.FC<{
   menuItems: MenuItem[];
   onChange?: (value: string) => void;
   value?: string;
-}> = ({ children,logo,menuItems=[],value='',onChange=noop }) => {
-  const {token} = theme.useToken();
+}> = ({ children, logo, menuItems = [], value = '', onChange = noop }) => {
+  const { token } = theme.useToken();
   return (
     <div>
       <StructureLayout
@@ -24,14 +24,14 @@ export const BaseLayout: React.FC<{
             <Menu
               style={{
                 flex: 1,
-                backgroundColor: token.colorBgElevated
+                backgroundColor: token.colorBgElevated,
               }}
               onSelect={(item) => {
                 // console.log(item)
                 onChange(item.key as string);
               }}
               selectedKeys={[value]}
-              mode="inline"
+              mode='inline'
               items={menuItems}
             />
           </>

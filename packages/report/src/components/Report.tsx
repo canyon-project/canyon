@@ -1,32 +1,26 @@
-import { useTrans } from "../locales";
-import { ReportProps, ThemeEnum } from "../types";
-import { FC, useEffect, useMemo, useState, Suspense } from "react";
-import { Spin } from "antd";
-import TopControl from "./widgets/TopControl";
-import { FileCoverageData } from "istanbul-lib-coverage";
-import SummaryHeader from "./widgets/SummaryHeader";
-import SummaryList from "./widgets/SummaryList";
-import SummaryTree from "./widgets/SummaryTree";
-import CoverageDetail from "./widgets/CoverageDetail";
-import { generateCoreDataForEachComponent } from "./helpers/generateCoreDataForEachComponent";
+import { Spin } from 'antd';
+import type { FileCoverageData } from 'istanbul-lib-coverage';
+import { type FC, Suspense, useEffect, useMemo, useState } from 'react';
+import { useTrans } from '../locales';
+import { type ReportProps, ThemeEnum } from '../types';
+import { generateCoreDataForEachComponent } from './helpers/generateCoreDataForEachComponent';
+import CoverageDetail from './widgets/CoverageDetail';
+import SummaryHeader from './widgets/SummaryHeader';
+import SummaryList from './widgets/SummaryList';
+import SummaryTree from './widgets/SummaryTree';
+import TopControl from './widgets/TopControl';
 
-const ReportComponent: FC<ReportProps> = ({
-  theme,
-  onSelect,
-  value,
-  dataSource,
-  name,
-}) => {
+const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, name }) => {
   console.log(theme, onSelect, value);
-  const t = useTrans();
+  const _t = useTrans();
 
   // 内部状态
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [_isLoading, _setIsLoading] = useState<boolean>(false);
   const [currentTheme, setCurrentTheme] = useState<ThemeEnum | string>(theme);
-  const [filenameKeywords, setFilenameKeywords] = useState("");
-  const [showMode, setShowMode] = useState("tree");
+  const [filenameKeywords, setFilenameKeywords] = useState('');
+  const [showMode, setShowMode] = useState('tree');
   const [fileCoverage, setFileCoverage] = useState<FileCoverageData>({
-    path: "",
+    path: '',
     statementMap: {},
     fnMap: {},
     branchMap: {},
@@ -34,7 +28,7 @@ const ReportComponent: FC<ReportProps> = ({
     f: {},
     b: {},
   });
-  const [fileContent, setFileContent] = useState<string>("");
+  const [fileContent, setFileContent] = useState<string>('');
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
   const [onlyChange, setOnlyChange] = useState(Boolean(false));
 
@@ -58,10 +52,9 @@ const ReportComponent: FC<ReportProps> = ({
   }, [value]);
   const mode = useMemo(() => {
     if (isFile) {
-      return "file";
-    } else {
-      return showMode;
+      return 'file';
     }
+    return showMode;
   }, [showMode, value]);
 
   const { treeDataSource, rootDataSource, listDataSource } = useMemo(() => {
@@ -80,7 +73,7 @@ const ReportComponent: FC<ReportProps> = ({
         filenameKeywords={filenameKeywords}
         showMode={showMode}
         onChangeShowMode={(val) => {
-          setShowMode(val as "tree" | "list");
+          setShowMode(val as 'tree' | 'list');
         }}
         onChangeOnlyChange={onChangeOnlyChange}
         total={listDataSource.length}
@@ -98,13 +91,8 @@ const ReportComponent: FC<ReportProps> = ({
           }
         }}
       />
-      <SummaryHeader
-        reportName={name}
-        data={rootDataSource}
-        value={value}
-        onSelect={newOnSelect}
-      />
-      {mode === "file" &&
+      <SummaryHeader reportName={name} data={rootDataSource} value={value} onSelect={newOnSelect} />
+      {mode === 'file' &&
         Object.keys(fileCoverage).length > 0 &&
         Object.keys(fileContent).length > 0 && (
           <CoverageDetail
@@ -114,14 +102,15 @@ const ReportComponent: FC<ReportProps> = ({
             theme={theme}
           />
         )}
-      <Suspense fallback={<div className="p-8 text-center"><Spin size="large" /></div>}>
-        {mode === "tree" && (
-          <SummaryTree
-            dataSource={treeDataSource}
-            onSelect={newOnSelect}
-          />
-        )}
-        {mode === "list" && (
+      <Suspense
+        fallback={
+          <div className='p-8 text-center'>
+            <Spin size='large' />
+          </div>
+        }
+      >
+        {mode === 'tree' && <SummaryTree dataSource={treeDataSource} onSelect={newOnSelect} />}
+        {mode === 'list' && (
           <SummaryList
             dataSource={listDataSource}
             onSelect={newOnSelect}

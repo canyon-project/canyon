@@ -1,5 +1,5 @@
-import { lazy, Suspense } from 'react';
 import { Spin } from 'antd';
+import { Suspense, lazy } from 'react';
 
 // 使用懒加载导入组件
 const Report = lazy(() => import('./components/Report'));
@@ -7,7 +7,7 @@ const Report = lazy(() => import('./components/Report'));
 // 加载中的占位组件
 const LoadingComponent = () => (
   <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-    <Spin size="large" tip="Loading..." />
+    <Spin size='large' tip='Loading...' />
   </div>
 );
 

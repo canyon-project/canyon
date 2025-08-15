@@ -1,4 +1,4 @@
-import { getDictionary } from '../_dictionaries/get-dictionary'
+import { getDictionary } from '../_dictionaries/get-dictionary';
 import {
   BoxIcon,
   DotsVerticalIcon,
@@ -7,56 +7,56 @@ import {
   LightningIcon,
   PauseIcon,
   PulseIcon,
-  RainIcon
-} from '../_icons'
+  RainIcon,
+} from '../_icons';
 
 export const Features = async ({ lang, title }) => {
-  const dictionary = await getDictionary(lang)
+  const dictionary = await getDictionary(lang);
 
   return (
-    <div className="mx-auto mb-10 w-[880px] max-w-full px-4 text-center">
-      <p className="mb-2 text-lg text-gray-600 md:!text-2xl">{title}</p>
-      <ul className="features">
+    <div className='mx-auto mb-10 w-[880px] max-w-full px-4 text-center'>
+      <p className='md:!text-2xl mb-2 text-gray-600 text-lg'>{title}</p>
+      <ul className='features'>
         {[
           {
             name: dictionary.lightweight,
-            icon: FeatherIcon
+            icon: FeatherIcon,
           },
           {
             name: dictionary.realtime,
-            icon: LightningIcon
+            icon: LightningIcon,
           },
           {
             name: dictionary.suspense,
-            icon: PauseIcon
+            icon: PauseIcon,
           },
           {
             name: dictionary.pagination,
-            icon: DotsVerticalIcon
+            icon: DotsVerticalIcon,
           },
           {
             name: dictionary.backendAgnostic,
-            icon: RainIcon
+            icon: RainIcon,
           },
           {
             name: dictionary.renderingStrategies,
-            icon: LayersIcon
+            icon: LayersIcon,
           },
           {
             name: dictionary.typescript,
-            icon: BoxIcon
+            icon: BoxIcon,
           },
           {
             name: dictionary.remoteLocal,
-            icon: PulseIcon
-          }
+            icon: PulseIcon,
+          },
         ].map(({ name, icon: Icon }) => (
-          <li key={name} className="feature">
-            <Icon height="24" />
+          <li key={name} className='feature'>
+            <Icon height='24' />
             <h4>{name}</h4>
           </li>
         ))}
       </ul>
     </div>
-  )
-}
+  );
+};

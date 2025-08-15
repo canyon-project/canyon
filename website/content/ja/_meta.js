@@ -4,15 +4,15 @@ export default {
     display: 'hidden',
     theme: {
       typesetting: 'article',
-      toc: false
-    }
+      toc: false,
+    },
   },
   docs: {
     type: 'page',
-    title: 'ドキュメント'
+    title: 'ドキュメント',
   },
   support: {
-    title: "サポート",
-    type: "page",
+    title: 'サポート',
+    type: 'page',
   },
-}
+};

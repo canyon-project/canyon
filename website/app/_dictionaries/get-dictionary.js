@@ -1,4 +1,4 @@
-import 'server-only'
+import 'server-only';
 
 // We enumerate all dictionaries here for better linting and TypeScript support
 // We also get the default import for cleaner types
@@ -6,15 +6,15 @@ const dictionaries = {
   en: () => import('./en'),
   cn: () => import('./cn'),
   ja: () => import('./ja'),
-}
+};
 
 export async function getDictionary(locale) {
   const { default: dictionary } = await // @ts-expect-error -- fixme
-  (dictionaries[locale] || dictionaries.en)()
+  (dictionaries[locale] || dictionaries.en)();
 
-  return dictionary
+  return dictionary;
 }
 
 export function getDirection(locale) {
-  return locale === 'es' ? 'rtl' : 'ltr'
+  return locale === 'es' ? 'rtl' : 'ltr';
 }

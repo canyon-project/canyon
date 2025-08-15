@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // update-package.mjs
 
-import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs/promises';
 
 // Get current directory
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -27,7 +27,7 @@ async function updatePackage() {
     pkg.devDependencies['@types/react-dom'] = '18.3.1';
 
     // Write back to package.json
-    await fs.writeFile(packagePath, JSON.stringify(pkg, null, 2) + '\n');
+    await fs.writeFile(packagePath, `${JSON.stringify(pkg, null, 2)}\n`);
     console.log('Successfully updated package.json');
   } catch (err) {
     console.error('Error updating package.json:', err);

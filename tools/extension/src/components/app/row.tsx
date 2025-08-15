@@ -1,6 +1,6 @@
 import styled from '@emotion/styled';
 import { Divider } from 'antd';
-import { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from 'react';
 
 const AppRowStyle = styled.div`
   display: flex;

@@ -9,5 +9,3 @@ export function a2(x, y) {
 export function a3(arr) {
   return arr.reduce((sum, n) => sum + n, 0);
 }
-
-

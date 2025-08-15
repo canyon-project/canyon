@@ -4,15 +4,15 @@ export default {
     display: 'hidden',
     theme: {
       typesetting: 'article',
-      toc: false
-    }
+      toc: false,
+    },
   },
   docs: {
     type: 'page',
-    title: 'Documentation'
+    title: 'Documentation',
   },
   support: {
-    title: "Support",
-    type: "page",
+    title: 'Support',
+    type: 'page',
   },
-}
+};

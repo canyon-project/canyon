@@ -1,3 +1,5 @@
+import { HeartFilled, HeartOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { useRequest } from 'ahooks';
 import {
   Breadcrumb,
   Button,
@@ -7,31 +9,26 @@ import {
   Space,
   Switch,
   Table,
-  theme,
   Tooltip,
   Typography,
+  theme,
 } from 'antd';
-import {
-  HeartFilled,
-  HeartOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons';
-import { ColumnsType } from 'antd/es/table';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import type { ColumnsType } from 'antd/es/table';
+import axios from 'axios';
 import dayjs from 'dayjs';
-import {useRequest} from "ahooks";
-import axios from "axios";
-import {useEffect, useState} from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 const { Text } = Typography;
 const ProjectListPage = () => {
   const [keyword, setKeyword] = useState('');
-  const {data,loading, run} = useRequest(
-    (params = {}) => axios('/api/repo', { params: { keyword: params.keyword || '' } }).then(({data}) => data),
+  const { data, loading, run } = useRequest(
+    (params = {}) =>
+      axios('/api/repo', { params: { keyword: params.keyword || '' } }).then(({ data }) => data),
     {
       manual: true,
-    },
-  )
+    }
+  );
 
   const { t } = useTranslation();
 
@@ -66,11 +63,7 @@ const ProjectListPage = () => {
                 // });
               }}
             >
-              {record.favored ? (
-                <HeartFilled style={{ color: 'red' }} />
-              ) : (
-                <HeartOutlined />
-              )}
+              {record.favored ? <HeartFilled style={{ color: 'red' }} /> : <HeartOutlined />}
             </div>
             {text}
           </Space>
@@ -94,26 +87,19 @@ const ProjectListPage = () => {
       render: (text, record) => {
         return (
           <div className={'flex gap-1'}>
-            <img
-              src="/providers/gitlab.svg"
-              alt=""
-              className={'mt-1 w-[16px] h-[16px]'}
-            />
+            <img src='/providers/gitlab.svg' alt='' className={'mt-1 h-[16px] w-[16px]'} />
 
-            <span style={{ width: '4px', display: 'inline-block' }}></span>
-            <div className={'flex gap-1 flex-col'}>
+            <span style={{ width: '4px', display: 'inline-block' }} />
+            <div className={'flex flex-col gap-1'}>
               <a
                 className={'max-w-[240px]'}
                 style={{ color: 'unset' }}
                 target={'_blank'}
-                rel="noreferrer"
+                rel='noreferrer'
               >
                 {text}
               </a>
-              <Text
-                type={'secondary'}
-                style={{ fontSize: '12px', width: '240px' }}
-              >
+              <Text type={'secondary'} style={{ fontSize: '12px', width: '240px' }}>
                 {record.description}
               </Text>
             </div>
@@ -134,10 +120,7 @@ const ProjectListPage = () => {
     {
       title: (
         <>
-          <Tooltip
-            title={t('projects.max_coverage_tooltip')}
-            className={'!mr-2'}
-          >
+          <Tooltip title={t('projects.max_coverage_tooltip')} className={'!mr-2'}>
             <QuestionCircleOutlined />
           </Tooltip>
           最大覆盖率
@@ -161,7 +144,7 @@ const ProjectListPage = () => {
     {
       title: t('common.option'),
       key: 'option',
-      render: (_, { id,pathWithNamespace }) => {
+      render: (_, { id, pathWithNamespace }) => {
         // Base64编码pathWithNamespace，处理包含斜杠的路径
         // const encodedPath = btoa(pathWithNamespace);
         return (
@@ -191,7 +174,7 @@ const ProjectListPage = () => {
 
   return (
     <div>
-      <div className={'h-[48px] flex items-center justify-between px-[16px]'}>
+      <div className={'flex h-[48px] items-center justify-between px-[16px]'}>
         <Breadcrumb
           items={[
             {
@@ -217,13 +200,13 @@ const ProjectListPage = () => {
           <div>
             <Select
               defaultValue={'fligt'}
-              mode="multiple"
+              mode='multiple'
               onChange={(v) => {
                 // setBu(v);
                 localStorage.setItem('bu', JSON.stringify(v));
               }}
               placeholder={'Bu'}
-              className={'w-[200px] !mr-2'}
+              className={'!mr-2 w-[200px]'}
               options={[]}
             />
 
@@ -231,7 +214,7 @@ const ProjectListPage = () => {
               placeholder={t('projects.search_keywords')}
               className={'!w-[420px] mb-3'}
               value={keyword}
-              onChange={e => setKeyword(e.target.value)}
+              onChange={(e) => setKeyword(e.target.value)}
               onSearch={() => {
                 run({ keyword });
               }}
@@ -240,9 +223,7 @@ const ProjectListPage = () => {
               <Text type={'secondary'}>{t('common.favor.only')}: </Text>
               <Switch
                 checkedChildren={<HeartFilled />}
-                defaultChecked={Boolean(
-                  localStorage.getItem('favorOnlyFilter'),
-                )}
+                defaultChecked={Boolean(localStorage.getItem('favorOnlyFilter'))}
                 onChange={(v) => {
                   if (v) {
                     localStorage.setItem('favorOnlyFilter', '1');
@@ -264,7 +245,7 @@ const ProjectListPage = () => {
             borderRadius: 2,
           }}
         >
-          <Table loading={loading} columns={columns} dataSource={data?.data||[]} />
+          <Table loading={loading} columns={columns} dataSource={data?.data || []} />
         </div>
       </div>
     </div>

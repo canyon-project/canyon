@@ -1,4 +1,4 @@
-import { Space, theme, Typography } from 'antd';
+import { Space, Typography, theme } from 'antd';
 
 const { useToken } = theme;
 const { Text } = Typography;

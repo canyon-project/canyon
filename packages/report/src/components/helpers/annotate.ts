@@ -4,12 +4,12 @@ export function annotateStatements(fileCoverage: any) {
   const statementMeta = fileCoverage.statementMap;
   Object.entries(statementStats).forEach(([stName, count]: any) => {
     const meta = statementMeta[stName];
-    const type = count > 0 ? "yes" : "no";
+    const type = count > 0 ? 'yes' : 'no';
     const startCol = meta.start.column;
     const endCol = meta.end.column + 1;
     const startLine = meta.start.line;
     const endLine = meta.end.line;
-    if (type === "no") {
+    if (type === 'no') {
       annotateStatementsList.push({
         startLine,
         endLine,
@@ -31,7 +31,7 @@ export function annotateFunctions(fileCoverage, structuredText) {
   const list = [];
   Object.entries(fnStats).forEach(([fName, count]) => {
     const meta = fnMeta[fName];
-    const type = count > 0 ? "yes" : "no";
+    const type = count > 0 ? 'yes' : 'no';
     // Some versions of the instrumenter in the wild populate 'func'
     // but not 'decl':
     const decl = meta.decl || meta.loc;
@@ -39,7 +39,7 @@ export function annotateFunctions(fileCoverage, structuredText) {
     let endCol = decl.end.column + 1;
     const startLine = decl.start.line;
     const endLine = decl.end.line;
-    if (type === "no") {
+    if (type === 'no') {
       if (endLine !== startLine) {
         endCol = structuredText[startLine - 1].length;
       }
@@ -72,7 +72,7 @@ export function annotateBranches(fileCoverage, structuredText) {
     if (sumCount > 0 || (sumCount === 0 && branchArray.length === 1)) {
       // Recover metaArray for implicit else (special case)
       if (
-        branchMeta[branchName].type === "if" &&
+        branchMeta[branchName].type === 'if' &&
         branchArray.length === 2 &&
         metaArray.length === 1 &&
         branchArray[1] === 0
@@ -87,11 +87,7 @@ export function annotateBranches(fileCoverage, structuredText) {
         let { column: endCol, line: endLine } = end;
 
         // Handle implicit else branches
-        if (
-          count === 0 &&
-          startLine === undefined &&
-          branchMeta[branchName].type === "if"
-        ) {
+        if (count === 0 && startLine === undefined && branchMeta[branchName].type === 'if') {
           const prevMeta = metaArray[index - 1];
           startCol = prevMeta.start.column;
           endCol = prevMeta.end.column + 1;
@@ -110,7 +106,7 @@ export function annotateBranches(fileCoverage, structuredText) {
             endLine,
             startCol: startCol + 1,
             endCol: endCol + 1,
-            type: count === 0 ? "no" : "yes",
+            type: count === 0 ? 'no' : 'yes',
           });
         }
       });

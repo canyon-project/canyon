@@ -1,16 +1,17 @@
 import { BaseLayout } from '@/components/ui';
-import { MenuProps } from 'antd';
-import { Outlet, useNavigate } from 'react-router-dom';
 import { FolderOutlined, SettingOutlined } from '@ant-design/icons';
-import React, { useEffect, useState } from 'react';
+import type { MenuProps } from 'antd';
+import type React from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Outlet, useNavigate } from 'react-router-dom';
 
 type MenuItem = Required<MenuProps>['items'][number];
 function getItem(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
-  children?: MenuItem[],
+  children?: MenuItem[]
 ): MenuItem {
   return {
     key,

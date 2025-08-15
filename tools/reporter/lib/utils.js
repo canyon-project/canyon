@@ -26,13 +26,13 @@ function copyDirectory(source, target) {
 
 const getCommonPathPrefix = (paths) => {
   if (paths.length === 0) return '';
-  const splitPaths = paths.map(path => path.split('/'));
-  const minLength = Math.min(...splitPaths.map(p => p.length));
+  const splitPaths = paths.map((path) => path.split('/'));
+  const minLength = Math.min(...splitPaths.map((p) => p.length));
 
-  let commonPrefix = [];
+  const commonPrefix = [];
   for (let i = 0; i < minLength; i++) {
     const segment = splitPaths[0][i];
-    if (splitPaths.every(path => path[i] === segment)) {
+    if (splitPaths.every((path) => path[i] === segment)) {
       commonPrefix.push(segment);
     } else {
       break;
@@ -43,5 +43,5 @@ const getCommonPathPrefix = (paths) => {
 
 module.exports = {
   copyDirectory,
-  getCommonPathPrefix
-}
+  getCommonPathPrefix,
+};

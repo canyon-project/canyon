@@ -1,3 +1,1 @@
 declare module 'canyon-report';
-
-

@@ -5,12 +5,21 @@
   "scripts": {
     "dev": "nx run-many --target=dev --all",
     "build": "nx run-many --target=build --all",
-    "lint": "nx run-many --target=lint --all",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format .",
+    "format:fix": "biome format --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
+    "format:all": "nx run-many --target=format --all",
+    "lint:all": "nx run-many --target=lint --all",
+    "check:all": "nx run-many --target=check --all",
     "test": "nx run-many --target=test --all",
     "preinstall": "node ./scripts/check.mjs",
     "clean": "node ./scripts/clean.mjs"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "nx": "latest",
     "zx": "latest"
   }

@@ -1,10 +1,10 @@
-import { FC } from "react";
-import Icon, { BarsOutlined, SearchOutlined } from "@ant-design/icons";
-import { Divider, Space, Segmented, Input, Typography, Switch, Tooltip } from "antd";
-import PhTreeViewIcon from "../icons/PhTreeView";
-import { useTrans } from "../../locales";
-import ThemeSwitch from "./ThemeSwitch";
-import { ThemeEnum } from "../../types";
+import Icon, { BarsOutlined, SearchOutlined } from '@ant-design/icons';
+import { Divider, Input, Segmented, Space, Switch, Tooltip, Typography } from 'antd';
+import type { FC } from 'react';
+import { useTrans } from '../../locales';
+import { ThemeEnum } from '../../types';
+import PhTreeViewIcon from '../icons/PhTreeView';
+import ThemeSwitch from './ThemeSwitch';
 
 const TopControl: FC<{
   total: number;
@@ -32,22 +32,22 @@ const TopControl: FC<{
     <div>
       <div
         style={{
-          display: "flex",
-          marginBottom: "10px",
-          justifyContent: "space-between",
-          alignItems: "center",
+          display: 'flex',
+          marginBottom: '10px',
+          justifyContent: 'space-between',
+          alignItems: 'center',
         }}
       >
         <div
           style={{
-            display: "flex",
-            gap: "10px",
-            flexDirection: "column",
+            display: 'flex',
+            gap: '10px',
+            flexDirection: 'column',
           }}
         >
           <Space>
             <Segmented
-              size={"small"}
+              size={'small'}
               value={showMode}
               defaultValue={showMode}
               onChange={(v) => {
@@ -55,73 +55,68 @@ const TopControl: FC<{
               }}
               options={[
                 {
-                  label: t("components.topControl.codeTree"),
-                  value: "tree",
+                  label: t('components.topControl.codeTree'),
+                  value: 'tree',
                   icon: <Icon component={PhTreeViewIcon} />,
                 },
                 {
-                  label: t("components.topControl.fileList"),
-                  value: "list",
+                  label: t('components.topControl.fileList'),
+                  value: 'list',
                   icon: <BarsOutlined />,
                 },
               ]}
             />
 
-            <span style={{ fontSize: "14px" }}>
-              <span style={{ marginBottom: "10px" }}>{total} {t("components.topControl.totalFiles")}</span>
+            <span style={{ fontSize: '14px' }}>
+              <span style={{ marginBottom: '10px' }}>
+                {total} {t('components.topControl.totalFiles')}
+              </span>
             </span>
           </Space>
         </div>
 
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
+            display: 'flex',
+            alignItems: 'center',
           }}
         >
           <div
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
             }}
           >
-            <Typography.Text type={"secondary"} style={{ fontSize: "12px" }}>
-              {t("components.topControl.onlyChanged")}:{" "}
+            <Typography.Text type={'secondary'} style={{ fontSize: '12px' }}>
+              {t('components.topControl.onlyChanged')}:{' '}
             </Typography.Text>
-            <Switch
-              checked={onlyChange}
-              size={"small"}
-              onChange={onChangeOnlyChange}
-            />
+            <Switch checked={onlyChange} size={'small'} onChange={onChangeOnlyChange} />
             {onChangeTheme && (
               <>
-                <Divider type="vertical" />
-                <Tooltip title={t("toggle_theme")}>
-                  <ThemeSwitch 
-                    theme={theme} 
-                    onChange={onChangeTheme} 
-                  />
+                <Divider type='vertical' />
+                <Tooltip title={t('toggle_theme')}>
+                  <ThemeSwitch theme={theme} onChange={onChangeTheme} />
                 </Tooltip>
               </>
             )}
           </div>
-          <Divider type={"vertical"} />
+          <Divider type={'vertical'} />
           <Input
-            placeholder={t("components.topControl.searchPlaceholder")}
+            placeholder={t('components.topControl.searchPlaceholder')}
             value={filenameKeywords}
             addonBefore={<SearchOutlined />}
             style={{
-              width: "240px",
+              width: '240px',
             }}
-            size={"small"}
+            size={'small'}
             onChange={(val) => {
               onChangeKeywords(val.target.value);
             }}
           />
         </div>
       </div>
-      <Divider style={{ margin: "0", marginBottom: "10px" }} />
+      <Divider style={{ margin: '0', marginBottom: '10px' }} />
     </div>
   );
 };

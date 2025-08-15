@@ -1,8 +1,9 @@
-import React, { FC } from "react";
-import { FileOutlined, FolderFilled } from "@ant-design/icons";
-import { ConfigProvider, Progress, Table } from "antd";
-import { CoverageSummaryData } from "istanbul-lib-coverage";
-import { getColor } from "../helpers/color";
+import { FileOutlined, FolderFilled } from '@ant-design/icons';
+import { ConfigProvider, Progress, Table } from 'antd';
+import type { CoverageSummaryData } from 'istanbul-lib-coverage';
+import type React from 'react';
+import type { FC } from 'react';
+import { getColor } from '../helpers/color';
 // import { getColor } from "../helpers";
 
 function checkSuffix(str: string) {
@@ -26,58 +27,58 @@ const SummaryTree: FC<{
         }}
       >
         <Table
-          rowKey={"path"}
+          rowKey={'path'}
           bordered={true}
           pagination={false}
-          size={"small"}
+          size={'small'}
           dataSource={dataSource}
           columns={[
             {
-              title: t("Files"),
-              key: "path",
-              dataIndex: "path",
+              title: t('Files'),
+              key: 'path',
+              dataIndex: 'path',
               render(text) {
                 return (
                   <a
                     style={{
-                      display: "flex",
-                      gap: "10px",
+                      display: 'flex',
+                      gap: '10px',
                     }}
                     onClick={() => {
                       onSelect(text);
                     }}
                   >
                     {/\.(js|jsx|ts|tsx|vue)$/.test(text) && checkSuffix(text) ? (
-                      <FileOutlined style={{ fontSize: "16px" }} />
+                      <FileOutlined style={{ fontSize: '16px' }} />
                     ) : (
-                      <FolderFilled style={{ fontSize: "16px" }} />
+                      <FolderFilled style={{ fontSize: '16px' }} />
                     )}
-                    {text.split("/").at(-1)}
+                    {text.split('/').at(-1)}
                   </a>
                 );
               },
             },
             {
-              title: t("Total"),
-              key: "total",
-              dataIndex: ["statements", "total"],
+              title: t('Total'),
+              key: 'total',
+              dataIndex: ['statements', 'total'],
               sorter(a, b) {
                 return a.statements.total - b.statements.total;
               },
             },
             {
-              title: t("Covered"),
-              key: "covered",
-              dataIndex: ["statements", "covered"],
+              title: t('Covered'),
+              key: 'covered',
+              dataIndex: ['statements', 'covered'],
               sorter(a, b) {
                 return a.statements.covered - b.statements.covered;
               },
             },
             {
-              title: t("Coverage") + " %",
-              width: "300px",
-              key: "c",
-              dataIndex: ["statements", "pct"],
+              title: `${t('Coverage')} %`,
+              width: '300px',
+              key: 'c',
+              dataIndex: ['statements', 'pct'],
               sorter(a, b) {
                 return a.statements.pct - b.statements.pct;
               },
@@ -85,13 +86,13 @@ const SummaryTree: FC<{
                 return (
                   <Progress
                     percent={text}
-                    strokeLinecap="butt"
-                    size={"small"}
+                    strokeLinecap='butt'
+                    size={'small'}
                     strokeColor={getColor(text)}
                     style={{
-                      paddingRight: "5px",
+                      paddingRight: '5px',
                     }}
-                    status={"normal"}
+                    status={'normal'}
                   />
                 );
               },

@@ -9,5 +9,3 @@ export function b2(x) {
 export function b3(str) {
   return String(str).toLowerCase();
 }
-
-

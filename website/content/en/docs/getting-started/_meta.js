@@ -1,4 +1,4 @@
 export default {
-  introduction: "Introduction",
-  "first-coverage": "First Coverage Data",
+  introduction: 'Introduction',
+  'first-coverage': 'First Coverage Data',
 };

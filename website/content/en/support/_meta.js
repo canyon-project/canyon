@@ -1,3 +1,3 @@
 export default {
-  resources: "Resources",
+  resources: 'Resources',
 };

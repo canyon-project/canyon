@@ -9,5 +9,3 @@ export function c2(list) {
 export function c3(obj) {
   return Object.keys(obj).length;
 }
-
-

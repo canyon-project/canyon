@@ -11,17 +11,17 @@
       "import": "./dist/canyon-report.js"
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "build:analyze": "cross-env ANALYZE=true vite build",
     "prepublishOnly": "vite build",
-    "format": "prettier --write '**/*.{js,ts,jsx,tsx}'",
-    "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
-    "lint:fix": "eslint --ext .js,.jsx,.ts,.tsx src --fix",
+    "format": "biome format --write .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "check": "biome check .",
+    "check:fix": "biome check --write .",
     "typecheck": "tsc --noEmit",
     "publish-18": "node scripts/publish-18.js"
   },
@@ -41,17 +41,10 @@
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
     "@types/react-highlight-words": "^0.16.7",
-    "@typescript-eslint/eslint-plugin": "^7.0.0",
-    "@typescript-eslint/parser": "^7.0.0",
     "@vitejs/plugin-react": "*",
     "babel-plugin-react-compiler": "*",
     "cross-env": "^7.0.3",
-    "eslint": "^8.56.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-react": "^7.33.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
     "globals": "*",
-    "prettier": "^3.2.5",
     "rollup-plugin-visualizer": "^5.12.0",
     "terser": "^5.29.1",
     "typescript": "*",

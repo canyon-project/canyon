@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { a1, a2, a3 } from '../src/a.js';
 
 describe('A 模块 (0001)', () => {
@@ -12,5 +12,3 @@ describe('A 模块 (0001)', () => {
     expect(a3([1, 2, 3])).toBe(6);
   });
 });
-
-

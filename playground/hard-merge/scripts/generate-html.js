@@ -25,5 +25,3 @@ reports.create('html', { skipEmpty: false, skipFull: false }).execute(context);
 reports.create('text-summary').execute(context);
 
 console.log('已生成 HTML 覆盖率报告：', outDir);
-
-

@@ -16,7 +16,7 @@ export const Button = ({
   const mode = primary ? 'demo-button--primary' : 'demo-button--secondary';
   return (
     <button
-      type="button"
+      type='button'
       className={['demo-button', `demo-button--${size}`, mode].join(' ')}
       style={{ backgroundColor }}
       {...props}

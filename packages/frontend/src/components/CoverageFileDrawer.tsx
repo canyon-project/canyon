@@ -1,11 +1,11 @@
-import {Drawer, Spin} from 'antd';
-import Report from 'canyon-report';
-import {useEffect, useState} from 'react';
-import {useRequest} from 'ahooks';
-import axios from 'axios';
-import {useNavigate} from 'react-router-dom';
 import RIf from '@/components/RIf';
-import {handleSelectFileBySubject} from '@/helper';
+import { handleSelectFileBySubject } from '@/helper';
+import { useRequest } from 'ahooks';
+import { Drawer, Spin } from 'antd';
+import axios from 'axios';
+import Report from 'canyon-report';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 type SubjectType = 'commit' | 'commits' | 'pull' | 'pulls' | 'multiple-commits' | 'multi-commits';
 
@@ -49,10 +49,11 @@ const CoverageFileDrawer = ({
   };
 
   const { data, loading } = useRequest(
-    () => axios(`/api/coverage/summary/map`, {
-      params: { repoID: repo.id, provider, subject, subjectID },
-    }).then(({data}) => data),
-    { refreshDeps: [repo?.id, subject, subjectID] },
+    () =>
+      axios('/api/coverage/summary/map', {
+        params: { repoID: repo.id, provider, subject, subjectID },
+      }).then(({ data }) => data),
+    { refreshDeps: [repo?.id, subject, subjectID] }
   );
 
   const onSelect = (val: string) => {
@@ -85,11 +86,21 @@ const CoverageFileDrawer = ({
     <Drawer
       width={'75%'}
       open={open}
-      onClose={() => { getToFilePath(''); }}
-      title={<div>
-        {title}
-        <a href={`/report/-${window.location.href.replace(window.location.origin, '')}`} target="_blank">在新窗口打开</a>
-      </div>}
+      onClose={() => {
+        getToFilePath('');
+      }}
+      title={
+        <div>
+          {title}
+          <a
+            href={`/report/-${window.location.href.replace(window.location.origin, '')}`}
+            target='_blank'
+            rel='noreferrer'
+          >
+            在新窗口打开
+          </a>
+        </div>
+      }
     >
       <Spin spinning={loading}>
         <RIf condition={!!data}>
@@ -101,5 +112,3 @@ const CoverageFileDrawer = ({
 };
 
 export default CoverageFileDrawer;
-
-

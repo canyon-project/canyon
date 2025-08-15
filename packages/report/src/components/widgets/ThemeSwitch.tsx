@@ -1,6 +1,6 @@
-import { FC, useEffect } from 'react';
+import { BulbFilled, BulbOutlined } from '@ant-design/icons';
 import { Switch } from 'antd';
-import { BulbOutlined, BulbFilled } from '@ant-design/icons';
+import { type FC, useEffect } from 'react';
 import { ThemeEnum } from '../../types';
 
 interface ThemeSwitchProps {

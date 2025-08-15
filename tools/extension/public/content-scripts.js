@@ -1,4 +1,4 @@
-const e = function () {
+const e = () => {
   const t = document.createElement('script');
   (t.type = 'text/javascript'),
     (t.className = 'content_scripts'),
@@ -10,7 +10,7 @@ e();
 
 let casualCoverageAndCanyonData = null;
 
-window.addEventListener('message', function (e) {
+window.addEventListener('message', (e) => {
   if (e.data.type === '__canyon__event_get_coverage_and_canyon_data_response') {
     casualCoverageAndCanyonData = e.data.payload;
   }
@@ -26,7 +26,7 @@ function getCoverageAndCanyonData(reportID, intervalTime, reporter) {
         reporter,
       },
     },
-    '*',
+    '*'
   );
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -36,12 +36,12 @@ function getCoverageAndCanyonData(reportID, intervalTime, reporter) {
 }
 
 // eslint-disable-next-line no-undef
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === '__canyon__') {
     getCoverageAndCanyonData(
       request?.payload?.reportID,
       request?.payload?.intervalTime,
-      request?.payload?.reporter,
+      request?.payload?.reporter
     ).then((res) => {
       casualCoverageAndCanyonData = null;
       sendResponse(res);

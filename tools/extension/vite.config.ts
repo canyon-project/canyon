@@ -8,7 +8,7 @@ export default defineConfig({
       jsxImportSource: '@emotion/react',
     }),
   ],
-  build:{
-    sourcemap:false
+  build: {
+    sourcemap: false,
   },
 });

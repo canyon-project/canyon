@@ -1,11 +1,11 @@
-import { FC, useEffect } from 'react';
+import { type FC, useEffect } from 'react';
 
 const FileCoverageDetail: FC<{
   fileContent: string;
   fileCodeChange: number[];
   fileCoverage: any;
-  theme: string
-}> = ({ fileContent, fileCoverage, fileCodeChange,theme }) => {
+  theme: string;
+}> = ({ fileContent, fileCoverage, fileCodeChange, theme }) => {
   useEffect(() => {
     // canyon-report-spa 源码地址 https://github.com/canyon-project/spa
     import(
@@ -16,14 +16,14 @@ const FileCoverageDetail: FC<{
         coverage: fileCoverage,
         content: fileContent,
         diff: fileCodeChange,
-        theme: theme
+        theme: theme,
       });
     });
   }, []);
 
   return (
     <div>
-      <div id={'canyon-report-box'} style={{ width: '100%' }}></div>
+      <div id={'canyon-report-box'} style={{ width: '100%' }} />
     </div>
   );
 };

@@ -1,3 +1,3 @@
 export default {
-  "community-edition": "Community Edition",
+  'community-edition': 'Community Edition',
 };

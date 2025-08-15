@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 @custom-variant dark (&:where(.dark, .dark *));
 
 a {
@@ -11,8 +11,8 @@ a:hover {
 }
 
 @font-face {
-  font-family: "IBMPlexMono";
-  src: url("assets/fonts/IBMPlexMono-Regular.woff2");
+  font-family: 'IBMPlexMono';
+  src: url('assets/fonts/IBMPlexMono-Regular.woff2');
   font-weight: normal;
   font-style: normal;
 }
@@ -28,14 +28,13 @@ a:hover {
   padding-left: 16px !important;
 }
 
-.ant-drawer-body{
+.ant-drawer-body {
   padding: 6px !important;
 }
 
-.ant-drawer-header{
+.ant-drawer-header {
   padding: 6px !important;
 }
-
 
 /*canyon-report*/
 
@@ -81,7 +80,7 @@ a:hover {
   background: rgba(255, 229, 100, 0.6) !important;
 }
 
-.content-class-no-found{
+.content-class-no-found {
   background: rgba(255, 128, 160, 0.3);
 }
 
@@ -106,4 +105,3 @@ a:hover {
   border-radius: 2px;
   margin-right: 5px;
 }
-
