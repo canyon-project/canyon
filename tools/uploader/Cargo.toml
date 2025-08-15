@@ -1,13 +1,26 @@
 [package]
-name = "uploader"
-version = "0.1.0"
+name = "canyon-uploader"
+version = "1.3.0"
 edition = "2021"
+authors = ["Canyon Team"]
+description = "A high-performance coverage data uploader for Canyon"
+repository = "https://github.com/canyon-project/canyon"
+license = "MIT"
+keywords = ["coverage", "uploader", "canyon", "testing"]
+categories = ["development-tools::testing"]
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-reqwest = { version = "0.12.12", features = ["json","native-tls-vendored"] }
-tokio = { version = "1", features = ["full"]}
-chrono = "0.4.38"
-clap = { version = "4.5.27", features = ["derive"] }
+reqwest = { version = "0.12.12", features = ["json", "native-tls-vendored", "gzip", "brotli"] }
+tokio = { version = "1", features = ["full"] }
+chrono = { version = "0.4.38", features = ["serde"] }
+clap = { version = "4.5.27", features = ["derive", "env", "color"] }
 log = "0.4.25"
+env_logger = "0.11.5"
+anyhow = "1.0.86"
+uuid = { version = "1.11.0", features = ["v4"] }
+thiserror = "1.0.64"
+
+[dev-dependencies]
+tempfile = "3.12.0"

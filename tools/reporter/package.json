@@ -2,6 +2,10 @@
   "name": "canyon-reporter",
   "version": "0.0.8-beta.76",
   "description": "",
+  "bin": {
+    "canyon-reporter": "./index.js"
+  },
+  "type": "commonjs",
   "main": "index.js",
   "scripts": {
     "test": "vitest run --coverage"

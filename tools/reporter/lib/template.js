@@ -5,9 +5,9 @@ const {getCommonPathPrefix} = require("./utils");
 const {sourceMapFixer} = require("canyon-library-istanbul-coverage");
 
 
-const generateHtml = ({coverage,reportName,_instrumentCwd,date}) => {
+const generateHtml = ({coverage,reportName,instrumentCwd,date}) => {
   const commonPath = getCommonPathPrefix(Object.keys(JSON.parse(coverage)));
-  const instrumentCwd = _instrumentCwd || commonPath;
+  instrumentCwd = instrumentCwd || commonPath;
 
   // const newCoverage = sourceMapFixer(JSON.parse(coverage),instrumentCwd)
   const newCoverage = JSON.parse(coverage);
@@ -34,9 +34,9 @@ const generateHtml = ({coverage,reportName,_instrumentCwd,date}) => {
   const content = fs.readFileSync(sourceDirssss, "utf8");
 
   const temp = `
-  window.reportName="${reportName}"
-    window.data = ${JSON.stringify(su)};
-    window.date = "${date}";
+  window.reportName="${reportName}";
+  window.data = ${JSON.stringify(su)};
+  window.date = "${date}";
   `
 
   return content.replaceAll(`// needMock`,temp);

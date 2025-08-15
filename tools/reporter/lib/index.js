@@ -28,26 +28,26 @@ class CoverageReport {
   async generate({coverage,targetDir}) {
     this.initOptions();
 
-    // 1. 获取当前工作目录，获取npm包中的dist目录
-    // 1. 获取当前工作目录，获取npm包中的dist目录
-    // const sourceDir = path.resolve(__dirname, "../dist");
+    // 确保输出目录存在
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
 
-    // 2. 获取coverage-final.json文件
+    const cov = JSON.stringify(coverage);
+    // 动态数据写到 targetDir/dynamic-data 下
+    generateDynamicData({ coverage: cov, instrumentCwd: this.options.instrumentCwd || '', targetDir });
 
-    const cov = JSON.stringify(coverage)
-    // 5. 核心，动态生成dynamic-data数据
-    generateDynamicData({coverage: cov, instrumentCwd: this.options.instrumentCwd || ''});
-    // 3. 复制dist目录到当前工作目录
-    // copyDirectory(sourceDir, targetDir);
-    // 4. 生成html文件，注入coverage-final.json的数据，需要一个summary列表
+    // 生成 HTML
     const html = generateHtml({
       coverage: cov,
       reportName: this.options.reportName || 'All files',
       instrumentCwd: this.options.instrumentCwd || '',
       date: new Date().toLocaleString(),
     });
-    fs.writeFileSync(path.join(targetDir, "index.html"), html);
-    generateFont(targetDir)
+    fs.writeFileSync(path.join(targetDir, 'index.html'), html);
+
+    // 复制字体资源
+    generateFont(targetDir);
     return {};
   }
 }
