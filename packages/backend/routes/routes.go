@@ -49,8 +49,8 @@ func SetupRoutes(r *gin.Engine) {
 		{
 			// 统一入口：subject/subjectID
 			coverage.GET("/overview", coverageHandler.GetCoverageOverviewBySubject)
-			coverage.GET("/summary/map/subject", coverageHandler.GetCoverageSummaryMapBySubject)
-			coverage.GET("/map/subject", coverageHandler.GetCoverageMapBySubject)
+			coverage.GET("/summary/map", coverageHandler.GetCoverageSummaryMapBySubject)
+			coverage.GET("/map", coverageHandler.GetCoverageMapBySubject)
 		}
 	}
 }
