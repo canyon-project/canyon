@@ -16,7 +16,10 @@ module.exports = class CustomReporter extends ReportBase {
   }
 
   async onEnd(rootNode, context) {
-    const ccr = CCR({});
+    const ccr = CCR({
+      instrumentCwd: process.cwd(),
+      reportName: 'All files',
+    });
     await ccr.add({});
     await ccr.generate({
       coverage: this.coverage,
