@@ -10,9 +10,9 @@
     "http://*/*",
     "https://*/*"
   ],
-  "background": {
-    "service_worker": "background.js"
-  },
+  "permissions": [
+    "tabs"
+  ],
   "web_accessible_resources": [{
     "resources": ["interceptor.js"],
     "matches": ["<all_urls>"]

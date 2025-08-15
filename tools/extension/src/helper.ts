@@ -34,12 +34,12 @@ export function getCoverageAndCanyonData(
         resolve({
           canyon: {
             projectID: '86927',
-            commitSha: '8eedc8908c96ae994f4643a512ad723179a271a8',
+            sha: '8eedc8908c96ae994f4643a512ad723179a271a8',
             branch: 'main',
             dsn: 'http://canyon.com/coverage/client',
-            reporter:
-              'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InR6aGFuZ20iLCJpZCI6ODQxNywiaWF0IjoxNzA0NzEzNTI3LCJleHAiOjIwMjAyODk1Mjd9.AStk7MMGAw4lx6tjwyUaZqRLabHVvRgkqO1iqpumWUk',
+            reporter: 'demo-token',
             instrumentCwd: '/builds/canyon/canyon-demo',
+            intervalTime: 0,
           },
           coverage: mockCoverage,
         });
