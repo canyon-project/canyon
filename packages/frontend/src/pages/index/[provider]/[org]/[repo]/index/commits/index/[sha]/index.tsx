@@ -2,16 +2,17 @@ import RIf from '@/components/RIf.tsx';
 import CommitCoverageOverview from '@/pages/index/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CommitCoverageOverview.tsx';
 import { useState } from 'react';
 import { Outlet, useOutletContext, useSearchParams } from 'react-router-dom';
+import { OutletContext } from '@/types';
 
 const Sha = () => {
-  const { commit, repo } = useOutletContext();
+  const { commit, repo } = useOutletContext<OutletContext>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedBuildID, setSelectedBuildID] = useState(searchParams.get('build_id'));
   const [_selectedBuildProvider, setSelectedBuildProvider] = useState(
     searchParams.get('build_provider')
   );
 
-  function onChange({ buildID, buildProvider }) {
+  function onChange({ buildID, buildProvider }: { buildID: string; buildProvider: string }) {
     setSelectedBuildID(buildID);
     setSelectedBuildProvider(buildProvider);
     searchParams.set('build_id', buildID);

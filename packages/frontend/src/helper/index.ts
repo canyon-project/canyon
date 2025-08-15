@@ -9,7 +9,7 @@ export function getDecode(str: string) {
   );
 }
 
-interface HandleSelectFile {
+export interface HandleSelectFile {
   repoID: string;
   sha: string;
   filepath?: string | null;

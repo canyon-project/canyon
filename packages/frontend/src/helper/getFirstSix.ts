@@ -4,7 +4,7 @@
  * @param {string} [fallback=""] - 当输入为空时的回退值
  * @returns {string} - 截取后的字符串
  */
-export function getFirstSix(str, fallback = '') {
+export function getFirstSix(str: string, fallback = '') {
   // 处理非字符串输入
   if (typeof str !== 'string') {
     return fallback;

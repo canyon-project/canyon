@@ -2,13 +2,14 @@ import CoverageOverviewPanel from '@/pages/index/[provider]/[org]/[repo]/index/c
 import { useRequest } from 'ahooks';
 import { Badge, Empty, Space, Spin, Tabs, type TabsProps } from 'antd';
 import axios from 'axios';
+import { CommitCoverageOverviewProps } from '@/types';
 
-const CommitCoverageOverview = ({ commit, repo, onChange, selectedBuildID }) => {
+const CommitCoverageOverview = ({ commit, repo, onChange, selectedBuildID }: CommitCoverageOverviewProps) => {
   const { data, loading } = useRequest(
     () => {
       return axios
         .get(
-          `/api/coverage/overview?subject=commit&subjectID=${commit?.sha}&provider=gitlab&repoID=${repo.id}`
+          `/api/coverage/overview?subject=commit&subjectID=${commit?.sha}&provider=gitlab&repoID=${repo?.id}`
         )
         .then((res) => res.data);
     },
@@ -21,13 +22,13 @@ const CommitCoverageOverview = ({ commit, repo, onChange, selectedBuildID }) => 
   // 根据搜索条件筛选流水线
   // 更新 pipeline tab 的渲染，添加 commit 信息
   const buildTabs: TabsProps['items'] = (data || [])
-    .map((i) => {
+    .map((i: any) => {
       return {
         ...i,
         hasReported: true,
       };
     })
-    .map((build, _index) => ({
+    .map((build: any, _index: number) => ({
       key: build.buildID,
       label: (
         <Space>
@@ -50,7 +51,7 @@ const CommitCoverageOverview = ({ commit, repo, onChange, selectedBuildID }) => 
               }
             />
           ) : (
-            <CoverageOverviewPanel build={build} commit={commit} />
+            <CoverageOverviewPanel build={build} />
           )}
         </div>
       ),
@@ -60,9 +61,9 @@ const CommitCoverageOverview = ({ commit, repo, onChange, selectedBuildID }) => 
     <Spin spinning={loading}>
       <Tabs
         items={buildTabs}
-        activeKey={selectedBuildID}
+        activeKey={selectedBuildID || undefined}
         onChange={(val) => {
-          const build = (data || []).find((item) => {
+          const build = (data || []).find((item: any) => {
             return item.buildID === val;
           });
           onChange({

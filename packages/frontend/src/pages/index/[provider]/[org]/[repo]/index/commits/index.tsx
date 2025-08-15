@@ -1,6 +1,6 @@
 import { useRequest } from 'ahooks';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Outlet,
   useNavigate,
@@ -8,28 +8,27 @@ import {
   useParams,
   useSearchParams,
 } from 'react-router-dom';
+import { Commit, OutletContext } from '@/types';
 import CommitsList from './views/CommitsList.tsx';
 
 const Commits = () => {
-  const { repo } = useOutletContext();
+  const { repo } = useOutletContext<OutletContext>();
   const [searchParams, _setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const params = useParams();
-  const [selectedCommit, setSelectedCommit] = useState({
-    sha: null,
-  });
+  const [selectedCommit, setSelectedCommit] = useState<Commit | null>(null);
 
   const [_selectedBuildID, _setSelectedBuildID] = useState(searchParams.get('build_id'));
 
-  const { data, loading } = useRequest(
+  const { data } = useRequest(
     () => {
       return axios
-        .get(`/api/repo/${repo.id}/commits`)
+        .get(`/api/repo/${repo?.id}/commits`)
         .then((res) => res.data)
         .then((res) => {
           // 将后端返回的 commits 转换为前端列表所需结构；
           // 后端字段：sha, branch, compareTarget, provider, createdAt, latestId
-          return (res.commits || []).map((item) => {
+          return (res.commits || []).map((item: any) => {
             const sha = item.sha;
             return {
               id: sha,
@@ -52,7 +51,7 @@ const Commits = () => {
       onSuccess: (commits) => {
         //   如果有选中的 commit，则设置为 selectedCommit
         if (params.sha) {
-          const commit = commits.find((c) => c.sha === params.sha);
+          const commit = commits.find((c: Commit) => c.sha === params.sha);
           if (commit) {
             setSelectedCommit(commit);
           }
@@ -61,7 +60,7 @@ const Commits = () => {
     }
   );
 
-  const handleCommitSelect = (commit) => {
+  const handleCommitSelect = (commit: Commit) => {
     setSelectedCommit(commit);
 
     // nav

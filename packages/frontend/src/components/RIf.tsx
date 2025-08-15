@@ -1,7 +1,7 @@
 import type { FC, ReactNode } from 'react';
 
 const RIf: FC<{
-  condition: boolean;
+  condition: any;
   children: ReactNode;
 }> = ({ condition, children }) => {
   return <>{condition ? <>{children}</> : null}</>;

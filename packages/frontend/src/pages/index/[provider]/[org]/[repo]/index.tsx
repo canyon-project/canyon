@@ -10,7 +10,7 @@ const ProjectDetailPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   console.log(params, 'params');
-  const { data, loading } = useRequest(
+  const { data } = useRequest(
     () => {
       return axios.get(`/api/repo/${btoa(`${params.org}/${params.repo}`)}`).then((res) => res.data);
     },

@@ -1,14 +1,7 @@
 import { RobotOutlined, UserOutlined } from '@ant-design/icons';
 import { Badge, Button, Collapse, Progress, Space, Table, Tooltip } from 'antd';
-import type { TableProps } from 'antd';
-// import { CaseData } from './CommitsDetail';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-
-interface CoverageOverviewPanelProps {
-  build: any;
-  coverageDetailOpen: boolean;
-  setCoverageDetailOpen: (open: boolean) => void;
-}
+import { CoverageOverviewPanelProps } from '@/types';
 
 const caseColumns = [
   {
@@ -16,7 +9,7 @@ const caseColumns = [
     dataIndex: 'reportID',
     key: 'reportID',
     width: 160,
-    render(_, _c, index) {
+    render(_: any, _c: any, index: number) {
       return (
         <a
           href='https://trip.com/'
@@ -44,7 +37,7 @@ const caseColumns = [
     dataIndex: 'status',
     key: 'status',
     width: 100,
-    render: (_status) => <Badge status='success' text='已完成' />,
+    render: (_status: any) => <Badge status='success' text='已完成' />,
   },
   {
     title: '通过率',
@@ -56,9 +49,8 @@ const caseColumns = [
     title: '用例数',
     key: 'passRate',
     width: 200,
-    render: (_, record) => {
+    render: (_: any, record: any) => {
       const total = record.passedCount + record.failedCount;
-      const _rate = record.passRate;
       return (
         <span>
           <span className='font-medium text-green-600'>{record.passedCount}</span> / {total}
@@ -70,7 +62,7 @@ const caseColumns = [
     title: '覆盖率',
     dataIndex: 'summary',
     key: 'summary',
-    render: (_) => {
+    render: (_: any) => {
       return _.percent;
       // return calculateCoveragePercentage(_)
     },
@@ -80,16 +72,13 @@ const caseColumns = [
 
 const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
   build,
-  coverageDetailOpen,
-  setCoverageDetailOpen,
-  commit,
 }) => {
   const [searchParams, _setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const params = useParams();
   function getToFilePath() {
     navigate(
-      `/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}/-/?build_provider=${searchParams.get('build_provider')}&build_id=${searchParams.get('build_id')}`
+      `/${params.provider}/${params.org}/${params.repo}/commits/${params.sha}/-/?build_provider=${searchParams.get('build_provider')}&build_id=${searchParams.get('build_id')}`
     );
   }
 
@@ -141,22 +130,22 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                   <RobotOutlined />
                   自动化测试覆盖率
                 </Space>
-                {build.modeList.find((r) => r.mode === 'automated') && (
+                {build.modeList.find((r: any) => r.mode === 'automated') && (
                   <Progress
-                    percent={build.modeList.find((r) => r.mode === 'automated')!.coveragePercentage}
+                    percent={build.modeList.find((r: any) => r.mode === 'automated')!.coveragePercentage}
                     size='small'
                     status={
-                      build.modeList.find((r) => r.mode === 'automated')!.coveragePercentage < 60
+                      build.modeList.find((r: any) => r.mode === 'automated')!.coveragePercentage < 60
                         ? 'exception'
                         : 'active'
                     }
                     strokeColor={
-                      build.modeList.find((r) => r.mode === 'automated')!.coveragePercentage >= 80
+                      build.modeList.find((r: any) => r.mode === 'automated')!.coveragePercentage >= 80
                         ? 'green'
-                        : build.modeList.find((r) => r.mode === 'automated')!.coveragePercentage >=
+                        : build.modeList.find((r: any) => r.mode === 'automated')!.coveragePercentage >=
                             60
                           ? 'blue'
-                          : build.modeList.find((r) => r.mode === 'automated')!
+                          : build.modeList.find((r: any) => r.mode === 'automated')!
                                 .coveragePercentage >= 40
                             ? 'orange'
                             : 'red'
@@ -171,8 +160,8 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             className='border-0'
           >
             {build.modeList
-              .filter((r) => r.mode === 'auto')
-              .map((report) => (
+              .filter((r: any) => r.mode === 'auto')
+              .map((report: any) => (
                 <div key={report.reportID} className='mb-4'>
                   <Table
                     columns={caseColumns}
@@ -197,21 +186,21 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                   手工测试覆盖率
                 </Space>
                 {/*{JSON.stringify(build.modeList||[])}*/}
-                {build.modeList?.find((r) => r.mode === 'manual') && (
+                {build.modeList?.find((r: any) => r.mode === 'manual') && (
                   <Progress
-                    percent={build.modeList?.find((r) => r.mode === 'manual')!.coveragePercentage}
+                    percent={build.modeList?.find((r: any) => r.mode === 'manual')!.coveragePercentage}
                     size='small'
                     status={
-                      build.modeList?.find((r) => r.mode === 'manual')!.coveragePercentage < 60
+                      build.modeList?.find((r: any) => r.mode === 'manual')!.coveragePercentage < 60
                         ? 'exception'
                         : 'active'
                     }
                     strokeColor={
-                      build.modeList?.find((r) => r.mode === 'manual')!.coveragePercentage >= 80
+                      build.modeList?.find((r: any) => r.mode === 'manual')!.coveragePercentage >= 80
                         ? 'green'
-                        : build.modeList?.find((r) => r.mode === 'manual')!.coveragePercentage >= 60
+                        : build.modeList?.find((r: any) => r.mode === 'manual')!.coveragePercentage >= 60
                           ? 'blue'
-                          : build.modeList?.find((r) => r.mode === 'manual')!.coveragePercentage >=
+                          : build.modeList?.find((r: any) => r.mode === 'manual')!.coveragePercentage >=
                               40
                             ? 'orange'
                             : 'red'
@@ -226,8 +215,8 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             className='border-0'
           >
             {build.modeList
-              ?.filter((r) => r.mode === 'manual')
-              .map((report) => (
+              ?.filter((r: any) => r.mode === 'manual')
+              .map((report: any) => (
                 <div key={report.reportID} className='mb-4'>
                   {/*{JSON.stringify(report.caseList||[])}*/}
                   <Table
