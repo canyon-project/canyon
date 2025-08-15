@@ -175,3 +175,40 @@ func (s *CoverageService) queryClickHouseData(
 
 	return coverageMapResult, coverageHitResult, g.Wait()
 }
+
+// queryCoverageHitsWithCoverageID 查询 coverage_hit_agg，并保留 coverage_id 维度
+func (s *CoverageService) queryCoverageHitsWithCoverageID(
+	coverageList []models.Coverage,
+	reportProvider, reportID string,
+) ([]models.CoverageHitSummaryResult, error) {
+	conn := db.GetClickHouseDB()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	query := s.buildCoverageHitQueryWithCoverageID(coverageList)
+	rows, err := conn.Query(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
+	}
+	defer rows.Close()
+
+	var results []models.CoverageHitSummaryResult
+	for rows.Next() {
+		var (
+			coverageID, fullFilePath string
+			sTuple, fTuple, bTuple   []interface{}
+		)
+		if err := rows.Scan(&coverageID, &fullFilePath, &sTuple, &fTuple, &bTuple); err != nil {
+			return nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
+		}
+		results = append(results, models.CoverageHitSummaryResult{
+			CoverageID:   coverageID,
+			FullFilePath: fullFilePath,
+			S:            s.convertTupleSliceToUint32Map(sTuple),
+			F:            s.convertTupleSliceToUint32Map(fTuple),
+			B:            s.convertTupleSliceToUint32Map(bTuple),
+		})
+	}
+
+	return results, rows.Err()
+}
