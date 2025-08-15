@@ -4,7 +4,6 @@ import (
 	"backend/db"
 	"backend/dto"
 	"backend/models"
-	"backend/utils"
 	"context"
 	"fmt"
 	"time"
@@ -14,26 +13,9 @@ import (
 
 // getCoverageMapInternal 获取覆盖率映射的内部实现
 func (s *CoverageService) getCoverageMapInternal(query dto.CoverageQueryDto) (interface{}, error) {
-	// 统一链路日志
-	requestID := query.RequestID
-	if requestID == "" {
-		requestID = utils.GenerateRequestID()
-	}
-	traceID := requestID
-	spanDB := "db-coverage-" + requestID
-	spanRel := "relations-" + requestID
-	spanCKMap := "ck-map-" + requestID
-	spanCKHits := "ck-hits-" + requestID
-	spanMerge := "merge-" + requestID
-
-	reqLog := NewRequestLogService()
-
 	// 第一步：查询coverage表，获取所有的coverageID
 	pgDB := db.GetDB()
 	var coverageList []models.Coverage
-
-	stepStart := time.Now()
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 0, requestID, traceID, spanDB, "", "INFO", "query coverage list start", map[string]interface{}{"repoID": query.RepoID, "sha": query.SHA}, nil, query.RepoID, query.SHA, stepStart, time.Now())
 
 	coverageQuery := pgDB.Where("provider = ? AND repo_id = ? AND sha = ?",
 		query.Provider, query.RepoID, query.SHA)
@@ -46,12 +28,10 @@ func (s *CoverageService) getCoverageMapInternal(query dto.CoverageQueryDto) (in
 	}
 
 	if err := coverageQuery.Find(&coverageList).Error; err != nil {
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 500, requestID, traceID, spanDB, "", "ERROR", "query coverage list failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, query.SHA, stepStart, time.Now())
 		return nil, fmt.Errorf("查询coverage列表失败: %w", err)
 	}
 
 	if len(coverageList) == 0 {
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 200, requestID, traceID, spanDB, "", "INFO", "no coverage found", nil, nil, query.RepoID, query.SHA, stepStart, time.Now())
 		return map[string]interface{}{}, nil
 	}
 
@@ -74,30 +54,20 @@ func (s *CoverageService) getCoverageMapInternal(query dto.CoverageQueryDto) (in
 		relationQuery = relationQuery.Where("file_path = ?", query.FilePath)
 	}
 
-	relStart := time.Now()
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 0, requestID, traceID, spanRel, spanDB, "INFO", "query relations start", map[string]interface{}{"coverageIDs": len(coverageIDs)}, nil, query.RepoID, query.SHA, relStart, time.Now())
 	if err := relationQuery.Group("coverage_map_hash_id, full_file_path").
 		Find(&coverageMapRelations).Error; err != nil {
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 500, requestID, traceID, spanRel, spanDB, "ERROR", "query relations failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, query.SHA, relStart, time.Now())
 		return nil, fmt.Errorf("查询coverageMapRelation失败: %w", err)
 	}
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 200, requestID, traceID, spanRel, spanDB, "INFO", "relations fetched", map[string]interface{}{"relations": len(coverageMapRelations)}, nil, query.RepoID, query.SHA, relStart, time.Now())
 
 	// 第三步：并行查询ClickHouse
-	ckStart := time.Now()
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 0, requestID, traceID, spanCKMap, spanRel, "INFO", "clickhouse map query start", map[string]interface{}{"hashes": len(coverageMapRelations)}, nil, query.RepoID, query.SHA, ckStart, time.Now())
 	coverageMapResult, coverageHitResult, err := s.queryClickHouseData(
 		coverageMapRelations, coverageList, query.ReportProvider, query.ReportID)
 	if err != nil {
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 500, requestID, traceID, spanCKMap, spanRel, "ERROR", "clickhouse map/hit query failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, query.SHA, ckStart, time.Now())
 		return nil, err
 	}
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 200, requestID, traceID, spanCKHits, spanCKMap, "INFO", "clickhouse results fetched", map[string]interface{}{"map": len(coverageMapResult), "hits": len(coverageHitResult)}, nil, query.RepoID, query.SHA, ckStart, time.Now())
 
 	// 第四步：合并数据
-	mergeStart := time.Now()
 	result := s.mergeCoverageMapAndHitResults(coverageMapResult, coverageHitResult, coverageMapRelations)
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 200, requestID, traceID, spanMerge, spanCKHits, "INFO", "merge results done", map[string]interface{}{"relations": len(coverageMapRelations)}, nil, query.RepoID, query.SHA, mergeStart, time.Now())
 
 	// 第五步：移除instrumentCwd路径
 	if len(coverageList) > 0 {

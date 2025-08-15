@@ -5,7 +5,6 @@ import (
 	"backend/services"
 	"backend/utils"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -44,19 +43,13 @@ func (h *CoverageHandler) GetCoverageSummary(c *gin.Context) {
 		return
 	}
 
-	stepStart := time.Now()
-	reqLog := services.NewRequestLogService()
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/commits", "GET", 0, query.RequestID, query.RequestID, "summary-start", "", "INFO", "handle GetCoverageSummary start", map[string]interface{}{"repoID": query.RepoID, "sha": query.SHA}, nil, query.RepoID, query.SHA, stepStart, time.Now())
-
 	// 调用新的服务方法获取覆盖率摘要
 	result, err := h.coverageService.GetCoverageSummaryByRepoAndSHA(query.RepoID, query.SHA)
 	if err != nil {
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/commits", "GET", http.StatusInternalServerError, query.RequestID, query.RequestID, "summary-error", "summary-start", "ERROR", "GetCoverageSummaryByRepoAndSHA failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, query.SHA, stepStart, time.Now())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/commits", "GET", http.StatusOK, query.RequestID, query.RequestID, "summary-done", "summary-start", "INFO", "GetCoverageSummary done", map[string]interface{}{"items": 1}, nil, query.RepoID, query.SHA, stepStart, time.Now())
 	c.JSON(http.StatusOK, result)
 }
 
@@ -73,19 +66,13 @@ func (h *CoverageHandler) GetCoverageSummaryMap(c *gin.Context) {
 	}
 	c.Header("X-Request-ID", query.RequestID)
 
-	stepStart := time.Now()
-	reqLog := services.NewRequestLogService()
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/summary/map", "GET", 0, query.RequestID, query.RequestID, "summary-map-start", "", "INFO", "handle GetCoverageSummaryMap start", map[string]interface{}{"repoID": query.RepoID, "sha": query.SHA}, nil, query.RepoID, query.SHA, stepStart, time.Now())
-
 	// 调用服务直接在数据库计算摘要（深度优化版本）
 	summaryMap, err := h.coverageService.GetCoverageSummaryMapFast(query)
 	if err != nil {
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/summary/map", "GET", http.StatusInternalServerError, query.RequestID, query.RequestID, "summary-map-error", "summary-map-start", "ERROR", "GetCoverageSummaryMapFast failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, query.SHA, stepStart, time.Now())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/summary/map", "GET", http.StatusOK, query.RequestID, query.RequestID, "summary-map-done", "summary-map-start", "INFO", "GetCoverageSummaryMap done", map[string]interface{}{"files": len(summaryMap)}, nil, query.RepoID, query.SHA, stepStart, time.Now())
 	c.JSON(http.StatusOK, summaryMap)
 }
 
@@ -110,19 +97,13 @@ func (h *CoverageHandler) GetCoverageMap(c *gin.Context) {
 		return
 	}
 
-	stepStart := time.Now()
-	reqLog := services.NewRequestLogService()
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", 0, query.RequestID, query.RequestID, "map-start", "", "INFO", "handle GetCoverageMap start", map[string]interface{}{"repoID": query.RepoID, "sha": query.SHA}, nil, query.RepoID, query.SHA, stepStart, time.Now())
-
 	// 调用服务获取覆盖率映射数据
 	result, err := h.coverageService.GetCoverageMap(query)
 	if err != nil {
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", http.StatusInternalServerError, query.RequestID, query.RequestID, "map-error", "map-start", "ERROR", "GetCoverageMap failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, query.SHA, stepStart, time.Now())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/map", "GET", http.StatusOK, query.RequestID, query.RequestID, "map-done", "map-start", "INFO", "GetCoverageMap done", map[string]interface{}{"entries": 1}, nil, query.RepoID, query.SHA, stepStart, time.Now())
 	c.JSON(http.StatusOK, result)
 }
 
@@ -147,19 +128,13 @@ func (h *CoverageHandler) GetCoverageSummaryForPull(c *gin.Context) {
 		return
 	}
 
-	stepStart := time.Now()
-	reqLog := services.NewRequestLogService()
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", 0, query.RequestID, query.RequestID, "pull-summary-start", "", "INFO", "handle GetCoverageSummaryForPull start", map[string]interface{}{"repoID": query.RepoID, "pull": query.PullNumber}, nil, query.RepoID, "", stepStart, time.Now())
-
 	// 获取PR覆盖率概览（合并所有构建，不区分buildID/buildProvider）
 	result, err := h.coverageService.GetCoverageSummaryForPull(query)
 	if err != nil {
-		_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", http.StatusInternalServerError, query.RequestID, query.RequestID, "pull-summary-error", "pull-summary-start", "ERROR", "GetCoverageSummaryForPull failed", nil, map[string]interface{}{"error": err.Error()}, query.RepoID, "", stepStart, time.Now())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/pulls", "GET", http.StatusOK, query.RequestID, query.RequestID, "pull-summary-done", "pull-summary-start", "INFO", "GetCoverageSummaryForPull done", nil, nil, query.RepoID, "", stepStart, time.Now())
 	c.JSON(http.StatusOK, result)
 }
 
@@ -184,12 +159,7 @@ func (h *CoverageHandler) GetCoverageSummaryForCommits(c *gin.Context) {
 		return
 	}
 
-	stepStart := time.Now()
-	reqLog := services.NewRequestLogService()
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/multiple-commits", "GET", 0, query.RequestID, query.RequestID, "multi-summary-start", "", "INFO", "handle GetCoverageSummaryForCommits start", map[string]interface{}{"repoID": query.RepoID, "shas": query.SHAs}, nil, query.RepoID, "", stepStart, time.Now())
-
 	// TODO: 实现获取多个commits覆盖率概览的逻辑
-	_ = reqLog.RequestLogStep(utils.GenerateRequestID(), query.Provider, "backend", "/coverage/overview/multiple-commits", "GET", http.StatusOK, query.RequestID, query.RequestID, "multi-summary-done", "multi-summary-start", "INFO", "GetCoverageSummaryForCommits not implemented", nil, nil, query.RepoID, "", stepStart, time.Now())
 	c.JSON(http.StatusOK, gin.H{
 		"message": "TODO: 实现获取多个commits覆盖率概览的功能",
 		"status":  "not_implemented",
