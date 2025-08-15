@@ -11,12 +11,14 @@ import (
 // CodeHandler 代码处理器
 type CodeHandler struct {
 	gitlabService *services.GitLabService
+	vcs           services.VCS
 }
 
 // NewCodeHandler 创建代码处理器
 func NewCodeHandler(gitlabService *services.GitLabService) *CodeHandler {
 	return &CodeHandler{
 		gitlabService: gitlabService,
+		vcs:           services.VCSFor("gitlab"), // 默认 GitLab，兼容旧行为
 	}
 }
 
@@ -26,6 +28,7 @@ func (h *CodeHandler) GetFileContent(c *gin.Context) {
 	sha := c.Query("sha")
 	pullNumberStr := c.Query("pullNumber")
 	filepath := c.Query("filepath")
+	provider := c.DefaultQuery("provider", "gitlab")
 
 	if repoIDStr == "" || filepath == "" {
 		utils.Response.BadRequest(c, "repoID, filepath 为必填参数")
@@ -37,17 +40,16 @@ func (h *CodeHandler) GetFileContent(c *gin.Context) {
 		return
 	}
 
-	repoID, err := strconv.Atoi(repoIDStr)
-	if err != nil {
-		utils.Response.BadRequest(c, "repoID 必须是数字")
-		return
-	}
-
-	// 如果未提供sha但提供了pullNumber，则从PR解析head sha
+	// 如果未提供sha但提供了pullNumber，仅 GitLab 支持从 PR 解析 head sha
 	if sha == "" && pullNumberStr != "" {
 		pullID, err := strconv.Atoi(pullNumberStr)
 		if err != nil {
 			utils.Response.BadRequest(c, "pullNumber 必须是数字")
+			return
+		}
+		repoID, err := strconv.Atoi(repoIDStr)
+		if err != nil {
+			utils.Response.BadRequest(c, "repoID 必须是数字以解析 pullNumber")
 			return
 		}
 		pr, err := h.gitlabService.GetPullRequest(repoID, pullID)
@@ -65,7 +67,7 @@ func (h *CodeHandler) GetFileContent(c *gin.Context) {
 		}
 	}
 
-	content, err := h.gitlabService.GetFileContentBase64(repoID, sha, filepath)
+	content, err := services.VCSFor(provider).GetFileContentBase64(repoIDStr, sha, filepath)
 	if err != nil {
 		utils.Response.InternalServerError(c, err)
 		return
@@ -140,7 +142,7 @@ func (h *CodeHandler) GetProjectByPath(c *gin.Context) {
 		return
 	}
 
-	// 获取项目信息
+	// 获取项目信息（默认 GitLab）
 	project, err := h.gitlabService.GetProjectByPath(path)
 	if err != nil {
 		utils.Response.InternalServerError(c, err)
