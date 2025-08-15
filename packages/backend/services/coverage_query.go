@@ -4,6 +4,7 @@ import (
 	"backend/db"
 	"backend/dto"
 	"backend/models"
+	"backend/utils"
 	"context"
 	"fmt"
 	"time"
@@ -113,9 +114,25 @@ func (s *CoverageService) queryClickHouseData(
 
 		for mapRows.Next() {
 			var result models.CoverageMapQueryResult
-			if err := mapRows.ScanStruct(&result); err != nil {
-				return fmt.Errorf("扫描coverage_map结果失败: %w", err)
+			var (
+				statementMap           map[uint32][]interface{}
+				fnMapStr, branchMapStr string
+			)
+
+			if err := mapRows.Scan(
+				&statementMap,
+				&fnMapStr,
+				&branchMapStr,
+				&result.CoverageMapHashID,
+			); err != nil {
+				return fmt.Errorf("扫描coverage_map数据失败: %w", err)
 			}
+
+			// 解析数据
+			result.StatementMap = utils.ConvertStatementMap(statementMap)
+			result.FnMap = utils.ParseFunctionMapSimple(fnMapStr)
+			result.BranchMap = utils.ParseBranchMapSimple(branchMapStr)
+
 			coverageMapResult = append(coverageMapResult, result)
 		}
 
