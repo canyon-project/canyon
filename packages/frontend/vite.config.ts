@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
-        'canyon-report': path.resolve(__dirname, '../report/src/index.tsx'),
+        // 'canyon-report': path.resolve(__dirname, '../report/src/index.tsx'),
       },
     },
     build: {
