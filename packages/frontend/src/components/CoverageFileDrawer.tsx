@@ -1,7 +1,8 @@
 import RIf from '@/components/RIf';
 import { handleSelectFileBySubject } from '@/helper';
 import { useRequest } from 'ahooks';
-import { Drawer, Spin } from 'antd';
+import { Drawer, Spin, Tooltip } from 'antd';
+import { ExportOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import Report from 'canyon-report';
 import { useEffect, useState } from 'react';
@@ -90,15 +91,18 @@ const CoverageFileDrawer = ({
         getToFilePath('');
       }}
       title={
-        <div>
-          {title}
-          <a
-            href={`/report/-${window.location.href.replace(window.location.origin, '')}`}
-            target='_blank'
-            rel='noreferrer'
-          >
-            在新窗口打开
-          </a>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span>{title}</span>
+          <Tooltip title='在新窗口打开'>
+            <a
+              href={`/report/-${window.location.href.replace(window.location.origin, '')}`}
+              target='_blank'
+              rel='noreferrer'
+              aria-label='在新窗口打开'
+            >
+              <ExportOutlined />
+            </a>
+          </Tooltip>
         </div>
       }
     >
