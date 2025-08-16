@@ -42,7 +42,7 @@ const SummaryTree: FC<{
                   <a
                     style={{
                       display: 'flex',
-                      gap: '10px',
+                      gap: '6px',
                     }}
                     onClick={() => {
                       onSelect(text);

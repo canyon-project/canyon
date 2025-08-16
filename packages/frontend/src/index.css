@@ -29,7 +29,7 @@ a:hover {
 }
 
 .ant-drawer-body {
-  padding: 6px !important;
+  padding: 6px 6px 0 6px !important;
 }
 
 .ant-drawer-header {

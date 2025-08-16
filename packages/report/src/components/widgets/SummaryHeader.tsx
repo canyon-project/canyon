@@ -24,7 +24,7 @@ const SummaryNav: FC<{
       style={{
         display: 'flex',
         gap: '6px',
-        marginBottom: '10px',
+        marginBottom: '6px',
         fontSize: '16px',
         fontWeight: 'bold',
       }}
@@ -72,8 +72,8 @@ const SummaryMetric: FC<{
       <div
         style={{
           display: 'flex',
-          gap: '10px',
-          marginBottom: '10px',
+          gap: '6px',
+          marginBottom: '6px',
           maxWidth: '1000px',
           flexWrap: 'wrap',
         }}
@@ -132,9 +132,9 @@ const SummaryBar: FC<{ pct: number }> = ({ pct }) => {
   return (
     <div
       style={{
-        height: '10px',
+        height: '8px',
         width: '100%',
-        marginBottom: '10px',
+        marginBottom: '6px',
         backgroundColor: getColor(pct),
       }}
     />

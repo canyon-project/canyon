@@ -1,8 +1,8 @@
-import { ConfigProvider, Spin, theme } from 'antd';
+import { ConfigProvider, theme } from 'antd';
 import enUS from 'antd/es/locale/en_US';
 import jaJP from 'antd/es/locale/ja_JP';
 import zhCN from 'antd/es/locale/zh_CN';
-import { type FC, Suspense, lazy, useEffect } from 'react';
+import { type FC, lazy } from 'react';
 import { emptyFileCoverageData } from './components/helpers/const';
 import { LanguageProvider } from './locales';
 import type { ReportProps } from './types';
@@ -50,13 +50,6 @@ const Report: FC<ReportProps> = (props) => {
 
   return (
     <LanguageProvider language={language}>
-      <Suspense
-        fallback={
-          <div className='loading-container'>
-            <Spin size='large' tip='Loading report...' />
-          </div>
-        }
-      >
         <ConfigProvider
           locale={languages[language]}
           theme={{
@@ -69,7 +62,6 @@ const Report: FC<ReportProps> = (props) => {
         >
           <ReportComponent {...mergedProps} />
         </ConfigProvider>
-      </Suspense>
     </LanguageProvider>
   );
 };

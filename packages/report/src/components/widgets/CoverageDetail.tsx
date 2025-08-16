@@ -22,9 +22,7 @@ const FileCoverageDetail: FC<{
   }, []);
 
   return (
-    <div>
-      <div id={'canyon-report-box'} style={{ width: '100%' }} />
-    </div>
+    <div id={'canyon-report-box'} />
   );
 };
 

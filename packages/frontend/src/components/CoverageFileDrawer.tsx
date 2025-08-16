@@ -104,7 +104,11 @@ const CoverageFileDrawer = ({
     >
       <Spin spinning={loading}>
         <RIf condition={!!data}>
-          <Report value={activatedPath} onSelect={onSelect} dataSource={data} />
+          <div style={{
+            height:'calc(100vh - 50px)',
+          }}>
+            <Report value={activatedPath} onSelect={onSelect} dataSource={data} />
+          </div>
         </RIf>
       </Spin>
     </Drawer>

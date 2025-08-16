@@ -33,7 +33,7 @@ const TopControl: FC<{
       <div
         style={{
           display: 'flex',
-          marginBottom: '10px',
+          marginBottom: '6px',
           justifyContent: 'space-between',
           alignItems: 'center',
         }}
@@ -41,7 +41,7 @@ const TopControl: FC<{
         <div
           style={{
             display: 'flex',
-            gap: '10px',
+            gap: '6px',
             flexDirection: 'column',
           }}
         >
@@ -68,7 +68,7 @@ const TopControl: FC<{
             />
 
             <span style={{ fontSize: '14px' }}>
-              <span style={{ marginBottom: '10px' }}>
+              <span style={{ marginBottom: '6px' }}>
                 {total} {t('components.topControl.totalFiles')}
               </span>
             </span>
@@ -85,21 +85,13 @@ const TopControl: FC<{
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
+              gap: '6px',
             }}
           >
             <Typography.Text type={'secondary'} style={{ fontSize: '12px' }}>
               {t('components.topControl.onlyChanged')}:{' '}
             </Typography.Text>
             <Switch checked={onlyChange} size={'small'} onChange={onChangeOnlyChange} />
-            {onChangeTheme && (
-              <>
-                <Divider type='vertical' />
-                <Tooltip title={t('toggle_theme')}>
-                  <ThemeSwitch theme={theme} onChange={onChangeTheme} />
-                </Tooltip>
-              </>
-            )}
           </div>
           <Divider type={'vertical'} />
           <Input
@@ -116,7 +108,7 @@ const TopControl: FC<{
           />
         </div>
       </div>
-      <Divider style={{ margin: '0', marginBottom: '10px' }} />
+      <Divider style={{ margin: '0', marginBottom: '6px' }} />
     </div>
   );
 };

@@ -1,7 +1,5 @@
-import { Spin } from 'antd';
 import type { FileCoverageData } from 'istanbul-lib-coverage';
 import { type FC, Suspense, useEffect, useMemo, useState } from 'react';
-import { useTrans } from '../locales';
 import { type ReportProps, ThemeEnum } from '../types';
 import { generateCoreDataForEachComponent } from './helpers/generateCoreDataForEachComponent';
 import CoverageDetail from './widgets/CoverageDetail';
@@ -9,10 +7,11 @@ import SummaryHeader from './widgets/SummaryHeader';
 import SummaryList from './widgets/SummaryList';
 import SummaryTree from './widgets/SummaryTree';
 import TopControl from './widgets/TopControl';
+import RIf from "./RIf.tsx";
+import {Spin} from "antd";
 
 const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, name }) => {
   console.log(theme, onSelect, value);
-  const _t = useTrans();
 
   // 内部状态
   const [_isLoading, _setIsLoading] = useState<boolean>(false);
@@ -31,8 +30,9 @@ const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, 
   const [fileContent, setFileContent] = useState<string>('');
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
   const [onlyChange, setOnlyChange] = useState(Boolean(false));
+  const rootClassName = useMemo(() => `report-scope-${Math.random().toString(36).slice(2, 9)}`,[/* once */]);
 
-  function onChangeOnlyChange(v) {
+  function onChangeOnlyChange(v: boolean) {
     setOnlyChange(v);
   }
   async function newOnSelect(val: string) {
@@ -66,8 +66,24 @@ const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, 
     });
   }, [dataSource, value, filenameKeywords, onlyChange]);
 
+  const isFileDataReady = useMemo(() => {
+    const hasCoverage = fileCoverage && Object.keys(fileCoverage).length > 0;
+    const hasContent = fileContent.length > 0;
+    return hasCoverage && hasContent;
+  }, [fileCoverage, fileContent]);
+
   return (
-    <>
+    <div className={rootClassName} style={{
+      height:'100%',
+      display:'flex',
+      flexDirection:'column'
+    }}>
+      <style>
+        {`
+          .${rootClassName} .canyon-coverage-detail-spin-wrapper { height: 100%; }
+          .${rootClassName} .canyon-coverage-detail-spin-wrapper > .ant-spin-container { height: 100%; }
+         `}
+      </style>
       <TopControl
         onlyChange={onlyChange}
         filenameKeywords={filenameKeywords}
@@ -92,23 +108,29 @@ const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, 
         }}
       />
       <SummaryHeader reportName={name} data={rootDataSource} value={value} onSelect={newOnSelect} />
-      {mode === 'file' &&
-        Object.keys(fileCoverage).length > 0 &&
-        Object.keys(fileContent).length > 0 && (
-          <CoverageDetail
-            fileContent={fileContent}
-            fileCodeChange={fileCodeChange}
-            fileCoverage={fileCoverage}
-            theme={theme}
-          />
-        )}
-      <Suspense
-        fallback={
-          <div className='p-8 text-center'>
-            <Spin size='large' />
-          </div>
-        }
-      >
+
+      <RIf condition={mode === 'file'}>
+        <div style={{
+          flex: 1,
+          minHeight: 0,
+          overflow: 'auto',
+          height:'100%'
+        }}>
+          <Spin spinning={!isFileDataReady} wrapperClassName={'canyon-coverage-detail-spin-wrapper'}>
+            <RIf condition={isFileDataReady}>
+              <CoverageDetail
+                fileContent={fileContent}
+                fileCoverage={fileCoverage}
+                fileCodeChange={fileCodeChange}
+                theme={currentTheme}
+              />
+            </RIf>
+          </Spin>
+        </div>
+      </RIf>
+
+
+      <Suspense fallback={<div className='p-8 text-center'>Loading...</div>}>
         {mode === 'tree' && <SummaryTree dataSource={treeDataSource} onSelect={newOnSelect} />}
         {mode === 'list' && (
           <SummaryList
@@ -118,7 +140,7 @@ const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, 
           />
         )}
       </Suspense>
-    </>
+    </div>
   );
 };
 

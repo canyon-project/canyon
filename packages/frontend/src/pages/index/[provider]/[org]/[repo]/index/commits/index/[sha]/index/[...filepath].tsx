@@ -1,14 +1,10 @@
 import CoverageFileDrawer from '@/components/CoverageFileDrawer';
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 const FilePath = () => {
-  const { repo, commit } = useOutletContext<any>();
+  const { repo } = useOutletContext<any>();
   const [searchParams] = useSearchParams();
-  // const params = useParams();
-
-  // const [searchParams, setSearchParams] = useSearchParams();
-  // const navigate = useNavigate();
   const params = useParams();
-  const basePath = `/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}`;
+  const basePath = `/${params.provider}/${params.org}/${params.repo}/commits/${params.sha}`;
 
   const sha = params.sha;
   // 保留查询参数，用于拼接 basePath 使 URL 状态可分享
