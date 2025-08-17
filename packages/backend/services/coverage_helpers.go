@@ -4,7 +4,10 @@ import (
 	"backend/db"
 	"backend/models"
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -20,23 +23,137 @@ func (s *CoverageService) getTestCaseInfoList(coverageList []models.Coverage) ([
 		}
 	}
 
-	// 这里应该调用外部API获取测试用例信息
-	// 由于Go中没有直接的axios等价物，这里先返回空列表
-	// TODO: 实现HTTP客户端调用外部API
+	// 调用外部测试用例服务，按 (reportProvider, reportID) 去重
+	type pair struct{ provider, id string }
+	seen := make(map[pair]bool)
 	for _, item := range needTestCaseItems {
-		testCaseInfo := map[string]interface{}{
-			"caseName":       item.ReportID,
-			"passedCount":    0,
-			"failedCount":    0,
-			"totalCount":     0,
-			"passRate":       "100%",
-			"reportProvider": item.ReportProvider,
-			"reportID":       item.ReportID,
+		p := pair{provider: item.ReportProvider, id: item.ReportID}
+		if seen[p] {
+			continue
 		}
-		testCaseInfoList = append(testCaseInfoList, testCaseInfo)
+		seen[p] = true
+
+		info := s.fetchExternalTestCaseInfo(p.provider, p.id)
+		testCaseInfoList = append(testCaseInfoList, info)
 	}
 
 	return testCaseInfoList, nil
+}
+
+// fetchExternalTestCaseInfo 从外部用例服务拉取用例结果信息
+func (s *CoverageService) fetchExternalTestCaseInfo(reportProvider, reportID string) map[string]interface{} {
+	defaultInfo := map[string]interface{}{
+		"caseName":       reportID,
+		"passedCount":    0,
+		"failedCount":    0,
+		"totalCount":     0,
+		"passRate":       "100.00%",
+		"reportProvider": reportProvider,
+		"reportID":       reportID,
+	}
+
+	base := s.getTestCaseBaseURL()
+	q := url.Values{}
+	q.Set("report_provider", reportProvider)
+	q.Set("report_id", reportID)
+	requestURL := base + "?" + q.Encode()
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	req, err := http.NewRequest("GET", requestURL, nil)
+	if err != nil {
+		return defaultInfo
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return defaultInfo
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return defaultInfo
+	}
+
+	var body map[string]interface{}
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		return defaultInfo
+	}
+
+	// 尝试提取字段，缺失则回退默认
+	getNumber := func(m map[string]interface{}, keys ...string) float64 {
+		for _, k := range keys {
+			if v, ok := m[k]; ok {
+				switch vv := v.(type) {
+				case float64:
+					return vv
+				case int:
+					return float64(vv)
+				case int64:
+					return float64(vv)
+				case json.Number:
+					fv, _ := vv.Float64()
+					return fv
+				}
+			}
+		}
+		return 0
+	}
+
+	getString := func(m map[string]interface{}, keys ...string) string {
+		for _, k := range keys {
+			if v, ok := m[k]; ok {
+				if s, ok := v.(string); ok && s != "" {
+					return s
+				}
+			}
+		}
+		return ""
+	}
+
+	caseName := getString(body, "caseName", "name", "title")
+	passed := getNumber(body, "passed", "pass", "passedCount")
+	failed := getNumber(body, "failed", "fail", "failedCount")
+	total := getNumber(body, "total", "totalCount")
+	if total == 0 {
+		total = passed + failed
+	}
+	// Prefer external passRate if provided
+	passRate := getString(body, "passRate")
+	if passRate == "" {
+		passRate = "100.00%"
+		if total > 0 {
+			r := (passed / total) * 100.0
+			passRate = fmt.Sprintf("%.2f%%", r)
+		}
+	}
+
+	info := map[string]interface{}{
+		"caseName": func() string {
+			if caseName != "" {
+				return caseName
+			}
+			return reportID
+		}(),
+		"passedCount":    int(passed),
+		"failedCount":    int(failed),
+		"totalCount":     int(total),
+		"passRate":       passRate,
+		"reportProvider": reportProvider,
+		"reportID":       reportID,
+	}
+
+	return info
+}
+
+// getTestCaseBaseURL 从配置表读取测试用例服务基础地址
+func (s *CoverageService) getTestCaseBaseURL() string {
+	pgDB := db.GetDB()
+	var cfg models.Config
+	if err := pgDB.Where("key = ?", "system_config.test_case_url").First(&cfg).Error; err == nil {
+		if cfg.Value != "" {
+			return cfg.Value
+		}
+	}
+	return "http://test-case.com/report"
 }
 
 // buildBuildGroupList 构建构建组列表
@@ -142,9 +259,9 @@ func (s *CoverageService) queryClickHouseForSummary(
 	for mapRows.Next() {
 		var result models.CoverageMapSummaryResult
 		var (
-			sKeys           []interface{}
-			fnMapStr        string
-			branchMapStr    string
+			sKeys        []interface{}
+			fnMapStr     string
+			branchMapStr string
 		)
 
 		err := mapRows.Scan(
