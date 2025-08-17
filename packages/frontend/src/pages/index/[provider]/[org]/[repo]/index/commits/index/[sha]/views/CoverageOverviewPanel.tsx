@@ -19,7 +19,7 @@ const caseColumns = [
         >
           <img
             className={'h-[12px]'}
-            src={`/providers/${index % 2 === 1 ? 'mpaas.svg' : 'mpaas.svg'}`}
+            src={`/providers/${_c.reportProvider}.svg`}
             alt=''
           />
           <span>{_}</span>
