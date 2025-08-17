@@ -62,6 +62,7 @@ CREATE TABLE "public"."canyonjs_coverage_map_relation" (
 
     CONSTRAINT "canyonjs_coverage_map_relation_pkey" PRIMARY KEY ("id")
 );
+CREATE INDEX IF NOT EXISTS idx_cov_map_relation_coverage_id ON "public"."canyonjs_coverage_map_relation" ("coverage_id");
 
 -- CreateTable
 CREATE TABLE "public"."canyonjs_coverage_source_map" (
