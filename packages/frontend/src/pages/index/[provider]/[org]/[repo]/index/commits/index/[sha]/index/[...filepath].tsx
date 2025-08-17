@@ -10,6 +10,8 @@ const FilePath = () => {
   // 保留查询参数，用于拼接 basePath 使 URL 状态可分享
   const buildProvider = searchParams.get('build_provider') || 'gitlab_runner';
   const buildID = searchParams.get('build_id') || '';
+  const reportProvider = searchParams.get('report_provider') || '';
+  const reportID = searchParams.get('report_id') || '';
   const initialPath = (params['*'] as string | undefined)?.replace('-/', '');
 
   return (
@@ -17,7 +19,7 @@ const FilePath = () => {
       repo={repo}
       subject={'commit'}
       subjectID={sha || ''}
-      basePath={`${basePath}?build_provider=${buildProvider}&build_id=${buildID}`}
+      basePath={`${basePath}?build_provider=${buildProvider}&build_id=${buildID}${reportProvider ? `&report_provider=${reportProvider}` : ''}${reportID ? `&report_id=${reportID}` : ''}`}
       initialPath={initialPath}
       title={`${params.repo} Commit 详情覆盖率`}
     />

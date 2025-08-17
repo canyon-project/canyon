@@ -6,7 +6,7 @@ import { ExportOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import Report from 'canyon-report';
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 type SubjectType = 'commit' | 'commits' | 'pull' | 'pulls' | 'multiple-commits' | 'multi-commits';
 
@@ -30,6 +30,7 @@ const CoverageFileDrawer = ({
   title = 'Coverage Detail',
 }: CoverageFileDrawerProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [activatedPath, setActivatedPath] = useState<string | undefined>(initialPath);
   const [open, setOpen] = useState(false);
@@ -52,7 +53,16 @@ const CoverageFileDrawer = ({
   const { data, loading } = useRequest(
     () =>
       axios('/api/coverage/summary/map', {
-        params: { repoID: repo.id, provider, subject, subjectID },
+        params: {
+          repoID: repo.id,
+          provider,
+          subject,
+          subjectID,
+          buildProvider: searchParams.get('build_provider') || undefined,
+          buildID: searchParams.get('build_id') || undefined,
+          reportProvider: searchParams.get('report_provider') || undefined,
+          reportID: searchParams.get('report_id') || undefined,
+        },
       }).then(({ data }) => data),
     { refreshDeps: [repo?.id, subject, subjectID] }
   );
@@ -68,6 +78,10 @@ const CoverageFileDrawer = ({
       subjectID,
       filepath: val,
       provider,
+      buildProvider: searchParams.get('build_provider') || undefined,
+      buildID: searchParams.get('build_id') || undefined,
+      reportProvider: searchParams.get('report_provider') || undefined,
+      reportID: searchParams.get('report_id') || undefined,
     }).then((res) => ({
       fileContent: res.fileContent,
       fileCoverage: res.fileCoverage,
@@ -87,7 +101,13 @@ const CoverageFileDrawer = ({
       width={'75%'}
       open={open}
       onClose={() => {
-        getToFilePath('');
+        // 关闭时移除 report_provider/report_id，避免状态遗留
+        const qIndex = basePath.indexOf('?');
+        const prefix = qIndex >= 0 ? basePath.slice(0, qIndex) : basePath;
+        const newQs = new URLSearchParams(searchParams);
+        newQs.delete('report_provider');
+        newQs.delete('report_id');
+        navigate(`${prefix}?${newQs.toString()}`);
       }}
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

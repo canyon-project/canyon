@@ -29,11 +29,21 @@ export interface Build {
   buildProvider: string;
   modeList: BuildMode[];
   reportList?: Report[];
+  summary:{
+    percent: string
+    covered:number
+    total:number
+  }
 }
 
 export interface BuildMode {
   mode: 'automated' | 'manual' | 'auto';
   coveragePercentage: number;
+  summary:{
+    percent: string
+    covered:number
+    total:number
+  }
 }
 
 export interface Report {
