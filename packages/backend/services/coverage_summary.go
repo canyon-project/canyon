@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-// getCoverageSummaryMapFastInternal 直接在数据库按文件计算覆盖率摘要的内部实现
+// getCoverageSummaryMapFastInternal summaryMap
 func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQueryDto) (map[string]interface{}, error) {
 	// 1) 读取 Postgres 覆盖率记录（筛选 provider/repo/sha/build/report）
 	pgDB := db.GetDB()
@@ -191,7 +191,7 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 	return result, nil
 }
 
-// getCoverageSummaryByRepoAndSHAInternal 根据仓库和SHA获取覆盖率摘要的内部实现
+// getCoverageSummaryByRepoAndSHAInternal 摘要
 func (s *CoverageService) getCoverageSummaryByRepoAndSHAInternal(repoID, sha string) (interface{}, error) {
 	start := time.Now()
 	mark := func(step string, t0 time.Time) {
