@@ -43,7 +43,8 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 	}
 	relQuery := pgDB.Table("canyonjs_coverage_map_relation").
 		Select("coverage_map_hash_id, full_file_path").
-		Where("coverage_id IN ?", coverageIDs)
+		Where("coverage_id IN ?", coverageIDs).
+		Where("file_path NOT LIKE ?", "dist%")
 	if query.FilePath != "" {
 		relQuery = relQuery.Where("file_path = ?", query.FilePath)
 	}

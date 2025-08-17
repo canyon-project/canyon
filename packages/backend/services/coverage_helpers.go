@@ -221,6 +221,7 @@ func (s *CoverageService) getCoverageMapRelationList(coverageList []models.Cover
 	err := pgDB.Table("canyonjs_coverage_map_relation").
 		Select("coverage_map_hash_id, full_file_path").
 		Where("coverage_id IN ?", coverageIDs).
+		Where("file_path NOT LIKE ?", "dist%").
 		Group("coverage_map_hash_id, full_file_path").
 		Find(&coverageMapRelationList).Error
 
