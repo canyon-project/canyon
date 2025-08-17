@@ -1,0 +1,355 @@
+# Canyon Report
+
+一个基于 Monaco Editor 的前端代码覆盖率可视化组件（Library）。提供按行覆盖次数、变更行标记与语法区块（语句/函数/分支）未覆盖高亮能力，适合在 Web 页面中快速渲染单文件级别的覆盖详情。
+
+## 界面介绍
+
+### 界面图形展示
+
+![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/getting-started/introduction/home-screen.png)
+
+### 界面染色说明
+
+| 颜色 | pct(覆盖率百分比)     | 描述                                           |
+| ---- | --------------------- | ---------------------------------------------- |
+| 绿色 | pct >= 80             | statements 语句覆盖率 大于等于 80              |
+| 黄色 | pct >= 50 && pct < 80 | statements 语句覆盖率 大于等于 50 并且 小于 80 |
+| 红色 | pct < 50              | statements 语句覆盖率 小于 50                  |
+
+### 界面区域功能
+
+- **顶部控制栏 ([TopControl])**
+
+```javascript
+  视图模式切换: 在"代码树"和"文件列表"两种视图间切换
+  变更文件过滤: "仅显示变更"开关，过滤显示有代码变更的文件
+  文件搜索: 输入文件路径关键词进行搜索过滤
+  文件统计: 显示当前过滤条件下的文件总数
+```
+
+- **摘要头部区域 ([SummaryHeader])**
+
+```javascript
+  项目路径导航: 显示当前查看的项目路径层级
+
+  覆盖率统计概览: 展示关键覆盖率指标
+    语句覆盖率 (Statements)
+    分支覆盖率 (Branches)
+    函数覆盖率 (Functions)
+    行覆盖率 (Lines)
+    新增行覆盖率 (New Lines)
+    新增函数覆盖率 (Changed Functions)
+    新增分支覆盖率 (Changed Branches)
+    新增语句覆盖率(Changed Statements)
+```
+
+- **内容区域 ([SummaryTree]/[SummaryList])**
+
+```javascript
+  表格展示: 以表格形式展示文件列表
+  列信息: 文件名、总数、已覆盖数、覆盖率百分比
+  进度条: 直观显示覆盖率水平
+  文件类型图标: 区分文件和文件夹
+```
+
+- **spa 组件([CoverageDetail])**
+
+```javascript
+  绿色: 在行号侧显示执行次数。
+  深绿色: 在行号侧显示的变更标记，通过传入 diff 高亮变更行。
+  红色: 未覆盖的语句和函数
+  黄色: 未完全覆盖的分支代码
+
+```
+
+[TopControl]: https://dimg04.c-ctrip.com/images/1qv3712000ncrf72p73AF.png
+[SummaryTree]: https://dimg04.c-ctrip.com/images/1qv7112000ncrfeu7EE25.png
+[SummaryHeader]: https://dimg04.c-ctrip.com/images/1qv4v12000ncresb446AF.png
+[SummaryList]: https://dimg04.c-ctrip.com/images/1qv2612000ncrf7xxB6C4.png
+[CoverageDetail]: https://dimg04.c-ctrip.com/images/1qv3r12000ncrjohxACD0.png
+
+## 安装
+
+```bash
+npm install canyon-report
+```
+
+## 基本用法
+
+```jsx
+import Report from "canyon-report";
+
+function App() {
+  const dataSource = {
+    // Istanbul 覆盖率数据
+  };
+
+  const handleSelect = async (filePath) => {
+    // 返回选中文件的详细信息
+    return {
+      fileContent: "文件内容",
+      fileCoverage: {}, // Istanbul FileCoverageData
+      fileCodeChange: [], // 变更行号数组
+    };
+  };
+
+  return (
+    <Report
+      theme="light"
+      language="cn"
+      name="项目名称"
+      dataSource={dataSource}
+      value="当前选中文件路径"
+      onSelect={handleSelect}
+      defaultOnlyShowChanged={false}
+    />
+  );
+}
+```
+
+## API 参数
+
+| 参数                   | 类型                                                                                                         | 描述                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------- |
+| theme                  | `ThemeEnum `                                                                                                 | 主题模式               |
+| language               | `LanguageEnum`                                                                                               | 界面语言               |
+| name                   | `string`                                                                                                     | 项目名称               |
+| dataSource             | `{ [key: string]: CoverageSummaryData & { path: string,change:boolean } }`                                   | 覆盖率数据源           |
+| value                  | `string`                                                                                                     | 当前选中的文件         |
+| onSelect               | `(val: string) => Promise<{fileCoverage: FileCoverageData;fileContent: string; fileCodeChange: number[]; }>` |                        |
+| defaultOnlyShowChanged | `boolean`                                                                                                    | 是否默认只显示变更文件 |
+
+## 数据结构
+
+### CoverageSummaryData
+
+```typescript
+interface CoverageSummaryData {
+  lines: Totals;
+  statements: Totals;
+  branches: Totals;
+  functions: Totals;
+}
+```
+
+### Totals
+
+```typescript
+interface Totals {
+  total: number;
+  covered: number;
+  skipped: number;
+  pct: number;
+}
+```
+
+### FileCoverageData
+
+```typescript
+interface FileCoverageData {
+  path: string;
+  statementMap: { [key: string]: Range };
+  fnMap: { [key: string]: FunctionMapping };
+  branchMap: { [key: string]: BranchMapping };
+  s: { [key: string]: number };
+  f: { [key: string]: number };
+  b: { [key: string]: number[] };
+}
+```
+
+### BranchMapping
+
+```typescript
+export interface BranchMapping {
+  loc: Range;
+  type: string;
+  locations: Range[];
+  line: number;
+}
+```
+
+### FunctionMapping
+
+```typescript
+export interface FunctionMapping {
+  name: string;
+  decl: Range;
+  loc: Range;
+  line: number;
+}
+```
+
+### Range
+
+```typescript
+interface Range {
+  start: Location;
+  end: Location;
+}
+```
+
+### Location
+
+```typescript
+interface Location {
+  line: number;
+  column: number;
+}
+```
+
+### ThemeEnum
+
+```typescript
+enum ThemeEnum {
+  Light = "light",
+  Dark = "dark",
+}
+```
+
+### LanguageEnum
+
+```typescript
+enum LanguageEnum {
+  CN = "cn",
+  EN = "en",
+  JA = "ja",
+}
+```
+
+## 数据示例
+
+### dataSource
+
+```json
+{
+  "src/App.tsx": {
+    "branches": { "covered": 0, "pct": 100, "skipped": 0, "total": 0 },
+    "change": false,
+    "functions": {
+      "covered": 1,
+      "pct": 33.33333333333333,
+      "skipped": 0,
+      "total": 3
+    },
+    "lines": { "covered": 2, "pct": 50, "skipped": 0, "total": 4 },
+    "path": "src/App.tsx",
+    "statements": { "covered": 2, "pct": 50, "skipped": 0, "total": 4 }
+  },
+  "src/components/A0.tsx": {
+    "branches": { "covered": 0, "pct": 100, "skipped": 0, "total": 0 },
+    "change": false,
+    "functions": { "covered": 1, "pct": 100, "skipped": 0, "total": 1 },
+    "lines": { "covered": 2, "pct": 100, "skipped": 0, "total": 2 },
+    "path": "src/components/A0.tsx",
+    "statements": { "covered": 2, "pct": 100, "skipped": 0, "total": 2 }
+  },
+  "src/components/B0.tsx": {
+    "branches": { "covered": 0, "pct": 100, "skipped": 0, "total": 0 },
+    "change": false,
+    "functions": { "covered": 3, "pct": 100, "skipped": 0, "total": 3 },
+    "lines": { "covered": 6, "pct": 100, "skipped": 0, "total": 6 },
+    "path": "src/components/B0.tsx",
+    "statements": { "covered": 6, "pct": 100, "skipped": 0, "total": 6 }
+  },
+  "src/components/C0.tsx": {
+    "branches": { "covered": 1, "pct": 100, "skipped": 0, "total": 0 },
+    "change": false,
+    "functions": { "covered": 2, "pct": 100, "skipped": 0, "total": 2 },
+    "lines": {
+      "covered": 5,
+      "pct": 83.33333333333334,
+      "skipped": 0,
+      "total": 6
+    },
+    "path": "src/components/C0.tsx",
+    "statements": {
+      "covered": 5,
+      "pct": 83.33333333333334,
+      "skipped": 0,
+      "total": 6
+    }
+  },
+  "src/main.tsx": {
+    "branches": { "covered": 0, "pct": 100, "skipped": 0, "total": 0 },
+    "change": false,
+    "functions": { "covered": 1, "pct": 100, "skipped": 0, "total": 1 },
+    "lines": { "covered": 3, "pct": 100, "skipped": 0, "total": 3 },
+    "path": "src/main.tsx",
+    "statements": { "covered": 3, "pct": 100, "skipped": 0, "total": 3 }
+  }
+}
+```
+
+### handleSelect 返回内容
+
+```json
+
+{
+    fileContent:"import { useState } from 'react'\nimport reactLogo from './assets/react.svg'\nimport viteLogo from '/vite.svg'\nimport './App.css'\nimport A0 from \"./components/A0.tsx\";\nimport B0 from \"./components/B0.tsx\";\nimport C0 from \"./components/C0.tsx\";\nfunction App() {\n  const [count, setCount] = useState(0)\n  return (\n    <>\n        <A0></A0>\n        <B0></B0>\n        <C0></C0>\n      <div>\n        <a href=\"https://vite.dev\" target=\"_blank\">\n          <img src={viteLogo} className=\"logo\" alt=\"Vite logo\" />\n        </a>\n        <a href=\"https://react.dev\" target=\"_blank\">\n          <img src={reactLogo} className=\"logo react\" alt=\"React logo\" />\n        </a>\n      </div>\n      <h1>Vite + React123</h1>\n      <div className=\"card\">\n        <button onClick={() => setCount((count) => count + 2)}>\n          count is {count}\n        </button>\n        <p>\n          Edit <code>src/App.tsx</code> and save to test HMR\n        </p>\n      </div>\n      <p className=\"read-the-docs\">\n        Click on the Vite and React logos to learn more\n      </p>\n    </>\n  )\n}\n\nexport default App\n"
+    fileCodeChange: [26,27,28],
+    fileCoverage:{
+        "b": {},
+        "branchMap": {},
+        "f": { "0": 151, "1": 0, "2": 0 },
+        "fnMap": {
+            "0": {
+            "decl": {
+                "end": { "column": 12, "line": 8 },
+                "start": { "column": 9, "line": 8 }
+            },
+            "line": 8,
+            "loc": {
+                "end": { "column": 1, "line": 37 },
+                "start": { "column": 15, "line": 8 }
+            },
+            "name": "App"
+            },
+            "1": {
+            "decl": {
+                "end": { "column": 26, "line": 25 },
+                "start": { "column": 25, "line": 25 }
+            },
+            "line": 25,
+            "loc": {
+                "end": { "column": 61, "line": 25 },
+                "start": { "column": 31, "line": 25 }
+            },
+            "name": "(anonymous_1)"
+            },
+            "2": {
+            "decl": {
+                "end": { "column": 41, "line": 25 },
+                "start": { "column": 40, "line": 25 }
+            },
+            "line": 25,
+            "loc": {
+                "end": { "column": 60, "line": 25 },
+                "start": { "column": 51, "line": 25 }
+            },
+            "name": "(anonymous_2)"
+            }
+        },
+        "path": "src/App.tsx",
+        "s": { "0": 172, "1": 151, "2": 0, "3": 0 },
+        "statementMap": {
+            "0": {
+            "end": { "column": 39, "line": 9 },
+            "start": { "column": 28, "line": 9 }
+            },
+            "1": {
+            "end": { "column": 3, "line": 36 },
+            "start": { "column": 2, "line": 10 }
+            },
+            "2": {
+            "end": { "column": 61, "line": 25 },
+            "start": { "column": 31, "line": 25 }
+            },
+            "3": {
+            "end": { "column": 60, "line": 25 },
+            "start": { "column": 51, "line": 25 }
+            }
+        }
+        }
+}
+
+```
