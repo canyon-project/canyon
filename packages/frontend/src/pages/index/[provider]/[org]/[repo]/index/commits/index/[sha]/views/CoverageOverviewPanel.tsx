@@ -1,4 +1,4 @@
-import { RobotOutlined, UserOutlined } from '@ant-design/icons';
+import { Bot, ClipboardList } from 'lucide-react';
 import { Button, Collapse, Progress, Space, Table, Tooltip } from 'antd';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CoverageOverviewPanelProps } from '@/types';
@@ -10,7 +10,7 @@ const caseColumns = [
     key: 'reportID',
   },
   {
-    title: '名称',
+    title: 'Case Name',
     dataIndex: 'caseName',
     key: 'caseName',
     render(_: any, _c: any) {
@@ -29,13 +29,13 @@ const caseColumns = [
     }
   },
   {
-    title: '通过率',
+    title: 'Pass Rate',
     key: 'passRate',
     dataIndex: 'passRate',
     width: 200,
   },
   {
-    title: '用例数',
+    title: 'Case Count',
     key: 'passRate',
     width: 200,
     render: (_: any, record: any) => {
@@ -48,7 +48,7 @@ const caseColumns = [
     },
   },
   {
-    title: '覆盖率',
+    title: 'Coverage',
     dataIndex: 'summary',
     key: 'summary',
     render: (_: any) => {
@@ -116,8 +116,8 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             header={
               <div className='flex w-full items-center justify-between pr-8'>
                 <Space className='font-medium'>
-                  <RobotOutlined />
-                  自动化测试覆盖率
+                  <Bot size={16} />
+                  Automated Test Coverage
                 </Space>
                 {build.modeList.find((r: any) => r.mode === 'automated') && (
                   <Progress
@@ -170,8 +170,8 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             header={
               <div className='flex w-full items-center justify-between pr-8'>
                 <Space className='font-medium'>
-                  <UserOutlined />
-                  手工测试覆盖率
+                  <ClipboardList size={16} />
+                  Manual Test Coverage
                 </Space>
                 {build.modeList?.find((r: any) => r.mode === 'manual') && (
                   <Progress
