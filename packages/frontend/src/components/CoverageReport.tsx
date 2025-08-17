@@ -104,7 +104,7 @@ function CoverageReport() {
     return <Spin spinning={true} />;
   }
   return (
-    <div className='p-[10px]'>
+    <div className='p-[6px]'>
       <CoverageReportContent repo={repo} />
     </div>
   );
