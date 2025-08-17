@@ -82,7 +82,6 @@ const CoverageFileDrawer = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activatedPath, subjectID]);
-
   return (
     <Drawer
       width={'75%'}
@@ -111,7 +110,7 @@ const CoverageFileDrawer = ({
           <div style={{
             height:'calc(100vh - 50px)',
           }}>
-            <Report value={activatedPath} onSelect={onSelect} dataSource={data} />
+            <Report name={repo.pathWithNamespace.split('/')[1]} value={activatedPath} onSelect={onSelect} dataSource={data} />
           </div>
         </RIf>
       </Spin>
