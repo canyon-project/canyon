@@ -1,5 +1,5 @@
 import { RobotOutlined, UserOutlined } from '@ant-design/icons';
-import { Badge, Button, Collapse, Progress, Space, Table, Tooltip } from 'antd';
+import { Button, Collapse, Progress, Space, Table, Tooltip } from 'antd';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CoverageOverviewPanelProps } from '@/types';
 
@@ -8,36 +8,21 @@ const caseColumns = [
     title: 'Report ID',
     dataIndex: 'reportID',
     key: 'reportID',
-    width: 160,
+  },
+  {
+    title: '名称',
+    dataIndex: 'caseName',
+    key: 'caseName',
     render(_: any, _c: any) {
-      return (
-        <a
-          href='https://trip.com/'
-          target={'_blank'}
-          className={'flex items-center gap-1'}
-          rel='noreferrer'
-        >
+      return <a className={'flex items-center gap-1'} href={_c.caseUrk} target={'_blank'} rel={'noopener noreferrer'} >
           <img
             className={'h-[12px]'}
             src={`/providers/${_c.reportProvider}.svg`}
             alt=''
           />
           <span>{_}</span>
-        </a>
-      );
-    },
-  },
-  {
-    title: '名称',
-    dataIndex: 'caseName',
-    key: 'caseName',
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-    width: 100,
-    render: (_status: any) => <Badge status='success' text='已完成' />,
+      </a>
+    }
   },
   {
     title: '通过率',
@@ -168,7 +153,6 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                     dataSource={report.caseList}
                     rowKey='caseId'
                     size='small'
-                    pagination={false}
                     className='border border-gray-200 '
                     style={{
                       borderBottom: 0,
@@ -185,7 +169,6 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                   <UserOutlined />
                   手工测试覆盖率
                 </Space>
-                {/*{JSON.stringify(build.modeList||[])}*/}
                 {build.modeList?.find((r: any) => r.mode === 'manual') && (
                   <Progress
                     percent={build.modeList?.find((r: any) => r.mode === 'manual')!.coveragePercentage}
@@ -224,7 +207,6 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                     dataSource={report.caseList}
                     rowKey='caseId'
                     size='small'
-                    pagination={false}
                     className='border border-gray-200'
                     style={{
                       borderBottom: 0,
