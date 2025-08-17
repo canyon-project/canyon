@@ -106,7 +106,7 @@ const CoverageFileDrawer = ({
         </div>
       }
     >
-      <Spin spinning={loading}>
+      <Spin spinning={loading} style={{minHeight:'300px'}}>
         <RIf condition={!!data}>
           <div style={{
             height:'calc(100vh - 50px)',
