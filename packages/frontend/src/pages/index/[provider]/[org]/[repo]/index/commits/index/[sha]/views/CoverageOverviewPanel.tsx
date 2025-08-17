@@ -14,14 +14,18 @@ const caseColumns = [
     dataIndex: 'caseName',
     key: 'caseName',
     render(_: any, _c: any) {
-      return <a className={'flex items-center gap-1'} href={_c.caseUrk} target={'_blank'} rel={'noopener noreferrer'} >
-          <img
-            className={'h-[12px]'}
-            src={`/providers/${_c.reportProvider}.svg`}
-            alt=''
-          />
-          <span>{_}</span>
-      </a>
+      return <>
+        {
+          _c.caseUrl ? (<a className={'flex items-center gap-1'} href={_c.caseUrl} target={'_blank'} >
+            <img
+              className={'h-[12px]'}
+              src={`/providers/${_c.reportProvider}.svg`}
+              alt=''
+            />
+            <span>{_}</span>
+        </a>) : (<span>{_}</span>)
+        }
+      </>
     }
   },
   {

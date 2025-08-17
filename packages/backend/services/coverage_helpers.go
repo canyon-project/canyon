@@ -42,6 +42,12 @@ func (s *CoverageService) getTestCaseInfoList(coverageList []models.Coverage) ([
 
 // fetchExternalTestCaseInfo 从外部用例服务拉取用例结果信息
 func (s *CoverageService) fetchExternalTestCaseInfo(reportProvider, reportID string) map[string]interface{} {
+	base := s.getTestCaseBaseURL()
+	q := url.Values{}
+	q.Set("report_provider", reportProvider)
+	q.Set("report_id", reportID)
+	requestURL := base + "?" + q.Encode()
+
 	defaultInfo := map[string]interface{}{
 		"caseName":       reportID,
 		"passedCount":    0,
@@ -50,13 +56,8 @@ func (s *CoverageService) fetchExternalTestCaseInfo(reportProvider, reportID str
 		"passRate":       "100.00%",
 		"reportProvider": reportProvider,
 		"reportID":       reportID,
+		"caseUrl":        "",
 	}
-
-	base := s.getTestCaseBaseURL()
-	q := url.Values{}
-	q.Set("report_provider", reportProvider)
-	q.Set("report_id", reportID)
-	requestURL := base + "?" + q.Encode()
 
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest("GET", requestURL, nil)
@@ -126,6 +127,9 @@ func (s *CoverageService) fetchExternalTestCaseInfo(reportProvider, reportID str
 		}
 	}
 
+	// Extract caseUrl if provided by response
+	caseUrl := getString(body, "caseUrl")
+
 	info := map[string]interface{}{
 		"caseName": func() string {
 			if caseName != "" {
@@ -139,6 +143,12 @@ func (s *CoverageService) fetchExternalTestCaseInfo(reportProvider, reportID str
 		"passRate":       passRate,
 		"reportProvider": reportProvider,
 		"reportID":       reportID,
+		"caseUrl": func() string {
+			if caseUrl != "" {
+				return caseUrl
+			}
+			return ""
+		}(),
 	}
 
 	return info
