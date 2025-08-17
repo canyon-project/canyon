@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"sync"
 	"time"
 )
 
@@ -23,18 +24,40 @@ func (s *CoverageService) getTestCaseInfoList(coverageList []models.Coverage) ([
 		}
 	}
 
-	// 调用外部测试用例服务，按 (reportProvider, reportID) 去重
+	// 调用外部测试用例服务，按 (reportProvider, reportID) 去重，并发请求
 	type pair struct{ provider, id string }
 	seen := make(map[pair]bool)
+	var uniquePairs []pair
 	for _, item := range needTestCaseItems {
 		p := pair{provider: item.ReportProvider, id: item.ReportID}
 		if seen[p] {
 			continue
 		}
 		seen[p] = true
+		uniquePairs = append(uniquePairs, p)
+	}
 
-		info := s.fetchExternalTestCaseInfo(p.provider, p.id)
-		testCaseInfoList = append(testCaseInfoList, info)
+	// 并发限制
+	const maxConcurrent = 8
+	sem := make(chan struct{}, maxConcurrent)
+	var wg sync.WaitGroup
+	out := make(chan interface{}, len(uniquePairs))
+
+	for _, p := range uniquePairs {
+		wg.Add(1)
+		go func(p pair) {
+			defer wg.Done()
+			sem <- struct{}{}
+			info := s.fetchExternalTestCaseInfo(p.provider, p.id)
+			<-sem
+			out <- info
+		}(p)
+	}
+
+	wg.Wait()
+	close(out)
+	for it := range out {
+		testCaseInfoList = append(testCaseInfoList, it)
 	}
 
 	return testCaseInfoList, nil

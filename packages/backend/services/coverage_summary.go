@@ -6,6 +6,7 @@ import (
 	"backend/models"
 	"context"
 	"fmt"
+	"log"
 	"math"
 	"strings"
 	"time"
@@ -52,7 +53,7 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 
 	// 3) 从 ClickHouse 直接计算每个文件的 totals
 	conn := db.GetClickHouseDB()
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
 	// coverage_id 过滤
@@ -115,7 +116,15 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 		return map[string]interface{}{}, nil
 	}
 
-	// 构造查询，计算每个 hash 的 S/F/B 键集或大小
+	// 构造查询，计算每个 hash 的 S/F/B 键集或大小（单次查询）
+	type mapSizes struct {
+		SKeys      []interface{}
+		FKeys      []interface{}
+		BKeys      []interface{}
+		BPathSizes []interface{}
+	}
+	perHashSizes := make(map[string]mapSizes)
+
 	hashConds := make([]string, len(hashList))
 	for i, h := range hashList {
 		hashConds[i] = fmt.Sprintf("'%s'", h)
@@ -137,13 +146,6 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 	}
 	defer mapRows.Close()
 
-	type mapSizes struct {
-		SKeys      []interface{}
-		FKeys      []interface{}
-		BKeys      []interface{}
-		BPathSizes []interface{}
-	}
-	perHashSizes := make(map[string]mapSizes)
 	for mapRows.Next() {
 		var (
 			hash                            string
@@ -213,20 +215,29 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 
 // getCoverageSummaryByRepoAndSHAInternal 根据仓库和SHA获取覆盖率摘要的内部实现
 func (s *CoverageService) getCoverageSummaryByRepoAndSHAInternal(repoID, sha string) (interface{}, error) {
+	start := time.Now()
+	mark := func(step string, t0 time.Time) {
+		log.Printf("[coverage_overview] %s: %v (since start: %v)", step, time.Since(t0), time.Since(start))
+	}
 	// 第一步：查询仓库信息
 	pgDB := db.GetDB()
 	var repo models.Repo
+	stepStart := time.Now()
 	if err := pgDB.Where("id = ?", repoID).First(&repo).Error; err != nil {
 		return nil, fmt.Errorf("查询仓库失败: %w", err)
 	}
+	mark("step1_query_repo", stepStart)
 
 	// 第二步：查询coverage列表
 	var coverageList []models.Coverage
+	stepStart = time.Now()
 	if err := pgDB.Where("repo_id = ? AND sha = ?", repoID, sha).Find(&coverageList).Error; err != nil {
 		return nil, fmt.Errorf("查询coverage列表失败: %w", err)
 	}
+	mark("step2_query_coverages", stepStart)
 
 	if len(coverageList) == 0 {
+		log.Printf("[coverage_overview] total_time: %v (no coverage)", time.Since(start))
 		return map[string]interface{}{
 			"testCaseInfoList": []interface{}{},
 			"buildGroupList":   []map[string]string{},
@@ -235,35 +246,50 @@ func (s *CoverageService) getCoverageSummaryByRepoAndSHAInternal(repoID, sha str
 	}
 
 	// 第三步：获取测试用例信息列表
+	stepStart = time.Now()
 	testCaseInfoList, err := s.getTestCaseInfoList(coverageList)
 	if err != nil {
 		return nil, fmt.Errorf("获取测试用例信息失败: %w", err)
 	}
+	mark("step3_fetch_test_cases", stepStart)
 
 	// 第四步：构建构建组列表
+	stepStart = time.Now()
 	buildGroupList := s.buildBuildGroupList(coverageList)
+	mark("step4_build_group_list", stepStart)
 
 	// 第五步：获取覆盖率映射关系列表
+	stepStart = time.Now()
 	coverageMapRelationList, err := s.getCoverageMapRelationList(coverageList)
 	if err != nil {
 		return nil, fmt.Errorf("获取覆盖率映射关系失败: %w", err)
 	}
+	mark("step5_query_relations", stepStart)
 
 	// 第六步：查询ClickHouse获取摘要数据
+	stepStart = time.Now()
 	coverageHitData, coverageMapData, err := s.queryClickHouseForSummary(coverageList, coverageMapRelationList)
 	if err != nil {
 		return nil, fmt.Errorf("查询ClickHouse摘要数据失败: %w", err)
 	}
+	mark("step6_query_clickhouse", stepStart)
 
 	// 第七步：合并覆盖率映射数据与文件路径
+	stepStart = time.Now()
 	coverageMapWithFilePath := s.mergeCoverageMapWithFilePath(coverageMapRelationList, coverageMapData)
+	mark("step7_merge_map_with_paths", stepStart)
 
 	// 第八步：去重构建组列表
+	stepStart = time.Now()
 	deduplicatedBuildGroupList := s.deduplicateBuildGroupList(buildGroupList)
+	mark("step8_dedupe_build_groups", stepStart)
 
 	// 第九步：构建结果列表
+	stepStart = time.Now()
 	resultList := s.buildResultList(deduplicatedBuildGroupList, coverageList, coverageHitData, coverageMapWithFilePath, testCaseInfoList)
+	mark("step9_build_result_list", stepStart)
 
+	log.Printf("[coverage_overview] total_time: %v", time.Since(start))
 	return map[string]interface{}{
 		"testCaseInfoList": testCaseInfoList,
 		"buildGroupList":   deduplicatedBuildGroupList,
