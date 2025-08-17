@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"sync"
@@ -235,18 +236,25 @@ func (s *CoverageService) queryClickHouseForSummary(
 	},
 ) ([]models.CoverageHitSummaryResult, []models.CoverageMapSummaryResult, error) {
 	conn := db.GetClickHouseDB()
+	start := time.Now()
+	mark := func(step string, t0 time.Time) {
+		log.Printf("[ch_summary] %s: %v (since start: %v)", step, time.Since(t0), time.Since(start))
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	// 查询coverage_hit_agg - 使用自定义查询以获取coverage_id
+	step := time.Now()
 	coverageHitQuery := s.buildCoverageHitQueryWithCoverageID(coverageList)
 	hitRows, err := conn.Query(ctx, coverageHitQuery)
 	if err != nil {
 		return nil, nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
 	}
 	defer hitRows.Close()
+	mark("hit_query", step)
 
 	var coverageHitData []models.CoverageHitSummaryResult
+	step = time.Now()
 	for hitRows.Next() {
 		var (
 			coverageID, fullFilePath string
@@ -273,6 +281,7 @@ func (s *CoverageService) queryClickHouseForSummary(
 		}
 		coverageHitData = append(coverageHitData, result)
 	}
+	mark("hit_scan", step)
 
 	// 查询coverage_map
 	hashList := s.deduplicateHashIDList(coverageMapRelationList)
@@ -281,14 +290,17 @@ func (s *CoverageService) queryClickHouseForSummary(
 		return coverageHitData, []models.CoverageMapSummaryResult{}, nil
 	}
 
+	step = time.Now()
 	coverageMapQuery := s.buildCoverageMapQueryForSummary(hashList)
 	mapRows, err := conn.Query(ctx, coverageMapQuery)
 	if err != nil {
 		return nil, nil, fmt.Errorf("查询coverage_map失败: %w", err)
 	}
 	defer mapRows.Close()
+	mark("map_query", step)
 
 	var coverageMapData []models.CoverageMapSummaryResult
+	step = time.Now()
 	for mapRows.Next() {
 		var result models.CoverageMapSummaryResult
 		var (
@@ -313,6 +325,8 @@ func (s *CoverageService) queryClickHouseForSummary(
 		result.B = s.extractKeysFromBranchMapString(branchMapStr)
 		coverageMapData = append(coverageMapData, result)
 	}
+	mark("map_scan", step)
+	log.Printf("[ch_summary] total_time: %v", time.Since(start))
 
 	return coverageHitData, coverageMapData, nil
 }
