@@ -6,6 +6,7 @@ import (
 	"backend/models"
 	"context"
 	"fmt"
+	"math"
 	"strings"
 	"time"
 )
@@ -182,12 +183,13 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 		coveredF := len(s.convertInterfaceSliceToUint32Slice(hits.F))
 		coveredB := len(s.convertInterfaceSliceToUint32Slice(hits.B))
 
-		// 计算百分比
+		// 计算百分比（保留两位小数）
 		pct := func(covered, total int) float64 {
 			if total == 0 {
 				return 100.0
 			}
-			return float64(covered) / float64(total) * 100.0
+			v := float64(covered) / float64(total) * 100.0
+			return math.Round(v*100) / 100
 		}
 
 		summary := map[string]interface{}{
