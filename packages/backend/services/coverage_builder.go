@@ -63,9 +63,7 @@ func (s *CoverageService) buildCoverageHitQueryWithCoverageID(coverageList []mod
 		SELECT
 			coverage_id as coverageID,
 			full_file_path as fullFilePath,
-			sumMapMerge(s) AS s,
-			sumMapMerge(f) AS f,
-			sumMapMerge(b) AS b
+			sumMapMerge(s) AS s
 		FROM default.coverage_hit_agg
 		WHERE %s
 		GROUP BY coverage_id, full_file_path
@@ -81,9 +79,7 @@ func (s *CoverageService) buildCoverageMapQueryForSummary(hashList []string) str
 	inClause := utils.Query.BuildInClause("hash", hashList)
 	return fmt.Sprintf(`
         SELECT hash as coverageMapHashID,
-               mapKeys(statement_map) as statementKeys,
-               toString(fn_map) as fnMap,
-               toString(branch_map) as branchMap
+               mapKeys(statement_map) as statementKeys
         FROM coverage_map
         WHERE %s
     `, inClause)
