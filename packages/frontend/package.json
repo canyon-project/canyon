@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
+    "@ibm/plex-mono": "^1.1.0",
     "@monaco-editor/react": "^4.7.0",
     "ahooks": "^3.8.4",
     "antd": "5.23.2",

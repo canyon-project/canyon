@@ -12,7 +12,7 @@ a:hover {
 
 @font-face {
   font-family: 'IBMPlexMono';
-  src: url('assets/fonts/IBMPlexMono-Regular.woff2');
+  src: url('@ibm/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2') format('truetype');
   font-weight: normal;
   font-style: normal;
 }
