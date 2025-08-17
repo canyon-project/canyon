@@ -9,7 +9,7 @@ const caseColumns = [
     dataIndex: 'reportID',
     key: 'reportID',
     width: 160,
-    render(_: any, _c: any, index: number) {
+    render(_: any, _c: any) {
       return (
         <a
           href='https://trip.com/'
