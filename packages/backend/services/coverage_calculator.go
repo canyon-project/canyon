@@ -37,10 +37,10 @@ func (s *CoverageService) calcCoverageSummary(
 	}
 
 	// 计算百分比
-	percent := "0%"
+	percent := "0.00%"
 	if total > 0 {
 		percentValue := float64(covered) / float64(total) * 100
-		percent = fmt.Sprintf("%.1f%%", percentValue)
+		percent = fmt.Sprintf("%.2f%%", percentValue)
 	}
 
 	return map[string]interface{}{
