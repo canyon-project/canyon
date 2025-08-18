@@ -112,6 +112,6 @@ type CoveragePullMapQueryDto struct {
 	ReportID string `form:"reportID" json:"reportID" example:"report-456"`
 	// @Description 文件路径
 	FilePath string `form:"filePath" json:"filePath" example:"src/main.go"`
-	// @Description 是否启用代码块级（函数级）合并；默认false，仅文件级
-	BlockMerge bool `form:"blockMerge" json:"blockMerge" example:"false"`
+	// @Description 合并模式：blockMerge | fileMerge | (空/其他=普通单commit)
+	Mode string `form:"mode" json:"mode" example:"blockMerge"`
 }

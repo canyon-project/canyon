@@ -79,8 +79,13 @@ func (s *CoverageService) GetCoverageSummaryMapForPull(query dto.CoveragePullMap
 
 // GetCoverageMapForPull 获取PR覆盖率映射
 func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDto) (interface{}, error) {
-	// 未开启 blockMerge：直接返回 head commit 覆盖明细
-	if !query.BlockMerge {
+	// 模式控制：blockMerge | fileMerge | 默认（单 commit）
+	mode := strings.ToLower(query.Mode)
+	isBlockMerge := mode == "blockmerge"
+	isFileMerge := mode == "filemerge"
+
+	// 默认或未知模式：直接返回 head commit 覆盖明细
+	if !isBlockMerge && !isFileMerge {
 		sha, err := s.resolvePullHeadSHA(query.Provider, query.RepoID, query.PullNumber)
 		if err != nil {
 			return nil, err
@@ -98,7 +103,7 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 		return s.GetCoverageMap(dtoq)
 	}
 
-	// 开启 blockMerge：以 head 作为 baseline，吸收旧 commit 的相同块命中
+	// 合并模式：以 head 作为 baseline，吸收旧 commit 的命中
 	headSHA, err := s.resolvePullHeadSHA(query.Provider, query.RepoID, query.PullNumber)
 	if err != nil {
 		return nil, err
@@ -304,33 +309,35 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 				}
 				continue
 			}
-			// 块级合并
-			baseKey := baselineCovID + "|" + row.FullFilePath
-			otherKey := covItem.ID + "|" + row.FullFilePath
-			baseHash, okA := covPathToHash[baseKey]
-			otherHash, okB := covPathToHash[otherKey]
-			if !okA || !okB {
-				continue
-			}
-			baseMap, ok1 := hashToMap[baseHash]
-			otherMap, ok2 := hashToMap[otherHash]
-			if !ok1 || !ok2 {
-				continue
-			}
+			// 变更文件：根据模式决定是否进行块级合并
+			if isBlockMerge {
+				baseKey := baselineCovID + "|" + row.FullFilePath
+				otherKey := covItem.ID + "|" + row.FullFilePath
+				baseHash, okA := covPathToHash[baseKey]
+				otherHash, okB := covPathToHash[otherKey]
+				if !okA || !okB {
+					continue
+				}
+				baseMap, ok1 := hashToMap[baseHash]
+				otherMap, ok2 := hashToMap[otherHash]
+				if !ok1 || !ok2 {
+					continue
+				}
 
-			baseContent, err1 := fetch(headSHA, normalize(row.FullFilePath, baselineInstrumentCwd))
-			otherContent, err2 := fetch(covItem.SHA, relPath)
-			if err1 != nil || err2 != nil {
-				continue
-			}
-			contribFn := s.mergeFunctionHitsByBlock(baseContent, baseMap.FnMap, otherContent, otherMap.FnMap, row.F)
-			contribSt := s.mergeStatementHitsByBlock(baseContent, baseMap.StatementMap, otherContent, otherMap.StatementMap, row.S)
-			agg := ensure(row.FullFilePath)
-			for k, v := range contribFn {
-				agg.F[k] += v
-			}
-			for k, v := range contribSt {
-				agg.S[k] += v
+				baseContent, err1 := fetch(headSHA, normalize(row.FullFilePath, baselineInstrumentCwd))
+				otherContent, err2 := fetch(covItem.SHA, relPath)
+				if err1 != nil || err2 != nil {
+					continue
+				}
+				contribFn := s.mergeFunctionHitsByBlock(baseContent, baseMap.FnMap, otherContent, otherMap.FnMap, row.F)
+				contribSt := s.mergeStatementHitsByBlock(baseContent, baseMap.StatementMap, otherContent, otherMap.StatementMap, row.S)
+				agg := ensure(row.FullFilePath)
+				for k, v := range contribFn {
+					agg.F[k] += v
+				}
+				for k, v := range contribSt {
+					agg.S[k] += v
+				}
 			}
 		}
 	}

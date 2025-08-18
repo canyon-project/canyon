@@ -114,7 +114,7 @@ func (h *CoverageHandler) GetCoverageMapBySubject(c *gin.Context) {
 	buildID := c.Query("buildID")
 	reportProvider := c.Query("reportProvider")
 	reportID := c.Query("reportID")
-	blockMerge := c.Query("blockMerge") == "true" // 是否启用代码块级（函数级）合并，默认为 false
+	mode := c.Query("mode") // 模式：blockMerge | fileMerge | 其他/空=普通
 
 	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
 		utils.Response.BadRequest(c, "provider, repoID, subject, subjectID are required")
@@ -132,7 +132,7 @@ func (h *CoverageHandler) GetCoverageMapBySubject(c *gin.Context) {
 		utils.Response.Success(c, result)
 		return
 	case "pull", "pulls":
-		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath, BuildProvider: buildProvider, BuildID: buildID, ReportProvider: reportProvider, ReportID: reportID, BlockMerge: blockMerge}
+		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath, BuildProvider: buildProvider, BuildID: buildID, ReportProvider: reportProvider, ReportID: reportID, Mode: mode}
 		result, err := h.coverageService.GetCoverageMapForPull(q)
 		if err != nil {
 			utils.Response.InternalServerError(c, err)
