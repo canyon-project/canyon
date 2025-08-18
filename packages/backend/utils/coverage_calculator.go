@@ -293,20 +293,3 @@ func calculateCoverageFromData(data interface{}) CoverageTotals {
 
     return totals
 }
-
-// mergeCoverageTotals 合并两个覆盖率总计数据
-func mergeCoverageTotals(first, second CoverageTotals) CoverageTotals {
-    totals := CoverageTotals{}
-    totals.Total = first.Total + second.Total
-    totals.Covered = first.Covered + second.Covered
-    totals.Skipped = first.Skipped + second.Skipped
-
-    if totals.Total > 0 {
-        totals.Pct = float64(totals.Covered) / float64(totals.Total) * 100
-    } else {
-        totals.Pct = 100.0
-    }
-    totals.Pct = math.Round(totals.Pct*100) / 100
-
-    return totals
-}

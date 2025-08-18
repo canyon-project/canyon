@@ -23,7 +23,7 @@ func NewCoverageHandler(coverageService *services.CoverageService) *CoverageHand
 // GetCoverageOverviewBySubject 统一入口：根据 subject/subjectID 获取覆盖率概览
 func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
 	subject := c.Query("subject")     // commit | pull | multiple-commits
-	subjectID := c.Query("subjectID") // sha | pullNumber | shas (comma)
+	subjectID := c.Query("subjectID") // sha | pullNumber | sha1,sha2,sha3
 	provider := c.Query("provider")
 	repoID := c.Query("repoID")
 
@@ -61,9 +61,6 @@ func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
 		}
 		utils.Response.Success(c, result)
 		return
-	case "multiple-commits", "multi-commits":
-		utils.Response.BadRequest(c, "overview for multiple-commits is not supported yet")
-		return
 	default:
 		utils.Response.BadRequest(c, "invalid subject")
 		return
@@ -96,16 +93,6 @@ func (h *CoverageHandler) GetCoverageSummaryMapBySubject(c *gin.Context) {
 	case "pull", "pulls":
 		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath}
 		result, err := h.coverageService.GetCoverageSummaryMapForPull(q)
-		if err != nil {
-			utils.Response.InternalServerError(c, err)
-			return
-		}
-		utils.Response.Success(c, result)
-		return
-	case "multiple-commits", "multi-commits":
-		q := dto.CoverageCommitsQueryDto{Provider: provider, RepoID: repoID, SHAs: subjectID}
-		q.FilePath = filePath
-		result, err := h.coverageService.GetCoverageSummaryMapForMultipleCommits(q)
 		if err != nil {
 			utils.Response.InternalServerError(c, err)
 			return
@@ -149,16 +136,6 @@ func (h *CoverageHandler) GetCoverageMapBySubject(c *gin.Context) {
 	case "pull", "pulls":
 		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath, BuildProvider: buildProvider, BuildID: buildID, ReportProvider: reportProvider, ReportID: reportID, BlockMerge: blockMerge}
 		result, err := h.coverageService.GetCoverageMapForPull(q)
-		if err != nil {
-			utils.Response.InternalServerError(c, err)
-			return
-		}
-		utils.Response.Success(c, result)
-		return
-	case "multiple-commits", "multi-commits":
-		q := dto.CoverageCommitsQueryDto{Provider: provider, RepoID: repoID, SHAs: subjectID}
-		q.FilePath = filePath
-		result, err := h.coverageService.GetCoverageMapForMultipleCommits(q)
 		if err != nil {
 			utils.Response.InternalServerError(c, err)
 			return

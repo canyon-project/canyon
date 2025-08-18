@@ -12,11 +12,6 @@ type QueryBuilder struct {
 	db *gorm.DB
 }
 
-// NewQueryBuilder 创建查询构建器
-func NewQueryBuilder(db *gorm.DB) *QueryBuilder {
-	return &QueryBuilder{db: db}
-}
-
 // BuildWhereClause 构建WHERE子句
 func (qb *QueryBuilder) BuildWhereClause(conditions map[string]interface{}) *gorm.DB {
 	query := qb.db
@@ -72,9 +67,9 @@ func (qb *QueryBuilder) SafeString(input string) string {
 
 // 全局查询构建器工具函数
 var Query = struct {
-	BuildInClause   func(field string, values []string) string
+	BuildInClause    func(field string, values []string) string
 	BuildSelectQuery func(table string, fields []string, conditions map[string]interface{}) string
-	SafeString      func(input string) string
+	SafeString       func(input string) string
 }{
 	BuildInClause: func(field string, values []string) string {
 		if len(values) == 0 {

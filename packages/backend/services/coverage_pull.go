@@ -375,21 +375,3 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 
 	return s.removeCoverageInstrumentCwd(baseResult, baselineInstrumentCwd), nil
 }
-
-// GetCoverageMapForMultipleCommits 获取多个commits的覆盖率映射
-func (s *CoverageService) GetCoverageMapForMultipleCommits(query dto.CoverageCommitsQueryDto) (interface{}, error) {
-	// TODO: 实现多个commits覆盖率映射逻辑
-	return map[string]interface{}{
-		"message": "GetCoverageMapForMultipleCommits not implemented yet",
-		"query":   query,
-	}, fmt.Errorf("GetCoverageMapForMultipleCommits not implemented yet")
-}
-
-// GetCoverageSummaryMapForMultipleCommits 获取多个commits的覆盖率摘要映射
-func (s *CoverageService) GetCoverageSummaryMapForMultipleCommits(query dto.CoverageCommitsQueryDto) (interface{}, error) {
-	// TODO: 实现多个commits覆盖率摘要映射逻辑
-	return map[string]interface{}{
-		"message": "GetCoverageSummaryMapForMultipleCommits not implemented yet",
-		"query":   query,
-	}, fmt.Errorf("GetCoverageSummaryMapForMultipleCommits not implemented yet")
-}
