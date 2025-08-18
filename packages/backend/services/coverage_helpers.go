@@ -255,7 +255,7 @@ func (s *CoverageService) queryClickHouseForSummary(
 	// 命中查询 goroutine（仅 statements）
 	go func() {
 		step := time.Now()
-		coverageHitQuery := s.buildCoverageHitQueryWithCoverageID(coverageList)
+		coverageHitQuery := s.buildCoverageHitQueryWithCoverageID(coverageList, "s")
 		hitRows, err := conn.Query(ctx, coverageHitQuery)
 		if err != nil {
 			errCh <- fmt.Errorf("查询coverage_hit_agg失败: %w", err)

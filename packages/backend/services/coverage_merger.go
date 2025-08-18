@@ -112,6 +112,21 @@ func (s *CoverageService) buildOrderedHitMap(mapData interface{}, hitData map[ui
 	return orderedMap
 }
 
+// 原版js代码
+// ************
+// const MAX_BRANCH_LENGTH = 10000; // 每个分支的最大长度
+// // 编码：生成唯一的键
+// export function encodeKey(branchId, branchLength) {
+//   return (branchId * MAX_BRANCH_LENGTH + branchLength) as number;
+// }
+// // 解码：将唯一的键解码为 branchId 和 branchLength
+// export function decodeKey(encodedKey) {
+//   const branchId = Math.floor(encodedKey / MAX_BRANCH_LENGTH); // 使用 branchId 替代 branchIndex
+//   const branchLength = encodedKey % MAX_BRANCH_LENGTH;
+//   return [branchId, branchLength];
+// }
+// ************
+
 // decodeKey 解码分支键，将编码的键解码为 branchId 和 branchLength
 func (s *CoverageService) decodeKey(encodedKey uint32) (uint32, uint32) {
 	const maxBranchLength = 10000 // 每个分支的最大长度

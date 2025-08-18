@@ -183,7 +183,7 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 	if err != nil {
 		return nil, err
 	}
-	perCoverageHits, err := s.queryCoverageHitsWithCoverageID(allCoverageList, query.ReportProvider, query.ReportID)
+	perCoverageHits, err := s.queryCoverageHitsWithCoverageID(allCoverageList, query.ReportProvider, query.ReportID, "sf")
 	if err != nil {
 		return nil, err
 	}

@@ -7,6 +7,7 @@ import (
 	"backend/utils"
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -176,16 +177,17 @@ func (s *CoverageService) queryClickHouseData(
 	return coverageMapResult, coverageHitResult, g.Wait()
 }
 
-// queryCoverageHitsWithCoverageID 查询 coverage_hit_agg，并保留 coverage_id 维度
+// queryCoverageHitsWithCoverageID 查询 coverage_hit_agg，并保留 coverage_id 维度（可配置列）
 func (s *CoverageService) queryCoverageHitsWithCoverageID(
 	coverageList []models.Coverage,
 	reportProvider, reportID string,
+	fields string,
 ) ([]models.CoverageHitSummaryResult, error) {
 	conn := db.GetClickHouseDB()
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	query := s.buildCoverageHitQueryWithCoverageID(coverageList)
+	query := s.buildCoverageHitQueryWithCoverageID(coverageList, fields)
 	rows, err := conn.Query(ctx, query)
 	if err != nil {
 		return nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
@@ -193,21 +195,42 @@ func (s *CoverageService) queryCoverageHitsWithCoverageID(
 	defer rows.Close()
 
 	var results []models.CoverageHitSummaryResult
+	includeS := strings.Contains(fields, "s")
+	includeF := strings.Contains(fields, "f")
+	includeB := strings.Contains(fields, "b")
 	for rows.Next() {
 		var (
 			coverageID, fullFilePath string
 			sTuple, fTuple, bTuple   []interface{}
 		)
-		if err := rows.Scan(&coverageID, &fullFilePath, &sTuple, &fTuple, &bTuple); err != nil {
-			return nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
+		var scanErr error
+		switch {
+		case includeS && includeF && includeB:
+			scanErr = rows.Scan(&coverageID, &fullFilePath, &sTuple, &fTuple, &bTuple)
+		case includeS && includeF && !includeB:
+			scanErr = rows.Scan(&coverageID, &fullFilePath, &sTuple, &fTuple)
+		case includeS && !includeF && !includeB:
+			scanErr = rows.Scan(&coverageID, &fullFilePath, &sTuple)
+		default:
+			scanErr = fmt.Errorf("不支持的 fields 组合: %s", fields)
 		}
-		results = append(results, models.CoverageHitSummaryResult{
+		if scanErr != nil {
+			return nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", scanErr)
+		}
+		item := models.CoverageHitSummaryResult{
 			CoverageID:   coverageID,
 			FullFilePath: fullFilePath,
-			S:            s.convertTupleSliceToUint32Map(sTuple),
-			F:            s.convertTupleSliceToUint32Map(fTuple),
-			B:            s.convertTupleSliceToUint32Map(bTuple),
-		})
+		}
+		if includeS {
+			item.S = s.convertTupleSliceToUint32Map(sTuple)
+		}
+		if includeF {
+			item.F = s.convertTupleSliceToUint32Map(fTuple)
+		}
+		if includeB {
+			item.B = s.convertTupleSliceToUint32Map(bTuple)
+		}
+		results = append(results, item)
 	}
 
 	return results, rows.Err()
