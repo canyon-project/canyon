@@ -151,9 +151,13 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 		CoverageMapHashID string `gorm:"column:coverage_map_hash_id"`
 		FullFilePath      string `gorm:"column:full_file_path"`
 	}
-	if err := pgDB.Table("canyonjs_coverage_map_relation").
+	relQuery := pgDB.Table("canyonjs_coverage_map_relation").
 		Select("coverage_map_hash_id, full_file_path").
-		Where("coverage_id IN ?", s.extractCoverageIDs(allCoverageList)).
+		Where("coverage_id IN ?", s.extractCoverageIDs(allCoverageList))
+	if query.FilePath != "" {
+		relQuery = relQuery.Where("file_path = ?", query.FilePath)
+	}
+	if err := relQuery.
 		Group("coverage_map_hash_id, full_file_path").
 		Find(&relations).Error; err != nil {
 		return nil, fmt.Errorf("查询coverageMapRelation失败: %w", err)
@@ -163,9 +167,13 @@ func (s *CoverageService) GetCoverageMapForPull(query dto.CoveragePullMapQueryDt
 		CoverageMapHashID string `gorm:"column:coverage_map_hash_id"`
 		FullFilePath      string `gorm:"column:full_file_path"`
 	}
-	if err := pgDB.Table("canyonjs_coverage_map_relation").
+	relAllQuery := pgDB.Table("canyonjs_coverage_map_relation").
 		Select("coverage_id, coverage_map_hash_id, full_file_path").
-		Where("coverage_id IN ?", s.extractCoverageIDs(allCoverageList)).
+		Where("coverage_id IN ?", s.extractCoverageIDs(allCoverageList))
+	if query.FilePath != "" {
+		relAllQuery = relAllQuery.Where("file_path = ?", query.FilePath)
+	}
+	if err := relAllQuery.
 		Find(&relationsAll).Error; err != nil {
 		return nil, fmt.Errorf("查询coverageMapRelation(all)失败: %w", err)
 	}
