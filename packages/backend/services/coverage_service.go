@@ -22,7 +22,7 @@ func (s *CoverageService) GetCoverageSummaryMapFast(query dto.CoverageQueryDto) 
 	return s.getCoverageSummaryMapFastInternal(query)
 }
 
-// GetCoverageSummaryByRepoAndSHA 根据仓库和SHA获取覆盖率摘要
-func (s *CoverageService) GetCoverageSummaryByRepoAndSHA(repoID, sha string) (interface{}, error) {
-	return s.getCoverageSummaryByRepoAndSHAInternal(repoID, sha)
+// GetCoverageOverviewByRepoAndSHA 根据仓库和SHA获取覆盖率摘要
+func (s *CoverageService) GetCoverageOverviewByRepoAndSHA(repoID, sha string) (interface{}, error) {
+	return s.getCoverageOverviewByRepoAndSHAInternal(repoID, sha)
 }

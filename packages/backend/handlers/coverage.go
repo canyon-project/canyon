@@ -34,12 +34,11 @@ func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
 
 	switch subject {
 	case "commit", "commits":
-		result, err := h.coverageService.GetCoverageSummaryByRepoAndSHA(repoID, subjectID)
+		result, err := h.coverageService.GetCoverageOverviewByRepoAndSHA(repoID, subjectID)
 		if err != nil {
 			utils.Response.InternalServerError(c, err)
 			return
 		}
-		// 兼容前端期望：直接返回 resultList 数组
 		if resultMap, ok := result.(map[string]interface{}); ok {
 			if list, exists := resultMap["resultList"]; exists {
 				utils.Response.Success(c, list)
@@ -49,12 +48,11 @@ func (h *CoverageHandler) GetCoverageOverviewBySubject(c *gin.Context) {
 		utils.Response.Success(c, result)
 		return
 	case "pull", "pulls":
-		// 复用现有 PR 概览
 		var q dto.CoveragePullQueryDto
 		q.Provider = provider
 		q.RepoID = repoID
 		q.PullNumber = subjectID
-		result, err := h.coverageService.GetCoverageSummaryForPull(q)
+		result, err := h.coverageService.GetCoverageOverviewForPull(q)
 		if err != nil {
 			utils.Response.InternalServerError(c, err)
 			return

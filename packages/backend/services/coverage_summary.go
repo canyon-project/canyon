@@ -191,8 +191,8 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 	return result, nil
 }
 
-// getCoverageSummaryByRepoAndSHAInternal 摘要
-func (s *CoverageService) getCoverageSummaryByRepoAndSHAInternal(repoID, sha string) (interface{}, error) {
+// getCoverageOverviewByRepoAndSHAInternal 摘要
+func (s *CoverageService) getCoverageOverviewByRepoAndSHAInternal(repoID, sha string) (interface{}, error) {
 	start := time.Now()
 	mark := func(step string, t0 time.Time) {
 		log.Printf("[coverage_overview] %s: %v (since start: %v)", step, time.Since(t0), time.Since(start))

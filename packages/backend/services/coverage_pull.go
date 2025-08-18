@@ -45,14 +45,15 @@ func (s *CoverageService) resolvePullHeadSHA(provider, repoID, pullNumber string
 	}
 }
 
-// GetCoverageSummaryForPull 获取PR覆盖率概览
-func (s *CoverageService) GetCoverageSummaryForPull(query dto.CoveragePullQueryDto) (interface{}, error) {
+// GetCoverageOverviewForPull 获取PR覆盖率概览
+func (s *CoverageService) GetCoverageOverviewForPull(query dto.CoveragePullQueryDto) (interface{}, error) {
 	sha, err := s.resolvePullHeadSHA(query.Provider, query.RepoID, query.PullNumber)
 	if err != nil {
 		return nil, err
 	}
+	// TODO 这里尚未完成，需要实现代码块合并
 	// 先返回 head commit 的概览，后续可改为多 commit 聚合
-	return s.GetCoverageSummaryByRepoAndSHA(query.RepoID, sha)
+	return s.GetCoverageOverviewByRepoAndSHA(query.RepoID, sha)
 }
 
 // GetCoverageSummaryMapForPull 获取PR覆盖率摘要映射
@@ -61,6 +62,7 @@ func (s *CoverageService) GetCoverageSummaryMapForPull(query dto.CoveragePullMap
 	if err != nil {
 		return nil, err
 	}
+	// TODO 这里尚未完成，需要实现代码块合并
 	// 复用按文件聚合的快速摘要
 	dtoq := dto.CoverageQueryDto{
 		Provider:       query.Provider,
