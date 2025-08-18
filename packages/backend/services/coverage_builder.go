@@ -53,17 +53,20 @@ func (s *CoverageService) buildCoverageHitQuery(
 // buildCoverageHitQueryWithCoverageID 构建包含coverage_id的coverage_hit_agg查询SQL
 func (s *CoverageService) buildCoverageHitQueryWithCoverageID(coverageList []models.Coverage) string {
 	if len(coverageList) == 0 {
-		return `SELECT '' as coverageID, '' as fullFilePath, [] as s WHERE 1=0`
+		return `SELECT '' as coverageID, '' as fullFilePath, [] as s, [] as f, [] as b WHERE 1=0`
 	}
 
 	coverageIDs := s.extractCoverageIDs(coverageList)
 	inClause := utils.Query.BuildInClause("coverage_id", coverageIDs)
 
+	// TODO 还没检查其他地方用了没有
 	return fmt.Sprintf(`
 		SELECT
 			coverage_id as coverageID,
 			full_file_path as fullFilePath,
-			sumMapMerge(s) AS s
+			sumMapMerge(s) AS s,
+			sumMapMerge(f) AS f,
+			sumMapMerge(b) AS b
 		FROM default.coverage_hit_agg
 		WHERE %s
 		GROUP BY coverage_id, full_file_path
