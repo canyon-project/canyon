@@ -17,6 +17,7 @@ const FileCoverageDetail: FC<{
         content: fileContent,
         diff: fileCodeChange,
         theme: theme,
+        height:'100%'
       });
     });
   }, []);
