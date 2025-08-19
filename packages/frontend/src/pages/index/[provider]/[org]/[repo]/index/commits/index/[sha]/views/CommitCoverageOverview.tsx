@@ -1,8 +1,10 @@
-import CoverageOverviewPanel from '@/pages/index/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx';
-import { useRequest } from 'ahooks';
-import { Badge, Empty, Space, Spin, Tabs, type TabsProps } from 'antd';
+import CoverageOverviewPanel
+  from '@/pages/index/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx';
+import {useRequest} from 'ahooks';
+import {Space, Spin, Tabs, type TabsProps} from 'antd';
 import axios from 'axios';
-import { CommitCoverageOverviewProps } from '@/types';
+import {CommitCoverageOverviewProps} from '@/types';
+import {useEffect} from 'react';
 
 const CommitCoverageOverview = ({ commit, repo, onChange, selectedBuildID }: CommitCoverageOverviewProps) => {
   const { data, loading } = useRequest(
@@ -19,44 +21,31 @@ const CommitCoverageOverview = ({ commit, repo, onChange, selectedBuildID }: Com
     }
   );
 
+  // 当没有 selectedBuildID 且数据已加载时，默认选中第一个并触发 onChange
+  useEffect(() => {
+    if (!selectedBuildID && Array.isArray(data) && data.length > 0) {
+      const first = data[0];
+      onChange({ buildID: first.buildID, buildProvider: first.buildProvider });
+    }
+  }, [selectedBuildID, data, onChange]);
+
   // 根据搜索条件筛选流水线
   // 更新 pipeline tab 的渲染，添加 commit 信息
   const buildTabs: TabsProps['items'] = (data || [])
-    .map((i: any) => {
-      return {
-        ...i,
-        hasReported: true,
-      };
-    })
     .map((build: any, _index: number) => ({
       key: build.buildID,
       label: (
         <Space>
           <img className={'w-[16px]'} src={`/providers/${build.buildProvider}.svg`} alt='' />
           <span className='font-medium'>{build.buildID}</span>
-          {!build.hasReported && <Badge status='warning' className='ml-2' />}
         </Space>
       ),
       children: (
         <div className='p-4'>
-          {!build.hasReported ? (
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={
-                <div className='text-center'>
-                  <p className='mb-2 font-medium text-yellow-500'>该流水线尚未上报覆盖率数据</p>
-                  <p className='text-gray-500'>最后更新时间: {build.lastUpdated}</p>
-                  <p className='text-gray-500'>构建名称: {build.name}</p>
-                </div>
-              }
-            />
-          ) : (
-            <CoverageOverviewPanel build={build} />
-          )}
+          <CoverageOverviewPanel build={build} />
         </div>
       ),
     }));
-
   return (
     <Spin spinning={loading}>
       <Tabs
@@ -71,8 +60,6 @@ const CommitCoverageOverview = ({ commit, repo, onChange, selectedBuildID }: Com
             buildProvider: build.buildProvider,
           });
         }}
-        // type="card"
-        className='build-tabs'
       />
     </Spin>
   );
