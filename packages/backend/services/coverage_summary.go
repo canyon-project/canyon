@@ -25,6 +25,12 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 	if query.BuildID != "" {
 		coverageQuery = coverageQuery.Where("build_id = ?", query.BuildID)
 	}
+	if query.ReportProvider != "" {
+		coverageQuery = coverageQuery.Where("report_provider = ?", query.ReportProvider)
+	}
+	if query.ReportID != "" {
+		coverageQuery = coverageQuery.Where("report_id = ?", query.ReportID)
+	}
 	if err := coverageQuery.Find(&coverageList).Error; err != nil {
 		return nil, fmt.Errorf("查询coverage列表失败: %w", err)
 	}

@@ -72,6 +72,10 @@ func (h *CoverageHandler) GetCoverageSummaryMapBySubject(c *gin.Context) {
 	provider := c.Query("provider")
 	repoID := c.Query("repoID")
 	filePath := c.Query("filePath")
+	buildProvider := c.Query("buildProvider")
+	buildID := c.Query("buildID")
+	reportProvider := c.Query("reportProvider")
+	reportID := c.Query("reportID")
 
 	if provider == "" || repoID == "" || subject == "" || subjectID == "" {
 		utils.Response.BadRequest(c, "provider, repoID, subject, subjectID are required")
@@ -80,7 +84,7 @@ func (h *CoverageHandler) GetCoverageSummaryMapBySubject(c *gin.Context) {
 
 	switch subject {
 	case "commit", "commits":
-		q := dto.CoverageQueryDto{Provider: provider, RepoID: repoID, SHA: subjectID, FilePath: filePath}
+		q := dto.CoverageQueryDto{Provider: provider, RepoID: repoID, SHA: subjectID, FilePath: filePath, BuildProvider: buildProvider, BuildID: buildID, ReportProvider: reportProvider, ReportID: reportID}
 		result, err := h.coverageService.GetCoverageSummaryMapFast(q)
 		if err != nil {
 			utils.Response.InternalServerError(c, err)
@@ -89,7 +93,7 @@ func (h *CoverageHandler) GetCoverageSummaryMapBySubject(c *gin.Context) {
 		utils.Response.Success(c, result)
 		return
 	case "pull", "pulls":
-		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath}
+		q := dto.CoveragePullMapQueryDto{Provider: provider, RepoID: repoID, PullNumber: subjectID, FilePath: filePath, BuildProvider: buildProvider, BuildID: buildID, ReportProvider: reportProvider, ReportID: reportID}
 		result, err := h.coverageService.GetCoverageSummaryMapForPull(q)
 		if err != nil {
 			utils.Response.InternalServerError(c, err)
