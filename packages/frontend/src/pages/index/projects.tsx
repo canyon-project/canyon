@@ -145,8 +145,6 @@ const ProjectListPage = () => {
       title: t('common.option'),
       key: 'option',
       render: (_, { id, pathWithNamespace }) => {
-        // Base64编码pathWithNamespace，处理包含斜杠的路径
-        // const encodedPath = btoa(pathWithNamespace);
         return (
           <>
             <Link

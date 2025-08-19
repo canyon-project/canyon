@@ -9,10 +9,11 @@ const ProjectDetailPage = () => {
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  console.log(params, 'params');
   const { data } = useRequest(
     () => {
-      return axios.get(`/api/repo/${btoa(`${params.org}/${params.repo}`)}`).then((res) => res.data);
+      return axios.post(`/api/repo/id`,{
+        id:`${params.org}/${params.repo}`,
+      }).then((res) => res.data);
     },
     {
       refreshDeps: [],
