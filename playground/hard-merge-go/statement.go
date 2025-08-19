@@ -67,7 +67,6 @@ func sha1Hex(s string) string {
 
 // computeLineStarts 计算每行起始偏移（基于 \n）
 func computeLineStarts(content string) []int {
-	fmt.Printf("[computeLineStarts] content=%s\n", content)
 	starts := []int{0}
 	for i, ch := range content {
 		if ch == '\n' {
@@ -126,7 +125,6 @@ func buildStatementHashToIds(entry *FileCoverage, content string) map[string][]s
 
 	for id, stmt := range entry.StatementMap {
 		code := sliceByStatementMapEntry(content, stmt, starts)
-		fmt.Printf("code====> %s\n", code)
 		canon := canonicalizeSnippet(code)
 		hash := sha1Hex(canon)
 
@@ -146,8 +144,6 @@ func mergeStatementsByHash(base *FileCoverage, baseContent string, other *FileCo
 	}
 	baseIdx := buildStatementHashToIds(base, baseContent)
 	otherIdx := buildStatementHashToIds(other, otherContent)
-	fmt.Printf("baseIdx ===>11 %v\n", baseIdx)
-	fmt.Printf("otherIdx ====> %v\n", otherIdx)
 
 	for hash, baseIds := range baseIdx {
 		otherIds, ok := otherIdx[hash]
@@ -160,7 +156,6 @@ func mergeStatementsByHash(base *FileCoverage, baseContent string, other *FileCo
 
 		// 找到other中相同哈希语句的最大执行次数
 		maxOther := 0
-		fmt.Printf("otherIds====> %v\n", otherIds)
 		for _, oid := range otherIds {
 			if v, ok := other.S[oid]; ok && v > maxOther {
 				maxOther = v
@@ -170,7 +165,6 @@ func mergeStatementsByHash(base *FileCoverage, baseContent string, other *FileCo
 		fmt.Printf("[merge-stmt] hash=%s maxOther=%d\n", hash, maxOther)
 
 		// 将最大执行次数累加到base中所有匹配的语句
-		fmt.Printf("baseIds====> %v\n", baseIds)
 		for _, bid := range baseIds {
 			if _, ok := base.S[bid]; ok {
 				before := base.S[bid]
@@ -179,8 +173,6 @@ func mergeStatementsByHash(base *FileCoverage, baseContent string, other *FileCo
 			}
 		}
 	}
-
-	fmt.Printf("[merge-stmt] done file=%s\n", base.Path)
 }
 
 func main() {
