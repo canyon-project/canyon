@@ -25,12 +25,6 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 	if query.BuildID != "" {
 		coverageQuery = coverageQuery.Where("build_id = ?", query.BuildID)
 	}
-	if query.ReportProvider != "" {
-		coverageQuery = coverageQuery.Where("report_provider = ?", query.ReportProvider)
-	}
-	if query.ReportID != "" {
-		coverageQuery = coverageQuery.Where("report_id = ?", query.ReportID)
-	}
 	if err := coverageQuery.Find(&coverageList).Error; err != nil {
 		return nil, fmt.Errorf("查询coverage列表失败: %w", err)
 	}
@@ -63,9 +57,17 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
-	// coverage_id 过滤
-	covIDs := make([]string, len(coverageList))
-	for i, c := range coverageList {
+	// coverage_id 过滤：此处对命中按 reportProvider/reportID 进行筛选；relations 保持全量以拿到所有文件
+	selectedCoverages := make([]models.Coverage, 0, len(coverageList))
+	for _, c := range coverageList {
+		rpOK := query.ReportProvider == "" || c.ReportProvider == query.ReportProvider
+		ridOK := query.ReportID == "" || c.ReportID == query.ReportID
+		if rpOK && ridOK {
+			selectedCoverages = append(selectedCoverages, c)
+		}
+	}
+	covIDs := make([]string, len(selectedCoverages))
+	for i, c := range selectedCoverages {
 		covIDs[i] = fmt.Sprintf("'%s'", c.ID)
 	}
 
@@ -85,25 +87,24 @@ func (s *CoverageService) getCoverageSummaryMapFastInternal(query dto.CoverageQu
         GROUP BY full_file_path
     `, strings.Join(covIDs, ", "), fileFilter)
 
-	hitRows, err := conn.Query(ctx, hitsSQL)
-	if err != nil {
-		return nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
-	}
-	defer hitRows.Close()
-
-	type fileHits struct {
-		S []interface{}
-	}
+	type fileHits struct{ S []interface{} }
 	perFileHits := make(map[string]fileHits)
-	for hitRows.Next() {
-		var (
-			path   string
-			sTuple []interface{}
-		)
-		if err := hitRows.Scan(&path, &sTuple); err != nil {
-			return nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
+	if len(covIDs) > 0 { // 当筛选后无 coverage 时，命中为空
+		hitRows, err := conn.Query(ctx, hitsSQL)
+		if err != nil {
+			return nil, fmt.Errorf("查询coverage_hit_agg失败: %w", err)
 		}
-		perFileHits[path] = fileHits{S: sTuple}
+		defer hitRows.Close()
+		for hitRows.Next() {
+			var (
+				path   string
+				sTuple []interface{}
+			)
+			if err := hitRows.Scan(&path, &sTuple); err != nil {
+				return nil, fmt.Errorf("扫描coverage_hit_agg数据失败: %w", err)
+			}
+			perFileHits[path] = fileHits{S: sTuple}
+		}
 	}
 
 	// 查询映射信息（总数）
