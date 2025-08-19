@@ -180,10 +180,12 @@ export function b3(str) {
 
 	// 解析 JSON 到覆盖率对象
 	var cov2 map[string]*FileCoverage
+	fmt.Println("cov2: ", cov2)
 	if err := json.Unmarshal([]byte(pull2covB), &cov2); err != nil {
 		panic(err)
 	}
 	var cov4 map[string]*FileCoverage
+	fmt.Println("cov4: ", cov4)
 	if err := json.Unmarshal([]byte(pull4covB), &cov4); err != nil {
 		panic(err)
 	}
