@@ -5,6 +5,8 @@ import (
 	"backend/services"
 	"backend/utils"
 
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,18 +39,29 @@ func (h *RepoHandler) GetRepos(c *gin.Context) {
 	utils.Response.Success(c, result)
 }
 
-// GetRepoByID 根据仓库ID获取仓库信息
-func (h *RepoHandler) GetRepoByID(c *gin.Context) {
-	repoID := c.Param("repoID")
-	if repoID == "" {
-		utils.Response.BadRequest(c, "repoID is required")
+// PostRepoByID POST请求通过ID获取仓库信息
+// body: { "id": number | string }
+func (h *RepoHandler) PostRepoByID(c *gin.Context) {
+	var body dto.RepoIdentifyDto
+	if err := utils.Binding.BindAndValidate(c, &body); err != nil {
+		utils.Response.BadRequest(c, err.Error())
 		return
 	}
 
-	// 尝试Base64解码，如果失败则使用原始字符串
-	decodedRepoID := utils.Decoder.DecodeBase64OrUseOriginal(repoID)
+	var idStr string
+	switch v := body.ID.(type) {
+	case string:
+		idStr = v
+	case float64:
+		// JSON数字默认解析为float64
+		idStr = strconv.FormatInt(int64(v), 10)
+	default:
+		utils.Response.BadRequest(c, "id must be string or number")
+		return
+	}
 
-	result, err := h.repoService.GetByRepoId(decodedRepoID)
+	// 复用按ID或路径查询逻辑
+	result, err := h.repoService.GetByRepoId(idStr)
 	if err != nil {
 		utils.Response.InternalServerError(c, err)
 		return

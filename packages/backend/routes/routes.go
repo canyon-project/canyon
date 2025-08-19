@@ -29,7 +29,7 @@ func SetupRoutes(r *gin.Engine) {
 		repo := api.Group("/repo")
 		{
 			repo.GET("", repoHandler.GetRepos)
-			repo.GET("/:repoID", repoHandler.GetRepoByID)
+			repo.POST("/id", repoHandler.PostRepoByID)
 			repo.GET("/:repoID/commits", repoHandler.GetRepoCommits)
 			repo.GET("/:repoID/pulls", repoHandler.GetRepoPulls)
 			repo.GET("/:repoID/commits/:sha", repoHandler.GetRepoCommitBySHA)
