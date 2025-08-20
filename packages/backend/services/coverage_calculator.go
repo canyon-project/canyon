@@ -72,6 +72,39 @@ func (s *CoverageService) filterCoverageHit(
 	return filtered
 }
 
+// extractPathsFromHits 从命中结果中提取文件路径集合
+func (s *CoverageService) extractPathsFromHits(hits []models.CoverageHitSummaryResult) map[string]bool {
+	paths := make(map[string]bool)
+	for _, h := range hits {
+		paths[h.FullFilePath] = true
+	}
+	return paths
+}
+
+// filterCoverageMapWithFilePathByPaths 按文件路径集合过滤映射（并去重同一文件同一hash）
+func (s *CoverageService) filterCoverageMapWithFilePathByPaths(
+	paths map[string]bool,
+	coverageMapWithFilePath []models.CoverageMapSummaryResultWithFilePath,
+) []models.CoverageMapSummaryResultWithFilePath {
+	if len(paths) == 0 {
+		return nil
+	}
+	seen := make(map[string]bool)
+	var out []models.CoverageMapSummaryResultWithFilePath
+	for _, m := range coverageMapWithFilePath {
+		if !paths[m.FullFilePath] {
+			continue
+		}
+		key := m.FullFilePath + "::" + m.Hash
+		if seen[key] {
+			continue
+		}
+		seen[key] = true
+		out = append(out, m)
+	}
+	return out
+}
+
 // buildResultList 构建结果列表
 func (s *CoverageService) buildResultList(
 	deduplicatedBuildGroupList []map[string]string,
@@ -94,10 +127,15 @@ func (s *CoverageService) buildResultList(
 			}
 		}
 
-		// 计算总体摘要
+		// 命中与分母限定在组内
+		groupHits := s.filterCoverageHit(currentBuildCoverages, coverageHitData)
+		groupPaths := s.extractPathsFromHits(groupHits)
+		groupCoverageMap := s.filterCoverageMapWithFilePathByPaths(groupPaths, coverageMapWithFilePath)
+
+		// 计算总体摘要（使用组内命中与分母）
 		summary := s.calcCoverageSummary(
-			s.filterCoverageHit(currentBuildCoverages, coverageHitData),
-			coverageMapWithFilePath,
+			groupHits,
+			groupCoverageMap,
 		)
 
 		// 构建模式列表
@@ -136,9 +174,14 @@ func (s *CoverageService) buildAutoMode(
 		}
 	}
 
+	// 使用 auto 组内命中与分母
+	autoHits := s.filterCoverageHit(autoCoverages, coverageHitData)
+	autoPaths := s.extractPathsFromHits(autoHits)
+	autoMap := s.filterCoverageMapWithFilePathByPaths(autoPaths, coverageMapWithFilePath)
+
 	summary := s.calcCoverageSummary(
-		s.filterCoverageHit(autoCoverages, coverageHitData),
-		coverageMapWithFilePath,
+		autoHits,
+		autoMap,
 	)
 
 	caseList := s.buildCaseList(autoCoverages, coverageHitData, coverageMapWithFilePath, testCaseInfoList)
@@ -165,9 +208,14 @@ func (s *CoverageService) buildManualMode(
 		}
 	}
 
+	// 使用 manual 组内命中与分母
+	manualHits := s.filterCoverageHit(manualCoverages, coverageHitData)
+	manualPaths := s.extractPathsFromHits(manualHits)
+	manualMap := s.filterCoverageMapWithFilePathByPaths(manualPaths, coverageMapWithFilePath)
+
 	summary := s.calcCoverageSummary(
-		s.filterCoverageHit(manualCoverages, coverageHitData),
-		coverageMapWithFilePath,
+		manualHits,
+		manualMap,
 	)
 
 	caseList := s.buildCaseList(manualCoverages, coverageHitData, coverageMapWithFilePath, testCaseInfoList)
@@ -189,11 +237,14 @@ func (s *CoverageService) buildCaseList(
 	var caseList []interface{}
 
 	for _, coverage := range coverageList {
-		// 计算单个用例的摘要
+		// 计算单个用例的摘要（使用该用例自身命中与分母）
 		singleCoverageList := []models.Coverage{coverage}
+		singleHits := s.filterCoverageHit(singleCoverageList, coverageHitData)
+		singlePaths := s.extractPathsFromHits(singleHits)
+		singleMap := s.filterCoverageMapWithFilePathByPaths(singlePaths, coverageMapWithFilePath)
 		summary := s.calcCoverageSummary(
-			s.filterCoverageHit(singleCoverageList, coverageHitData),
-			coverageMapWithFilePath,
+			singleHits,
+			singleMap,
 		)
 
 		// 获取测试用例信息
