@@ -1,6 +1,7 @@
 package main
 
 import (
+	"backend/logger"
 	"backend/server"
 	"backend/utils"
 	"flag"
@@ -20,6 +21,9 @@ func main() {
 	if err := utils.SetupLogger(*logFile); err != nil {
 		log.Fatal("配置日志失败:", err)
 	}
+
+	// 初始化公司 TripLog 日志
+	logger.Init()
 
 	// 创建服务器实例
 	srv := server.NewServer()

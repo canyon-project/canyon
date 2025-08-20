@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"backend/db"
+	"backend/logger"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 // HealthCheck 健康检查处理器
@@ -20,6 +22,7 @@ func HealthCheck(c *gin.Context) {
 		response["status"] = "error"
 		response["message"] = "PostgreSQL连接失败"
 		response["postgres_error"] = err.Error()
+		logger.Info("health check: postgres disconnected", zap.String("path", c.FullPath()), zap.String("client_ip", c.ClientIP()))
 		c.JSON(http.StatusServiceUnavailable, response)
 		return
 	}
@@ -33,6 +36,11 @@ func HealthCheck(c *gin.Context) {
 	} else {
 		response["clickhouse"] = "connected"
 	}
+
+	logger.Info("health check ok",
+		zap.String("path", c.FullPath()),
+		zap.String("client_ip", c.ClientIP()),
+	)
 
 	c.JSON(http.StatusOK, response)
 }
