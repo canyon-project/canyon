@@ -110,7 +110,30 @@ func sliceByLoc(content string, loc Loc, lineStarts []int) string {
 // sliceByStatementMapEntry 从文件内容中根据 StatementMapEntry 提取源码片段
 func sliceByStatementMapEntry(content string, stmt StatementMapEntry, lineStarts []int) string {
 	loc := Loc{Start: stmt.Start, End: stmt.End}
-	return sliceByLoc(content, loc, lineStarts)
+	result := sliceByLoc(content, loc, lineStarts)
+	
+	// 如果结果看起来像是一个片段（比如只有 "[]"），尝试扩展到整行
+	trimmed := strings.TrimSpace(result)
+	if len(trimmed) < 10 && !strings.Contains(result, "\n") {
+		lineStart := stmt.Start.Line - 1
+		if lineStart >= 0 && lineStart < len(lineStarts) {
+			lineStartOffset := lineStarts[lineStart]
+			var nextLineOffset int
+			if lineStart+1 < len(lineStarts) {
+				nextLineOffset = lineStarts[lineStart+1] - 1
+			} else {
+				nextLineOffset = len(content)
+			}
+			
+			fullLine := strings.TrimSpace(content[lineStartOffset:nextLineOffset])
+			if len(fullLine) > len(result) {
+				fmt.Printf("[extend-stmt] original=\"%s\" extended=\"%s\"\n", result, fullLine)
+				result = fullLine
+			}
+		}
+	}
+	
+	return result
 }
 
 // buildStatementHashToIds 为语句构建"哈希 -> 语句 id 列表"的索引
@@ -130,8 +153,7 @@ func buildStatementHashToIds(entry *FileCoverage, content string) map[string][]s
 
 		index[hash] = append(index[hash], id)
 
-		fmt.Printf("[build-stmt-index] sid=%s loc=[(%d,%d)-(%d,%d)] hash=%s code=\"%s\"\n",
-			id, stmt.Start.Line, stmt.Start.Column, stmt.End.Line, stmt.End.Column, hash, code)
+		fmt.Printf("[build-stmt-index]  code=\"%s\"\n",code)
 	}
 
 	return index
@@ -178,30 +200,26 @@ func mergeStatementsByHash(base *FileCoverage, baseContent string, other *FileCo
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lmicroseconds)
 
-	pull2covB := `{"/Users/travzhang/github.com/canyon-project/canyon/playground/hard-merge/pulls/1/commits/0002/repo/src/b.js": {"path":"/Users/travzhang/github.com/canyon-project/canyon/playground/hard-merge/pulls/1/commits/0002/repo/src/b.js","statementMap":{"0":{"start":{"line":2,"column":2},"end":{"line":2,"column":15}},"1":{"start":{"line":6,"column":2},"end":{"line":6,"column":21}},"2":{"start":{"line":10,"column":2},"end":{"line":10,"column":35}}},"fnMap":{"0":{"name":"b1","decl":{"start":{"line":1,"column":16},"end":{"line":1,"column":18}},"loc":{"start":{"line":1,"column":22},"end":{"line":3,"column":1}}},"1":{"name":"b2","decl":{"start":{"line":5,"column":16},"end":{"line":5,"column":18}},"loc":{"start":{"line":5,"column":22},"end":{"line":7,"column":1}}},"2":{"name":"b3","decl":{"start":{"line":9,"column":16},"end":{"line":9,"column":18}},"loc":{"start":{"line":9,"column":24},"end":{"line":11,"column":1}}}},"branchMap":{},"s":{"0":1,"1":2,"2":1},"f":{"0":1,"1":2,"2":1},"b":{}}}`
-	pull2codeB := `export function b1(x) {
-  return x * 3;
-}
-
-export function b2(x) {
-  return x % 2 === 0;
-}
-
-export function b3(str) {
-  return String(str).toLowerCase();
+	const pull2covB = `{"/Users/sunping/Documents/canyon/canyon-project/canyon/playground/hard-merge/pulls/1/commits/0002/repo/src/b.js": {"path":"/Users/sunping/Documents/canyon/canyon-project/canyon/playground/hard-merge/pulls/1/commits/0002/repo/src/b.js","statementMap":{"0":{"start":{"line":2,"column":15},"end":{"line":2,"column":17}},"1":{"start":{"line":3,"column":2},"end":{"line":7,"column":3}},"2":{"start":{"line":3,"column":15},"end":{"line":3,"column":16}},"3":{"start":{"line":4,"column":6},"end":{"line":6,"column":7}},"4":{"start":{"line":5,"column":10},"end":{"line":5,"column":34}},"5":{"start":{"line":8,"column":2},"end":{"line":8,"column":16}}},"fnMap":{"0":{"name":"processData","decl":{"start":{"line":1,"column":16},"end":{"line":1,"column":27}},"loc":{"start":{"line":1,"column":34},"end":{"line":9,"column":1}}}},"branchMap":{"0":{"loc":{"start":{"line":4,"column":6},"end":{"line":6,"column":7}},"type":"if","locations":[{"start":{"line":4,"column":6},"end":{"line":6,"column":7}},{"start":{"line":4,"column":6},"end":{"line":6,"column":7}}]}},"s":{"0":1,"1":1,"2":1,"3":2,"4":1,"5":1},"f":{"0":1},"b":{"0":[1,1]}}}`
+const pull2codeB = `export function processData(data) {
+  let result = [];
+  for (let i = 0; i < data.length; i++) {
+      if (data[i].active) {
+          result.push(data[i].id);
+      }
+  }
+  return result;
 }`
 
-	pull4covB := `{"/Users/travzhang/github.com/canyon-project/canyon/playground/hard-merge/pulls/1/commits/0004/repo/src/b.js": {"path":"/Users/travzhang/github.com/canyon-project/canyon/playground/hard-merge/pulls/1/commits/0004/repo/src/b.js","statementMap":{"0":{"start":{"line":2,"column":2},"end":{"line":2,"column":15}},"1":{"start":{"line":6,"column":2},"end":{"line":6,"column":21}},"2":{"start":{"line":10,"column":2},"end":{"line":10,"column":35}}},"fnMap":{"0":{"name":"b1","decl":{"start":{"line":1,"column":16},"end":{"line":1,"column":18}},"loc":{"start":{"line":1,"column":22},"end":{"line":3,"column":1}}},"1":{"name":"b2","decl":{"start":{"line":5,"column":16},"end":{"line":5,"column":18}},"loc":{"start":{"line":5,"column":22},"end":{"line":7,"column":1}}},"2":{"name":"b3","decl":{"start":{"line":9,"column":16},"end":{"line":9,"column":18}},"loc":{"start":{"line":9,"column":24},"end":{"line":11,"column":1}}}},"branchMap":{},"s":{"0":1,"1":2,"2":1},"f":{"0":1,"1":2,"2":1},"b":{}}}`
-	pull4codeB := `export function b1(x) {
-  return x * 3;
-}
-
-export function b2(x) {
-  return x % 2 === 0;
-}
-
-export function b3(str) {
-  return String(str).toUpperCase();
+const pull4covB = `{"/Users/sunping/Documents/canyon/canyon-project/canyon/playground/hard-merge/pulls/1/commits/0004/repo/src/b.js": {"path":"/Users/sunping/Documents/canyon/canyon-project/canyon/playground/hard-merge/pulls/1/commits/0004/repo/src/b.js","statementMap":{"0":{"start":{"line":2,"column":15},"end":{"line":2,"column":17}},"1":{"start":{"line":3,"column":2},"end":{"line":7,"column":5}},"2":{"start":{"line":4,"column":6},"end":{"line":6,"column":7}},"3":{"start":{"line":5,"column":10},"end":{"line":5,"column":31}},"4":{"start":{"line":8,"column":2},"end":{"line":8,"column":16}}},"fnMap":{"0":{"name":"processData","decl":{"start":{"line":1,"column":16},"end":{"line":1,"column":27}},"loc":{"start":{"line":1,"column":34},"end":{"line":9,"column":1}}},"1":{"name":"(anonymous_1)","decl":{"start":{"line":3,"column":15},"end":{"line":3,"column":19}},"loc":{"start":{"line":3,"column":23},"end":{"line":7,"column":3}}}},"branchMap":{"0":{"loc":{"start":{"line":4,"column":6},"end":{"line":6,"column":7}},"type":"if","locations":[{"start":{"line":4,"column":6},"end":{"line":6,"column":7}},{"start":{"line":4,"column":6},"end":{"line":6,"column":7}}]}},"s":{"0":1,"1":1,"2":2,"3":1,"4":1},"f":{"0":1,"1":2},"b":{"0":[1,1]}}}`
+const pull4codeB = `export function processData(data) {
+  let result = [];
+  data.forEach(item => {
+      if (item.active) {
+          result.push(item.id);
+      }
+  });
+  return result;
 }`
 
 	// 解析 JSON 到覆盖率对象
