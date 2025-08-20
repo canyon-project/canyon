@@ -51,6 +51,7 @@ func (s *Server) Initialize() error {
 // setupMiddleware 设置中间件
 func (s *Server) setupMiddleware() {
 	s.Router.Use(middleware.CORS())
+	s.Router.Use(middleware.Metrics())
 	s.Router.Use(middleware.ErrorHandler())
 }
 

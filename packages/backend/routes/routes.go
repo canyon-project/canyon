@@ -5,6 +5,7 @@ import (
 	"backend/services"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 // SetupRoutes 设置所有路由
@@ -21,6 +22,9 @@ func SetupRoutes(r *gin.Engine) {
 
 	// 健康检查接口(别改我！！！)
 	r.GET("/vi/health", handlers.HealthCheck)
+
+	// Prometheus 指标
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	// API 路由组
 	api := r.Group("/api")
