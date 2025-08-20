@@ -81,6 +81,11 @@ func (h *CoverageHandler) GetCoverageSummaryMapBySubject(c *gin.Context) {
 		utils.Response.BadRequest(c, "provider, repoID, subject, subjectID are required")
 		return
 	}
+	// Enforce buildProvider/buildID required for summary map endpoint
+	if buildProvider == "" || buildID == "" {
+		utils.Response.BadRequest(c, "buildProvider, buildID are required")
+		return
+	}
 
 	switch subject {
 	case "commit", "commits":
