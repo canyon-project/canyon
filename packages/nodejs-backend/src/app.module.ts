@@ -8,6 +8,8 @@ import { CodeModule } from './modules/code/code.module';
 import { RootController } from './controllers/root.controller';
 import { SystemConfigModule } from './modules/system-config/system-config.module';
 import {OrmModule} from "./modules/orm/orm.module";
+import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { GraphQLModule } from "@nestjs/graphql";
 
 @Module({
   imports: [
@@ -17,7 +19,11 @@ import {OrmModule} from "./modules/orm/orm.module";
     CoverageModule,
     RepoModule,
     CodeModule,
-    SystemConfigModule
+    SystemConfigModule,
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      autoSchemaFile: "schema.gql",
+      driver: ApolloDriver,
+    }),
   ],
   controllers: [RootController, HealthController]
 })
