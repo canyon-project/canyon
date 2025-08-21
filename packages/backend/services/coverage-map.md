@@ -61,25 +61,26 @@ graph TD
   B -->|pull/pulls| D[GetCoverageMapForPull]
 
   %% commit/commits 分支
-  C --> C1[PG 查询 canyonjs_coverage<br/>按 provider/repoID/sha 及可选构建/报告过滤]
-  C1 -->|coverageIDs| C2[PG 查询 canyonjs_coverage_map_relation<br/>按 coverage_id IN ...<br/>可选 filePath 过滤 + group by 去重]
+  C --> C1[PG 查询 canyonjs_coverage 按 provider/repoID/sha 及可选构建与报告过滤]
+  C1 -->|coverageIDs| C2[PG 查询 canyonjs_coverage_map_relation 按 coverage_id IN ... 可选 filePath 过滤 与 去重]
   C2 --> C3[并行查询 ClickHouse]
-  C3 --> C31[SELECT ... FROM coverage_map WHERE hash IN ...]
-  C3 --> C32[SELECT ... FROM coverage_hit_agg WHERE coverage_id IN ... GROUP BY full_file_path]
-  C31 --> C4[合并 coverage_map + hit 为 Istanbul 结构]
+  C3 --> C31[CH coverage_map: SELECT ... WHERE hash IN ...]
+  C3 --> C32[CH coverage_hit_agg: SELECT ... WHERE coverage_id IN ... GROUP BY full_file_path]
+  C31 --> C4[合并 coverage_map 与 hit 为 Istanbul 结构]
   C32 --> C4
   C4 --> C5[移除 instrumentCwd 前缀]
   C5 --> E[返回 JSON]
 
   %% pull/pulls 分支
   D --> D0{mode}
-  D0 -->|默认/其他| DC[解析 head SHA via GitLab] --> DD[委托 GetCoverageMap(单 commit)]
-  D0 -->|blockMerge/fileMerge| D1[解析 head SHA + PR commits]
-  D1 --> D2[PG 查询所有 commits 的 canyonjs_coverage]
-  D2 --> D3[PG 查询 coverage_map_relation：<br/>去重关系 + 完整关系(含 coverage_id)]
-  D3 --> D4[CH 查询 coverage_map + coverage_hit_agg(含 coverage_id 维度)]
-  D4 --> D5[构建 baseline(head) + 计算各 commit 的变更文件集]
-  D5 --> D6[聚合命中：<br/>baseline 合并全部；<br/>非 baseline 的未变更文件直接并入；<br/>变更文件在 blockMerge 下按块级合并]
+  D0 -->|默认或其他| DC[解析 head SHA via GitLab]
+  DC --> DD[委托 GetCoverageMap 单commit]
+  D0 -->|blockMerge 或 fileMerge| D1[解析 head SHA 与 PR commits]
+  D1 --> D2[PG 查询 commits 的 canyonjs_coverage]
+  D2 --> D3[PG 查询 relations 去重 以及 完整关系(含 coverage_id)]
+  D3 --> D4[CH 查询 coverage_map 与 coverage_hit_agg(含 coverage_id)]
+  D4 --> D5[构建 baseline 与 计算变更文件集]
+  D5 --> D6[聚合命中: baseline 全纳; 未变更直接并入; 变更文件在 blockMerge 下块级合并]
   D6 --> D7[以 baseline 的 coverage_map 结构生成最终返回]
   D7 --> E
 ```
