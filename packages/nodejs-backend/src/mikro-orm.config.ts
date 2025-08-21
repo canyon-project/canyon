@@ -2,12 +2,14 @@ import { Logger } from '@nestjs/common';
 import { SqlHighlighter } from '@mikro-orm/sql-highlighter';
 import { defineConfig } from '@mikro-orm/postgresql';
 import {ConfigEntity} from "./entities/config.entity";
+import {CoverageEntity} from "./entities/coverage.entity";
+import {CoverageMapRelationEntity} from "./entities/coverage-map-relation.entity";
 
 const logger = new Logger('MikroORM');
 
 export default defineConfig({
   entities: [
-    ConfigEntity
+    ConfigEntity, CoverageEntity, CoverageMapRelationEntity
   ],
   clientUrl:process.env.DATABASE_URL,
   highlighter: new SqlHighlighter(),

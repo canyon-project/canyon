@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
-import { CodeController } from './code.controller';
 import { CodeService } from './code.service';
 import { SystemConfigModule } from '../system-config/system-config.module';
+import { CodeResolver } from './code.resolver';
 
 @Module({
   imports: [SystemConfigModule],
-  controllers: [CodeController],
-  providers: [CodeService]
+  providers: [CodeService, CodeResolver]
 })
 export class CodeModule {}
 

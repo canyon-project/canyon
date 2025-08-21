@@ -1,5 +1,9 @@
 import { BadRequestException, Injectable, Optional } from '@nestjs/common';
-import { MikroORM } from '@mikro-orm/core';
+import { EntityRepository, MikroORM } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
+import axios from 'axios';
+import { CoverageEntity } from '../../entities/coverage.entity';
+import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
 import { ChService } from '../ch/ch.service';
 import { SystemConfigService } from '../system-config/system-config.service';
 
@@ -15,7 +19,9 @@ export class CoverageService {
   constructor(
     @Optional() private readonly orm?: MikroORM,
     private readonly ch?: ChService,
-    private readonly syscfg?: SystemConfigService
+    private readonly syscfg?: SystemConfigService,
+    @InjectRepository(CoverageEntity) private readonly covRepo?: EntityRepository<CoverageEntity>,
+    @InjectRepository(CoverageMapRelationEntity) private readonly relRepo?: EntityRepository<CoverageMapRelationEntity>
   ) {}
   async getOverview(q: OverviewQuery) {
     const { subject, subjectID, provider, repoID } = q;
@@ -70,27 +76,14 @@ export class CoverageService {
       // Postgres 或 ClickHouse 未配置时，返回空对象
       return {};
     }
-    // 1) 从 Postgres 查询 coverage 列表
-    const knex = this.orm.em.getConnection();
-    const where: string[] = [
-      `provider = ?`,
-      `repo_id = ?`,
-      `sha = ?`
-    ];
-    const params: any[] = [provider, repoID, sha];
-    if (buildProvider) {
-      where.push(`build_provider = ?`);
-      params.push(buildProvider);
-    }
-    if (buildID) {
-      where.push(`build_id = ?`);
-      params.push(buildID);
-    }
-    const sql = `SELECT id, instrument_cwd FROM canyonjs_coverage WHERE ${where.join(' AND ')}`;
-    const coverages: Array<{ id: string; instrument_cwd: string | null }> = await knex.execute(sql, params);
+    // 1) 从 Postgres 查询 coverage 列表（使用 Mikro-ORM）
+    const qb: any = { provider, repoId: repoID, sha } as any;
+    if (buildProvider) qb.buildProvider = buildProvider;
+    if (buildID) qb.buildId = buildID;
+    const coverages = await this.covRepo!.find(qb, { fields: ['id', 'instrumentCwd'] });
     if (!coverages?.length) return {};
 
-    const coverageIDs = coverages.map((c) => c.id);
+    const coverageIDs = coverages.map((c: any) => c.id);
 
     // 2) ClickHouse 查询 hits 聚合
     const db = process.env.CLICKHOUSE_DATABASE || 'default';
@@ -103,16 +96,15 @@ export class CoverageService {
         sumMapMerge(b) as b
       FROM ${db}.coverage_hit_agg
       WHERE coverage_id IN (${idsList})
-      ${filePath ? ` AND file_path = '${filePath.replace(/'/g, "''")}'` : ''}
+      ${filePath ? ` AND endsWith(full_file_path, '${filePath.replace(/'/g, "''")}')` : ''}
       GROUP BY full_file_path
-      FORMAT JSONEachRow
     `;
     const ch = this.ch.getClient();
     const hitRes = await ch.query({ query: hitQuery, format: 'JSONEachRow' });
     const rows: Array<{ fullFilePath: string; s: [number[], number[]] | any; f: [number[], number[]] | any; b: [number[], number[]] | any }> = await hitRes.json();
 
     // 3) 组装结果（仅 hits，后续可加入 coverage_map 结构）并移除 instrument_cwd 前缀
-    const instrumentCwd = coverages[0]?.instrument_cwd || '';
+    const instrumentCwd = (coverages[0] as any)?.instrumentCwd || '';
     const trimPath = (p: string) => {
       if (!instrumentCwd) return p;
       let np = p.startsWith(instrumentCwd) ? p.slice(instrumentCwd.length) : p;
@@ -160,43 +152,40 @@ export class CoverageService {
     const projectId = encodeURIComponent(repoID);
     const headers = { 'PRIVATE-TOKEN': token } as Record<string, string>;
 
-    const mrResp = await fetch(`${baseUrl}/api/v4/projects/${projectId}/merge_requests/${pullNumber}` as any, { headers });
-    if (!mrResp.ok) return {};
-    const mr: any = await mrResp.json();
+    const mrResp = await axios.get(`${baseUrl}/api/v4/projects/${projectId}/merge_requests/${pullNumber}`, { headers });
+    if (mrResp.status < 200 || mrResp.status >= 300) return {};
+    const mr: any = mrResp.data;
     const headSha: string | undefined = mr?.diff_refs?.head_sha || mr?.sha;
     if (!headSha) return {};
 
     // commits
-    const commitsResp = await fetch(`${baseUrl}/api/v4/projects/${projectId}/merge_requests/${pullNumber}/commits` as any, { headers });
-    if (!commitsResp.ok) return {};
-    const commits: Array<{ id: string }> = await commitsResp.json();
+    const commitsResp = await axios.get(`${baseUrl}/api/v4/projects/${projectId}/merge_requests/${pullNumber}/commits`, { headers });
+    if (commitsResp.status < 200 || commitsResp.status >= 300) return {};
+    const commits: Array<{ id: string }> = commitsResp.data;
     if (!Array.isArray(commits) || commits.length === 0) return {};
 
     // coverage rows for SHAs
-    const knex = this.orm.em.getConnection();
     const shas = commits.map((c) => c.id);
-    const where: string[] = [`provider = ?`, `repo_id = ?`, `sha = ANY(?)`];
-    const params: any[] = [provider, repoID, shas];
-    if (buildProvider) {
-      where.push(`build_provider = ?`);
-      params.push(buildProvider);
-    }
-    if (buildID) {
-      where.push(`build_id = ?`);
-      params.push(buildID);
-    }
-    const covSql = `SELECT id, sha, instrument_cwd FROM canyonjs_coverage WHERE ${where.join(' AND ')}`;
-    const allCov: Array<{ id: string; sha: string; instrument_cwd: string | null }> = await knex.execute(covSql, params);
+    const covWhere: any = { provider, repoId: repoID, sha: { $in: shas } } as any;
+    if (buildProvider) covWhere.buildProvider = buildProvider;
+    if (buildID) covWhere.buildId = buildID;
+    const allCov = await this.covRepo!.find(covWhere, { fields: ['id', 'sha', 'instrumentCwd'] });
     if (!allCov?.length) return {};
 
     // relations (all and unique per file)
-    const covIds = allCov.map((c) => c.id);
-    const relBaseSql = `SELECT coverage_id, coverage_map_hash_id, full_file_path FROM canyonjs_coverage_map_relation WHERE coverage_id = ANY(?)${filePath ? ' AND file_path = ?' : ''}`;
-    const relParams: any[] = [covIds];
-    if (filePath) relParams.push(filePath);
-    const relationsAll: Array<{ coverage_id: string; coverage_map_hash_id: string; full_file_path: string }> = await knex.execute(relBaseSql, relParams);
-    const uniqSql = `SELECT coverage_map_hash_id, full_file_path FROM canyonjs_coverage_map_relation WHERE coverage_id = ANY(?)${filePath ? ' AND file_path = ?' : ''} GROUP BY coverage_map_hash_id, full_file_path`;
-    const relations: Array<{ coverage_map_hash_id: string; full_file_path: string }> = await knex.execute(uniqSql, relParams);
+    const covIds = allCov.map((c: any) => c.id);
+    const relWhere: any = { coverageId: { $in: covIds } } as any;
+    if (filePath) relWhere.filePath = filePath;
+    const relationsAll = await this.relRepo!.find(relWhere, { fields: ['coverageId', 'coverageMapHashId', 'fullFilePath'] });
+    // unique by (coverage_map_hash_id, full_file_path)
+    const seen = new Set<string>();
+    const relations = [] as Array<{ coverage_map_hash_id: string; full_file_path: string }>
+    for (const r of relationsAll as any[]) {
+      const key = `${r.coverageMapHashId}|${r.fullFilePath}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      relations.push({ coverage_map_hash_id: r.coverageMapHashId, full_file_path: r.fullFilePath });
+    }
 
     // ClickHouse hits with coverage_id
     const db = process.env.CLICKHOUSE_DATABASE || 'default';
@@ -210,29 +199,31 @@ export class CoverageService {
         sumMapMerge(b) as b
       FROM ${db}.coverage_hit_agg
       WHERE coverage_id IN (${idsList})
-      ${filePath ? ` AND file_path = '${filePath.replace(/'/g, "''")}'` : ''}
+      ${filePath ? ` AND endsWith(full_file_path, '${filePath.replace(/'/g, "''")}')` : ''}
       GROUP BY coverage_id, full_file_path
-      FORMAT JSONEachRow
     `;
     const ch = this.ch.getClient();
     const hitRes = await ch.query({ query: hitQuery, format: 'JSONEachRow' });
     const hitRows: Array<{ coverageID: string; fullFilePath: string; s: any; f: any; b: any }> = await hitRes.json();
 
-    const covByID = new Map(allCov.map((c) => [c.id, c] as const));
+    const covByID = new Map(allCov.map((c: any) => [c.id, c] as const));
     const baseSet = new Set<string>();
     for (const c of allCov) if (c.sha === headSha) baseSet.add(c.id);
     if (baseSet.size === 0) baseSet.add(allCov[0].id);
     const baselineCovID = [...baseSet][0];
-    const baselineCwd = covByID.get(baselineCovID)?.instrument_cwd || '';
+    const baselineCwd = (covByID.get(baselineCovID) as any)?.instrumentCwd || '';
 
     // changed files set per SHA (best-effort)
     const changesBySha = new Map<string, Set<string>>();
     if (mode && mode.toLowerCase() !== 'filemerge') {
       for (const c of commits) {
         if (c.id === headSha) continue;
-        const cmpResp = await fetch(`${baseUrl}/api/v4/projects/${projectId}/repository/compare?from=${encodeURIComponent(c.id)}&to=${encodeURIComponent(headSha)}` as any, { headers });
-        if (!cmpResp.ok) continue;
-        const cmp: any = await cmpResp.json();
+        const cmpResp = await axios.get(`${baseUrl}/api/v4/projects/${projectId}/repository/compare`, {
+          headers,
+          params: { from: c.id, to: headSha }
+        });
+        if (cmpResp.status < 200 || cmpResp.status >= 300) continue;
+        const cmp: any = cmpResp.data;
         const s = new Set<string>();
         for (const d of cmp?.diffs || []) {
           if (d?.old_path) s.add(d.old_path);
@@ -262,7 +253,7 @@ export class CoverageService {
     // coverage_map structures for block merge
     const covPathToHash = new Map<string, string>();
     for (const r of relationsAll) {
-      covPathToHash.set(`${r.coverage_id}|${r.full_file_path}`, r.coverage_map_hash_id);
+      covPathToHash.set(`${r.coverageId}|${r.fullFilePath}`, r.coverageMapHashId);
     }
     const allHashes = Array.from(new Set(relations.map((r) => r.coverage_map_hash_id)));
     const hashToMap = await this.fetchCoverageMapsFromClickHouse(allHashes);
@@ -271,7 +262,7 @@ export class CoverageService {
       const cov = covByID.get(row.coverageID);
       if (!cov) continue;
       const isBaseline = baseSet.has(row.coverageID);
-      const relPath = this.trimInstrumentCwd(row.fullFilePath, cov.instrument_cwd || '');
+      const relPath = this.trimInstrumentCwd(row.fullFilePath, (cov as any).instrumentCwd || '');
       let include = isBaseline;
       if (!isBaseline) {
         const changed = changesBySha.get(cov.sha);
@@ -342,35 +333,55 @@ export class CoverageService {
     const db = process.env.CLICKHOUSE_DATABASE || 'default';
     const hashes = hashList.map((h) => `'${h.replace(/'/g, "''")}'`).join(',');
     const query = `
-      SELECT toJSONString(statement_map) as statementMap,
-             toJSONString(fn_map) as fnMap,
-             toJSONString(branch_map) as branchMap,
-             hash as coverageMapHashID
+      SELECT
+        statement_map as statementMap,
+        fn_map as fnMap,
+        branch_map as branchMap,
+        hash as coverageMapHashID
       FROM ${db}.coverage_map
       WHERE hash IN (${hashes})
-      FORMAT JSONEachRow
     `;
     const res = await this.ch.getClient().query({ query, format: 'JSONEachRow' });
-    const rows: Array<{ statementMap: string; fnMap: string; branchMap: string; coverageMapHashID: string }> = await res.json();
+    const rows: Array<{ statementMap: Record<string, any>; fnMap: Record<string, any>; branchMap: Record<string, any>; coverageMapHashID: string }> = await res.json();
     for (const r of rows) {
-      try {
-        const s = JSON.parse(r.statementMap || '{}');
-        const f = JSON.parse(r.fnMap || '{}');
-        const b = JSON.parse(r.branchMap || '{}');
-        out.set(r.coverageMapHashID, { statementMap: s, fnMap: f, branchMap: b });
-      } catch {
-        // ignore malformed row
+      const normalizedStmt: Record<string, any> = {};
+      const srcStmt = r.statementMap || {};
+      for (const [id, tuple] of Object.entries(srcStmt)) {
+        const arr = Array.isArray(tuple) ? (tuple as any[]) : [];
+        normalizedStmt[id] = {
+          start_line: Number(arr[0] ?? 0),
+          start_column: Number(arr[1] ?? 0),
+          end_line: Number(arr[2] ?? 0),
+          end_column: Number(arr[3] ?? 0)
+        };
       }
+
+      const normalizedFn: Record<string, any> = {};
+      const srcFn = r.fnMap || {};
+      for (const [id, tuple] of Object.entries(srcFn)) {
+        const arr = Array.isArray(tuple) ? (tuple as any[]) : [];
+        // tuple shape: [name, someUInt, posA[4], posB[4]] → we only need end_pos
+        const posA = Array.isArray(arr[2]) ? (arr[2] as any[]) : [];
+        const posB = Array.isArray(arr[3]) ? (arr[3] as any[]) : [];
+        const endPos = posB.length === 4 ? posB : (posA.length === 4 ? posA : [0, 0, 0, 0]);
+        normalizedFn[id] = { end_pos: endPos };
+      }
+
+      out.set(r.coverageMapHashID, {
+        statementMap: normalizedStmt,
+        fnMap: normalizedFn,
+        branchMap: r.branchMap || {}
+      });
     }
     return out;
   }
 
   private async fetchGitLabFile(baseUrl: string, projectId: string, sha: string, path: string, headers: Record<string, string>): Promise<string> {
     const filePath = encodeURIComponent(path);
-    const url = `${baseUrl}/api/v4/projects/${projectId}/repository/files/${filePath}/raw?ref=${encodeURIComponent(sha)}`;
-    const resp = await fetch(url as any, { headers });
-    if (!resp.ok) return '';
-    return await resp.text();
+    const url = `${baseUrl}/api/v4/projects/${projectId}/repository/files/${filePath}/raw`;
+    const resp = await axios.get(url, { headers, params: { ref: sha }, responseType: 'text' });
+    if (resp.status < 200 || resp.status >= 300) return '';
+    return resp.data as string;
   }
 
   private canonicalizeSnippet(s: string): string {
