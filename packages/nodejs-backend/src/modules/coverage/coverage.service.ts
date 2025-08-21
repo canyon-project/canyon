@@ -103,8 +103,19 @@ export class CoverageService {
     const hitRes = await ch.query({ query: hitQuery, format: 'JSONEachRow' });
     const rows: Array<{ fullFilePath: string; s: [number[], number[]] | any; f: [number[], number[]] | any; b: [number[], number[]] | any }> = await hitRes.json();
 
-    // 3) 组装结果（仅 hits，后续可加入 coverage_map 结构）并移除 instrument_cwd 前缀
+    // 3) 关系去重：为每个文件挑选一个 coverage_map_hash_id，并拉取 coverage_map 结构
     const instrumentCwd = (coverages[0] as any)?.instrumentCwd || '';
+    const relWhere: any = { coverageId: { $in: coverageIDs } } as any;
+    if (filePath) relWhere.filePath = filePath;
+    const relationsAll = await this.relRepo!.find(relWhere, { fields: ['coverageMapHashId', 'fullFilePath'] });
+    const pathToHash = new Map<string, string>();
+    for (const r of relationsAll as any[]) {
+      if (!pathToHash.has(r.fullFilePath)) pathToHash.set(r.fullFilePath, r.coverageMapHashId);
+    }
+    const allHashes = Array.from(new Set(Array.from(pathToHash.values())));
+    const hashToMap = await this.fetchCoverageMapsFromClickHouse(allHashes);
+
+    // 4) 组装结果（命中 + 结构）并移除 instrument_cwd 前缀
     const trimPath = (p: string) => {
       if (!instrumentCwd) return p;
       let np = p.startsWith(instrumentCwd) ? p.slice(instrumentCwd.length) : p;
@@ -129,8 +140,17 @@ export class CoverageService {
     const result: Record<string, any> = {};
     for (const r of rows || []) {
       const path = trimPath(r.fullFilePath);
+      const hash = pathToHash.get(r.fullFilePath);
+      const structure = hash ? hashToMap.get(hash) : undefined;
       result[path] = {
         path,
+        ...(structure
+          ? {
+              statementMap: structure.statementMap,
+              fnMap: structure.fnMap,
+              branchMap: structure.branchMap
+            }
+          : {}),
         s: convertTupleToMap(r.s),
         f: convertTupleToMap(r.f),
         b: convertTupleToMap(r.b)
@@ -344,6 +364,7 @@ export class CoverageService {
     const res = await this.ch.getClient().query({ query, format: 'JSONEachRow' });
     const rows: Array<{ statementMap: Record<string, any>; fnMap: Record<string, any>; branchMap: Record<string, any>; coverageMapHashID: string }> = await res.json();
     for (const r of rows) {
+      // statement_map → { id: { start_line, start_column, end_line, end_column } }
       const normalizedStmt: Record<string, any> = {};
       const srcStmt = r.statementMap || {};
       for (const [id, tuple] of Object.entries(srcStmt)) {
@@ -356,21 +377,45 @@ export class CoverageService {
         };
       }
 
+      // fn_map → { id: { name, line, start_pos: [4], end_pos: [4] } }
       const normalizedFn: Record<string, any> = {};
       const srcFn = r.fnMap || {};
       for (const [id, tuple] of Object.entries(srcFn)) {
         const arr = Array.isArray(tuple) ? (tuple as any[]) : [];
-        // tuple shape: [name, someUInt, posA[4], posB[4]] → we only need end_pos
-        const posA = Array.isArray(arr[2]) ? (arr[2] as any[]) : [];
-        const posB = Array.isArray(arr[3]) ? (arr[3] as any[]) : [];
-        const endPos = posB.length === 4 ? posB : (posA.length === 4 ? posA : [0, 0, 0, 0]);
-        normalizedFn[id] = { end_pos: endPos };
+        const name = String(arr[0] ?? '');
+        const line = Number(arr[1] ?? 0);
+        const startPos = Array.isArray(arr[2]) ? (arr[2] as any[]) : [];
+        const endPos = Array.isArray(arr[3]) ? (arr[3] as any[]) : [];
+        normalizedFn[id] = {
+          name,
+          line,
+          start_pos: [Number(startPos[0] ?? 0), Number(startPos[1] ?? 0), Number(startPos[2] ?? 0), Number(startPos[3] ?? 0)],
+          end_pos: [Number(endPos[0] ?? 0), Number(endPos[1] ?? 0), Number(endPos[2] ?? 0), Number(endPos[3] ?? 0)]
+        };
+      }
+
+      // branch_map → { id: { type, line, position: [4], paths: [ [4], ... ] } }
+      const normalizedBranch: Record<string, any> = {};
+      const srcBranch = r.branchMap || {};
+      for (const [id, tuple] of Object.entries(srcBranch)) {
+        const arr = Array.isArray(tuple) ? (tuple as any[]) : [];
+        const type = Number(arr[0] ?? 0);
+        const line = Number(arr[1] ?? 0);
+        const posArr = Array.isArray(arr[2]) ? (arr[2] as any[]) : [];
+        const position = [Number(posArr[0] ?? 0), Number(posArr[1] ?? 0), Number(posArr[2] ?? 0), Number(posArr[3] ?? 0)];
+        const pathsArr = Array.isArray(arr[3]) ? (arr[3] as any[]) : [];
+        const paths: Array<[number, number, number, number]> = [];
+        for (const p of pathsArr) {
+          const pa = Array.isArray(p) ? (p as any[]) : [];
+          paths.push([Number(pa[0] ?? 0), Number(pa[1] ?? 0), Number(pa[2] ?? 0), Number(pa[3] ?? 0)]);
+        }
+        normalizedBranch[id] = { type, line, position, paths };
       }
 
       out.set(r.coverageMapHashID, {
         statementMap: normalizedStmt,
         fnMap: normalizedFn,
-        branchMap: r.branchMap || {}
+        branchMap: normalizedBranch
       });
     }
     return out;

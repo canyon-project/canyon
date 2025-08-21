@@ -22,6 +22,7 @@ export class CoverageController {
     return this.coverage.getSummaryMap(q);
   }
 
+  // 测试：{{url}}/api/coverage/map?provider=gitlab&subjectID=5fc91cca2ed37f3ca406cb38bef8a07d9684e430&repoID=86927&filePath=src/components/B0.tsx&subject=commit
   @Get('map')
   async getMap(@Query() q: MapQueryDto) {
     console.log(q)
