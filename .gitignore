@@ -57,3 +57,5 @@ old-packages
 old-website
 
 backend copy
+
+!packages/nodejs-backend/src/modules/coverage

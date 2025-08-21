@@ -1,0 +1,28 @@
+{
+  "name": "nodejs-backend",
+  "targets": {
+    "dev": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/nodejs-backend",
+        "command": "pnpm nest start --watch"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/nodejs-backend",
+        "command": "pnpm nest build"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/nodejs-backend",
+        "command": "node -e \"console.log('no tests')\""
+      }
+    }
+  }
+}
+
+
