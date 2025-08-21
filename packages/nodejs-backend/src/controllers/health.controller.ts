@@ -1,45 +1,35 @@
 import { Controller, Get, Optional } from '@nestjs/common';
-import type { MikroORM as MikroOrmType } from '@mikro-orm/core';
+import { MikroORM } from '@mikro-orm/core';
 import { ChService } from '../modules/ch/ch.service';
 
-@Controller('health')
+@Controller('vi/health')
 export class HealthController {
-  constructor(@Optional() private readonly orm?: MikroOrmType, private readonly ch?: ChService) {}
+  constructor(
+    private readonly chService: ChService,
+    @Optional() private readonly orm?: MikroORM
+  ) {}
 
   @Get()
   async ok() {
-    const response: Record<string, any> = {
-      status: 'ok',
-      message: '服务运行正常',
-      service: 'backend-nodejs'
-    };
+    const out: Record<string, any> = { status: 'ok', timestamp: new Date().toISOString(), services: {} };
 
-    // Postgres
+    // Postgres health (lightweight)
     try {
-      if (this.orm) {
-        await this.orm.em.getConnection().execute('select 1');
-        response.postgres = 'connected';
-      } else {
-        response.postgres = 'disabled';
-      }
-    } catch (err: any) {
-      response.status = 'error';
-      response.postgres = 'disconnected';
-      response.postgres_error = String(err?.message ?? err);
+      const pgRes = await this.orm?.em.getConnection().execute('SELECT 1');
+      out.services = { ...out.services, postgres: { ok: true, result: pgRes } };
+    } catch (e: any) {
+      out.services = { ...out.services, postgres: { ok: false, error: String(e?.message || e) } };
     }
 
-    // ClickHouse
+    // ClickHouse health
     try {
-      if (this.ch) {
-        await this.ch.getClient().ping();
-        response.clickhouse = 'connected';
-      }
-    } catch (err: any) {
-      response.clickhouse = 'disconnected';
-      response.clickhouse_error = String(err?.message ?? err);
+      const ck = await this.chService.getClient().ping();
+      out.services = { ...out.services, clickhouse: { ok: true, result: ck } };
+    } catch (e: any) {
+      out.services = { ...out.services, clickhouse: { ok: false, error: String(e?.message || e) } };
     }
 
-    return response;
+    return out;
   }
 }
 

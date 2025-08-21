@@ -4,7 +4,6 @@ import { RequestMethod } from '@nestjs/common';
 import * as dotenv from "dotenv";
 import { metricsMiddleware } from './middleware/metrics.middleware';
 import path from "node:path";
-// import { AppModule } from './app.module';
 dotenv.config({
   path: path.resolve(__dirname, "../../../.env"),
 });
