@@ -1,0 +1,36 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "postinstall": "npm run codegen",
+    "codegen": "graphql-codegen --config codegen.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format .",
+    "format:write": "biome format . --write",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@apollo/client": "^3",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@ibm/plex-mono": "^1.1.0",
+    "dayjs": "^1.11.13",
+    "graphql": "^16.11.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@babel/plugin-proposal-pipeline-operator": "^7.27.1",
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/client-preset": "^4.8.3",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "~5.8.3",
+    "vite": "^7.1.2"
+  }
+}
