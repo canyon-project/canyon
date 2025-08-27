@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "biome format .",
     "start": "nest start",
-    "start:dev": "nest start --watch",
+    "dev": "nest start --watch",
     "start:prod": "node dist/main",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",

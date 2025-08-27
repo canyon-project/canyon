@@ -9,7 +9,8 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format .",
-    "format:write": "biome format . --write"
+    "format:write": "biome format . --write",
+    "dev": "pnpm run -r dev"
   },
   "keywords": [],
   "author": "",
