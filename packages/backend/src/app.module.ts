@@ -3,7 +3,7 @@ import { Module } from '@nestjs/common'
 import { GraphQLModule } from '@nestjs/graphql'
 import { AppService } from './app.service'
 import { HelloResolver } from './hello.resolver'
-import {AppController} from "./app.controller";
+import { AppController } from './app.controller'
 
 @Module({
   imports: [

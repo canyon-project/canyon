@@ -7,7 +7,7 @@ import {
   InMemoryCache,
 } from '@apollo/client'
 import App from './App.tsx'
-import {BrowserRouter} from "react-router-dom";
+import { BrowserRouter } from 'react-router-dom'
 
 const client = new ApolloClient({
   link: new HttpLink({ uri: 'http://localhost:8080/graphql' }),

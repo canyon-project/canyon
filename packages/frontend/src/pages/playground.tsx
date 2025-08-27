@@ -1,8 +1,6 @@
-import BasicLayout from "../layouts/BasicLayout.tsx";
+import BasicLayout from '../layouts/BasicLayout.tsx'
 
 const PlaygroundPage = () => {
-  return <BasicLayout>
-    PlaygroundPage
-  </BasicLayout>
+  return <BasicLayout>PlaygroundPage</BasicLayout>
 }
 export default PlaygroundPage
