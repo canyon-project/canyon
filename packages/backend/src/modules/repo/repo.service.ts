@@ -1,7 +1,21 @@
 import { Injectable } from '@nestjs/common'
+import {InjectRepository} from "@mikro-orm/nestjs";
+import {CoverageEntity} from "../../entities/coverage.entity";
+import {EntityRepository} from "@mikro-orm/core";
+import {RepoEntity} from "../../entities/repo.entity";
 
 @Injectable()
 export class RepoService {
+  constructor(
+    @InjectRepository(CoverageEntity) private readonly repoRepo: EntityRepository<RepoEntity>,
+  ) {
+  }
+  async getRepo(id: string) {
+    return this.repoRepo.find({
+      pathWithNamespace:id
+    });
+  }
+
   async getRepos(keyword?: string) {
     // TODO: 接入数据库查询
     return { items: [], keyword: keyword ?? null }

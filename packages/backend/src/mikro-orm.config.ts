@@ -4,11 +4,12 @@ import { defineConfig } from '@mikro-orm/postgresql'
 import { ConfigEntity } from './entities/config.entity'
 import { CoverageEntity } from './entities/coverage.entity'
 import { CoverageMapRelationEntity } from './entities/coverage-map-relation.entity'
+import {RepoEntity} from "./entities/repo.entity";
 
 const logger = new Logger('MikroORM')
 
 export default defineConfig({
-  entities: [ConfigEntity, CoverageEntity, CoverageMapRelationEntity],
+  entities: [ConfigEntity, CoverageEntity, CoverageMapRelationEntity,RepoEntity],
   clientUrl: process.env.DATABASE_URL,
   highlighter: new SqlHighlighter(),
   debug: true,

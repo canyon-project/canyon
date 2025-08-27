@@ -3,6 +3,25 @@ import { RepoService } from './repo.service';
 import { Field, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
+class Repo {
+  @Field()
+  id!: string;
+
+  @Field()
+  pathWithNamespace!: string;
+
+  @Field()
+  description!: string;
+
+  @Field()
+  createdAt!: Date;
+
+  @Field()
+  updatedAt!: Date;
+}
+
+
+@ObjectType()
 class RepoList {
   @Field(() => [String])
   items!: string[];
@@ -52,21 +71,26 @@ class RepoMutationResult {
 
 @Resolver()
 export class RepoResolver {
-  constructor(private readonly repo: RepoService) {}
+  constructor(private readonly repoService: RepoService) {}
+
+  @Query(() => Repo)
+  repo(@Args('id', { type: () => String }) id: string) {
+    return this.repoService.getRepo(id);
+  }
 
   @Query(() => RepoList)
   repos(@Args('keyword', { type: () => String, nullable: true }) keyword?: string) {
-    return this.repo.getRepos(keyword);
+    return this.repoService.getRepos(keyword);
   }
 
   @Query(() => RepoCommits)
   repoCommits(@Args('repoID', { type: () => String }) repoID: string) {
-    return this.repo.getRepoCommits(repoID);
+    return this.repoService.getRepoCommits(repoID);
   }
 
   @Query(() => RepoPulls)
   repoPulls(@Args('repoID', { type: () => String }) repoID: string) {
-    return this.repo.getRepoPulls(repoID);
+    return this.repoService.getRepoPulls(repoID);
   }
 
   @Query(() => RepoCommitDetail)
@@ -74,12 +98,12 @@ export class RepoResolver {
     @Args('repoID', { type: () => String }) repoID: string,
     @Args('sha', { type: () => String }) sha: string
   ) {
-    return this.repo.getRepoCommitBySHA(repoID, sha);
+    return this.repoService.getRepoCommitBySHA(repoID, sha);
   }
 
   @Mutation(() => RepoMutationResult)
   postRepoById(@Args('id', { type: () => String }) id: string) {
-    return this.repo.postRepoById(id);
+    return this.repoService.postRepoById(id);
   }
 }
 
