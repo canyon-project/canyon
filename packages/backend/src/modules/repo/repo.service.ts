@@ -1,19 +1,19 @@
 import { Injectable } from '@nestjs/common'
 import {InjectRepository} from "@mikro-orm/nestjs";
-import {CoverageEntity} from "../../entities/coverage.entity";
 import {EntityRepository} from "@mikro-orm/core";
 import {RepoEntity} from "../../entities/repo.entity";
 
 @Injectable()
 export class RepoService {
   constructor(
-    @InjectRepository(CoverageEntity) private readonly repoRepo: EntityRepository<RepoEntity>,
+    @InjectRepository(RepoEntity) private readonly repoRepo?: EntityRepository<RepoEntity>,
   ) {
   }
   async getRepo(id: string) {
-    return this.repoRepo.find({
+    const r = await this.repoRepo?.find({
       pathWithNamespace:id
     });
+    return r
   }
 
   async getRepos(keyword?: string) {
