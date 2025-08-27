@@ -46,7 +46,6 @@ type RepoMutationResult {
 }
 
 type Query {
-  hello: String!
   repo(id: String!): Repo!
   repos(keyword: String): RepoList!
   repoCommits(repoID: String!): RepoCommits!

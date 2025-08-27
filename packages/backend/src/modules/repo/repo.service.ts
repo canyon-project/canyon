@@ -13,7 +13,6 @@ export class RepoService {
     const r = await this.repoRepo?.findOne({
       pathWithNamespace:id
     });
-    console.log(JSON.parse(JSON.stringify(r)))
     return r
   }
 

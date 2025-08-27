@@ -1,8 +1,6 @@
 import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo'
 import { Module } from '@nestjs/common'
 import { GraphQLModule } from '@nestjs/graphql'
-import { AppService } from './app.service'
-import { HelloResolver } from './hello.resolver'
 import { AppController } from './app.controller'
 import { ConfigModule } from '@nestjs/config'
 import { ChModule } from './modules/ch/ch.module'
@@ -26,7 +24,6 @@ import {MikroOrmModule} from "@mikro-orm/nestjs";
       driver: ApolloDriver,
     }),
   ],
-  controllers: [AppController],
-  providers: [AppService, HelloResolver],
+  controllers: [AppController]
 })
 export class AppModule {}
