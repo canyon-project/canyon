@@ -4,13 +4,13 @@ import { GraphQLModule } from '@nestjs/graphql'
 import { AppService } from './app.service'
 import { HelloResolver } from './hello.resolver'
 import { AppController } from './app.controller'
-import {ConfigModule} from "@nestjs/config";
-import {OrmModule} from "./modules/orm/orm.module";
-import {ChModule } from './modules/ch/ch.module'
-import {CodeModule} from "./modules/code/code.module";
-import {SystemConfigModule} from "./modules/system-config/system-config.module";
-import {RepoModule} from "./modules/repo/repo.module";
-import {CoverageModule} from "./modules/coverage/coverage.module";
+import { ConfigModule } from '@nestjs/config'
+import { OrmModule } from './modules/orm/orm.module'
+import { ChModule } from './modules/ch/ch.module'
+import { CodeModule } from './modules/code/code.module'
+import { SystemConfigModule } from './modules/system-config/system-config.module'
+import { RepoModule } from './modules/repo/repo.module'
+import { CoverageModule } from './modules/coverage/coverage.module'
 
 @Module({
   imports: [
