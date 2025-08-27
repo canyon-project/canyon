@@ -1,5 +1,5 @@
 import BasicLayout from '../layouts/BasicLayout.tsx'
-import { useEffect, useMemo, useState } from 'react'
+import {useEffect, useMemo, useRef, useState} from 'react'
 import { Form, Input, Select, Button, Card } from 'antd'
 import CanyonReport from 'canyon-report'
 import { useSearchParams } from 'react-router-dom'
@@ -7,6 +7,7 @@ import { useRequest } from 'ahooks'
 import axios from 'axios'
 import {useQuery} from "@apollo/client";
 import {RepoDocument} from "@/helpers/backend/gen/graphql.ts";
+import { handleSelectFileBySubject } from '@/helpers/report.ts'
 
 const PlaygroundPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -29,26 +30,11 @@ const PlaygroundPage = () => {
     [searchParams],
   )
 
-  const [queryVars, setQueryVars] = useState(() => ({
-    repoID: searchParams.get('repoID') || '115474',
-    sha:
-      searchParams.get('subjectID') ||
-      '145d37a694a2a93e44b2751510a19f5b82afac37',
-    filepath:
-      searchParams.get('filePath') || 'web/react-ui/overlay/placement.ts',
-  }))
+  const hasAutoRanRef = useRef(false)
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues)
-    setQueryVars((prev) => ({
-      ...prev,
-      repoID: initialFormValues.repoID || prev.repoID,
-      sha: initialFormValues.subjectID || prev.sha,
-      filepath: initialFormValues.filePath || prev.filepath,
-    }))
   }, [initialFormValues])
-
-  // 这里的 queryVars 预留给需要联动请求的场景
 
   const onFinish = (values: any) => {
     const nextParams: Record<string, string> = {}
@@ -59,13 +45,6 @@ const PlaygroundPage = () => {
     setSearchParams(nextParams)
 
     run(nextParams)
-
-    setQueryVars((prev) => ({
-      ...prev,
-      repoID: values.repoID || prev.repoID,
-      sha: values.subjectID || prev.sha,
-      filepath: values.filePath || prev.filepath,
-    }))
   }
 
   const { run, data } = useRequest(
@@ -79,6 +58,67 @@ const PlaygroundPage = () => {
       manual: true,
     },
   )
+
+  const [activatedPath, setActivatedPath] = useState<string | undefined>('');
+
+  type SubjectType = 'commit' | 'commits' | 'pull' | 'pulls' | 'multiple-commits' | 'multi-commits'
+  const isSubjectType = (s: string): s is SubjectType =>
+    ['commit', 'commits', 'pull', 'pulls', 'multiple-commits', 'multi-commits'].includes(s as any)
+
+  function onSelect(val: string) {
+    setActivatedPath(val);
+    if (!val.includes('.')) {
+      return Promise.resolve({ fileContent: '', fileCoverage: {}, fileCodeChange: [] });
+    }
+
+    const {
+      repoID: repoIdFromUrl,
+      subject,
+      subjectID,
+      provider,
+      buildProvider,
+      buildID,
+      reportProvider,
+      reportID,
+    } = initialFormValues;
+
+    const repoID = repoIdFromUrl || (repoData?.repo?.id ?? '');
+
+    if (!repoID || !subject || !subjectID || !isSubjectType(subject)) {
+      return Promise.resolve({ fileContent: '', fileCoverage: {}, fileCodeChange: [] });
+    }
+
+    return handleSelectFileBySubject({
+      repoID,
+      subject,
+      subjectID,
+      filepath: val,
+      provider: provider || undefined,
+      buildProvider: buildProvider || undefined,
+      buildID: buildID || undefined,
+      reportProvider: reportProvider || undefined,
+      reportID: reportID || undefined,
+    }).then((res) => ({
+      fileContent: res.fileContent,
+      fileCoverage: res.fileCoverage,
+      fileCodeChange: res.fileCodeChange,
+    }));
+  }
+
+  // 首次进入且必要参数齐全时自动请求
+  useEffect(() => {
+    if (hasAutoRanRef.current) return
+    const { subject, subjectID, provider, repoID, buildProvider, buildID } = initialFormValues
+    const required = [subject, subjectID, provider, repoID, buildProvider, buildID]
+    if (required.every((v) => v && String(v).length > 0)) {
+      hasAutoRanRef.current = true
+      const nextParams: Record<string, string> = {}
+      Object.entries(initialFormValues || {}).forEach(([k, v]) => {
+        if (v !== undefined && v !== null && String(v).length > 0) nextParams[k] = String(v)
+      })
+      run(nextParams)
+    }
+  }, [initialFormValues, run])
 
   const {data:repoData} = useQuery(RepoDocument,{
     variables:{
@@ -141,7 +181,7 @@ const PlaygroundPage = () => {
             </div>
           </Form>
         </Card>
-        <CanyonReport name={repoData?.repo.pathWithNamespace.split('/')[1]} dataSource={data} />
+        <CanyonReport value={activatedPath} name={repoData?.repo.pathWithNamespace.split('/')[1]} dataSource={data} onSelect={onSelect} />
         {/* 编辑器预览占位 */}
       </Card>
     </BasicLayout>
