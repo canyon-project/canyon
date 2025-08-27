@@ -2,6 +2,48 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type CodeFileContent {
+  content: String
+}
+
+type RepoList {
+  items: [String!]!
+  keyword: String
+}
+
+type RepoCommits {
+  repoID: String!
+  commits: [String!]!
+}
+
+type RepoPulls {
+  repoID: String!
+  pulls: [String!]!
+}
+
+type RepoCommitDetail {
+  repoID: String!
+  sha: String!
+  commit: String
+}
+
+type RepoMutationResult {
+  ok: Boolean!
+  id: String!
+}
+
 type Query {
   hello: String!
+  repos(keyword: String): RepoList!
+  repoCommits(repoID: String!): RepoCommits!
+  repoPulls(repoID: String!): RepoPulls!
+  repoCommitBySHA(repoID: String!, sha: String!): RepoCommitDetail!
+  codeFileContent(repoID: String!, filepath: String!, sha: String, pullNumber: String, provider: String): CodeFileContent!
+  codePullRequest(projectID: String!, pullRequestID: String!): String!
+  codePullRequestChanges(projectID: String!, pullRequestID: String!): String!
+  codeProjectByPath(path: String!): String!
+}
+
+type Mutation {
+  postRepoById(id: String!): RepoMutationResult!
 }

@@ -58,5 +58,5 @@ old-website
 
 backend copy
 
-!packages/nodejs-backend/src/modules/coverage
+!packages/backend/src/modules/coverage
 packages/orm-demo

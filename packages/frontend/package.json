@@ -20,9 +20,12 @@
     "@apollo/client": "^3",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@ibm/plex-mono": "^1.1.0",
+    "@monaco-editor/react": "^4.7.0",
     "antd": "^5.27.1",
     "dayjs": "^1.11.13",
     "graphql": "^16.11.0",
+    "monaco-editor": "^0.52.2",
+    "monaco-themes": "^0.4.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.2"
