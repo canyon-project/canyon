@@ -6,6 +6,7 @@ import { CoverageEntity } from '../../entities/coverage.entity';
 import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
 import { ChService } from '../ch/ch.service';
 import { SystemConfigService } from '../system-config/system-config.service';
+import { tupleToMap, trimInstrumentCwd, mergeStatementHitsByBlock, mergeFunctionHitsByBlock } from './coverage.utils';
 
 interface OverviewQuery {
   subject: string;
@@ -116,26 +117,7 @@ export class CoverageService {
     const hashToMap = await this.fetchCoverageMapsFromClickHouse(allHashes);
 
     // 4) 组装结果（命中 + 结构）并移除 instrument_cwd 前缀
-    const trimPath = (p: string) => {
-      if (!instrumentCwd) return p;
-      let np = p.startsWith(instrumentCwd) ? p.slice(instrumentCwd.length) : p;
-      if (np.startsWith('/')) np = np.slice(1);
-      return np;
-    };
-
-    const convertTupleToMap = (tuple: any): Record<string, number> => {
-      // tuple = [keys[], values[]]
-      if (!Array.isArray(tuple) || tuple.length !== 2) return {} as any;
-      const [keys, values] = tuple as [any[], any[]];
-      const out: Record<string, number> = {};
-      const len = Math.min(keys?.length ?? 0, values?.length ?? 0);
-      for (let i = 0; i < len; i++) {
-        const k = String(keys[i]);
-        const v = Number(values[i] ?? 0);
-        out[k] = v;
-      }
-      return out;
-    };
+    const trimPath = (p: string) => trimInstrumentCwd(p, instrumentCwd);
 
     const result: Record<string, any> = {};
     for (const r of rows || []) {
@@ -151,9 +133,9 @@ export class CoverageService {
               branchMap: structure.branchMap
             }
           : {}),
-        s: convertTupleToMap(r.s),
-        f: convertTupleToMap(r.f),
-        b: convertTupleToMap(r.b)
+        s: tupleToMap(r.s),
+        f: tupleToMap(r.f),
+        b: tupleToMap(r.b)
       };
     }
     return result;
@@ -253,14 +235,7 @@ export class CoverageService {
       }
     }
 
-    const tupleToMap = (t: any) => {
-      if (!Array.isArray(t) || t.length !== 2) return {} as Record<string, number>;
-      const [k, v] = t as [any[], any[]];
-      const out: Record<string, number> = {};
-      const len = Math.min(k?.length ?? 0, v?.length ?? 0);
-      for (let i = 0; i < len; i++) out[String(k[i])] = Number(v[i] ?? 0);
-      return out;
-    };
+    // 使用工具函数 tupleToMap
 
     // aggregate
     const aggregated = new Map<string, { S: Record<string, number>; F: Record<string, number>; B: Record<string, number> }>();
@@ -282,7 +257,7 @@ export class CoverageService {
       const cov = covByID.get(row.coverageID);
       if (!cov) continue;
       const isBaseline = baseSet.has(row.coverageID);
-      const relPath = this.trimInstrumentCwd(row.fullFilePath, (cov as any).instrumentCwd || '');
+      const relPath = trimInstrumentCwd(row.fullFilePath, (cov as any).instrumentCwd || '');
       let include = isBaseline;
       if (!isBaseline) {
         const changed = changesBySha.get(cov.sha);
@@ -308,18 +283,18 @@ export class CoverageService {
       const otherMap = hashToMap.get(otherHash);
       if (!baseMap || !otherMap) continue;
 
-      const baseRel = this.trimInstrumentCwd(row.fullFilePath, baselineCwd);
+      const baseRel = trimInstrumentCwd(row.fullFilePath, baselineCwd);
       const otherRel = relPath;
       const baseContent = await this.fetchGitLabFile(baseUrl, projectId, headSha, baseRel, headers).catch(() => '');
       const otherContent = await this.fetchGitLabFile(baseUrl, projectId, cov.sha, otherRel, headers).catch(() => '');
-      const stmtInc = this.mergeStatementHitsByBlock(
+      const stmtInc = mergeStatementHitsByBlock(
         baseContent,
         baseMap.statementMap,
         otherContent,
         otherMap.statementMap,
         tupleToMap(row.s)
       );
-      const fnInc = this.mergeFunctionHitsByBlock(
+      const fnInc = mergeFunctionHitsByBlock(
         baseContent,
         baseMap.fnMap,
         otherContent,
@@ -334,7 +309,7 @@ export class CoverageService {
     // build result using baseline cwd to trim paths
     const out: Record<string, any> = {};
     for (const [absPath, agg] of aggregated) {
-      const path = this.trimInstrumentCwd(absPath, baselineCwd);
+      const path = trimInstrumentCwd(absPath, baselineCwd);
       out[path] = { path, s: agg.S, f: agg.F, b: agg.B };
     }
     return out;
@@ -429,119 +404,6 @@ export class CoverageService {
     return resp.data as string;
   }
 
-  private canonicalizeSnippet(s: string): string {
-    return s.replace(/\s+/g, '');
-  }
-  private computeLineStarts(content: string): number[] {
-    const starts = [0];
-    for (let i = 0; i < content.length; i++) if (content[i] === '\n') starts.push(i + 1);
-    return starts;
-  }
-  private posToOffset(line: number, col: number, starts: number[]): number {
-    let idx = Math.max(0, Math.min(starts.length - 1, line - 1));
-    return starts[idx] + col;
-  }
-  private sliceByStmtLoc(content: string, info: any, starts: number[]): [string, number] {
-    const start = this.posToOffset(Number(info.start_line || info.startLine || 0), Number(info.start_column || info.startColumn || 0), starts);
-    const end = this.posToOffset(Number(info.end_line || info.endLine || 0), Number(info.end_column || info.endColumn || 0), starts);
-    const s = Math.max(0, Math.min(start, content.length));
-    const e = Math.max(s, Math.min(end, content.length));
-    return [content.slice(s, e), s];
-  }
-  private buildStmtHashGroups(content: string, stmtMap: Record<string, any>): Map<string, Array<{ id: string; pos: number }>> {
-    const groups = new Map<string, Array<{ id: string; pos: number }>>();
-    if (!stmtMap) return groups;
-    const starts = this.computeLineStarts(content);
-    for (const [id, st] of Object.entries(stmtMap)) {
-      const [code, pos] = this.sliceByStmtLoc(content, st, starts);
-      const h = this.canonicalizeSnippet(code);
-      const arr = groups.get(h) || [];
-      arr.push({ id, pos });
-      groups.set(h, arr);
-    }
-    for (const [h, arr] of groups) arr.sort((a, b) => a.pos - b.pos), groups.set(h, arr);
-    return groups;
-  }
-  private sliceByFnLoc(content: string, info: any, starts: number[]): [string, number] {
-    const endPos = info.end_pos || info.endPos || [0, 0, 0, 0];
-    const start = this.posToOffset(Number(endPos[0] || 0), Number(endPos[1] || 0), starts);
-    const end = this.posToOffset(Number(endPos[2] || 0), Number(endPos[3] || 0), starts);
-    const s = Math.max(0, Math.min(start, content.length));
-    const e = Math.max(s, Math.min(end, content.length));
-    return [content.slice(s, e), s];
-  }
-  private buildFnHashGroups(content: string, fnMap: Record<string, any>): Map<string, Array<{ id: string; pos: number }>> {
-    const groups = new Map<string, Array<{ id: string; pos: number }>>();
-    if (!fnMap) return groups;
-    const starts = this.computeLineStarts(content);
-    for (const [id, fn] of Object.entries(fnMap)) {
-      const [code, pos] = this.sliceByFnLoc(content, fn, starts);
-      const h = this.canonicalizeSnippet(code);
-      const arr = groups.get(h) || [];
-      arr.push({ id, pos });
-      groups.set(h, arr);
-    }
-    for (const [h, arr] of groups) arr.sort((a, b) => a.pos - b.pos), groups.set(h, arr);
-    return groups;
-  }
-  private mergeStatementHitsByBlock(baseContent: string, baseStmtMap: Record<string, any>, otherContent: string, otherStmtMap: Record<string, any>, otherHits: Record<string, number>): Record<string, number> {
-    const result: Record<string, number> = {};
-    if (!baseStmtMap || !otherStmtMap || !otherHits) return result;
-    const baseGroups = this.buildStmtHashGroups(baseContent, baseStmtMap);
-    const otherGroups = this.buildStmtHashGroups(otherContent, otherStmtMap);
-    for (const [h, baseNodes] of baseGroups) {
-      const otherNodes = otherGroups.get(h);
-      if (!otherNodes || otherNodes.length === 0) continue;
-      const used = new Array<boolean>(otherNodes.length).fill(false);
-      for (const bn of baseNodes) {
-        let best = -1;
-        let bestDist = Number.MAX_SAFE_INTEGER;
-        for (let i = 0; i < otherNodes.length; i++) {
-          if (used[i]) continue;
-          const d = Math.abs(bn.pos - otherNodes[i].pos);
-          if (d < bestDist) {
-            bestDist = d;
-            best = i;
-          }
-        }
-        if (best >= 0) {
-          used[best] = true;
-          const inc = otherHits[String(otherNodes[best].id)] || 0;
-          if (inc > 0) result[String(bn.id)] = (result[String(bn.id)] || 0) + inc;
-        }
-      }
-    }
-    return result;
-  }
-  private mergeFunctionHitsByBlock(baseContent: string, baseFnMap: Record<string, any>, otherContent: string, otherFnMap: Record<string, any>, otherHits: Record<string, number>): Record<string, number> {
-    const result: Record<string, number> = {};
-    if (!baseFnMap || !otherFnMap || !otherHits) return result;
-    const baseGroups = this.buildFnHashGroups(baseContent, baseFnMap);
-    const otherGroups = this.buildFnHashGroups(otherContent, otherFnMap);
-    for (const [h, baseNodes] of baseGroups) {
-      const otherNodes = otherGroups.get(h);
-      if (!otherNodes || otherNodes.length === 0) continue;
-      const used = new Array<boolean>(otherNodes.length).fill(false);
-      for (const bn of baseNodes) {
-        let best = -1;
-        let bestDist = Number.MAX_SAFE_INTEGER;
-        for (let i = 0; i < otherNodes.length; i++) {
-          if (used[i]) continue;
-          const d = Math.abs(bn.pos - otherNodes[i].pos);
-          if (d < bestDist) {
-            bestDist = d;
-            best = i;
-          }
-        }
-        if (best >= 0) {
-          used[best] = true;
-          const inc = otherHits[String(otherNodes[best].id)] || 0;
-          if (inc > 0) result[String(bn.id)] = (result[String(bn.id)] || 0) + inc;
-        }
-      }
-    }
-    return result;
-  }
 }
 
 
