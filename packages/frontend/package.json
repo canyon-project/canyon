@@ -15,22 +15,29 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "@ant-design/pro-components": "^2.8.10",
     "@apollo/client": "^3",
     "@graphql-typed-document-node/core": "^3.2.0",
     "@ibm/plex-mono": "^1.1.0",
+    "antd": "^5.27.1",
     "dayjs": "^1.11.13",
     "graphql": "^16.11.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "react-router-dom": "^7.8.2"
   },
   "devDependencies": {
     "@babel/plugin-proposal-pipeline-operator": "^7.27.1",
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/client-preset": "^4.8.3",
+    "@tailwindcss/vite": "^4.1.12",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",
+    "tailwindcss": "^4.1.12",
     "typescript": "~5.8.3",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "vite-plugin-pages": "^0.33.1"
   }
 }
