@@ -6,8 +6,9 @@ import { useSearchParams } from 'react-router-dom'
 import { useRequest } from 'ahooks'
 import axios from 'axios'
 import {useQuery} from "@apollo/client";
-import {RepoDocument} from "@/helpers/backend/gen/graphql.ts";
+import { RepoDocument} from "@/helpers/backend/gen/graphql.ts";
 import { handleSelectFileBySubject } from '@/helpers/report.ts'
+
 
 const PlaygroundPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -98,11 +99,14 @@ const PlaygroundPage = () => {
       buildID: buildID || undefined,
       reportProvider: reportProvider || undefined,
       reportID: reportID || undefined,
-    }).then((res) => ({
-      fileContent: res.fileContent,
-      fileCoverage: res.fileCoverage,
-      fileCodeChange: res.fileCodeChange,
-    }));
+    }).then((res) => {
+      console.log(res)
+      return {
+        fileContent: res.fileContent,
+        fileCoverage: res.fileCoverage,
+        fileCodeChange: res.fileCodeChange,
+      }
+    });
   }
 
   // 首次进入且必要参数齐全时自动请求
@@ -125,6 +129,14 @@ const PlaygroundPage = () => {
       id: 'canyon-project/canyon'
     }
   })
+
+  // const {data:codeFileContentData} = useQuery(CodeFileContentDocument,{
+  //   variables:{
+  //     repoID:'1',
+  //     filepath:'f',
+  //     sha:'df'
+  //   }
+  // })
 
   return (
     <BasicLayout>
@@ -181,7 +193,9 @@ const PlaygroundPage = () => {
             </div>
           </Form>
         </Card>
-        <CanyonReport value={activatedPath} name={repoData?.repo.pathWithNamespace.split('/')[1]} dataSource={data} onSelect={onSelect} />
+        <div className={'h-[500px]'}>
+          <CanyonReport value={activatedPath} name={repoData?.repo.pathWithNamespace.split('/')[1]} dataSource={data} onSelect={onSelect} />
+        </div>
         {/* 编辑器预览占位 */}
       </Card>
     </BasicLayout>

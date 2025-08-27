@@ -285,23 +285,86 @@ export class CoverageService {
     // 4) 组装结果（命中 + 结构）并移除 instrument_cwd 前缀
     const trimPath = (p: string) => trimInstrumentCwd(p, instrumentCwd);
 
+    const kong = {
+      "statementMap": {
+        "0": {
+          "start": {
+            "line": 1,
+            "column": 11
+          },
+          "end": {
+            "line": 5,
+            "column": 1
+          }
+        },
+        "1": {
+          "start": {
+            "line": 2,
+            "column": 2
+          },
+          "end": {
+            "line": 4,
+            "column": 8
+          }
+        }
+      },
+      "fnMap": {
+        "0": {
+          "name": "(anonymous_0)",
+          "decl": {
+            "start": {
+              "line": 1,
+              "column": 11
+            },
+            "end": {
+              "line": 1,
+              "column": 12
+            }
+          },
+          "loc": {
+            "start": {
+              "line": 1,
+              "column": 17
+            },
+            "end": {
+              "line": 5,
+              "column": 1
+            }
+          },
+          "line": 1
+        }
+      },
+      "branchMap": {},
+      "path": "src/components/A0.tsx",
+      "s": {
+        "0": 105,
+        "1": 105
+      },
+      "f": {
+        "0": 105
+      },
+      "b": {},
+      "oldPath": "src/components/A0.tsx"
+    }
+
     const result: Record<string, any> = {};
     for (const r of rows || []) {
       const path = trimPath(r.fullFilePath);
       const hash = pathToHash.get(r.fullFilePath);
       const structure = hash ? hashToMap.get(hash) : undefined;
       result[path] = {
-        path,
-        ...(structure
-          ? {
-              statementMap: structure.statementMap,
-              fnMap: structure.fnMap,
-              branchMap: structure.branchMap
-            }
-          : {}),
-        s: tupleToMap(r.s),
-        f: tupleToMap(r.f),
-        b: tupleToMap(r.b)
+        // path,
+        // ...(structure
+        //   ? {
+        //       statementMap: structure.statementMap,
+        //       fnMap: structure.fnMap,
+        //       branchMap: structure.branchMap
+        //     }
+        //   : {}),
+        // s: tupleToMap(r.s),
+        // f: tupleToMap(r.f),
+        // b: tupleToMap(r.b),
+        ...kong
       };
     }
     return result;

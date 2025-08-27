@@ -41,8 +41,16 @@ export function handleSelectFileBySubject({
   }
 
   const fileContentRequest = axios
-    .get('/api/code', { params: codeParams })
-    .then(({ data }) => data);
+    .post('/graphql', {
+      "operationName": "CodeFileContent",
+      "variables": {
+        "repoID": codeParams.repoID,
+        "filepath": codeParams.filepath,
+        "sha": codeParams.sha
+      },
+      "query": "query CodeFileContent($repoID: String!, $filepath: String!, $sha: String, $pullNumber: String, $provider: String) {\n  codeFileContent(\n    repoID: $repoID\n    filepath: $filepath\n    sha: $sha\n    pullNumber: $pullNumber\n    provider: $provider\n  ) {\n    content\n    __typename\n  }\n}"
+    })
+    .then(({ data }) => data.data.codeFileContent);
 
   const fileCoverageParams: Record<string, any> = {
     provider,
