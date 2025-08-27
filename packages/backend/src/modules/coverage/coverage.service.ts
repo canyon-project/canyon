@@ -8,12 +8,6 @@ import { ChService } from '../ch/ch.service';
 import { SystemConfigService } from '../system-config/system-config.service';
 import { tupleToMap, trimInstrumentCwd, mergeStatementHitsByBlock, mergeFunctionHitsByBlock } from './coverage.utils';
 
-interface OverviewQuery {
-  subject: string;
-  subjectID: string;
-  provider: string;
-  repoID: string;
-}
 
 @Injectable()
 export class CoverageService {
@@ -24,25 +18,6 @@ export class CoverageService {
     @InjectRepository(CoverageEntity) private readonly covRepo?: EntityRepository<CoverageEntity>,
     @InjectRepository(CoverageMapRelationEntity) private readonly relRepo?: EntityRepository<CoverageMapRelationEntity>
   ) {}
-  async getOverview(q: OverviewQuery) {
-    const { subject, subjectID, provider, repoID } = q;
-    if (!provider || !repoID || !subject || !subjectID) {
-      throw new BadRequestException('provider, repoID, subject, subjectID are required');
-    }
-    switch (subject) {
-      case 'commit':
-      case 'commits':
-        // TODO: 接入真实的覆盖率查询
-        return { type: 'commit', repoID, sha: subjectID };
-      case 'pull':
-      case 'pulls':
-        // TODO: 接入真实的覆盖率查询
-        return { type: 'pull', repoID, pullNumber: subjectID };
-      default:
-        throw new BadRequestException('invalid subject');
-    }
-  }
-
   async getSummaryMap(q: any) {
     const { subject, subjectID, provider, repoID, buildProvider, buildID } = q ?? {};
     if (!provider || !repoID || !subject || !subjectID) {
@@ -55,24 +30,7 @@ export class CoverageService {
     return { ok: true, kind: 'summary-map', subject, subjectID };
   }
 
-  async getMap(q: any) {
-    const { subject, subjectID, provider, repoID, buildProvider, buildID, filePath, mode } = q ?? {};
-    if (!provider || !repoID || !subject || !subjectID) {
-      throw new BadRequestException('provider, repoID, subject, subjectID are required');
-    }
-
-    if (subject === 'commit' || subject === 'commits') {
-      return this.getMapForCommit({ provider, repoID, sha: subjectID, buildProvider, buildID, filePath });
-    }
-
-    if (subject === 'pull' || subject === 'pulls') {
-      return this.getMapForPull({ provider, repoID, pullNumber: subjectID, buildProvider, buildID, filePath, mode });
-    }
-
-    throw new BadRequestException('invalid subject');
-  }
-
-  private async getMapForCommit({ provider, repoID, sha, buildProvider, buildID, filePath }: { provider: string; repoID: string; sha: string; buildProvider?: string; buildID?: string; filePath?: string }) {
+  async getMapForCommit({ provider, repoID, sha, buildProvider, buildID, filePath }: { provider: string; repoID: string; sha: string; buildProvider?: string; buildID?: string; filePath?: string }) {
     if (!this.orm || !this.ch) {
       // Postgres 或 ClickHouse 未配置时，返回空对象
       return {};
@@ -141,7 +99,7 @@ export class CoverageService {
     return result;
   }
 
-  private async getMapForPull({ provider, repoID, pullNumber, buildProvider, buildID, filePath, mode }: { provider: string; repoID: string; pullNumber: string; buildProvider?: string; buildID?: string; filePath?: string; mode?: string }) {
+  async getMapForPull({ provider, repoID, pullNumber, buildProvider, buildID, filePath, mode }: { provider: string; repoID: string; pullNumber: string; buildProvider?: string; buildID?: string; filePath?: string; mode?: string }) {
     if (!this.orm || !this.ch) return {};
     if (provider !== 'gitlab') return {};
 
@@ -313,13 +271,6 @@ export class CoverageService {
       out[path] = { path, s: agg.S, f: agg.F, b: agg.B };
     }
     return out;
-  }
-
-  private trimInstrumentCwd(p: string, instrumentCwd: string): string {
-    if (!instrumentCwd) return p;
-    let np = p.startsWith(instrumentCwd) ? p.slice(instrumentCwd.length) : p;
-    if (np.startsWith('/')) np = np.slice(1);
-    return np;
   }
 
   private async fetchCoverageMapsFromClickHouse(hashList: string[]) {

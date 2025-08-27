@@ -5,7 +5,7 @@ import { getDecode } from '../helpers/code.ts';
 import {Editor} from "@monaco-editor/react";
 import {useState} from 'react'
 import { Form, Input, Select, Button, Card } from 'antd'
-
+import CanyonReport from 'canyon-report'
 const PlaygroundPage = () => {
   const [queryVars, setQueryVars] = useState({
     repoID: "115474",
@@ -26,7 +26,7 @@ const PlaygroundPage = () => {
   }
 
   return <BasicLayout>
-    <div className="p-4">
+    <Card className="p-4">
       <Card className="mb-4">
         <Form layout="vertical" onFinish={onFinish} className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3">
           <Form.Item label="provider" name="provider">
@@ -72,8 +72,9 @@ const PlaygroundPage = () => {
           </div>
         </Form>
       </Card>
-      <Editor value={getDecode(data?.codeFileContent?.content||'')} height="500px" language={'javascript'} />
-    </div>
+      <CanyonReport/>
+      {/*<Editor value={getDecode(data?.codeFileContent?.content||'')} height="500px" language={'javascript'} />*/}
+    </Card>
   </BasicLayout>
 }
 export default PlaygroundPage

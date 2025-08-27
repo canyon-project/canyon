@@ -60,3 +60,5 @@ backend copy
 
 !packages/backend/src/modules/coverage
 packages/orm-demo
+
+packages/old-backend

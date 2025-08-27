@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 import { CoverageService } from './coverage.service';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
 import { MapQueryDto } from './dto/map.dto';
@@ -7,26 +7,50 @@ import { MapQueryDto } from './dto/map.dto';
 export class CoverageController {
   constructor(private readonly coverage: CoverageService) {}
 
-  @Get('overview')
-  async getOverview(
-    @Query('subject') subject: string,
-    @Query('subjectID') subjectID: string,
-    @Query('provider') provider: string,
-    @Query('repoID') repoID: string
-  ) {
-    return this.coverage.getOverview({ subject, subjectID, provider, repoID });
-  }
-
   @Get('summary/map')
   async getSummaryMap(@Query() q: SummaryMapQueryDto) {
-    return this.coverage.getSummaryMap(q);
+    const { subject } = q;
+    switch (subject) {
+      case 'commit':
+      case 'commits':
+        return this.coverage.getSummaryMap(q);
+      case 'pull':
+      case 'pulls':
+        return this.coverage.getSummaryMap(q);
+      default:
+        throw new BadRequestException('invalid subject');
+    }
   }
 
   // 测试：{{url}}/api/coverage/map?provider=gitlab&subjectID=5fc91cca2ed37f3ca406cb38bef8a07d9684e430&repoID=86927&filePath=src/components/B0.tsx&subject=commit
   @Get('map')
   async getMap(@Query() q: MapQueryDto) {
-    console.log(q)
-    return this.coverage.getMap(q);
+    const { subject } = q;
+    switch (subject) {
+      case 'commit':
+      case 'commits':
+        return this.coverage.getMapForCommit({
+          provider: q.provider,
+          repoID: q.repoID,
+          sha: q.subjectID,
+          buildProvider: q.buildProvider,
+          buildID: q.buildID,
+          filePath: q.filePath
+        });
+      case 'pull':
+      case 'pulls':
+        return this.coverage.getMapForPull({
+          provider: q.provider,
+          repoID: q.repoID,
+          pullNumber: q.subjectID,
+          buildProvider: q.buildProvider,
+          buildID: q.buildID,
+          filePath: q.filePath,
+          mode: q.mode
+        });
+      default:
+        throw new BadRequestException('invalid subject');
+    }
   }
 }
 
