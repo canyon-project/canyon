@@ -60,7 +60,14 @@ const PlaygroundPage = () => {
     },
   )
 
-  const [activatedPath, setActivatedPath] = useState<string | undefined>('');
+  const [activatedPath, setActivatedPath] = useState<string | undefined>(searchParams.get('filePath')||'');
+
+  useEffect(() => {
+    setSearchParams({
+      ...Object.fromEntries(searchParams.entries()),
+      filePath: activatedPath || '',
+    })
+  }, [activatedPath]);
 
   type SubjectType = 'commit' | 'commits' | 'pull' | 'pulls' | 'multiple-commits' | 'multi-commits'
   const isSubjectType = (s: string): s is SubjectType =>
@@ -149,7 +156,7 @@ const PlaygroundPage = () => {
             className='grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3'
           >
             <Form.Item label='provider' name='provider'>
-              <Input placeholder='provider' allowClear />
+              <Input placeholder='provider' allowClear disabled />
             </Form.Item>
             <Form.Item label='repoID' name='repoID'>
               <Input placeholder='repoID' allowClear />
@@ -173,7 +180,7 @@ const PlaygroundPage = () => {
               <Input placeholder='reportProvider' allowClear />
             </Form.Item>
             <Form.Item label='filePath' name='filePath'>
-              <Input placeholder='filePath' allowClear />
+              <Input placeholder='filePath' allowClear disabled />
             </Form.Item>
             <Form.Item label='mode' name='mode'>
               <Select
