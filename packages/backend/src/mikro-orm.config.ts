@@ -14,4 +14,5 @@ export default defineConfig({
   highlighter: new SqlHighlighter(),
   debug: true,
   logger: logger.log.bind(logger),
+  allowGlobalContext:true
 })

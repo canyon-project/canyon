@@ -3,10 +3,13 @@ import { CoverageController } from './coverage.controller'
 import { CoverageService } from './coverage.service'
 import { SystemConfigModule } from '../system-config/system-config.module'
 import { ChModule } from '../ch/ch.module'
-import { OrmModule } from '../orm/orm.module'
+import {MikroOrmModule} from "@mikro-orm/nestjs";
+import {RepoEntity} from "../../entities/repo.entity";
+import {CoverageEntity} from "../../entities/coverage.entity";
+import {CoverageMapRelationEntity} from "../../entities/coverage-map-relation.entity";
 
 @Module({
-  imports: [ChModule, SystemConfigModule, OrmModule],
+  imports: [MikroOrmModule.forFeature({ entities: [CoverageEntity,CoverageMapRelationEntity] }),ChModule, SystemConfigModule],
   controllers: [CoverageController],
   providers: [CoverageService],
 })
