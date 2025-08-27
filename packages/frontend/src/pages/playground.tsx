@@ -5,6 +5,8 @@ import CanyonReport from 'canyon-report'
 import { useSearchParams } from 'react-router-dom'
 import { useRequest } from 'ahooks'
 import axios from 'axios'
+import {useQuery} from "@apollo/client";
+import {RepoDocument} from "@/helpers/backend/gen/graphql.ts";
 
 const PlaygroundPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -78,6 +80,12 @@ const PlaygroundPage = () => {
     },
   )
 
+  const {data:repoData} = useQuery(RepoDocument,{
+    variables:{
+      id: 'canyon-project/canyon'
+    }
+  })
+
   return (
     <BasicLayout>
       <Card className='p-4'>
@@ -133,7 +141,7 @@ const PlaygroundPage = () => {
             </div>
           </Form>
         </Card>
-        <CanyonReport dataSource={data} />
+        <CanyonReport name={repoData?.repo.pathWithNamespace.split('/')[1]} dataSource={data} />
         {/* 编辑器预览占位 */}
       </Card>
     </BasicLayout>
