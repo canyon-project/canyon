@@ -9,7 +9,7 @@ import { SystemConfigModule } from './modules/system-config/system-config.module
 import { RepoModule } from './modules/repo/repo.module'
 import { CoverageModule } from './modules/coverage/coverage.module'
 import { MikroOrmModule } from '@mikro-orm/nestjs'
-import {JSONScalar} from "./scalars/json.scalar";
+import { JSONScalar } from './scalars/json.scalar'
 
 @Module({
   imports: [
@@ -26,6 +26,6 @@ import {JSONScalar} from "./scalars/json.scalar";
     }),
   ],
   controllers: [AppController],
-  providers:[JSONScalar]
+  providers: [JSONScalar],
 })
 export class AppModule {}

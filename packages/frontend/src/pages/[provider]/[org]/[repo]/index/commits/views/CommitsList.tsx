@@ -1,66 +1,74 @@
-'use client';
+'use client'
 
-import { SearchOutlined, TagsOutlined } from '@ant-design/icons';
-import { Badge, Input, List, Space, Spin, Tooltip } from 'antd';
-import { useEffect, useState } from 'react';
-import { Scrollbars } from 'react-custom-scrollbars';
+import { SearchOutlined, TagsOutlined } from '@ant-design/icons'
+import { Badge, Input, List, Space, Spin, Tooltip } from 'antd'
+import { useEffect, useState } from 'react'
+import { Scrollbars } from 'react-custom-scrollbars'
 // import { formatDistanceToNow } from 'date-fns';
 
 // 扩展 Commit 接口，添加 branches 属性
 interface Commit {
-  id: string;
-  sha: string;
-  commitMessage: string;
-  author: string;
-  timestamp: string;
-  pipelineCount: number;
-  aggregationStatus: string;
-  hasE2E?: boolean;
-  hasUnitTest?: boolean;
-  branches: string[]; // 新增属性，存储 commit 所在的分支
+  id: string
+  sha: string
+  commitMessage: string
+  author: string
+  timestamp: string
+  pipelineCount: number
+  aggregationStatus: string
+  hasE2E?: boolean
+  hasUnitTest?: boolean
+  branches: string[] // 新增属性，存储 commit 所在的分支
 }
 
 interface CommitsListProps {
-  commits: Commit[];
-  selectedCommit: Commit | null;
-  onCommitSelect: (commit: Commit) => void;
+  commits: Commit[]
+  selectedCommit: Commit | null
+  onCommitSelect: (commit: Commit) => void
 }
 
-const CommitsList = ({ commits, selectedCommit, onCommitSelect }: CommitsListProps) => {
-  const [searchText, setSearchText] = useState('');
-  const [filteredCommits, setFilteredCommits] = useState(commits);
+const CommitsList = ({
+  commits,
+  selectedCommit,
+  onCommitSelect,
+}: CommitsListProps) => {
+  const [searchText, setSearchText] = useState('')
+  const [filteredCommits, setFilteredCommits] = useState(commits)
 
   useEffect(() => {
-    let filtered = commits;
+    let filtered = commits
 
     // 按搜索文本筛选
     if (searchText) {
       filtered = filtered.filter(
         (commit) =>
           commit.sha.includes(searchText) ||
-          commit.commitMessage.toLowerCase().includes(searchText.toLowerCase()) ||
+          commit.commitMessage
+            .toLowerCase()
+            .includes(searchText.toLowerCase()) ||
           commit.author.toLowerCase().includes(searchText.toLowerCase()) ||
-          commit.branches.some((branch) => branch.toLowerCase().includes(searchText.toLowerCase()))
-      );
+          commit.branches.some((branch) =>
+            branch.toLowerCase().includes(searchText.toLowerCase()),
+          ),
+      )
     }
 
-    setFilteredCommits(filtered);
-  }, [searchText, commits]);
+    setFilteredCommits(filtered)
+  }, [searchText, commits])
 
   const getBadgeStatus = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'success';
+        return 'success'
       case 'in_progress':
-        return 'processing';
+        return 'processing'
       case 'pending':
-        return 'default';
+        return 'default'
       case 'failed':
-        return 'error';
+        return 'error'
       default:
-        return 'default';
+        return 'default'
     }
-  };
+  }
 
   const getTestTypeBadges = (commit: Commit) => {
     return (
@@ -76,15 +84,17 @@ const CommitsList = ({ commits, selectedCommit, onCommitSelect }: CommitsListPro
           </Tooltip>
         )}
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <div className='mb-5 flex h-full w-[200px] flex-col shadow dark:shadow-gray-800'>
       <div className='space-y-1 px-2 pt-2 dark:bg-gray-900'>
         <Input
           placeholder='Search commits'
-          prefix={<SearchOutlined className='text-gray-400 dark:text-gray-500' />}
+          prefix={
+            <SearchOutlined className='text-gray-400 dark:text-gray-500' />
+          }
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           className='h-7 text-xs dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300'
@@ -98,7 +108,9 @@ const CommitsList = ({ commits, selectedCommit, onCommitSelect }: CommitsListPro
           </div>
         ) : filteredCommits.length === 0 ? (
           <div className='flex justify-center p-4 dark:bg-gray-900'>
-            <span className='text-gray-500 text-xs dark:text-gray-400'>No matching commits</span>
+            <span className='text-gray-500 text-xs dark:text-gray-400'>
+              No matching commits
+            </span>
           </div>
         ) : (
           <Scrollbars
@@ -144,7 +156,9 @@ const CommitsList = ({ commits, selectedCommit, onCommitSelect }: CommitsListPro
                         status={getBadgeStatus(commit.aggregationStatus)}
                         text={
                           <span className='text-gray-500 text-xs dark:text-gray-400'>
-                            {commit.pipelineCount > 1 ? `${commit.pipelineCount}p` : '1p'}
+                            {commit.pipelineCount > 1
+                              ? `${commit.pipelineCount}p`
+                              : '1p'}
                           </span>
                         }
                         className='scale-90'
@@ -157,7 +171,9 @@ const CommitsList = ({ commits, selectedCommit, onCommitSelect }: CommitsListPro
                     </Tooltip>
                     <div className='mt-1 flex items-center gap-1 text-[11px] text-gray-500 dark:text-gray-400'>
                       <Tooltip title={commit.author}>
-                        <span className='line-clamp-1 max-w-[100px]'>{commit.author}</span>
+                        <span className='line-clamp-1 max-w-[100px]'>
+                          {commit.author}
+                        </span>
                       </Tooltip>
                       <span>·</span>
                       <span>1day</span>
@@ -182,7 +198,7 @@ const CommitsList = ({ commits, selectedCommit, onCommitSelect }: CommitsListPro
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CommitsList;
+export default CommitsList

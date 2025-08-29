@@ -1,30 +1,25 @@
-import {Badge, Empty, Space, Spin, Tabs, type TabsProps} from "antd";
+import { Badge, Empty, Space, Spin, Tabs, type TabsProps } from 'antd'
 // import {useRequest} from "ahooks";
 // import axios from "axios";
-import CoverageOverviewPanel
-  from "@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx";
-import {useQuery} from "@apollo/client";
-import {CoverageOverviewDocument} from "@/helpers/backend/gen/graphql.ts";
+import CoverageOverviewPanel from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx'
+import { useQuery } from '@apollo/client'
+import { CoverageOverviewDocument } from '@/helpers/backend/gen/graphql.ts'
 
 const CommitCoverageOverview = ({
   commit,
   repo,
   onChange,
-                                  selectedBuildID
-                                }) => {
-
-
-  const {data:d,loading} = useQuery(CoverageOverviewDocument,{
-    variables:{
-      provider:'gitlab',
-      repoID:repo.id,
-      sha:commit.sha,
-    }
+  selectedBuildID,
+}) => {
+  const { data: d, loading } = useQuery(CoverageOverviewDocument, {
+    variables: {
+      provider: 'gitlab',
+      repoID: repo.id,
+      sha: commit.sha,
+    },
   })
 
-
-  const data = d?.coverageOverview.resultList||[]
-
+  const data = d?.coverageOverview.resultList || []
 
   // 根据搜索条件筛选流水线
   // 更新 pipeline tab 的渲染，添加 commit 信息
@@ -33,7 +28,7 @@ const CommitCoverageOverview = ({
       return {
         ...i,
         hasReported: true,
-      };
+      }
     })
     .map((build, index) => ({
       key: build.buildID,
@@ -42,59 +37,55 @@ const CommitCoverageOverview = ({
           <img
             className={'w-[16px]'}
             src={`/providers/${build.buildProvider}.svg`}
-            alt=""
+            alt=''
           />
-          <span className="font-medium">{build.buildID}</span>
-          {!build.hasReported && <Badge status="warning" className="ml-2" />}
+          <span className='font-medium'>{build.buildID}</span>
+          {!build.hasReported && <Badge status='warning' className='ml-2' />}
         </Space>
       ),
       children: (
-        <div className="p-4">
+        <div className='p-4'>
           {!build.hasReported ? (
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description={
-                <div className="text-center">
-                  <p className="text-yellow-500 font-medium mb-2">
+                <div className='text-center'>
+                  <p className='text-yellow-500 font-medium mb-2'>
                     该流水线尚未上报覆盖率数据
                   </p>
-                  <p className="text-gray-500">
+                  <p className='text-gray-500'>
                     最后更新时间: {build.lastUpdated}
                   </p>
-                  <p className="text-gray-500">构建名称: {build.name}</p>
+                  <p className='text-gray-500'>构建名称: {build.name}</p>
                 </div>
               }
             />
           ) : (
-            <CoverageOverviewPanel
-              build={build}
-              commit={commit}
-            />
+            <CoverageOverviewPanel build={build} commit={commit} />
           )}
         </div>
       ),
-    }));
+    }))
 
-
-
-  return <Spin spinning={loading}>
-    <Tabs
-      items={buildTabs}
-      activeKey={selectedBuildID}
-      onChange={(val) => {
-        const build = (data || []).find((item) => {
-          return item.buildID === val;
-        });
-        onChange({
-          buildID: build.buildID,
-          buildProvider: build.buildProvider,
-        })
-
-      }}
-      // type="card"
-      className="build-tabs"
-    />
-  </Spin>
+  return (
+    <Spin spinning={loading}>
+      <Tabs
+        items={buildTabs}
+        activeKey={selectedBuildID}
+        onChange={(val) => {
+          const build = (data || []).find((item) => {
+            return item.buildID === val
+          })
+          onChange({
+            buildID: build.buildID,
+            buildProvider: build.buildProvider,
+          })
+        }}
+        // type="card"
+        className='build-tabs'
+      />
+    </Spin>
+  )
 }
 
 export default CommitCoverageOverview

@@ -1,11 +1,3 @@
-query CoverageOverview(
-  $repoID: String!
-  $provider: String!
-  $sha: String!
-) {
-  coverageOverview(
-    provider: $provider
-    repoID: $repoID
-    sha: $sha
-  )
+query CoverageOverview($repoID: String!, $provider: String!, $sha: String!) {
+  coverageOverview(provider: $provider, repoID: $repoID, sha: $sha)
 }

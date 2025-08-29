@@ -1,10 +1,10 @@
-import { FC, ReactNode } from 'react';
+import { FC, ReactNode } from 'react'
 
 const RIf: FC<{
-  condition: boolean;
-  children: ReactNode;
+  condition: boolean
+  children: ReactNode
 }> = ({ condition, children }) => {
-  return <>{condition ? <>{children}</> : null}</>;
-};
+  return <>{condition ? <>{children}</> : null}</>
+}
 
-export default RIf;
+export default RIf

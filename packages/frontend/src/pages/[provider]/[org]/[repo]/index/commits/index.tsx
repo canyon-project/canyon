@@ -1,34 +1,38 @@
-import CommitsList
-  from "./views/CommitsList.tsx";
-import {Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom";
-import {useEffect, useMemo, useState} from "react";
-import {useQuery} from "@apollo/client";
-import {RepoCommitsDocument} from "@/helpers/backend/gen/graphql.ts";
+import CommitsList from './views/CommitsList.tsx'
+import {
+  Outlet,
+  useNavigate,
+  useOutletContext,
+  useParams,
+} from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react'
+import { useQuery } from '@apollo/client'
+import { RepoCommitsDocument } from '@/helpers/backend/gen/graphql.ts'
 
 const Commits = () => {
-  const { repo } = useOutletContext<{ repo: { id: string } }>();
-  const navigate = useNavigate();
-  const params = useParams();
+  const { repo } = useOutletContext<{ repo: { id: string } }>()
+  const navigate = useNavigate()
+  const params = useParams()
 
   type UICommit = {
-    id: string;
-    sha: string;
-    commitMessage: string;
-    author: string;
-    timestamp: string;
-    pipelineCount: number;
-    aggregationStatus: string;
-    hasE2E?: boolean;
-    hasUnitTest?: boolean;
-    branches: string[];
+    id: string
+    sha: string
+    commitMessage: string
+    author: string
+    timestamp: string
+    pipelineCount: number
+    aggregationStatus: string
+    hasE2E?: boolean
+    hasUnitTest?: boolean
+    branches: string[]
   }
 
-  const [selectedCommit, setSelectedCommit] = useState<UICommit | null>(null);
+  const [selectedCommit, setSelectedCommit] = useState<UICommit | null>(null)
 
-  const { data } = useQuery(RepoCommitsDocument,{
-    variables:{
+  const { data } = useQuery(RepoCommitsDocument, {
+    variables: {
       repoID: repo.id,
-    }
+    },
   })
 
   const commits = useMemo(() => {
@@ -50,34 +54,40 @@ const Commits = () => {
   }, [data])
 
   useEffect(() => {
-    if (params.sha){
-      const commit = commits.find((c: any) => c.sha === params.sha);
+    if (params.sha) {
+      const commit = commits.find((c: any) => c.sha === params.sha)
       if (commit) {
-        setSelectedCommit(commit);
+        setSelectedCommit(commit)
       }
     }
   }, [params.sha, commits])
 
   const handleCommitSelect = (commit: UICommit) => {
-    setSelectedCommit(commit);
+    setSelectedCommit(commit)
 
     // nav
-    navigate(`/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}`)
+    navigate(
+      `/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}`,
+    )
 
     // 获取当前参数
-  };
+  }
 
-  return <div className={'flex gap-[20px] px-[20px]'}>
-    <CommitsList
-      commits={commits || []}
-      onCommitSelect={handleCommitSelect}
-      selectedCommit={selectedCommit}
-    />
-    <Outlet context={{
-      repo,
-      commit:selectedCommit
-    }}/>
-  </div>
+  return (
+    <div className={'flex gap-[20px] px-[20px]'}>
+      <CommitsList
+        commits={commits || []}
+        onCommitSelect={handleCommitSelect}
+        selectedCommit={selectedCommit}
+      />
+      <Outlet
+        context={{
+          repo,
+          commit: selectedCommit,
+        }}
+      />
+    </div>
+  )
 }
 
 export default Commits

@@ -9,6 +9,7 @@ import { tupleToMap, trimInstrumentCwd, mergeStatementHitsByBlock, mergeFunction
 import { CoverageMapStoreService } from './coverage.map-store.service'
 import { SystemConfigService } from '../system-config/system-config.service'
 import { CoverageGitService } from './coverage.git.service'
+import {percent} from "../../helpers/utils";
 
 @Injectable()
 export class CoverageSummaryService {
@@ -85,9 +86,9 @@ export class CoverageSummaryService {
 
           result[rel] = {
             path: rel,
-            statements: { total: totalStatements, covered: coveredStatements, pct: 0 },
-            functions: { total: totalFunctions, covered: coveredFunctions, pct: 0 },
-            branches: { total: totalBranches, covered: coveredBranches, pct: 0 },
+            statements: { total: totalStatements, covered: coveredStatements, pct: percent(coveredStatements,totalStatements) },
+            functions: { total: totalFunctions, covered: coveredFunctions, pct: percent(coveredFunctions,totalFunctions) },
+            branches: { total: totalBranches, covered: coveredBranches, pct: percent(coveredBranches,totalBranches) },
             newlines: { total: 0, covered: 0, pct: 0 },
           }
         }

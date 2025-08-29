@@ -1,23 +1,29 @@
-import RIf from '@/components/RIf';
-import { useRequest } from 'ahooks';
-import { Drawer, Spin, Tooltip } from 'antd';
-import { ExportOutlined } from '@ant-design/icons';
-import axios from 'axios';
-import Report from 'canyon-report';
-import { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import {handleSelectFileBySubject} from "@/helpers/report.ts";
+import RIf from '@/components/RIf'
+import { useRequest } from 'ahooks'
+import { Drawer, Spin, Tooltip } from 'antd'
+import { ExportOutlined } from '@ant-design/icons'
+import axios from 'axios'
+import Report from 'canyon-report'
+import { useEffect, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { handleSelectFileBySubject } from '@/helpers/report.ts'
 
-type SubjectType = 'commit' | 'commits' | 'pull' | 'pulls' | 'multiple-commits' | 'multi-commits';
+type SubjectType =
+  | 'commit'
+  | 'commits'
+  | 'pull'
+  | 'pulls'
+  | 'multiple-commits'
+  | 'multi-commits'
 
 interface CoverageFileDrawerProps {
-  repo: any;
-  subject: SubjectType;
-  subjectID: string;
-  basePath: string; // e.g. /:provider/:org/:repo/commits/:sha
-  initialPath?: string; // file path without /-/ prefix
-  provider?: string;
-  title?: string;
+  repo: any
+  subject: SubjectType
+  subjectID: string
+  basePath: string // e.g. /:provider/:org/:repo/commits/:sha
+  initialPath?: string // file path without /-/ prefix
+  provider?: string
+  title?: string
 }
 
 const CoverageFileDrawer = ({
@@ -29,26 +35,28 @@ const CoverageFileDrawer = ({
   provider = 'gitlab',
   title = 'Coverage Detail',
 }: CoverageFileDrawerProps) => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
-  const [activatedPath, setActivatedPath] = useState<string | undefined>(initialPath);
-  const [open, setOpen] = useState(false);
+  const [activatedPath, setActivatedPath] = useState<string | undefined>(
+    initialPath,
+  )
+  const [open, setOpen] = useState(false)
 
   const getToFilePath = (path: string) => {
-    setOpen(false);
+    setOpen(false)
     setTimeout(() => {
       // 确保 path 片段在查询参数之前：/base/-/file?query
-      const qIndex = basePath.indexOf('?');
+      const qIndex = basePath.indexOf('?')
       if (qIndex >= 0) {
-        const prefix = basePath.slice(0, qIndex);
-        const qs = basePath.slice(qIndex + 1);
-        navigate(`${prefix}${path}?${qs}`);
+        const prefix = basePath.slice(0, qIndex)
+        const qs = basePath.slice(qIndex + 1)
+        navigate(`${prefix}${path}?${qs}`)
       } else {
-        navigate(`${basePath}${path}`);
+        navigate(`${basePath}${path}`)
       }
-    }, 500);
-  };
+    }, 500)
+  }
 
   const { data, loading } = useRequest(
     () =>
@@ -64,13 +72,17 @@ const CoverageFileDrawer = ({
           reportID: searchParams.get('report_id') || undefined,
         },
       }).then(({ data }) => data),
-    { refreshDeps: [repo?.id, subject, subjectID] }
-  );
+    { refreshDeps: [repo?.id, subject, subjectID] },
+  )
 
   const onSelect = (val: string) => {
-    setActivatedPath(val);
+    setActivatedPath(val)
     if (!val.includes('.')) {
-      return Promise.resolve({ fileContent: '', fileCoverage: {}, fileCodeChange: [] });
+      return Promise.resolve({
+        fileContent: '',
+        fileCoverage: {},
+        fileCodeChange: [],
+      })
     }
     return handleSelectFileBySubject({
       repoID: repo.id,
@@ -86,28 +98,28 @@ const CoverageFileDrawer = ({
       fileContent: res.fileContent,
       fileCoverage: res.fileCoverage,
       fileCodeChange: res.fileCodeChange,
-    }));
-  };
+    }))
+  }
 
   useEffect(() => {
     if (subjectID) {
-      getToFilePath(`/-/${activatedPath || ''}`);
-      setOpen(true);
+      getToFilePath(`/-/${activatedPath || ''}`)
+      setOpen(true)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activatedPath, subjectID]);
+  }, [activatedPath, subjectID])
   return (
     <Drawer
       width={'75%'}
       open={open}
       onClose={() => {
         // 关闭时移除 report_provider/report_id，避免状态遗留
-        const qIndex = basePath.indexOf('?');
-        const prefix = qIndex >= 0 ? basePath.slice(0, qIndex) : basePath;
-        const newQs = new URLSearchParams(searchParams);
-        newQs.delete('report_provider');
-        newQs.delete('report_id');
-        navigate(`${prefix}?${newQs.toString()}`);
+        const qIndex = basePath.indexOf('?')
+        const prefix = qIndex >= 0 ? basePath.slice(0, qIndex) : basePath
+        const newQs = new URLSearchParams(searchParams)
+        newQs.delete('report_provider')
+        newQs.delete('report_id')
+        navigate(`${prefix}?${newQs.toString()}`)
       }}
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -125,17 +137,24 @@ const CoverageFileDrawer = ({
         </div>
       }
     >
-      <Spin spinning={loading} style={{minHeight:'300px'}}>
+      <Spin spinning={loading} style={{ minHeight: '300px' }}>
         <RIf condition={!!data}>
-          <div style={{
-            height:'calc(100vh - 50px)',
-          }}>
-            <Report name={repo.pathWithNamespace.split('/')[1]} value={activatedPath} onSelect={onSelect} dataSource={data} />
+          <div
+            style={{
+              height: 'calc(100vh - 50px)',
+            }}
+          >
+            <Report
+              name={repo.pathWithNamespace.split('/')[1]}
+              value={activatedPath}
+              onSelect={onSelect}
+              dataSource={data}
+            />
           </div>
         </RIf>
       </Spin>
     </Drawer>
-  );
-};
+  )
+}
 
-export default CoverageFileDrawer;
+export default CoverageFileDrawer

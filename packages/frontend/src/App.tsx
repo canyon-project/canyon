@@ -5,6 +5,7 @@ import { useRoutes } from 'react-router-dom'
 
 import { ConfigProvider, theme } from 'antd'
 import routes from '~react-pages'
+import CoverageReport from '@/components/CoverageReport.tsx'
 const languages = {
   cn: zhCN,
   en: enUS,
@@ -14,6 +15,12 @@ const languages = {
 const lng = (localStorage.getItem('language') || 'cn') as keyof typeof languages
 
 const { darkAlgorithm } = theme
+
+routes.push({
+  path: '/report/-/:provider/:org/:repo/:subject/:subjectID/-*',
+  element: <CoverageReport />,
+})
+
 console.log(routes, 'routes')
 const App = () => {
   const isDark = localStorage.getItem('theme')

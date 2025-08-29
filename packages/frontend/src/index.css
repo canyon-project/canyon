@@ -18,7 +18,6 @@ a:hover {
   font-style: normal;
 }
 
-
 /*覆盖率概览抽屉*/
 .ant-drawer-body {
   padding: 6px 6px 0 6px !important;
@@ -27,7 +26,6 @@ a:hover {
 .ant-drawer-header {
   padding: 6px !important;
 }
-
 
 /*canyon-report*/
 

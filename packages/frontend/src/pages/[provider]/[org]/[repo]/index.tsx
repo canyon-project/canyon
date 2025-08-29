@@ -1,20 +1,20 @@
-import { Breadcrumb, Button, Divider, Space, Tabs } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
-import {Outlet, useLocation, useNavigate, useParams} from 'react-router-dom';
-import RIf from '@/components/RIf.tsx';
-import {useQuery} from "@apollo/client";
-import {RepoDocument} from "@/helpers/backend/gen/graphql.ts";
-import BasicLayout from "@/layouts/BasicLayout.tsx";
+import { Breadcrumb, Button, Divider, Space, Tabs } from 'antd'
+import { SettingOutlined } from '@ant-design/icons'
+import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
+import RIf from '@/components/RIf.tsx'
+import { useQuery } from '@apollo/client'
+import { RepoDocument } from '@/helpers/backend/gen/graphql.ts'
+import BasicLayout from '@/layouts/BasicLayout.tsx'
 
 const ProjectDetailPage = () => {
-  const params = useParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-  console.log(params, 'params');
-  const { data:r, loading } = useQuery(RepoDocument,{
-    variables:{
+  const params = useParams()
+  const location = useLocation()
+  const navigate = useNavigate()
+  console.log(params, 'params')
+  const { data: r, loading } = useQuery(RepoDocument, {
+    variables: {
       id: `${params.org}/${params.repo}`,
-    }
+    },
   })
 
   const data = r?.repo
@@ -52,21 +52,21 @@ const ProjectDetailPage = () => {
                 : 'commits'
           }
           onChange={(key) => {
-            navigate(`/${params.provider}/${params.org}/${params.repo}/${key}`);
+            navigate(`/${params.provider}/${params.org}/${params.repo}/${key}`)
           }}
-          items={[
-            { key: 'commits', label: 'Commits' },
-          ]}
+          items={[{ key: 'commits', label: 'Commits' }]}
         />
-        <Outlet context={{
-          repo: data,
-          commit: {
-            s:'x'
-          },
-        }}/>
+        <Outlet
+          context={{
+            repo: data,
+            commit: {
+              s: 'x',
+            },
+          }}
+        />
       </RIf>
     </BasicLayout>
-  );
-};
+  )
+}
 
-export default ProjectDetailPage;
+export default ProjectDetailPage

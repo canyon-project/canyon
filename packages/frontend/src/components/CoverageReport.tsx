@@ -1,28 +1,32 @@
-import { handleSelectFileBySubject } from '@/helpers/report';
-import { useRequest } from 'ahooks';
-import { Spin } from 'antd';
-import axios from 'axios';
-import Report from 'canyon-report';
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { handleSelectFileBySubject } from '@/helpers/report'
+import { useRequest } from 'ahooks'
+import { Spin } from 'antd'
+import axios from 'axios'
+import Report from 'canyon-report'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useQuery } from '@apollo/client'
+import { RepoDocument } from '@/helpers/backend/gen/graphql.ts'
 
 function CoverageReportContent({ repo }: { repo: any }) {
-  const [searchParams] = useSearchParams();
-  const params = useParams();
-  const navigate = useNavigate();
-  const subjectID = params.subjectID;
-  const subject = params.subject as any;
-  const buildProvider = searchParams.get('build_provider') || 'gitlab_runner';
-  const buildID = searchParams.get('build_id') || '';
-  const provider = searchParams.get('provider') || 'gitlab';
-  const reportID = searchParams.get('report_id') || '';
-  const reportProvider = searchParams.get('report_provider') || '';
-  const [activatedPath, setActivatedPath] = useState(params['*']?.replace('-/', ''));
+  const [searchParams] = useSearchParams()
+  const params = useParams()
+  const navigate = useNavigate()
+  const subjectID = params.subjectID
+  const subject = params.subject as any
+  const buildProvider = searchParams.get('build_provider') || 'gitlab_runner'
+  const buildID = searchParams.get('build_id') || ''
+  const provider = searchParams.get('provider') || 'gitlab'
+  const reportID = searchParams.get('report_id') || ''
+  const reportProvider = searchParams.get('report_provider') || ''
+  const [activatedPath, setActivatedPath] = useState(
+    params['*']?.replace('-/', ''),
+  )
 
   // 组装基础路径（带上现有 query），供选择文件时调整 URL
-  const sp = searchParams.toString();
-  const basePathPrefix = `/report/-/${params.provider}/${params.org}/${params.repo}/${params.subject}/${params.subjectID}`;
-  const basePath = sp ? `${basePathPrefix}?${sp}` : basePathPrefix;
+  const sp = searchParams.toString()
+  const basePathPrefix = `/report/-/${params.provider}/${params.org}/${params.repo}/${params.subject}/${params.subjectID}`
+  const basePath = sp ? `${basePathPrefix}?${sp}` : basePathPrefix
 
   const { data, loading } = useRequest(
     () =>
@@ -38,13 +42,17 @@ function CoverageReportContent({ repo }: { repo: any }) {
           reportProvider,
         },
       }).then(({ data }) => data),
-    { refreshDeps: [repo?.id, subject, subjectID] }
-  );
+    { refreshDeps: [repo?.id, subject, subjectID] },
+  )
 
   const onSelect = (val: string) => {
-    setActivatedPath(val);
+    setActivatedPath(val)
     if (!val.includes('.')) {
-      return Promise.resolve({ fileContent: '', fileCoverage: {}, fileCodeChange: [] });
+      return Promise.resolve({
+        fileContent: '',
+        fileCoverage: {},
+        fileCodeChange: [],
+      })
     }
     return handleSelectFileBySubject({
       repoID: repo.id,
@@ -60,54 +68,61 @@ function CoverageReportContent({ repo }: { repo: any }) {
       fileContent: res.fileContent,
       fileCoverage: res.fileCoverage,
       fileCodeChange: res.fileCodeChange,
-    }));
-  };
+    }))
+  }
 
   // 实现与 CoverageFileDrawer 类似的导航插入逻辑
   const getToFilePath = (path: string) => {
-    const qIndex = basePath.indexOf('?');
+    const qIndex = basePath.indexOf('?')
     if (qIndex >= 0) {
-      const prefix = basePath.slice(0, qIndex);
-      const qs = basePath.slice(qIndex + 1);
-      navigate(`${prefix}${path}?${qs}`);
+      const prefix = basePath.slice(0, qIndex)
+      const qs = basePath.slice(qIndex + 1)
+      navigate(`${prefix}${path}?${qs}`)
     } else {
-      navigate(`${basePath}${path}`);
+      navigate(`${basePath}${path}`)
     }
-  };
+  }
 
   useEffect(() => {
     if (subjectID != null) {
-      getToFilePath(`/-/${activatedPath || ''}`);
+      getToFilePath(`/-/${activatedPath || ''}`)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activatedPath, subjectID]);
+  }, [activatedPath, subjectID])
 
   return (
-    <Spin spinning={loading}>
-      <Report value={activatedPath} onSelect={onSelect} dataSource={data} />
-    </Spin>
-  );
+    <div
+      style={{
+        height: 'calc(100vh - 12px)',
+      }}
+    >
+      <Report
+        name={params.repo}
+        value={activatedPath}
+        onSelect={onSelect}
+        dataSource={data}
+      />
+    </div>
+  )
 }
 
 function CoverageReport() {
-  const params = useParams();
-  const { data: repo, loading } = useRequest(
-    () => {
-      if (!params.org || !params.repo) return Promise.resolve(null);
-      const key = btoa(`${params.org}/${params.repo}`);
-      return axios.get(`/api/repo/${key}`).then((r) => r.data);
+  const params = useParams()
+  const id = `${params.org}/${params.repo}`
+  const { data: data, loading } = useQuery(RepoDocument, {
+    variables: {
+      id: id,
     },
-    { refreshDeps: [params.org, params.repo] }
-  );
-
+  })
+  const repo = data?.repo
   if (loading || !repo) {
-    return <Spin spinning={true} />;
+    return <Spin spinning={true} />
   }
   return (
     <div className='p-[6px]'>
       <CoverageReportContent repo={repo} />
     </div>
-  );
+  )
 }
 
-export default CoverageReport;
+export default CoverageReport
