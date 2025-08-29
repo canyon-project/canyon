@@ -1,10 +1,10 @@
-import {useNavigate, useParams, useSearchParams} from "react-router-dom";
+import { handleSelectFileBySubject } from '@/helpers/report';
+import { useRequest } from 'ahooks';
+import { Spin } from 'antd';
+import axios from 'axios';
 import Report from 'canyon-report';
-import {useEffect, useState} from "react";
-import {useRequest} from "ahooks";
-import axios from "axios";
-import {handleSelectFileBySubject} from "@/helper";
-import {Spin} from "antd";
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 function CoverageReportContent({ repo }: { repo: any }) {
   const [searchParams] = useSearchParams();
@@ -17,7 +17,7 @@ function CoverageReportContent({ repo }: { repo: any }) {
   const provider = searchParams.get('provider') || 'gitlab';
   const reportID = searchParams.get('report_id') || '';
   const reportProvider = searchParams.get('report_provider') || '';
-  const [activatedPath, setActivatedPath] = useState(params['*']?.replace('-/',''));
+  const [activatedPath, setActivatedPath] = useState(params['*']?.replace('-/', ''));
 
   // 组装基础路径（带上现有 query），供选择文件时调整 URL
   const sp = searchParams.toString();
@@ -25,19 +25,20 @@ function CoverageReportContent({ repo }: { repo: any }) {
   const basePath = sp ? `${basePathPrefix}?${sp}` : basePathPrefix;
 
   const { data, loading } = useRequest(
-    () => axios(`/api/coverage/summary/map`, {
-      params: {
-        subject,
-        subjectID,
-        buildProvider,
-        buildID,
-        repoID: repo.id,
-        provider,
-        reportID,
-        reportProvider,
-      },
-    }).then(({ data }) => data),
-    { refreshDeps: [repo?.id, subject, subjectID] },
+    () =>
+      axios('/api/coverage/summary/map', {
+        params: {
+          subject,
+          subjectID,
+          buildProvider,
+          buildID,
+          repoID: repo.id,
+          provider,
+          reportID,
+          reportProvider,
+        },
+      }).then(({ data }) => data),
+    { refreshDeps: [repo?.id, subject, subjectID] }
   );
 
   const onSelect = (val: string) => {
@@ -83,25 +84,30 @@ function CoverageReportContent({ repo }: { repo: any }) {
 
   return (
     <Spin spinning={loading}>
-      <Report value={activatedPath} onSelect={onSelect} dataSource={data}/>
+      <Report value={activatedPath} onSelect={onSelect} dataSource={data} />
     </Spin>
   );
 }
 
 function CoverageReport() {
   const params = useParams();
-  const { data: repo, loading } = useRequest(() => {
-    if (!params.org || !params.repo) return Promise.resolve(null);
-    const key = btoa(`${params.org}/${params.repo}`);
-    return axios.get(`/api/repo/${key}`).then(r => r.data);
-  }, { refreshDeps: [params.org, params.repo] });
+  const { data: repo, loading } = useRequest(
+    () => {
+      if (!params.org || !params.repo) return Promise.resolve(null);
+      const key = btoa(`${params.org}/${params.repo}`);
+      return axios.get(`/api/repo/${key}`).then((r) => r.data);
+    },
+    { refreshDeps: [params.org, params.repo] }
+  );
 
   if (loading || !repo) {
     return <Spin spinning={true} />;
   }
-  return <div className="p-[10px]">
-    <CoverageReportContent repo={repo} />
-  </div>;
+  return (
+    <div className='p-[6px]'>
+      <CoverageReportContent repo={repo} />
+    </div>
+  );
 }
 
-export default CoverageReport
+export default CoverageReport;

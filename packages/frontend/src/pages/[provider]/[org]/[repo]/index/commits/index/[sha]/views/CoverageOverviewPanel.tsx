@@ -1,134 +1,126 @@
-import { Badge, Button, Collapse, Progress, Space, Table, Tooltip } from 'antd';
-import { RobotOutlined, UserOutlined } from '@ant-design/icons';
-// import type { TableProps } from 'antd';
-// import { CaseData } from './CommitsDetail';
-import {useNavigate, useParams, useSearchParams} from 'react-router-dom';
+import { Bot, ClipboardList } from 'lucide-react';
+import { Button, Collapse, Progress, Space, Table } from 'antd';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import type {CoverageOverviewPanelProps} from '@/types';
 
-interface CoverageOverviewPanelProps {
-  build: any;
-  coverageDetailOpen: boolean;
-  setCoverageDetailOpen: (open: boolean) => void;
-}
-
-const caseColumns = [
-  {
-    title: 'Report ID',
-    dataIndex: 'reportID',
-    key: 'reportID',
-    width: 160,
-    render(_, c, index) {
-      return (
-        <a
-          href="https://trip.com/"
-          target={'_blank'}
-          className={'flex items-center gap-1'}
-        >
-          <img
-            className={'h-[12px]'}
-            src={`/providers/${index % 2 === 1 ? 'mpaas.svg' : 'mpaas.svg'}`}
-            alt=""
-          />
-          <span>{_}</span>
-        </a>
-      );
-    },
-  },
-  {
-    title: '名称',
-    dataIndex: 'caseName',
-    key: 'caseName',
-  },
-  {
-    title: '状态',
-    dataIndex: 'status',
-    key: 'status',
-    width: 100,
-    render: (status) => <Badge status="success" text="已完成" />,
-  },
-  {
-    title: '通过率',
-    key: 'passRate',
-    dataIndex: 'passRate',
-    width: 200,
-  },
-  {
-    title: '用例数',
-    key: 'passRate',
-    width: 200,
-    render: (_, record) => {
-      const total = record.passedCount + record.failedCount;
-      const rate = record.passRate;
-      return (
-        <span>
-          <span className="text-green-600 font-medium">
-            {record.passedCount}
-          </span>{' '}
-          / {total}
-        </span>
-      );
-    },
-  },
-  {
-    title: '覆盖率',
-    dataIndex: 'summary',
-    key: 'summary',
-    render: (_) => {
-      return _.percent;
-      // return calculateCoveragePercentage(_)
-    },
-  },
-  // calculateCoveragePercentage
-];
+// moved columns inside component to use navigation handlers
 
 const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
-  build,
-  coverageDetailOpen,
-  setCoverageDetailOpen,
-                                                                       commit
-}) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+                                                                       build,
+                                                                     }) => {
+  const [searchParams, _setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const params = useParams();
+  const automatedMode: any = (build?.modeList || []).find((r: any) => r.mode === 'auto');
+  const manualMode: any = (build?.modeList || []).find((r: any) => r.mode === 'manual');
+  const calcPercent = (covered?: number, total?: number) => {
+    if (!total || total <= 0 || !covered || covered < 0) return 0;
+    const val = (covered / total) * 100;
+    return Number.isFinite(val) ? Number(val.toFixed(1)) : 0;
+  };
+  const getStrokeColor = (percent: number) =>
+    percent >= 80 ? 'green' : percent >= 60 ? 'blue' : percent >= 40 ? 'orange' : 'red';
   function getToFilePath() {
-
-    navigate(`/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}/-/?build_provider=${searchParams.get('build_provider')}&build_id=${searchParams.get('build_id')}`)
+    navigate(
+      `/${params.provider}/${params.org}/${params.repo}/commits/${params.sha}/-/?build_provider=${searchParams.get('build_provider')}&build_id=${searchParams.get('build_id')}`
+    );
   }
+  const openReportDetail = ({ reportProvider, reportID }: { reportProvider: string; reportID?: string }) => {
+    const base = `/${params.provider}/${params.org}/${params.repo}/commits/${params.sha}/-/`;
+    const qp = new URLSearchParams(searchParams);
+    qp.set('report_provider', reportProvider);
+    if (reportID) qp.set('report_id', reportID);
+    navigate(`${base}?${qp.toString()}`);
+  };
+  const openFirstReportForMode = (mode: 'auto' | 'manual') => {
+    const modeItem: any = (build?.modeList || []).find((r: any) => r.mode === mode);
+    // 模式级别：只附带 report_provider，不附带 report_id
+    const firstCase = modeItem?.caseList && modeItem.caseList.length > 0 ? modeItem.caseList[0] : undefined;
+    const reportProvider = mode === 'manual' ? 'person' : (firstCase?.reportProvider || 'mpaas');
+    openReportDetail({ reportProvider });
+  };
+
+  const getColumnsForMode = (mode: 'auto' | 'manual') => ([
+    {
+      title: 'Report ID',
+      dataIndex: 'reportID',
+      key: 'reportID',
+      render: (_: any, record: any) => (
+        <Button
+          type='link'
+          size='small'
+          onClick={() => openReportDetail({ reportProvider: record.reportProvider || (mode === 'manual' ? 'person' : 'mpaas'), reportID: record.reportID })}
+        >
+          {record.reportID}
+        </Button>
+      ),
+    },
+    {
+      title: 'Case Name',
+      dataIndex: 'caseName',
+      key: 'caseName',
+      render(_: any, _c: any) {
+        return (
+          <>
+            {_c.caseUrl ? (
+              <a className={'flex items-center gap-1'} href={_c.caseUrl} target={'_blank'}>
+                <img className={'h-[12px]'} src={`/providers/${_c.reportProvider}.svg`} alt='' />
+                <span>{_}</span>
+              </a>
+            ) : (
+              <span>{_}</span>
+            )}
+          </>
+        );
+      },
+    },
+    {
+      title: 'Pass Rate',
+      key: 'passRate',
+      dataIndex: 'passRate',
+      width: 200,
+    },
+    {
+      title: 'Case Count',
+      key: 'passRate',
+      width: 200,
+      render: (_: any, record: any) => {
+        const total = record.passedCount + record.failedCount;
+        return (
+          <span>
+            <span className='font-medium text-green-600'>{record.passedCount}</span> / {total}
+          </span>
+        );
+      },
+    },
+    {
+      title: 'Coverage',
+      dataIndex: 'summary',
+      key: 'summary',
+      render: (_: any) => _.percent,
+    },
+  ]);
 
   return (
-    <div className="">
+    <div className=''>
       {/*<CoverageDetail open={coverageDetailOpen} />*/}
-      <div className="flex items-center justify-between mb-4  p-4 rounded-lg">
-        <div className="flex items-center space-x-6">
-          <div className="flex items-center space-x-2">
-            <Tooltip title="端到端测试覆盖率">
-              <span className="font-medium">流水线:</span>
-            </Tooltip>
-            <a
-              style={{
-                textDecoration: 'underline',
-              }}
-            >
-              #12345
-            </a>
-          </div>
+      <div className='mb-4 flex items-center justify-between rounded-lg p-4'>
+        <div className='flex items-center space-x-6'>
 
-          <div className="flex items-center space-x-2">
-            <Tooltip title="端到端测试覆盖率">
-              <span
-                className="font-medium"
-                onClick={() => {
-
-                }}
-              >
-                E2E覆盖率:
-              </span>
-            </Tooltip>
-
+          <div className='flex items-center space-x-2'>
+            <span className='font-medium'>Overall Coverage:</span>
+            <Progress
+              percent={calcPercent(build?.summary?.covered, build?.summary?.total)}
+              size='small'
+              strokeColor={getStrokeColor(calcPercent(build?.summary?.covered, build?.summary?.total))}
+              style={{ width: '100px' }}
+            />
             <Button
+              className='ml-2'
               type={'primary'}
               size={'small'}
               onClick={() => {
-                getToFilePath()
+                getToFilePath();
               }}
             >
               查看
@@ -140,58 +132,40 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
       {build.modeList && (
         <Collapse defaultActiveKey={['manual', 'automated']}>
           <Collapse.Panel
-            key="automated"
+            key='automated'
             header={
-              <div className="flex items-center justify-between w-full pr-8">
-                <Space className="font-medium">
-                  <RobotOutlined />
-                  自动化测试覆盖率
-                </Space>
-                {build.modeList.find((r) => r.mode === 'automated') && (
+              <div className='flex w-full items-center pr-8'>
+                <Space className='font-medium'>
+                  <Bot size={16} />
+                  Automated Test Coverage
                   <Progress
-                    percent={
-                      build.modeList.find((r) => r.mode === 'automated')!
-                        .coveragePercentage
-                    }
-                    size="small"
-                    status={
-                      build.modeList.find((r) => r.mode === 'automated')!
-                        .coveragePercentage < 60
-                        ? 'exception'
-                        : 'active'
-                    }
-                    strokeColor={
-                      build.modeList.find((r) => r.mode === 'automated')!
-                        .coveragePercentage >= 80
-                        ? 'green'
-                        : build.modeList.find((r) => r.mode === 'automated')!
-                              .coveragePercentage >= 60
-                          ? 'blue'
-                          : build.modeList.find((r) => r.mode === 'automated')!
-                                .coveragePercentage >= 40
-                            ? 'orange'
-                            : 'red'
-                    }
-                    style={{
-                      width: '80px',
-                    }}
+                    percent={calcPercent(automatedMode?.summary?.covered, automatedMode?.summary?.total)}
+                    size='small'
+                    strokeColor={getStrokeColor(calcPercent(automatedMode?.summary?.covered, automatedMode?.summary?.total))}
+                    style={{ width: '100px' }}
                   />
-                )}
+                </Space>
+                <Button
+                  className='ml-2'
+                  size='small'
+                  onClick={() => openFirstReportForMode('auto')}
+                >
+                  查看
+                </Button>
               </div>
             }
-            className="border-0"
+            className='border-0'
           >
             {build.modeList
-              .filter((r) => r.mode === 'auto')
-              .map((report) => (
-                <div key={report.reportID} className="mb-4">
+              .filter((r: any) => r.mode === 'auto')
+              .map((report: any) => (
+                <div key={report.reportID} className='mb-4'>
                   <Table
-                    columns={caseColumns}
+                    columns={getColumnsForMode('auto')}
                     dataSource={report.caseList}
-                    rowKey="caseId"
-                    size="small"
-                    pagination={false}
-                    className="border border-gray-200 "
+                    rowKey='caseId'
+                    size='small'
+                    className='border border-gray-200 '
                     style={{
                       borderBottom: 0,
                     }}
@@ -200,60 +174,41 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
               ))}
           </Collapse.Panel>
           <Collapse.Panel
-            key="manual"
+            key='manual'
             header={
-              <div className="flex items-center justify-between w-full pr-8">
-                <Space className="font-medium">
-                  <UserOutlined />
-                  手工测试覆盖率
-                </Space>
-                {/*{JSON.stringify(build.modeList||[])}*/}
-                {build.modeList?.find((r) => r.mode === 'manual') && (
+              <div className='flex w-full items-center pr-8'>
+                <Space className='font-medium'>
+                  <ClipboardList size={16} />
+                  Manual Test Coverage
                   <Progress
-                    percent={
-                      build.modeList?.find((r) => r.mode === 'manual')!
-                        .coveragePercentage
-                    }
-                    size="small"
-                    status={
-                      build.modeList?.find((r) => r.mode === 'manual')!
-                        .coveragePercentage < 60
-                        ? 'exception'
-                        : 'active'
-                    }
-                    strokeColor={
-                      build.modeList?.find((r) => r.mode === 'manual')!
-                        .coveragePercentage >= 80
-                        ? 'green'
-                        : build.modeList?.find((r) => r.mode === 'manual')!
-                          .coveragePercentage >= 60
-                          ? 'blue'
-                          : build.modeList?.find((r) => r.mode === 'manual')!
-                            .coveragePercentage >= 40
-                            ? 'orange'
-                            : 'red'
-                    }
-                    style={{
-                      width: '80px',
-                    }}
+                    percent={calcPercent(manualMode?.summary?.covered, manualMode?.summary?.total)}
+                    size='small'
+                    strokeColor={getStrokeColor(calcPercent(manualMode?.summary?.covered, manualMode?.summary?.total))}
+                    style={{ width: '100px' }}
                   />
-                )}
+                </Space>
+                <Button
+                  className='ml-2'
+                  size='small'
+                  onClick={() => openFirstReportForMode('manual')}
+                >
+                  查看
+                </Button>
               </div>
             }
-            className="border-0"
+            className='border-0'
           >
             {build.modeList
-              ?.filter((r) => r.mode === 'manual')
-              .map((report) => (
-                <div key={report.reportID} className="mb-4">
+              ?.filter((r: any) => r.mode === 'manual')
+              .map((report: any) => (
+                <div key={report.reportID} className='mb-4'>
                   {/*{JSON.stringify(report.caseList||[])}*/}
                   <Table
-                    columns={caseColumns}
+                    columns={getColumnsForMode('manual')}
                     dataSource={report.caseList}
-                    rowKey="caseId"
-                    size="small"
-                    pagination={false}
-                    className="border border-gray-200"
+                    rowKey='caseId'
+                    size='small'
+                    className='border border-gray-200'
                     style={{
                       borderBottom: 0,
                     }}

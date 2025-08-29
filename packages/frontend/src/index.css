@@ -18,6 +18,17 @@ a:hover {
   font-style: normal;
 }
 
+
+/*覆盖率概览抽屉*/
+.ant-drawer-body {
+  padding: 6px 6px 0 6px !important;
+}
+
+.ant-drawer-header {
+  padding: 6px !important;
+}
+
+
 /*canyon-report*/
 
 .YourHighlightClass {

@@ -1,8 +1,6 @@
 import { Breadcrumb, Button, Divider, Space, Tabs } from 'antd';
 import { SettingOutlined } from '@ant-design/icons';
 import {Outlet, useLocation, useNavigate, useParams} from 'react-router-dom';
-import { useRequest } from 'ahooks';
-import axios from 'axios';
 import RIf from '@/components/RIf.tsx';
 import {useQuery} from "@apollo/client";
 import {RepoDocument} from "@/helpers/backend/gen/graphql.ts";
@@ -58,8 +56,6 @@ const ProjectDetailPage = () => {
           }}
           items={[
             { key: 'commits', label: 'Commits' },
-            { key: 'pulls', label: 'Pulls' },
-            { key: 'multiple-commits', label: 'Multiple Commits' },
           ]}
         />
         <Outlet context={{

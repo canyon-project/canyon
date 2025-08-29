@@ -1,8 +1,10 @@
 import {Badge, Empty, Space, Spin, Tabs, type TabsProps} from "antd";
-import {useRequest} from "ahooks";
-import axios from "axios";
+// import {useRequest} from "ahooks";
+// import axios from "axios";
 import CoverageOverviewPanel
   from "@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx";
+import {useQuery} from "@apollo/client";
+import {CoverageOverviewDocument} from "@/helpers/backend/gen/graphql.ts";
 
 const CommitCoverageOverview = ({
   commit,
@@ -12,19 +14,16 @@ const CommitCoverageOverview = ({
                                 }) => {
 
 
+  const {data:d,loading} = useQuery(CoverageOverviewDocument,{
+    variables:{
+      provider:'gitlab',
+      repoID:repo.id,
+      sha:commit.sha,
+    }
+  })
 
-  const { data, loading } = useRequest(
-    () => {
-      return axios
-        .get(`/api/coverage/overview?subject=commit&subjectID=${commit?.sha}&provider=gitlab&repoID=${repo.id}`)
-        .then((res) => res.data);
-    },
-    {
-      refreshDeps: [commit],
-      onSuccess(v) {
-      },
-    },
-  );
+
+  const data = d?.coverageOverview.resultList||[]
 
 
   // 根据搜索条件筛选流水线

@@ -1,22 +1,12 @@
-import {Drawer, Spin} from 'antd';
-import Report from 'canyon-report';
-import {useEffect, useState} from 'react';
-import {useRequest} from 'ahooks';
-import axios from 'axios';
-import {useNavigate} from 'react-router-dom';
 import RIf from '@/components/RIf';
-// import {handleSelectFileBySubject} from '@/helper';
-function handleSelectFileBySubject() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        fileContent: '',
-        fileCoverage: {},
-        fileCodeChange: '',
-      });
-    }, 0);
-  });
-}
+import { useRequest } from 'ahooks';
+import { Drawer, Spin, Tooltip } from 'antd';
+import { ExportOutlined } from '@ant-design/icons';
+import axios from 'axios';
+import Report from 'canyon-report';
+import { useEffect, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import {handleSelectFileBySubject} from "@/helpers/report.ts";
 
 type SubjectType = 'commit' | 'commits' | 'pull' | 'pulls' | 'multiple-commits' | 'multi-commits';
 
@@ -40,6 +30,7 @@ const CoverageFileDrawer = ({
   title = 'Coverage Detail',
 }: CoverageFileDrawerProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [activatedPath, setActivatedPath] = useState<string | undefined>(initialPath);
   const [open, setOpen] = useState(false);
@@ -60,10 +51,20 @@ const CoverageFileDrawer = ({
   };
 
   const { data, loading } = useRequest(
-    () => axios(`/api/coverage/summary/map`, {
-      params: { repoID: repo.id, provider, subject, subjectID },
-    }).then(({data}) => data),
-    { refreshDeps: [repo?.id, subject, subjectID] },
+    () =>
+      axios('/api/coverage/summary/map', {
+        params: {
+          repoID: repo.id,
+          provider,
+          subject,
+          subjectID,
+          buildProvider: searchParams.get('build_provider') || undefined,
+          buildID: searchParams.get('build_id') || undefined,
+          reportProvider: searchParams.get('report_provider') || undefined,
+          reportID: searchParams.get('report_id') || undefined,
+        },
+      }).then(({ data }) => data),
+    { refreshDeps: [repo?.id, subject, subjectID] }
   );
 
   const onSelect = (val: string) => {
@@ -77,6 +78,10 @@ const CoverageFileDrawer = ({
       subjectID,
       filepath: val,
       provider,
+      buildProvider: searchParams.get('build_provider') || undefined,
+      buildID: searchParams.get('build_id') || undefined,
+      reportProvider: searchParams.get('report_provider') || undefined,
+      reportID: searchParams.get('report_id') || undefined,
     }).then((res) => ({
       fileContent: res.fileContent,
       fileCoverage: res.fileCoverage,
@@ -91,20 +96,42 @@ const CoverageFileDrawer = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activatedPath, subjectID]);
-
   return (
     <Drawer
       width={'75%'}
       open={open}
-      onClose={() => { getToFilePath(''); }}
-      title={<div>
-        {title}
-        <a href={`/report/-${window.location.href.replace(window.location.origin, '')}`} target="_blank">在新窗口打开</a>
-      </div>}
+      onClose={() => {
+        // 关闭时移除 report_provider/report_id，避免状态遗留
+        const qIndex = basePath.indexOf('?');
+        const prefix = qIndex >= 0 ? basePath.slice(0, qIndex) : basePath;
+        const newQs = new URLSearchParams(searchParams);
+        newQs.delete('report_provider');
+        newQs.delete('report_id');
+        navigate(`${prefix}?${newQs.toString()}`);
+      }}
+      title={
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span>{title}</span>
+          <Tooltip title='在新窗口打开'>
+            <a
+              href={`/report/-${window.location.href.replace(window.location.origin, '')}`}
+              target='_blank'
+              rel='noreferrer'
+              aria-label='在新窗口打开'
+            >
+              <ExportOutlined />
+            </a>
+          </Tooltip>
+        </div>
+      }
     >
-      <Spin spinning={loading}>
+      <Spin spinning={loading} style={{minHeight:'300px'}}>
         <RIf condition={!!data}>
-          <Report value={activatedPath} onSelect={onSelect} dataSource={data} />
+          <div style={{
+            height:'calc(100vh - 50px)',
+          }}>
+            <Report name={repo.pathWithNamespace.split('/')[1]} value={activatedPath} onSelect={onSelect} dataSource={data} />
+          </div>
         </RIf>
       </Spin>
     </Drawer>
@@ -112,5 +139,3 @@ const CoverageFileDrawer = ({
 };
 
 export default CoverageFileDrawer;
-
-
