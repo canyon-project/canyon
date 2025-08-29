@@ -34,10 +34,10 @@ class RepoList {
 @ObjectType()
 class RepoCommits {
   @Field()
-  repoID!: string;
+  repoID: string;
 
-  @Field(() => [String])
-  commits!: string[];
+  @Field(() => [JSONScalar])
+  commits: any[];
 }
 
 @ObjectType()

@@ -1,0 +1,6 @@
+query RepoCommits ($repoID: String!){
+  repoCommits(repoID: $repoID){
+    repoID
+    commits
+  }
+}

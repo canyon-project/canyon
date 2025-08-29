@@ -26,7 +26,7 @@ type RepoList {
 
 type RepoCommits {
   repoID: String!
-  commits: [String!]!
+  commits: [JSON!]!
 }
 
 type RepoPulls {

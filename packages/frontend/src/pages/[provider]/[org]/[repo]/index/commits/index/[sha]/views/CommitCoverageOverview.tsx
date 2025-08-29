@@ -1,4 +1,4 @@
-import {Badge, Empty, Space, Spin, Tabs, TabsProps} from "antd";
+import {Badge, Empty, Space, Spin, Tabs, type TabsProps} from "antd";
 import {useRequest} from "ahooks";
 import axios from "axios";
 import CoverageOverviewPanel

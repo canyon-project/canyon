@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common'
 import {InjectRepository} from "@mikro-orm/nestjs";
 import {EntityRepository} from "@mikro-orm/core";
 import {RepoEntity} from "../../entities/repo.entity";
+import {CoverageEntity} from "../../entities/coverage.entity";
 
 @Injectable()
 export class RepoService {
   constructor(
     @InjectRepository(RepoEntity) private readonly repoRepo: EntityRepository<RepoEntity>,
+    @InjectRepository(CoverageEntity) private readonly covRepo: EntityRepository<CoverageEntity>,
   ) {
   }
   async getRepo(id: string) {
@@ -39,8 +41,22 @@ export class RepoService {
   }
 
   async getRepoCommits(repoID: string) {
-    // TODO: 接入 VCS
-    return { repoID, commits: [] }
+
+    // this.getRepo()
+
+    const conn = this.covRepo.getEntityManager().getConnection()
+    const rows = await conn.execute(
+      'select c.sha as sha, max(c.created_at) as last_created_at from "canyonjs_coverage" as c where c.repo_id = ? group by c.sha order by last_created_at desc',
+      [repoID]
+    )
+
+    const commits = rows.map((row: any) => {
+      return {
+        sha: row.sha,
+        lastCoverageCreatedAt: row.last_created_at,
+      }
+    })
+    return { repoID, commits }
   }
 
   async getRepoPulls(repoID: string) {

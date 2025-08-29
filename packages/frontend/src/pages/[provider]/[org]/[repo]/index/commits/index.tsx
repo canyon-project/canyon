@@ -1,57 +1,64 @@
 import CommitsList
   from "./views/CommitsList.tsx";
-import {Outlet, useNavigate, useOutletContext, useParams, useSearchParams} from "react-router-dom";
-import {useEffect, useState} from "react";
-import {useRequest} from "ahooks";
-import axios from "axios";
+import {Outlet, useNavigate, useOutletContext, useParams} from "react-router-dom";
+import {useEffect, useMemo, useState} from "react";
+import {useQuery} from "@apollo/client";
+import {RepoCommitsDocument} from "@/helpers/backend/gen/graphql.ts";
 
 const Commits = () => {
-  const { repo } = useOutletContext();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { repo } = useOutletContext<{ repo: { id: string } }>();
   const navigate = useNavigate();
   const params = useParams();
-  const [selectedCommit, setSelectedCommit] = useState({
-    sha: null,
-  });
 
-  const [selectedBuildID, setSelectedBuildID] = useState(
-    searchParams.get('build_id'),
-  );
+  type UICommit = {
+    id: string;
+    sha: string;
+    commitMessage: string;
+    author: string;
+    timestamp: string;
+    pipelineCount: number;
+    aggregationStatus: string;
+    hasE2E?: boolean;
+    hasUnitTest?: boolean;
+    branches: string[];
+  }
 
-  const { data, loading } = useRequest(() => {
-    return axios
-      .get(`/api/repo/${repo.id}/commits`)
-      .then((res) => res.data)
-      .then((res) => {
-        console.log(res, 'res');
-        return res.commits.map((item) => {
-          return {
-            id: item.sha,
-            sha: item.sha,
-            commitMessage: 'item.commitDetail.message',
-            author: 'item.commitDetail.author_name',
-            timestamp: 'item.commitDetail.authored_date',
-            pipelineCount: 3,
-            aggregationStatus: 1,
-            hasE2E: false,
-            hasUnitTest: false,
-            branches: ['dev'], // 新增属性，存储 commit 所在的分支
-          };
-        });
-      });
-  },{
-    onSuccess: (commits) => {
-    //   如果有选中的 commit，则设置为 selectedCommit
-      if (params.sha){
-        const commit = commits.find(c => c.sha === params.sha);
-        if (commit) {
-          setSelectedCommit(commit);
-        }
+  const [selectedCommit, setSelectedCommit] = useState<UICommit | null>(null);
+
+  const { data } = useQuery(RepoCommitsDocument,{
+    variables:{
+      repoID: repo.id,
+    }
+  })
+
+  const commits = useMemo(() => {
+    const list = data?.repoCommits?.commits || []
+    return list.map((item: any): UICommit => {
+      return {
+        id: item.sha,
+        sha: item.sha,
+        commitMessage: '',
+        author: '',
+        timestamp: item.lastCoverageCreatedAt || '',
+        pipelineCount: 1,
+        aggregationStatus: 'completed',
+        hasE2E: false,
+        hasUnitTest: false,
+        branches: ['dev'],
+      }
+    })
+  }, [data])
+
+  useEffect(() => {
+    if (params.sha){
+      const commit = commits.find((c: any) => c.sha === params.sha);
+      if (commit) {
+        setSelectedCommit(commit);
       }
     }
-  });
+  }, [params.sha, commits])
 
-  const handleCommitSelect = (commit) => {
+  const handleCommitSelect = (commit: UICommit) => {
     setSelectedCommit(commit);
 
     // nav
@@ -62,7 +69,7 @@ const Commits = () => {
 
   return <div className={'flex gap-[20px] px-[20px]'}>
     <CommitsList
-      commits={data || []}
+      commits={commits || []}
       onCommitSelect={handleCommitSelect}
       selectedCommit={selectedCommit}
     />
