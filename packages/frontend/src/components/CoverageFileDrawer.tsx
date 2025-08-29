@@ -5,7 +5,18 @@ import {useRequest} from 'ahooks';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
 import RIf from '@/components/RIf';
-import {handleSelectFileBySubject} from '@/helper';
+// import {handleSelectFileBySubject} from '@/helper';
+function handleSelectFileBySubject() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        fileContent: '',
+        fileCoverage: {},
+        fileCodeChange: '',
+      });
+    }, 0);
+  });
+}
 
 type SubjectType = 'commit' | 'commits' | 'pull' | 'pulls' | 'multiple-commits' | 'multi-commits';
 
