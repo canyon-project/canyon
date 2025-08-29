@@ -1,9 +1,5 @@
-query Repo($id: String!) {
-  repo(id: $id) {
-    id
-    pathWithNamespace
-    createdAt
-    description
-    updatedAt
+query Repos($keywords: String!) {
+  repos(keyword: $keywords) {
+    data
   }
 }

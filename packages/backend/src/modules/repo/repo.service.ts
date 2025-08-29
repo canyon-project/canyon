@@ -25,7 +25,12 @@ export class RepoService {
 
   async getRepos(keyword?: string) {
     // TODO: 接入数据库查询
-    return { items: [], keyword: keyword ?? null }
+    const repos =await this.repoRepo.findAll({
+      where:{}
+    })
+    return {
+      data: repos
+    }
   }
 
   async postRepoById(id: string) {

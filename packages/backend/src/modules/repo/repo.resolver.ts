@@ -1,6 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { RepoService } from './repo.service';
 import { Field, ObjectType } from '@nestjs/graphql';
+import {JSONScalar} from "../../scalars/json.scalar";
 
 @ObjectType()
 class Repo {
@@ -23,8 +24,8 @@ class Repo {
 
 @ObjectType()
 class RepoList {
-  @Field(() => [String])
-  items!: string[];
+  @Field(() => [JSONScalar])
+  data: any[];
 
   @Field(() => String, { nullable: true })
   keyword?: string | null;
