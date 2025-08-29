@@ -10,6 +10,8 @@ import { MikroOrmModule } from '@mikro-orm/nestjs'
 import { RepoEntity } from '../../entities/repo.entity'
 import { CoverageEntity } from '../../entities/coverage.entity'
 import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity'
+import {CoverageOverviewResolver} from "./coverage.resolver";
+import {CoverageOverviewService} from "./coverage.overview.service";
 
 @Module({
   imports: [
@@ -21,10 +23,12 @@ import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.
   ],
   controllers: [CoverageController],
   providers: [
+    CoverageOverviewService,
     CoverageSummaryService,
     CoverageMapService,
     CoverageMapStoreService,
     CoverageGitService,
+    CoverageOverviewResolver
   ],
 })
 export class CoverageModule {}

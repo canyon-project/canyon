@@ -25,4 +25,10 @@ export class CoverageEntity {
 
   @Property({ fieldName: 'instrument_cwd', type: 'text', nullable: true })
   instrumentCwd?: string | null
+
+  @Property({ fieldName: 'report_provider', type: 'text', nullable: true })
+  reportProvider?: string | null
+
+  @Property({ fieldName: 'report_id', type: 'text', nullable: true })
+  reportID?: string | null
 }

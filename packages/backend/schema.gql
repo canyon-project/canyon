@@ -49,6 +49,7 @@ type RepoMutationResult {
 scalar JSON
 
 type Query {
+  coverageOverview(provider: String!, repoID: String!, sha: String!, buildProvider: String, buildID: String, reportProvider: String, reportID: String, filePath: String): JSON!
   repo(id: String!): Repo!
   repos(keyword: String): RepoList!
   repoCommits(repoID: String!): RepoCommits!
