@@ -51,13 +51,7 @@ type Query {
   repoCommits(repoID: String!): RepoCommits!
   repoPulls(repoID: String!): RepoPulls!
   repoCommitBySHA(repoID: String!, sha: String!): RepoCommitDetail!
-  codeFileContent(
-    repoID: String!
-    filepath: String!
-    sha: String
-    pullNumber: String
-    provider: String
-  ): CodeFileContent!
+  codeFileContent(repoID: String!, filepath: String!, sha: String, pullNumber: String, provider: String): CodeFileContent!
   codePullRequest(projectID: String!, pullRequestID: String!): String!
   codePullRequestChanges(projectID: String!, pullRequestID: String!): String!
   codeProjectByPath(path: String!): String!

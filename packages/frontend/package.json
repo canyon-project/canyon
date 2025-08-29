@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "build": "vite build",
+    "postinstall": "npm run codegen",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
