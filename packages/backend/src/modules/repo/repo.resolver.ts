@@ -1,0 +1,110 @@
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
+import { RepoService } from './repo.service';
+import { Field, ObjectType } from '@nestjs/graphql';
+
+@ObjectType()
+class Repo {
+  @Field()
+  id!: string;
+
+  @Field()
+  pathWithNamespace!: string;
+
+  @Field()
+  description!: string;
+
+  @Field()
+  createdAt!: Date;
+
+  @Field()
+  updatedAt!: Date;
+}
+
+
+@ObjectType()
+class RepoList {
+  @Field(() => [String])
+  items!: string[];
+
+  @Field(() => String, { nullable: true })
+  keyword?: string | null;
+}
+
+@ObjectType()
+class RepoCommits {
+  @Field()
+  repoID!: string;
+
+  @Field(() => [String])
+  commits!: string[];
+}
+
+@ObjectType()
+class RepoPulls {
+  @Field()
+  repoID!: string;
+
+  @Field(() => [String])
+  pulls!: string[];
+}
+
+@ObjectType()
+class RepoCommitDetail {
+  @Field()
+  repoID!: string;
+
+  @Field()
+  sha!: string;
+
+  @Field(() => String, { nullable: true })
+  commit?: string | null;
+}
+
+@ObjectType()
+class RepoMutationResult {
+  @Field()
+  ok!: boolean;
+
+  @Field()
+  id!: string;
+}
+
+@Resolver()
+export class RepoResolver {
+  constructor(private readonly repoService: RepoService) {}
+
+  @Query(() => Repo)
+  repo(@Args('id', { type: () => String }) id: string) {
+    return this.repoService.getRepo(id);
+  }
+
+  @Query(() => RepoList)
+  repos(@Args('keyword', { type: () => String, nullable: true }) keyword?: string) {
+    return this.repoService.getRepos(keyword);
+  }
+
+  @Query(() => RepoCommits)
+  repoCommits(@Args('repoID', { type: () => String }) repoID: string) {
+    return this.repoService.getRepoCommits(repoID);
+  }
+
+  @Query(() => RepoPulls)
+  repoPulls(@Args('repoID', { type: () => String }) repoID: string) {
+    return this.repoService.getRepoPulls(repoID);
+  }
+
+  @Query(() => RepoCommitDetail)
+  repoCommitBySHA(
+    @Args('repoID', { type: () => String }) repoID: string,
+    @Args('sha', { type: () => String }) sha: string
+  ) {
+    return this.repoService.getRepoCommitBySHA(repoID, sha);
+  }
+
+  @Mutation(() => RepoMutationResult)
+  postRepoById(@Args('id', { type: () => String }) id: string) {
+    return this.repoService.postRepoById(id);
+  }
+}
+
+

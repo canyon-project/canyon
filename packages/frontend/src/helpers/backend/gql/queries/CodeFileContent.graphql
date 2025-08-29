@@ -1,0 +1,17 @@
+query CodeFileContent(
+  $repoID: String!
+  $filepath: String!
+  $sha: String
+  $pullNumber: String
+  $provider: String
+) {
+  codeFileContent(
+    repoID: $repoID
+    filepath: $filepath
+    sha: $sha
+    pullNumber: $pullNumber
+    provider: $provider
+  ) {
+    content
+  }
+}

@@ -39,7 +39,7 @@ db/sql
 
 coverage
 
-schema.gql
+#schema.gql
 
 target/
 Cargo.lock
@@ -57,3 +57,8 @@ old-packages
 old-website
 
 backend copy
+
+!packages/backend/src/modules/coverage
+packages/orm-demo
+
+packages/old-backend

@@ -1,0 +1,45 @@
+{
+  "name": "backend",
+  "version": "0.0.1",
+  "description": "",
+  "author": "",
+  "private": true,
+  "scripts": {
+    "build": "nest build",
+    "start": "nest start",
+    "dev": "nest start --watch"
+  },
+  "dependencies": {
+    "@apollo/server": "^4",
+    "@clickhouse/client": "^1.5.0",
+    "@mikro-orm/core": "^6.2.8",
+    "@mikro-orm/nestjs": "^6.0.1",
+    "@mikro-orm/postgresql": "^6.2.8",
+    "@mikro-orm/sql-highlighter": "^1.0.1",
+    "@nestjs/apollo": "^13.1.0",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/graphql": "^13.1.0",
+    "@nestjs/common": "^11.0.1",
+    "@nestjs/core": "^11.0.1",
+    "@nestjs/platform-express": "^11.0.1",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1",
+    "axios": "^1.11.0",
+    "class-validator": "^0.14.2",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.5",
+    "graphql": "^16.11.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.0",
+    "@nestjs/schematics": "^11.0.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.7",
+    "globals": "^16.0.0",
+    "source-map-support": "^0.5.21",
+    "ts-loader": "^9.5.2",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.7.3"
+  }
+}

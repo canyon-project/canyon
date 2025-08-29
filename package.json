@@ -1,16 +1,33 @@
 {
   "name": "canyon",
-  "private": true,
   "version": "3.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "nx run-many --target=dev --all",
-    "build": "nx run-many --target=build --all",
-    "test": "nx run-many --target=test --all",
     "preinstall": "node ./scripts/check.mjs",
-    "clean": "node ./scripts/clean.mjs"
+    "clean": "node ./scripts/clean.mjs",
+    "format:write": "biome format . --write",
+    "dev": "pnpm run -r --stream dev"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "nx": "latest",
-    "zx": "latest"
+    "@biomejs/biome": "^2.2.2"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.0.0",
+      "react-dom": "19.0.0",
+      "@types/react": "19.0.0",
+      "@types/react-dom": "19.0.0",
+      "antd": "5.23.2",
+      "vite": "6",
+      "typescript": "5.8.3",
+      "globals": "^16.3.0"
+    }
+  },
+  "pacakgeManager": {
+    "packageManager": "pnpm@9"
   }
 }

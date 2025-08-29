@@ -1,0 +1,24 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "files": {
+    "includes": ["packages/**"]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space"
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true
+    }
+  },
+  "javascript": {
+    "globals": ["React", "JSX"],
+    "formatter": {
+      "quoteStyle": "single",
+      "jsxQuoteStyle": "single",
+      "semicolons": "asNeeded"
+    }
+  }
+}

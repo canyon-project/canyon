@@ -1,0 +1,9 @@
+query Repo($id: String!) {
+  repo(id: $id) {
+    id
+    pathWithNamespace
+    createdAt
+    description
+    updatedAt
+  }
+}
