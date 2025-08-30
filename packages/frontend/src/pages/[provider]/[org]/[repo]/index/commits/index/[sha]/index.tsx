@@ -1,26 +1,25 @@
-import { Outlet, useOutletContext, useSearchParams } from 'react-router-dom'
-
-import { useState } from 'react'
-import RIf from '@/components/RIf.tsx'
-import CommitCoverageOverview from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CommitCoverageOverview.tsx'
+import { useState } from 'react';
+import { Outlet, useOutletContext, useSearchParams } from 'react-router-dom';
+import RIf from '@/components/RIf.tsx';
+import CommitCoverageOverview from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CommitCoverageOverview.tsx';
 
 const Sha = () => {
-  const { commit, repo } = useOutletContext()
-  const [searchParams, setSearchParams] = useSearchParams()
+  const { commit, repo } = useOutletContext();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedBuildID, setSelectedBuildID] = useState(
     searchParams.get('build_id'),
-  )
-  const [selectedBuildProvider, setSelectedBuildProvider] = useState(
+  );
+  const [_selectedBuildProvider, setSelectedBuildProvider] = useState(
     searchParams.get('build_provider'),
-  )
+  );
 
   function onChange({ buildID, buildProvider }) {
-    setSelectedBuildID(buildID)
-    setSelectedBuildProvider(buildProvider)
-    searchParams.set('build_id', buildID)
-    searchParams.set('build_provider', buildProvider)
+    setSelectedBuildID(buildID);
+    setSelectedBuildProvider(buildProvider);
+    searchParams.set('build_id', buildID);
+    searchParams.set('build_provider', buildProvider);
 
-    setSearchParams(searchParams)
+    setSearchParams(searchParams);
   }
   return (
     <div className={'w-full shadow'}>
@@ -39,7 +38,7 @@ const Sha = () => {
         }}
       />
     </div>
-  )
-}
+  );
+};
 
-export default Sha
+export default Sha;

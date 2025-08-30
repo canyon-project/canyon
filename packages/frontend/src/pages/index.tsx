@@ -1,17 +1,17 @@
-import { useEffect } from 'react'
-import BasicLayout from '@/layouts/BasicLayout.tsx'
-import { useNavigate } from 'react-router-dom'
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import BasicLayout from '@/layouts/BasicLayout.tsx';
 
 const IndexPage = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   useEffect(() => {
-    navigate(`/projects`)
-  })
+    navigate(`/projects`);
+  });
   return (
     <BasicLayout>
       <span className={'bg-amber-500'}>IndexPage</span>
     </BasicLayout>
-  )
-}
+  );
+};
 
-export default IndexPage
+export default IndexPage;

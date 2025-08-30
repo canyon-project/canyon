@@ -1,5 +1,5 @@
-import { Module } from '@nestjs/common'
-import { ChService } from './ch.service'
+import { Module } from '@nestjs/common';
+import { ChService } from './ch.service';
 
 @Module({
   providers: [ChService],

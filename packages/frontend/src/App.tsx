@@ -1,32 +1,33 @@
-import { ConfigProvider, theme } from 'antd'
-import enUS from 'antd/es/locale/en_US'
-import jaJP from 'antd/es/locale/ja_JP'
-import zhCN from 'antd/es/locale/zh_CN'
-import { useRoutes } from 'react-router-dom'
-import CoverageReport from '@/components/CoverageReport.tsx'
-import routes from '~react-pages'
+import { ConfigProvider, theme } from 'antd';
+import enUS from 'antd/es/locale/en_US';
+import jaJP from 'antd/es/locale/ja_JP';
+import zhCN from 'antd/es/locale/zh_CN';
+import { useRoutes } from 'react-router-dom';
+import CoverageReport from '@/components/CoverageReport.tsx';
+import routes from '~react-pages';
 
-console.log('123')
+console.log('123');
 const languages = {
   cn: zhCN,
   en: enUS,
   ja: jaJP,
-}
+};
 
-const lng = (localStorage.getItem('language') || 'cn') as keyof typeof languages
+const lng = (localStorage.getItem('language') ||
+  'cn') as keyof typeof languages;
 
-const { darkAlgorithm } = theme
+const { darkAlgorithm } = theme;
 
 routes.push({
   path: '/report/-/:provider/:org/:repo/:subject/:subjectID/-*',
   element: <CoverageReport />,
-})
+});
 
-console.log(routes, 'routes')
+console.log(routes, 'routes');
 const App = () => {
   const isDark = localStorage.getItem('theme')
     ? localStorage.getItem('theme') === 'dark'
-    : false
+    : false;
   return (
     <ConfigProvider
       locale={languages[lng]}
@@ -40,7 +41,7 @@ const App = () => {
     >
       {useRoutes(routes)}
     </ConfigProvider>
-  )
-}
+  );
+};
 
-export default App
+export default App;

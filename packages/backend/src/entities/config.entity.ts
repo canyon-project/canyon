@@ -1,19 +1,19 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core'
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
 @Entity({ tableName: 'canyonjs_config' })
 export class ConfigEntity {
   @PrimaryKey()
-  id!: string
+  id!: string;
 
   @Property()
-  key!: string
+  key!: string;
 
   @Property()
-  value!: string
+  value!: string;
 
   @Property({ fieldName: 'created_at' })
-  createdAt!: Date
+  createdAt!: Date;
 
   @Property({ fieldName: 'updated_at' })
-  updatedAt!: Date
+  updatedAt!: Date;
 }

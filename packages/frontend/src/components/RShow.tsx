@@ -1,8 +1,8 @@
-import type { FC, ReactNode } from 'react'
+import type { FC, ReactNode } from 'react';
 
 const RShow: FC<{
-  condition: boolean
-  children: ReactNode
+  condition: boolean;
+  children: ReactNode;
 }> = ({ condition, children }) => {
   return (
     <div
@@ -14,7 +14,7 @@ const RShow: FC<{
     >
       {children}
     </div>
-  )
-}
+  );
+};
 
-export default RShow
+export default RShow;

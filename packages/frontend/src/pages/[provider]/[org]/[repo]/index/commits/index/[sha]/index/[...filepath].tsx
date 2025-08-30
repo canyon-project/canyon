@@ -1,18 +1,21 @@
-import CoverageFileDrawer from '@/components/CoverageFileDrawer'
-import { useOutletContext, useParams, useSearchParams } from 'react-router-dom'
-const FilePath = () => {
-  const { repo } = useOutletContext<any>()
-  const [searchParams] = useSearchParams()
-  const params = useParams()
-  const basePath = `/${params.provider}/${params.org}/${params.repo}/commits/${params.sha}`
+import { useOutletContext, useParams, useSearchParams } from 'react-router-dom';
+import CoverageFileDrawer from '@/components/CoverageFileDrawer';
 
-  const sha = params.sha
+const FilePath = () => {
+  const { repo } = useOutletContext<{
+    repo: { id: string; pathWithNamespace: string };
+  }>();
+  const [searchParams] = useSearchParams();
+  const params = useParams();
+  const basePath = `/${params.provider}/${params.org}/${params.repo}/commits/${params.sha}`;
+
+  const sha = params.sha;
   // 保留查询参数，用于拼接 basePath 使 URL 状态可分享
-  const buildProvider = searchParams.get('build_provider') || 'gitlab_runner'
-  const buildID = searchParams.get('build_id') || ''
-  const reportProvider = searchParams.get('report_provider') || ''
-  const reportID = searchParams.get('report_id') || ''
-  const initialPath = (params['*'] as string | undefined)?.replace('-/', '')
+  const buildProvider = searchParams.get('build_provider') || 'gitlab_runner';
+  const buildID = searchParams.get('build_id') || '';
+  const reportProvider = searchParams.get('report_provider') || '';
+  const reportID = searchParams.get('report_id') || '';
+  const initialPath = (params['*'] as string | undefined)?.replace('-/', '');
 
   return (
     <CoverageFileDrawer
@@ -23,7 +26,7 @@ const FilePath = () => {
       initialPath={initialPath}
       title={`${params.repo} Commit 详情覆盖率`}
     />
-  )
-}
+  );
+};
 
-export default FilePath
+export default FilePath;

@@ -1,27 +1,32 @@
-import { Bot, ClipboardList } from 'lucide-react'
-import { Button, Collapse, Progress, Space, Table } from 'antd'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import type { CoverageOverviewPanelProps } from '@/types'
+import { Button, Collapse, Progress, Space, Table } from 'antd';
+import { Bot, ClipboardList } from 'lucide-react';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import type { CoverageOverviewPanelProps } from '@/types';
 
 // moved columns inside component to use navigation handlers
 
 const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
   build,
 }) => {
-  const [searchParams, _setSearchParams] = useSearchParams()
-  const navigate = useNavigate()
-  const params = useParams()
-  const automatedMode: any = (build?.modeList || []).find(
-    (r: any) => r.mode === 'auto',
-  )
-  const manualMode: any = (build?.modeList || []).find(
-    (r: any) => r.mode === 'manual',
-  )
+  const [searchParams, _setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const params = useParams();
+  type ModeItem = {
+    mode: 'auto' | 'manual';
+    summary?: { covered?: number; total?: number };
+    caseList?: Array<Record<string, any>>;
+  };
+  const automatedMode = (build?.modeList || []).find(
+    (r: ModeItem) => r.mode === 'auto',
+  ) as ModeItem | undefined;
+  const manualMode = (build?.modeList || []).find(
+    (r: ModeItem) => r.mode === 'manual',
+  ) as ModeItem | undefined;
   const calcPercent = (covered?: number, total?: number) => {
-    if (!total || total <= 0 || !covered || covered < 0) return 0
-    const val = (covered / total) * 100
-    return Number.isFinite(val) ? Number(val.toFixed(1)) : 0
-  }
+    if (!total || total <= 0 || !covered || covered < 0) return 0;
+    const val = (covered / total) * 100;
+    return Number.isFinite(val) ? Number(val.toFixed(1)) : 0;
+  };
   const getStrokeColor = (percent: number) =>
     percent >= 80
       ? 'green'
@@ -29,45 +34,48 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
         ? 'blue'
         : percent >= 40
           ? 'orange'
-          : 'red'
+          : 'red';
   function getToFilePath() {
     navigate(
       `/${params.provider}/${params.org}/${params.repo}/commits/${params.sha}/-/?build_provider=${searchParams.get('build_provider')}&build_id=${searchParams.get('build_id')}`,
-    )
+    );
   }
   const openReportDetail = ({
     reportProvider,
     reportID,
   }: {
-    reportProvider: string
-    reportID?: string
+    reportProvider: string;
+    reportID?: string;
   }) => {
-    const base = `/${params.provider}/${params.org}/${params.repo}/commits/${params.sha}/-/`
-    const qp = new URLSearchParams(searchParams)
-    qp.set('report_provider', reportProvider)
-    if (reportID) qp.set('report_id', reportID)
-    navigate(`${base}?${qp.toString()}`)
-  }
+    const base = `/${params.provider}/${params.org}/${params.repo}/commits/${params.sha}/-/`;
+    const qp = new URLSearchParams(searchParams);
+    qp.set('report_provider', reportProvider);
+    if (reportID) qp.set('report_id', reportID);
+    navigate(`${base}?${qp.toString()}`);
+  };
   const openFirstReportForMode = (mode: 'auto' | 'manual') => {
-    const modeItem: any = (build?.modeList || []).find(
-      (r: any) => r.mode === mode,
-    )
+    const modeItem = (build?.modeList || []).find(
+      (r: ModeItem) => r.mode === mode,
+    ) as ModeItem | undefined;
     // 模式级别：只附带 report_provider，不附带 report_id
     const firstCase =
       modeItem?.caseList && modeItem.caseList.length > 0
         ? modeItem.caseList[0]
-        : undefined
+        : undefined;
     const reportProvider =
-      mode === 'manual' ? 'person' : firstCase?.reportProvider || 'mpaas'
-    openReportDetail({ reportProvider })
-  }
+      mode === 'manual' ? 'person' : firstCase?.reportProvider || 'mpaas';
+    openReportDetail({ reportProvider });
+  };
 
   const getColumnsForMode = (mode: 'auto' | 'manual') => [
     {
       title: 'Report ID',
       dataIndex: 'reportID',
       key: 'reportID',
-      render: (_: any, record: any) => (
+      render: (
+        _: string,
+        record: { reportProvider?: string; reportID?: string },
+      ) => (
         <Button
           type='link'
           size='small'
@@ -88,7 +96,7 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
       title: 'Case Name',
       dataIndex: 'caseName',
       key: 'caseName',
-      render(_: any, _c: any) {
+      render(_: string, _c: { caseUrl?: string; reportProvider?: string }) {
         return (
           <>
             {_c.caseUrl ? (
@@ -108,7 +116,7 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
               <span>{_}</span>
             )}
           </>
-        )
+        );
       },
     },
     {
@@ -121,8 +129,11 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
       title: 'Case Count',
       key: 'passRate',
       width: 200,
-      render: (_: any, record: any) => {
-        const total = record.passedCount + record.failedCount
+      render: (
+        _: unknown,
+        record: { passedCount: number; failedCount: number },
+      ) => {
+        const total = record.passedCount + record.failedCount;
         return (
           <span>
             <span className='font-medium text-green-600'>
@@ -130,16 +141,16 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             </span>{' '}
             / {total}
           </span>
-        )
+        );
       },
     },
     {
       title: 'Coverage',
       dataIndex: 'summary',
       key: 'summary',
-      render: (_: any) => _.percent,
+      render: (_: { percent: number }) => _.percent,
     },
-  ]
+  ];
 
   return (
     <div className=''>
@@ -164,7 +175,7 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
               type={'primary'}
               size={'small'}
               onClick={() => {
-                getToFilePath()
+                getToFilePath();
               }}
             >
               查看
@@ -279,7 +290,7 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
         </Collapse>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default CoverageOverviewPanel
+export default CoverageOverviewPanel;

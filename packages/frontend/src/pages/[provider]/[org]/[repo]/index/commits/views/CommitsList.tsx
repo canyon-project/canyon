@@ -1,29 +1,30 @@
-'use client'
+'use client';
 
-import { SearchOutlined, TagsOutlined } from '@ant-design/icons'
-import { Badge, Input, List, Space, Spin, Tooltip } from 'antd'
-import { useEffect, useState } from 'react'
-import { Scrollbars } from 'react-custom-scrollbars'
+import { SearchOutlined, TagsOutlined } from '@ant-design/icons';
+import { Badge, Input, List, Space, Spin, Tooltip } from 'antd';
+import { useEffect, useState } from 'react';
+import { Scrollbars } from 'react-custom-scrollbars';
+
 // import { formatDistanceToNow } from 'date-fns';
 
 // 扩展 Commit 接口，添加 branches 属性
 interface Commit {
-  id: string
-  sha: string
-  commitMessage: string
-  author: string
-  timestamp: string
-  pipelineCount: number
-  aggregationStatus: string
-  hasE2E?: boolean
-  hasUnitTest?: boolean
-  branches: string[] // 新增属性，存储 commit 所在的分支
+  id: string;
+  sha: string;
+  commitMessage: string;
+  author: string;
+  timestamp: string;
+  pipelineCount: number;
+  aggregationStatus: string;
+  hasE2E?: boolean;
+  hasUnitTest?: boolean;
+  branches: string[]; // 新增属性，存储 commit 所在的分支
 }
 
 interface CommitsListProps {
-  commits: Commit[]
-  selectedCommit: Commit | null
-  onCommitSelect: (commit: Commit) => void
+  commits: Commit[];
+  selectedCommit: Commit | null;
+  onCommitSelect: (commit: Commit) => void;
 }
 
 const CommitsList = ({
@@ -31,11 +32,11 @@ const CommitsList = ({
   selectedCommit,
   onCommitSelect,
 }: CommitsListProps) => {
-  const [searchText, setSearchText] = useState('')
-  const [filteredCommits, setFilteredCommits] = useState(commits)
+  const [searchText, setSearchText] = useState('');
+  const [filteredCommits, setFilteredCommits] = useState(commits);
 
   useEffect(() => {
-    let filtered = commits
+    let filtered = commits;
 
     // 按搜索文本筛选
     if (searchText) {
@@ -49,26 +50,26 @@ const CommitsList = ({
           commit.branches.some((branch) =>
             branch.toLowerCase().includes(searchText.toLowerCase()),
           ),
-      )
+      );
     }
 
-    setFilteredCommits(filtered)
-  }, [searchText, commits])
+    setFilteredCommits(filtered);
+  }, [searchText, commits]);
 
   const getBadgeStatus = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'success'
+        return 'success';
       case 'in_progress':
-        return 'processing'
+        return 'processing';
       case 'pending':
-        return 'default'
+        return 'default';
       case 'failed':
-        return 'error'
+        return 'error';
       default:
-        return 'default'
+        return 'default';
     }
-  }
+  };
 
   const getTestTypeBadges = (commit: Commit) => {
     return (
@@ -84,8 +85,8 @@ const CommitsList = ({
           </Tooltip>
         )}
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className='mb-5 flex h-full w-[200px] flex-col shadow dark:shadow-gray-800'>
@@ -198,7 +199,7 @@ const CommitsList = ({
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CommitsList
+export default CommitsList;

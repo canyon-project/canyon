@@ -1,12 +1,12 @@
-import { Logger } from '@nestjs/common'
-import { SqlHighlighter } from '@mikro-orm/sql-highlighter'
-import { defineConfig } from '@mikro-orm/postgresql'
-import { ConfigEntity } from './entities/config.entity'
-import { CoverageEntity } from './entities/coverage.entity'
-import { CoverageMapRelationEntity } from './entities/coverage-map-relation.entity'
-import { RepoEntity } from './entities/repo.entity'
+import { defineConfig } from '@mikro-orm/postgresql';
+import { SqlHighlighter } from '@mikro-orm/sql-highlighter';
+import { Logger } from '@nestjs/common';
+import { ConfigEntity } from './entities/config.entity';
+import { CoverageEntity } from './entities/coverage.entity';
+import { CoverageMapRelationEntity } from './entities/coverage-map-relation.entity';
+import { RepoEntity } from './entities/repo.entity';
 
-const logger = new Logger('MikroORM')
+const logger = new Logger('MikroORM');
 
 export default defineConfig({
   entities: [
@@ -20,4 +20,4 @@ export default defineConfig({
   debug: true,
   logger: logger.log.bind(logger),
   allowGlobalContext: true,
-})
+});

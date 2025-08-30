@@ -1,39 +1,39 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class SummaryMapQueryDto {
   @IsString()
   @IsNotEmpty()
-  subject!: string // commit|commits|pull|pulls
+  subject!: string; // commit|commits|pull|pulls
 
   @IsString()
   @IsNotEmpty()
-  subjectID!: string // sha or pullNumber
+  subjectID!: string; // sha or pullNumber
 
   @IsString()
   @IsNotEmpty()
-  provider!: string
+  provider!: string;
 
   @IsString()
   @IsNotEmpty()
-  repoID!: string
+  repoID!: string;
 
   @IsString()
   @IsNotEmpty()
-  buildProvider!: string
+  buildProvider!: string;
 
   @IsString()
   @IsNotEmpty()
-  buildID!: string
+  buildID!: string;
 
   @IsString()
   @IsOptional()
-  reportProvider?: string
+  reportProvider?: string;
 
   @IsString()
   @IsOptional()
-  reportID?: string
+  reportID?: string;
 
   @IsString()
   @IsOptional()
-  filePath?: string
+  filePath?: string;
 }

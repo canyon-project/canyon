@@ -1,4 +1,10 @@
 import {
+  HeartFilled,
+  HeartOutlined,
+  QuestionCircleOutlined,
+} from '@ant-design/icons';
+import { useQuery } from '@apollo/client';
+import {
   Breadcrumb,
   Button,
   Divider,
@@ -7,39 +13,32 @@ import {
   Space,
   Switch,
   Table,
-  theme,
   Tooltip,
   Typography,
-} from 'antd'
-import {
-  HeartFilled,
-  HeartOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons'
-import type { ColumnsType } from 'antd/es/table'
-import { Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import dayjs from 'dayjs'
-import { useRequest } from 'ahooks'
-import axios from 'axios'
-import { useEffect, useState } from 'react'
-import BasicLayout from '@/layouts/BasicLayout.tsx'
-import { useQuery } from '@apollo/client'
-import { ReposDocument } from '@/helpers/backend/gen/graphql.ts'
-const { Text } = Typography
+  theme,
+} from 'antd';
+import type { ColumnsType } from 'antd/es/table';
+import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
+import { ReposDocument } from '@/helpers/backend/gen/graphql.ts';
+import BasicLayout from '@/layouts/BasicLayout.tsx';
+
+const { Text } = Typography;
 const ProjectListPage = () => {
-  const [keyword, setKeyword] = useState('')
+  const [keyword, setKeyword] = useState('');
   const { data, loading } = useQuery(ReposDocument, {
     variables: {
       keywords: '',
     },
-  })
+  });
 
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   useEffect(() => {
     // run({ keyword });
-  }, [])
+  }, []);
 
   const columns: ColumnsType = [
     {
@@ -50,11 +49,12 @@ const ProjectListPage = () => {
       render(text, record) {
         return (
           <Space>
-            <div
+            <button
               className={'favor-heart'}
               style={{
                 visibility: record.favored ? 'unset' : undefined,
               }}
+              type='button'
               onClick={() => {
                 // favorProject({
                 //   variables: {
@@ -73,10 +73,10 @@ const ProjectListPage = () => {
               ) : (
                 <HeartOutlined />
               )}
-            </div>
+            </button>
             {text}
           </Space>
-        )
+        );
       },
     },
     // {
@@ -104,14 +104,9 @@ const ProjectListPage = () => {
 
             <span style={{ width: '4px', display: 'inline-block' }}></span>
             <div className={'flex gap-1 flex-col'}>
-              <a
-                className={'max-w-[240px]'}
-                style={{ color: 'unset' }}
-                target={'_blank'}
-                rel='noreferrer'
-              >
+              <span className={'max-w-[240px]'} style={{ color: 'unset' }}>
                 {text}
-              </a>
+              </span>
               <Text
                 type={'secondary'}
                 style={{ fontSize: '12px', width: '240px' }}
@@ -120,7 +115,7 @@ const ProjectListPage = () => {
               </Text>
             </div>
           </div>
-        )
+        );
       },
     },
     {
@@ -149,7 +144,7 @@ const ProjectListPage = () => {
       key: 'maxCoverage',
       sorter: true,
       render: (text) => {
-        return <Space>{text}</Space>
+        return <Space>{text}</Space>;
       },
     },
     {
@@ -157,7 +152,7 @@ const ProjectListPage = () => {
       dataIndex: 'lastReportTime',
       sorter: true,
       render(_) {
-        return <span>{dayjs(_).format('MM-DD HH:mm')}</span>
+        return <span>{dayjs(_).format('MM-DD HH:mm')}</span>;
       },
     },
     {
@@ -184,12 +179,12 @@ const ProjectListPage = () => {
               {t('common.settings')}
             </Link>
           </>
-        )
+        );
       },
     },
-  ]
+  ];
 
-  const { token } = theme.useToken()
+  const { token } = theme.useToken();
 
   return (
     <BasicLayout>
@@ -222,7 +217,7 @@ const ProjectListPage = () => {
               mode='multiple'
               onChange={(v) => {
                 // setBu(v);
-                localStorage.setItem('bu', JSON.stringify(v))
+                localStorage.setItem('bu', JSON.stringify(v));
               }}
               placeholder={'Bu'}
               className={'w-[200px] !mr-2'}
@@ -235,7 +230,7 @@ const ProjectListPage = () => {
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
               onSearch={() => {
-                run({ keyword })
+                // TODO: 调用接口/刷新列表，当前未实现
               }}
             />
             <Space className={'ml-5'}>
@@ -247,9 +242,9 @@ const ProjectListPage = () => {
                 )}
                 onChange={(v) => {
                   if (v) {
-                    localStorage.setItem('favorOnlyFilter', '1')
+                    localStorage.setItem('favorOnlyFilter', '1');
                   } else {
-                    localStorage.removeItem('favorOnlyFilter')
+                    localStorage.removeItem('favorOnlyFilter');
                   }
                   // setFavorOnly(v);
                 }}
@@ -274,7 +269,7 @@ const ProjectListPage = () => {
         </div>
       </div>
     </BasicLayout>
-  )
-}
+  );
+};
 
-export default ProjectListPage
+export default ProjectListPage;

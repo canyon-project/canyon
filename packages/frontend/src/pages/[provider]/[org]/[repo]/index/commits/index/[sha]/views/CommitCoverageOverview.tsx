@@ -1,9 +1,9 @@
-import { Badge, Empty, Space, Spin, Tabs, type TabsProps } from 'antd'
+import { useQuery } from '@apollo/client';
+import { Badge, Empty, Space, Spin, Tabs, type TabsProps } from 'antd';
+import { CoverageOverviewDocument } from '@/helpers/backend/gen/graphql.ts';
 // import {useRequest} from "ahooks";
 // import axios from "axios";
-import CoverageOverviewPanel from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx'
-import { useQuery } from '@apollo/client'
-import { CoverageOverviewDocument } from '@/helpers/backend/gen/graphql.ts'
+import CoverageOverviewPanel from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx';
 
 const CommitCoverageOverview = ({
   commit,
@@ -17,9 +17,9 @@ const CommitCoverageOverview = ({
       repoID: repo.id,
       sha: commit.sha,
     },
-  })
+  });
 
-  const data = d?.coverageOverview.resultList || []
+  const data = d?.coverageOverview.resultList || [];
 
   // 根据搜索条件筛选流水线
   // 更新 pipeline tab 的渲染，添加 commit 信息
@@ -28,9 +28,9 @@ const CommitCoverageOverview = ({
       return {
         ...i,
         hasReported: true,
-      }
+      };
     })
-    .map((build, index) => ({
+    .map((build) => ({
       key: build.buildID,
       label: (
         <Space>
@@ -65,7 +65,7 @@ const CommitCoverageOverview = ({
           )}
         </div>
       ),
-    }))
+    }));
 
   return (
     <Spin spinning={loading}>
@@ -74,18 +74,18 @@ const CommitCoverageOverview = ({
         activeKey={selectedBuildID}
         onChange={(val) => {
           const build = (data || []).find((item) => {
-            return item.buildID === val
-          })
+            return item.buildID === val;
+          });
           onChange({
             buildID: build.buildID,
             buildProvider: build.buildProvider,
-          })
+          });
         }}
         // type="card"
         className='build-tabs'
       />
     </Spin>
-  )
-}
+  );
+};
 
-export default CommitCoverageOverview
+export default CommitCoverageOverview;

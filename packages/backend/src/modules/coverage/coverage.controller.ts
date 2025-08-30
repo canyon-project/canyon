@@ -1,8 +1,8 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-import { CoverageSummaryService } from './coverage.summary.service';
-import { CoverageMapService } from './coverage.map.service';
-import { SummaryMapQueryDto } from './dto/summary-map.dto';
-import { MapQueryDto } from './dto/map.dto';
+import type { CoverageMapService } from './coverage.map.service';
+import type { CoverageSummaryService } from './coverage.summary.service';
+import type { MapQueryDto } from './dto/map.dto';
+import type { SummaryMapQueryDto } from './dto/summary-map.dto';
 
 @Controller('coverage')
 export class CoverageController {
@@ -39,7 +39,7 @@ export class CoverageController {
           sha: q.subjectID,
           buildProvider: q.buildProvider,
           buildID: q.buildID,
-          filePath: q.filePath
+          filePath: q.filePath,
         });
       case 'pull':
       case 'pulls':
@@ -50,12 +50,10 @@ export class CoverageController {
           buildProvider: q.buildProvider,
           buildID: q.buildID,
           filePath: q.filePath,
-          mode: q.mode
+          mode: q.mode,
         });
       default:
         throw new BadRequestException('invalid subject');
     }
   }
 }
-
-

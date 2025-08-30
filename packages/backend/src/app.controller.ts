@@ -1,9 +1,9 @@
-import { Controller, Get } from '@nestjs/common'
+import { Controller, Get } from '@nestjs/common';
 
 @Controller()
 export class AppController {
   @Get('vi/health')
   getHello(): string {
-    return '250614'
+    return '250614';
   }
 }

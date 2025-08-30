@@ -1,7 +1,7 @@
-import BasicLayout from '../layouts/BasicLayout.tsx'
+import BasicLayout from '../layouts/BasicLayout.tsx';
 
 const SettingsPage = () => {
-  return <BasicLayout>SettingsPage</BasicLayout>
-}
+  return <BasicLayout>SettingsPage</BasicLayout>;
+};
 
-export default SettingsPage
+export default SettingsPage;

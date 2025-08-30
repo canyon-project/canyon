@@ -1,18 +1,18 @@
-import BasicLayout from '../layouts/BasicLayout.tsx'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { Form, Input, Select, Button, Card } from 'antd'
-import CanyonReport from 'canyon-report'
-import { useSearchParams } from 'react-router-dom'
-import { useRequest } from 'ahooks'
-import axios from 'axios'
-import { useQuery } from '@apollo/client'
-import { RepoDocument } from '@/helpers/backend/gen/graphql.ts'
-import { handleSelectFileBySubject } from '@/helpers/report.ts'
+import { useQuery } from '@apollo/client';
+import { useRequest } from 'ahooks';
+import { Button, Card, Form, Input, Select } from 'antd';
+import axios from 'axios';
+import CanyonReport from 'canyon-report';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { RepoDocument } from '@/helpers/backend/gen/graphql.ts';
+import { handleSelectFileBySubject } from '@/helpers/report.ts';
+import BasicLayout from '../layouts/BasicLayout.tsx';
 
 const PlaygroundPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const [form] = Form.useForm()
+  const [form] = Form.useForm();
 
   const initialFormValues = useMemo(
     () => ({
@@ -28,24 +28,24 @@ const PlaygroundPage = () => {
       mode: searchParams.get('mode') ?? '',
     }),
     [searchParams],
-  )
+  );
 
-  const hasAutoRanRef = useRef(false)
+  const hasAutoRanRef = useRef(false);
 
   useEffect(() => {
-    form.setFieldsValue(initialFormValues)
-  }, [initialFormValues])
+    form.setFieldsValue(initialFormValues);
+  }, [initialFormValues, form]);
 
-  const onFinish = (values: any) => {
-    const nextParams: Record<string, string> = {}
+  const onFinish = (values: Record<string, unknown>) => {
+    const nextParams: Record<string, string> = {};
     Object.entries(values || {}).forEach(([k, v]) => {
       if (v !== undefined && v !== null && String(v).length > 0)
-        nextParams[k] = String(v)
-    })
-    setSearchParams(nextParams)
+        nextParams[k] = String(v);
+    });
+    setSearchParams(nextParams);
 
-    run(nextParams)
-  }
+    run(nextParams);
+  };
 
   const { run, data } = useRequest(
     (p) =>
@@ -57,18 +57,18 @@ const PlaygroundPage = () => {
     {
       manual: true,
     },
-  )
+  );
 
   const [activatedPath, setActivatedPath] = useState<string | undefined>(
     searchParams.get('filePath') || '',
-  )
+  );
 
   useEffect(() => {
     setSearchParams({
       ...Object.fromEntries(searchParams.entries()),
       filePath: activatedPath || '',
-    })
-  }, [activatedPath])
+    });
+  }, [activatedPath, setSearchParams, searchParams]);
 
   type SubjectType =
     | 'commit'
@@ -76,7 +76,7 @@ const PlaygroundPage = () => {
     | 'pull'
     | 'pulls'
     | 'multiple-commits'
-    | 'multi-commits'
+    | 'multi-commits';
   const isSubjectType = (s: string): s is SubjectType =>
     [
       'commit',
@@ -85,16 +85,16 @@ const PlaygroundPage = () => {
       'pulls',
       'multiple-commits',
       'multi-commits',
-    ].includes(s as any)
+    ].includes(s as SubjectType);
 
   function onSelect(val: string) {
-    setActivatedPath(val)
+    setActivatedPath(val);
     if (!val.includes('.')) {
       return Promise.resolve({
         fileContent: '',
         fileCoverage: {},
         fileCodeChange: [],
-      })
+      });
     }
 
     const {
@@ -106,16 +106,16 @@ const PlaygroundPage = () => {
       buildID,
       reportProvider,
       reportID,
-    } = initialFormValues
+    } = initialFormValues;
 
-    const repoID = repoIdFromUrl || (repoData?.repo?.id ?? '')
+    const repoID = repoIdFromUrl || (repoData?.repo?.id ?? '');
 
     if (!repoID || !subject || !subjectID || !isSubjectType(subject)) {
       return Promise.resolve({
         fileContent: '',
         fileCoverage: {},
         fileCodeChange: [],
-      })
+      });
     }
 
     return handleSelectFileBySubject({
@@ -129,20 +129,20 @@ const PlaygroundPage = () => {
       reportProvider: reportProvider || undefined,
       reportID: reportID || undefined,
     }).then((res) => {
-      console.log(res)
+      console.log(res);
       return {
         fileContent: res.fileContent,
         fileCoverage: res.fileCoverage,
         fileCodeChange: res.fileCodeChange,
-      }
-    })
+      };
+    });
   }
 
   // 首次进入且必要参数齐全时自动请求
   useEffect(() => {
-    if (hasAutoRanRef.current) return
+    if (hasAutoRanRef.current) return;
     const { subject, subjectID, provider, repoID, buildProvider, buildID } =
-      initialFormValues
+      initialFormValues;
     const required = [
       subject,
       subjectID,
@@ -150,23 +150,23 @@ const PlaygroundPage = () => {
       repoID,
       buildProvider,
       buildID,
-    ]
+    ];
     if (required.every((v) => v && String(v).length > 0)) {
-      hasAutoRanRef.current = true
-      const nextParams: Record<string, string> = {}
+      hasAutoRanRef.current = true;
+      const nextParams: Record<string, string> = {};
       Object.entries(initialFormValues || {}).forEach(([k, v]) => {
         if (v !== undefined && v !== null && String(v).length > 0)
-          nextParams[k] = String(v)
-      })
-      run(nextParams)
+          nextParams[k] = String(v);
+      });
+      run(nextParams);
     }
-  }, [initialFormValues, run])
+  }, [initialFormValues, run]);
 
   const { data: repoData } = useQuery(RepoDocument, {
     variables: {
       id: searchParams.get('repoID') || '',
     },
-  })
+  });
 
   // const {data:codeFileContentData} = useQuery(CodeFileContentDocument,{
   //   variables:{
@@ -249,6 +249,6 @@ const PlaygroundPage = () => {
         </div>
       </Card>
     </BasicLayout>
-  )
-}
-export default PlaygroundPage
+  );
+};
+export default PlaygroundPage;

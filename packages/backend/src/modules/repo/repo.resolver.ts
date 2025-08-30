@@ -1,7 +1,13 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { RepoService } from './repo.service';
-import { Field, ObjectType } from '@nestjs/graphql';
-import {JSONScalar} from "../../scalars/json.scalar";
+import {
+  Args,
+  Field,
+  Mutation,
+  ObjectType,
+  Query,
+  Resolver,
+} from '@nestjs/graphql';
+import { JSONScalar } from '../../scalars/json.scalar';
+import type { RepoService } from './repo.service';
 
 @ObjectType()
 class Repo {
@@ -21,11 +27,10 @@ class Repo {
   updatedAt!: Date;
 }
 
-
 @ObjectType()
 class RepoList {
   @Field(() => [JSONScalar])
-  data: any[];
+  data: unknown[];
 
   @Field(() => String, { nullable: true })
   keyword?: string | null;
@@ -37,7 +42,7 @@ class RepoCommits {
   repoID: string;
 
   @Field(() => [JSONScalar])
-  commits: any[];
+  commits: unknown[];
 }
 
 @ObjectType()
@@ -80,7 +85,9 @@ export class RepoResolver {
   }
 
   @Query(() => RepoList)
-  repos(@Args('keyword', { type: () => String, nullable: true }) keyword?: string) {
+  repos(
+    @Args('keyword', { type: () => String, nullable: true }) keyword?: string,
+  ) {
     return this.repoService.getRepos(keyword);
   }
 
@@ -97,7 +104,7 @@ export class RepoResolver {
   @Query(() => RepoCommitDetail)
   repoCommitBySHA(
     @Args('repoID', { type: () => String }) repoID: string,
-    @Args('sha', { type: () => String }) sha: string
+    @Args('sha', { type: () => String }) sha: string,
   ) {
     return this.repoService.getRepoCommitBySHA(repoID, sha);
   }
@@ -107,5 +114,3 @@ export class RepoResolver {
     return this.repoService.postRepoById(id);
   }
 }
-
-

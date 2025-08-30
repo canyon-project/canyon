@@ -1,17 +1,16 @@
-import { Module } from '@nestjs/common'
-import { CoverageController } from './coverage.controller'
-import { CoverageSummaryService } from './coverage.summary.service'
-import { CoverageMapService } from './coverage.map.service'
-import { CoverageMapStoreService } from './coverage.map-store.service'
-import { CoverageGitService } from './coverage.git.service'
-import { SystemConfigModule } from '../system-config/system-config.module'
-import { ChModule } from '../ch/ch.module'
-import { MikroOrmModule } from '@mikro-orm/nestjs'
-import { RepoEntity } from '../../entities/repo.entity'
-import { CoverageEntity } from '../../entities/coverage.entity'
-import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity'
-import { CoverageOverviewResolver } from './coverage.resolver'
-import { CoverageOverviewService } from './coverage.overview.service'
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { Module } from '@nestjs/common';
+import { CoverageEntity } from '../../entities/coverage.entity';
+import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
+import { ChModule } from '../ch/ch.module';
+import { SystemConfigModule } from '../system-config/system-config.module';
+import { CoverageController } from './coverage.controller';
+import { CoverageGitService } from './coverage.git.service';
+import { CoverageMapService } from './coverage.map.service';
+import { CoverageMapStoreService } from './coverage.map-store.service';
+import { CoverageOverviewService } from './coverage.overview.service';
+import { CoverageOverviewResolver } from './coverage.resolver';
+import { CoverageSummaryService } from './coverage.summary.service';
 
 @Module({
   imports: [
