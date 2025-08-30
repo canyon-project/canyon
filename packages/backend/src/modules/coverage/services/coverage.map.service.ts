@@ -132,8 +132,7 @@ export class CoverageMapService {
       b: unknown;
     }> = await hitRes.json();
 
-    const instrumentCwd =
-      (coverages[0]?.instrumentCwd as string | null | undefined) || '';
+    const instrumentCwd = coverages[0].instrumentCwd;
     const relWhere: { coverageID: { $in: string[] }; filePath?: string } = {
       coverageID: { $in: coverageIDs },
     };
@@ -294,11 +293,7 @@ export class CoverageMapService {
     for (const c of allCov) if (c.sha === headSha) baseSet.add(c.id);
     if (baseSet.size === 0) baseSet.add(allCov[0].id);
     const baselineCovID = [...baseSet][0];
-    const baselineCwd =
-      (covByID.get(baselineCovID)?.instrumentCwd as
-        | string
-        | null
-        | undefined) || '';
+    const baselineCwd = covByID.get(baselineCovID)!.instrumentCwd;
 
     const changesBySha = new Map<string, Set<string>>();
     if (mode && mode.toLowerCase() !== 'filemerge') {
@@ -365,10 +360,7 @@ export class CoverageMapService {
       const cov = covByID.get(row.coverageID);
       if (!cov) continue;
       const isBaseline = baseSet.has(row.coverageID);
-      const relPath = trimInstrumentCwd(
-        row.fullFilePath,
-        (cov.instrumentCwd as string | null | undefined) || '',
-      );
+      const relPath = trimInstrumentCwd(row.fullFilePath, cov.instrumentCwd);
       let include = isBaseline;
       if (!isBaseline) {
         const changed = changesBySha.get(cov.sha);

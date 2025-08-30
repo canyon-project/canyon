@@ -80,8 +80,7 @@ export class CoverageSummaryService {
         b: unknown;
       }> = await hitRes.json();
 
-      const instrumentCwd =
-        (coverages[0]?.instrumentCwd as string | null | undefined) || '';
+      const instrumentCwd = coverages[0].instrumentCwd;
       const relWhere: { coverageID: { $in: string[] }; filePath?: RegExp } = {
         coverageID: { $in: coverageIDs },
       };

@@ -87,12 +87,12 @@ export class CoverageOverviewService {
     const buildGroupList: Array<{ buildProvider: string; buildID: string }> =
       [];
     for (const c of coverages) {
-      const key = `${c.buildProvider || ''}|${c.buildID || ''}`;
+      const key = `${c.buildProvider}|${c.buildID}`;
       if (!buildGroupSet.has(key)) {
         buildGroupSet.add(key);
         buildGroupList.push({
-          buildProvider: c.buildProvider || '',
-          buildID: c.buildID || '',
+          buildProvider: c.buildProvider,
+          buildID: c.buildID,
         });
       }
     }

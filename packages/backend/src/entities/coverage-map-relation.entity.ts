@@ -16,6 +16,6 @@ export class CoverageMapRelationEntity {
   @Property({ fieldName: 'full_file_path', type: 'text' })
   fullFilePath!: string;
 
-  @Property({ fieldName: 'file_path', type: 'text', nullable: true })
-  filePath?: string | null;
+  @Property({ fieldName: 'file_path', type: 'text' })
+  filePath!: string;
 }

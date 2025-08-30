@@ -17,18 +17,18 @@ export class CoverageEntity {
   @Property({ fieldName: 'sha', type: 'text' })
   sha!: string;
 
-  @Property({ fieldName: 'build_provider', type: 'text', nullable: true })
-  buildProvider?: string | null;
+  @Property({ fieldName: 'build_provider', type: 'text' })
+  buildProvider!: string;
 
-  @Property({ fieldName: 'build_id', type: 'text', nullable: true })
-  buildID?: string | null;
+  @Property({ fieldName: 'build_id', type: 'text' })
+  buildID!: string;
 
-  @Property({ fieldName: 'instrument_cwd', type: 'text', nullable: true })
-  instrumentCwd?: string | null;
+  @Property({ fieldName: 'instrument_cwd', type: 'text' })
+  instrumentCwd!: string;
 
-  @Property({ fieldName: 'report_provider', type: 'text', nullable: true })
-  reportProvider?: string | null;
+  @Property({ fieldName: 'report_provider', type: 'text' })
+  reportProvider!: string;
 
-  @Property({ fieldName: 'report_id', type: 'text', nullable: true })
-  reportID?: string | null;
+  @Property({ fieldName: 'report_id', type: 'text' })
+  reportID!: string;
 }
