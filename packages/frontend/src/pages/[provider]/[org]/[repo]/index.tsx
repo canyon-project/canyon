@@ -10,7 +10,6 @@ const ProjectDetailPage = () => {
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  console.log(params, 'params');
   const { data: r } = useQuery(RepoDocument, {
     variables: {
       id: `${params.org}/${params.repo}`,
@@ -59,9 +58,6 @@ const ProjectDetailPage = () => {
         <Outlet
           context={{
             repo: data,
-            commit: {
-              s: 'x',
-            },
           }}
         />
       </RIf>

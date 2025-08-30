@@ -1,7 +1,6 @@
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { BadRequestException, Injectable } from '@nestjs/common';
-// axios not used
 import { CoverageEntity } from '../../entities/coverage.entity';
 import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
 import { percent } from '../../helpers/utils';

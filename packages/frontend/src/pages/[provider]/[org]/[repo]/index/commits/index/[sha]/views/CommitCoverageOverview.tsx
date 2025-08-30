@@ -1,8 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { Badge, Empty, Space, Spin, Tabs, type TabsProps } from 'antd';
 import { CoverageOverviewDocument } from '@/helpers/backend/gen/graphql.ts';
-// import {useRequest} from "ahooks";
-// import axios from "axios";
 import CoverageOverviewPanel from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx';
 import type { Build, BuildMode, CommitCoverageOverviewProps } from '@/types';
 
@@ -54,24 +52,7 @@ const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
       ),
       children: (
         <div className='p-4'>
-          {!build.hasReported ? (
-            <Empty
-              image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description={
-                <div className='text-center'>
-                  <p className='text-yellow-500 font-medium mb-2'>
-                    该流水线尚未上报覆盖率数据
-                  </p>
-                  <p className='text-gray-500'>
-                    最后更新时间: {build.lastUpdated}
-                  </p>
-                  <p className='text-gray-500'>构建名称: {build.name}</p>
-                </div>
-              }
-            />
-          ) : (
-            <CoverageOverviewPanel build={build as unknown as Build} />
-          )}
+          <CoverageOverviewPanel build={build as unknown as Build} />
         </div>
       ),
     }));
@@ -90,8 +71,6 @@ const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
             buildProvider: String(build?.buildProvider || ''),
           });
         }}
-        // type="card"
-        className='build-tabs'
       />
     </Spin>
   );

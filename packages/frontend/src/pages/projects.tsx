@@ -36,16 +36,11 @@ const ProjectListPage = () => {
 
   const { t } = useTranslation();
 
-  useEffect(() => {
-    // run({ keyword });
-  }, []);
-
   const columns: ColumnsType = [
     {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
-      // align:'center',
       render(text, record) {
         return (
           <Space>
@@ -55,18 +50,7 @@ const ProjectListPage = () => {
                 visibility: record.favored ? 'unset' : undefined,
               }}
               type='button'
-              onClick={() => {
-                // favorProject({
-                //   variables: {
-                //     projectID: record.id,
-                //     favored: !record.favored,
-                //   },
-                // }).then(() => {
-                //   refetch().then(() => {
-                //     message.success("success");
-                //   });
-                // });
-              }}
+              onClick={() => {}}
             >
               {record.favored ? (
                 <HeartFilled style={{ color: 'red' }} />
@@ -79,16 +63,6 @@ const ProjectListPage = () => {
         );
       },
     },
-    // {
-    //   title: t("projects.slug"),
-    //   dataIndex: "id",
-    //   key: "slug",
-    //   render(text) {
-    //     return (
-    //       <span className={"max-w-[80px] block"}>{text.split("-")[2]}</span>
-    //     );
-    //   },
-    // },
     {
       title: t('projects.name'),
       dataIndex: 'pathWithNamespace',
@@ -159,8 +133,6 @@ const ProjectListPage = () => {
       title: t('common.option'),
       key: 'option',
       render: (_, { id, pathWithNamespace }) => {
-        // Base64编码pathWithNamespace，处理包含斜杠的路径
-        // const encodedPath = btoa(pathWithNamespace);
         return (
           <>
             <Link
@@ -193,16 +165,11 @@ const ProjectListPage = () => {
           items={[
             {
               title: 'Project',
-              // href: '/projects',
             },
-            // {
-            //   title: 'xtaro-hotel-search',
-            // },
           ]}
         />
 
         <Space>
-          {/*<SettingOutlined />*/}
           <Button type={'primary'} size={'small'}>
             New Project
           </Button>
@@ -216,7 +183,6 @@ const ProjectListPage = () => {
               defaultValue={'fligt'}
               mode='multiple'
               onChange={(v) => {
-                // setBu(v);
                 localStorage.setItem('bu', JSON.stringify(v));
               }}
               placeholder={'Bu'}
@@ -246,7 +212,6 @@ const ProjectListPage = () => {
                   } else {
                     localStorage.removeItem('favorOnlyFilter');
                   }
-                  // setFavorOnly(v);
                 }}
               />
             </Space>

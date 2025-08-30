@@ -1,11 +1,7 @@
-'use client';
-
 import { SearchOutlined, TagsOutlined } from '@ant-design/icons';
 import { Badge, Input, List, Space, Spin, Tooltip } from 'antd';
 import { useEffect, useState } from 'react';
 import { Scrollbars } from 'react-custom-scrollbars';
-
-// import { formatDistanceToNow } from 'date-fns';
 
 // 扩展 Commit 接口，添加 branches 属性
 interface Commit {

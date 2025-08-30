@@ -71,8 +71,6 @@ const Commits = () => {
     navigate(
       `/${params.provider}/${params.org}/${params.repo}/commits/${commit.sha}`,
     );
-
-    // 获取当前参数
   };
 
   return (
