@@ -2,18 +2,32 @@
   "name": "canyon",
   "version": "3.0.0",
   "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
     "preinstall": "node ./scripts/check.mjs",
     "clean": "node ./scripts/clean.mjs",
     "format:write": "biome format . --write",
-    "dev": "pnpm run -r --stream dev"
+    "dev": "pnpm run -r --stream dev",
+    "build": "pnpm run -r --stream build",
+    "prepare": "pnpm run build && simple-git-hooks"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "simple-git-hooks": {
+    "pre-commit": "npx nano-staged"
+  },
+  "nano-staged": {
+    "*.{md,mdx,css,less,scss,json,jsonc,json5}": "prettier --write",
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "biome check --write"
+    ]
+  },
   "devDependencies": {
-    "@biomejs/biome": "^2.2.2"
+    "@biomejs/biome": "^2.2.2",
+    "nano-staged": "^0.8.0",
+    "prettier": "^3.6.2",
+    "simple-git-hooks": "^2.13.1"
   },
   "pnpm": {
     "overrides": {

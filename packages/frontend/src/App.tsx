@@ -1,11 +1,11 @@
+import { ConfigProvider, theme } from 'antd'
 import enUS from 'antd/es/locale/en_US'
 import jaJP from 'antd/es/locale/ja_JP'
 import zhCN from 'antd/es/locale/zh_CN'
 import { useRoutes } from 'react-router-dom'
-
-import { ConfigProvider, theme } from 'antd'
-import routes from '~react-pages'
 import CoverageReport from '@/components/CoverageReport.tsx'
+import routes from '~react-pages'
+
 const languages = {
   cn: zhCN,
   en: enUS,
