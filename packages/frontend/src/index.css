@@ -27,6 +27,11 @@ a:hover {
   padding: 6px !important;
 }
 
+/*登陆页面*/
+.ant-tabs-nav {
+  padding-left: 16px !important;
+}
+
 /*canyon-report*/
 
 .YourHighlightClass {

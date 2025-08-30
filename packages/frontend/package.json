@@ -22,6 +22,8 @@
     "canyon-report": "3.0.0-beta.4",
     "dayjs": "^1.11.13",
     "graphql": "^16.11.0",
+    "i18next": "^25.4.2",
+    "i18next-browser-languagedetector": "^8.2.0",
     "lucide-react": "^0.542.0",
     "monaco-editor": "^0.52.2",
     "monaco-themes": "^0.4.6",

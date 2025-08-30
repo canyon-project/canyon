@@ -55,7 +55,7 @@ const BasicLayout: FC<{
               return <Link to={item.path}>{dom}</Link>;
             }}
           >
-            <div style={{ padding: 0 }}>{children}</div>
+            <div className={'shadow bg-white rounded'}>{children}</div>
           </ProLayout>
         </AntApp>
       </ProConfigProvider>

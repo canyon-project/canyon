@@ -247,9 +247,6 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                     rowKey='caseId'
                     size='small'
                     className='border border-gray-200 '
-                    style={{
-                      borderBottom: 0,
-                    }}
                   />
                 </div>
               ))}
@@ -301,9 +298,6 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                     rowKey='caseId'
                     size='small'
                     className='border border-gray-200'
-                    style={{
-                      borderBottom: 0,
-                    }}
                   />
                 </div>
               ))}
