@@ -49,7 +49,7 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
     | 'multiple-commits'
     | 'multi-commits';
 
-  const { data } = useRequest(
+  const { data, loading } = useRequest(
     () =>
       axios('/api/coverage/summary/map', {
         params: {
@@ -122,18 +122,20 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
   }, [activatedPath, subjectID, getToFilePath]);
 
   return (
-    <div
-      style={{
-        height: 'calc(100vh - 12px)',
-      }}
-    >
-      <Report
-        name={params.repo}
-        value={activatedPath}
-        onSelect={onSelect}
-        dataSource={data}
-      />
-    </div>
+    <Spin spinning={loading}>
+      <div
+        style={{
+          height: 'calc(100vh - 12px)',
+        }}
+      >
+        <Report
+          name={params.repo}
+          value={activatedPath}
+          onSelect={onSelect}
+          dataSource={data}
+        />
+      </div>
+    </Spin>
   );
 }
 
