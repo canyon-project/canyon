@@ -11,10 +11,22 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
   const [searchParams, _setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const params = useParams();
+  type CaseItem = {
+    caseId?: string;
+    caseUrl?: string;
+    reportProvider?: string;
+    reportID?: string;
+    caseName?: string;
+    passedCount?: number;
+    failedCount?: number;
+    totalCount?: number;
+    passRate?: string;
+    summary?: { percent: number };
+  };
   type ModeItem = {
     mode: 'auto' | 'manual';
     summary?: { covered?: number; total?: number };
-    caseList?: Array<Record<string, any>>;
+    caseList?: Array<CaseItem>;
   };
   const automatedMode = (build?.modeList || []).find(
     (r: ModeItem) => r.mode === 'auto',
@@ -220,8 +232,8 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             className='border-0'
           >
             {build.modeList
-              .filter((r: any) => r.mode === 'auto')
-              .map((report: any) => (
+              .filter((r: ModeItem) => r.mode === 'auto')
+              .map((report: ModeItem) => (
                 <div key={report.reportID} className='mb-4'>
                   <Table
                     columns={getColumnsForMode('auto')}
@@ -270,8 +282,8 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             className='border-0'
           >
             {build.modeList
-              ?.filter((r: any) => r.mode === 'manual')
-              .map((report: any) => (
+              ?.filter((r: ModeItem) => r.mode === 'manual')
+              .map((report: ModeItem) => (
                 <div key={report.reportID} className='mb-4'>
                   {/*{JSON.stringify(report.caseList||[])}*/}
                   <Table

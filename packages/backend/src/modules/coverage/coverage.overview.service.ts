@@ -8,7 +8,7 @@ import type { ChService } from '../ch/ch.service';
 import type { SystemConfigService } from '../system-config/system-config.service';
 import type { CoverageGitService } from './coverage.git.service';
 import type { CoverageMapStoreService } from './coverage.map-store.service';
-import { trimInstrumentCwd, tupleToMap } from './coverage.utils';
+import { tupleToMap } from './coverage.utils';
 
 @Injectable()
 export class CoverageOverviewService {
@@ -16,7 +16,8 @@ export class CoverageOverviewService {
     private readonly ch: ChService,
     private readonly mapStore: CoverageMapStoreService,
     private readonly syscfg: SystemConfigService,
-    private readonly git: CoverageGitService,
+    // kept for future use; avoid unused private member warning
+    _git: CoverageGitService,
     @InjectRepository(CoverageEntity)
     private readonly covRepo: EntityRepository<CoverageEntity>,
     @InjectRepository(CoverageMapRelationEntity)
@@ -146,9 +147,6 @@ export class CoverageOverviewService {
     }> = await hitRes.json();
 
     // 为每个 fullFilePath + hash 选择结构，用于计算总语句数（分母）
-    const instrumentCwd =
-      (coverages[0]?.instrumentCwd as string | null | undefined) || '';
-    const trimPath = (p: string) => trimInstrumentCwd(p, instrumentCwd);
     const seenPair = new Set<string>();
     const coverageMapWithFilePath: Array<{
       fullFilePath: string;
@@ -280,7 +278,7 @@ export class CoverageOverviewService {
       hash: string;
       S: Record<string, true>;
     }>,
-    testCaseInfoList: any[],
+    testCaseInfoList: Array<Record<string, unknown>>,
   ) {
     const autoCoverages = coverageList.filter(
       (c) => c.reportProvider === 'mpaas' || c.reportProvider === 'flytest',
@@ -324,7 +322,7 @@ export class CoverageOverviewService {
       hash: string;
       S: Record<string, true>;
     }>,
-    testCaseInfoList: any[],
+    testCaseInfoList: Array<Record<string, unknown>>,
   ) {
     const manualCoverages = coverageList.filter(
       (c) => c.reportProvider === 'person',
@@ -376,7 +374,7 @@ export class CoverageOverviewService {
       hash: string;
       S: Record<string, true>;
     }>,
-    testCaseInfoList: any[],
+    testCaseInfoList: Array<Record<string, unknown>>,
   ) {
     const out: Array<Record<string, unknown>> = [];
     for (const c of coverageList) {
@@ -417,8 +415,8 @@ export class CoverageOverviewService {
     reportProvider?: string,
   ) {
     for (const item of list || []) {
-      const rid = item?.['reportID'];
-      const rpr = item?.['reportProvider'];
+      const rid = item?.reportID as string | undefined;
+      const rpr = item?.reportProvider as string | undefined;
       if (rid === reportID && rpr === reportProvider) return item;
     }
     return {
@@ -454,7 +452,7 @@ export class CoverageOverviewService {
       hash: string;
       S: Record<string, true>;
     }>,
-    testCaseInfoList: any[],
+    testCaseInfoList: Array<Record<string, unknown>>,
   ) {
     const resultList: Array<Record<string, unknown>> = [];
     for (const group of deduplicatedBuildGroupList) {
@@ -496,7 +494,7 @@ export class CoverageOverviewService {
       reportProvider?: string | null;
       reportID?: string | null;
     }>,
-  ): Promise<any[]> {
+  ): Promise<Array<Record<string, unknown>>> {
     const need = (coverageList || []).filter(
       (c) => c.reportProvider === 'mpaas' || c.reportProvider === 'flytest',
     );
@@ -518,7 +516,7 @@ export class CoverageOverviewService {
       this._fetchExternalTestCaseInfo(base, p.provider, p.id),
     );
     const results = await Promise.all(tasks.map((t) => t.catch(() => null)));
-    return results.filter(Boolean) as any[];
+    return results.filter(Boolean) as Array<Record<string, unknown>>;
   }
 
   private async _getTestCaseBaseURL(): Promise<string> {
@@ -532,7 +530,7 @@ export class CoverageOverviewService {
     base: string,
     reportProvider: string,
     reportID: string,
-  ): Promise<any> {
+  ): Promise<Record<string, unknown>> {
     const params = new URLSearchParams();
     params.set('report_provider', reportProvider);
     params.set('report_id', reportID);
@@ -551,7 +549,7 @@ export class CoverageOverviewService {
     try {
       const resp = await axios.get(url, { timeout: 10000 });
       if (!resp || resp.status < 200 || resp.status >= 300) return def;
-      const body = (resp.data || {}) as any;
+      const body = (resp.data || {}) as Record<string, unknown>;
       const getNum = (...keys: string[]) => {
         for (const k of keys) {
           const v = body?.[k];
