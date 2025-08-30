@@ -1,8 +1,8 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-import type { CoverageMapService } from './coverage.map.service';
-import type { CoverageSummaryService } from './coverage.summary.service';
-import type { MapQueryDto } from './dto/map.dto';
-import type { SummaryMapQueryDto } from './dto/summary-map.dto';
+import { CoverageMapService } from './coverage.map.service';
+import { CoverageSummaryService } from './coverage.summary.service';
+import { MapQueryDto } from './dto/map.dto';
+import { SummaryMapQueryDto } from './dto/summary-map.dto';
 
 @Controller('coverage')
 export class CoverageController {

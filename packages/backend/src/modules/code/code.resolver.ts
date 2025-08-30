@@ -1,5 +1,5 @@
 import { Args, Field, ObjectType, Query, Resolver } from '@nestjs/graphql';
-import type { CodeService } from './code.service';
+import { CodeService } from './code.service';
 
 @ObjectType()
 class CodeFileContent {

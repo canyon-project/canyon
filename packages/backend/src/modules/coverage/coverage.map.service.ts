@@ -1,13 +1,13 @@
-import type { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { CoverageEntity } from '../../entities/coverage.entity';
 import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
-import type { ChService } from '../ch/ch.service';
-import type { SystemConfigService } from '../system-config/system-config.service';
-import type { CoverageGitService } from './coverage.git.service';
-import type { CoverageMapStoreService } from './coverage.map-store.service';
+import { ChService } from '../ch/ch.service';
+import { SystemConfigService } from '../system-config/system-config.service';
+import { CoverageGitService } from './coverage.git.service';
+import { CoverageMapStoreService } from './coverage.map-store.service';
 import {
   mergeFunctionHitsByBlock,
   mergeStatementHitsByBlock,

@@ -1,4 +1,4 @@
-import type { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import { CoverageEntity } from '../../entities/coverage.entity';

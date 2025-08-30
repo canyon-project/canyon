@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Optional } from '@nestjs/common';
 import axios from 'axios';
-import type { SystemConfigService } from '../system-config/system-config.service';
+import { SystemConfigService } from '../system-config/system-config.service';
 
 @Injectable()
 export class CodeService {

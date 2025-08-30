@@ -7,7 +7,7 @@ import {
   Resolver,
 } from '@nestjs/graphql';
 import { JSONScalar } from '../../scalars/json.scalar';
-import type { RepoService } from './repo.service';
+import { RepoService } from './repo.service';
 
 @ObjectType()
 class Repo {
