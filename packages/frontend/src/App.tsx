@@ -6,6 +6,7 @@ import { useRoutes } from 'react-router-dom'
 import CoverageReport from '@/components/CoverageReport.tsx'
 import routes from '~react-pages'
 
+console.log('123')
 const languages = {
   cn: zhCN,
   en: enUS,
