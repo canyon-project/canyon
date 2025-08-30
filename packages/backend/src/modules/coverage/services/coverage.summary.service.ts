@@ -1,14 +1,14 @@
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CoverageEntity } from '../../entities/coverage.entity';
-import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
-import { percent } from '../../helpers/utils';
-import { ChService } from '../ch/ch.service';
-import { SystemConfigService } from '../system-config/system-config.service';
+import { CoverageEntity } from '../../../entities/coverage.entity';
+import { CoverageMapRelationEntity } from '../../../entities/coverage-map-relation.entity';
+import { percent } from '../../../helpers/utils';
+import { ChService } from '../../ch/ch.service';
+import { SystemConfigService } from '../../system-config/system-config.service';
+import { trimInstrumentCwd, tupleToMap } from '../coverage.utils';
 import { CoverageGitService } from './coverage.git.service';
 import { CoverageMapStoreService } from './coverage.map-store.service';
-import { trimInstrumentCwd, tupleToMap } from './coverage.utils';
 
 @Injectable()
 export class CoverageSummaryService {

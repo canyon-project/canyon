@@ -1,6 +1,6 @@
 import { Args, Query, Resolver } from '@nestjs/graphql';
 import { JSONScalar } from '../../scalars/json.scalar';
-import { CoverageOverviewService } from './coverage.overview.service';
+import { CoverageOverviewService } from './services/coverage.overview.service';
 
 @Resolver()
 export class CoverageOverviewResolver {

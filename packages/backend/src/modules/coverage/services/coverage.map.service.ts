@@ -2,18 +2,18 @@ import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { CoverageEntity } from '../../entities/coverage.entity';
-import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
-import { ChService } from '../ch/ch.service';
-import { SystemConfigService } from '../system-config/system-config.service';
-import { CoverageGitService } from './coverage.git.service';
-import { CoverageMapStoreService } from './coverage.map-store.service';
+import { CoverageEntity } from '../../../entities/coverage.entity';
+import { CoverageMapRelationEntity } from '../../../entities/coverage-map-relation.entity';
+import { ChService } from '../../ch/ch.service';
+import { SystemConfigService } from '../../system-config/system-config.service';
 import {
   mergeFunctionHitsByBlock,
   mergeStatementHitsByBlock,
   trimInstrumentCwd,
   tupleToMap,
-} from './coverage.utils';
+} from '../coverage.utils';
+import { CoverageGitService } from './coverage.git.service';
+import { CoverageMapStoreService } from './coverage.map-store.service';
 
 // 将扁平化的分支命中键解码为 (branchId, armIndex)，并按 Istanbul 期望的数组形式聚合
 const MAX_BRANCH_LENGTH = 10000;

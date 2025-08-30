@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { ChService } from '../ch/ch.service';
+import { ChService } from '../../ch/ch.service';
 
 @Injectable()
 export class CoverageMapStoreService {

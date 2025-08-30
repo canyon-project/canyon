@@ -2,13 +2,13 @@ import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { CoverageEntity } from '../../entities/coverage.entity';
-import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
-import { ChService } from '../ch/ch.service';
-import { SystemConfigService } from '../system-config/system-config.service';
+import { CoverageEntity } from '../../../entities/coverage.entity';
+import { CoverageMapRelationEntity } from '../../../entities/coverage-map-relation.entity';
+import { ChService } from '../../ch/ch.service';
+import { SystemConfigService } from '../../system-config/system-config.service';
+import { tupleToMap } from '../coverage.utils';
 import { CoverageGitService } from './coverage.git.service';
 import { CoverageMapStoreService } from './coverage.map-store.service';
-import { tupleToMap } from './coverage.utils';
 
 @Injectable()
 export class CoverageOverviewService {
