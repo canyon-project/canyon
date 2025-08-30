@@ -18,6 +18,8 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
     | 'commits'
     | 'pull'
     | 'pulls'
+    | 'multiple-commits'
+    | 'multi-commits'
     | undefined;
   const buildProvider = searchParams.get('build_provider') || 'gitlab_runner';
   const buildID = searchParams.get('build_id') || '';
@@ -53,6 +55,13 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
   const onSelect = (val: string) => {
     setActivatedPath(val);
     if (!val.includes('.')) {
+      return Promise.resolve({
+        fileContent: '',
+        fileCoverage: {},
+        fileCodeChange: [],
+      });
+    }
+    if (!subject) {
       return Promise.resolve({
         fileContent: '',
         fileCoverage: {},

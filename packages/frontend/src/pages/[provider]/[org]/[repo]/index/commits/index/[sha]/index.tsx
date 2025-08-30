@@ -4,7 +4,10 @@ import RIf from '@/components/RIf.tsx';
 import CommitCoverageOverview from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CommitCoverageOverview.tsx';
 
 const Sha = () => {
-  const { commit, repo } = useOutletContext();
+  const { commit, repo } = useOutletContext<{
+    commit?: import('@/types').Commit;
+    repo?: import('@/types').Repository;
+  }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedBuildID, setSelectedBuildID] = useState(
     searchParams.get('build_id'),
@@ -13,7 +16,13 @@ const Sha = () => {
     searchParams.get('build_provider'),
   );
 
-  function onChange({ buildID, buildProvider }) {
+  function onChange({
+    buildID,
+    buildProvider,
+  }: {
+    buildID: string;
+    buildProvider: string;
+  }) {
     setSelectedBuildID(buildID);
     setSelectedBuildProvider(buildProvider);
     searchParams.set('build_id', buildID);
@@ -23,7 +32,7 @@ const Sha = () => {
   }
   return (
     <div className={'w-full shadow'}>
-      <RIf condition={commit?.sha}>
+      <RIf condition={Boolean(commit?.sha)}>
         <CommitCoverageOverview
           commit={commit}
           repo={repo}

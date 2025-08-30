@@ -21,7 +21,7 @@ const ProjectDetailPage = () => {
 
   return (
     <BasicLayout>
-      <RIf condition={data}>
+      <RIf condition={Boolean(data)}>
         <div className={'h-[48px] flex items-center justify-between px-[16px]'}>
           <Breadcrumb
             items={[

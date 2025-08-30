@@ -5,7 +5,9 @@ import { CoverageOverviewDocument } from '@/helpers/backend/gen/graphql.ts';
 // import axios from "axios";
 import CoverageOverviewPanel from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx';
 
-const CommitCoverageOverview = ({
+import type { CommitCoverageOverviewProps } from '@/types';
+
+const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
   commit,
   repo,
   onChange,
@@ -14,8 +16,8 @@ const CommitCoverageOverview = ({
   const { data: d, loading } = useQuery(CoverageOverviewDocument, {
     variables: {
       provider: 'gitlab',
-      repoID: repo.id,
-      sha: commit.sha,
+      repoID: repo?.id || '',
+      sha: commit?.sha || '',
     },
   });
 
@@ -24,13 +26,13 @@ const CommitCoverageOverview = ({
   // 根据搜索条件筛选流水线
   // 更新 pipeline tab 的渲染，添加 commit 信息
   const buildTabs: TabsProps['items'] = (data || [])
-    .map((i) => {
+    .map((i: any) => {
       return {
         ...i,
         hasReported: true,
       };
     })
-    .map((build) => ({
+    .map((build: any) => ({
       key: build.buildID,
       label: (
         <Space>
@@ -61,7 +63,7 @@ const CommitCoverageOverview = ({
               }
             />
           ) : (
-            <CoverageOverviewPanel build={build} commit={commit} />
+            <CoverageOverviewPanel build={build} />
           )}
         </div>
       ),
@@ -71,14 +73,14 @@ const CommitCoverageOverview = ({
     <Spin spinning={loading}>
       <Tabs
         items={buildTabs}
-        activeKey={selectedBuildID}
-        onChange={(val) => {
-          const build = (data || []).find((item) => {
-            return item.buildID === val;
+        activeKey={selectedBuildID ?? undefined}
+        onChange={(val: string) => {
+          const build = (data || []).find((item: any) => {
+            return String(item.buildID || '') === String(val || '');
           });
           onChange({
-            buildID: build.buildID,
-            buildProvider: build.buildProvider,
+            buildID: String(build?.buildID || ''),
+            buildProvider: String(build?.buildProvider || ''),
           });
         }}
         // type="card"

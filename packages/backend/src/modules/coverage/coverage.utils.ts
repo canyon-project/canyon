@@ -46,8 +46,8 @@ export function sliceByStmtLoc(
     | undefined,
   starts: number[],
 ): [string, number] {
-  const startLoc = info.start || { line: 0, column: 0 };
-  const endLoc = info.end || { line: 0, column: 0 };
+  const startLoc = info?.start || { line: 0, column: 0 };
+  const endLoc = info?.end || { line: 0, column: 0 };
   const start = posToOffset(
     Number(startLoc.line || 0),
     Number(startLoc.column || 0),

@@ -1,7 +1,7 @@
 import { Button, Collapse, Progress, Space, Table } from 'antd';
 import { Bot, ClipboardList } from 'lucide-react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import type { CoverageOverviewPanelProps } from '@/types';
+import type { BuildMode, CoverageOverviewPanelProps } from '@/types';
 
 // moved columns inside component to use navigation handlers
 
@@ -23,17 +23,19 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
     passRate?: string;
     summary?: { percent: number };
   };
-  type ModeItem = {
-    mode: 'auto' | 'manual';
-    summary?: { covered?: number; total?: number };
-    caseList?: Array<CaseItem>;
-  };
+  // keep for table typing
+  // type ModeItem = {
+  //   mode: 'auto' | 'manual';
+  //   summary?: { covered?: number; total?: number };
+  //   caseList?: Array<CaseItem>;
+  // };
   const automatedMode = (build?.modeList || []).find(
-    (r: ModeItem) => r.mode === 'auto',
-  ) as ModeItem | undefined;
+    (r) =>
+      (r as BuildMode).mode === 'auto' || (r as BuildMode).mode === 'automated',
+  ) as (BuildMode & { caseList?: CaseItem[] }) | undefined;
   const manualMode = (build?.modeList || []).find(
-    (r: ModeItem) => r.mode === 'manual',
-  ) as ModeItem | undefined;
+    (r) => (r as BuildMode).mode === 'manual',
+  ) as (BuildMode & { caseList?: CaseItem[] }) | undefined;
   const calcPercent = (covered?: number, total?: number) => {
     if (!total || total <= 0 || !covered || covered < 0) return 0;
     const val = (covered / total) * 100;
@@ -66,9 +68,12 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
     navigate(`${base}?${qp.toString()}`);
   };
   const openFirstReportForMode = (mode: 'auto' | 'manual') => {
-    const modeItem = (build?.modeList || []).find(
-      (r: ModeItem) => r.mode === mode,
-    ) as ModeItem | undefined;
+    const modeItem = (build?.modeList || []).find((r) =>
+      mode === 'auto'
+        ? (r as BuildMode).mode === 'auto' ||
+          (r as BuildMode).mode === 'automated'
+        : (r as BuildMode).mode === 'manual',
+    ) as (BuildMode & { caseList?: CaseItem[] }) | undefined;
     // 模式级别：只附带 report_provider，不附带 report_id
     const firstCase =
       modeItem?.caseList && modeItem.caseList.length > 0
@@ -232,12 +237,21 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             className='border-0'
           >
             {build.modeList
-              .filter((r: ModeItem) => r.mode === 'auto')
-              .map((report: ModeItem) => (
-                <div key={report.reportID} className='mb-4'>
+              .filter(
+                (r) =>
+                  (r as BuildMode).mode === 'auto' ||
+                  (r as BuildMode).mode === 'automated',
+              )
+              .map((report, idx) => (
+                <div
+                  key={String((report as any).reportID ?? idx)}
+                  className='mb-4'
+                >
                   <Table
-                    columns={getColumnsForMode('auto')}
-                    dataSource={report.caseList}
+                    columns={getColumnsForMode('auto') as any}
+                    dataSource={
+                      (report as unknown as { caseList?: CaseItem[] }).caseList
+                    }
                     rowKey='caseId'
                     size='small'
                     className='border border-gray-200 '
@@ -282,13 +296,18 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             className='border-0'
           >
             {build.modeList
-              ?.filter((r: ModeItem) => r.mode === 'manual')
-              .map((report: ModeItem) => (
-                <div key={report.reportID} className='mb-4'>
+              ?.filter((r) => (r as BuildMode).mode === 'manual')
+              .map((report, idx) => (
+                <div
+                  key={String((report as any).reportID ?? idx)}
+                  className='mb-4'
+                >
                   {/*{JSON.stringify(report.caseList||[])}*/}
                   <Table
-                    columns={getColumnsForMode('manual')}
-                    dataSource={report.caseList}
+                    columns={getColumnsForMode('manual') as any}
+                    dataSource={
+                      (report as unknown as { caseList?: CaseItem[] }).caseList
+                    }
                     rowKey='caseId'
                     size='small'
                     className='border border-gray-200'
