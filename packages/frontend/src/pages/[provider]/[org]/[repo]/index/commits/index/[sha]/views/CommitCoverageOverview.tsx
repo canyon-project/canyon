@@ -1,5 +1,5 @@
 import { useQuery } from '@apollo/client';
-import { Badge, Empty, Space, Spin, Tabs, type TabsProps } from 'antd';
+import { Badge, Space, Spin, Tabs, type TabsProps } from 'antd';
 import { CoverageOverviewDocument } from '@/helpers/backend/gen/graphql.ts';
 import CoverageOverviewPanel from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx';
 import type { Build, BuildMode, CommitCoverageOverviewProps } from '@/types';
