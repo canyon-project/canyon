@@ -35,11 +35,25 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
   const basePathPrefix = `/report/-/${params.provider}/${params.org}/${params.repo}/${params.subject}/${params.subjectID}`;
   const basePath = sp ? `${basePathPrefix}?${sp}` : basePathPrefix;
 
+  const subjectForQuery:
+    | 'commit'
+    | 'commits'
+    | 'pull'
+    | 'pulls'
+    | 'multiple-commits'
+    | 'multi-commits' = (subject ?? 'commit') as
+    | 'commit'
+    | 'commits'
+    | 'pull'
+    | 'pulls'
+    | 'multiple-commits'
+    | 'multi-commits';
+
   const { data } = useRequest(
     () =>
       axios('/api/coverage/summary/map', {
         params: {
-          subject,
+          subject: subjectForQuery,
           subjectID,
           buildProvider,
           buildID,

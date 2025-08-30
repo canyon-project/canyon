@@ -17,9 +17,9 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
     reportProvider?: string;
     reportID?: string;
     caseName?: string;
-    passedCount?: number;
-    failedCount?: number;
-    totalCount?: number;
+    passedCount: number;
+    failedCount: number;
+    totalCount: number;
     passRate?: string;
     summary?: { percent: number };
   };
@@ -29,13 +29,12 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
   //   summary?: { covered?: number; total?: number };
   //   caseList?: Array<CaseItem>;
   // };
-  const automatedMode = (build?.modeList || []).find(
-    (r) =>
-      (r as BuildMode).mode === 'auto' || (r as BuildMode).mode === 'automated',
-  ) as (BuildMode & { caseList?: CaseItem[] }) | undefined;
-  const manualMode = (build?.modeList || []).find(
-    (r) => (r as BuildMode).mode === 'manual',
-  ) as (BuildMode & { caseList?: CaseItem[] }) | undefined;
+  const automatedMode = (build?.modeList || [])
+    .map((r) => r as BuildMode & { caseList?: CaseItem[]; reportID?: string })
+    .find((r) => r.mode === 'auto' || r.mode === 'automated');
+  const manualMode = (build?.modeList || [])
+    .map((r) => r as BuildMode & { caseList?: CaseItem[]; reportID?: string })
+    .find((r) => r.mode === 'manual');
   const calcPercent = (covered?: number, total?: number) => {
     if (!total || total <= 0 || !covered || covered < 0) return 0;
     const val = (covered / total) * 100;
@@ -68,12 +67,13 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
     navigate(`${base}?${qp.toString()}`);
   };
   const openFirstReportForMode = (mode: 'auto' | 'manual') => {
-    const modeItem = (build?.modeList || []).find((r) =>
-      mode === 'auto'
-        ? (r as BuildMode).mode === 'auto' ||
-          (r as BuildMode).mode === 'automated'
-        : (r as BuildMode).mode === 'manual',
-    ) as (BuildMode & { caseList?: CaseItem[] }) | undefined;
+    const modeItem = (build?.modeList || [])
+      .map((r) => r as BuildMode & { caseList?: CaseItem[] })
+      .find((r) =>
+        mode === 'auto'
+          ? r.mode === 'auto' || r.mode === 'automated'
+          : r.mode === 'manual',
+      );
     // 模式级别：只附带 report_provider，不附带 report_id
     const firstCase =
       modeItem?.caseList && modeItem.caseList.length > 0
@@ -146,10 +146,7 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
       title: 'Case Count',
       key: 'passRate',
       width: 200,
-      render: (
-        _: unknown,
-        record: { passedCount: number; failedCount: number },
-      ) => {
+      render: (_: number, record: CaseItem) => {
         const total = record.passedCount + record.failedCount;
         return (
           <span>
@@ -236,22 +233,17 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             }
             className='border-0'
           >
-            {build.modeList
-              .filter(
-                (r) =>
-                  (r as BuildMode).mode === 'auto' ||
-                  (r as BuildMode).mode === 'automated',
-              )
+            {(
+              (build.modeList || []) as Array<
+                BuildMode & { caseList?: CaseItem[]; reportID?: string }
+              >
+            )
+              .filter((r) => r.mode === 'auto' || r.mode === 'automated')
               .map((report, idx) => (
-                <div
-                  key={String((report as any).reportID ?? idx)}
-                  className='mb-4'
-                >
+                <div key={String(report.reportID ?? idx)} className='mb-4'>
                   <Table
-                    columns={getColumnsForMode('auto') as any}
-                    dataSource={
-                      (report as unknown as { caseList?: CaseItem[] }).caseList
-                    }
+                    columns={getColumnsForMode('auto')}
+                    dataSource={report.caseList}
                     rowKey='caseId'
                     size='small'
                     className='border border-gray-200 '
@@ -295,19 +287,17 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             }
             className='border-0'
           >
-            {build.modeList
-              ?.filter((r) => (r as BuildMode).mode === 'manual')
+            {(
+              (build.modeList || []) as Array<
+                BuildMode & { caseList?: CaseItem[]; reportID?: string }
+              >
+            )
+              .filter((r) => r.mode === 'manual')
               .map((report, idx) => (
-                <div
-                  key={String((report as any).reportID ?? idx)}
-                  className='mb-4'
-                >
-                  {/*{JSON.stringify(report.caseList||[])}*/}
+                <div key={String(report.reportID ?? idx)} className='mb-4'>
                   <Table
-                    columns={getColumnsForMode('manual') as any}
-                    dataSource={
-                      (report as unknown as { caseList?: CaseItem[] }).caseList
-                    }
+                    columns={getColumnsForMode('manual')}
+                    dataSource={report.caseList}
                     rowKey='caseId'
                     size='small'
                     className='border border-gray-200'

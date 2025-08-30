@@ -4,8 +4,20 @@ import { CoverageOverviewDocument } from '@/helpers/backend/gen/graphql.ts';
 // import {useRequest} from "ahooks";
 // import axios from "axios";
 import CoverageOverviewPanel from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx';
+import type { Build, BuildMode, CommitCoverageOverviewProps } from '@/types';
 
-import type { CommitCoverageOverviewProps } from '@/types';
+type UIBuildMode = BuildMode & {
+  reportID?: string;
+  caseList?: Array<Record<string, unknown>>;
+};
+type UIBuild = {
+  buildID: string;
+  buildProvider: string;
+  hasReported?: boolean;
+  lastUpdated?: string;
+  name?: string;
+  modeList?: Array<UIBuildMode>;
+};
 
 const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
   commit,
@@ -21,18 +33,13 @@ const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
     },
   });
 
-  const data = d?.coverageOverview.resultList || [];
+  const data = (d?.coverageOverview.resultList as unknown as UIBuild[]) || [];
 
   // 根据搜索条件筛选流水线
   // 更新 pipeline tab 的渲染，添加 commit 信息
   const buildTabs: TabsProps['items'] = (data || [])
-    .map((i: any) => {
-      return {
-        ...i,
-        hasReported: true,
-      };
-    })
-    .map((build: any) => ({
+    .map((i: UIBuild) => ({ ...i, hasReported: true }))
+    .map((build: UIBuild) => ({
       key: build.buildID,
       label: (
         <Space>
@@ -63,7 +70,7 @@ const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
               }
             />
           ) : (
-            <CoverageOverviewPanel build={build} />
+            <CoverageOverviewPanel build={build as unknown as Build} />
           )}
         </div>
       ),
@@ -75,7 +82,7 @@ const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
         items={buildTabs}
         activeKey={selectedBuildID ?? undefined}
         onChange={(val: string) => {
-          const build = (data || []).find((item: any) => {
+          const build = (data || []).find((item: UIBuild) => {
             return String(item.buildID || '') === String(val || '');
           });
           onChange({
