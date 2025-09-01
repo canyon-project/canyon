@@ -183,6 +183,16 @@ const coreData = [
     "utBranchCoverage": 69.05,
     "utLineCoverage": 71.90,
     "codeChangeNum": 91203
+  },
+  {
+    "month": 7,
+    "year": 2025,
+    "uiTestBranchCoverage": 65.73,
+    "uiTestLineCoverage": 81.78,
+    "uiTestChangedLineCoverage": 94.32,
+    "utBranchCoverage": 68.95,
+    "utLineCoverage": 71.60,
+    "codeChangeNum": 78902
   }
 ];
 
