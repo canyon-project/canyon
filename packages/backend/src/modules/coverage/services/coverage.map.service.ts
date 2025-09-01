@@ -284,7 +284,6 @@ export class CoverageMapService {
     });
 
     // 8) 从 ClickHouse 聚合命中（带 coverageID，用于分组/过滤）
-    const db = process.env.CLICKHOUSE_DATABASE || 'default';
     const idsList = covIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(',');
     const hitQuery = `
       SELECT
@@ -293,7 +292,7 @@ export class CoverageMapService {
         sumMapMerge(s) as s,
         sumMapMerge(f) as f,
         sumMapMerge(b) as b
-      FROM ${db}.coverage_hit_agg
+      FROM coverage_hit_agg
       WHERE coverage_id IN (${idsList})
       ${filePath ? ` AND endsWith(full_file_path, '${filePath.replace(/'/g, "''")}')` : ''}
       GROUP BY coverage_id, full_file_path
