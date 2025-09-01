@@ -4,7 +4,7 @@ import { SummaryMapQueryDto } from './dto/summary-map.dto';
 import { CoverageMapService } from './services/coverage.map.service';
 import { CoverageSummaryService } from './services/coverage.summary.service';
 
-@Controller('coverage')
+@Controller('api/coverage')
 export class CoverageController {
   constructor(
     private readonly summary: CoverageSummaryService,

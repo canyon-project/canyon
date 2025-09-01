@@ -19,5 +19,9 @@ export default defineConfig({
   highlighter: new SqlHighlighter(),
   debug: true,
   logger: logger.log.bind(logger),
-  allowGlobalContext: true,
+  // allowGlobalContext: true,
+  // mikro+app.setGlobalPrefix+graphql会报错，不知道为什么！
+  // app.setGlobalPrefix('api', {
+  //   // exclude: [{ path: 'vi/health', method: RequestMethod.GET }],
+  // });
 });

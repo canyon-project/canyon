@@ -93,6 +93,7 @@ export class CoverageMapService {
     buildID?: string;
     filePath?: string;
   }) {
+    // 1) 组装查询条件（按 provider/repoID/sha 以及可选的 buildProvider/buildID）
     const qb: {
       provider: string;
       repoID: string;
@@ -102,13 +103,14 @@ export class CoverageMapService {
     } = { provider, repoID: repoID, sha };
     if (buildProvider) qb.buildProvider = buildProvider;
     if (buildID) qb.buildID = buildID;
+    // 2) 查询符合条件的覆盖记录（仅取用于后续处理的必要字段）
     const coverages = await this.covRepo.find(qb, {
       fields: ['id', 'instrumentCwd'],
     });
     if (!coverages.length) return {};
 
+    // 3) 在 ClickHouse 中聚合命中数据（按文件路径归并）
     const coverageIDs = coverages.map((c) => c.id);
-    const db = process.env.CLICKHOUSE_DATABASE || 'default';
     const idsList = coverageIDs
       .map((id) => `'${id.replace(/'/g, "''")}'`)
       .join(',');
@@ -118,7 +120,7 @@ export class CoverageMapService {
         sumMapMerge(s) as s,
         sumMapMerge(f) as f,
         sumMapMerge(b) as b
-      FROM ${db}.coverage_hit_agg
+      FROM coverage_hit_agg
       WHERE coverage_id IN (${idsList})
       ${filePath ? ` AND endsWith(full_file_path, '${filePath.replace(/'/g, "''")}')` : ''}
       GROUP BY full_file_path
@@ -132,6 +134,7 @@ export class CoverageMapService {
       b: unknown;
     }> = await hitRes.json();
 
+    // 4) 获取 instrumentCwd，并查询关系表以获得文件路径到结构哈希的映射
     const instrumentCwd = coverages[0].instrumentCwd;
     const relWhere: { coverageID: { $in: string[] }; filePath?: string } = {
       coverageID: { $in: coverageIDs },
@@ -145,12 +148,15 @@ export class CoverageMapService {
       if (!pathToHash.has(r.fullFilePath))
         pathToHash.set(r.fullFilePath, r.coverageMapHashID);
     }
+    // 5) 批量拉取并缓存 hash -> 覆盖结构 的映射
     const allHashes = Array.from(new Set(Array.from(pathToHash.values())));
     const hashToMap =
       await this.mapStore.fetchCoverageMapsFromClickHouse(allHashes);
 
+    // 6) 封装路径裁剪函数（将绝对路径裁剪为相对路径）
     const trimPath = (p: string) => trimInstrumentCwd(p, instrumentCwd);
 
+    // 7) 组装最终结果：合并命中、补齐 0 值、转换分支为数组
     const result: Record<string, unknown> = {};
     for (const r of rows || []) {
       const path = trimPath(r.fullFilePath);
@@ -186,6 +192,7 @@ export class CoverageMapService {
         b: bArr,
       };
     }
+    // 8) 返回文件路径 -> 覆盖详情 的字典
     return result;
   }
 
@@ -206,8 +213,10 @@ export class CoverageMapService {
     filePath?: string;
     mode?: string;
   }) {
+    // 1) 仅支持 gitlab，其他 provider 直接返回空
     if (provider !== 'gitlab') return {};
 
+    // 2) 读取系统配置/环境变量中的 GitLab 访问参数
     const baseUrl =
       (await this.syscfg?.get('system_config.gitlab_base_url')) ||
       process.env.GITLAB_BASE_URL;
@@ -218,9 +227,11 @@ export class CoverageMapService {
       return {};
     }
 
+    // 3) 计算项目 ID 与请求头
     const projectId = encodeURIComponent(repoID);
     const headers = { 'PRIVATE-TOKEN': token } as Record<string, string>;
 
+    // 4) 获取 MR 基本信息与 headSha
     const mrResp = await axios.get(
       `${baseUrl}/api/v4/projects/${projectId}/merge_requests/${pullNumber}`,
       { headers },
@@ -230,6 +241,7 @@ export class CoverageMapService {
     const headSha: string | undefined = mr?.diff_refs?.head_sha || mr?.sha;
     if (!headSha) return {};
 
+    // 5) 获取 MR 所有提交，按 commit 列表构建 sha 集合
     const commitsResp = await axios.get(
       `${baseUrl}/api/v4/projects/${projectId}/merge_requests/${pullNumber}/commits`,
       { headers },
@@ -240,6 +252,7 @@ export class CoverageMapService {
     }>;
     if (!Array.isArray(commits) || commits.length === 0) return {};
 
+    // 6) 查询这些提交对应的覆盖记录，并选出 baseline（headSha 优先）
     const shas = commits.map((c) => c.id);
     const covWhere: {
       provider: string;
@@ -255,6 +268,7 @@ export class CoverageMapService {
     });
     if (!allCov.length) return {};
 
+    // 7) 拉取路径与结构哈希的关系（可按 filePath 过滤）
     const covIds = allCov.map((c) => c.id);
     const relWhere: { coverageID: { $in: string[] }; filePath?: string } = {
       coverageID: { $in: covIds },
@@ -264,6 +278,7 @@ export class CoverageMapService {
       fields: ['coverageID', 'coverageMapHashID', 'fullFilePath'],
     });
 
+    // 8) 从 ClickHouse 聚合命中（带 coverageID，用于分组/过滤）
     const db = process.env.CLICKHOUSE_DATABASE || 'default';
     const idsList = covIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(',');
     const hitQuery = `
@@ -288,13 +303,15 @@ export class CoverageMapService {
       b: unknown;
     }> = await hitRes.json();
 
+    // 9) 计算 baseline 覆盖与其 instrumentCwd
     const covByID = new Map(allCov.map((c) => [c.id, c] as const));
     const baseSet = new Set<string>();
     for (const c of allCov) if (c.sha === headSha) baseSet.add(c.id);
     if (baseSet.size === 0) baseSet.add(allCov[0].id);
     const baselineCovID = [...baseSet][0];
-    const baselineCwd = covByID.get(baselineCovID)!.instrumentCwd;
+    const baselineCwd = covByID.get(baselineCovID)?.instrumentCwd || '';
 
+    // 10) 非 fileMerge 模式：计算每个提交的变更路径集合
     const changesBySha = new Map<string, Set<string>>();
     if (mode && mode.toLowerCase() !== 'filemerge') {
       for (const c of commits) {
@@ -319,6 +336,7 @@ export class CoverageMapService {
       }
     }
 
+    // 11) 初始化聚合数据结构与辅助方法
     const aggregated = new Map<
       string,
       {
@@ -333,6 +351,7 @@ export class CoverageMapService {
     };
     const isBlockMerge = (mode || '').toLowerCase() === 'blockmerge';
 
+    // 12) 预加载结构：构建 (coverageID|path)->hash，拉取 hash->结构，按路径挑选一个结构（优先 baseline）
     const covPathToHash = new Map<string, string>();
     for (const r of relationsAll) {
       covPathToHash.set(
@@ -356,6 +375,7 @@ export class CoverageMapService {
       }
     }
 
+    // 13) 汇总命中：在 blockMerge 模式下计算增量命中，否则直接累加
     for (const row of hitRows) {
       const cov = covByID.get(row.coverageID);
       if (!cov) continue;
@@ -445,6 +465,7 @@ export class CoverageMapService {
         agg.F[k] = (agg.F[k] || 0) + (v as number);
     }
 
+    // 14) 输出：修剪路径、转换分支数组并返回
     const out: Record<string, unknown> = {};
     for (const [absPath, agg] of aggregated) {
       const path = trimInstrumentCwd(absPath, baselineCwd);
