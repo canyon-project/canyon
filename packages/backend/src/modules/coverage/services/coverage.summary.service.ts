@@ -31,9 +31,19 @@ export class CoverageSummaryService {
     repoID: string;
     buildProvider?: string;
     buildID?: string;
+    reportProvider?: string;
+    reportID?: string;
   }) {
-    const { subject, subjectID, provider, repoID, buildProvider, buildID } =
-      q ?? {};
+    const {
+      subject,
+      subjectID,
+      provider,
+      repoID,
+      buildProvider,
+      buildID,
+      reportProvider,
+      reportID,
+    } = q ?? {};
     if (!provider || !repoID || !subject || !subjectID) {
       throw new BadRequestException(
         'provider, repoID, subject, subjectID are required',
@@ -54,13 +64,21 @@ export class CoverageSummaryService {
       if (buildProvider) qb.buildProvider = buildProvider;
       if (buildID) qb.buildID = buildID;
       const coverages = await this.covRepo.find(qb, {
-        fields: ['id', 'instrumentCwd'],
+        fields: ['id', 'instrumentCwd', 'reportProvider', 'reportID'],
       });
       if (!coverages.length) return {};
-      const coverageIDs = coverages.map((c) => c.id);
-      const idsList = coverageIDs
-        .map((id) => `'${id.replace(/'/g, "''")}'`)
-        .join(',');
+      const filterCoverages = coverages.filter((i) => {
+        const reportProviderOff =
+          !reportProvider || i.reportProvider === reportProvider;
+        const reportIDOff = !reportID || i.reportID === reportID;
+        return reportProviderOff && reportIDOff;
+      });
+      const coverageIDs = filterCoverages.map((c) => c.id);
+      // 这里不需要 coverage_id 的group by，因为coverage_id已经通过report_id筛选了
+      const idsList =
+        filterCoverages.length > 0
+          ? `${filterCoverages.map((h) => `'${h.id}'`).join(', ')}`
+          : `''`;
       const hitQuery = `
         SELECT
           full_file_path as fullFilePath,
@@ -80,7 +98,7 @@ export class CoverageSummaryService {
         b: unknown;
       }> = await hitRes.json();
 
-      const instrumentCwd = coverages[0].instrumentCwd;
+      const instrumentCwd = (filterCoverages[0] || coverages[0]).instrumentCwd;
       const relWhere: { coverageID: { $in: string[] }; filePath?: RegExp } = {
         coverageID: { $in: coverageIDs },
       };
