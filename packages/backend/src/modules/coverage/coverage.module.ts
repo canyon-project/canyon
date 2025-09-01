@@ -10,7 +10,6 @@ import { CoverageGitService } from './services/coverage.git.service';
 import { CoverageMapService } from './services/coverage.map.service';
 import { CoverageMapStoreService } from './services/coverage.map-store.service';
 import { CoverageOverviewService } from './services/coverage.overview.service';
-import { CoverageSummaryService } from './services/coverage.summary.service';
 
 @Module({
   imports: [
@@ -23,7 +22,6 @@ import { CoverageSummaryService } from './services/coverage.summary.service';
   controllers: [CoverageController],
   providers: [
     CoverageOverviewService,
-    CoverageSummaryService,
     CoverageMapService,
     CoverageMapStoreService,
     CoverageGitService,
