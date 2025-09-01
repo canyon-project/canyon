@@ -61,15 +61,15 @@
 ```mermaid
 graph TD
   A[HTTP GET /api/coverage/map] --> B{subject}
-  B -->|commit/commits| C[CoverageMapService.getMapForCommit]
-  B -->|pull/pulls| D[CoverageMapService.getMapForPull]
+  B -->|commit/commits| C[GetCoverageMap]
+  B -->|pull/pulls| D[GetCoverageMapForPull]
 
   %% commit/commits 分支
   C --> C1[PG 查询 canyonjs_coverage 按 provider/repoID/sha 及可选构建与报告过滤]
   C1 -->|coverageIDs| C2[PG 查询 canyonjs_coverage_map_relation 按 coverage_id IN ... 可选 filePath 过滤 与 去重]
   C2 --> C3[并行查询 ClickHouse]
-  C3 --> C31[CH coverage_map: SELECT statement_map, fn_map, branch_map WHERE hash IN ...]
-  C3 --> C32[CH coverage_hit_agg: SELECT sumMapMerge(s/f/b) WHERE coverage_id IN ... GROUP BY full_file_path]
+  C3 --> C31[CH coverage_map: SELECT ... WHERE hash IN ...]
+  C3 --> C32[CH coverage_hit_agg: SELECT ... WHERE coverage_id IN ... GROUP BY full_file_path]
   C31 --> C4[合并 coverage_map 与 hit 为 Istanbul 结构]
   C32 --> C4
   C4 --> C5[移除 instrumentCwd 前缀]
@@ -78,7 +78,7 @@ graph TD
   %% pull/pulls 分支
   D --> D0{mode}
   D0 -->|默认或其他| DC[解析 head SHA via GitLab]
-  DC --> DD[委托 getMapForCommit 单 commit]
+  DC --> DD[委托 GetCoverageMap 单commit]
   D0 -->|blockMerge 或 fileMerge| D1[解析 head SHA 与 PR commits]
   D1 --> D2[PG 查询 commits 的 canyonjs coverage]
   D2 --> D3[PG 查询 relations 去重 以及 完整关系 含 coverage id]
