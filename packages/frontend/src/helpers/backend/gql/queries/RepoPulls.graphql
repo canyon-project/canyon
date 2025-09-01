@@ -1,0 +1,6 @@
+query RepoPulls($repoID: String!) {
+  repoPulls(repoID: $repoID) {
+    repoID
+    pulls
+  }
+}

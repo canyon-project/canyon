@@ -53,7 +53,10 @@ const ProjectDetailPage = () => {
           onChange={(key) => {
             navigate(`/${params.provider}/${params.org}/${params.repo}/${key}`);
           }}
-          items={[{ key: 'commits', label: 'Commits' }]}
+          items={[
+            { key: 'commits', label: 'Commits' },
+            { key: 'pulls', label: 'Pulls' },
+          ]}
         />
         <Outlet
           context={{

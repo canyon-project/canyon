@@ -50,8 +50,8 @@ class RepoPulls {
   @Field()
   repoID!: string;
 
-  @Field(() => [String])
-  pulls!: string[];
+  @Field(() => [JSONScalar])
+  pulls!: unknown[];
 }
 
 @ObjectType()
