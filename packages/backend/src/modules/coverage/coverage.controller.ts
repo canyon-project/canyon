@@ -1,5 +1,8 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-import { summarizeCoverageFromMap } from './coverage.utils';
+import {
+  type CoverageFileMapEntry,
+  summarizeCoverageFromMap,
+} from './coverage.utils';
 import { MapQueryDto } from './dto/map.dto';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
 import { CoverageMapService } from './services/coverage.map.service';
@@ -26,9 +29,12 @@ export class CoverageController {
           buildID: q.buildID,
           reportProvider: q.reportProvider,
           reportID: q.reportID,
-          filePath: (q as any).filePath,
+          filePath: q.filePath,
         });
-        return summarizeCoverageFromMap(map as any, percent);
+        return summarizeCoverageFromMap(
+          map as Record<string, CoverageFileMapEntry>,
+          percent,
+        );
       }
       case 'pull':
       case 'pulls': {
@@ -36,10 +42,13 @@ export class CoverageController {
           provider: q.provider,
           repoID: q.repoID,
           pullNumber: q.subjectID,
-          filePath: (q as any).filePath,
-          mode: (q as any).mode,
+          filePath: q.filePath,
+          mode: q.mode,
         });
-        return summarizeCoverageFromMap(map as any, percent);
+        return summarizeCoverageFromMap(
+          map as Record<string, CoverageFileMapEntry>,
+          percent,
+        );
       }
       default:
         throw new BadRequestException('invalid subject');

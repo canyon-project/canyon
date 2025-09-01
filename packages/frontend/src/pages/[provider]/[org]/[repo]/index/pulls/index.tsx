@@ -35,21 +35,24 @@ const Pulls = () => {
   });
 
   const pulls = useMemo(() => {
-    const list = (data?.repoPulls?.pulls as any[]) || [];
-    return list.map((item: any): UIPull => {
+    const list =
+      (data?.repoPulls?.pulls as Array<Record<string, unknown>>) || [];
+    return list.map((item: Record<string, unknown>): UIPull => {
       const iid: number =
-        typeof item?.iid === 'number' ? item.iid : Number(item?.iid) || 0;
-      const projectId = item?.project_id ?? '';
+        typeof (item as { iid?: unknown })?.iid === 'number'
+          ? ((item as { iid?: number }).iid as number)
+          : Number((item as { iid?: unknown })?.iid) || 0;
+      const projectId = (item as { project_id?: unknown })?.project_id ?? '';
       return {
         id: `${projectId}:${iid}`,
         iid,
-        title: item?.title ?? '',
-        author: item?.author?.name ?? '',
-        createdAt: item?.created_at ?? '',
-        state: item?.state ?? '',
-        sourceBranch: item?.source_branch ?? '',
-        targetBranch: item?.target_branch ?? '',
-        webUrl: item?.web_url ?? '',
+        title: (item as { title?: string })?.title ?? '',
+        author: (item as { author?: { name?: string } })?.author?.name ?? '',
+        createdAt: (item as { created_at?: string })?.created_at ?? '',
+        state: (item as { state?: string })?.state ?? '',
+        sourceBranch: (item as { source_branch?: string })?.source_branch ?? '',
+        targetBranch: (item as { target_branch?: string })?.target_branch ?? '',
+        webUrl: (item as { web_url?: string })?.web_url ?? '',
       };
     });
   }, [data]);

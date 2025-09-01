@@ -41,7 +41,9 @@ const PullsList = ({ pulls, selectedPull, onPullSelect }: PullsListProps) => {
     setFilteredPulls(filtered);
   }, [searchText, pulls]);
 
-  const getBadgeStatus = (state: string) => {
+  const getBadgeStatus = (
+    state: string,
+  ): 'success' | 'processing' | 'default' | 'error' | 'warning' => {
     switch (state) {
       case 'merged':
         return 'success';
@@ -112,7 +114,7 @@ const PullsList = ({ pulls, selectedPull, onPullSelect }: PullsListProps) => {
                         </Tooltip>
                       </div>
                       <Badge
-                        status={getBadgeStatus(pull.state) as any}
+                        status={getBadgeStatus(pull.state)}
                         text={
                           <span className='text-gray-500 text-xs dark:text-gray-400'>
                             {pull.state}

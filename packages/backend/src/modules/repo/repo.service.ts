@@ -140,8 +140,16 @@ export class RepoService {
             Array.isArray(resp.data)
           ) {
             for (const mr of resp.data as Array<Record<string, unknown>>) {
-              const project_id = (mr as any)?.project_id ?? projectId;
-              const iid = (mr as any)?.iid;
+              const projectIdRaw = (mr as { project_id?: number | string })
+                ?.project_id;
+              const project_id =
+                typeof projectIdRaw === 'number' ||
+                typeof projectIdRaw === 'string'
+                  ? projectIdRaw
+                  : projectId;
+              const iidRaw = (mr as { iid?: number | string })?.iid;
+              const iid =
+                typeof iidRaw === 'number' ? iidRaw : Number(iidRaw ?? 0) || 0;
               const key = `${project_id}:${iid}`;
               if (!seen.has(key)) {
                 seen.add(key);
