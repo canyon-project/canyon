@@ -84,6 +84,8 @@ export class CoverageMapService {
     sha,
     buildProvider,
     buildID,
+    reportID,
+    reportProvider,
     filePath,
   }: {
     provider: string;
@@ -91,6 +93,8 @@ export class CoverageMapService {
     sha: string;
     buildProvider?: string;
     buildID?: string;
+    reportProvider?: string;
+    reportID?: string;
     filePath?: string;
   }) {
     // 1) 组装查询条件（按 provider/repoID/sha 以及可选的 buildProvider/buildID）
@@ -100,20 +104,29 @@ export class CoverageMapService {
       sha: string;
       buildProvider?: string;
       buildID?: string;
-    } = { provider, repoID: repoID, sha };
+    } = { provider, repoID, sha };
     if (buildProvider) qb.buildProvider = buildProvider;
     if (buildID) qb.buildID = buildID;
     // 2) 查询符合条件的覆盖记录（仅取用于后续处理的必要字段）
     const coverages = await this.covRepo.find(qb, {
-      fields: ['id', 'instrumentCwd'],
+      fields: ['id', 'instrumentCwd', 'reportProvider', 'reportID'],
     });
     if (!coverages.length) return {};
 
     // 3) 在 ClickHouse 中聚合命中数据（按文件路径归并）
     const coverageIDs = coverages.map((c) => c.id);
-    const idsList = coverageIDs
-      .map((id) => `'${id.replace(/'/g, "''")}'`)
-      .join(',');
+    const filterCoverages = coverages.filter((i) => {
+      const reportProviderOff =
+        !reportProvider || i.reportProvider === reportProvider;
+      const reportIDOff = !reportID || i.reportID === reportID;
+      return reportProviderOff && reportIDOff;
+    });
+    // 这里不需要 coverage_id 的group by，因为coverage_id已经通过report_id筛选了
+    const idsList =
+      filterCoverages.length > 0
+        ? `${filterCoverages.map((h) => `'${h.id}'`).join(', ')}`
+        : `''`;
+
     const hitQuery = `
       SELECT
         full_file_path as fullFilePath,
@@ -200,16 +213,12 @@ export class CoverageMapService {
     provider,
     repoID,
     pullNumber,
-    buildProvider,
-    buildID,
     filePath,
     mode,
   }: {
     provider: string;
     repoID: string;
     pullNumber: string;
-    buildProvider?: string;
-    buildID?: string;
     filePath?: string;
     mode?: string;
   }) {
@@ -258,11 +267,7 @@ export class CoverageMapService {
       provider: string;
       repoID: string;
       sha: { $in: string[] };
-      buildProvider?: string;
-      buildID?: string;
     } = { provider, repoID: repoID, sha: { $in: shas } };
-    if (buildProvider) covWhere.buildProvider = buildProvider;
-    if (buildID) covWhere.buildID = buildID;
     const allCov = await this.covRepo.find(covWhere, {
       fields: ['id', 'sha', 'instrumentCwd'],
     });

@@ -38,6 +38,8 @@ export class CoverageController {
           sha: q.subjectID,
           buildProvider: q.buildProvider,
           buildID: q.buildID,
+          reportProvider: q.reportProvider,
+          reportID: q.reportID,
           filePath: q.filePath,
         });
       case 'pull':
@@ -46,10 +48,14 @@ export class CoverageController {
           provider: q.provider,
           repoID: q.repoID,
           pullNumber: q.subjectID,
-          buildProvider: q.buildProvider,
-          buildID: q.buildID,
           filePath: q.filePath,
           mode: q.mode,
+          // TODO 复杂度较高，先不做。先做整体pull的覆盖率
+          // buildProvider: q.buildProvider,
+          // buildID: q.buildID,
+          // reportProvider: q.reportProvider,
+          // reportID: q.reportID,
+          // buildTarget: q.buildTarget
         });
       default:
         throw new BadRequestException('invalid subject');
