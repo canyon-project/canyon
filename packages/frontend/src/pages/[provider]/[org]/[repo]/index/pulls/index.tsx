@@ -70,7 +70,7 @@ const Pulls = () => {
 
     // nav
     navigate(
-      `/${params.provider}/${params.org}/${params.repo}/pulls/${pull.iid}`,
+      `/${params.provider}/${params.org}/${params.repo}/pulls/${pull.iid}/-/`,
     );
   };
 

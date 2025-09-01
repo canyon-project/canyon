@@ -58,6 +58,7 @@ export function handleSelectFileBySubject({
         repoID: codeParams.repoID,
         filepath: codeParams.filepath,
         sha: codeParams.sha,
+        pullNumber: codeParams.pullNumber,
       },
       query:
         'query CodeFileContent($repoID: String!, $filepath: String!, $sha: String, $pullNumber: String, $provider: String) {\n  codeFileContent(\n    repoID: $repoID\n    filepath: $filepath\n    sha: $sha\n    pullNumber: $pullNumber\n    provider: $provider\n  ) {\n    content\n    __typename\n  }\n}',
@@ -96,7 +97,7 @@ export function handleSelectFileBySubject({
     .get('/api/coverage/map', {
       params: {
         ...fileCoverageParams,
-        blockMerge: true,
+        mode: 'blockMerge',
       },
     })
     .then(({ data }) => data[filepath || '']);

@@ -73,6 +73,7 @@ const CoverageFileDrawer = ({
           buildID: searchParams.get('build_id') || undefined,
           reportProvider: searchParams.get('report_provider') || undefined,
           reportID: searchParams.get('report_id') || undefined,
+          mode: 'blockMerge',
         },
       }).then(({ data }) => data),
     { refreshDeps: [repo?.id, subject, subjectID] },
