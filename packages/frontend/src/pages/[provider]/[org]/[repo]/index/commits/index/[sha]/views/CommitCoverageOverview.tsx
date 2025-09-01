@@ -1,5 +1,6 @@
 import { useQuery } from '@apollo/client';
 import { Badge, Space, Spin, Tabs, type TabsProps } from 'antd';
+import { useEffect } from 'react';
 import { CoverageOverviewDocument } from '@/helpers/backend/gen/graphql.ts';
 import CoverageOverviewPanel from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx';
 import type { Build, BuildMode, CommitCoverageOverviewProps } from '@/types';
@@ -32,6 +33,14 @@ const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
   });
 
   const data = (d?.coverageOverview.resultList as unknown as UIBuild[]) || [];
+
+  // 当没有 selectedBuildID 且数据已加载时，默认选中第一个并触发 onChange
+  useEffect(() => {
+    if (!selectedBuildID && Array.isArray(data) && data.length > 0) {
+      const first = data[0];
+      onChange({ buildID: first.buildID, buildProvider: first.buildProvider });
+    }
+  }, [selectedBuildID, data, onChange]);
 
   // 根据搜索条件筛选流水线
   // 更新 pipeline tab 的渲染，添加 commit 信息

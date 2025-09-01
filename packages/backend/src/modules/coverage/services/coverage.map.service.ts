@@ -469,15 +469,38 @@ export class CoverageMapService {
         agg.F[k] = (agg.F[k] || 0) + (v as number);
     }
 
-    // 14) 输出：修剪路径、转换分支数组并返回
+    // 14) 输出：修剪路径、补齐 0 值、转换分支数组并返回（结构与 getMapForCommit 保持一致）
     const out: Record<string, unknown> = {};
     for (const [absPath, agg] of aggregated) {
       const path = trimInstrumentCwd(absPath, baselineCwd);
       const struct = pathToStructure.get(absPath) as
-        | { branchMap?: Record<string, { locations?: unknown[] }> }
+        | {
+            statementMap?: Record<string, unknown>;
+            fnMap?: Record<string, unknown>;
+            branchMap?: Record<string, { locations?: unknown[] }>;
+          }
         | undefined;
+      const sMap: Record<string, number> = { ...(agg.S || {}) };
+      const fMap: Record<string, number> = { ...(agg.F || {}) };
+      // 按结构补齐未返回的 0 值
+      if (struct?.statementMap) {
+        for (const id of Object.keys(struct.statementMap)) {
+          if (sMap[id] === undefined) sMap[id] = 0;
+        }
+      }
+      if (struct?.fnMap) {
+        for (const id of Object.keys(struct.fnMap)) {
+          if (fMap[id] === undefined) fMap[id] = 0;
+        }
+      }
       const bArr = transformFlatBranchHitsToArrays(agg.B, struct?.branchMap);
-      out[path] = { path, s: agg.S, f: agg.F, b: bArr };
+      out[path] = {
+        path,
+        ...(struct as Record<string, unknown>),
+        s: sMap,
+        f: fMap,
+        b: bArr,
+      };
     }
     return out;
   }
