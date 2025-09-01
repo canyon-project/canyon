@@ -16,7 +16,7 @@ const PlaygroundPage = () => {
 
   const initialFormValues = useMemo(
     () => ({
-      provider: searchParams.get('provider') ?? '',
+      provider: searchParams.get('provider') ?? 'gitlab',
       repoID: searchParams.get('repoID') ?? '',
       subject: searchParams.get('subject') ?? '',
       subjectID: searchParams.get('subjectID') ?? '',
