@@ -18,12 +18,12 @@ export class SummaryMapQueryDto {
   repoID!: string;
 
   @IsString()
-  @IsNotEmpty()
-  buildProvider!: string;
+  @IsOptional()
+  buildProvider?: string;
 
   @IsString()
-  @IsNotEmpty()
-  buildID!: string;
+  @IsOptional()
+  buildID?: string;
 
   @IsString()
   @IsOptional()
@@ -36,4 +36,8 @@ export class SummaryMapQueryDto {
   @IsString()
   @IsOptional()
   filePath?: string;
+
+  @IsString()
+  @IsOptional()
+  mode?: string; // blockMerge | fileMerge | default
 }

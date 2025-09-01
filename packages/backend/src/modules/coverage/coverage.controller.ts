@@ -1,4 +1,5 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
+import { summarizeCoverageFromMap } from './coverage.utils';
 import { MapQueryDto } from './dto/map.dto';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
 import { CoverageMapService } from './services/coverage.map.service';
@@ -19,8 +20,33 @@ export class CoverageController {
       case 'commits':
         return this.summary.getSummaryMap(q);
       case 'pull':
-      case 'pulls':
-        return this.summary.getSummaryMap(q);
+      case 'pulls': // 不区分 buildProvider/buildID。以 base(head) 的所有数据为基准，再按 mode 合并
+      // 参考 getMap 的 pull 实现，先得到文件级的命中与结构，再汇总为 summary
+      {
+        const map = (await this.map.getMapForPull({
+          provider: q.provider,
+          repoID: q.repoID,
+          pullNumber: q.subjectID,
+          filePath: q.filePath,
+          mode: (q as any).mode,
+        })) as Record<
+          string,
+          {
+            path: string;
+            statementMap?: Record<string, unknown>;
+            fnMap?: Record<string, unknown>;
+            branchMap?: Record<string, { locations?: unknown[] }>;
+            s?: Record<string, number>;
+            f?: Record<string, number>;
+            b?: Record<string, number[]>;
+          }
+        >;
+        const percent = (covered: number, total: number) =>
+          total <= 0
+            ? 100.0
+            : Math.floor((1000 * 100 * covered) / total / 10) / 100;
+        return summarizeCoverageFromMap(map as any, percent);
+      }
       default:
         throw new BadRequestException('invalid subject');
     }

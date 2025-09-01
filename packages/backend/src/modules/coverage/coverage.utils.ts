@@ -249,3 +249,123 @@ export function mergeFunctionHitsByBlock(
   }
   return result;
 }
+
+// -------------------------
+// Pure helpers for summary
+// -------------------------
+
+export type CoverageFileMapEntry = {
+  path: string;
+  statementMap?: Record<string, unknown>;
+  fnMap?: Record<string, unknown>;
+  branchMap?: Record<string, { locations?: unknown[] }>;
+  s?: Record<string, number>;
+  f?: Record<string, number>;
+  b?: Record<string, number[]>;
+};
+
+export type CoverageFileSummary = {
+  path: string;
+  statements: { total: number; covered: number; pct: number };
+  functions: { total: number; covered: number; pct: number };
+  branches: { total: number; covered: number; pct: number };
+  newlines: { total: number; covered: number; pct: number };
+};
+
+export function computeStatementsSummary(
+  sMap: Record<string, number> = {},
+  statementMap?: Record<string, unknown>,
+): { total: number; covered: number } {
+  const total = statementMap
+    ? Object.keys(statementMap).length
+    : Object.keys(sMap).length;
+  const covered = Object.values(sMap).reduce(
+    (a, n) => a + (Number(n) > 0 ? 1 : 0),
+    0,
+  );
+  return { total, covered };
+}
+
+export function computeFunctionsSummary(
+  fMap: Record<string, number> = {},
+  fnMap?: Record<string, unknown>,
+): { total: number; covered: number } {
+  const total = fnMap ? Object.keys(fnMap).length : Object.keys(fMap).length;
+  const covered = Object.values(fMap).reduce(
+    (a, n) => a + (Number(n) > 0 ? 1 : 0),
+    0,
+  );
+  return { total, covered };
+}
+
+export function computeBranchesSummary(
+  bArrMap: Record<string, number[]> = {},
+  branchMap?: Record<string, { locations?: unknown[] }>,
+): { total: number; covered: number } {
+  const total = branchMap
+    ? (Object.values(branchMap) as Array<{ locations?: unknown[] }>).reduce(
+        (a, info) =>
+          a + (Array.isArray(info.locations) ? info.locations.length : 0),
+        0,
+      )
+    : Object.values(bArrMap).reduce((a, arr) => a + (arr?.length || 0), 0);
+  const covered = Object.values(bArrMap).reduce(
+    (a, arr) =>
+      a +
+      (Array.isArray(arr)
+        ? arr.reduce((x, y) => x + (Number(y) > 0 ? 1 : 0), 0)
+        : 0),
+    0,
+  );
+  return { total, covered };
+}
+
+export function summarizeCoverageFile(
+  entry: CoverageFileMapEntry,
+  percentFn: (covered: number, total: number) => number,
+): CoverageFileSummary {
+  const sMap = entry.s || {};
+  const fMap = entry.f || {};
+  const bArrMap = entry.b || {};
+  const s = computeStatementsSummary(
+    sMap,
+    entry.statementMap as Record<string, unknown> | undefined,
+  );
+  const f = computeFunctionsSummary(
+    fMap,
+    entry.fnMap as Record<string, unknown> | undefined,
+  );
+  const b = computeBranchesSummary(bArrMap, entry.branchMap);
+  return {
+    path: entry.path,
+    statements: {
+      total: s.total,
+      covered: s.covered,
+      pct: percentFn(s.covered, s.total),
+    },
+    functions: {
+      total: f.total,
+      covered: f.covered,
+      pct: percentFn(f.covered, f.total),
+    },
+    branches: {
+      total: b.total,
+      covered: b.covered,
+      pct: percentFn(b.covered, b.total),
+    },
+    newlines: { total: 0, covered: 0, pct: 0 },
+  };
+}
+
+export function summarizeCoverageFromMap(
+  map: Record<string, CoverageFileMapEntry>,
+  percentFn: (covered: number, total: number) => number,
+): Record<string, CoverageFileSummary> {
+  const result: Record<string, CoverageFileSummary> = {};
+  if (!map) return result;
+  for (const v of Object.values(map)) {
+    const summary = summarizeCoverageFile(v, percentFn);
+    result[summary.path] = summary;
+  }
+  return result;
+}
