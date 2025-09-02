@@ -170,7 +170,7 @@ const ProjectListPage = () => {
         />
 
         <Space>
-          <Button type={'primary'} size={'small'}>
+          <Button type={'primary'} size={'small'} href={'/projects/new'}>
             New Project
           </Button>
         </Space>
@@ -180,7 +180,7 @@ const ProjectListPage = () => {
         <div className={'flex justify-between'}>
           <div>
             <Select
-              defaultValue={'fligt'}
+              defaultValue={[]}
               mode='multiple'
               onChange={(v) => {
                 localStorage.setItem('bu', JSON.stringify(v));
