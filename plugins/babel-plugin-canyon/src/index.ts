@@ -82,7 +82,7 @@ export default declare((api, config, dirname) => {
             ci: config.ci || process.env['CI'] || false,
             buildID: config.buildID || env_buildID || '-',
             buildProvider: config.buildProvider || env_buildProvider,
-            mergeRequestID: config.mergeRequestID || env_CI_MERGE_REQUEST_ID || '-',
+            buildTarget: config.buildTarget || ''
           })
 
           // if (onlyOne){
