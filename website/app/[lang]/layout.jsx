@@ -74,7 +74,7 @@ export default async function RootLayout({ children, params }) {
           // banner={banner}
           navbar={navbar}
           pageMap={pageMap}
-          docsRepositoryBase='https://github.com/shuding/nextra/tree/main/docs'
+          docsRepositoryBase="https://github.com/canyon-project/canyon/tree/dev/website"
           footer={footer}
           i18n={[
             { locale: 'en', name: 'English' },
