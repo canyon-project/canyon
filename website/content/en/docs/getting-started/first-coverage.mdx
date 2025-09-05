@@ -69,8 +69,8 @@ In the CI environment, we need to configure some environment variables to report
     plugins: (process.env.CI &&
               process.env.CI_COMMIT_REF_NAME !== 'release')
               ? [
-                'canyon',
-                'istanbul'
+                'istanbul',
+                'canyon'
               ]:[],
   };
   ```

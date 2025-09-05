@@ -69,8 +69,8 @@ CI環境では、カバレッジデータを報告するためにいくつかの
     plugins: (process.env.CI &&
               process.env.CI_COMMIT_REF_NAME !== 'release')
               ? [
-                'canyon',
-                'istanbul'
+                'istanbul',
+                'canyon'
               ]:[],
   };
   ```

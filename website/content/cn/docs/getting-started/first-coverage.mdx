@@ -69,8 +69,8 @@ npm install babel-plugin-istanbul babel-plugin-canyon -D
     plugins: (process.env.CI &&
               process.env.CI_COMMIT_REF_NAME !== 'release')
               ? [
-                'canyon',
-                'istanbul'
+                'istanbul',
+                'canyon'
               ]:[],
   };
   ```
