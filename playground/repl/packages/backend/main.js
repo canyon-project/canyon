@@ -10,8 +10,6 @@ app.use(bodyParser.json());
 
 app.use(cors())
 
-console.log(require('path').join(__dirname, '../frontend/dist'),'require(\'path\').join(__dirname, \'frontend/dist\')')
-
 app.use(express.static(
   require('path').join(__dirname, '../frontend/dist')
 ));
