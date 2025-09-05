@@ -11,4 +11,4 @@ RUN pnpm i
 RUN pnpm run build
 
 EXPOSE 8080
-CMD ["node", "packages/backend/main.js" ]
+CMD ["npm", "start" ]
