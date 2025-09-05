@@ -1,0 +1,46 @@
+# CanyonJS 数据结构字典
+
+面向覆盖率查询与聚合的核心字段说明，按“查询维度 / 构建维度 / 报告维度 / 统计范围”分组展示。
+
+## 覆盖率查询维度
+
+| 字段 | 含义 | 示例/备注 |
+| --- | --- | --- |
+| provider | 代码提供商 | `gitlab`、`github`、`gitea` |
+| repoID | 仓库 ID | 例如 `123` 或 `org/repo` |
+| subject | 查询主题 | `commit` / `pull` / `multiple-commits` |
+| subjectID | 主题 ID | `commit` → commit SHA；`pull` → pull ID |
+
+## 构建维度
+
+| 字段 | 含义 | 示例/备注 |
+| --- | --- | --- |
+| buildProvider | 构建提供商 | 例如 `gitlab runner` |
+| buildID | 构建 ID | 例如 `123456` |
+| buildTarget | 构建目标 | 用于单仓多端（如 `web`/`ios`/`android`）；合并覆盖率时需按 `buildTarget` 区分统计 |
+
+## 报告维度
+
+| 字段 | 含义 | 示例/备注 |
+| --- | --- | --- |
+| reportProvider | 覆盖率/用例提供方 | 如 `playwright`、人工测试 |
+| reportID | 报告/用例 ID | 自定义标识，用于区分不同报告来源 |
+
+## 统计范围（scope）
+
+每个 `buildTarget` 建议配置一个 `scope`，包含 `includes` 与 `excludes`，用于独立统计。
+
+```json
+[
+    {
+        "buildTarget": "web",
+        "includes": ["src/web/**"],
+        "excludes": ["**/*.spec.ts", "**/__tests__/**"]
+    },
+    {
+        "buildTarget": "app",
+        "includes": ["src/app/**"],
+        "excludes": ["**/*.spec.ts", "**/__tests__/**"]
+    }
+]
+```
