@@ -17,7 +17,7 @@ app.use(express.static(
 ));
 
 app.post('/api/transform', (req, res) => {
-  const inputCode = (req.body.code || 'console.log("hello world")') + '\nconsole.log(window.__coverage__)';
+  const inputCode = (req.body.code || 'console.log("hello world")');
   const filename = req.body.filename || 'input.ts';
   const plugins = req.body.plugins || ['istanbul'];
   if (!inputCode) {
@@ -57,7 +57,7 @@ app.post('/api/transform', (req, res) => {
     logs.push(`[runtime error] ${e && e.message ? e.message : String(e)}`);
   }
 
-  return res.json({ code: transformedCode, logs });
+  return res.json({ code: transformedCode, logs,coverage: Object.values(sandbox.window.__coverage__)[0] });
 });
 
 app.get('/health', (_req, res) => {

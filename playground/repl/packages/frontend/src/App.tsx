@@ -1,24 +1,24 @@
-import {useMemo, useState} from 'react'
-import './App.css'
-import { useRequest } from 'ahooks'
+import {useState} from 'react'
+import {useRequest} from 'ahooks'
 import axios from 'axios'
-import { Editor } from '@monaco-editor/react'
-import { Button, Space, Tabs, message, Typography, Segmented, Tag, Card } from 'antd'
-import { PlayCircleOutlined, CopyOutlined, DeleteOutlined } from '@ant-design/icons'
+import {Editor} from '@monaco-editor/react'
+import {Button, ConfigProvider, Divider, message, Segmented, Space, Tabs, Tag, Typography} from 'antd'
+import {PlayCircleOutlined} from '@ant-design/icons'
 import FileCoverageDetail from "@/components/CoverageDetail.tsx";
+import {code} from './data/code'
 
 function App() {
-  const [inputCode, setInputCode] = useState<string>('const x: number = 42')
+  const [inputCode, setInputCode] = useState<string>(code)
   const [outputCode, setOutputCode] = useState<string>('')
   const [logsText, setLogsText] = useState<string>('')
   const [language, setLanguage] = useState<'typescript' | 'javascript'>('typescript')
-  const [pluginsJson, setPluginsJson] = useState<string>(JSON.stringify([["istanbul"]], null, 2))
+  const [pluginsJson] = useState<string>(JSON.stringify([["istanbul"]], null, 2))
 
   const currentFilename = language === 'typescript' ? 'input.ts' : 'input.js'
 
   const [messageApi, contextHolder] = message.useMessage()
 
-  const {data,run,loading} = useRequest(
+  const {data, run, loading} = useRequest(
     (payload: { code: string; filename: string; plugins: unknown }) => {
       return axios
         .post('/api/transform', {
@@ -43,14 +43,6 @@ function App() {
     }
   )
 
-    const cov = useMemo(() => {
-        // console.log(data.logs[0][0],'transformRequest.data')
-        try {
-            return data.logs[0][0]
-        } catch (e) {
-            return {}
-        }
-    },[data])
 
   const onTransform = () => {
     let parsedPlugins: unknown = []
@@ -60,114 +52,84 @@ function App() {
       messageApi.error('插件配置 JSON 解析失败')
       return
     }
-    run({ code: inputCode, filename: currentFilename, plugins: parsedPlugins })
+    run({code: inputCode, filename: currentFilename, plugins: parsedPlugins})
   }
 
-  const onCopyOutput = async () => {
-    try {
-      await navigator.clipboard.writeText(outputCode || '')
-      messageApi.success('已复制输出代码')
-    } catch (e) {
-      messageApi.error('复制失败')
-    }
-  }
-
-  const onCopyLogs = async () => {
-    try {
-      await navigator.clipboard.writeText(logsText || '')
-      messageApi.success('已复制日志')
-    } catch (e) {
-      messageApi.error('复制失败')
-    }
-  }
-
-  const onClear = () => {
-    setOutputCode('')
-    setLogsText('')
-  }
 
   const tabItems = [
     {
       key: 'code',
       label: '输出代码',
       children: (
-        <Card size="small" title="输出代码" extra={<Space><Button icon={<DeleteOutlined />} onClick={onClear}>清空</Button><Button icon={<CopyOutlined />} onClick={onCopyOutput} disabled={!outputCode}>复制</Button></Space>}>
+        <div className={'border border-gray-200'}>
           <Editor
             value={outputCode}
             language="javascript"
-            height="100vh"
+            height="calc(100vh - 100px)"
             options={{
               readOnly: true,
-              minimap: { enabled: false },
+              minimap: {enabled: false},
               fontFamily: 'IBMPlexMono, monospace',
-              fontSize: 14,
+              fontSize: 12,
               scrollBeyondLastLine: false,
             }}
           />
-        </Card>
+        </div>
       ),
     },
     {
       key: 'logs',
       label: '日志',
       children: (
-        <Card size="small" title="日志" extra={<Button icon={<CopyOutlined />} onClick={onCopyLogs} disabled={!logsText}>复制</Button>}>
+        <div className={'border border-gray-200'}>
           <Editor
             value={logsText}
             language="json"
-            height="100vh"
+            height="calc(100vh - 100px)"
             options={{
               readOnly: true,
-              minimap: { enabled: false },
+              minimap: {enabled: false},
               fontFamily: 'IBMPlexMono, monospace',
-              fontSize: 14,
+              fontSize: 12,
               scrollBeyondLastLine: false,
               wordWrap: 'on',
             }}
           />
-        </Card>
+        </div>
       ),
     },
-      {
-          key: 'report',
-            label: '覆盖率报告',
-          children: (
-            <Card size="small" title="覆盖率报告">
-              <div style={{height: '100vh', width:'100%'}}>
-                {cov && outputCode ? (
-                  <FileCoverageDetail fileCoverage={cov['/Users/travzhang/Desktop/babel-test/input.ts']} fileContent={inputCode} fileCodeChange={[]} theme={"light"} />
-                ) : (
-                  <Typography.Text type="secondary">暂无数据，请先转换。</Typography.Text>
-                )}
+    {
+      key: 'report',
+      label: '覆盖率报告',
+      children: (
+        <div className={'border border-gray-200'}>
+          <div style={{height: 'calc(100vh - 100px)', width: '100%'}}>
+            {outputCode ? (
+              <FileCoverageDetail fileCoverage={data.coverage} fileContent={inputCode} fileCodeChange={[]}
+                                  theme={"light"}/>
+            ) : (
+              <div className={'p-2'}>
+                <Typography.Text type="secondary">暂无数据，请先转换。</Typography.Text>
               </div>
-            </Card>
-          )
-      }
+            )}
+          </div>
+        </div>
+      )
+    }
   ]
 
   return (
-    <div className="p-4">
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#0071c2',
+          borderRadius: 2,
+        },
+      }}>
       {contextHolder}
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <Card className="col-span-1 md:col-span-3" size="small" title="插件配置（JSON）" extra={<Button size="small" onClick={() => setPluginsJson(JSON.stringify([["istanbul"]], null, 2))}>重置</Button>}>
-          <Editor
-            value={pluginsJson}
-            onChange={(v) => setPluginsJson(v || '')}
-            language="json"
-            path="plugins.json"
-            height="100vh"
-            options={{
-              minimap: { enabled: false },
-              fontFamily: 'IBMPlexMono, monospace',
-              fontSize: 13,
-              scrollBeyondLastLine: false,
-              wordWrap: 'on',
-              lineNumbers: 'on',
-            }}
-          />
-        </Card>
-        <div className="col-span-1 md:col-span-4">
-          <div className="flex items-center justify-between mb-2">
+      <div className="flex gap-2 p-2">
+        <div className="flex-1">
+          <div className="flex items-center justify-between mb-[20px]">
             <div className="flex items-center gap-2">
               <Typography.Text>
                 输入代码（{language === 'typescript' ? 'TypeScript' : 'JavaScript'}）
@@ -177,15 +139,15 @@ function App() {
             <Space>
               <Segmented
                 options={[
-                  { label: 'TypeScript', value: 'typescript' },
-                  { label: 'JavaScript', value: 'javascript' },
+                  {label: 'TypeScript', value: 'typescript'},
+                  {label: 'JavaScript', value: 'javascript'},
                 ]}
                 value={language}
                 onChange={(val) => setLanguage(val as 'typescript' | 'javascript')}
               />
               <Button
                 type="primary"
-                icon={<PlayCircleOutlined />}
+                icon={<PlayCircleOutlined/>}
                 loading={loading}
                 onClick={onTransform}
               >
@@ -193,27 +155,32 @@ function App() {
               </Button>
             </Space>
           </div>
-          <Editor
-            value={inputCode}
-            onChange={(v) => setInputCode(v || '')}
-            language={language}
-            path={currentFilename}
-            height="100vh"
-            options={{
-              minimap: { enabled: false },
-              fontFamily: 'IBMPlexMono, monospace',
-              fontSize: 14,
-              scrollBeyondLastLine: false,
-              automaticLayout: true,
-            }}
-          />
+          <div className={'border border-gray-200'}>
+            <Editor
+              value={inputCode}
+              onChange={(v) => setInputCode(v || '')}
+              language={language}
+              path={currentFilename}
+              height="calc(100vh - 100px)"
+              options={{
+                minimap: {enabled: false},
+                fontFamily: 'IBMPlexMono, monospace',
+                fontSize: 12,
+                scrollBeyondLastLine: false,
+                automaticLayout: true,
+              }}
+            />
+          </div>
         </div>
-        <Card className="col-span-1 md:col-span-5" size="small" title="结果">
-          <Tabs items={tabItems} />
-        </Card>
+        <Divider type={'vertical'} style={{
+          height: 'calc(100vh - 32px)',
+        }}/>
+        <div className={'flex-1'}>
+          <Tabs size={'small'} items={tabItems}/>
+        </div>
 
       </div>
-    </div>
+    </ConfigProvider>
   )
 }
 
