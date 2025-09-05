@@ -6,8 +6,32 @@ import { getPageMap } from 'nextra/page-map';
 import { getDictionary } from '../_dictionaries/get-dictionary';
 
 export const metadata = {
-  // Define your metadata here
-  // For more information on metadata API, see: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
+  title: {
+    template: "%s - Canyon",
+    default: "Canyon - JavaScript Code Coverage Solution",
+  },
+  description: "An open-source solution to collect JavaScript coverage more accurately",
+  keywords: ["JavaScript", "code coverage", "testing", "E2E", "Babel", "Istanbul"],
+  authors: [{ name: "Canyon Team" }],
+  creator: "Canyon Team",
+  publisher: "Canyon Team",
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://docs.canyonjs.io/en",
+    title: "Canyon - JavaScript Code Coverage Solution",
+    description: "An open-source solution to collect JavaScript coverage more accurately",
+    siteName: "Canyon Documentation",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Canyon - JavaScript Code Coverage Solution",
+    description: "An open-source solution to collect JavaScript coverage more accurately",
+  },
 };
 
 const navbar = (
@@ -42,7 +66,8 @@ export default async function RootLayout({ children, params }) {
       <Head
       // ... Your additional head options
       >
-        {/* Your additional tags should be passed as `children` of `<Head>` element */}
+        <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+        <title>JavaScript Code Coverage Solution - CANYON</title>
       </Head>
       <body>
         <Layout
