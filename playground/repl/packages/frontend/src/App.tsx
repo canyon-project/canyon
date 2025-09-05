@@ -13,6 +13,7 @@ function App() {
   const [logsText, setLogsText] = useState<string>('')
   const [language, setLanguage] = useState<'typescript' | 'javascript'>('typescript')
   const [pluginsJson] = useState<string>(JSON.stringify([["istanbul"]], null, 2))
+  const [reRender, setReRender] = useState<boolean>(true)
 
   const currentFilename = language === 'typescript' ? 'input.ts' : 'input.js'
 
@@ -39,6 +40,9 @@ function App() {
         } catch (e) {
           setLogsText(String(logs))
         }
+        // Force re-mount right panel to refresh UI
+        setReRender(false)
+        setTimeout(() => setReRender(true), 100)
       },
     }
   )
@@ -104,7 +108,7 @@ function App() {
       children: (
         <div className={'border border-gray-200'}>
           <div style={{height: 'calc(100vh - 100px)', width: '100%'}}>
-            {outputCode ? (
+            {(outputCode&&reRender) ? (
               <FileCoverageDetail fileCoverage={data.coverage} fileContent={inputCode} fileCodeChange={[]}
                                   theme={"light"}/>
             ) : (
