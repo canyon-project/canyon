@@ -31,4 +31,10 @@ export class CoverageEntity {
 
   @Property({ fieldName: 'report_id', type: 'text' })
   reportID!: string;
+
+  @Property({ fieldName: 'created_at' })
+  createdAt!: Date;
+
+  @Property({ fieldName: 'updated_at' })
+  updatedAt!: Date;
 }

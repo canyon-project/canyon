@@ -1,5 +1,6 @@
-import { EntityRepository } from '@mikro-orm/core';
+import { MikroORM } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import { EntityRepository, sql } from '@mikro-orm/postgresql';
 import { Injectable, Optional } from '@nestjs/common';
 import axios from 'axios';
 import { CoverageEntity } from '../../entities/coverage.entity';
@@ -13,7 +14,8 @@ export class RepoService {
     private readonly repoRepo: EntityRepository<RepoEntity>,
     @InjectRepository(CoverageEntity)
     private readonly covRepo: EntityRepository<CoverageEntity>,
-    @Optional() private readonly syscfg?: SystemConfigService,
+    @Optional() private readonly syscfg: SystemConfigService,
+    @Optional() private readonly orm: MikroORM,
   ) {}
 
   private async getGitLabCfg() {
@@ -67,11 +69,27 @@ export class RepoService {
   }
 
   async getRepos(_keyword?: string) {
-    const repos = await this.repoRepo.findAll({
-      where: {},
-    });
+    const conn = this.orm.em.getConnection();
+    const rows = (await conn.execute(
+      'select r.id as id, r.path_with_namespace as path_with_namespace, r.description as description, max(c.updated_at) as last_updated_at, count(distinct c.sha) as sha_count from "canyonjs_repo" as r left join "canyonjs_coverage" as c on c.repo_id = r.id group by r.id, r.path_with_namespace, r.description order by last_updated_at desc nulls last',
+    )) as Array<{
+      id: string;
+      path_with_namespace: string;
+      description: string;
+      last_updated_at: string | null;
+      sha_count: number;
+    }>;
+
     return {
-      data: repos,
+      data: rows.map((r) => {
+        return {
+          id: r.id,
+          pathWithNamespace: r.path_with_namespace,
+          description: r.description,
+          lastReportTime: r.last_updated_at,
+          reportTimes: r.sha_count,
+        };
+      }),
     };
   }
 
