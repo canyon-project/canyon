@@ -1,3 +1,4 @@
+import '@ant-design/v5-patch-for-react-19';
 import './i18n.ts';
 import './useWorker.ts';
 import { createRoot } from 'react-dom/client';

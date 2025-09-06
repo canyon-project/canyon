@@ -10,6 +10,16 @@ import { JSONScalar } from '../../scalars/json.scalar';
 import { RepoService } from './repo.service';
 
 @ObjectType()
+class Scope {
+  @Field()
+  buildTarget!: string;
+  @Field(() => [String])
+  includes!: string[];
+  @Field(() => [String])
+  excludes!: string[];
+}
+
+@ObjectType()
 class Repo {
   @Field()
   id!: string;
@@ -19,6 +29,12 @@ class Repo {
 
   @Field()
   description!: string;
+
+  @Field()
+  bu!: string;
+
+  @Field(() => [Scope])
+  scopes!: Scope[];
 
   @Field()
   createdAt!: Date;
@@ -75,6 +91,15 @@ class RepoMutationResult {
   id!: string;
 }
 
+@ObjectType()
+class RepoUpdateResult {
+  @Field()
+  ok!: boolean;
+
+  @Field()
+  id!: string;
+}
+
 @Resolver()
 export class RepoResolver {
   constructor(private readonly repoService: RepoService) {}
@@ -87,8 +112,9 @@ export class RepoResolver {
   @Query(() => RepoList)
   repos(
     @Args('keyword', { type: () => String, nullable: true }) keyword?: string,
+    @Args('bu', { type: () => [String], nullable: true }) bu?: string[],
   ) {
-    return this.repoService.getRepos(keyword);
+    return this.repoService.getRepos(keyword, bu);
   }
 
   @Query(() => RepoCommits)
@@ -112,5 +138,15 @@ export class RepoResolver {
   @Mutation(() => RepoMutationResult)
   postRepoById(@Args('id', { type: () => String }) id: string) {
     return this.repoService.postRepoById(id);
+  }
+
+  @Mutation(() => RepoUpdateResult)
+  updateRepo(
+    @Args('id', { type: () => String }) id: string,
+    @Args('bu', { type: () => String, nullable: true }) bu?: string,
+    @Args('description', { type: () => String, nullable: true })
+    description?: string,
+  ) {
+    return this.repoService.updateRepo(id, bu, description);
   }
 }

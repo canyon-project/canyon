@@ -6,10 +6,18 @@ type CodeFileContent {
   content: String
 }
 
+type Scope {
+  buildTarget: String!
+  includes: [String!]!
+  excludes: [String!]!
+}
+
 type Repo {
   id: String!
   pathWithNamespace: String!
   description: String!
+  bu: String!
+  scopes: [Scope!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
@@ -45,13 +53,18 @@ type RepoMutationResult {
   id: String!
 }
 
+type RepoUpdateResult {
+  ok: Boolean!
+  id: String!
+}
+
 """Arbitrary JSON value"""
 scalar JSON
 
 type Query {
   coverageOverview(provider: String!, repoID: String!, sha: String!, buildProvider: String, buildID: String, reportProvider: String, reportID: String, filePath: String): JSON!
   repo(id: String!): Repo!
-  repos(keyword: String): RepoList!
+  repos(keyword: String, bu: [String!]): RepoList!
   repoCommits(repoID: String!): RepoCommits!
   repoPulls(repoID: String!): RepoPulls!
   repoCommitBySHA(repoID: String!, sha: String!): RepoCommitDetail!
@@ -63,4 +76,5 @@ type Query {
 
 type Mutation {
   postRepoById(id: String!): RepoMutationResult!
+  updateRepo(id: String!, bu: String, description: String): RepoUpdateResult!
 }

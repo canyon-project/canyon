@@ -2,8 +2,14 @@ query Repo($id: String!) {
   repo(id: $id) {
     id
     pathWithNamespace
-    createdAt
     description
+    bu
+    scopes {
+      buildTarget
+      includes
+      excludes
+    }
+    createdAt
     updatedAt
   }
 }

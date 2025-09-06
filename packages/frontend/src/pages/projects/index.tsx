@@ -25,8 +25,9 @@ const ProjectListPage = () => {
   const [keyword, setKeyword] = useState('');
   const { data, loading } = useQuery(ReposDocument, {
     variables: {
-      keywords: '',
+      keywords: keyword,
     },
+    fetchPolicy: 'no-cache',
   });
 
   const { t } = useTranslation();
@@ -188,10 +189,8 @@ const ProjectListPage = () => {
             <Input.Search
               placeholder={t('projects.search_keywords')}
               className={'!w-[420px] mb-3'}
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              onSearch={() => {
-                // TODO: 调用接口/刷新列表，当前未实现
+              onSearch={(value) => {
+                setKeyword(value);
               }}
             />
             <Space className={'ml-5'}>

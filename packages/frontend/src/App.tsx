@@ -1,4 +1,4 @@
-import { ConfigProvider, theme } from 'antd';
+import { ConfigProvider, message, theme } from 'antd';
 import enUS from 'antd/es/locale/en_US';
 import jaJP from 'antd/es/locale/ja_JP';
 import zhCN from 'antd/es/locale/zh_CN';
@@ -22,7 +22,8 @@ routes.push({
   element: <CoverageReport />,
 });
 
-console.log(routes, 'routes');
+message.config({});
+
 const App = () => {
   const isDark = localStorage.getItem('theme')
     ? localStorage.getItem('theme') === 'dark'

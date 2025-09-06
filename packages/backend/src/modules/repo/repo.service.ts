@@ -68,18 +68,49 @@ export class RepoService {
     }
   }
 
-  async getRepos(_keyword?: string) {
+  async getRepos(keyword?: string, bu?: string[]) {
     const conn = this.orm.em.getConnection();
-    const rows = (await conn.execute(
-      'select r.id as id, r.bu as bu, r.scopes as scopes, r.path_with_namespace as path_with_namespace, r.description as description, max(c.updated_at) as last_updated_at, count(distinct c.sha) as sha_count from "canyonjs_repo" as r left join "canyonjs_coverage" as c on c.repo_id = r.id group by r.id, r.path_with_namespace, r.description order by last_updated_at desc nulls last',
-    )) as Array<{
+
+    const conditions: string[] = [];
+    const params: unknown[] = [];
+
+    if (keyword?.trim()) {
+      const like = `%${keyword.trim()}%`;
+      conditions.push('(r.id ilike ? or r.path_with_namespace ilike ?)');
+      params.push(like, like);
+    }
+    if (Array.isArray(bu) && bu.length > 0) {
+      const placeholders = bu.map(() => '?').join(', ');
+      conditions.push(`r.bu in (${placeholders})`);
+      params.push(...bu);
+    }
+
+    const whereSQL = conditions.length
+      ? ` where ${conditions.join(' and ')}`
+      : '';
+
+    const sql =
+      'select r.id as id, r.bu as bu, r.scopes as scopes, r.path_with_namespace as path_with_namespace, r.description as description, max(c.updated_at) as last_updated_at, count(distinct c.sha) as sha_count ' +
+      'from "canyonjs_repo" as r ' +
+      'left join "canyonjs_coverage" as c on c.repo_id = r.id' +
+      whereSQL +
+      ' group by r.id, r.path_with_namespace, r.description, r.bu, r.scopes' +
+      ' order by last_updated_at desc nulls last';
+
+    const rows = (await conn.execute(sql, params)) as Array<{
       id: string;
       path_with_namespace: string;
       description: string;
       last_updated_at: string | null;
       sha_count: number;
       bu: string;
-      scopes: any;
+      scopes: [
+        {
+          buildTarget: string;
+          includes: string[];
+          excludes: string[];
+        },
+      ];
     }>;
 
     return {
@@ -99,6 +130,32 @@ export class RepoService {
 
   async postRepoById(id: string) {
     // TODO: 接入数据库/第三方系统
+    return { ok: true, id };
+  }
+
+  async updateRepo(id: string, bu?: string, description?: string) {
+    if (!id) return { ok: false, id };
+    const sets: string[] = [];
+    const params: unknown[] = [];
+
+    if (typeof bu === 'string') {
+      sets.push('bu = ?');
+      params.push(bu);
+    }
+    if (typeof description === 'string') {
+      sets.push('description = ?');
+      params.push(description);
+    }
+    if (sets.length === 0) return { ok: true, id };
+
+    // always update updated_at
+    sets.push('updated_at = now()');
+
+    const sql = `update "canyonjs_repo" set ${sets.join(', ')} where id = ?`;
+    params.push(id);
+
+    const conn = this.orm.em.getConnection();
+    await conn.execute(sql, params);
     return { ok: true, id };
   }
 

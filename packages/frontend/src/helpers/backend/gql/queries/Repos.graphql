@@ -1,5 +1,5 @@
-query Repos($keywords: String!) {
-  repos(keyword: $keywords) {
+query Repos($keywords: String!, $bu: [String!]) {
+  repos(keyword: $keywords, bu: $bu) {
     data
   }
 }
