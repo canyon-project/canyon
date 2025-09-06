@@ -1,5 +1,14 @@
 import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
+class Scope {
+  @Property()
+  buildTarget!: string;
+  @Property()
+  includes!: string[];
+  @Property()
+  excludes!: string[];
+}
+
 @Entity({ tableName: 'canyonjs_repo' })
 export class RepoEntity {
   @PrimaryKey()
@@ -12,6 +21,12 @@ export class RepoEntity {
 
   @Property()
   description!: string;
+
+  @Property()
+  bu!: string;
+
+  @Property()
+  scopes!: Scope[];
 
   @Property({ fieldName: 'created_at' })
   createdAt!: Date;

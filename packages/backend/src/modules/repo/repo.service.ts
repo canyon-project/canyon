@@ -71,13 +71,15 @@ export class RepoService {
   async getRepos(_keyword?: string) {
     const conn = this.orm.em.getConnection();
     const rows = (await conn.execute(
-      'select r.id as id, r.path_with_namespace as path_with_namespace, r.description as description, max(c.updated_at) as last_updated_at, count(distinct c.sha) as sha_count from "canyonjs_repo" as r left join "canyonjs_coverage" as c on c.repo_id = r.id group by r.id, r.path_with_namespace, r.description order by last_updated_at desc nulls last',
+      'select r.id as id, r.bu as bu, r.scopes as scopes, r.path_with_namespace as path_with_namespace, r.description as description, max(c.updated_at) as last_updated_at, count(distinct c.sha) as sha_count from "canyonjs_repo" as r left join "canyonjs_coverage" as c on c.repo_id = r.id group by r.id, r.path_with_namespace, r.description order by last_updated_at desc nulls last',
     )) as Array<{
       id: string;
       path_with_namespace: string;
       description: string;
       last_updated_at: string | null;
       sha_count: number;
+      bu: string;
+      scopes: any;
     }>;
 
     return {
@@ -88,6 +90,8 @@ export class RepoService {
           description: r.description,
           lastReportTime: r.last_updated_at,
           reportTimes: r.sha_count,
+          bu: r.bu,
+          scopes: r.scopes,
         };
       }),
     };

@@ -1,8 +1,4 @@
-import {
-  HeartFilled,
-  HeartOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons';
+import { HeartFilled, HeartOutlined } from '@ant-design/icons';
 import { useQuery } from '@apollo/client';
 import {
   Breadcrumb,
@@ -13,7 +9,6 @@ import {
   Space,
   Switch,
   Table,
-  Tooltip,
   Typography,
   theme,
 } from 'antd';
@@ -93,7 +88,7 @@ const ProjectListPage = () => {
       },
     },
     {
-      title: 'Bu',
+      title: 'BU',
       dataIndex: 'bu',
       sorter: true,
     },
@@ -102,25 +97,25 @@ const ProjectListPage = () => {
       dataIndex: 'reportTimes',
       sorter: true,
     },
-    {
-      title: (
-        <>
-          <Tooltip
-            title={t('projects.max_coverage_tooltip')}
-            className={'!mr-2'}
-          >
-            <QuestionCircleOutlined />
-          </Tooltip>
-          最大覆盖率
-        </>
-      ),
-      dataIndex: 'maxCoverage',
-      key: 'maxCoverage',
-      sorter: true,
-      render: (text) => {
-        return <Space>{text}</Space>;
-      },
-    },
+    // {
+    //   title: (
+    //     <>
+    //       <Tooltip
+    //         title={t('projects.max_coverage_tooltip')}
+    //         className={'!mr-2'}
+    //       >
+    //         <QuestionCircleOutlined />
+    //       </Tooltip>
+    //       最大覆盖率
+    //     </>
+    //   ),
+    //   dataIndex: 'maxCoverage',
+    //   key: 'maxCoverage',
+    //   sorter: true,
+    //   render: (text) => {
+    //     return <Space>{text}</Space>;
+    //   },
+    // },
     {
       title: t('projects.latest_report_time'),
       dataIndex: 'lastReportTime',
@@ -185,7 +180,7 @@ const ProjectListPage = () => {
               onChange={(v) => {
                 localStorage.setItem('bu', JSON.stringify(v));
               }}
-              placeholder={'Bu'}
+              placeholder={'BU'}
               className={'w-[200px] !mr-2'}
               options={[]}
             />
