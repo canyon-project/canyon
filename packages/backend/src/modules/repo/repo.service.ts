@@ -1,6 +1,6 @@
 import { MikroORM } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
-import { EntityRepository, sql } from '@mikro-orm/postgresql';
+import { EntityRepository } from '@mikro-orm/postgresql';
 import { Injectable, Optional } from '@nestjs/common';
 import axios from 'axios';
 import { CoverageEntity } from '../../entities/coverage.entity';
