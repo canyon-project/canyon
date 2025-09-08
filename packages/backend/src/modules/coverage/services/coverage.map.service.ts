@@ -281,7 +281,15 @@ export class CoverageMapService {
     });
     if (!allCov.length) return {};
 
-    // 7) 拉取路径与结构哈希的关系（可按 filePath 过滤）
+    // 7) 预先准备：建立 coverageID -> 覆盖记录 的映射，并确定 baseline 信息
+    const covByID = new Map(allCov.map((c) => [c.id, c] as const));
+    const baseSet = new Set<string>();
+    for (const c of allCov) if (c.sha === headSha) baseSet.add(c.id);
+    if (baseSet.size === 0) baseSet.add(allCov[0].id);
+    const baselineCovID = [...baseSet][0];
+    const baselineCwd = covByID.get(baselineCovID)?.instrumentCwd || '';
+
+    // 8) 拉取路径与结构哈希的关系（可按 filePath 过滤）
     const covIds = allCov.map((c) => c.id);
     const relWhere: {
       coverageID: { $in: string[] };
@@ -295,7 +303,7 @@ export class CoverageMapService {
       fields: ['coverageID', 'coverageMapHashID', 'fullFilePath'],
     });
 
-    // 8) 从 ClickHouse 聚合命中（带 coverageID，用于分组/过滤）
+    // 9) 从 ClickHouse 聚合命中（带 coverageID，用于分组/过滤）
     const idsList = covIds.map((id) => `'${id.replace(/'/g, "''")}'`).join(',');
     const hitQuery = `
       SELECT
@@ -320,14 +328,6 @@ export class CoverageMapService {
     }> = await hitRes.json();
 
     const hitRows = _hitRows.filter((r) => !r.fullFilePath.includes('/dist/'));
-
-    // 9) 计算 baseline 覆盖与其 instrumentCwd
-    const covByID = new Map(allCov.map((c) => [c.id, c] as const));
-    const baseSet = new Set<string>();
-    for (const c of allCov) if (c.sha === headSha) baseSet.add(c.id);
-    if (baseSet.size === 0) baseSet.add(allCov[0].id);
-    const baselineCovID = [...baseSet][0];
-    const baselineCwd = covByID.get(baselineCovID)?.instrumentCwd || '';
 
     // 10) 非 fileMerge 模式：计算每个提交的变更路径集合
     const changesBySha = new Map<string, Set<string>>();
@@ -369,27 +369,32 @@ export class CoverageMapService {
     };
     const isBlockMerge = (mode || '').toLowerCase() === 'blockmerge';
 
-    // 12) 预加载结构：构建 (coverageID|path)->hash，拉取 hash->结构，按路径挑选一个结构（优先 baseline）
+    // 12) 预加载结构：构建 (coverageID|规范化路径)->hash，拉取 hash->结构，按规范化路径挑选一个结构（优先 baseline）
     const covPathToHash = new Map<string, string>();
+    const relPathSet = new Set<string>();
     for (const r of relationsAll) {
-      covPathToHash.set(
-        `${r.coverageID}|${r.fullFilePath}`,
-        r.coverageMapHashID,
-      );
+      const cov = covByID.get(r.coverageID);
+      if (!cov) continue;
+      const rel = trimInstrumentCwd(r.fullFilePath, cov.instrumentCwd);
+      relPathSet.add(rel);
+      covPathToHash.set(`${r.coverageID}|${rel}`, r.coverageMapHashID);
     }
     const allHashes = Array.from(
       new Set(relationsAll.map((r) => r.coverageMapHashID)),
     );
     const hashToMap =
       await this.mapStore.fetchCoverageMapsFromClickHouse(allHashes);
-    // 为每个绝对路径选取一个结构用于补齐（优先 baseline 覆盖）
+    // 为每个规范化路径选取一个结构用于补齐（优先 baseline 覆盖）
     const pathToStructure = new Map<string, unknown>();
     for (const r of relationsAll) {
+      const cov = covByID.get(r.coverageID);
+      if (!cov) continue;
+      const rel = trimInstrumentCwd(r.fullFilePath, cov.instrumentCwd);
       const struct = hashToMap.get(r.coverageMapHashID);
       if (!struct) continue;
-      const existing = pathToStructure.get(r.fullFilePath);
+      const existing = pathToStructure.get(rel);
       if (!existing || r.coverageID === baselineCovID) {
-        pathToStructure.set(r.fullFilePath, struct);
+        pathToStructure.set(rel, struct);
       }
     }
 
@@ -405,7 +410,7 @@ export class CoverageMapService {
         include = !changed?.has(relPath);
       }
       if (include || !isBlockMerge) {
-        const agg = ensure(row.fullFilePath);
+        const agg = ensure(relPath);
         const s = tupleToMap(row.s);
         const f = tupleToMap(row.f);
         const b = tupleToMap(row.b);
@@ -417,8 +422,8 @@ export class CoverageMapService {
           agg.B[k] = (agg.B[k] || 0) + (v as number);
         continue;
       }
-      const baseKey = `${baselineCovID}|${row.fullFilePath}`;
-      const otherKey = `${row.coverageID}|${row.fullFilePath}`;
+      const baseKey = `${baselineCovID}|${relPath}`;
+      const otherKey = `${row.coverageID}|${relPath}`;
       const baseHash = covPathToHash.get(baseKey);
       const otherHash = covPathToHash.get(otherKey);
       if (!baseHash || !otherHash) continue;
@@ -426,7 +431,7 @@ export class CoverageMapService {
       const otherMap = hashToMap.get(otherHash);
       if (!baseMap || !otherMap) continue;
 
-      const baseRel = trimInstrumentCwd(row.fullFilePath, baselineCwd);
+      const baseRel = relPath;
       const otherRel = relPath;
       const baseContent = await this.git
         .fetchGitLabFile(baseUrl, projectId, headSha, baseRel, headers)
@@ -476,7 +481,7 @@ export class CoverageMapService {
         >,
         tupleToMap(row.f),
       );
-      const agg = ensure(row.fullFilePath);
+      const agg = ensure(relPath);
       for (const [k, v] of Object.entries(stmtInc))
         agg.S[k] = (agg.S[k] || 0) + (v as number);
       for (const [k, v] of Object.entries(fnInc))
@@ -485,9 +490,9 @@ export class CoverageMapService {
 
     // 14) 输出：修剪路径、补齐 0 值、转换分支数组并返回（结构与 getMapForCommit 保持一致）
     const out: Record<string, unknown> = {};
-    for (const [absPath, agg] of aggregated) {
-      const path = trimInstrumentCwd(absPath, baselineCwd);
-      const struct = pathToStructure.get(absPath) as
+    for (const [relPath, agg] of aggregated) {
+      const path = relPath;
+      const struct = pathToStructure.get(relPath) as
         | {
             statementMap?: Record<string, unknown>;
             fnMap?: Record<string, unknown>;
