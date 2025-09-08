@@ -38,7 +38,11 @@ const Commits = () => {
   const commits = useMemo(() => {
     const list = data?.repoCommits?.commits || [];
     return list.map(
-      (item: { sha: string; lastCoverageCreatedAt?: string }): UICommit => {
+      (item: {
+        sha: string;
+        lastCoverageCreatedAt?: string;
+        branches?: string[];
+      }): UICommit => {
         return {
           id: item.sha,
           sha: item.sha,
@@ -49,7 +53,7 @@ const Commits = () => {
           aggregationStatus: 'completed',
           hasE2E: false,
           hasUnitTest: false,
-          branches: ['dev'],
+          branches: item.branches || [],
         };
       },
     );

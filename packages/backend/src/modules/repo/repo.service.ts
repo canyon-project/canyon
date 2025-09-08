@@ -161,6 +161,8 @@ export class RepoService {
 
   async getRepoCommits(repoID: string) {
     // this.getRepo()
+    const repo = await this.getRepo(repoID);
+    if (!repo) return { repoID, commits: [] };
 
     const conn = this.covRepo.getEntityManager().getConnection();
     const rows = await conn.execute(
@@ -168,14 +170,43 @@ export class RepoService {
       [repoID],
     );
 
-    const commits = rows.map(
-      (row: { sha: string; last_created_at: string }) => {
+    const projectId = await this.resolveProjectId(repo);
+    const cfg = await this.getGitLabCfg();
+
+    const commits = await Promise.all(
+      rows.map(async (row: { sha: string; last_created_at: string }) => {
+        let branches: string[] = [];
+
+        if (projectId && cfg) {
+          try {
+            const url = `${cfg.base}/api/v4/projects/${projectId}/repository/commits/${row.sha}/refs`;
+            const resp = await axios.get(url, {
+              headers: { 'PRIVATE-TOKEN': cfg.token },
+            });
+
+            if (
+              resp.status >= 200 &&
+              resp.status < 300 &&
+              Array.isArray(resp.data)
+            ) {
+              branches = resp.data
+                .filter((ref: any) => ref.type === 'branch')
+                .map((ref: any) => ref.name);
+              // console.log("resp.data+++++", branches,row.sha);
+            }
+          } catch (error) {
+            branches = ['main'];
+          }
+        }
+
         return {
           sha: row.sha,
           lastCoverageCreatedAt: row.last_created_at,
+          branches,
         };
-      },
+      }),
     );
+
     return { repoID, commits };
   }
 
