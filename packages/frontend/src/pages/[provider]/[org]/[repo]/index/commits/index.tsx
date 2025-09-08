@@ -41,12 +41,13 @@ const Commits = () => {
       (item: {
         sha: string;
         lastCoverageCreatedAt?: string;
+        commitMessage: string;
         branches?: string[];
       }): UICommit => {
         return {
           id: item.sha,
           sha: item.sha,
-          commitMessage: '',
+          commitMessage: item.commitMessage,
           author: '',
           timestamp: item.lastCoverageCreatedAt || '',
           pipelineCount: 1,

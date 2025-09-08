@@ -206,6 +206,10 @@ export class CoverageOverviewService {
     const hitMap = new Map<string, Set<string>>();
     for (const h of coverageHit) {
       const path = h.fullFilePath;
+      // TODO: 暂时这么做，需要统一处理一下
+      if (path.includes('/dist/')) {
+        continue;
+      }
       if (!hitMap.has(path)) hitMap.set(path, new Set<string>());
       const s = tupleToMap(h.s);
       for (const k of Object.keys(s)) hitMap.get(path)?.add(String(k));

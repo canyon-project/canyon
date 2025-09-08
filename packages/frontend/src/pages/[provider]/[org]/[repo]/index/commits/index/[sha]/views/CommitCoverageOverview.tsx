@@ -1,6 +1,7 @@
 import { useQuery } from '@apollo/client';
 import { Badge, Space, Spin, Tabs, type TabsProps } from 'antd';
 import { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { CoverageOverviewDocument } from '@/helpers/backend/gen/graphql.ts';
 import CoverageOverviewPanel from '@/pages/[provider]/[org]/[repo]/index/commits/index/[sha]/views/CoverageOverviewPanel.tsx';
 import type { Build, BuildMode, CommitCoverageOverviewProps } from '@/types';
@@ -22,8 +23,10 @@ const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
   commit,
   repo,
   onChange,
-  selectedBuildID,
 }) => {
+  const [searchParams] = useSearchParams();
+  const selectedBuildID = searchParams.get('build_id');
+
   const { data: d, loading } = useQuery(CoverageOverviewDocument, {
     variables: {
       provider: 'gitlab',
@@ -40,7 +43,7 @@ const CommitCoverageOverview: React.FC<CommitCoverageOverviewProps> = ({
       const first = data[0];
       onChange({ buildID: first.buildID, buildProvider: first.buildProvider });
     }
-  }, [selectedBuildID, data, onChange]);
+  }, [data, selectedBuildID, onChange]);
 
   // 根据搜索条件筛选流水线
   // 更新 pipeline tab 的渲染，添加 commit 信息

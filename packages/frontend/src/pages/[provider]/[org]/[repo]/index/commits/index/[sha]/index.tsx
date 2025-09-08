@@ -9,9 +9,7 @@ const Sha = () => {
     repo?: import('@/types').Repository;
   }>();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedBuildID, setSelectedBuildID] = useState(
-    searchParams.get('build_id'),
-  );
+  const [_, setSelectedBuildID] = useState(searchParams.get('build_id'));
   const [_selectedBuildProvider, setSelectedBuildProvider] = useState(
     searchParams.get('build_provider'),
   );
@@ -37,7 +35,6 @@ const Sha = () => {
           commit={commit}
           repo={repo}
           onChange={onChange}
-          selectedBuildID={selectedBuildID}
         />
       </RIf>
       <Outlet

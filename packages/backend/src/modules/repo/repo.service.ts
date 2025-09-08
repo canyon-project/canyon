@@ -166,7 +166,14 @@ export class RepoService {
 
     const conn = this.covRepo.getEntityManager().getConnection();
     const rows = await conn.execute(
-      'select c.sha as sha, max(c.created_at) as last_created_at from "canyonjs_coverage" as c where c.repo_id = ? group by c.sha order by last_created_at desc',
+      `SELECT
+         c.sha,
+         MAX(c.created_at) as last_created_at,
+         ARRAY_AGG(DISTINCT c.branch) as branches
+       FROM "canyonjs_coverage" as c
+       WHERE c.repo_id = ?
+       GROUP BY c.sha
+       ORDER BY last_created_at DESC`,
       [repoID],
     );
 
@@ -174,37 +181,27 @@ export class RepoService {
     const cfg = await this.getGitLabCfg();
 
     const commits = await Promise.all(
-      rows.map(async (row: { sha: string; last_created_at: string }) => {
-        let branches: string[] = [];
-
-        if (projectId && cfg) {
-          try {
-            const url = `${cfg.base}/api/v4/projects/${projectId}/repository/commits/${row.sha}/refs`;
+      rows.map(
+        async (row: {
+          sha: string;
+          last_created_at: string;
+          branches: string;
+        }) => {
+          if (projectId && cfg) {
+            const url = `${cfg.base}/api/v4/projects/${projectId}/repository/commits/${row.sha}`;
             const resp = await axios.get(url, {
               headers: { 'PRIVATE-TOKEN': cfg.token },
             });
 
-            if (
-              resp.status >= 200 &&
-              resp.status < 300 &&
-              Array.isArray(resp.data)
-            ) {
-              branches = resp.data
-                .filter((ref: any) => ref.type === 'branch')
-                .map((ref: any) => ref.name);
-              // console.log("resp.data+++++", branches,row.sha);
-            }
-          } catch (error) {
-            branches = ['main'];
+            return {
+              sha: row.sha,
+              lastCoverageCreatedAt: row.last_created_at,
+              branches: row.branches,
+              commitMessage: resp.data?.message || '',
+            };
           }
-        }
-
-        return {
-          sha: row.sha,
-          lastCoverageCreatedAt: row.last_created_at,
-          branches,
-        };
-      }),
+        },
+      ),
     );
 
     return { repoID, commits };

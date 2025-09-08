@@ -149,10 +149,15 @@ export class CoverageMapService {
 
     // 4) 获取 instrumentCwd，并查询关系表以获得文件路径到结构哈希的映射
     const instrumentCwd = coverages[0].instrumentCwd;
-    const relWhere: { coverageID: { $in: string[] }; filePath?: string } = {
+    const relWhere: {
+      coverageID: { $in: string[] };
+      filePath?: string | RegExp;
+    } = {
       coverageID: { $in: coverageIDs },
+      filePath: /^(?!dist).*/,
     };
     if (filePath) relWhere.filePath = filePath;
+
     const relationsAll = await this.relRepo.find(relWhere, {
       fields: ['coverageMapHashID', 'fullFilePath'],
     });
@@ -175,35 +180,38 @@ export class CoverageMapService {
       const path = trimPath(r.fullFilePath);
       const hash = pathToHash.get(r.fullFilePath);
       const structure = hash ? hashToMap.get(hash) : undefined;
-      const sMap = tupleToMap(r.s);
-      const fMap = tupleToMap(r.f);
-      const bFlat = tupleToMap(r.b);
 
-      // 补齐 ClickHouse 未返回的 0 值（以结构 map 为基准）
-      if (structure?.statementMap) {
-        for (const id of Object.keys(structure.statementMap)) {
-          if (sMap[id] === undefined) sMap[id] = 0;
+      if (structure) {
+        const sMap = tupleToMap(r.s);
+        const fMap = tupleToMap(r.f);
+        const bFlat = tupleToMap(r.b);
+
+        // 补齐 ClickHouse 未返回的 0 值（以结构 map 为基准）
+        if (structure?.statementMap) {
+          for (const id of Object.keys(structure.statementMap)) {
+            if (sMap[id] === undefined) sMap[id] = 0;
+          }
         }
-      }
-      if (structure?.fnMap) {
-        for (const id of Object.keys(structure.fnMap)) {
-          if (fMap[id] === undefined) fMap[id] = 0;
+        if (structure?.fnMap) {
+          for (const id of Object.keys(structure.fnMap)) {
+            if (fMap[id] === undefined) fMap[id] = 0;
+          }
         }
+        // b 转换为 Istanbul 期望的数组形式
+        const bArr = transformFlatBranchHitsToArrays(
+          bFlat,
+          structure?.branchMap as
+            | Record<string, { locations?: unknown[] }>
+            | undefined,
+        );
+        result[path] = {
+          path,
+          ...(structure as Record<string, unknown>),
+          s: sMap,
+          f: fMap,
+          b: bArr,
+        };
       }
-      // b 转换为 Istanbul 期望的数组形式
-      const bArr = transformFlatBranchHitsToArrays(
-        bFlat,
-        structure?.branchMap as
-          | Record<string, { locations?: unknown[] }>
-          | undefined,
-      );
-      result[path] = {
-        path,
-        ...(structure as Record<string, unknown>),
-        s: sMap,
-        f: fMap,
-        b: bArr,
-      };
     }
     // 8) 返回文件路径 -> 覆盖详情 的字典
     return result;
@@ -275,8 +283,12 @@ export class CoverageMapService {
 
     // 7) 拉取路径与结构哈希的关系（可按 filePath 过滤）
     const covIds = allCov.map((c) => c.id);
-    const relWhere: { coverageID: { $in: string[] }; filePath?: string } = {
+    const relWhere: {
+      coverageID: { $in: string[] };
+      filePath?: string | RegExp;
+    } = {
       coverageID: { $in: covIds },
+      filePath: /^(?!dist).*/,
     };
     if (filePath) relWhere.filePath = filePath;
     const relationsAll = await this.relRepo.find(relWhere, {
@@ -299,13 +311,15 @@ export class CoverageMapService {
     `;
     const ch = this.ch.getClient();
     const hitRes = await ch.query({ query: hitQuery, format: 'JSONEachRow' });
-    const hitRows: Array<{
+    const _hitRows: Array<{
       coverageID: string;
       fullFilePath: string;
       s: unknown;
       f: unknown;
       b: unknown;
     }> = await hitRes.json();
+
+    const hitRows = _hitRows.filter((r) => !r.fullFilePath.includes('/dist/'));
 
     // 9) 计算 baseline 覆盖与其 instrumentCwd
     const covByID = new Map(allCov.map((c) => [c.id, c] as const));
