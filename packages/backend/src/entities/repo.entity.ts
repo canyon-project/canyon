@@ -26,6 +26,9 @@ export class RepoEntity {
   bu!: string;
 
   @Property()
+  config!: string;
+
+  @Property()
   scopes!: Scope[];
 
   @Property({ fieldName: 'created_at' })

@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { CoverageEntity } from '../../../entities/coverage.entity';
 import { CoverageMapRelationEntity } from '../../../entities/coverage-map-relation.entity';
+import { RepoEntity } from '../../../entities/repo.entity';
+import { testExclude } from '../../../helpers/test-exclude';
 import { ChService } from '../../ch/ch.service';
 import { SystemConfigService } from '../../system-config/system-config.service';
 import {
@@ -74,6 +76,8 @@ export class CoverageMapService {
     private readonly git: CoverageGitService,
     @InjectRepository(CoverageEntity)
     private readonly covRepo: EntityRepository<CoverageEntity>,
+    @InjectRepository(RepoEntity)
+    private readonly repo: EntityRepository<RepoEntity>,
     @InjectRepository(CoverageMapRelationEntity)
     private readonly relRepo: EntityRepository<CoverageMapRelationEntity>,
   ) {}
@@ -213,8 +217,17 @@ export class CoverageMapService {
         };
       }
     }
+
+    // 8) 处理include和exclude
+
+    const s = await this.repo.findOne({
+      id: repoID,
+    });
+
+    const sss = testExclude(result, s?.config);
+
     // 8) 返回文件路径 -> 覆盖详情 的字典
-    return result;
+    return sss;
   }
 
   async getMapForPull({
@@ -287,7 +300,7 @@ export class CoverageMapService {
     for (const c of allCov) if (c.sha === headSha) baseSet.add(c.id);
     if (baseSet.size === 0) baseSet.add(allCov[0].id);
     const baselineCovID = [...baseSet][0];
-    const baselineCwd = covByID.get(baselineCovID)?.instrumentCwd || '';
+    // const baselineCwd = covByID.get(baselineCovID)?.instrumentCwd || '';
 
     // 8) 拉取路径与结构哈希的关系（可按 filePath 过滤）
     const covIds = allCov.map((c) => c.id);
