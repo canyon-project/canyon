@@ -4,6 +4,8 @@ import { Injectable } from '@nestjs/common';
 import axios from 'axios';
 import { CoverageEntity } from '../../../entities/coverage.entity';
 import { CoverageMapRelationEntity } from '../../../entities/coverage-map-relation.entity';
+import { RepoEntity } from '../../../entities/repo.entity';
+import { testExclude } from '../../../helpers/test-exclude';
 import { ChService } from '../../ch/ch.service';
 import { SystemConfigService } from '../../system-config/system-config.service';
 import { tupleToMap } from '../coverage.utils';
@@ -22,7 +24,21 @@ export class CoverageOverviewService {
     private readonly covRepo: EntityRepository<CoverageEntity>,
     @InjectRepository(CoverageMapRelationEntity)
     private readonly relRepo: EntityRepository<CoverageMapRelationEntity>,
+    @InjectRepository(RepoEntity)
+    private readonly repo: EntityRepository<RepoEntity>,
   ) {}
+
+  async filter(arr, repoID): Promise<typeof arr> {
+    const out = arr.reduce((acc, cur) => {
+      return {
+        ...acc,
+        [cur.filePath]: cur,
+      };
+    });
+    const r = await this.repo.findOne({ id: repoID });
+    const filtered = testExclude(out, r?.config);
+    return Object.values(filtered);
+  }
 
   async getOverview(q: {
     provider?: string;
@@ -105,9 +121,12 @@ export class CoverageOverviewService {
     } = { coverageID: { $in: coverageIDs } };
     relWhere.filePath = /^(?!dist).*/;
     if (filePath) relWhere.filePath = filePath;
-    const relationsAll = await this.relRepo.find(relWhere, {
-      fields: ['coverageMapHashID', 'fullFilePath'],
+    const _relationsAll = await this.relRepo.find(relWhere, {
+      fields: ['coverageMapHashID', 'fullFilePath', 'filePath'],
     });
+
+    const relationsAll = await this.filter(_relationsAll, repoID);
+
     const pathToHash = new Map<string, string>();
     for (const r of relationsAll) {
       if (!pathToHash.has(r.fullFilePath))
