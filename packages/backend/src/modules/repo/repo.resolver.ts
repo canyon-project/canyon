@@ -33,6 +33,9 @@ class Repo {
   @Field()
   bu!: string;
 
+  @Field()
+  config!: string;
+
   @Field(() => [Scope])
   scopes!: Scope[];
 
@@ -146,7 +149,8 @@ export class RepoResolver {
     @Args('bu', { type: () => String, nullable: true }) bu?: string,
     @Args('description', { type: () => String, nullable: true })
     description?: string,
+    @Args('config', { type: () => String, nullable: true }) config?: string,
   ) {
-    return this.repoService.updateRepo(id, bu, description);
+    return this.repoService.updateRepo(id, bu, description, config);
   }
 }

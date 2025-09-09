@@ -220,14 +220,14 @@ export class CoverageMapService {
 
     // 8) 处理include和exclude
 
-    const s = await this.repo.findOne({
+    const r = await this.repo.findOne({
       id: repoID,
     });
 
-    const sss = testExclude(result, s?.config);
+    const c = testExclude(result, r?.config);
 
-    // 8) 返回文件路径 -> 覆盖详情 的字典
-    return sss;
+    // 9) 返回文件路径 -> 覆盖详情 的字典
+    return c;
   }
 
   async getMapForPull({

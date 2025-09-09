@@ -1,5 +1,10 @@
-mutation UpdateRepo($id: String!, $bu: String, $description: String) {
-  updateRepo(id: $id, bu: $bu, description: $description) {
+mutation UpdateRepo(
+  $id: String!
+  $bu: String
+  $description: String
+  $config: String
+) {
+  updateRepo(id: $id, bu: $bu, description: $description, config: $config) {
     ok
     id
   }

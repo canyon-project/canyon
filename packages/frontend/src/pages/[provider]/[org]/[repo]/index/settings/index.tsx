@@ -1,23 +1,30 @@
-import Icon from '@ant-design/icons';
+import Icon, { ExperimentOutlined } from '@ant-design/icons';
 import { useMutation } from '@apollo/client';
-import { Button, Card, Form, Input, message, Typography } from 'antd';
+import { Editor } from '@monaco-editor/react';
+import { Button, Card, Form, Input, message, Typography, theme } from 'antd';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useOutletContext, useParams } from 'react-router-dom';
 import { UpdateRepoDocument } from '@/helpers/backend/gen/graphql';
 import { SolarUserIdLinear } from '@/pages/[provider]/[org]/[repo]/index/settings/helpers/icons/SolarUserIdLinear.tsx';
 
 const { Title, Text } = Typography;
-
+const { useToken } = theme;
 const RepoSettings = () => {
+  const { t } = useTranslation();
+  const { token } = useToken();
   const { repo } = useOutletContext<{
     repo: {
       id?: string;
       pathWithNamespace?: string;
       description?: string;
       bu?: string;
+      config?: string;
     };
   }>();
   const params = useParams();
   const [form] = Form.useForm();
+  const [config, setConfig] = useState<string>(repo?.config || '');
 
   const repoPath = repo?.pathWithNamespace || `${params.org}/${params.repo}`;
   const repoId = repo?.id || '';
@@ -36,9 +43,32 @@ const RepoSettings = () => {
           id: repoId,
           bu: values.bu,
           description: values.description,
+          config,
         },
       });
       message.success('已保存更改');
+    } catch (e: unknown) {
+      message.error(String(e) || '保存失败');
+    }
+  };
+
+  const onSaveConfig = async () => {
+    try {
+      if (config?.trim()) {
+        try {
+          JSON.parse(config);
+        } catch {
+          message.error('配置必须是合法的 JSON');
+          return;
+        }
+      }
+      await updateRepo({
+        variables: {
+          id: repoId,
+          config,
+        },
+      });
+      message.success('配置已保存');
     } catch (e: unknown) {
       message.error(String(e) || '保存失败');
     }
@@ -88,6 +118,88 @@ const RepoSettings = () => {
             <Text type={'secondary'}>后续可接入更多字段</Text>
           </Form>
         </div>
+
+        <div className={'h-5'}></div>
+        <Card
+          title={
+            <div className={'flex items-center'}>
+              <ExperimentOutlined
+                className={'text-[#687076] mr-2 text-[16px]'}
+              />
+              <span>{t('projects.config.coverage')}</span>
+            </div>
+          }
+        >
+          <div className={'mb-5'}>
+            <div className={'mb-2'}>
+              <div>{t('projects.default.branch')}</div>
+              <Text className={'text-xs'} type={'secondary'}>
+                {t('projects.config.default.branch.desc')}
+              </Text>
+            </div>
+
+            <div className={'mb-5'}>
+              <div className={'mb-2'}>
+                <div>{t('projects.config.detection.range')}</div>
+                <Text className={'text-xs'} type={'secondary'}>
+                  {t('projects.config.tooltips')}
+                  <a
+                    href='https://github.com/isaacs/minimatch'
+                    target={'_blank'}
+                    rel='noreferrer'
+                  >
+                    {t('projects.config.minimatch')}
+                  </a>
+                  <a
+                    href='https://github.com/canyon-project/canyon/tree/main/examples/config/coverage.json'
+                    target={'_blank'}
+                    rel='noreferrer'
+                  >
+                    {t('projects.config.view.example')}
+                  </a>
+                  <span className={'ml-2'}>
+                    {t('projects.config.example2')}
+                  </span>
+                </Text>
+              </div>
+              <div style={{ border: `1px solid ${token.colorBorder}` }}>
+                <Editor
+                  theme={
+                    {
+                      light: 'light',
+                      dark: 'vs-dark',
+                    }[localStorage.getItem('theme') || 'light']
+                  }
+                  value={config}
+                  onChange={(value) => {
+                    setConfig(value || '');
+                  }}
+                  height={'240px'}
+                  language={'json'}
+                  options={{
+                    minimap: {
+                      enabled: false,
+                    },
+                    fontSize: 12,
+                    fontFamily: 'IBMPlexMono, monospace',
+                    wordWrap: 'wordWrapColumn',
+                    automaticLayout: true,
+                    scrollBeyondLastLine: false,
+                  }}
+                />
+              </div>
+              <div className={'mt-3'}>
+                <Button
+                  type={'primary'}
+                  onClick={onSaveConfig}
+                  loading={loading}
+                >
+                  保存配置
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
       </Card>
     </div>
   );

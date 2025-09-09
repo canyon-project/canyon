@@ -17,6 +17,7 @@ type Repo {
   pathWithNamespace: String!
   description: String!
   bu: String!
+  config: String!
   scopes: [Scope!]!
   createdAt: DateTime!
   updatedAt: DateTime!
@@ -76,5 +77,5 @@ type Query {
 
 type Mutation {
   postRepoById(id: String!): RepoMutationResult!
-  updateRepo(id: String!, bu: String, description: String): RepoUpdateResult!
+  updateRepo(id: String!, bu: String, description: String, config: String): RepoUpdateResult!
 }

@@ -133,7 +133,12 @@ export class RepoService {
     return { ok: true, id };
   }
 
-  async updateRepo(id: string, bu?: string, description?: string) {
+  async updateRepo(
+    id: string,
+    bu?: string,
+    description?: string,
+    config?: string,
+  ) {
     if (!id) return { ok: false, id };
     const sets: string[] = [];
     const params: unknown[] = [];
@@ -145,6 +150,10 @@ export class RepoService {
     if (typeof description === 'string') {
       sets.push('description = ?');
       params.push(description);
+    }
+    if (typeof config === 'string') {
+      sets.push('config = ?');
+      params.push(config);
     }
     if (sets.length === 0) return { ok: true, id };
 

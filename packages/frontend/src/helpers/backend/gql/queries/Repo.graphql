@@ -9,6 +9,7 @@ query Repo($id: String!) {
       includes
       excludes
     }
+    config
     createdAt
     updatedAt
   }
