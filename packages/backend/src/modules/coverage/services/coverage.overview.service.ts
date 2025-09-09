@@ -29,15 +29,22 @@ export class CoverageOverviewService {
   ) {}
 
   async filter(arr, repoID): Promise<typeof arr> {
-    const out = arr.reduce((acc, cur) => {
-      return {
-        ...acc,
-        [cur.filePath]: cur,
-      };
-    });
+    console.log(arr.length, 'arr.length');
+    const groups: Record<string, Array<(typeof arr)[number]>> = {};
+    for (const cur of arr || []) {
+      const key = cur.filePath;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(cur);
+    }
     const r = await this.repo.findOne({ id: repoID });
-    const filtered = testExclude(out, r?.config);
-    return Object.values(filtered);
+    const filteredGroups = testExclude(groups, r?.config);
+    console.log(Object.keys(filteredGroups).length, 'filtered.group.count');
+    const flattened: Array<(typeof arr)[number]> = [];
+    for (const k of Object.keys(filteredGroups)) {
+      const items = filteredGroups[k] || [];
+      for (const it of items) flattened.push(it);
+    }
+    return flattened;
   }
 
   async getOverview(q: {
@@ -151,20 +158,22 @@ export class CoverageOverviewService {
       SELECT
         coverage_id as coverageID,
         full_file_path as fullFilePath,
+        file_path as filePath,
         sumMapMerge(s) as s
       FROM ${db}.coverage_hit_agg
       WHERE coverage_id IN (${selectedIDs || "''"})
       ${filePath ? ` AND endsWith(full_file_path, '${String(filePath).replace(/'/g, "''")}')` : ''}
-      GROUP BY coverage_id, full_file_path
+      GROUP BY coverage_id, full_file_path, file_path
     `;
     const ch = this.ch.getClient();
     const hitRes = await ch.query({ query: hitQuery, format: 'JSONEachRow' });
-    const coverageHitData: Array<{
+
+    const _coverageHitData: Array<{
       coverageID: string;
       fullFilePath: string;
       s: unknown;
     }> = await hitRes.json();
-
+    const coverageHitData = await this.filter(_coverageHitData, repoID);
     // 为每个 fullFilePath + hash 选择结构，用于计算总语句数（分母）
     const seenPair = new Set<string>();
     const coverageMapWithFilePath: Array<{

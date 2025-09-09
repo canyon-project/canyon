@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit
 (
   coverage_id     String,
   full_file_path       String,
+  file_path       String,
   s               Map(UInt32, UInt32),
   f               Map(UInt32, UInt32),
   b               Map(UInt32, UInt32),
@@ -35,6 +36,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
 (
   coverage_id String,
   full_file_path   String,
+  file_path   String,
   s       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   f       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   b       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
@@ -42,7 +44,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
   )
   ENGINE = AggregatingMergeTree()
   PARTITION BY toYYYYMM(latest_ts)
-  ORDER BY (coverage_id, full_file_path);
+  ORDER BY (coverage_id, full_file_path, file_path);
 
 -- 物化视图
 
@@ -52,20 +54,22 @@ AS
 SELECT
   coverage_id,
   full_file_path,
+  file_path,
   sumMapState(mapKeys(s), mapValues(s)) AS s,
   sumMapState(mapKeys(f), mapValues(f)) AS f,
   sumMapState(mapKeys(b), mapValues(b)) AS b,
 
   max(ts) AS latest_ts
 FROM default.coverage_hit
-GROUP BY coverage_id, full_file_path;
+GROUP BY coverage_id, full_file_path, file_path;
 
 -- 查询
 
 -- SELECT
 --   coverage_id,
 --   full_file_path,
+--   file_path,
 --   sumMapMerge(s) AS s,
 --   sumMapMerge(f) AS f
 -- FROM default.coverage_hit_agg
--- GROUP BY coverage_id, full_file_path;
+-- GROUP BY coverage_id, full_file_path, file_path;

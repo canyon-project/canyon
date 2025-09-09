@@ -16,7 +16,12 @@ export function testExclude(coverage, rule) {
   const exclude = new TestExclude({
     cwd: '',
     include: matchRule.include,
-    exclude: (matchRule.exclude || []).concat(['dist/**', 'node_modules/**']),
+    exclude: (matchRule.exclude || []).concat([
+      'dist/**',
+      'node_modules/**',
+      '.cw/**',
+      'index.ios.js',
+    ]),
     extension: matchRule.extensions || [
       '.js',
       '.cjs',
