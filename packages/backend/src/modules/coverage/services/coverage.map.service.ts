@@ -534,6 +534,9 @@ export class CoverageMapService {
         b: bArr,
       };
     }
-    return out;
+    // 覆盖率 include/exclude 过滤
+    const r = await this.repo.findOne({ id: repoID });
+    const filtered = testExclude(out, r?.config);
+    return filtered;
   }
 }
