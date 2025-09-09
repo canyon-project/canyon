@@ -29,7 +29,6 @@ export class CoverageOverviewService {
   ) {}
 
   async filter(arr, repoID): Promise<typeof arr> {
-    console.log(arr.length, 'arr.length');
     const groups: Record<string, Array<(typeof arr)[number]>> = {};
     for (const cur of arr || []) {
       const key = cur.filePath;
@@ -38,7 +37,6 @@ export class CoverageOverviewService {
     }
     const r = await this.repo.findOne({ id: repoID });
     const filteredGroups = testExclude(groups, r?.config);
-    console.log(Object.keys(filteredGroups).length, 'filtered.group.count');
     const flattened: Array<(typeof arr)[number]> = [];
     for (const k of Object.keys(filteredGroups)) {
       const items = filteredGroups[k] || [];
