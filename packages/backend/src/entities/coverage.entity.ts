@@ -32,6 +32,9 @@ export class CoverageEntity {
   @Property({ fieldName: 'report_id', type: 'text' })
   reportID!: string;
 
+  @Property({ fieldName: 'compare_target', type: 'text' })
+  compareTarget!: string;
+
   @Property({ fieldName: 'created_at' })
   createdAt!: Date;
 

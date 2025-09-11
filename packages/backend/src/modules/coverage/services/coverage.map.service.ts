@@ -1,4 +1,4 @@
-import { EntityRepository } from '@mikro-orm/core';
+import { EntityRepository, QueryOrder } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
@@ -91,6 +91,8 @@ export class CoverageMapService {
     reportID,
     reportProvider,
     filePath,
+    compareTarget,
+    onlyChanged,
   }: {
     provider: string;
     repoID: string;
@@ -100,6 +102,8 @@ export class CoverageMapService {
     reportProvider?: string;
     reportID?: string;
     filePath?: string;
+    compareTarget?: string;
+    onlyChanged?: boolean;
   }) {
     // 1) 组装查询条件（按 provider/repoID/sha 以及可选的 buildProvider/buildID）
     const qb: {
@@ -113,7 +117,14 @@ export class CoverageMapService {
     if (buildID) qb.buildID = buildID;
     // 2) 查询符合条件的覆盖记录（仅取用于后续处理的必要字段）
     const coverages = await this.covRepo.find(qb, {
-      fields: ['id', 'instrumentCwd', 'reportProvider', 'reportID'],
+      fields: [
+        'id',
+        'instrumentCwd',
+        'reportProvider',
+        'reportID',
+        'compareTarget',
+      ],
+      orderBy: { createdAt: QueryOrder.DESC, updatedAt: QueryOrder.DESC },
     });
     if (!coverages.length) return {};
 
@@ -175,10 +186,59 @@ export class CoverageMapService {
     const hashToMap =
       await this.mapStore.fetchCoverageMapsFromClickHouse(allHashes);
 
-    // 6) 封装路径裁剪函数（将绝对路径裁剪为相对路径）
+    // 6) 解析 compareTarget 优先级：外部参数 > 过滤后的 coverage.compareTarget > 任意 coverage.compareTarget
+    let effectiveCompareTarget = compareTarget;
+    if (!effectiveCompareTarget) {
+      const fromAny = (coverages || []).find(
+        (c) => c?.compareTarget,
+      ) as unknown as { compareTarget?: string } | undefined;
+      if (fromAny?.compareTarget)
+        effectiveCompareTarget = fromAny.compareTarget;
+    }
+
+    // 7) 若存在有效 compareTarget 且为 gitlab，调用 compare 接口获取差异文件集合
+    let changedSet: Set<string> | null = null;
+    if (
+      provider === 'gitlab' &&
+      effectiveCompareTarget &&
+      effectiveCompareTarget !== sha
+    ) {
+      const baseUrl =
+        (await this.syscfg?.get('system_config.gitlab_base_url')) ||
+        process.env.GITLAB_BASE_URL;
+      const token =
+        (await this.syscfg?.get('git_provider[0].private_token')) ||
+        process.env.GITLAB_TOKEN;
+      if (baseUrl && token) {
+        const projectId = encodeURIComponent(repoID);
+        const headers = { 'PRIVATE-TOKEN': token } as Record<string, string>;
+        try {
+          const cmpResp = await axios.get(
+            `${baseUrl}/api/v4/projects/${projectId}/repository/compare`,
+            { headers, params: { from: effectiveCompareTarget, to: sha } },
+          );
+          if (cmpResp.status >= 200 && cmpResp.status < 300) {
+            const diffs = (cmpResp.data?.diffs || []) as Array<{
+              old_path?: string;
+              new_path?: string;
+            }>;
+            const s = new Set<string>();
+            for (const d of diffs) {
+              if (d?.old_path) s.add(String(d.old_path));
+              if (d?.new_path) s.add(String(d.new_path));
+            }
+            changedSet = s;
+          }
+        } catch {
+          // ignore compare failure
+        }
+      }
+    }
+
+    // 8) 封装路径裁剪函数（将绝对路径裁剪为相对路径）
     const trimPath = (p: string) => trimInstrumentCwd(p, instrumentCwd);
 
-    // 7) 组装最终结果：合并命中、补齐 0 值、转换分支为数组
+    // 9) 组装最终结果：合并命中、补齐 0 值、转换分支为数组
     const result: Record<string, unknown> = {};
     for (const r of rows || []) {
       const path = trimPath(r.fullFilePath);
@@ -208,17 +268,20 @@ export class CoverageMapService {
             | Record<string, { locations?: unknown[] }>
             | undefined,
         );
+        const change = changedSet ? changedSet.has(path) : false;
+        if (onlyChanged && !change) continue;
         result[path] = {
           path,
           ...(structure as Record<string, unknown>),
           s: sMap,
           f: fMap,
           b: bArr,
+          change,
         };
       }
     }
 
-    // 8) 处理include和exclude
+    // 9) 处理include和exclude
 
     const r = await this.repo.findOne({
       id: repoID,
@@ -226,7 +289,7 @@ export class CoverageMapService {
 
     const c = testExclude(result, r?.config);
 
-    // 9) 返回文件路径 -> 覆盖详情 的字典
+    // 10) 返回文件路径 -> 覆盖详情 的字典
     return c;
   }
 

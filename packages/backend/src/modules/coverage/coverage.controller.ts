@@ -30,6 +30,8 @@ export class CoverageController {
           reportProvider: q.reportProvider,
           reportID: q.reportID,
           filePath: q.filePath,
+          compareTarget: q.compareTarget,
+          onlyChanged: String(q.onlyChanged || '').toLowerCase() === 'true',
         });
         return summarizeCoverageFromMap(
           map as Record<string, CoverageFileMapEntry>,
@@ -70,6 +72,8 @@ export class CoverageController {
           reportProvider: q.reportProvider,
           reportID: q.reportID,
           filePath: q.filePath,
+          compareTarget: q.compareTarget,
+          onlyChanged: String(q.onlyChanged || '').toLowerCase() === 'true',
         });
       case 'pull':
       case 'pulls':

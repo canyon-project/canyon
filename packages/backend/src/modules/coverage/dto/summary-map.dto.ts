@@ -40,4 +40,12 @@ export class SummaryMapQueryDto {
   @IsString()
   @IsOptional()
   mode?: string; // blockMerge | fileMerge | default
+
+  @IsString()
+  @IsOptional()
+  compareTarget?: string; // 用于与当前 commit 对比的目标 ref/sha（仅 gitlab 支持）
+
+  @IsString()
+  @IsOptional()
+  onlyChanged?: string; // 'true' | 'false'，是否仅返回变更文件
 }

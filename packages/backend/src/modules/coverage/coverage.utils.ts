@@ -262,6 +262,7 @@ export type CoverageFileMapEntry = {
   s?: Record<string, number>;
   f?: Record<string, number>;
   b?: Record<string, number[]>;
+  change?: boolean;
 };
 
 export type CoverageFileSummary = {
@@ -270,6 +271,7 @@ export type CoverageFileSummary = {
   functions: { total: number; covered: number; pct: number };
   branches: { total: number; covered: number; pct: number };
   newlines: { total: number; covered: number; pct: number };
+  change?: boolean;
 };
 
 export function computeStatementsSummary(
@@ -354,6 +356,7 @@ export function summarizeCoverageFile(
       pct: percentFn(b.covered, b.total),
     },
     newlines: { total: 0, covered: 0, pct: 0 },
+    change: Boolean(entry.change),
   };
 }
 
