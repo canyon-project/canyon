@@ -2,6 +2,16 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type DiffFileLines {
+  path: String!
+  added: [Float!]!
+  removed: [Float!]!
+}
+
+type CodeDiffChangedLinesOutput {
+  files: [DiffFileLines!]!
+}
+
 type CodeFileContent {
   content: String
 }
@@ -73,6 +83,16 @@ type Query {
   codePullRequest(projectID: String!, pullRequestID: String!): String!
   codePullRequestChanges(projectID: String!, pullRequestID: String!): String!
   codeProjectByPath(path: String!): String!
+  codeDiffChangedLines(input: CodeDiffChangedLinesInput!): CodeDiffChangedLinesOutput!
+}
+
+input CodeDiffChangedLinesInput {
+  repoID: String!
+  provider: String
+  subject: String!
+  subjectID: String!
+  compareTarget: String
+  filepath: String
 }
 
 type Mutation {
