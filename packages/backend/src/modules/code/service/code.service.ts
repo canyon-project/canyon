@@ -1,11 +1,18 @@
+import { EntityRepository, QueryOrder } from '@mikro-orm/core';
+import { InjectRepository } from '@mikro-orm/nestjs';
 import { BadRequestException, Injectable, Optional } from '@nestjs/common';
 import axios from 'axios';
 import { diffLines } from 'diff';
+import { CoverageEntity } from '../../../entities/coverage.entity';
 import { SystemConfigService } from '../../system-config/system-config.service';
 
 @Injectable()
 export class CodeService {
-  constructor(@Optional() private readonly syscfg?: SystemConfigService) {}
+  constructor(
+    @InjectRepository(CoverageEntity)
+    private readonly covRepo: EntityRepository<CoverageEntity>,
+    @Optional() private readonly syscfg?: SystemConfigService,
+  ) {}
 
   private async getGitLabCfg() {
     const base =
@@ -25,13 +32,13 @@ export class CodeService {
     oldContent: string,
     newContent: string,
   ): {
-    added: number[];
-    removed: number[];
+    additions: number[];
+    deletions: number[];
   } {
-    const added: number[] = [];
-    const removed: number[] = [];
+    const additions: number[] = [];
+    const deletions: number[] = [];
 
-    if (!oldContent && !newContent) return { added, removed };
+    if (!oldContent && !newContent) return { additions, deletions };
 
     const changes = diffLines(oldContent || '', newContent || '');
     let oldLine = 1;
@@ -43,13 +50,13 @@ export class CodeService {
       if (change.added) {
         // 新增的行
         for (let i = 0; i < lineCount; i++) {
-          added.push(newLine + i);
+          additions.push(newLine + i);
         }
         newLine += lineCount;
       } else if (change.removed) {
         // 删除的行
         for (let i = 0; i < lineCount; i++) {
-          removed.push(oldLine + i);
+          deletions.push(oldLine + i);
         }
         oldLine += lineCount;
       } else {
@@ -59,7 +66,7 @@ export class CodeService {
       }
     }
 
-    return { added, removed };
+    return { additions, deletions };
   }
 
   async getFileContent({
@@ -257,7 +264,6 @@ export class CodeService {
           }>;
         };
         const files = Array.isArray(data?.diffs) ? data.diffs : [];
-        console.log(files.length, 'files');
         return filterFiles(files);
       }
     }
@@ -300,7 +306,7 @@ export class CodeService {
     compareTarget?: string | null;
     filepath?: string | null;
   }): Promise<{
-    files: Array<{ path: string; added: number[]; removed: number[] }>;
+    files: Array<{ path: string; additions: number[]; deletions: number[] }>;
   }> {
     if (!repoID || !subject || !subjectID) {
       throw new BadRequestException('repoID, subject, subjectID 为必填参数');
@@ -308,6 +314,21 @@ export class CodeService {
 
     if ((provider || 'gitlab') !== 'gitlab') {
       return { files: [] };
+    }
+    if (!compareTarget && subject.toLowerCase() === 'commit') {
+      const coverages = await this.covRepo.find(
+        {
+          repoID,
+          provider: provider || 'gitlab',
+          sha: subjectID,
+        },
+        {
+          fields: ['compareTarget'],
+          orderBy: { createdAt: QueryOrder.DESC, updatedAt: QueryOrder.DESC },
+        },
+      );
+      compareTarget =
+        coverages.length > 0 ? coverages[0].compareTarget : subjectID;
     }
 
     // 一次性获取 GitLab 配置，避免重复查询数据库
@@ -322,8 +343,6 @@ export class CodeService {
       gitlabConfig,
       filepath,
     });
-
-    console.log(changedFiles.length);
 
     if (changedFiles.length === 0) {
       return { files: [] };
@@ -366,7 +385,7 @@ export class CodeService {
     const filePromises = changedFiles.map(async (file) => {
       const filePath = file.new_path || file.old_path;
       if (!filePath) {
-        return { path: '', added: [], removed: [] };
+        return { path: '', additions: [], deletions: [] };
       }
 
       try {
@@ -403,23 +422,23 @@ export class CodeService {
           : '';
 
         // 使用 JS diff 计算差异行
-        const { added, removed } = this.computeJSDiffLines(
+        const { additions, deletions } = this.computeJSDiffLines(
           oldContent,
           newContent,
         );
 
         return {
           path: filePath,
-          added,
-          removed,
+          additions,
+          deletions,
         };
       } catch (error) {
         // 对于单个文件的错误，记录但不影响其他文件的处理
         console.warn(`Failed to compute diff for file ${filePath}:`, error);
         return {
           path: filePath,
-          added: [],
-          removed: [],
+          additions: [],
+          deletions: [],
         };
       }
     });

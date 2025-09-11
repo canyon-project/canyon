@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { CodeDiffChangedLinesOutput } from '@/helpers/backend/gen/graphql.ts';
 
 export function getDecode(str: string) {
   return decodeURIComponent(
@@ -19,6 +20,8 @@ export function handleSelectFileBySubject({
   buildID,
   reportProvider,
   reportID,
+  // @ts-expect-error
+  codeDiffChangedLinesRefetch,
 }: {
   repoID: string;
   subject:
@@ -65,6 +68,24 @@ export function handleSelectFileBySubject({
     })
     .then(({ data }) => data.data.codeFileContent);
 
+  const codeDiffChangedLinesRefetchFn = codeDiffChangedLinesRefetch({
+    input: {
+      repoID: codeParams.repoID,
+      filepath: codeParams.filepath,
+      subjectID: codeParams.sha,
+      subject: 'commit',
+    },
+  }).then(
+    (r: {
+      data: {
+        codeDiffChangedLines: CodeDiffChangedLinesOutput;
+      };
+    }) =>
+      r.data.codeDiffChangedLines.files.length > 0
+        ? r.data.codeDiffChangedLines.files[0].additions
+        : [],
+  );
+
   const fileCoverageParams: {
     provider?: string;
     repoID: string;
@@ -102,13 +123,15 @@ export function handleSelectFileBySubject({
     })
     .then(({ data }) => data[filepath || '']);
 
-  return Promise.all([fileContentRequest, fileCoverageRequest]).then(
-    ([fileContent, fileCoverage]) => {
-      return {
-        fileContent: getDecode(fileContent.content),
-        fileCoverage,
-        fileCodeChange: [],
-      };
-    },
-  );
+  return Promise.all([
+    fileContentRequest,
+    fileCoverageRequest,
+    codeDiffChangedLinesRefetchFn,
+  ]).then(([fileContent, fileCoverage, c]) => {
+    return {
+      fileContent: getDecode(fileContent.content),
+      fileCoverage,
+      fileCodeChange: c,
+    };
+  });
 }

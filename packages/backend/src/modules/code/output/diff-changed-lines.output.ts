@@ -6,10 +6,12 @@ export class DiffFileLines {
   path!: string;
 
   @Field(() => [Number])
-  added!: number[];
+  additions!: number[];
+
+  // deletions
 
   @Field(() => [Number])
-  removed!: number[];
+  deletions!: number[];
 }
 
 @ObjectType()

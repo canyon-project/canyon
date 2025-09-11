@@ -4,8 +4,8 @@
 
 type DiffFileLines {
   path: String!
-  added: [Float!]!
-  removed: [Float!]!
+  additions: [Float!]!
+  deletions: [Float!]!
 }
 
 type CodeDiffChangedLinesOutput {

@@ -1,4 +1,5 @@
 import { ExportOutlined } from '@ant-design/icons';
+import { useQuery } from '@apollo/client';
 import { useRequest } from 'ahooks';
 import { Drawer, Spin, Tooltip } from 'antd';
 import axios from 'axios';
@@ -6,6 +7,7 @@ import Report from 'canyon-report';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import RIf from '@/components/RIf';
+import { CodeDiffChangedLinesDocument } from '@/helpers/backend/gen/graphql.ts';
 import { handleSelectFileBySubject } from '@/helpers/report.ts';
 
 type SubjectType =
@@ -37,6 +39,10 @@ const CoverageFileDrawer = ({
 }: CoverageFileDrawerProps) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+
+  const { refetch: codeDiffChangedLinesRefetch } = useQuery(
+    CodeDiffChangedLinesDocument,
+  );
 
   const [activatedPath, setActivatedPath] = useState<string | undefined>(
     initialPath,
@@ -88,6 +94,7 @@ const CoverageFileDrawer = ({
         fileCodeChange: [],
       });
     }
+
     return handleSelectFileBySubject({
       repoID: repo.id,
       subject,
@@ -98,11 +105,15 @@ const CoverageFileDrawer = ({
       buildID: searchParams.get('build_id') || undefined,
       reportProvider: searchParams.get('report_provider') || undefined,
       reportID: searchParams.get('report_id') || undefined,
-    }).then((res) => ({
-      fileContent: res.fileContent,
-      fileCoverage: res.fileCoverage,
-      fileCodeChange: res.fileCodeChange,
-    }));
+      // @ts-expect-error
+      codeDiffChangedLinesRefetch,
+    }).then((res) => {
+      return {
+        fileContent: res.fileContent,
+        fileCoverage: res.fileCoverage,
+        fileCodeChange: res.fileCodeChange,
+      };
+    });
   };
 
   useEffect(() => {

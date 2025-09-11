@@ -1,0 +1,7 @@
+query CodeDiffChangedLines($input: CodeDiffChangedLinesInput!) {
+  codeDiffChangedLines(input: $input) {
+    files {
+      deletions
+    }
+  }
+}
