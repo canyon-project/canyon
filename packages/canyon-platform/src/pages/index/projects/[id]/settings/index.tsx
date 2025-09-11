@@ -76,23 +76,6 @@ const ProjectSettings = () => {
         }
       >
         <Card.Grid hoverable={false} style={gridStyle}>
-          {/*<div className={"mb-5"}>*/}
-          {/*    <div className={"mb-2"}>*/}
-          {/*        <div>自动插桩</div>*/}
-          {/*        <Text className={"text-xs"} type={"secondary"}>*/}
-          {/*            配置 CI 自动插桩时需要修改的文件列表*/}
-          {/*        </Text>*/}
-          {/*    </div>*/}
-          {/*    {*/}
-          {/*        GetProjectByIdDocumentData?.getProjectByID.autoInstrument!==undefined  && <AutoInstrumentForm defaultDataSource={GetProjectByIdDocumentData?.getProjectByID.autoInstrument||[]} onChange={(val)=>{*/}
-          {/*        setAutoInstrument(val)*/}
-          {/*    }}/>*/}
-          {/*    }*/}
-
-          {/*</div>*/}
-
-          {/*<Divider/>*/}
-
           <div className={"mb-5"}>
             <div className={"mb-2"}>
               <div>{t("projects.default.branch")}</div>
