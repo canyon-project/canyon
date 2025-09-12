@@ -2,6 +2,7 @@
 CREATE TABLE IF NOT EXISTS default.coverage_hit
 (
   coverage_id     String,
+  version_id      String,
   file_path       String,
   s               Map(UInt32, UInt32),
   f               Map(UInt32, UInt32),
@@ -34,6 +35,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
 CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
 (
   coverage_id String,
+  version_id String,
   file_path   String,
   s       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
   f       AggregateFunction(sumMap, Array(UInt32), Array(UInt32)),
@@ -42,7 +44,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
   )
   ENGINE = AggregatingMergeTree()
   PARTITION BY toYYYYMM(latest_ts)
-  ORDER BY (coverage_id, file_path);
+  ORDER BY (coverage_id, version_id, file_path);
 
 -- 物化视图
 
@@ -51,6 +53,7 @@ CREATE MATERIALIZED VIEW IF NOT EXISTS default.coverage_hit_mv
 AS
 SELECT
   coverage_id,
+  version_id,
   file_path,
   sumMapState(mapKeys(s), mapValues(s)) AS s,
   sumMapState(mapKeys(f), mapValues(f)) AS f,
@@ -58,7 +61,7 @@ SELECT
 
   max(ts) AS latest_ts
 FROM default.coverage_hit
-GROUP BY coverage_id, file_path;
+GROUP BY coverage_id, version_id, file_path;
 
 -- 查询
 
