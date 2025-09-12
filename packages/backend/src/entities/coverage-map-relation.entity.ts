@@ -6,8 +6,8 @@ export class CoverageMapRelationEntity {
   id!: string;
 
   @Index()
-  @Property({ fieldName: 'coverage_id', type: 'text' })
-  coverageID!: string;
+  @Property({ fieldName: 'version_id', type: 'text' })
+  versionID!: string;
 
   @Index()
   @Property({ fieldName: 'coverage_map_hash_id', type: 'text' })
