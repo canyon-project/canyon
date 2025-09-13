@@ -23,11 +23,11 @@ export class CoverageOverviewResolver {
       provider,
       repoID,
       sha,
-      buildProvider,
-      buildID,
-      reportProvider,
-      reportID,
-      filePath,
+      // buildProvider,
+      // buildID,
+      // reportProvider,
+      // reportID,
+      // filePath,
     });
   }
 }
