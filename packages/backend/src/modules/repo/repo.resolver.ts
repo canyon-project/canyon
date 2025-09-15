@@ -36,9 +36,6 @@ class Repo {
   @Field()
   config!: string;
 
-  @Field(() => [Scope])
-  scopes!: Scope[];
-
   @Field()
   createdAt!: Date;
 

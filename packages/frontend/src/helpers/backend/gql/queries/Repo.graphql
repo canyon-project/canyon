@@ -4,11 +4,6 @@ query Repo($id: String!) {
     pathWithNamespace
     description
     bu
-    scopes {
-      buildTarget
-      includes
-      excludes
-    }
     config
     createdAt
     updatedAt

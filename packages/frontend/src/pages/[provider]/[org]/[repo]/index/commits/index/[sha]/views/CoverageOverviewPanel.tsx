@@ -12,15 +12,17 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
   const navigate = useNavigate();
   const params = useParams();
   type CaseItem = {
-    caseId?: string;
-    caseUrl?: string;
     reportProvider?: string;
     reportID?: string;
-    caseName?: string;
-    passedCount: number;
-    failedCount: number;
-    totalCount: number;
-    passRate?: string;
+    testCaseInfo: {
+      caseId?: string;
+      caseUrl?: string;
+      caseName?: string;
+      passedCount: number;
+      failedCount: number;
+      totalCount: number;
+      passRate?: string;
+    };
     summary?: { percent: number };
   };
   // keep for table typing
@@ -111,7 +113,7 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
     },
     {
       title: 'Case Name',
-      dataIndex: 'caseName',
+      dataIndex: ['testCaseInfo', 'caseName'],
       key: 'caseName',
       render(_: string, _c: { caseUrl?: string; reportProvider?: string }) {
         return (
@@ -139,30 +141,34 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
     {
       title: 'Pass Rate',
       key: 'passRate',
-      dataIndex: 'passRate',
+      dataIndex: ['testCaseInfo', 'passRate'],
       width: 200,
     },
     {
       title: 'Case Count',
-      key: 'passRate',
       width: 200,
       render: (_: number, record: CaseItem) => {
-        const total = record.passedCount + record.failedCount;
-        return (
-          <span>
-            <span className='font-medium text-green-600'>
-              {record.passedCount}
-            </span>{' '}
-            / {total}
-          </span>
-        );
+        if (record.testCaseInfo) {
+          const total =
+            record.testCaseInfo.passedCount + record.testCaseInfo.failedCount;
+          return (
+            <span>
+              <span className='font-medium text-green-600'>
+                {record.testCaseInfo.passedCount}
+              </span>{' '}
+              / {total}
+            </span>
+          );
+        } else {
+          return <div>空</div>;
+        }
       },
     },
     {
       title: 'Coverage',
       dataIndex: 'summary',
       key: 'summary',
-      render: (_: { percent: number }) => _.percent,
+      render: (_: { statements: { pct: number } }) => _.statements.pct,
     },
   ];
 
@@ -175,12 +181,15 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
             <span className='font-medium'>Overall Coverage:</span>
             <Progress
               percent={calcPercent(
-                build?.summary?.covered,
-                build?.summary?.total,
+                build?.summary?.statements?.covered,
+                build?.summary?.statements?.total,
               )}
               size='small'
               strokeColor={getStrokeColor(
-                calcPercent(build?.summary?.covered, build?.summary?.total),
+                calcPercent(
+                  build?.summary?.statements?.covered,
+                  build?.summary?.statements?.total,
+                ),
               )}
               style={{ width: '100px' }}
             />
@@ -209,14 +218,14 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                   Automated Test Coverage
                   <Progress
                     percent={calcPercent(
-                      automatedMode?.summary?.covered,
-                      automatedMode?.summary?.total,
+                      automatedMode?.summary?.statements?.covered,
+                      automatedMode?.summary?.statements?.total,
                     )}
                     size='small'
                     strokeColor={getStrokeColor(
                       calcPercent(
-                        automatedMode?.summary?.covered,
-                        automatedMode?.summary?.total,
+                        automatedMode?.summary?.statements?.covered,
+                        automatedMode?.summary?.statements?.total,
                       ),
                     )}
                     style={{ width: '100px' }}
@@ -260,14 +269,14 @@ const CoverageOverviewPanel: React.FC<CoverageOverviewPanelProps> = ({
                   Manual Test Coverage
                   <Progress
                     percent={calcPercent(
-                      manualMode?.summary?.covered,
-                      manualMode?.summary?.total,
+                      manualMode?.summary?.statements?.covered,
+                      manualMode?.summary?.statements?.total,
                     )}
                     size='small'
                     strokeColor={getStrokeColor(
                       calcPercent(
-                        manualMode?.summary?.covered,
-                        manualMode?.summary?.total,
+                        manualMode?.summary?.statements?.covered,
+                        manualMode?.summary?.statements?.total,
                       ),
                     )}
                     style={{ width: '100px' }}

@@ -30,9 +30,11 @@ export interface Build {
   modeList: BuildMode[];
   reportList?: Report[];
   summary: {
-    percent: string;
-    covered: number;
-    total: number;
+    statements: {
+      percent: string;
+      covered: number;
+      total: number;
+    };
   };
 }
 
@@ -40,9 +42,11 @@ export interface BuildMode {
   mode: 'automated' | 'manual' | 'auto';
   coveragePercentage: number;
   summary: {
-    percent: string;
-    covered: number;
-    total: number;
+    statements: {
+      percent: string;
+      covered: number;
+      total: number;
+    };
   };
 }
 

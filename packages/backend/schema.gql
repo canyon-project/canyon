@@ -16,19 +16,12 @@ type CodeFileContent {
   content: String
 }
 
-type Scope {
-  buildTarget: String!
-  includes: [String!]!
-  excludes: [String!]!
-}
-
 type Repo {
   id: String!
   pathWithNamespace: String!
   description: String!
   bu: String!
   config: String!
-  scopes: [Scope!]!
   createdAt: DateTime!
   updatedAt: DateTime!
 }
