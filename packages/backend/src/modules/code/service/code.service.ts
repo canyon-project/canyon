@@ -2,8 +2,11 @@ import { EntityRepository, QueryOrder } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { BadRequestException, Injectable, Optional } from '@nestjs/common';
 import axios from 'axios';
-import { diffLines } from 'diff';
 import { CoverageEntity } from '../../../entities/coverage.entity';
+import {
+  computeJSDiffLines,
+  filterChangedFilesForJsTs,
+} from '../../../helpers/diff';
 import { SystemConfigService } from '../../system-config/system-config.service';
 
 @Injectable()
@@ -23,50 +26,6 @@ export class CodeService {
       process.env.GITLAB_TOKEN;
     if (!base || !token) throw new BadRequestException('GitLab 配置缺失');
     return { base, token };
-  }
-
-  /**
-   * 使用 JS diff 库对比两个文件内容，返回新增与删除的行号。
-   */
-  private computeJSDiffLines(
-    oldContent: string,
-    newContent: string,
-  ): {
-    additions: number[];
-    deletions: number[];
-  } {
-    const additions: number[] = [];
-    const deletions: number[] = [];
-
-    if (!oldContent && !newContent) return { additions, deletions };
-
-    const changes = diffLines(oldContent || '', newContent || '');
-    let oldLine = 1;
-    let newLine = 1;
-
-    for (const change of changes) {
-      const lineCount = (change.value.match(/\n/g) || []).length;
-
-      if (change.added) {
-        // 新增的行
-        for (let i = 0; i < lineCount; i++) {
-          additions.push(newLine + i);
-        }
-        newLine += lineCount;
-      } else if (change.removed) {
-        // 删除的行
-        for (let i = 0; i < lineCount; i++) {
-          deletions.push(oldLine + i);
-        }
-        oldLine += lineCount;
-      } else {
-        // 未变化的行，两边都推进
-        oldLine += lineCount;
-        newLine += lineCount;
-      }
-    }
-
-    return { additions, deletions };
   }
 
   async getFileContent({
@@ -200,39 +159,11 @@ export class CodeService {
     const { base, token } = gitlabConfig;
     const pid = encodeURIComponent(repoID);
 
-    // 检查文件是否为 JavaScript/TypeScript 文件
-    const isJsTsFile = (filePath?: string): boolean => {
-      if (!filePath) return false;
-      const ext = filePath.toLowerCase().split('.').pop();
-      return ['js', 'jsx', 'ts', 'tsx'].includes(ext || '');
-    };
-
-    // 检查文件路径是否匹配指定的筛选条件
-    const matchesFilepath = (filePath?: string): boolean => {
-      if (!filepath || !filePath) return true;
-      // 支持精确匹配和模糊匹配
-      return filePath.includes(filepath);
-    };
-
-    // 过滤文件列表，只保留 JS/TS 文件且匹配路径筛选条件
-    const filterFiles = (
-      files: Array<{
-        old_path?: string;
-        new_path?: string;
-        new_file?: boolean;
-        deleted_file?: boolean;
-      }>,
-    ) => {
-      return files.filter((file) => {
-        const isJsTs = isJsTsFile(file.new_path) || isJsTsFile(file.old_path);
-        const matchesPath =
-          matchesFilepath(file.new_path) || matchesFilepath(file.old_path);
-        return isJsTs && matchesPath;
-      });
-    };
+    // 过滤函数放到 helpers 中，保持 service 精简
+    const filterFiles = filterChangedFilesForJsTs;
 
     if (
-      subject.toLowerCase() === 'pull' ||
+      subject.toLowerCase() === 'pulls' ||
       subject.toLowerCase() === 'mr' ||
       subject.toLowerCase() === 'merge_request'
     ) {
@@ -286,7 +217,7 @@ export class CodeService {
   /**
    * 获取指定 subject 的所有差异文件及其差异行。
    * 新实现：先获取文件列表，再单独获取文件内容进行 JS diff 对比，避免 GitLab API 超限问题。
-   * - subject: 'commit' | 'pull'
+   * - subject: 'commit' | 'pulls'
    * - subjectID: commit sha 或 merge request number
    * - compareTarget: 当 subject 为 commit 时用于 /compare；未提供则不对比（返回空）
    * - filepath: 可选的文件路径筛选条件，支持模糊匹配（包含指定字符串的文件路径）
@@ -315,29 +246,69 @@ export class CodeService {
     if ((provider || 'gitlab') !== 'gitlab') {
       return { files: [] };
     }
-    if (!compareTarget && subject.toLowerCase() === 'commit') {
+    // 一次性获取 GitLab 配置，避免重复查询数据库
+    const gitlabConfig = await this.getGitLabCfg();
+
+    // 统一在函数开始阶段解析 compareTarget 的优先级：
+    // 1) 外部 compareTarget
+    // 2) 头提交（head commit）在数据库中的 compareTarget
+    // 3) 当 subject 为 pulls/mr 时，取 MR 的 base_sha
+    const subj = subject.toLowerCase();
+    let headSha: string | null = null;
+    let baseSha: string | null = null;
+    if (subj === 'pulls' || subj === 'mr' || subj === 'merge_request') {
+      const pid = encodeURIComponent(repoID);
+      const mrURL = `${gitlabConfig.base}/api/v4/projects/${pid}/merge_requests/${encodeURIComponent(
+        subjectID,
+      )}`;
+      const mrResp = await axios.get(mrURL, {
+        headers: { 'PRIVATE-TOKEN': gitlabConfig.token },
+      });
+      if (mrResp.status >= 200 && mrResp.status < 300) {
+        const mrData = mrResp.data as {
+          diff_refs?: { base_sha?: string; head_sha?: string };
+          sha?: string;
+        };
+        baseSha = mrData.diff_refs?.base_sha || null;
+        headSha = mrData.diff_refs?.head_sha || mrData.sha || null;
+      }
+    } else if (subj === 'commit') {
+      headSha = subjectID;
+    }
+
+    // 优先级决策：外部 -> 头提交数据库 -> MR base
+    let resolvedCompareTarget: string | null | undefined = compareTarget;
+    if (!resolvedCompareTarget && headSha) {
       const coverages = await this.covRepo.find(
         {
           repoID,
           provider: provider || 'gitlab',
-          sha: subjectID,
+          sha: headSha,
         },
         {
           fields: ['compareTarget'],
           orderBy: { createdAt: QueryOrder.DESC, updatedAt: QueryOrder.DESC },
         },
       );
-      compareTarget =
-        coverages.length > 0 ? coverages[0].compareTarget : subjectID;
+      if (coverages.length > 0 && coverages[0].compareTarget)
+        resolvedCompareTarget = coverages[0].compareTarget;
+    }
+    if (!resolvedCompareTarget && baseSha) {
+      resolvedCompareTarget = baseSha;
     }
 
-    // 一次性获取 GitLab 配置，避免重复查询数据库
-    const gitlabConfig = await this.getGitLabCfg();
+    // 将 subject 统一转换为 commit 语义
+    if (!headSha) {
+      return { files: [] };
+    }
+    subject = 'commit';
+    subjectID = headSha;
+    compareTarget = resolvedCompareTarget;
 
     // Step 1: 获取变更文件列表（不包含 diff 内容）
     const changedFiles = await this.getChangedFilesList({
       repoID,
-      subject,
+      subject: 'commit',
       subjectID,
       compareTarget,
       gitlabConfig,
@@ -348,38 +319,13 @@ export class CodeService {
       return { files: [] };
     }
 
-    // Step 2: 确定对比的源和目标 ref
+    // Step 2: 确定对比的源和目标 ref（统一按 commit 处理）
     let oldRef: string | null = null;
     let newRef: string | null = null;
-
-    if (
-      subject.toLowerCase() === 'pull' ||
-      subject.toLowerCase() === 'mr' ||
-      subject.toLowerCase() === 'merge_request'
-    ) {
-      // 对于 MR，获取 base 和 head sha
-      const pid = encodeURIComponent(repoID);
-      const mrURL = `${gitlabConfig.base}/api/v4/projects/${pid}/merge_requests/${encodeURIComponent(subjectID)}`;
-      const mrResp = await axios.get(mrURL, {
-        headers: { 'PRIVATE-TOKEN': gitlabConfig.token },
-      });
-
-      if (mrResp.status >= 200 && mrResp.status < 300) {
-        const mrData = mrResp.data as {
-          diff_refs?: { base_sha?: string; head_sha?: string };
-          sha?: string;
-          target_branch?: string;
-        };
-        oldRef = mrData.diff_refs?.base_sha || null;
-        newRef = mrData.diff_refs?.head_sha || mrData.sha || null;
-      }
-    } else if (subject.toLowerCase() === 'commit') {
-      if (!compareTarget) {
-        return { files: [] };
-      }
-      oldRef = compareTarget;
-      newRef = subjectID;
-    }
+    if (subject.toLowerCase() !== 'commit') return { files: [] };
+    if (!compareTarget) return { files: [] };
+    oldRef = compareTarget;
+    newRef = subjectID;
 
     // Step 3: 对每个文件进行内容对比（并行处理）
     const filePromises = changedFiles.map(async (file) => {
@@ -422,7 +368,7 @@ export class CodeService {
           : '';
 
         // 使用 JS diff 计算差异行
-        const { additions, deletions } = this.computeJSDiffLines(
+        const { additions, deletions } = computeJSDiffLines(
           oldContent,
           newContent,
         );
