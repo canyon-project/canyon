@@ -1,18 +1,16 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 // @ts-expect-error canyon-data 可能缺少类型导出，但运行时可用
-import { genSummaryMapByCoverageMap, getSummaryByPath } from 'canyon-data';
-import {
-  type CoverageFileMapEntry,
-  summarizeCoverageFromMap,
-} from './coverage.utils';
+import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { MapQueryDto } from './dto/map.dto';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
 import { CoverageMapForCommitService } from './services/coverage-map-for-commit.service';
+import { CoverageMapForPullService } from './services/coverage-map-for-pull.service';
 
 @Controller('api/coverage')
 export class CoverageController {
   constructor(
     private readonly coverageMapForCommitService: CoverageMapForCommitService,
+    private readonly coverageMapForPullService: CoverageMapForPullService,
   ) {}
 
   @Get('summary/map')
@@ -79,21 +77,21 @@ export class CoverageController {
           compareTarget: q.compareTarget,
           onlyChanged: String(q.onlyChanged || '').toLowerCase() === 'true',
         });
-      // case 'pull':
-      // case 'pulls':
-      //   return this.map.getMapForPull({
-      //     provider: q.provider,
-      //     repoID: q.repoID,
-      //     pullNumber: q.subjectID,
-      //     filePath: q.filePath,
-      //     mode: q.mode,
-      //     // TODO 复杂度较高，先不做。先做整体pull的覆盖率
-      //     // buildProvider: q.buildProvider,
-      //     // buildID: q.buildID,
-      //     // reportProvider: q.reportProvider,
-      //     // reportID: q.reportID,
-      //     // buildTarget: q.buildTarget
-      //   });
+      case 'pull':
+      case 'pulls':
+        return this.coverageMapForPullService.invoke({
+          provider: q.provider,
+          repoID: q.repoID,
+          pullNumber: q.subjectID,
+          filePath: q.filePath,
+          mode: q.mode,
+          // TODO 复杂度较高，先不做。先做整体pull的覆盖率
+          // buildProvider: q.buildProvider,
+          // buildID: q.buildID,
+          // reportProvider: q.reportProvider,
+          // reportID: q.reportID,
+          // buildTarget: q.buildTarget
+        });
       default:
         throw new BadRequestException('invalid subject');
     }

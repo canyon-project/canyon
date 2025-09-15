@@ -8,11 +8,9 @@ import { SystemConfigModule } from '../system-config/system-config.module';
 import { CoverageController } from './coverage.controller';
 import { CoverageOverviewResolver } from './coverage.resolver';
 import { CoverageMapStoreService } from './services/coverage.map-store.service';
-// import { CoverageGitService } from './services/coverage.git.service';
-// import { CoverageMapService } from './services/coverage.map.service';
-// import { CoverageMapStoreService } from './services/coverage.map-store.service';
 import { CoverageOverviewService } from './services/coverage.overview.service';
 import { CoverageMapForCommitService } from './services/coverage-map-for-commit.service';
+import { CoverageMapForPullService } from './services/coverage-map-for-pull.service';
 
 @Module({
   imports: [
@@ -26,9 +24,8 @@ import { CoverageMapForCommitService } from './services/coverage-map-for-commit.
   providers: [
     CoverageOverviewService,
     CoverageMapForCommitService,
-    // CoverageMapService,
+    CoverageMapForPullService,
     CoverageMapStoreService,
-    // CoverageGitService,
     CoverageOverviewResolver,
   ],
 })
