@@ -40,20 +40,19 @@ export class CoverageController {
 
         return summary;
       }
-      // case 'pull':
-      // case 'pulls': {
-      //   const map = await this.map.getMapForPull({
-      //     provider: q.provider,
-      //     repoID: q.repoID,
-      //     pullNumber: q.subjectID,
-      //     filePath: q.filePath,
-      //     mode: q.mode,
-      //   });
-      //   return summarizeCoverageFromMap(
-      //     map as Record<string, CoverageFileMapEntry>,
-      //     percent,
-      //   );
-      // }
+      case 'pull':
+      case 'pulls': {
+        const map = await this.coverageMapForPullService.invoke({
+          provider: q.provider,
+          repoID: q.repoID,
+          pullNumber: q.subjectID,
+          filePath: q.filePath,
+          mode: q.mode,
+        });
+        const summary = genSummaryMapByCoverageMap(map, []);
+
+        return summary;
+      }
       default:
         throw new BadRequestException('invalid subject');
     }

@@ -103,8 +103,6 @@ export class CoverageMapForPullService {
     }>;
     if (!Array.isArray(commits) || commits.length === 0) return {};
 
-    console.log(commits, 'commits');
-
     // 覆盖记录查询，选择 baseline（headSha 优先）
     const shas = commits.map((c) => c.id);
     const covWhere: {
@@ -139,7 +137,7 @@ export class CoverageMapForPullService {
     };
     if (filePath) relWhere.filePath = filePath;
     const relationsAll = await this.relRepo.find(relWhere, {
-      fields: ['versionID', 'coverageMapHashID', 'fullFilePath', 'filePath'],
+      fields: ['versionID', 'coverageMapHashID', 'filePath'],
     });
 
     // ClickHouse 命中聚合（带 coverageID 用于分组）
@@ -147,25 +145,24 @@ export class CoverageMapForPullService {
     const hitQuery = `
       SELECT
         coverage_id as coverageID,
-        full_file_path as fullFilePath,
+        file_path as filePath,
         sumMapMerge(s) as s,
         sumMapMerge(f) as f,
         sumMapMerge(b) as b
       FROM coverage_hit_agg
       WHERE coverage_id IN (${idsList})
-      ${filePath ? ` AND endsWith(full_file_path, '${filePath.replace(/'/g, "''")}')` : ''}
-      GROUP BY coverage_id, full_file_path
+      GROUP BY coverage_id, file_path
     `;
     const ch = this.ch.getClient();
     const hitRes = await ch.query({ query: hitQuery, format: 'JSONEachRow' });
     const _hitRows: Array<{
       coverageID: string;
-      fullFilePath: string;
+      filePath: string;
       s: unknown;
       f: unknown;
       b: unknown;
     }> = await hitRes.json();
-    const hitRows = _hitRows.filter((r) => !r.fullFilePath.includes('/dist/'));
+    const hitRows = _hitRows.filter((r) => !r.filePath.includes('/dist/'));
 
     // 计算变更路径集合（非 fileMerge 才需要）
     const changesBySha = new Map<string, Set<string>>();
@@ -235,7 +232,7 @@ export class CoverageMapForPullService {
       const cov = covByID.get(row.coverageID);
       if (!cov) continue;
       const isBaseline = baseSet.has(row.coverageID);
-      const relPath = trimInstrumentCwd(row.fullFilePath, cov.instrumentCwd);
+      const relPath = row.filePath;
       let include = isBaseline;
       if (!isBaseline) {
         const changed = changesBySha.get(cov.sha);
