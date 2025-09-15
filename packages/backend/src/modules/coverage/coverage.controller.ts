@@ -35,8 +35,10 @@ export class CoverageController {
           compareTarget: q.compareTarget,
           onlyChanged: String(q.onlyChanged || '').toLowerCase() === 'true',
         });
-
-        const summary = genSummaryMapByCoverageMap(map, []);
+        const summary = genSummaryMapByCoverageMap(
+          map,
+          Object.values(map).map((m: any) => m.change),
+        );
 
         return summary;
       }

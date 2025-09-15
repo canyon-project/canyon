@@ -4,6 +4,7 @@ import { CoverageEntity } from '../../entities/coverage.entity';
 import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
 import { RepoEntity } from '../../entities/repo.entity';
 import { ChModule } from '../ch/ch.module';
+import { CodeService } from '../code/service/code.service';
 import { SystemConfigModule } from '../system-config/system-config.module';
 import { CoverageController } from './coverage.controller';
 import { CoverageOverviewResolver } from './coverage.resolver';
@@ -27,6 +28,7 @@ import { CoverageMapForPullService } from './services/coverage-map-for-pull.serv
     CoverageMapForPullService,
     CoverageMapStoreService,
     CoverageOverviewResolver,
+    CodeService,
   ],
 })
 export class CoverageModule {}

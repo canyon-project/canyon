@@ -7,6 +7,7 @@ import { RepoEntity } from '../../../entities/repo.entity';
 import { encodeID } from '../../../helpers/coverageID';
 import { transformFlatBranchHitsToArrays } from '../../../helpers/utils';
 import { ChService } from '../../ch/ch.service';
+import { CodeService } from '../../code/service/code.service';
 import { SystemConfigService } from '../../system-config/system-config.service';
 import { tupleToMap } from '../coverage.utils';
 import { CoverageMapStoreService } from './coverage.map-store.service';
@@ -23,6 +24,7 @@ export class CoverageMapForCommitService {
     private readonly repo: EntityRepository<RepoEntity>,
     @InjectRepository(CoverageMapRelationEntity)
     private readonly relRepo: EntityRepository<CoverageMapRelationEntity>,
+    private readonly codeService: CodeService,
   ) {}
   async invoke({
     provider,
@@ -36,6 +38,18 @@ export class CoverageMapForCommitService {
     compareTarget,
     onlyChanged,
   }) {
+    const s = await this.codeService.getDiffChangedLines({
+      provider,
+      repoID,
+      subject: 'commit',
+      subjectID: sha,
+      // buildProvider,
+      // buildID,
+      // reportProvider,
+      // reportID,
+      filepath: filePath,
+    });
+
     const versionID = encodeID({
       provider,
       repoID,
@@ -139,6 +153,7 @@ export class CoverageMapForCommitService {
           s: sMap,
           f: fMap,
           b: bArr,
+          change: s.files.find((item) => item.path === path),
           // change: false,
         };
       }
