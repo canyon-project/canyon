@@ -8,6 +8,7 @@ import { RepoEntity } from '../../../entities/repo.entity';
 import { testExclude } from '../../../helpers/test-exclude';
 import { transformFlatBranchHitsToArrays } from '../../../helpers/utils';
 import { ChService } from '../../ch/ch.service';
+import { CodeService } from '../../code/service/code.service';
 import { SystemConfigService } from '../../system-config/system-config.service';
 import {
   mergeFunctionHitsByBlock,
@@ -29,6 +30,7 @@ export class CoverageMapForPullService {
     private readonly repo: EntityRepository<RepoEntity>,
     @InjectRepository(CoverageMapRelationEntity)
     private readonly relRepo: EntityRepository<CoverageMapRelationEntity>,
+    private readonly codeService: CodeService,
   ) {}
 
   private async fetchGitLabFile(
@@ -88,9 +90,49 @@ export class CoverageMapForPullService {
       { headers },
     );
     if (mrResp.status < 200 || mrResp.status >= 300) return {};
-    const mr: { diff_refs?: { head_sha?: string }; sha?: string } = mrResp.data;
-    const headSha: string | undefined = mr?.diff_refs?.head_sha || mr?.sha;
+    const mr: {
+      diff_refs?: { head_sha?: string };
+      sha?: string;
+      merge_commit_sha?: string;
+    } = mrResp.data as any;
+
+    // 优先从 coverage 表中判断候选 SHA（sha、merge_commit_sha、head_sha）是否有覆盖
+    const candidates = [
+      mr?.sha,
+      mr?.merge_commit_sha,
+      mr?.diff_refs?.head_sha,
+    ].filter((v): v is string => Boolean(v));
+    const uniqCandidates = Array.from(new Set(candidates));
+    let headSha: string | undefined;
+    if (uniqCandidates.length > 0) {
+      const covForCandidates = await this.covRepo.find(
+        { provider, repoID, sha: { $in: uniqCandidates } },
+        { fields: ['sha'] },
+      );
+      const available = new Set(covForCandidates.map((c) => c.sha));
+      headSha =
+        mr?.sha && available.has(mr.sha)
+          ? mr.sha
+          : mr?.merge_commit_sha && available.has(mr.merge_commit_sha)
+            ? mr.merge_commit_sha
+            : mr?.diff_refs?.head_sha && available.has(mr.diff_refs.head_sha)
+              ? mr.diff_refs.head_sha
+              : undefined;
+    }
+
+    // 若 coverage 表中没有命中，则按优先级 sha > merge_commit_sha > head_sha 回退
+    if (!headSha)
+      headSha = mr?.sha || mr?.merge_commit_sha || mr?.diff_refs?.head_sha;
+
     if (!headSha) return {};
+
+    const s = await this.codeService.getDiffChangedLines({
+      provider,
+      repoID,
+      subject: 'commit',
+      subjectID: headSha,
+      filepath: filePath,
+    });
 
     // MR 提交列表
     const commitsResp = await axios.get(
@@ -104,7 +146,7 @@ export class CoverageMapForPullService {
     if (!Array.isArray(commits) || commits.length === 0) return {};
 
     // 覆盖记录查询，选择 baseline（headSha 优先）
-    const shas = commits.map((c) => c.id);
+    const shas = commits.map((c) => c.id).concat(headSha);
     const covWhere: {
       provider: string;
       repoID: string;
@@ -363,6 +405,7 @@ export class CoverageMapForPullService {
         s: sMap,
         f: fMap,
         b: bArr,
+        change: s.files.find((item) => item.path === relPath),
       };
     }
 

@@ -5,6 +5,7 @@ import { CoverageEntity } from '../../../entities/coverage.entity';
 import { CoverageMapRelationEntity } from '../../../entities/coverage-map-relation.entity';
 import { RepoEntity } from '../../../entities/repo.entity';
 import { encodeID } from '../../../helpers/coverageID';
+import { testExclude } from '../../../helpers/test-exclude';
 import { transformFlatBranchHitsToArrays } from '../../../helpers/utils';
 import { ChService } from '../../ch/ch.service';
 import { CodeService } from '../../code/service/code.service';
@@ -43,10 +44,6 @@ export class CoverageMapForCommitService {
       repoID,
       subject: 'commit',
       subjectID: sha,
-      // buildProvider,
-      // buildID,
-      // reportProvider,
-      // reportID,
       filepath: filePath,
     });
 
@@ -159,6 +156,9 @@ export class CoverageMapForCommitService {
       }
     }
 
-    return result;
+    // include/exclude 过滤
+    const repo = await this.repo.findOne({ id: repoID });
+    const filtered = testExclude(result, repo?.config);
+    return filtered;
   }
 }

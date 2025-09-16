@@ -53,8 +53,12 @@ export class CoverageController {
           filePath: q.filePath,
           mode: q.mode,
         });
-        const summary = genSummaryMapByCoverageMap(map, []);
-
+        const summary = genSummaryMapByCoverageMap(
+          map,
+          Object.values(map)
+            .map((m: any) => m.change)
+            .filter(Boolean),
+        );
         return summary;
       }
       default:
