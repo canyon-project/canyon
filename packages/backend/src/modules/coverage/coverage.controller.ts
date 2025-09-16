@@ -37,7 +37,9 @@ export class CoverageController {
         });
         const summary = genSummaryMapByCoverageMap(
           map,
-          Object.values(map).map((m: any) => m.change),
+          Object.values(map)
+            .map((m: any) => m.change)
+            .filter(Boolean),
         );
 
         return summary;
