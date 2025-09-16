@@ -11,23 +11,24 @@ export class CoverageOverviewResolver {
     @Args('provider', { type: () => String }) provider: string,
     @Args('repoID', { type: () => String }) repoID: string,
     @Args('sha', { type: () => String }) sha: string,
-    @Args('buildProvider', { type: () => String, nullable: true })
-    buildProvider?: string,
-    @Args('buildID', { type: () => String, nullable: true }) buildID?: string,
-    @Args('reportProvider', { type: () => String, nullable: true })
-    reportProvider?: string,
-    @Args('reportID', { type: () => String, nullable: true }) reportID?: string,
-    @Args('filePath', { type: () => String, nullable: true }) filePath?: string,
   ) {
     return this.overview.getOverview({
       provider,
       repoID,
       sha,
-      // buildProvider,
-      // buildID,
-      // reportProvider,
-      // reportID,
-      // filePath,
+    });
+  }
+
+  @Query(() => JSONScalar)
+  pullCoverageOverview(
+    @Args('provider', { type: () => String }) provider: string,
+    @Args('repoID', { type: () => String }) repoID: string,
+    @Args('pullID', { type: () => String }) pullID: string,
+  ) {
+    return this.overview.getPullOverview({
+      provider,
+      repoID,
+      pullID,
     });
   }
 }

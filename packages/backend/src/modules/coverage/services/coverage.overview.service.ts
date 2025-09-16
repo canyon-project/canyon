@@ -12,6 +12,7 @@ import { ChService } from '../../ch/ch.service';
 import { SystemConfigService } from '../../system-config/system-config.service';
 import { CoverageMapStoreService } from './coverage.map-store.service';
 import { CoverageMapForCommitService } from './coverage-map-for-commit.service';
+import { CoverageMapForPullService } from './coverage-map-for-pull.service';
 
 // 内部类型定义，提升可读性
 type ProviderID = string;
@@ -59,6 +60,7 @@ export class CoverageOverviewService {
     private readonly relRepo: EntityRepository<CoverageMapRelationEntity>,
     private readonly orm: MikroORM,
     private readonly coverageMapForCommitService: CoverageMapForCommitService,
+    private readonly coverageMapForPullService: CoverageMapForPullService,
   ) {}
   // /api/provider/:provider/repo/:repoID/coverage/overview/commits/{commitSHA}
   // /api/provider/:provider/repo/:repoID/coverage/overview/pulls/{pullNumber}?mode=blockMerge
@@ -315,6 +317,28 @@ export class CoverageOverviewService {
     }
     return {
       resultList,
+    };
+  }
+
+  async getPullOverview({ provider, repoID, pullID }) {
+    const map = await this.coverageMapForPullService.invoke({
+      provider: provider,
+      repoID: repoID,
+      pullNumber: pullID,
+    });
+    const summary = genSummaryMapByCoverageMap(
+      map,
+      Object.values(map)
+        .map((m: any) => m.change)
+        .filter(Boolean),
+    );
+
+    return {
+      resultList: [
+        {
+          summary: getSummaryByPath('', summary),
+        },
+      ],
     };
   }
 }

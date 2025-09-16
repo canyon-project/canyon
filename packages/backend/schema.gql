@@ -66,7 +66,8 @@ type RepoUpdateResult {
 scalar JSON
 
 type Query {
-  coverageOverview(provider: String!, repoID: String!, sha: String!, buildProvider: String, buildID: String, reportProvider: String, reportID: String, filePath: String): JSON!
+  coverageOverview(provider: String!, repoID: String!, sha: String!): JSON!
+  pullCoverageOverview(provider: String!, repoID: String!, pullID: String!): JSON!
   repo(id: String!): Repo!
   repos(keyword: String, bu: [String!]): RepoList!
   repoCommits(repoID: String!): RepoCommits!

@@ -7,6 +7,7 @@ import { ChModule } from '../ch/ch.module';
 import { CodeService } from '../code/service/code.service';
 import { SystemConfigModule } from '../system-config/system-config.module';
 import { CoverageController } from './coverage.controller';
+import { CoverageOverviewController } from './coverage.overview.controller';
 import { CoverageOverviewResolver } from './coverage.resolver';
 import { CoverageMapStoreService } from './services/coverage.map-store.service';
 import { CoverageOverviewService } from './services/coverage.overview.service';
@@ -21,7 +22,7 @@ import { CoverageMapForPullService } from './services/coverage-map-for-pull.serv
     ChModule,
     SystemConfigModule,
   ],
-  controllers: [CoverageController],
+  controllers: [CoverageController, CoverageOverviewController],
   providers: [
     CoverageOverviewService,
     CoverageMapForCommitService,
