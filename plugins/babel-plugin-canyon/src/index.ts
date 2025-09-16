@@ -36,7 +36,7 @@ export default declare((api, config, dirname) => {
     visitor: {
       Program: {
         exit: (path) => {
-          const preset = (process.env.CI_SERVER_URL || '').includes(newatob('Y3RyaXA=')) ? {
+          const preset = ((process.env.CI_SERVER_URL || '').includes(newatob('Y3RyaXA=')) && config.disableAutoUpload)===undefined ? {
               provider: 'tripgl',
               // ==========以上是属性=============
               // 代理配置
