@@ -10,7 +10,7 @@
   "description": "",
   "devDependencies": {
     "@vitest/coverage-istanbul": "^3.0.4",
-    "canyon-reporter": "^0.0.0-beta.2",
+    "canyon-reporter": "^0.0.8-beta.76",
     "vitest": "^3.0.4"
   }
 }

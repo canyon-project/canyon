@@ -9,7 +9,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "canyon-reporter": "^0.0.0-beta.2",
+    "canyon-reporter": "^0.0.8-beta.76",
     "jest": "^29.7.0"
   }
 }
