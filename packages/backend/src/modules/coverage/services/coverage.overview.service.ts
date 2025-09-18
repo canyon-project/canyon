@@ -341,4 +341,36 @@ export class CoverageOverviewService {
       ],
     };
   }
+
+  async getMultipleCommitsOverview({
+    provider,
+    repoID,
+    commitRange,
+    mode,
+  }: {
+    provider: string;
+    repoID: string;
+    commitRange: string; // a...b
+    mode?: string;
+  }) {
+    const map = await this.coverageMapForPullService.invokeForMultipleCommits({
+      provider,
+      repoID,
+      commitRange,
+      mode,
+    });
+    const summary = genSummaryMapByCoverageMap(
+      map,
+      Object.values(map)
+        .map((m: any) => m.change)
+        .filter(Boolean),
+    );
+    return {
+      resultList: [
+        {
+          summary: getSummaryByPath('', summary),
+        },
+      ],
+    };
+  }
 }

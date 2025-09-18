@@ -70,7 +70,27 @@ export class CoverageMapForPullService {
     filePath?: string;
     mode?: string; // 'fileMerge' | 'blockMerge'
   }) {
-    // 仅支持 gitlab
+    console.log(filePath, 'filePathfilePathfilePathfilePath');
+    // 为向后兼容，委托给新的 pull 专用方法
+    return this.invokeForPull({ provider, repoID, pullNumber, filePath, mode });
+  }
+
+  /**
+   * 基于 GitLab MR 号获取 commits 列表与基线 SHA，并复用通用聚合逻辑
+   */
+  async invokeForPull({
+    provider,
+    repoID,
+    pullNumber,
+    filePath,
+    mode,
+  }: {
+    provider: string;
+    repoID: string;
+    pullNumber: string;
+    filePath?: string;
+    mode?: string;
+  }) {
     if (provider !== 'gitlab') return {};
 
     const baseUrl =
@@ -119,20 +139,9 @@ export class CoverageMapForPullService {
               ? mr.diff_refs.head_sha
               : undefined;
     }
-
-    // 若 coverage 表中没有命中，则按优先级 sha > merge_commit_sha > head_sha 回退
     if (!headSha)
       headSha = mr?.sha || mr?.merge_commit_sha || mr?.diff_refs?.head_sha;
-
     if (!headSha) return {};
-
-    const s = await this.codeService.getDiffChangedLines({
-      provider,
-      repoID,
-      subject: 'commit',
-      subjectID: headSha,
-      filepath: filePath,
-    });
 
     // MR 提交列表
     const commitsResp = await axios.get(
@@ -145,6 +154,114 @@ export class CoverageMapForPullService {
     }>;
     if (!Array.isArray(commits) || commits.length === 0) return {};
 
+    return this.aggregateForCommits({
+      provider,
+      repoID,
+      baseUrl,
+      projectId,
+      headers,
+      headSha,
+      commits,
+      filePath,
+      mode,
+    });
+  }
+
+  /**
+   * 基于 commit 范围（a...b）聚合覆盖：以 b 为基线，将范围内 commits 与基线做增量/合并
+   */
+  async invokeForMultipleCommits({
+    provider,
+    repoID,
+    commitRange,
+    filePath,
+    mode,
+  }: {
+    provider: string;
+    repoID: string;
+    commitRange: string; // 形如 a...b
+    filePath?: string;
+    mode?: string;
+  }) {
+    if (provider !== 'gitlab') return {};
+
+    const baseUrl =
+      (await this.syscfg?.get('system_config.gitlab_base_url')) ||
+      process.env.GITLAB_BASE_URL;
+    const token =
+      (await this.syscfg?.get('git_provider[0].private_token')) ||
+      process.env.GITLAB_TOKEN;
+    if (!baseUrl || !token) return {};
+
+    const projectId = encodeURIComponent(repoID);
+    const headers = { 'PRIVATE-TOKEN': token } as Record<string, string>;
+
+    const parts = String(commitRange || '').split('...');
+    if (parts.length !== 2) return {};
+    const from = parts[0];
+    const to = parts[1];
+    const headSha = to;
+
+    // 通过 compare 接口获取范围内 commits
+    const cmpResp = await axios.get(
+      `${baseUrl}/api/v4/projects/${projectId}/repository/compare`,
+      { headers, params: { from, to: headSha } },
+    );
+    if (cmpResp.status < 200 || cmpResp.status >= 300) return {};
+    const cmpBody = cmpResp.data as {
+      commits?: Array<{ id?: string; short_id?: string }>;
+    };
+    const commits: Array<{ id: string }> = (cmpBody.commits || [])
+      .map((c) => ({ id: String(c.id || c.short_id || '') }))
+      .filter((c) => c.id);
+    if (!commits.length) return {};
+
+    return this.aggregateForCommits({
+      provider,
+      repoID,
+      baseUrl,
+      projectId,
+      headers,
+      headSha,
+      commits,
+      filePath,
+      mode,
+    });
+  }
+
+  /**
+   * 将一组 commits 与基线进行覆盖聚合，支持 fileMerge 与 blockMerge。
+   * 该方法被 MR 与 multiple-commits 共同复用。
+   */
+  private async aggregateForCommits({
+    provider,
+    repoID,
+    baseUrl,
+    projectId,
+    headers,
+    headSha,
+    commits,
+    filePath,
+    mode,
+  }: {
+    provider: string;
+    repoID: string;
+    baseUrl: string;
+    projectId: string;
+    headers: Record<string, string>;
+    headSha: string;
+    commits: Array<{ id: string }>;
+    filePath?: string;
+    mode?: string;
+  }) {
+    // 变更行信息（用于 change 字段）
+    const s = await this.codeService.getDiffChangedLines({
+      provider,
+      repoID,
+      subject: 'commit',
+      subjectID: headSha,
+      filepath: filePath,
+    });
     // 覆盖记录查询，选择 baseline（headSha 优先）
     const shas = commits.map((c) => c.id).concat(headSha);
     const covWhere: {
@@ -193,6 +310,7 @@ export class CoverageMapForPullService {
         sumMapMerge(b) as b
       FROM coverage_hit_agg
       WHERE coverage_id IN (${idsList})
+            ${filePath ? ` AND endsWith(file_path, '${filePath.replace(/'/g, "''")}')` : ''}
       GROUP BY coverage_id, file_path
     `;
     const ch = this.ch.getClient();
@@ -219,12 +337,12 @@ export class CoverageMapForPullService {
         const cmp = cmpResp.data as {
           diffs?: Array<{ old_path?: string; new_path?: string }>;
         };
-        const s = new Set<string>();
+        const changedSet = new Set<string>();
         for (const d of cmp?.diffs || []) {
-          if (d?.old_path) s.add(d.old_path);
-          if (d?.new_path) s.add(d.new_path);
+          if (d?.old_path) changedSet.add(d.old_path);
+          if (d?.new_path) changedSet.add(d.new_path);
         }
-        changesBySha.set(c.id, s);
+        changesBySha.set(c.id, changedSet);
       }
     }
 

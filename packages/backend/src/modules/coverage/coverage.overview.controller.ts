@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { CoverageOverviewService } from './services/coverage.overview.service';
 
 @Controller('api/provider/:provider/repo/:repoID/coverage/overview')
@@ -24,6 +24,23 @@ export class CoverageOverviewController {
       provider,
       repoID,
       pullID: pullNumber,
+    });
+  }
+
+  // /api/provider/gitlab/repo/111930/coverage/overview/multiple-commits/aaa...bbb
+
+  @Get('multiple-commits/:commitRange')
+  async getMultipleCommitsOverview(
+    @Param('provider') provider: string,
+    @Param('repoID') repoID: string,
+    @Param('commitRange') commitRange: string,
+    @Query('mode') mode?: string,
+  ) {
+    return this.overview.getMultipleCommitsOverview({
+      provider,
+      repoID,
+      commitRange,
+      mode,
     });
   }
 }

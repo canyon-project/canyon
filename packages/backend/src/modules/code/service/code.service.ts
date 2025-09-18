@@ -306,7 +306,7 @@ export class CodeService {
     compareTarget = resolvedCompareTarget;
 
     // Step 1: 获取变更文件列表（不包含 diff 内容）
-    const changedFiles = await this.getChangedFilesList({
+    const _changedFiles = await this.getChangedFilesList({
       repoID,
       subject: 'commit',
       subjectID,
@@ -314,7 +314,9 @@ export class CodeService {
       gitlabConfig,
       filepath,
     });
-
+    const changedFiles = filepath
+      ? _changedFiles.filter((i) => i.new_path === filepath)
+      : _changedFiles;
     if (changedFiles.length === 0) {
       return { files: [] };
     }
@@ -393,7 +395,6 @@ export class CodeService {
 
     // 过滤掉空路径的结果
     const filteredResults = results.filter((result) => result.path !== '');
-
     return { files: filteredResults };
   }
 }
