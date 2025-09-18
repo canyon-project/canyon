@@ -251,8 +251,9 @@ export class CodeService {
 
     // 统一在函数开始阶段解析 compareTarget 的优先级：
     // 1) 外部 compareTarget
-    // 2) 头提交（head commit）在数据库中的 compareTarget
-    // 3) 当 subject 为 pulls/mr 时，取 MR 的 base_sha
+    // 2) 当 subject 为 pulls/mr 时，取 MR 的 base_sha
+    // 3) 头提交（head commit）在数据库中的 compareTarget
+    // 另外：支持 subject 为 multiple-commits 的 a...b 语法
     const subj = subject.toLowerCase();
     let headSha: string | null = null;
     let baseSha: string | null = null;
@@ -274,10 +275,22 @@ export class CodeService {
       }
     } else if (subj === 'commit') {
       headSha = subjectID;
+    } else if (subj === 'multiple-commits') {
+      // 解析 a...b 范围：b 作为 headSha，a 作为 compareTarget（若外部未提供）
+      const parts = (subjectID || '').split('...');
+      if (parts.length === 2) {
+        const fromRef = parts[0]?.trim();
+        const toRef = parts[1]?.trim();
+        if (toRef) headSha = toRef;
+        if (!compareTarget && fromRef) compareTarget = fromRef;
+      }
     }
 
-    // 优先级决策：外部 -> 头提交数据库 -> MR base
+    // 优先级决策：外部 -> MR base -> 头提交数据库
     let resolvedCompareTarget: string | null | undefined = compareTarget;
+    if (!resolvedCompareTarget && baseSha) {
+      resolvedCompareTarget = baseSha;
+    }
     if (!resolvedCompareTarget && headSha) {
       const coverages = await this.covRepo.find(
         {
@@ -292,9 +305,6 @@ export class CodeService {
       );
       if (coverages.length > 0 && coverages[0].compareTarget)
         resolvedCompareTarget = coverages[0].compareTarget;
-    }
-    if (!resolvedCompareTarget && baseSha) {
-      resolvedCompareTarget = baseSha;
     }
 
     // 将 subject 统一转换为 commit 语义
