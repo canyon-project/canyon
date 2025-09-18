@@ -164,6 +164,8 @@ export class CoverageMapForPullService {
       commits,
       filePath,
       mode,
+      subject: 'pull',
+      subjectID: pullNumber,
     });
   }
 
@@ -226,6 +228,8 @@ export class CoverageMapForPullService {
       commits,
       filePath,
       mode,
+      subject: 'multiple-commits',
+      subjectID: commitRange,
     });
   }
 
@@ -243,11 +247,15 @@ export class CoverageMapForPullService {
     commits,
     filePath,
     mode,
+    subject,
+    subjectID,
   }: {
     provider: string;
     repoID: string;
     baseUrl: string;
     projectId: string;
+    subject: string;
+    subjectID: string;
     headers: Record<string, string>;
     headSha: string;
     commits: Array<{ id: string }>;
@@ -258,8 +266,8 @@ export class CoverageMapForPullService {
     const s = await this.codeService.getDiffChangedLines({
       provider,
       repoID,
-      subject: 'commit',
-      subjectID: headSha,
+      subject: subject,
+      subjectID: subjectID,
       filepath: filePath,
     });
     // 覆盖记录查询，选择 baseline（headSha 优先）
