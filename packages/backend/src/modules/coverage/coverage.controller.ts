@@ -44,6 +44,23 @@ export class CoverageController {
 
         return summary;
       }
+      case 'multiple-commits': {
+        const map =
+          await this.coverageMapForPullService.invokeForMultipleCommits({
+            provider: q.provider,
+            repoID: q.repoID,
+            commitRange: q.subjectID,
+            filePath: q.filePath,
+            mode: q.mode,
+          });
+        const summary = genSummaryMapByCoverageMap(
+          map,
+          Object.values(map)
+            .map((m: any) => m.change)
+            .filter(Boolean),
+        );
+        return summary;
+      }
       case 'pull':
       case 'pulls': {
         const map = await this.coverageMapForPullService.invoke({
@@ -83,6 +100,14 @@ export class CoverageController {
           filePath: q.filePath,
           compareTarget: q.compareTarget,
           onlyChanged: String(q.onlyChanged || '').toLowerCase() === 'true',
+        });
+      case 'multiple-commits':
+        return this.coverageMapForPullService.invokeForMultipleCommits({
+          provider: q.provider,
+          repoID: q.repoID,
+          commitRange: q.subjectID,
+          filePath: q.filePath,
+          mode: q.mode,
         });
       case 'pull':
       case 'pulls':

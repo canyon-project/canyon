@@ -49,7 +49,8 @@ export function handleSelectFileBySubject({
   if (subject === 'pull' || subject === 'pulls') {
     codeParams.pullNumber = subjectID;
   } else if (subject === 'multiple-commits' || subject === 'multi-commits') {
-    codeParams.sha = (subjectID || '').split(',')[0] || '';
+    // from to 第二个才是基线
+    codeParams.sha = (subjectID || '').split('...')[1] || '';
   } else {
     codeParams.sha = subjectID;
   }
@@ -72,8 +73,8 @@ export function handleSelectFileBySubject({
     input: {
       repoID: codeParams.repoID,
       filepath: codeParams.filepath,
-      subject: subject,
-      subjectID,
+      subject: ['pull', 'pulls'].includes(subject) ? 'pull' : 'commit',
+      subjectID: codeParams.sha || codeParams.pullNumber,
     },
   }).then(
     (r: {

@@ -5,7 +5,10 @@ import axios from 'axios';
 import CanyonReport from 'canyon-report';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { RepoDocument } from '@/helpers/backend/gen/graphql.ts';
+import {
+  CodeDiffChangedLinesDocument,
+  RepoDocument,
+} from '@/helpers/backend/gen/graphql.ts';
 import { handleSelectFileBySubject } from '@/helpers/report.ts';
 import BasicLayout from '../layouts/BasicLayout.tsx';
 
@@ -13,6 +16,10 @@ const PlaygroundPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const [form] = Form.useForm();
+
+  const { refetch: codeDiffChangedLinesRefetch } = useQuery(
+    CodeDiffChangedLinesDocument,
+  );
 
   const initialFormValues = useMemo(
     () => ({
@@ -128,6 +135,8 @@ const PlaygroundPage = () => {
       buildID: buildID || undefined,
       reportProvider: reportProvider || undefined,
       reportID: reportID || undefined,
+      // @ts-expect-error
+      codeDiffChangedLinesRefetch,
     }).then((res) => {
       console.log(res);
       return {
