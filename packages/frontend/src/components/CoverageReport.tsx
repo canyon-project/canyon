@@ -5,13 +5,19 @@ import axios from 'axios';
 import Report from 'canyon-report';
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { RepoDocument } from '@/helpers/backend/gen/graphql.ts';
+import {
+  CodeDiffChangedLinesDocument,
+  RepoDocument,
+} from '@/helpers/backend/gen/graphql.ts';
 import { handleSelectFileBySubject } from '@/helpers/report';
 
 function CoverageReportContent({ repo }: { repo: { id: string } }) {
   const [searchParams] = useSearchParams();
   const params = useParams();
   const navigate = useNavigate();
+  const { refetch: codeDiffChangedLinesRefetch } = useQuery(
+    CodeDiffChangedLinesDocument,
+  );
   const subjectID = params.subjectID;
   const subject = params.subject as
     | 'commit'
@@ -92,6 +98,8 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
       buildID,
       reportProvider,
       reportID,
+      // @ts-expect-error
+      codeDiffChangedLinesRefetch,
     }).then((res) => ({
       fileContent: res.fileContent,
       fileCoverage: res.fileCoverage,
