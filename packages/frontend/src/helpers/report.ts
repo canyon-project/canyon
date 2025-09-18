@@ -73,8 +73,8 @@ export function handleSelectFileBySubject({
     input: {
       repoID: codeParams.repoID,
       filepath: codeParams.filepath,
-      subject: ['pull', 'pulls'].includes(subject) ? 'pulls' : 'commit',
-      subjectID: codeParams.sha || codeParams.pullNumber,
+      subject: subject,
+      subjectID: subjectID,
     },
   }).then(
     (r: {

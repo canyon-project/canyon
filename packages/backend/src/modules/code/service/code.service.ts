@@ -257,7 +257,7 @@ export class CodeService {
     const subj = subject.toLowerCase();
     let headSha: string | null = null;
     let baseSha: string | null = null;
-    if (subj === 'pulls' || subj === 'mr' || subj === 'merge_request') {
+    if (subj === 'pulls' || subj === 'pull') {
       const pid = encodeURIComponent(repoID);
       const mrURL = `${gitlabConfig.base}/api/v4/projects/${pid}/merge_requests/${encodeURIComponent(
         subjectID,
@@ -273,7 +273,7 @@ export class CodeService {
         baseSha = mrData.diff_refs?.base_sha || null;
         headSha = mrData.diff_refs?.head_sha || mrData.sha || null;
       }
-    } else if (subj === 'commit') {
+    } else if (subj === 'commit' || subj === 'commits') {
       headSha = subjectID;
     } else if (subj === 'multiple-commits') {
       // 解析 a...b 范围：b 作为 headSha，a 作为 compareTarget（若外部未提供）
