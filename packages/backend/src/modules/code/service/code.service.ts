@@ -251,7 +251,7 @@ export class CodeService {
 
     // 统一在函数开始阶段解析 compareTarget 的优先级：
     // 1) 外部 compareTarget
-    // 2) 当 subject 为 pulls/mr 时，取 MR 的 base_sha
+    // 2) 当 subject 为 pulls/multiple-commits 时，取 MR 的 base_sha
     // 3) 头提交（head commit）在数据库中的 compareTarget
     // 另外：支持 subject 为 multiple-commits 的 a...b 语法
     const subj = subject.toLowerCase();
