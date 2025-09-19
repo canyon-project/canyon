@@ -32,6 +32,8 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
   const provider = searchParams.get('provider') || 'gitlab';
   const reportID = searchParams.get('report_id') || '';
   const reportProvider = searchParams.get('report_provider') || '';
+  const defaultOnlyShowChanged =
+    searchParams.get('only_show_change') === 'true';
   const [activatedPath, setActivatedPath] = useState(
     params['*']?.replace('-/', ''),
   );
@@ -137,6 +139,7 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
         }}
       >
         <Report
+          defaultOnlyShowChanged={defaultOnlyShowChanged}
           name={params.repo}
           value={activatedPath}
           onSelect={onSelect}
