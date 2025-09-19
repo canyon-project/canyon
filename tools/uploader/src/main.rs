@@ -1,232 +1,287 @@
-use clap::Parser;
-use uploader::{Cli, Commands, UploadConfig, CoverageUploader, Result};
-use std::path::Path;
-use std::fs;
+use clap::{Parser, Subcommand};
+use reqwest::Client;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::time::SystemTime;
+use chrono;
 use serde_json::Value;
-use uploader::merge::merge_coverage_map;
+use log::log;
+use uploader::merge::{merge_coverage_map};
 
-const VERSION: &str = env!("CARGO_PKG_VERSION");
-
-fn print_banner() {
-    let banner = r#"
-   ____                              _           _ 
-  / ___|__ _ _ __  _   _  ___  _ __  | |__   ___ | |
- | |   / _` | '_ \| | | |/ _ \| '_ \ | '_ \ / _ \| |
- | |__| (_| | | | | |_| | (_) | | | || | | | (_) | |
-  \____\__,_|_| |_|\__, |\___/|_| |_||_| |_|\___/|_|
-                   |___/                            
+fn generate_header(version: &str) -> String {
+    let header = r#"
+   ____
+  / ___|__ _ _ __  _   _  ___  _ __
+ | |   / _` | '_ \| | | |/ _ \| '_ \
+ | |__| (_| | | | | |_| | (_) | | | |
+  \____\__,_|_| |_|\__, |\___/|_| |_|
+                   |___/
 "#;
-    println!("{}", banner);
-    println!("Canyon Coverage Uploader v{}", VERSION);
-    println!("A high-performance coverage data uploader for Canyon\n");
+    format!("{}\n  Canyon report uploader {}", header, version)
 }
+
+#[derive(Parser)]
+#[command(name = "canyon-uploader")]
+#[command(about = "一个用于上传覆盖率数据的工具")]
+struct Cli {
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
+
+#[derive(Subcommand)]
+enum Commands {
+    /// 输出版本信息
+    Version,
+    /// 扫描目录并上传数据
+    Map {
+        /// 指定要扫描的目录路径
+        #[arg(short, long)]
+        coverage_dir: Option<PathBuf>,
+        /// 指定项目ID
+
+        /// 指定上报DSN地址
+        #[arg(short, long)]
+        dsn: Option<String>,
+
+        /// 指定上报者标识
+        #[arg(short, long)]
+        provider: Option<String>,
+
+        /// 指定report_id
+        #[arg(short, long)]
+        report_id: Option<String>,
+    },
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct CoverageData {
+    coverage: Value,
+    // 必有字段
+    repoID: String,
+    sha: String,
+    provider: String,
+//     这里也要写全了！！！
+    #[serde(skip_serializing_if = "Option::is_none")]
+    compareTarget: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    instrumentCwd: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    branch: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    dsn: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reporter: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    reportID: Option<String>,
+}
+
+// 表示单个文件的覆盖率信息
+// 这里要写全了！！！
+#[derive(Serialize, Deserialize, Debug, Clone)]
+struct FileCoverage {
+    // 必有字段
+    path: String,
+    s: Value,
+    f: Value,
+    b: Value,
+    repoID: Option<String>,
+    sha: Option<String>,
+    // istanbul可选字段
+    branchMap: Option<Value>,
+    fnMap: Option<Value>,
+    statementMap: Option<Value>,
+    inputSourceMap: Option<Value>,
+    // 可选字段
+    provider: Option<String>,
+    instrumentCwd: Option<String>,
+    branch: Option<String>,
+    dsn: Option<String>,
+    reporter: Option<String>,
+    compareTarget: Option<String>,
+}
+
+// 表示所有文件的覆盖率集合，键为文件路径，值为单个文件的覆盖率信息
+type CoverageCollection = std::collections::BTreeMap<String, FileCoverage>;
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     let args = Cli::parse();
-    
-    // Initialize logger
-    uploader::logger::init_logger(args.verbose);
+
+    let default_report = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InR6aGFuZ21AdHJpcC5jb20iLCJpZCI6Ijg0MTciLCJpYXQiOjE3Mzg0OTgzOTQsImV4cCI6MjA1NDA3NDM5NH0.Er2VNHsTlk4Ta94NHh0c01uTJ5tnujJ4WPFfFgHjHOA";
 
     match args.command {
-        Commands::Version => {
-            print_banner();
+        Some(Commands::Version) => {
+            println!("canyon-uploader 版本 1.3.0");
         }
-        Commands::Map {
-            coverage_dir,
-            dsn,
-            provider,
-            report_id,
-            project_id,
-            sha,
-            branch,
-            compare_target,
-            instrument_cwd,
-            reporter,
-            dry_run,
-            save_request,
-        } => {
-            print_banner();
-            
-            let config = UploadConfig {
-                dsn: dsn.unwrap_or_default(),
-                provider: provider.unwrap_or_else(|| "default".to_string()),
-                project_id: project_id.unwrap_or_default(),
-                sha: sha.unwrap_or_default(),
-                branch,
-                compare_target,
-                instrument_cwd,
-                reporter,
-                report_id,
-                coverage_dir: coverage_dir.unwrap_or_else(|| ".canyon_output".into()),
-                dry_run,
-                save_request,
-            };
+        Some(Commands::Map { coverage_dir,dsn,provider,report_id }) => {
 
-            run_coverage_upload(config).await?;
-        }
-    }
 
-    Ok(())
-}
+            let version = "1.3.0";
+            let result = generate_header(version);
 
-async fn run_coverage_upload(config: UploadConfig) -> Result<()> {
-    use uploader::uploader::load_config;
-    
-    let config = load_config(config)?;
-    let uploader = CoverageUploader::new(config.clone())?;
+            log("info", &result);
 
-    log::info!("Starting coverage upload process...");
-    log::info!("Coverage directory: {}", config.coverage_dir.display());
+            // Project root located at:
 
-    // Scan for coverage files
-    let coverage_files = scan_coverage_files(&config.coverage_dir)?;
-    
-    if coverage_files.is_empty() {
-        log::warn!("No coverage files found in {}", config.coverage_dir.display());
-        return Ok(());
-    }
+            log("info", &format!("Project root located at: {:?}", std::env::current_dir().unwrap()));
 
-    log::info!("Found {} coverage files to process", coverage_files.len());
+            // 外部传入path
+            let path = std::env::current_dir().unwrap();
 
-    // Process and merge coverage data
-    let coverage_data = process_coverage_files(coverage_files, &config)?;
+            // public_dir的名字是.canyon_output或者传入的coverage_dir的名字
 
-    // Upload data
-    let results = upload_all_coverage(uploader, coverage_data).await?;
-    
-    // Print summary
-    print_upload_summary(&results);
-    
-    Ok(())
-}
+            let public_dir = path.join(coverage_dir.unwrap_or_else(|| PathBuf::from(Path::new(".canyon_output"))).to_path_buf());
 
-fn scan_coverage_files(coverage_dir: &Path) -> Result<Vec<std::path::PathBuf>> {
-    use std::io;
-    
-    if !coverage_dir.exists() {
-        return Err(uploader::UploaderError::InvalidPath(format!(
-            "Coverage directory does not exist: {}",
-            coverage_dir.display()
-        )));
-    }
 
-    let mut files = Vec::new();
-    
-    for entry in fs::read_dir(coverage_dir)? {
-        let entry = entry?;
-        let path = entry.path();
-        
-        if path.is_file() {
-            let file_name = path.file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("");
-                
-            if file_name.starts_with("coverage-final") && file_name.ends_with(".json") {
-                files.push(path);
+            // 打印public_dir
+
+            log("info", &format!("public_dir is {:?}", public_dir));
+
+
+            // 检查目录是否存在
+            if !public_dir.exists() {
+                log("info", &format!("Directory '{}' not found", public_dir.display()));
+                return;
             }
-        }
-    }
 
-    Ok(files)
-}
+            // 读取目录下的所有文件
+            let paths = fs::read_dir(public_dir).unwrap();
 
-fn process_coverage_files(
-    files: Vec<std::path::PathBuf>,
-    config: &UploadConfig
-) -> Result<Vec<uploader::CoverageData>> {
-    use std::collections::HashMap;
-    
-    let mut project_data: HashMap<String, uploader::CoverageData> = HashMap::new();
+            // 创建一个HashMap
+            let mut map: HashMap<String, CoverageData> = HashMap::new();
 
-    for file_path in files {
-        log::debug!("Processing file: {}", file_path.display());
-        
-        let content = fs::read_to_string(&file_path)?;
-        let coverage_map: Value = serde_json::from_str(&content)?;
+            // json文件需要形如 coverage-final-xxx.json
+            let json_files: Vec<_> = paths
+                .filter_map(|entry| {
+                    let entry = entry.ok()?;
+                    let path = entry.path();
+                    let file_name = path.file_name()?.to_str()?;
+                    if file_name.starts_with("coverage-final") && file_name.ends_with(".json") {
+                        Some(path)
+                    } else {
+                        None
+                    }
+                })
+                .collect();
 
-        // Extract project information from first file entry
-        let first_entry = coverage_map.as_object()
-            .and_then(|m| m.values().next());
-
-        if let Some(first_value) = first_entry {
-            let project_id = format!("{}-{}-auto", 
-                &config.provider, 
-                config.project_id
-            );
-
-            let data = uploader::CoverageData {
-                coverage: coverage_map.clone(),
-                project_id: project_id.clone(),
-                sha: config.sha.clone(),
-                instrument_cwd: config.instrument_cwd.clone(),
-                dsn: Some(config.dsn.clone()),
-                reporter: config.reporter.clone(),
-                branch: config.branch.clone(),
-                compare_target: config.compare_target.clone(),
-                report_id: config.report_id.clone(),
-            };
-
-            // Merge with existing data if project already exists
-            if let Some(existing) = project_data.get_mut(&project_id) {
-                log::info!("Merging coverage data for project: {}", project_id);
-                let merged = merge_coverage_map(&existing.coverage, &data.coverage)
-                    .map_err(|e| uploader::UploaderError::CoverageData(e.to_string()))?;
-                existing.coverage = merged;
-            } else {
-                project_data.insert(project_id.clone(), data);
+            // 没有找到json文件
+            if json_files.is_empty() {
+                log("info", &format!("No coverage files found in .canyon_output"));
             }
-        }
-    }
 
-    Ok(project_data.into_values().collect())
-}
+            // 遍历json文件
+            for path in json_files {
+                let json_data = fs::read_to_string(&path).unwrap();
 
-async fn upload_all_coverage(
-    uploader: uploader::CoverageUploader,
-    coverage_data: Vec<uploader::CoverageData>
-) -> Result<Vec<uploader::UploadResponse>> {
-    let mut results = Vec::new();
+                let data: Result<CoverageCollection, _> = serde_json::from_str(&json_data);
 
-    for data in coverage_data {
-        match uploader.upload(&data).await {
-            Ok(response) => {
-                results.push(response);
+                if let Ok(data) = data {
+                    // 打印data的第一个key
+                    if let Some((key, _)) = data.iter().next() {
+                        log("info", &format!("key is {:?}", key));
+                    }
+
+                    // 从 data 中取第一个值来获取公共信息
+                    if let Some((_, first_value)) = data.iter().next() {
+                        let coverage = serde_json::to_value(data.clone()).unwrap();
+                        let data = CoverageData {
+                            coverage,
+                            sha: first_value.sha.clone().or(std::env::var("CI_COMMIT_SHA").ok()).unwrap(),
+                            instrumentCwd: first_value.instrumentCwd.clone().or(std::env::current_dir().ok().and_then(|p| p.to_str().map(|s| s.to_string()))),
+                            dsn: dsn.clone().or(first_value.dsn.clone()).or(std::env::var("DSN").ok()),
+                            reporter: first_value.reporter.clone().or(std::env::var("REPORTER").ok()).or(Option::from(default_report.to_string())),
+                            branch: first_value.branch.clone().or(std::env::var("CI_COMMIT_BRANCH").ok()),
+                            compareTarget: first_value.compareTarget.clone(),
+                            // projectID是拼接一个auto和provider、repoID
+                            provider: provider.clone().or(first_value.provider.clone()).unwrap(),
+                            repoID: first_value.sha.clone().or(std::env::var("CI_PROJECT_ID").ok()).unwrap(),
+                            reportID: report_id.clone(),
+                        };
+
+                        if let Some(existing_data) = map.get(&data.repoID) {
+                            println!("Merging coverage data for project: {}", data.repoID);
+                            let merged_coverage = merge_coverage_map(&existing_data.coverage, &data.coverage);
+                            map.insert(
+                                data.repoID.clone(),
+                                CoverageData {
+                                    coverage: merged_coverage,
+                                    ..data.clone()
+                                },
+                            );
+                        } else {
+                            map.insert(data.repoID.clone(), data.clone());
+                        }
+                    } else {
+                        log("error", &format!("No valid data in file: {:?}", path));
+                    }
+                } else {
+                    log("error", &format!("Failed to parse JSON in file: {:?}", path));
+                }
             }
-            Err(e) => {
-                log::error!("Failed to upload coverage for project {}: {}", 
-                    data.project_id, e);
-                if !uploader.config.dry_run {
-                    return Err(e);
+
+            // 打印map
+            // log("info", &format!("Merged map: {:?}", map));
+            for value in map.values() {
+                if let Err(e) = upload_coverage_data(value).await {
+                    log("error", &format!("Error uploading coverage data: {}", e));
                 }
             }
         }
-    }
-
-    Ok(results)
-}
-
-fn print_upload_summary(results: &[uploader::UploadResponse]) {
-    let success_count = results.iter().filter(|r| r.success).count();
-    let total_count = results.len();
-
-    println!("\n{}", "=".repeat(50));
-    println!("UPLOAD SUMMARY");
-    println!("{}", "=".repeat(50));
-    println!("Total uploads: {}", total_count);
-    println!("Successful: {}", success_count);
-    println!("Failed: {}", total_count - success_count);
-
-    for (i, result) in results.iter().enumerate() {
-        println!("{}. {} - {}", 
-            i + 1,
-            if result.success { "✓" } else { "✗" },
-            result.message
-        );
-        
-        if let Some(url) = &result.report_url {
-            println!("   Report URL: {}", url);
+        None => {
+            eprintln!("请指定一个子命令");
         }
     }
+}
+
+async fn upload_coverage_data(data: &CoverageData) -> Result<(), Box<dyn std::error::Error>> {
+    let client = Client::new();
+
+    // 打印 dsn、reporter、repoID、sha、branch、compareTarget、instrumentCwd
+    log("info", &format!("dsn: {:?}", data.dsn));
+    log("info", &format!("reporter: {:?}", data.reporter));
+    log("info", &format!("repoID: {:?}", data.repoID));
+    log("info", &format!("sha: {:?}", data.sha));
+    log("info", &format!("branch: {:?}", data.branch));
+    log("info", &format!("compareTarget: {:?}", data.compareTarget));
+    log("info", &format!("instrumentCwd: {:?}", data.instrumentCwd));
+    log("info", &format!("reportID: {:?}", data.reportID));
+    log("info", &format!("provider: {:?}", data.provider));
+
+    // 把请求体积写到本地
+    // fs::write("request_body.json", serde_json::to_string_pretty(data).unwrap()).unwrap();
+
+    // 打印bearer token，把bearer token用空格连起来，token可能是空的
+    let bearer_token = match data.reporter.as_ref() {
+        Some(token) => format!("Bearer {}", token),
+        None => "Bearer ".to_string(),
+    };
+    println!("bearer_token: {:?}", bearer_token);
+
+    let response = client
+        .post(&data.dsn.clone().unwrap())
+        .json(data)
+        .header("Authorization", bearer_token)
+        .header("Content-Type", "application/json")
+        .send()
+        .await?;
+
+    // log("info", &format!("Uploading data: {:?}", data));
+    let response_json: Value = response.json().await?;
+
+    // 打印response_json
+    log("info", &format!("Response: {:?}", response_json));
+
+
+
+    log("info", &"Upload successful!".to_string());
+    Ok(())
+}
+
+fn log(level: &str, message: &str) {
+    let start = SystemTime::now();
+    let datetime: chrono::DateTime<chrono::Utc> = start.into();
+    let timestamp = datetime.to_rfc3339_opts(chrono::SecondsFormat::Millis, true);
+    println!("[{}] ['{}'] => {}", timestamp, level, message);
 }
