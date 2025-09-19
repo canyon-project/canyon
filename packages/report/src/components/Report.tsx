@@ -10,9 +10,7 @@ import TopControl from './widgets/TopControl';
 import RIf from "./RIf.tsx";
 import {Spin} from "antd";
 
-const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, name }) => {
-  console.log(theme, onSelect, value);
-
+const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, name, defaultOnlyShowChanged }) => {
   // 内部状态
   const [_isLoading, _setIsLoading] = useState<boolean>(false);
   const [currentTheme, setCurrentTheme] = useState<ThemeEnum | string>(theme);
@@ -29,7 +27,7 @@ const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, 
   });
   const [fileContent, setFileContent] = useState<string>('');
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
-  const [onlyChange, setOnlyChange] = useState(Boolean(false));
+  const [onlyChange, setOnlyChange] = useState(Boolean(defaultOnlyShowChanged));
   const rootClassName = useMemo(() => `report-scope-${Math.random().toString(36).slice(2, 9)}`,[/* once */]);
 
   function onChangeOnlyChange(v: boolean) {
@@ -37,9 +35,9 @@ const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, 
   }
   async function newOnSelect(val: string) {
     const res = await onSelect(val);
-    setFileContent(res.fileContent);
-    setFileCoverage(res.fileCoverage);
-    setFileCodeChange(res.fileCodeChange);
+    setFileContent(res.fileContent||'');
+    setFileCoverage(res.fileCoverage||{});
+    setFileCodeChange(res.fileCodeChange||'');
     return res;
   }
   useEffect(() => {
@@ -131,12 +129,13 @@ const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, 
 
 
       <Suspense fallback={<div className='p-8 text-center'>Loading...</div>}>
-        {mode === 'tree' && <SummaryTree dataSource={treeDataSource} onSelect={newOnSelect} />}
+        {mode === 'tree' && <SummaryTree dataSource={treeDataSource} onSelect={newOnSelect} onlyChange={onlyChange} />}
         {mode === 'list' && (
           <SummaryList
             dataSource={listDataSource}
             onSelect={newOnSelect}
             filenameKeywords={filenameKeywords}
+            onlyChange={onlyChange}
           />
         )}
       </Suspense>

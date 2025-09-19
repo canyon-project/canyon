@@ -129,6 +129,7 @@ function App() {
             }, {})}
             onSelect={onSelect}
             value={value}
+            defaultOnlyShowChanged={true}
           />
         </ConfigProvider>
       </div>
