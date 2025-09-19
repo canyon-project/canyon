@@ -108,11 +108,11 @@ jobs:
           path: release_artifacts/windows
 
       # Download pnpm artifact
-      - name: Download pnpm artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pnpm-artifact
-          path: release_artifacts
+#      - name: Download pnpm artifact
+#        uses: actions/download-artifact@v4
+#        with:
+#          name: pnpm-artifact
+#          path: release_artifacts
 
       - name: Create Release
         id: create_release
