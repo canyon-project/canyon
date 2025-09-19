@@ -1,0 +1,172 @@
+name: Build and Publish Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+  release:
+    types: [created, published]
+    tags:
+      - 'v*'
+
+jobs:
+  build-multi:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            artifact_name: linux-binary
+            exe_suffix: ""
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: macos-binary
+            exe_suffix: ""
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: windows-binary
+            exe_suffix: ".exe"
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+          components: rust-src, rustc-dev, llvm-tools-preview
+
+      - name: Install MUSL tools (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y musl-tools
+
+      - name: Add Rust target
+        run: rustup target add ${{ matrix.target }}
+
+      - name: Build with Cargo
+        run: cargo build --target ${{ matrix.target }} --release
+
+      - name: Upload Rust Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: target/${{ matrix.target }}/release/uploader${{ matrix.exe_suffix }}
+
+  build-pnpm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies via pnpm
+        run: pnpm install
+
+      - name: Build with pnpm
+        run: pnpm run build
+
+      # Adjust the output path to match your pnpm build artifact
+#      - name: Upload pnpm Artifact
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: pnpm-artifact
+#          path: tools/extension/canyon-extension.zip  # Replace with your actual build output path
+
+  publish:
+    needs: [build-multi, build-pnpm]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      # Download Rust artifacts
+      - name: Download Linux Rust artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-binary
+          path: release_artifacts/linux
+      - name: Download macOS Rust artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-binary
+          path: release_artifacts/macos
+      - name: Download Windows Rust artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-binary
+          path: release_artifacts/windows
+
+      # Download pnpm artifact
+      - name: Download pnpm artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pnpm-artifact
+          path: release_artifacts
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: "Release built via GitHub Actions"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: List release_artifacts Directory
+        run: ls -R release_artifacts
+
+      # Upload Rust artifacts to the release
+      - name: Upload Linux Rust Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release_artifacts/linux/uploader
+          asset_name: canyon-uploader-linux
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload macOS Rust Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release_artifacts/macos/uploader
+          asset_name: canyon-uploader-macos
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Windows Rust Release Asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: release_artifacts/windows/uploader.exe
+          asset_name: canyon-uploader.exe
+          asset_content_type: application/octet-stream
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Upload pnpm artifact to the release
+#      - name: Upload pnpm Release Asset
+#        uses: actions/upload-release-asset@v1
+#        with:
+#          upload_url: ${{ steps.create_release.outputs.upload_url }}
+#          asset_path: release_artifacts/canyon-extension.zip  # Replace with your actual artifact file name
+#          asset_name: canyon-extension.zip
+#          asset_content_type: application/octet-stream
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
