@@ -70,7 +70,6 @@ export class CoverageMapForPullService {
     filePath?: string;
     mode?: string; // 'fileMerge' | 'blockMerge'
   }) {
-    console.log(filePath, 'filePathfilePathfilePathfilePath');
     // 为向后兼容，委托给新的 pull 专用方法
     return this.invokeForPull({ provider, repoID, pullNumber, filePath, mode });
   }
