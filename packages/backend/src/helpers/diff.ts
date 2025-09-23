@@ -16,15 +16,45 @@ export function computeJSDiffLines(
   let oldLine = 1;
   let newLine = 1;
 
+  const isIgnorable = (line: string): boolean => {
+    const trimmed = line.trim();
+    if (trimmed === '') return true; // 空行
+    if (trimmed.startsWith('//')) return true; // 单行注释（含 /// 指令）
+
+    // 单行块注释，如: /* comment */
+    if (/^\/\*.*\*\/$/.test(trimmed)) return true;
+
+    // JSDoc 内部行，如: * desc 或  * @param
+    if (/^\*(\s|@|$)/.test(trimmed)) return true;
+
+    // 纯开始或纯结束的块注释行（无其它代码）
+    if (trimmed.startsWith('/*') && !trimmed.includes('*/')) return true;
+    if (trimmed.endsWith('*/') && !trimmed.includes('/*')) return true;
+
+    // JSX 注释占位：{/* comment */}
+    if (/^\{\s*\/\*.*\*\/\s*\}$/.test(trimmed)) return true;
+    if (trimmed.startsWith('{/*') && !trimmed.includes('*/}')) return true;
+    if (trimmed.endsWith('*/}') && !trimmed.includes('{/*')) return true;
+
+    return false;
+  };
+
   for (const change of changes) {
-    const lineCount = (change.value.match(/\n/g) || []).length;
+    const rawLines = change.value.split('\n');
+    const lineCount = rawLines.length - 1; // 与 diffLines 的换行计数保持一致
 
     if (change.added) {
-      for (let i = 0; i < lineCount; i++) additions.push(newLine + i);
-      newLine += lineCount;
+      for (let i = 0; i < lineCount; i++) {
+        const lineStr = rawLines[i] ?? '';
+        if (!isIgnorable(lineStr)) additions.push(newLine);
+        newLine += 1;
+      }
     } else if (change.removed) {
-      for (let i = 0; i < lineCount; i++) deletions.push(oldLine + i);
-      oldLine += lineCount;
+      for (let i = 0; i < lineCount; i++) {
+        const lineStr = rawLines[i] ?? '';
+        if (!isIgnorable(lineStr)) deletions.push(oldLine);
+        oldLine += 1;
+      }
     } else {
       oldLine += lineCount;
       newLine += lineCount;
