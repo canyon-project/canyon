@@ -76,11 +76,13 @@ CREATE TABLE "public"."canyonjs_diff" (
     "id" TEXT NOT NULL,
     "provider" TEXT NOT NULL,
     "repo_id" TEXT NOT NULL,
-    "compare_target" TEXT NOT NULL,
-    "sha" TEXT NOT NULL,
+    "from" TEXT NOT NULL,
+    "to" TEXT NOT NULL,
     "path" TEXT NOT NULL,
     "additions" INTEGER[],
     "deletions" INTEGER[],
+    "subject" TEXT NOT NULL,
+    "subject_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "canyonjs_diff_pkey" PRIMARY KEY ("id")
