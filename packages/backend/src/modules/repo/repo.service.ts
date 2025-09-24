@@ -30,7 +30,6 @@ export class RepoService {
   }
 
   private async resolveProjectId(repo: RepoEntity): Promise<number | null> {
-    // If repo.id is numeric string, use it directly
     const numeric = Number(repo.id);
     if (!Number.isNaN(numeric) && Number.isFinite(numeric)) {
       return Math.trunc(numeric);
