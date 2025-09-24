@@ -17,7 +17,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
-      // 'canyon-report': path.resolve(__dirname, '../report/src/index.tsx'),
     },
   },
   server: {
