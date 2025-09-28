@@ -22,6 +22,7 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/graphql": "^13.1.0",
     "@nestjs/platform-express": "^11.0.1",
+    "@nestjs/serve-static": "^5.0.3",
     "axios": "^1.11.0",
     "canyon-data": "2.0.0-beta.31",
     "class-validator": "^0.14.2",

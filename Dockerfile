@@ -42,8 +42,8 @@ RUN pnpm install --prod
 COPY --from=build-backend /app/packages/backend/dist ./dist
 COPY packages/backend/schema.gql ./schema.gql
 
-# Copy frontend dist into backend's public directory
-COPY --from=build-frontend /app/packages/frontend/dist ./dist/public
+# Copy frontend dist into backend's client directory
+COPY --from=build-frontend /app/packages/frontend/dist ./client
 
 EXPOSE 8080
 CMD ["node", "dist/main.js"]
