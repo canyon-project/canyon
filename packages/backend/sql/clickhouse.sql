@@ -16,9 +16,12 @@ CREATE TABLE IF NOT EXISTS default.canyonjs3_hit
 CREATE TABLE IF NOT EXISTS default.canyonjs3_map
 (
   hash     String,
-  statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32, String)),
-  fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32, String), Tuple(UInt32, UInt32, UInt32, UInt32, String))),
-  branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32, String), Array(Tuple(UInt32, UInt32, UInt32, UInt32, String)))),
+  statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32),
+  fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
+  branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
+  content_statement_map   Map(UInt32, String),
+  content_fn_map          Map(UInt32, String, String),
+  content_branch_map      Map(UInt32, String, Array(String)),
   restore_statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32)),
   restore_fn_map          Map(UInt32, Tuple(String, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Tuple(UInt32, UInt32, UInt32, UInt32))),
   restore_branch_map      Map(UInt32, Tuple(UInt8, UInt32, Tuple(UInt32, UInt32, UInt32, UInt32), Array(Tuple(UInt32, UInt32, UInt32, UInt32)))),
