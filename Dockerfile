@@ -31,8 +31,8 @@ WORKDIR /app
 COPY packages/backend ./packages/backend
 RUN pnpm -w --filter backend... build
 
-# ---------- Runtime: Backend (NestJS) ----------
-FROM node:${NODE_VERSION}-alpine AS backend
+# ---------- Runtime: Unified (NestJS serving static) ----------
+FROM node:${NODE_VERSION}-alpine AS final
 WORKDIR /app
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 ENV NODE_ENV=production
@@ -43,17 +43,15 @@ COPY package.json ./
 COPY packages/backend/package.json ./packages/backend/package.json
 RUN pnpm -w --filter backend... install --prod
 
-# Copy built artifacts
+# Copy backend build artifacts
 COPY --from=build-backend /app/packages/backend/dist ./packages/backend/dist
 COPY packages/backend/schema.gql ./packages/backend/schema.gql
+
+# Copy frontend dist into backend's public directory
+COPY --from=build-frontend /app/packages/frontend/dist ./packages/backend/dist/public
 
 EXPOSE 8080
 WORKDIR /app/packages/backend
 CMD ["node", "dist/main.js"]
-
-# ---------- Runtime: Frontend (Nginx serving dist) ----------
-FROM nginx:1.27-alpine AS frontend
-COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build-frontend /app/packages/frontend/dist /usr/share/nginx/html
 
 
