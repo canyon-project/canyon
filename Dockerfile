@@ -1,5 +1,3 @@
-# syntax=docker/dockerfile:1.7
-
 ARG NODE_VERSION=20.18.0
 ARG PNPM_VERSION=9
 
