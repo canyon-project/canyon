@@ -1,0 +1,45 @@
+{
+  "name": "canyon",
+  "version": "3.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "preinstall": "node ./scripts/check.mjs",
+    "clean": "node ./scripts/clean.mjs",
+    "format": "biome check --write",
+    "dev": "pnpm run -r --stream dev",
+    "build": "pnpm run -r --stream build",
+    "prepare": "pnpm run build && simple-git-hooks"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "simple-git-hooks": {
+    "pre-commit": "npx nano-staged"
+  },
+  "nano-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "biome check --write"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.2",
+    "nano-staged": "^0.8.0",
+    "simple-git-hooks": "^2.13.1"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.0.0",
+      "react-dom": "19.0.0",
+      "@types/react": "19.0.0",
+      "@types/react-dom": "19.0.0",
+      "antd": "5.23.2",
+      "vite": "6",
+      "typescript": "5.8.3",
+      "globals": "^16.3.0"
+    }
+  },
+  "pacakgeManager": {
+    "packageManager": "pnpm@9"
+  }
+}

@@ -1,0 +1,15 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type RepoList {
+  data: [JSON!]!
+  keyword: String
+}
+
+"""Arbitrary JSON value"""
+scalar JSON
+
+type Query {
+  repos(keyword: String, bu: [String!]): RepoList!
+}

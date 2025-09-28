@@ -1,0 +1,5 @@
+query Repos {
+  repos {
+    data
+  }
+}

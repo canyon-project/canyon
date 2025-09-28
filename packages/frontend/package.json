@@ -1,0 +1,50 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "3.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "postinstall": "npm run codegen",
+    "codegen": "graphql-codegen --config codegen.ts"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^6.0.0",
+    "@ant-design/pro-components": "^2.8.10",
+    "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@apollo/client": "^3",
+    "@graphql-typed-document-node/core": "^3.2.0",
+    "@ibm/plex-mono": "^1.1.0",
+    "@monaco-editor/react": "^4.7.0",
+    "ahooks": "^3.9.4",
+    "antd": "^5.27.1",
+    "axios": "^1.11.0",
+    "canyon-report": "3.0.0-beta.5",
+    "dayjs": "^1.11.13",
+    "graphql": "^16.11.0",
+    "i18next": "^25.4.2",
+    "i18next-browser-languagedetector": "^8.2.0",
+    "lucide-react": "^0.542.0",
+    "monaco-editor": "^0.52.2",
+    "monaco-themes": "^0.4.6",
+    "react": "19.0.0",
+    "react-custom-scrollbars": "^4.2.1",
+    "react-dom": "19.0.0",
+    "react-i18next": "^15.7.3",
+    "react-router-dom": "^7.8.2"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.7",
+    "@graphql-codegen/client-preset": "^4.8.3",
+    "@tailwindcss/vite": "^4.1.12",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^5.0.0",
+    "globals": "^16.3.0",
+    "tailwindcss": "^4.1.12",
+    "typescript": "~5.8.3",
+    "vite": "^7.1.2",
+    "vite-plugin-pages": "^0.33.1"
+  }
+}
