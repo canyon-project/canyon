@@ -57,6 +57,7 @@ CREATE TABLE "public"."canyonjs3_coverage_map_relation" (
      "restore_full_file_path" TEXT NOT NULL,
      "coverage_map_hash_id" TEXT NOT NULL,
      "source_map_hash_id" TEXT NOT NULL,
+     "content_hash_id" TEXT NOT NULL,
 
      CONSTRAINT "canyonjs3_coverage_map_relation_pkey" PRIMARY KEY ("id")
 );
