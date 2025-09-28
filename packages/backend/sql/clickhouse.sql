@@ -1,5 +1,5 @@
 -- 覆盖率hit表 ttl需要短一些，不然数据膨胀速度极快
-CREATE TABLE IF NOT EXISTS default.coverage_hit
+CREATE TABLE IF NOT EXISTS default.canyonjs3_hit
 (
   coverage_id     String,
   version_id      String,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit
   ORDER BY (ts)
   TTL ts + toIntervalHour(12);
 
-CREATE TABLE IF NOT EXISTS default.coverage_map
+CREATE TABLE IF NOT EXISTS default.canyonjs3_map
 (
   hash     String,
   statement_map   Map(UInt32, Tuple(UInt32, UInt32, UInt32, UInt32, String)),
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS default.coverage_map
 
 -- 聚合表 coverage_hit_agg
 
-CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
+CREATE TABLE IF NOT EXISTS default.canyonjs3_hit_agg
 (
   coverage_id String,
   version_id String,
@@ -48,8 +48,8 @@ CREATE TABLE IF NOT EXISTS default.coverage_hit_agg
 
 -- 物化视图
 
-CREATE MATERIALIZED VIEW IF NOT EXISTS default.coverage_hit_mv
-            TO default.coverage_hit_agg
+CREATE MATERIALIZED VIEW IF NOT EXISTS default.canyonjs3_hit_mv
+            TO default.canyonjs3_hit_agg
 AS
 SELECT
   coverage_id,
@@ -60,7 +60,7 @@ SELECT
   sumMapState(mapKeys(b), mapValues(b)) AS b,
 
   max(ts) AS latest_ts
-FROM default.coverage_hit
+FROM default.canyonjs3_hit
 GROUP BY coverage_id, version_id, file_path;
 
 -- 查询
@@ -70,5 +70,5 @@ GROUP BY coverage_id, version_id, file_path;
 --   file_path,
 --   sumMapMerge(s) AS s,
 --   sumMapMerge(f) AS f
--- FROM default.coverage_hit_agg
+-- FROM default.canyonjs3_hit_agg
 -- GROUP BY coverage_id, file_path;

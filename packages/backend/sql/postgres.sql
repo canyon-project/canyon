@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE "public"."canyonjs_user" (
+CREATE TABLE "public"."canyonjs3_user" (
     "id" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
@@ -10,11 +10,11 @@ CREATE TABLE "public"."canyonjs_user" (
     "settings" JSONB NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "canyonjs_user_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "canyonjs3_user_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."canyonjs_repo" (
+CREATE TABLE "public"."canyonjs3_repo" (
     "id" TEXT NOT NULL,
     "path_with_namespace" TEXT NOT NULL,
     "description" TEXT NOT NULL,
@@ -25,11 +25,11 @@ CREATE TABLE "public"."canyonjs_repo" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "canyonjs_repo_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "canyonjs3_repo_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."canyonjs_coverage" (
+CREATE TABLE "public"."canyonjs3_coverage" (
     "id" TEXT NOT NULL,
     "version_id" TEXT NOT NULL,
     "instrument_cwd" TEXT NOT NULL,
@@ -45,11 +45,11 @@ CREATE TABLE "public"."canyonjs_coverage" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "canyonjs_coverage_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "canyonjs3_coverage_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."canyonjs_coverage_map_relation" (
+CREATE TABLE "public"."canyonjs3_coverage_map_relation" (
      "id" TEXT NOT NULL,
      "version_id" TEXT NOT NULL,
      "full_file_path" TEXT NOT NULL,
@@ -58,19 +58,19 @@ CREATE TABLE "public"."canyonjs_coverage_map_relation" (
      "coverage_map_hash_id" TEXT NOT NULL,
      "source_map_hash_id" TEXT NOT NULL,
 
-     CONSTRAINT "canyonjs_coverage_map_relation_pkey" PRIMARY KEY ("id")
+     CONSTRAINT "canyonjs3_coverage_map_relation_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "public"."canyonjs_coverage_source_map" (
+CREATE TABLE "public"."canyonjs3_coverage_source_map" (
     "hash" TEXT NOT NULL,
     "source_map" BYTEA NOT NULL,
 
-    CONSTRAINT "canyonjs_coverage_source_map_pkey" PRIMARY KEY ("hash")
+    CONSTRAINT "canyonjs3_coverage_source_map_pkey" PRIMARY KEY ("hash")
 );
 
 -- CreateTable
-CREATE TABLE "public"."canyonjs_diff" (
+CREATE TABLE "public"."canyonjs3_diff" (
     "id" TEXT NOT NULL,
     "provider" TEXT NOT NULL,
     "repo_id" TEXT NOT NULL,
@@ -83,5 +83,5 @@ CREATE TABLE "public"."canyonjs_diff" (
     "subject_id" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "canyonjs_diff_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "canyonjs3_diff_pkey" PRIMARY KEY ("id")
 );
