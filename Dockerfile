@@ -9,57 +9,45 @@ WORKDIR /app
 # Avoid corepack signature issues in containers; install pnpm via npm
 RUN corepack disable || true && npm i -g pnpm@${PNPM_VERSION}
 
-# Install backend deps only (with scripts)
-FROM base AS deps-backend
-WORKDIR /app
-COPY pnpm-workspace.yaml ./
-COPY package.json ./
-COPY scripts ./scripts
-COPY packages/backend/package.json packages/backend/package.json
-RUN pnpm -w --filter backend... install
+# Build backend (install with scripts, then compile)
+FROM base AS build-backend
+WORKDIR /app/packages/backend
+COPY packages/backend ./
+RUN pnpm install
+RUN pnpm build
 
 # Build frontend
 FROM base AS build-frontend
 WORKDIR /app
-COPY pnpm-workspace.yaml ./
-COPY package.json ./
-COPY scripts ./scripts
 # Copy frontend source before install so that postinstall (codegen) has config & docs
 COPY packages/frontend ./packages/frontend
 # GraphQL codegen in FE relies on backend schema.gql
 COPY packages/backend/schema.gql ./packages/backend/schema.gql
-RUN pnpm -w --filter frontend... install
-RUN pnpm -w --filter frontend... build
+WORKDIR /app/packages/frontend
+RUN pnpm install
+RUN pnpm build
 
-# Build backend
-FROM deps-backend AS build-backend
-WORKDIR /app
-COPY packages/backend ./packages/backend
-RUN pnpm -w --filter backend... build
+# (build-backend stage defined above)
 
 # ---------- Runtime: Unified (NestJS serving static) ----------
 FROM node:${NODE_VERSION}-alpine AS final
-WORKDIR /app
+WORKDIR /app/packages/backend
 # Avoid corepack signature issues in containers; install pnpm via npm
 RUN corepack disable || true && npm i -g pnpm@${PNPM_VERSION}
 ENV NODE_ENV=production
 
-# Install production deps only for backend
-COPY pnpm-workspace.yaml ./
-COPY package.json ./
-COPY scripts ./scripts
-COPY packages/backend/package.json ./packages/backend/package.json
-RUN pnpm -w --filter backend... install --prod
+# Install production deps only for backend (no workspace scripts)
+COPY packages/backend/package.json ./package.json
+RUN pnpm install --prod
 
 # Copy backend build artifacts
-COPY --from=build-backend /app/packages/backend/dist ./packages/backend/dist
-COPY packages/backend/schema.gql ./packages/backend/schema.gql
+COPY --from=build-backend /app/packages/backend/dist ./dist
+COPY packages/backend/schema.gql ./schema.gql
 
 # Copy frontend dist into backend's public directory
-COPY --from=build-frontend /app/packages/frontend/dist ./packages/backend/dist/public
+COPY --from=build-frontend /app/packages/frontend/dist ./dist/public
 
 EXPOSE 8080
-WORKDIR /app/packages/backend
 CMD ["node", "dist/main.js"]
 
 
