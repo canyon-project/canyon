@@ -1,0 +1,30 @@
+# node
+node_modules
+**/node_modules
+
+# VCS
+.git
+.gitignore
+
+# caches & logs
+pnpm-debug.log*
+npm-debug.log*
+yarn-error.log*
+**/.vite
+**/.turbo
+**/.cache
+
+# build outputs
+**/dist
+**/build
+
+# editor
+.vscode
+.idea
+
+# env
+.env
+.env.*
+
+# misc
+.DS_Store
