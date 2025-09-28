@@ -1,4 +1,4 @@
-ARG NODE_VERSION=latest
+ARG NODE_VERSION=20.18.0
 ARG PNPM_VERSION=9
 
 # Base with pnpm enabled
