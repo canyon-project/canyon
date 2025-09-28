@@ -6,7 +6,8 @@ ARG PNPM_VERSION=9
 # Base with pnpm enabled
 FROM node:${NODE_VERSION}-alpine AS base
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
+# Avoid corepack signature issues in containers; install pnpm via npm
+RUN corepack disable || true && npm i -g pnpm@${PNPM_VERSION}
 
 # Install workspace deps (cacheable)
 FROM base AS deps
@@ -34,7 +35,8 @@ RUN pnpm -w --filter backend... build
 # ---------- Runtime: Unified (NestJS serving static) ----------
 FROM node:${NODE_VERSION}-alpine AS final
 WORKDIR /app
-RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
+# Avoid corepack signature issues in containers; install pnpm via npm
+RUN corepack disable || true && npm i -g pnpm@${PNPM_VERSION}
 ENV NODE_ENV=production
 
 # Install production deps only for backend
