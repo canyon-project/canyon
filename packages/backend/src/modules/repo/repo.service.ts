@@ -16,6 +16,12 @@ export class RepoService {
   ) {}
 
   async getRepos(){
-    return []
+    const s = await this.repoRepo.findAll({
+      where:{}
+    })
+    return {
+      data: s,
+      total: 100
+    }
   }
 }
