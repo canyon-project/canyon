@@ -9,25 +9,30 @@ WORKDIR /app
 # Avoid corepack signature issues in containers; install pnpm via npm
 RUN corepack disable || true && npm i -g pnpm@${PNPM_VERSION}
 
-# Install workspace deps (cacheable)
-FROM base AS deps
+# Install backend deps only (with scripts)
+FROM base AS deps-backend
 WORKDIR /app
 COPY pnpm-workspace.yaml ./
 COPY package.json ./
+COPY scripts ./scripts
 COPY packages/backend/package.json packages/backend/package.json
-COPY packages/frontend/package.json packages/frontend/package.json
-RUN pnpm -w install
+RUN pnpm -w --filter backend... install
 
 # Build frontend
-FROM deps AS build-frontend
+FROM base AS build-frontend
 WORKDIR /app
+COPY pnpm-workspace.yaml ./
+COPY package.json ./
+COPY scripts ./scripts
+# Copy frontend source before install so that postinstall (codegen) has config & docs
 COPY packages/frontend ./packages/frontend
 # GraphQL codegen in FE relies on backend schema.gql
 COPY packages/backend/schema.gql ./packages/backend/schema.gql
+RUN pnpm -w --filter frontend... install
 RUN pnpm -w --filter frontend... build
 
 # Build backend
-FROM deps AS build-backend
+FROM deps-backend AS build-backend
 WORKDIR /app
 COPY packages/backend ./packages/backend
 RUN pnpm -w --filter backend... build
@@ -42,6 +47,7 @@ ENV NODE_ENV=production
 # Install production deps only for backend
 COPY pnpm-workspace.yaml ./
 COPY package.json ./
+COPY scripts ./scripts
 COPY packages/backend/package.json ./packages/backend/package.json
 RUN pnpm -w --filter backend... install --prod
 
