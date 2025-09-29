@@ -1,36 +1,37 @@
-import { MikroOrmModule } from "@mikro-orm/nestjs";
-import { ApolloDriver, type ApolloDriverConfig } from "@nestjs/apollo";
-import { Module } from "@nestjs/common";
+import { MikroOrmModule } from '@mikro-orm/nestjs';
+import { ApolloDriver, type ApolloDriverConfig } from '@nestjs/apollo';
+import { Module } from '@nestjs/common';
 // import { ConfigModule } from '@nestjs/config';
-import { GraphQLModule } from "@nestjs/graphql";
-import { ServeStaticModule } from "@nestjs/serve-static";
-import { join } from "path";
-import { AppController } from "./app.controller";
-import { ChModule } from "./modules/ch/ch.module";
+import { GraphQLModule } from '@nestjs/graphql';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { AppController } from './app.controller';
+import { ChModule } from './modules/ch/ch.module';
+import { CoverageModule } from './modules/coverage/coverage.module';
 // import { CodeModule } from './modules/code/code.module';
 // import { CoverageModule } from './modules/coverage/coverage.module';
-import { RepoModule } from "./modules/repo/repo.module";
+import { RepoModule } from './modules/repo/repo.module';
 // import { SystemConfigModule } from './modules/system-config/system-config.module';
-import { JSONScalar } from "./scalars/json.scalar";
+import { JSONScalar } from './scalars/json.scalar';
 
 @Module({
-	imports: [
-		MikroOrmModule.forRoot(),
-		ChModule,
-		// CoverageModule,
-		RepoModule,
-		// CodeModule,
-		// SystemConfigModule,
-		ServeStaticModule.forRoot({
-			rootPath: join(__dirname, "..", "client"),
-			exclude: ["/graphql"], // 这样就不会触发 path-to-regexp 解析错误
-		}),
-		GraphQLModule.forRoot<ApolloDriverConfig>({
-			autoSchemaFile: "schema.gql",
-			driver: ApolloDriver,
-		}),
-	],
-	controllers: [AppController],
-	providers: [JSONScalar],
+  imports: [
+    MikroOrmModule.forRoot(),
+    ChModule,
+    CoverageModule,
+    RepoModule,
+    // CodeModule,
+    // SystemConfigModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client'),
+      exclude: ['/graphql'], // 这样就不会触发 path-to-regexp 解析错误
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      autoSchemaFile: 'schema.gql',
+      driver: ApolloDriver,
+    }),
+  ],
+  controllers: [AppController],
+  providers: [JSONScalar],
 })
 export class AppModule {}
