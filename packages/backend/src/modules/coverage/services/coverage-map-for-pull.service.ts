@@ -39,10 +39,20 @@ export class CoverageMapForPullService {
 
     return {};
   }
-  async pull(p) {
-    console.log(p);
-    const c = await this.cfg.get('git_provider[0].private_token');
-    console.log(c, 'c');
-    return {};
+  async pull({ provider, repoID, pullID, filePath, mode }) {
+    // console.log(p);
+    const token = await this.cfg.get('git_provider[0].private_token');
+    const url = await this.cfg.get('git_provider[0].url');
+
+    const a = await fetch(
+      `${url}/api/v4/projects/${repoID}/merge_requests/${pullID}/commits`,
+      {
+        headers: {
+          'PRIVATE-TOKEN': token || '',
+        },
+      },
+    ).then((r) => r.json());
+
+    return a;
   }
 }

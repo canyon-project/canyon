@@ -62,7 +62,7 @@ export class CoverageController {
         const map = await this.coverageMapForPullService.pull({
           provider: q.provider,
           repoID: q.repoID,
-          pullNumber: q.subjectID,
+          pullID: q.subjectID,
           filePath: q.filePath,
           mode: q.mode,
         });
@@ -107,7 +107,7 @@ export class CoverageController {
         return this.coverageMapForPullService.pull({
           provider: q.provider,
           repoID: q.repoID,
-          pullNumber: q.subjectID,
+          pullID: q.subjectID,
           filePath: q.filePath,
           mode: q.mode,
         });
