@@ -44,6 +44,14 @@ export class CoverageMapForPullService {
     const token = await this.cfg.get('git_provider[0].private_token');
     const url = await this.cfg.get('git_provider[0].url');
 
+    // 确定基线commit
+
+    // MR 基本信息，获取 headSha
+    // const mrResp = await axios.get(
+    //   `${baseUrl}/api/v4/projects/${projectId}/merge_requests/${pullNumber}`,
+    //   { headers },
+    // );
+
     const a = await fetch(
       `${url}/api/v4/projects/${repoID}/merge_requests/${pullID}/commits`,
       {
