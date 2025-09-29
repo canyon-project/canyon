@@ -7,11 +7,12 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { AppController } from './app.controller';
 import { ChModule } from './modules/ch/ch.module';
+import { ConfigModule } from './modules/config/config.module';
 import { CoverageModule } from './modules/coverage/coverage.module';
 // import { CodeModule } from './modules/code/code.module';
 // import { CoverageModule } from './modules/coverage/coverage.module';
 import { RepoModule } from './modules/repo/repo.module';
-// import { SystemConfigModule } from './modules/system-config/system-config.module';
+// import { ConfigModule } from './modules/system-config/system-config.module';
 import { JSONScalar } from './scalars/json.scalar';
 
 @Module({
@@ -21,7 +22,7 @@ import { JSONScalar } from './scalars/json.scalar';
     CoverageModule,
     RepoModule,
     // CodeModule,
-    // SystemConfigModule,
+    ConfigModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
       exclude: ['/graphql'], // 这样就不会触发 path-to-regexp 解析错误

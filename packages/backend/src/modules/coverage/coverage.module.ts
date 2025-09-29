@@ -4,8 +4,9 @@ import { CoverageEntity } from '../../entities/coverage.entity';
 import { CoverageMapRelationEntity } from '../../entities/coverage-map-relation.entity';
 import { RepoEntity } from '../../entities/repo.entity';
 import { ChModule } from '../ch/ch.module';
+import { ConfigModule } from '../config/config.module';
 // import { CodeService } from '../code/service/code.service';
-// import { SystemConfigModule } from '../system-config/system-config.module';
+// import { ConfigModule } from '../system-config/system-config.module';
 import { CoverageController } from './coverage.controller';
 import { CoverageMapStoreService } from './services/coverage.map-store.service';
 import { CoverageMapForPullService } from './services/coverage-map-for-pull.service';
@@ -22,7 +23,7 @@ import { CoverageMapForPullService } from './services/coverage-map-for-pull.serv
       entities: [CoverageEntity, CoverageMapRelationEntity, RepoEntity],
     }),
     ChModule,
-    // SystemConfigModule,
+    ConfigModule,
   ],
   controllers: [CoverageController],
   providers: [

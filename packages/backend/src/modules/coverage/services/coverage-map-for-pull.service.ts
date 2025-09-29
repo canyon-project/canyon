@@ -8,8 +8,9 @@ import { RepoEntity } from '../../../entities/repo.entity';
 import { testExclude } from '../../../helpers/test-exclude';
 // import { transformFlatBranchHitsToArrays } from '../../../helpers/utils';
 import { ChService } from '../../ch/ch.service';
+import { ConfigService } from '../../config/config.service';
 // import { CodeService } from '../../code/service/code.service';
-// import { SystemConfigService } from '../../system-config/system-config.service';
+// import { ConfigService } from '../../system-config/system-config.service';
 // import {
 //   mergeFunctionHitsByBlock,
 //   mergeStatementHitsByBlock,
@@ -22,7 +23,7 @@ import { CoverageMapStoreService } from './coverage.map-store.service';
 export class CoverageMapForPullService {
   constructor(
     private readonly ch: ChService,
-    // private readonly syscfg: SystemConfigService,
+    private readonly cfg: ConfigService,
     private readonly mapStore: CoverageMapStoreService,
     @InjectRepository(CoverageEntity)
     private readonly covRepo: EntityRepository<CoverageEntity>,
@@ -35,10 +36,13 @@ export class CoverageMapForPullService {
 
   async multipleCommits(p) {
     console.log(p);
+
     return {};
   }
   async pull(p) {
     console.log(p);
+    const c = await this.cfg.get('git_provider[0].private_token');
+    console.log(c, 'c');
     return {};
   }
 }
