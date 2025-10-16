@@ -14,7 +14,7 @@ export const generateInitialCoverage = (paramsPath,serviceParams) => {
     }
     // 防止返回的数据为空
     if (initialCoverageDataForTheCurrentFile && initialCoverageDataForTheCurrentFile.path) {
-      fs.writeFileSync(`./.canyon_output/coverage-final-${String(Math.random()).replace('0.','')}.json`, JSON.stringify({
+      fs.writeFileSync(`./.canyon_output/coverage-final-init-${String(Math.random()).replace('0.','')}.json`, JSON.stringify({
         [initialCoverageDataForTheCurrentFile.path]: initialCoverageDataForTheCurrentFile
       }, null, 2), 'utf-8');
     }
