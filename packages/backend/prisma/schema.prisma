@@ -1,0 +1,22 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+  output        = "../generated/prisma/client"
+}
+
+model User {
+  id        String   @id
+  email     String
+  password  String
+  nickname  String
+  avatar    String
+  favor     String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("user")
+}

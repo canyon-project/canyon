@@ -1,0 +1,44 @@
+{
+  "name": "canyon",
+  "version": "3.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "preinstall": "node ./scripts/check.mjs",
+    "clean": "node ./scripts/clean.mjs",
+    "format": "biome check --write",
+    "dev": "pnpm run -r --stream dev",
+    "build": "pnpm run -r --stream build",
+    "prepare": "simple-git-hooks",
+    "migrate": "prisma migrate dev --schema ./packages/backend/prisma/schema.prisma"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "simple-git-hooks": {
+    "pre-commit": "npx nano-staged"
+  },
+  "nano-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+      "biome check --write"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "nano-staged": "latest",
+    "simple-git-hooks": "latest",
+    "prisma": "6.18.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.0.0",
+      "react-dom": "19.0.0",
+      "@types/react": "19.0.0",
+      "@types/react-dom": "19.0.0",
+      "prisma": "6.18.0"
+    }
+  },
+  "pacakgeManager": {
+    "packageManager": "pnpm@9"
+  }
+}
