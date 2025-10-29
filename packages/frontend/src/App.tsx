@@ -1,23 +1,42 @@
-// import { useState } from 'react'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from '/vite.svg'
-// import './App.css';
+import { ConfigProvider, message, theme } from 'antd';
+import enUS from 'antd/es/locale/en_US';
+import jaJP from 'antd/es/locale/ja_JP';
+import zhCN from 'antd/es/locale/zh_CN';
+import { useRoutes } from 'react-router-dom';
+// import CoverageReport from '@/components/CoverageReport.tsx';
+import routes from '~react-pages';
 
-import { useQuery } from '@apollo/client/react';
-import { RepoDocument } from '@/helpers/backend/gen/graphql.ts';
+const languages = {
+  cn: zhCN,
+  en: enUS,
+  ja: jaJP,
+};
 
-function App() {
-  // const [count, setCount] = useState(0)
-  const { data } = useQuery(RepoDocument, {
-    variables: {
-      collectionID: 's',
-    },
-  });
+const lng = (localStorage.getItem('language') ||
+  'cn') as keyof typeof languages;
+
+const { darkAlgorithm } = theme;
+
+message.config({});
+
+const App = () => {
+  const isDark = localStorage.getItem('theme')
+    ? localStorage.getItem('theme') === 'dark'
+    : false;
   return (
-    <div>
-      <div className={'text-blue-400'}>{JSON.stringify(data || {})}</div>
-    </div>
+    <ConfigProvider
+      locale={languages[lng]}
+      theme={{
+        token: {
+          colorPrimary: '#0071c2',
+          // borderRadius: 2,
+        },
+        algorithm: isDark ? [darkAlgorithm] : [],
+      }}
+    >
+      {useRoutes(routes)}
+    </ConfigProvider>
   );
-}
+};
 
 export default App;
