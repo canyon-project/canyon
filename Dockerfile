@@ -41,6 +41,7 @@ RUN pnpm install --prod --ignore-scripts
 
 # Copy backend build artifacts
 COPY --from=build-backend /app/packages/backend/dist ./dist
+COPY --from=build-backend /app/packages/backend/generated ./generated
 COPY packages/backend/schema.gql ./schema.gql
 
 # Copy frontend dist into backend's client directory
