@@ -19,7 +19,7 @@
     "pre-commit": "npx nano-staged"
   },
   "nano-staged": {
-    "*.{js,jsx,ts,tsx,mjs,cjs,css}": [
+    "*.{js,jsx,ts,tsx,mjs,cjs}": [
       "biome check --write"
     ]
   },
