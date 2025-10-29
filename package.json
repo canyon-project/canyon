@@ -35,7 +35,9 @@
       "react-dom": "19.0.0",
       "@types/react": "19.0.0",
       "@types/react-dom": "19.0.0",
-      "prisma": "6.18.0"
+      "@types/node": "^24.6.0",
+      "prisma": "6.18.0",
+      "vite": "npm:rolldown-vite@7.1.14"
     }
   },
   "pacakgeManager": {
