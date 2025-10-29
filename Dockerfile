@@ -36,7 +36,8 @@ ENV NODE_ENV=production
 
 # Install production deps only for backend (no workspace scripts)
 COPY packages/backend/package.json ./package.json
-RUN pnpm install --prod
+ENV PRISMA_SKIP_POSTINSTALL_GENERATE=1
+RUN pnpm install --prod --ignore-scripts
 
 # Copy backend build artifacts
 COPY --from=build-backend /app/packages/backend/dist ./dist
