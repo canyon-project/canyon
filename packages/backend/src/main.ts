@@ -4,8 +4,15 @@ import { NestFactory } from '@nestjs/core';
 import * as dotenv from 'dotenv';
 import { json } from 'express';
 
+// dotenv.config({
+//   path: path.resolve(__dirname, '../../../.env'),
+// });
+
 dotenv.config({
-  path: path.resolve(__dirname, '../../../.env'),
+  path: [
+    path.resolve(__dirname, '../../../.env'),
+    path.resolve(__dirname, '../.env'),
+  ],
 });
 
 async function bootstrap() {
