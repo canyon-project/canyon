@@ -1,14 +1,38 @@
 import { Field, ID, ObjectType } from '@nestjs/graphql';
 
 @ObjectType()
-export class UserHistory {
-  @Field(() => ID, {
-    description: 'ID of the user request in history',
-  })
+export class RepoModel {
+  @Field(() => ID)
   id: string;
 
-  @Field(() => ID, {
-    description: 'ID of the user this history belongs to',
+  @Field()
+  name: string;
+
+  @Field()
+  pathWithNamespace: string;
+
+  @Field()
+  description: string;
+
+  @Field()
+  org: string;
+
+  @Field(() => String, { nullable: true, description: 'JSON string for tags' })
+  // 使用字符串承载 JSON，避免 GraphQL 标量依赖在前后端不同步
+  tags: string;
+
+  @Field(() => String, {
+    nullable: true,
+    description: 'JSON string for members',
   })
-  userUid: string;
+  members: string;
+
+  @Field()
+  config: string;
+
+  @Field()
+  createdAt: Date;
+
+  @Field()
+  updatedAt: Date;
 }

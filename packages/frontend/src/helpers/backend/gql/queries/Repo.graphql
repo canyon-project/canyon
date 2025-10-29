@@ -1,6 +1,31 @@
-query Repo($collectionID: ID!) {
-  repos(collectionID: $collectionID) {
+# Repo list
+query Repos {
+  repos {
     id
-    userUid
+    name
+    pathWithNamespace
+    description
+    org
+    tags
+    members
+    config
+    createdAt
+    updatedAt
+  }
+}
+
+# Repo by id
+query Repo($id: ID!) {
+  repo(id: $id) {
+    id
+    name
+    pathWithNamespace
+    description
+    org
+    tags
+    members
+    config
+    createdAt
+    updatedAt
   }
 }

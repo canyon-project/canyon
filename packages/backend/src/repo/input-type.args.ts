@@ -1,11 +1,30 @@
-import { ArgsType, Field, ID } from '@nestjs/graphql';
+import { ArgsType, Field, ID, InputType, PartialType } from '@nestjs/graphql';
 
-@ArgsType()
-export class GetUserRequestArgs {
-  @Field(() => ID, {
-    nullable: true,
-    defaultValue: undefined,
-    description: 'Collection ID of the user request',
-  })
-  collectionID?: string;
+@InputType()
+export class RepoWhereUniqueArgs {
+  @Field(() => ID)
+  id!: string;
 }
+
+@InputType()
+export class CreateRepoInput {
+  @Field()
+  id!: string;
+  @Field()
+  name!: string;
+  @Field()
+  pathWithNamespace!: string;
+  @Field()
+  description!: string;
+  @Field()
+  org!: string;
+  @Field({ description: 'JSON string for tags' })
+  tags!: string;
+  @Field({ description: 'JSON string for members' })
+  members!: string;
+  @Field()
+  config!: string;
+}
+
+@InputType()
+export class UpdateRepoInput extends PartialType(CreateRepoInput) {}

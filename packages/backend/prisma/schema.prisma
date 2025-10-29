@@ -20,3 +20,19 @@ model User {
 
   @@map("user")
 }
+
+model Repo {
+  id                String @id
+  name              String
+  pathWithNamespace String @map("path_with_namespace")
+  description       String
+  org                String
+  tags              Json
+  members           Json
+  config          String
+
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamp(3)
+
+  @@map("repo")
+}
