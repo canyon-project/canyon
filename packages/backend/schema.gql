@@ -1,0 +1,18 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type UserHistory {
+  """ID of the user request in history"""
+  id: ID!
+
+  """ID of the user this history belongs to"""
+  userUid: ID!
+}
+
+type Query {
+  repos(
+    """Collection ID of the user request"""
+    collectionID: ID
+  ): UserHistory!
+}
