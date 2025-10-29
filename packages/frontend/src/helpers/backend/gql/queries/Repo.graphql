@@ -1,0 +1,6 @@
+query Repo($collectionID: ID!) {
+  repos(collectionID: $collectionID) {
+    id
+    userUid
+  }
+}
