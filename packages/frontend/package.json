@@ -26,6 +26,8 @@
     "react-router-dom": "^7.9.4"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^6.0.1",
+    "@graphql-codegen/client-preset": "^5.1.1",
     "@tailwindcss/vite": "^4.1.16",
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
