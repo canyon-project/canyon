@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.2/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.3.2/schema.json",
   "files": {
     "includes": ["packages/backend/src/**", "packages/frontend/src/**","!packages/frontend/src/helpers/backend/gen"]
   },
@@ -22,11 +22,14 @@
     }
   },
   "css": {
+    "parser": {
+      "tailwindDirectives": true
+    },
     "formatter": {
-      "enabled": false
+      "enabled": true
     },
     "linter":{
-      "enabled": false
+      "enabled": true
     }
   },
   "javascript": {

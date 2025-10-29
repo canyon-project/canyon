@@ -12,7 +12,7 @@ export class RepoService {
     });
     return {
       id: '1',
-      userUid: s.length + '',
+      userUid: `${s.length}`,
     };
   }
 }

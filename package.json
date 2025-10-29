@@ -19,12 +19,12 @@
     "pre-commit": "npx nano-staged"
   },
   "nano-staged": {
-    "*.{js,jsx,ts,tsx,mjs,cjs}": [
+    "*.{js,jsx,ts,tsx,mjs,cjs,css}": [
       "biome check --write"
     ]
   },
   "devDependencies": {
-    "@biomejs/biome": "latest",
+    "@biomejs/biome": "2.3.2",
     "nano-staged": "latest",
     "prisma": "6.18.0",
     "simple-git-hooks": "latest"

@@ -1,11 +1,4 @@
-import {
-  Args,
-  Field,
-  Mutation,
-  ObjectType,
-  Query,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
 // import {JSONScalar} from "../scalars/json.scalar";
 import { GetUserRequestArgs } from './input-type.args';
 import { UserHistory } from './repo.model';

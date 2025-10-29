@@ -14,9 +14,9 @@ function App() {
     },
   });
   return (
-    <>
+    <div>
       <div className={'text-blue-400'}>{JSON.stringify(data || {})}</div>
-    </>
+    </div>
   );
 }
 
