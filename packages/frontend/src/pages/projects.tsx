@@ -5,11 +5,14 @@ import {
   InfoCircleOutlined,
   PlusOutlined,
 } from '@ant-design/icons';
+import { useMutation, useQuery } from '@apollo/client/react';
 import type { TableColumnsType } from 'antd';
 import {
   Button,
+  Form,
   Input,
   Modal,
+  message,
   Popconfirm,
   Select,
   Space,
@@ -18,13 +21,16 @@ import {
   Tag,
   Tooltip,
   Typography,
-  message,
-  Form,
 } from 'antd';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  CreateRepoDocument,
+  DeleteRepoDocument,
+  ReposDocument,
+  UpdateRepoDocument,
+} from '@/helpers/backend/gen/graphql.ts';
 import BasicLayout from '@/layouts/BasicLayout.tsx';
-import { gqlRequest } from '@/helpers/graphqlClient';
 
 type ProjectRow = {
   key: string;
@@ -50,61 +56,16 @@ type Repo = {
   updatedAt: string;
 };
 
-const REPOS_QUERY = `#graphql
-  query Repos {
-    repos {
-      id
-      name
-      pathWithNamespace
-      description
-      org
-      tags
-      members
-      config
-      createdAt
-      updatedAt
-    }
-  }
-`;
-
-const CREATE_REPO = `#graphql
-  mutation CreateRepo($input: CreateRepoInput!) {
-    createRepo(input: $input) { id }
-  }
-`;
-
-const UPDATE_REPO = `#graphql
-  mutation UpdateRepo($where: RepoWhereUniqueArgs!, $input: UpdateRepoInput!) {
-    updateRepo(where: $where, input: $input) { id }
-  }
-`;
-
-const DELETE_REPO = `#graphql
-  mutation DeleteRepo($where: RepoWhereUniqueArgs!) {
-    deleteRepo(where: $where) { id }
-  }
-`;
-
 const ProjectPage = () => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [repos, setRepos] = useState<Repo[]>([]);
+  const { data: queryData, loading, refetch } = useQuery(ReposDocument);
+  const [createRepoMutation] = useMutation(CreateRepoDocument);
+  const [updateRepoMutation] = useMutation(UpdateRepoDocument);
+  const [deleteRepoMutation] = useMutation(DeleteRepoDocument);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Repo | null>(null);
 
-  useEffect(() => {
-    void refresh();
-  }, []);
-
-  async function refresh() {
-    setLoading(true);
-    try {
-      const data = await gqlRequest<{ repos: Repo[] }>(REPOS_QUERY);
-      setRepos(data.repos);
-    } finally {
-      setLoading(false);
-    }
-  }
+  // 使用 useQuery 自动请求与加载态；需要时使用 refetch()
 
   function openCreate() {
     setEditing(null);
@@ -117,108 +78,115 @@ const ProjectPage = () => {
   }
 
   async function handleDelete(id: string) {
-    await gqlRequest(DELETE_REPO, { where: { id } });
+    await deleteRepoMutation({ variables: { where: { id } } });
     message.success('已删除');
-    await refresh();
+    await refetch();
   }
 
-  const columns: TableColumnsType<ProjectRow> = useMemo(
-    () => [
-      {
-        title: 'ID',
-        dataIndex: 'slug',
-        width: 240,
-        render: (value: string) => (
-          <Space size={8}>
-            <HeartTwoTone twoToneColor='#eb2f96' />
-            <span className='font-medium'>{value}</span>
-          </Space>
-        ),
-      },
-      {
-        title: t('projects.name'),
-        dataIndex: 'repo',
-        render: (value: string, row) => (
-          <Space size={8}>
-            <GitlabFilled className='text-[#e24329]' />
-            <div className='flex flex-col'>
-              <Typography.Link className='text-[14px]' href='/projects'>
-                {value}
-              </Typography.Link>
-              {row.tags?.length ? (
-                <div className='mt-1 flex gap-1 flex-wrap'>
-                  {row.tags.map((x) => (
-                    <Tag key={x} color='blue' bordered={false} className='m-0'>
-                      {x}
-                    </Tag>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          </Space>
-        ),
-      },
-      {
-        title: t('common.bu'),
-        dataIndex: 'bu',
-        width: 120,
-      },
-      {
-        title: t('projects.report_times'),
-        dataIndex: 'times',
-        width: 100,
-      },
-      {
-        title: (
-          <Space size={4}>
-            <span>{t('projects.max_coverage')}</span>
-            <Tooltip title={t('projects.max_coverage_tooltip')}>
-              <InfoCircleOutlined />
-            </Tooltip>
-          </Space>
-        ),
-        dataIndex: 'maxCoverage',
-        width: 160,
-        render: (num: number) => (
-          <span className='font-medium'>{num.toFixed(2)} %</span>
-        ),
-      },
-      {
-        title: t('projects.latest_report_time'),
-        dataIndex: 'latestAt',
-        width: 160,
-      },
-      {
-        title: t('common.option'),
-        key: 'action',
-        width: 200,
-        render: (_: unknown, record) => (
-          <Space size={16}>
-            <Button type='link' onClick={() => openEdit({
-              id: record.slug,
-              name: record.repo,
-              pathWithNamespace: record.repo,
-              description: '',
-              org: record.bu,
-              tags: '[]',
-              members: '[]',
-              config: '{}',
-              createdAt: '',
-              updatedAt: '',
-            })}>
-              编辑
+  const columns: TableColumnsType<ProjectRow> = [
+    {
+      title: 'ID',
+      dataIndex: 'slug',
+      width: 240,
+      render: (value: string) => (
+        <Space size={8}>
+          <HeartTwoTone twoToneColor='#eb2f96' />
+          <span className='font-medium'>{value}</span>
+        </Space>
+      ),
+    },
+    {
+      title: t('projects.name'),
+      dataIndex: 'repo',
+      render: (value: string, row) => (
+        <Space size={8}>
+          <GitlabFilled className='text-[#e24329]' />
+          <div className='flex flex-col'>
+            <Typography.Link className='text-[14px]' href='/projects'>
+              {value}
+            </Typography.Link>
+            {row.tags?.length ? (
+              <div className='mt-1 flex gap-1 flex-wrap'>
+                {row.tags.map((x) => (
+                  <Tag key={x} color='blue' bordered={false} className='m-0'>
+                    {x}
+                  </Tag>
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </Space>
+      ),
+    },
+    {
+      title: t('common.bu'),
+      dataIndex: 'bu',
+      width: 120,
+    },
+    {
+      title: t('projects.report_times'),
+      dataIndex: 'times',
+      width: 100,
+    },
+    {
+      title: (
+        <Space size={4}>
+          <span>{t('projects.max_coverage')}</span>
+          <Tooltip title={t('projects.max_coverage_tooltip')}>
+            <InfoCircleOutlined />
+          </Tooltip>
+        </Space>
+      ),
+      dataIndex: 'maxCoverage',
+      width: 160,
+      render: (num: number) => (
+        <span className='font-medium'>{num.toFixed(2)} %</span>
+      ),
+    },
+    {
+      title: t('projects.latest_report_time'),
+      dataIndex: 'latestAt',
+      width: 160,
+    },
+    {
+      title: t('common.option'),
+      key: 'action',
+      width: 200,
+      render: (_: unknown, record) => (
+        <Space size={16}>
+          <Button
+            type='link'
+            onClick={() =>
+              openEdit({
+                id: record.slug,
+                name: record.repo,
+                pathWithNamespace: record.repo,
+                description: '',
+                org: record.bu,
+                tags: '[]',
+                members: '[]',
+                config: '{}',
+                createdAt: '',
+                updatedAt: '',
+              })
+            }
+          >
+            编辑
+          </Button>
+          <Popconfirm
+            title='确认删除？'
+            onConfirm={() => handleDelete(record.slug)}
+          >
+            <Button type='link' danger>
+              删除
             </Button>
-            <Popconfirm title='确认删除？' onConfirm={() => handleDelete(record.slug)}>
-              <Button type='link' danger>删除</Button>
-            </Popconfirm>
-          </Space>
-        ),
-      },
-    ],
-    [t],
-  );
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
-  const data: ProjectRow[] = repos.map((r) => ({
+  const data: ProjectRow[] = (queryData?.repos ?? []).map((r) => ({
     key: r.id,
     slug: r.id,
     repo: r.pathWithNamespace,
@@ -245,7 +213,11 @@ const ProjectPage = () => {
             {t('menus.projects')}
           </Typography.Title>
         </div>
-        <Button type='primary' icon={<PlusOutlined />} onClick={() => openCreate()}>
+        <Button
+          type='primary'
+          icon={<PlusOutlined />}
+          onClick={() => openCreate()}
+        >
           {t('projects.create')}
         </Button>
       </div>
@@ -293,14 +265,16 @@ const ProjectPage = () => {
         repo={editing}
         onOk={async (values) => {
           if (editing) {
-            await gqlRequest(UPDATE_REPO, { where: { id: editing.id }, input: values });
+            await updateRepoMutation({
+              variables: { where: { id: editing.id }, input: values },
+            });
             message.success('已更新');
           } else {
-            await gqlRequest(CREATE_REPO, { input: values });
+            await createRepoMutation({ variables: { input: values } });
             message.success('已创建');
           }
           setModalOpen(false);
-          await refresh();
+          await refetch();
         }}
       />
     </BasicLayout>
@@ -341,7 +315,7 @@ const EditRepoModal = ({ open, onClose, repo, onOk }: EditRepoModalProps) => {
         },
       );
     }
-  }, [open, repo]);
+  }, [open, repo, form.setFieldsValue]);
 
   return (
     <Modal
@@ -352,16 +326,28 @@ const EditRepoModal = ({ open, onClose, repo, onOk }: EditRepoModalProps) => {
         const values = await form.validateFields();
         await onOk(values);
       }}
-      destroyOnClose
+      destroyOnHidden
     >
       <Form form={form} layout='vertical'>
-        <Form.Item label='ID' name='id' rules={[{ required: !repo, message: '请输入项目ID' }]}>
+        <Form.Item
+          label='ID'
+          name='id'
+          rules={[{ required: !repo, message: '请输入项目ID' }]}
+        >
           <Input disabled={!!repo} />
         </Form.Item>
-        <Form.Item label='名称' name='name' rules={[{ required: true, message: '请输入名称' }]}>
+        <Form.Item
+          label='名称'
+          name='name'
+          rules={[{ required: true, message: '请输入名称' }]}
+        >
           <Input />
         </Form.Item>
-        <Form.Item label='仓库路径' name='pathWithNamespace' rules={[{ required: true, message: '请输入仓库路径' }]}>
+        <Form.Item
+          label='仓库路径'
+          name='pathWithNamespace'
+          rules={[{ required: true, message: '请输入仓库路径' }]}
+        >
           <Input />
         </Form.Item>
         <Form.Item label='描述' name='description'>

@@ -20,5 +20,3 @@ mutation DeleteRepo($where: RepoWhereUniqueArgs!) {
     id
   }
 }
-
-

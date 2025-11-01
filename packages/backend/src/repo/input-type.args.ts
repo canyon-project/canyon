@@ -1,4 +1,4 @@
-import { ArgsType, Field, ID, InputType, PartialType } from '@nestjs/graphql';
+import { Field, ID, InputType, PartialType } from '@nestjs/graphql';
 
 @InputType()
 export class RepoWhereUniqueArgs {

@@ -7,7 +7,9 @@ export class RepoService {
   constructor(private readonly prisma: PrismaService) {}
 
   async list() {
-    const rows = await this.prisma.repo.findMany({ orderBy: { updatedAt: 'desc' } });
+    const rows = await this.prisma.repo.findMany({
+      orderBy: { updatedAt: 'desc' },
+    });
     return rows.map((r) => ({
       ...r,
       // Prisma Json -> GraphQL string
