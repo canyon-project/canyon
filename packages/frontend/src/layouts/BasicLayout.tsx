@@ -1,9 +1,19 @@
 import {
   AppstoreOutlined,
   BarChartOutlined,
+  MoreOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, Select, Switch, theme } from 'antd';
+import {
+  Avatar,
+  Dropdown,
+  Layout,
+  Menu,
+  Select,
+  Switch,
+  Typography,
+  theme,
+} from 'antd';
 import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -77,6 +87,36 @@ const BasicLayout: FC<{
             },
           ]}
         />
+        <div className='border-t' style={{ borderColor: token.colorBorder }}>
+          <div className='h-[77px] py-4 px-4 flex items-center justify-between cursor-pointer'>
+            <div className='flex items-center gap-3'>
+              <Avatar size={32}>A</Avatar>
+              <div className='flex flex-col'>
+                <Typography.Text ellipsis className='w-[150px]'>
+                  用户一
+                </Typography.Text>
+                <Typography.Text
+                  ellipsis
+                  className='w-[150px]'
+                  type='secondary'
+                >
+                  user1@example.com
+                </Typography.Text>
+              </div>
+            </div>
+            <Dropdown
+              menu={{
+                items: [
+                  { key: 'switch-1', label: '切换' },
+                  { key: 'manage-1', label: '管理' },
+                ],
+                onClick: () => {},
+              }}
+            >
+              <MoreOutlined />
+            </Dropdown>
+          </div>
+        </div>
       </Sider>
       <Layout>
         <Header
