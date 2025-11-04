@@ -18,7 +18,7 @@ import type { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-const { Header, Sider, Content } = Layout;
+const { Header, Content } = Layout;
 
 const BasicLayout: FC<{
   children: ReactNode;
@@ -47,23 +47,41 @@ const BasicLayout: FC<{
 
   return (
     <Layout className='min-h-screen'>
-      <Sider width={224} breakpoint='lg' collapsedWidth={56} theme='light'>
-        <div
-          className='h-14 flex items-center px-4 text-[15px] font-medium border-b'
-          style={{ borderColor: token.colorBorder }}
-        >
-          <Link to='/projects' className='flex items-center gap-2'>
-            <div
-              className='w-6 h-6 rounded-full flex items-center justify-center text-white'
-              style={{ background: token.colorPrimary }}
+      <div
+        className={'w-[260px] h-[100vh] overflow-hidden flex flex-col'}
+        style={{
+          borderRight: `1px solid ${token.colorBorder}`,
+        }}
+      >
+        <div className={'px-3 py-[16px] flex items-center justify-between'}>
+          <div
+            className={'cursor-pointer flex items-center'}
+            style={{ marginBottom: 0 }}
+          >
+            logo
+            <span
+              className={'ml-[6px]'}
+              style={{
+                fontSize: '18px',
+                fontWeight: 'bolder',
+              }}
             >
-              C
-            </div>
-            <span>Canyon</span>
-          </Link>
+              title
+            </span>
+          </div>
+
+          <div>{'mainTitleRightNode'}</div>
         </div>
 
+        <div
+          className={'mb-1'}
+          style={{
+            borderBottom: `1px solid ${token.colorBorder}`,
+          }}
+        />
+
         <Menu
+          className={'h-[500px]'}
           mode='inline'
           selectedKeys={[selected]}
           items={[
@@ -117,7 +135,7 @@ const BasicLayout: FC<{
             </Dropdown>
           </div>
         </div>
-      </Sider>
+      </div>
       <Layout>
         <Header
           className='flex items-center justify-end gap-4 h-14 px-4'
