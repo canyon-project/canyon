@@ -24,6 +24,7 @@ import {
 } from 'antd';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import {
   CreateRepoDocument,
   DeleteRepoDocument,
@@ -58,6 +59,7 @@ type Repo = {
 
 const ProjectPage = () => {
   const { t } = useTranslation();
+  const nav = useNavigate();
   const { data: queryData, loading, refetch } = useQuery(ReposDocument);
   const [createRepoMutation] = useMutation(CreateRepoDocument);
   const [updateRepoMutation] = useMutation(UpdateRepoDocument);
@@ -216,7 +218,7 @@ const ProjectPage = () => {
         <Button
           type='primary'
           icon={<PlusOutlined />}
-          onClick={() => openCreate()}
+          onClick={() => nav(`/projects/new`)}
         >
           {t('projects.create')}
         </Button>

@@ -63,12 +63,6 @@ const BasicLayout: FC<{
           label: t('menus.settings'),
           onClick: () => navigate('/settings'),
         },
-        {
-          key: '/usage',
-          icon: <BarChartOutlined />,
-          label: t('menus.usage'),
-          onClick: () => navigate('/usage'),
-        },
       ]}
     />
   );
