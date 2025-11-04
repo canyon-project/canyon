@@ -63,6 +63,12 @@ const BasicLayout: FC<{
           label: t('menus.settings'),
           onClick: () => navigate('/settings'),
         },
+        {
+          key: '/playground',
+          icon: <SettingOutlined />,
+          label: t('menus.playground'),
+          onClick: () => navigate('/playground'),
+        },
       ]}
     />
   );
