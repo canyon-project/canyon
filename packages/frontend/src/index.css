@@ -8,3 +8,9 @@
   font-weight: normal;
   font-style: normal;
 }
+
+/*antd的样式*/
+
+.ant-menu.ant-menu-root.ant-menu-inline {
+  border-inline-end: none !important;
+}
