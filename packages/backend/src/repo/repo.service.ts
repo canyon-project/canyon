@@ -32,13 +32,15 @@ export class RepoService {
     const created = await this.prisma.repo.create({
       data: {
         id: input.id,
-        name: input.name,
+        // name: input.name,
         pathWithNamespace: input.pathWithNamespace,
         description: input.description,
-        org: input.org,
+        // org: input.org,
         tags: input.tags ? JSON.parse(input.tags) : undefined,
         members: input.members ? JSON.parse(input.members) : undefined,
         config: input.config,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       },
     });
     return {
@@ -52,10 +54,10 @@ export class RepoService {
     const updated = await this.prisma.repo.update({
       where: { id },
       data: {
-        name: input.name ?? undefined,
+        // name: input.name ?? undefined,
         pathWithNamespace: input.pathWithNamespace ?? undefined,
         description: input.description ?? undefined,
-        org: input.org ?? undefined,
+        // org: input.org ?? undefined,
         tags: input.tags !== undefined ? JSON.parse(input.tags) : undefined,
         members:
           input.members !== undefined ? JSON.parse(input.members) : undefined,
