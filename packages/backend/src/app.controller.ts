@@ -1,10 +1,9 @@
 import { Controller, Get } from '@nestjs/common';
-// import { AppService } from './app.service';
 
-@Controller()
+@Controller('ping')
 export class AppController {
-  @Get('vi/health')
-  getHello() {
-    return '251025';
+  @Get()
+  ping(): string {
+    return 'Success';
   }
 }

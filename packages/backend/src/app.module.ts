@@ -4,12 +4,14 @@ import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
+import { HealthModule } from './health/health.module';
 // import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { RepoModule } from './repo/repo.module';
 @Module({
   imports: [
     PrismaModule,
+    HealthModule,
     RepoModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
