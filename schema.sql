@@ -1,4 +1,30 @@
 -- CreateTable
+CREATE TABLE "canyon_user" (
+    "id" TEXT NOT NULL,
+    "email" TEXT NOT NULL,
+    "password" TEXT NOT NULL,
+    "nickname" TEXT NOT NULL,
+    "avatar" TEXT NOT NULL,
+    "favor" TEXT NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "canyon_user_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "canyon_infra_config" (
+    "id" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "value" TEXT NOT NULL,
+    "createdOn" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedOn" TIMESTAMPTZ(3) NOT NULL,
+    "isEncrypted" BOOLEAN NOT NULL DEFAULT false,
+    "lastSyncedEnvFileValue" TEXT NOT NULL,
+
+    CONSTRAINT "canyon_infra_config_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "canyon_repo" (
     "id" TEXT NOT NULL,
     "path_with_namespace" TEXT NOT NULL,
@@ -102,6 +128,9 @@ CREATE TABLE "canyon_config" (
 
     CONSTRAINT "canyon_config_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "canyon_infra_config_name_key" ON "canyon_infra_config"("name");
 
 -- CreateIndex
 CREATE INDEX "canyon_coverage_provider_idx" ON "canyon_coverage"("provider");

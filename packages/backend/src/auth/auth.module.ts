@@ -15,6 +15,7 @@ import { GithubStrategy } from './strategies/github.strategy';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get('INFRA.JWT_SECRET'),
+        signOptions: { expiresIn: '7d' },
       }),
     }),
   ],
