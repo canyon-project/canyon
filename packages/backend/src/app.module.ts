@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
+import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { loadInfraConfiguration } from './infra-config/helper';
 import { InfraConfigModule } from './infra-config/infra-config.module';
@@ -20,6 +21,7 @@ import { RepoModule } from './repo/repo.module';
     PrismaModule,
     InfraConfigModule,
     HealthModule,
+    AuthModule,
     RepoModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client'),
