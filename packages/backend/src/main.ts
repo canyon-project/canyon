@@ -3,10 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import * as dotenv from 'dotenv';
 import { json } from 'express';
-
-// dotenv.config({
-//   path: path.resolve(__dirname, '../../../.env'),
-// });
+import morgan from 'morgan';
 
 dotenv.config({
   path: [
@@ -25,6 +22,7 @@ async function bootstrap() {
   );
   app.useGlobalPipes(new ValidationPipe());
   app.enableCors();
+  app.use(morgan(':remote-addr :method :url :status - :response-time ms'));
   await app.listen(process.env.PORT || 8080);
 }
 

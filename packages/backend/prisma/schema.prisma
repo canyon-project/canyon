@@ -9,6 +9,18 @@ generator client {
   output        = "../generated/prisma/client"
 }
 
+model InfraConfig {
+  id                     String   @id @default(cuid())
+  name                   String   @unique
+  value                  String
+  createdOn              DateTime @default(now()) @db.Timestamptz(3)
+  updatedOn              DateTime @updatedAt @db.Timestamptz(3)
+  isEncrypted            Boolean  @default(false)
+  lastSyncedEnvFileValue String
+
+  @@map("canyon_infra_config")
+}
+
 model Repo {
   id                String   @id
   pathWithNamespace String   @map("path_with_namespace")

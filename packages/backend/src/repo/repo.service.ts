@@ -1,12 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRepoInput, UpdateRepoInput } from './input-type.args';
 
 @Injectable()
 export class RepoService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async list() {
+    const a = await this.configService.get('INFRA.test');
+
+    console.log(a);
+
     const rows = await this.prisma.repo.findMany({
       orderBy: { updatedAt: 'desc' },
     });
