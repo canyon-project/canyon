@@ -12,6 +12,8 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
       callbackURL: configService.get<string>('INFRA.GITHUB_CALLBACK_URL'),
       scope: [configService.get<string>('INFRA.GITHUB_SCOPE')],
       // store: true,
+      // store 为true的话，还不知道为什么
+      // https://github.com/hoppscotch/hoppscotch/blob/main/packages/hoppscotch-backend/src/main.ts#L50
     });
   }
 
