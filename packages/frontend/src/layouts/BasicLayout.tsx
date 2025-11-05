@@ -1,11 +1,19 @@
 import {
   AppstoreOutlined,
-  BarChartOutlined,
   MoreOutlined,
   SettingOutlined,
 } from '@ant-design/icons';
-import { Avatar, Dropdown, Layout, Menu, Typography, theme } from 'antd';
+import {
+  Avatar,
+  Button,
+  Dropdown,
+  Layout,
+  Menu,
+  Typography,
+  theme,
+} from 'antd';
 import type { FC, ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
@@ -18,6 +26,66 @@ const BasicLayout: FC<{
   const location = useLocation();
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  type AuthUser = {
+    id: string;
+    provider: string;
+    name?: string;
+    username?: string;
+  };
+
+  const backendUrl =
+    (import.meta as any).env?.VITE_BACKEND_URL || 'https://app.canyonjs.io';
+  const githubLoginUrl = `${backendUrl}/auth/github`;
+
+  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
+    try {
+      const raw = localStorage.getItem('auth:user');
+      return raw ? (JSON.parse(raw) as AuthUser) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    // 通过 Cookie 获取登录态
+    (async () => {
+      try {
+        const resp = await fetch(`${backendUrl}/auth/me`, {
+          credentials: 'include',
+        });
+        if (resp.ok) {
+          const me = await resp.json();
+          if (me?.id) {
+            const user: AuthUser = {
+              id: me.id,
+              provider: 'github',
+              name: me.nickname,
+              username: me.nickname,
+            };
+            localStorage.setItem('auth:user', JSON.stringify(user));
+            setAuthUser(user);
+          }
+        }
+      } catch {}
+    })();
+
+    const sp = new URLSearchParams(location.search);
+    const provider = sp.get('provider');
+    const id = sp.get('id');
+    if (provider && id) {
+      const user: AuthUser = {
+        id,
+        provider,
+        name: sp.get('name') || undefined,
+        username: sp.get('username') || undefined,
+      };
+      localStorage.setItem('auth:user', JSON.stringify(user));
+      setAuthUser(user);
+      navigate(location.pathname, { replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location.search, navigate, location.pathname]);
 
   const selected = `/${location.pathname.split('/')[1] || 'projects'}`;
 
@@ -70,29 +138,74 @@ const BasicLayout: FC<{
   // 分区组件：用户信息与操作
   const SidebarUser: FC = () => (
     <div className='border-t' style={{ borderColor: token.colorBorder }}>
-      <div className='h-[77px] py-4 px-4 flex items-center justify-between cursor-pointer'>
-        <div className='flex items-center gap-3'>
-          <Avatar size={32}>A</Avatar>
-          <div className='flex flex-col'>
-            <Typography.Text ellipsis className='w-[150px]'>
-              用户一
-            </Typography.Text>
-            <Typography.Text ellipsis className='w-[150px]' type='secondary'>
-              user1@example.com
-            </Typography.Text>
+      <div className='h-[77px] py-4 px-4 flex items-center justify-between'>
+        {authUser ? (
+          <>
+            <div className='flex items-center gap-3'>
+              <Avatar size={32}>
+                {(authUser.name || authUser.username || 'U')
+                  .slice(0, 1)
+                  .toUpperCase()}
+              </Avatar>
+              <div className='flex flex-col'>
+                <Typography.Text ellipsis className='w-[150px]'>
+                  {authUser.name || authUser.username || 'User'}
+                </Typography.Text>
+                <Typography.Text
+                  ellipsis
+                  className='w-[150px]'
+                  type='secondary'
+                >
+                  {authUser.provider} · {authUser.id}
+                </Typography.Text>
+              </div>
+            </div>
+            <Dropdown
+              menu={{
+                items: [{ key: 'logout', label: t('退出登录') || '退出登录' }],
+                onClick: async ({ key }) => {
+                  if (key === 'logout') {
+                    try {
+                      await fetch(`${backendUrl}/auth/logout`, {
+                        credentials: 'include',
+                      });
+                    } catch {
+                    } finally {
+                      localStorage.removeItem('auth:user');
+                      setAuthUser(null);
+                    }
+                  }
+                },
+              }}
+            >
+              <MoreOutlined className='cursor-pointer' />
+            </Dropdown>
+          </>
+        ) : (
+          <div className='w-full flex items-center justify-between'>
+            <div className='flex items-center gap-3'>
+              <Avatar size={32}>?</Avatar>
+              <div className='flex flex-col'>
+                <Typography.Text
+                  type='secondary'
+                  className='w-[150px]'
+                  ellipsis
+                >
+                  未登录
+                </Typography.Text>
+              </div>
+            </div>
+            <Button
+              type='primary'
+              size='small'
+              onClick={() => {
+                window.location.href = githubLoginUrl;
+              }}
+            >
+              GitHub 登录
+            </Button>
           </div>
-        </div>
-        <Dropdown
-          menu={{
-            items: [
-              { key: 'switch-1', label: '切换' },
-              { key: 'manage-1', label: '管理' },
-            ],
-            onClick: () => {},
-          }}
-        >
-          <MoreOutlined />
-        </Dropdown>
+        )}
       </div>
     </div>
   );
