@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.11.3",
+    "@as-integrations/express5": "^1.1.2",
     "@nestjs/apollo": "^13.0.2",
     "@nestjs/common": "^11.0.5",
     "@nestjs/config": "^4.0.0",
@@ -39,6 +40,7 @@
     "istanbul-lib-report": "^3.0.1",
     "istanbul-lib-source-maps": "^5.0.6",
     "istanbul-reports": "^3.1.7",
+    "minimatch": "10.0.1",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
     "prisma": "5.16.1",
@@ -48,8 +50,7 @@
     "sqlite3": "^5.1.7",
     "test-exclude": "^7.0.1",
     "typeorm": "^0.3.20",
-    "zod": "^3.24.1",
-    "minimatch": "10.0.1"
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
