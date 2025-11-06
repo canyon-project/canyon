@@ -34,8 +34,7 @@ const BasicLayout: FC<{
     username?: string;
   };
 
-  const backendUrl =
-    (import.meta as any).env?.VITE_BACKEND_URL || 'http://localhost:8080';
+  const backendUrl = 'https://app.canyonjs.io';
   const githubLoginUrl = `${backendUrl}/auth/github`;
   const gitlabLoginUrl = `${backendUrl}/auth/gitlab`;
 
