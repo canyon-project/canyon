@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
@@ -26,7 +27,9 @@ import { RepoModule } from './repo/repo.module';
     AuthModule,
     RepoModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
+      rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
+        ? join(__dirname, '../../frontend', 'dist')
+        : join(__dirname, '..', 'client'),
       exclude: ['/graphql'], // 这样就不会触发 path-to-regexp 解析错误
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({

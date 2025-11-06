@@ -1,0 +1,70 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type RepoModel {
+  id: ID!
+  name: String!
+  pathWithNamespace: String!
+  description: String!
+  org: String!
+
+  """JSON string for tags"""
+  tags: String
+
+  """JSON string for members"""
+  members: String
+  config: String!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Query {
+  repos: [RepoModel!]!
+  repo(id: ID!): RepoModel
+}
+
+type Mutation {
+  createRepo(input: CreateRepoInput!): RepoModel!
+  updateRepo(where: RepoWhereUniqueArgs!, input: UpdateRepoInput!): RepoModel!
+  deleteRepo(where: RepoWhereUniqueArgs!): RepoModel!
+}
+
+input CreateRepoInput {
+  id: String!
+  name: String!
+  pathWithNamespace: String!
+  description: String!
+  org: String!
+
+  """JSON string for tags"""
+  tags: String!
+
+  """JSON string for members"""
+  members: String!
+  config: String!
+}
+
+input RepoWhereUniqueArgs {
+  id: ID!
+}
+
+input UpdateRepoInput {
+  id: String
+  name: String
+  pathWithNamespace: String
+  description: String
+  org: String
+
+  """JSON string for tags"""
+  tags: String
+
+  """JSON string for members"""
+  members: String
+  config: String
+}
