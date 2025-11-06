@@ -68,7 +68,7 @@ Canyon (pronounced /ˈkænjən/) is a JavaScript code coverage collection platfo
 
 ## Developing
 
-Follow our [self-hosting documentation](https://docs.canyonjs.io/documentation/self-host/community-edition/prerequisites) to get started with the development environment.
+Follow our [self-hosting documentation](https://docs.canyonjs.io/cn/docs/self-host/community-edition/prerequisites) to get started with the development environment.
 
 ## Contributing
 
