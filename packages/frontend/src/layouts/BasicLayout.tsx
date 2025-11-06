@@ -35,8 +35,9 @@ const BasicLayout: FC<{
   };
 
   const backendUrl =
-    (import.meta as any).env?.VITE_BACKEND_URL || 'https://app.canyonjs.io';
+    (import.meta as any).env?.VITE_BACKEND_URL || 'http://localhost:8080';
   const githubLoginUrl = `${backendUrl}/auth/github`;
+  const gitlabLoginUrl = `${backendUrl}/auth/gitlab`;
 
   const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
     try {
@@ -59,7 +60,7 @@ const BasicLayout: FC<{
           if (me?.id) {
             const user: AuthUser = {
               id: me.id,
-              provider: 'github',
+              provider: 'oauth',
               name: me.nickname,
               username: me.nickname,
             };
@@ -195,15 +196,25 @@ const BasicLayout: FC<{
                 </Typography.Text>
               </div>
             </div>
-            <Button
-              type='primary'
-              size='small'
-              onClick={() => {
-                window.location.href = githubLoginUrl;
-              }}
-            >
-              GitHub 登录
-            </Button>
+            <div className=''>
+              <Button
+                type='primary'
+                size='small'
+                onClick={() => {
+                  window.location.href = githubLoginUrl;
+                }}
+              >
+                GitHub 登录
+              </Button>
+              <Button
+                size='small'
+                onClick={() => {
+                  window.location.href = gitlabLoginUrl;
+                }}
+              >
+                GitLab 登录
+              </Button>
+            </div>
           </div>
         )}
       </div>

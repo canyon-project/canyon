@@ -22,6 +22,20 @@ export class AuthController {
     return this.authService.handleOAuthRedirect(req, res);
   }
 
+  // GitLab
+  @Get('gitlab')
+  @Public()
+  @UseGuards(AuthGuard('gitlab'))
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async gitlabAuth() {}
+
+  @Get('gitlab/callback')
+  @Public()
+  @UseGuards(AuthGuard('gitlab'))
+  async gitlabCallback(@Req() req: Request, @Res() res: Response) {
+    return this.authService.handleOAuthRedirect(req, res);
+  }
+
   @Get('me')
   @UseGuards(AuthGuard('jwt'))
   async me(@Req() req: any) {
