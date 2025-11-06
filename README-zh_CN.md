@@ -53,7 +53,7 @@ Canyon（意为 “峡谷”，发音 /ˈkænjən/） 是一个 JavaScript 代�
 
 - 一套前端和后端服务，负责展示覆盖率报告。
 
-[阅读文档了解更多](https://docs.canyonjs.org)
+[阅读文档了解更多](https://docs.canyonjs.io)
 
 ## 架构
 
@@ -65,7 +65,7 @@ Canyon（意为 “峡谷”，发音 /ˈkænjən/） 是一个 JavaScript 代�
 
 ## 开发
 
-按照我们的 [自托管文档](https://docs.canyonjs.org/documentation/self-host/community-edition/prerequisites) 来开始设置开发环境。
+按照我们的 [自托管文档](https://docs.canyonjs.io/documentation/self-host/community-edition/prerequisites) 来开始设置开发环境。
 
 ## 贡献
 

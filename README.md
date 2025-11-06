@@ -56,7 +56,7 @@ Canyon (pronounced /ˈkænjən/) is a JavaScript code coverage collection platfo
 - A set of front-end and back-end services responsible for displaying coverage reports.
 
 
-[Read the Docs to Learn More.](https://docs.canyonjs.org)
+[Read the Docs to Learn More.](https://docs.canyonjs.io)
 
 ## Architecture
 
@@ -68,7 +68,7 @@ Canyon (pronounced /ˈkænjən/) is a JavaScript code coverage collection platfo
 
 ## Developing
 
-Follow our [self-hosting documentation](https://docs.canyonjs.org/documentation/self-host/community-edition/prerequisites) to get started with the development environment.
+Follow our [self-hosting documentation](https://docs.canyonjs.io/documentation/self-host/community-edition/prerequisites) to get started with the development environment.
 
 ## Contributing
 
