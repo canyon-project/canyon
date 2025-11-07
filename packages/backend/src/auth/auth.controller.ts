@@ -35,17 +35,4 @@ export class AuthController {
   async gitlabCallback(@Req() req: Request, @Res() res: Response) {
     return this.authService.handleOAuthRedirect(req, res);
   }
-
-  // moved to user module
-  @Get('me')
-  @UseGuards(AuthGuard('jwt'))
-  async me() {}
-
-  // moved to user module
-  @Get('logout')
-  @Public()
-  async logout() {}
-
-  // moved to user module
-  async login() {}
 }
