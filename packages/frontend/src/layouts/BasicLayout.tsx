@@ -14,6 +14,7 @@ import {
 } from 'antd';
 import type { FC, ReactNode } from 'react';
 import { useEffect, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
@@ -241,8 +242,12 @@ const BasicLayout: FC<{
 
         <SidebarUser />
       </div>
-      <div className={'flex-1'}>
-        <Content className='p-6 bg-white/0'>{children}</Content>
+      <div className={'flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] min-h-[100vh]'}>
+        <div className={'m-auto max-w-[1200px] min-w-[1000px] p-[12px]'}>
+          <ErrorBoundary fallback={<p>⚠️Something went wrong</p>}>
+            {children}
+          </ErrorBoundary>
+        </div>
       </div>
     </div>
   );

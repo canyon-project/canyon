@@ -1,5 +1,6 @@
 import {
   FolderOpenOutlined,
+  FolderOutlined,
   GitlabFilled,
   HeartTwoTone,
   InfoCircleOutlined,
@@ -24,7 +25,9 @@ import {
 } from 'antd';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import CardPrimary from '@/components/card/Primary.tsx';
+import TextTypography from '@/components/typography/text.tsx';
 import {
   CreateRepoDocument,
   DeleteRepoDocument,
@@ -32,6 +35,8 @@ import {
   UpdateRepoDocument,
 } from '@/helpers/backend/gen/graphql.ts';
 import BasicLayout from '@/layouts/BasicLayout.tsx';
+
+// import {TextTypography} from "@/components/typography/text.tsx";
 
 type ProjectRow = {
   key: string;
@@ -208,21 +213,17 @@ const ProjectPage = () => {
 
   return (
     <BasicLayout>
-      <div className='flex items-center justify-between mb-5'>
-        <div className='flex items-center gap-2'>
-          <FolderOpenOutlined className='text-[20px]' />
-          <Typography.Title level={3} className='!m-0'>
-            {t('menus.projects')}
-          </Typography.Title>
-        </div>
-        <Button
-          type='primary'
-          icon={<PlusOutlined />}
-          onClick={() => nav(`/projects/new`)}
-        >
-          {t('projects.create')}
-        </Button>
-      </div>
+      <TextTypography
+        title={t('menus.projects')}
+        icon={<FolderOutlined />}
+        right={
+          <Link to={`/projects/new`}>
+            <Button type={'primary'} icon={<PlusOutlined />}>
+              {t('projects.create')}
+            </Button>
+          </Link>
+        }
+      />
 
       <div className='mb-4 flex flex-wrap items-center gap-3'>
         <Select
@@ -253,14 +254,18 @@ const ProjectPage = () => {
           </span>
         </div>
       </div>
+      <CardPrimary>
+        <Table<ProjectRow>
+          showSorterTooltip={false}
+          rowKey='id'
+          columns={columns}
+          dataSource={data}
+          loading={loading}
+          bordered={false}
+          pagination={{ pageSize: 10 }}
+        />
+      </CardPrimary>
 
-      <Table<ProjectRow>
-        rowKey='key'
-        columns={columns}
-        dataSource={data}
-        loading={loading}
-        pagination={{ pageSize: 10 }}
-      />
       <EditRepoModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}

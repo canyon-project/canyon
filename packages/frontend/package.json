@@ -20,6 +20,7 @@
     "antd": "^5.27.6",
     "axios": "^1.13.1",
     "canyon-report": "3.0.0-beta.5",
+    "clsx": "^2.1.1",
     "dayjs": "^1.11.18",
     "graphql": "^16.11.0",
     "i18next": "^25.6.0",
@@ -28,7 +29,8 @@
     "react-dom": "19.0.0",
     "react-error-boundary": "^6.0.0",
     "react-i18next": "^16.2.1",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.4",
+    "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^6.0.1",
