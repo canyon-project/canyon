@@ -79,7 +79,7 @@ model Coverage {
 
 model CoverageSourceMap {
   hash      String @id
-  sourceMap String @map("source_map")
+  sourceMap Bytes  @map("source_map")
 
   @@map("canyon_coverage_source_map")
 }
