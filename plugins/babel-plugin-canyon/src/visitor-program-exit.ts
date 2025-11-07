@@ -51,6 +51,21 @@ export const visitorProgramExit = (api,path,serviceParams) => {
   } catch (e) {
     // 忽略
   }
+
+
+  // 再尝试根据路径获取一下sourceMap
+  if (!initialCoverageDataForTheCurrentFile.inputSourceMap){
+    try {
+      const pathString = fs.readFileSync(
+        sysPath.resolve(initialCoverageDataForTheCurrentFile.path +'.map'),
+        'utf-8',
+      );
+      initialCoverageDataForTheCurrentFile.inputSourceMap = JSON.parse(pathString)
+    } catch (e) {
+    }
+  }
+
+
   // 在内容补全后（含 content），再决定是否写入本地（仅 CI 环境）
   try {
     if (serviceParams && serviceParams.ci) {
