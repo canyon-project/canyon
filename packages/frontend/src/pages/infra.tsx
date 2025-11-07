@@ -126,7 +126,7 @@ const InfraSettingsPage: FC = () => {
       value: value ?? '',
       isEncrypted: false,
     }));
-    const resp = await fetch(`/infra-config`, {
+    const resp = await fetch(`/api/infra-config`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
