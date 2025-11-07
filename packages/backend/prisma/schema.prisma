@@ -38,6 +38,7 @@ model Repo {
   pathWithNamespace String   @map("path_with_namespace")
   description       String
   config            String
+  bu                String
   createdAt         DateTime @map("created_at")
   updatedAt         DateTime @map("updated_at")
   tags              Json
