@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "VITE_COMMIT=dev vite",
-    "build": "VITE_COMMIT=$(git rev-parse --short HEAD || echo dev) vite build",
+    "dev": "VITE_COMMIT=dev VITE_NODE=$(node -v || echo unknown) vite",
+    "build": "VITE_COMMIT=$(git rev-parse --short HEAD || echo dev) VITE_NODE=$(node -v || echo unknown) vite build",
     "postinstall": "npm run codegen",
     "codegen": "graphql-codegen --config codegen.ts"
   },
