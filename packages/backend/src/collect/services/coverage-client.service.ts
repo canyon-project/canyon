@@ -230,7 +230,16 @@ export class CoverageClientService {
     }));
 
     await this.prisma.coverageMapRelation.createMany({
-      data: relationItems,
+      data: relationItems.map((item) => ({
+        id: item.id,
+        versionID: item.versionID,
+        fullFilePath: item.fullFilePath,
+        filePath: item.filePath,
+        restoreFullFilePath: item.restoreFullFilePath || '',
+        coverageMapHashID: item.coverageMapHashID,
+        sourceMapHashID: item.sourceMapHashID,
+        contentHashID: item.contentHashID,
+      })),
       skipDuplicates: true,
     });
 
