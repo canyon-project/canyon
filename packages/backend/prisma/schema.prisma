@@ -47,6 +47,14 @@ model Repo {
   @@map("canyon_repo")
 }
 
+model Log {
+  id        String   @id @default(cuid())
+  content   Json
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@map("canyon_log")
+}
+
 model Coverage {
   id             String   @id
   provider       String

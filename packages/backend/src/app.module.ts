@@ -9,6 +9,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { GqlAuthGuard } from './auth/gql-auth.guard';
+import { CollectModule } from './collect/collect.module';
 import { HealthModule } from './health/health.module';
 import { loadInfraConfiguration } from './infra-config/helper';
 import { InfraConfigModule } from './infra-config/infra-config.module';
@@ -28,6 +29,7 @@ import { UserModule } from './user/user.module';
     AuthModule,
     RepoModule,
     UserModule,
+    CollectModule,
     ServeStaticModule.forRoot({
       rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
         ? join(__dirname, '../../frontend', 'dist')

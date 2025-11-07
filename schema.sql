@@ -30,12 +30,22 @@ CREATE TABLE "canyon_repo" (
     "path_with_namespace" TEXT NOT NULL,
     "description" TEXT NOT NULL,
     "config" TEXT NOT NULL,
+    "bu" TEXT NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "tags" JSONB NOT NULL,
     "members" JSONB NOT NULL,
 
     CONSTRAINT "canyon_repo_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "canyon_log" (
+    "id" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "createdAt" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "canyon_log_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
