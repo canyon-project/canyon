@@ -3,14 +3,16 @@ import {
   FolderOutlined,
   GitlabFilled,
   HeartFilled,
+  HeartOutlined,
   HeartTwoTone,
   InfoCircleOutlined,
   PlusOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { useMutation, useQuery } from '@apollo/client/react';
-import type { TableColumnsType } from 'antd';
 import {
   Button,
+  Divider,
   Form,
   Input,
   Modal,
@@ -20,11 +22,15 @@ import {
   Space,
   Switch,
   Table,
+  type TableColumnsType,
   Tag,
   Tooltip,
   Typography,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import type { ColumnsType } from 'antd/es/table';
+// import dayjs = require("dayjs");
+import dayjs from 'dayjs';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary.tsx';
@@ -38,8 +44,6 @@ import {
 import BasicLayout from '@/layouts/BasicLayout.tsx';
 
 const { Text } = Typography;
-
-const { Search } = Input;
 
 type ProjectRow = {
   key: string;
@@ -93,112 +97,146 @@ const ProjectPage = () => {
     await refetch();
   }
 
-  const columns: TableColumnsType<ProjectRow> = [
+  const columns: ColumnsType<any> = [
     {
       title: 'ID',
       dataIndex: 'id',
-      width: 240,
-      render: (value: string) => (
-        <Space size={8}>
-          <HeartTwoTone twoToneColor='#eb2f96' />
-          <span className='font-medium'>{value}</span>
-        </Space>
-      ),
+      key: 'id',
+      // align:'center',
+      render(text, record) {
+        return (
+          <Space>
+            <div
+              className={'favor-heart'}
+              style={{
+                visibility: record.favored ? 'unset' : undefined,
+              }}
+            >
+              {record.favored ? (
+                <HeartFilled style={{ color: 'red' }} />
+              ) : (
+                <HeartOutlined />
+              )}
+            </div>
+            {text}
+          </Space>
+        );
+      },
     },
+    // {
+    //   title: t("projects.slug"),
+    //   dataIndex: "id",
+    //   key: "slug",
+    //   render(text) {
+    //     return (
+    //       <span className={"max-w-[80px] block"}>{text.split("-")[2]}</span>
+    //     );
+    //   },
+    // },
     {
       title: t('projects.name'),
-      dataIndex: 'repo',
-      render: (value: string, row) => (
-        <Space size={8}>
-          <GitlabFilled className='text-[#e24329]' />
-          <div className='flex flex-col'>
-            <Typography.Link className='text-[14px]' href='/projects'>
-              {value}
-            </Typography.Link>
-            {row.tags?.length ? (
-              <div className='mt-1 flex gap-1 flex-wrap'>
-                {row.tags.map((x) => (
-                  <Tag key={x} color='blue' bordered={false} className='m-0'>
-                    {x}
-                  </Tag>
-                ))}
-              </div>
-            ) : null}
+      dataIndex: 'pathWithNamespace',
+      key: 'pathWithNamespace',
+      render: (text, record) => {
+        return (
+          <div className={'flex gap-1'}>
+            <img
+              src='/gitproviders/gitlab.svg'
+              alt=''
+              className={'mt-1 w-[16px] h-[16px]'}
+            />
+
+            <span style={{ width: '4px', display: 'inline-block' }}></span>
+            <div className={'flex gap-1 flex-col'}>
+              <a
+                className={'max-w-[240px]'}
+                style={{ color: 'unset' }}
+                target={'_blank'}
+                // @ts-expect-error
+                href={`${window.GITLAB_URL}/${text}`}
+                rel='noreferrer'
+              >
+                {text}
+              </a>
+              <Text
+                type={'secondary'}
+                style={{ fontSize: '12px', width: '240px' }}
+              >
+                {record.description}
+              </Text>
+            </div>
           </div>
-        </Space>
-      ),
+        );
+      },
     },
     {
-      title: t('common.bu'),
+      title: 'Bu',
       dataIndex: 'bu',
-      width: 120,
+      sorter: true,
     },
     {
       title: t('projects.report_times'),
-      dataIndex: 'times',
-      width: 100,
+      dataIndex: 'reportTimes',
+      sorter: true,
     },
     {
       title: (
-        <Space size={4}>
-          <span>{t('projects.max_coverage')}</span>
-          <Tooltip title={t('projects.max_coverage_tooltip')}>
-            <InfoCircleOutlined />
+        <>
+          <Tooltip
+            title={t('projects.max_coverage_tooltip')}
+            className={'!mr-2'}
+          >
+            <QuestionCircleOutlined />
           </Tooltip>
-        </Space>
+          最大{t(`projects.${''}`)}覆盖率
+        </>
       ),
       dataIndex: 'maxCoverage',
-      width: 160,
-      render: (num: number) => (
-        <span className='font-medium'>{num.toFixed(2)} %</span>
-      ),
+      key: 'maxCoverage',
+      sorter: true,
+      render: (text) => {
+        return (
+          <Space>
+            {text}%{90}
+          </Space>
+        );
+      },
     },
     {
       title: t('projects.latest_report_time'),
-      dataIndex: 'latestAt',
-      width: 160,
+      dataIndex: 'lastReportTime',
+      sorter: true,
+      render(_) {
+        return <span>{dayjs(_).format('MM-DD HH:mm')}</span>;
+      },
     },
     {
       title: t('common.option'),
-      key: 'action',
-      width: 200,
-      render: (_: unknown, record) => (
-        <Space size={16}>
-          <Button
-            type='link'
-            onClick={() =>
-              openEdit({
-                id: record.slug,
-                name: record.repo,
-                pathWithNamespace: record.repo,
-                description: '',
-                org: record.bu,
-                tags: '[]',
-                members: '[]',
-                config: '{}',
-                createdAt: '',
-                updatedAt: '',
-              })
-            }
+      key: 'option',
+      render: (_, { id }) => (
+        <>
+          <Link
+            to={{
+              pathname: `/projects/${id}`,
+            }}
           >
-            编辑
-          </Button>
-          <Popconfirm
-            title='确认删除？'
-            onConfirm={() => handleDelete(record.slug)}
+            {t('common.detail')}
+          </Link>
+          <Divider type={'vertical'} />
+          <Link
+            to={{
+              pathname: `/projects/${id}/settings`,
+            }}
           >
-            <Button type='link' danger>
-              删除
-            </Button>
-          </Popconfirm>
-        </Space>
+            {t('common.settings')}
+          </Link>
+        </>
       ),
     },
   ];
-
   const data: ProjectRow[] = (queryData?.repos ?? []).map((r) => ({
     id: r.id,
-    repo: r.pathWithNamespace,
+    pathWithNamespace: r.pathWithNamespace,
     bu: r.bu,
     times: 0,
     maxCoverage: 0,
@@ -265,115 +303,7 @@ const ProjectPage = () => {
           pagination={{ pageSize: 10 }}
         />
       </CardPrimary>
-
-      <EditRepoModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        repo={editing}
-        onOk={async (values) => {
-          if (editing) {
-            await updateRepoMutation({
-              variables: { where: { id: editing.id }, input: values },
-            });
-            message.success('已更新');
-          } else {
-            await createRepoMutation({ variables: { input: values } });
-            message.success('已创建');
-          }
-          setModalOpen(false);
-          await refetch();
-        }}
-      />
     </BasicLayout>
-  );
-};
-
-type EditRepoModalProps = {
-  open: boolean;
-  onClose: () => void;
-  repo: Repo | null;
-  onOk: (values: {
-    id: string;
-    name: string;
-    pathWithNamespace: string;
-    description: string;
-    org: string;
-    tags: string;
-    members: string;
-    config: string;
-  }) => Promise<void>;
-};
-
-const EditRepoModal = ({ open, onClose, repo, onOk }: EditRepoModalProps) => {
-  const [form] = Form.useForm();
-
-  useEffect(() => {
-    if (open) {
-      form.setFieldsValue(
-        repo || {
-          id: '',
-          name: '',
-          pathWithNamespace: '',
-          description: '',
-          org: '',
-          tags: '[]',
-          members: '[]',
-          config: '{}',
-        },
-      );
-    }
-  }, [open, repo, form.setFieldsValue]);
-
-  return (
-    <Modal
-      open={open}
-      title={repo ? '编辑项目' : '创建项目'}
-      onCancel={onClose}
-      onOk={async () => {
-        const values = await form.validateFields();
-        await onOk(values);
-      }}
-      destroyOnHidden
-    >
-      <Form form={form} layout='vertical'>
-        <Form.Item
-          label='ID'
-          name='id'
-          rules={[{ required: !repo, message: '请输入项目ID' }]}
-        >
-          <Input disabled={!!repo} />
-        </Form.Item>
-        <Form.Item
-          label='名称'
-          name='name'
-          rules={[{ required: true, message: '请输入名称' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label='仓库路径'
-          name='pathWithNamespace'
-          rules={[{ required: true, message: '请输入仓库路径' }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item label='描述' name='description'>
-          <Input.TextArea rows={3} />
-        </Form.Item>
-        <Form.Item label='BU' name='org'>
-          <Input />
-        </Form.Item>
-        <Form.Item label='标签(JSON)' name='tags' tooltip='例如：["云梯"]'>
-          <Input />
-        </Form.Item>
-        <Form.Item label='成员(JSON)' name='members'>
-          <Input.TextArea rows={2} />
-        </Form.Item>
-        <Form.Item label='配置(JSON)' name='config'>
-          <Input.TextArea rows={2} />
-        </Form.Item>
-      </Form>
-    </Modal>
   );
 };
 
