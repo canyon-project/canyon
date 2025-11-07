@@ -106,7 +106,9 @@ const InfraSettingsPage: FC = () => {
   useEffect(() => {
     (async () => {
       try {
-        const resp = await fetch(`/infra-config`, { credentials: 'include' });
+        const resp = await fetch(`/api/infra-config`, {
+          credentials: 'include',
+        });
         if (!resp.ok) return;
         const data = (await resp.json()) as Array<InfraItem>;
         const initial: Record<string, string> = {};
