@@ -23,3 +23,8 @@ a:hover {
 .ant-menu.ant-menu-root.ant-menu-inline {
   border-inline-end: none !important;
 }
+
+/*页脚离右边远一点*/
+.ant-table-wrapper .ant-table-pagination.ant-pagination {
+  margin-right: 16px;
+}

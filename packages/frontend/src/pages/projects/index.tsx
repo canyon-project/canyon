@@ -237,6 +237,7 @@ const ProjectPage = () => {
   const data: ProjectRow[] = (queryData?.repos ?? []).map((r) => ({
     id: r.id,
     pathWithNamespace: r.pathWithNamespace,
+    description: r.description,
     bu: r.bu,
     times: 0,
     maxCoverage: 0,
