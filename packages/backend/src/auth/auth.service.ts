@@ -105,6 +105,40 @@ export class AuthService {
     return res.redirect(target.toString());
   }
 
+  async loginWithEmailPassword(email: string, password: string, res: Response) {
+    if (!email || !password) {
+      return res.status(400).send({ ok: false, error: 'INVALID_INPUT' });
+    }
+
+    const user = await this.prisma.user.findFirst({ where: { email } });
+
+    if (!user)
+      return res.status(401).send({ ok: false, error: 'USER_NOT_FOUND' });
+
+    if (user.password !== password)
+      return res.status(401).send({ ok: false, error: 'INVALID_CREDENTIALS' });
+
+    const token = this.jwtService.sign({ sub: user.id });
+    const cookieName = process.env.AUTH_COOKIE_NAME || 'auth_token';
+    const isProd = process.env.NODE_ENV === 'production';
+    const cookieSameSite = (process.env.AUTH_COOKIE_SAMESITE ||
+      (isProd ? 'none' : 'lax')) as 'lax' | 'none' | 'strict';
+    const cookieSecure = (
+      process.env.AUTH_COOKIE_SECURE
+        ? process.env.AUTH_COOKIE_SECURE === 'true'
+        : isProd
+    ) as boolean;
+    res.cookie(cookieName, token, {
+      httpOnly: true,
+      secure: cookieSecure,
+      sameSite: cookieSameSite,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    });
+
+    return res.status(200).send({ ok: true, id: user.id });
+  }
+
   async me(userId: string) {
     return this.prisma.user.findUnique({ where: { id: userId } });
   }
