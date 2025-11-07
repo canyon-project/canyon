@@ -42,7 +42,7 @@ CREATE TABLE "canyon_repo" (
 -- CreateTable
 CREATE TABLE "canyon_log" (
     "id" TEXT NOT NULL,
-    "content" TEXT NOT NULL,
+    "content" JSONB NOT NULL,
     "createdAt" TIMESTAMPTZ(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "canyon_log_pkey" PRIMARY KEY ("id")
@@ -109,6 +109,7 @@ CREATE TABLE "canyon_hit" (
     "s" JSONB NOT NULL,
     "f" JSONB NOT NULL,
     "b" JSONB NOT NULL,
+    "input_source_map" INTEGER,
     "aggregated" BOOLEAN NOT NULL,
     "ts" TIMESTAMP(3) NOT NULL,
 

@@ -13,6 +13,7 @@ interface HitFileCoverageEntry {
   s?: HitCounters;
   f?: HitCounters;
   b?: unknown;
+  inputSourceMap?: number;
 }
 type HitCoverage = Record<string, HitFileCoverageEntry>;
 
@@ -127,6 +128,7 @@ export class CoverageClientService {
         s,
         f,
         b: {},
+        inputSourceMap: entry.inputSourceMap ? 1 : 0,
         aggregated: false,
         ts: new Date(),
       };

@@ -109,15 +109,16 @@ model CoverMap {
 }
 
 model CoverHit {
-  id         String   @id
-  coverageID String   @map("coverage_id")
-  versionID  String   @map("version_id")
-  filePath   String   @map("file_path")
-  s          Json
-  f          Json
-  b          Json
-  aggregated Boolean
-  ts         DateTime
+  id             String   @id
+  coverageID     String   @map("coverage_id")
+  versionID      String   @map("version_id")
+  filePath       String   @map("file_path")
+  s              Json
+  f              Json
+  b              Json
+  inputSourceMap Int?     @map("input_source_map")
+  aggregated     Boolean
+  ts             DateTime
 
   @@index([coverageID])
   @@index([versionID])
