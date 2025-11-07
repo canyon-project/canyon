@@ -10,7 +10,10 @@ export class GitlabStrategy extends PassportStrategy(Strategy, 'gitlab') {
       clientID: configService.get<string>('INFRA.GITLAB_CLIENT_ID'),
       clientSecret: configService.get<string>('INFRA.GITLAB_CLIENT_SECRET'),
       callbackURL: configService.get<string>('INFRA.GITLAB_CALLBACK_URL'),
-      scope: [configService.get<string>('INFRA.GITLAB_SCOPE')],
+      scope: configService.get<string>('INFRA.GITLAB_SCOPE'),
+      baseURL:
+        configService.get<string>('INFRA.GITLAB_BASE_URL') ||
+        'https://gitlab.com',
     });
   }
 
