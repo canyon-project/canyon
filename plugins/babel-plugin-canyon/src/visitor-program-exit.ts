@@ -132,6 +132,15 @@ export const visitorProgramExit = (api,path,serviceParams) => {
                   t.identifier("inputSourceMap"),
                   t.numericLiteral(1)
                 );
+              } else {
+                // 新增逻辑，如果本地也有那就设置成1
+                if (initialCoverageDataForTheCurrentFile?.inputSourceMap){
+                  const addField = t.objectProperty(
+                    t.identifier("inputSourceMap"), // 键名
+                    t.numericLiteral(1)
+                  );
+                  properties.push(addField);
+                }
               }
             }
 
