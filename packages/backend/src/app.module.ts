@@ -16,6 +16,7 @@ import { InfraConfigModule } from './infra-config/infra-config.module';
 // import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { RepoModule } from './repo/repo.module';
+import { TaskModule } from './task/task.module';
 import { UserModule } from './user/user.module';
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { UserModule } from './user/user.module';
     RepoModule,
     UserModule,
     CollectModule,
+    TaskModule,
     ServeStaticModule.forRoot({
       rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
         ? join(__dirname, '../../frontend', 'dist')
