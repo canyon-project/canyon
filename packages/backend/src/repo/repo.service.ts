@@ -11,10 +11,6 @@ export class RepoService {
   ) {}
 
   async list() {
-    const a = await this.configService.get('INFRA.test');
-
-    console.log(a);
-
     const rows = await this.prisma.repo.findMany({
       orderBy: { updatedAt: 'desc' },
     });
@@ -43,7 +39,7 @@ export class RepoService {
         // name: input.name,
         pathWithNamespace: input.pathWithNamespace,
         description: input.description,
-        // org: input.org,
+        // bu: input.bu,
         tags: input.tags ? JSON.parse(input.tags) : undefined,
         members: input.members ? JSON.parse(input.members) : undefined,
         config: input.config,
@@ -66,7 +62,7 @@ export class RepoService {
         // name: input.name ?? undefined,
         pathWithNamespace: input.pathWithNamespace ?? undefined,
         description: input.description ?? undefined,
-        // org: input.org ?? undefined,
+        // bu: input.bu ?? undefined,
         tags: input.tags !== undefined ? JSON.parse(input.tags) : undefined,
         members:
           input.members !== undefined ? JSON.parse(input.members) : undefined,

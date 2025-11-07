@@ -17,7 +17,7 @@ export class CreateRepoInput {
   @Field()
   description!: string;
   @Field()
-  org!: string;
+  bu!: string;
   @Field({ description: 'JSON string for tags' })
   tags!: string;
   @Field({ description: 'JSON string for members' })

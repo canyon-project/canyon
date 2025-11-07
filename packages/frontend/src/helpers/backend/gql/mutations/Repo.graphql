@@ -2,7 +2,6 @@
 mutation CreateRepo($input: CreateRepoInput!) {
   createRepo(input: $input) {
     id
-    name
   }
 }
 
@@ -10,7 +9,6 @@ mutation CreateRepo($input: CreateRepoInput!) {
 mutation UpdateRepo($where: RepoWhereUniqueArgs!, $input: UpdateRepoInput!) {
   updateRepo(where: $where, input: $input) {
     id
-    name
   }
 }
 

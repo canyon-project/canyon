@@ -4,10 +4,9 @@
 
 type RepoModel {
   id: ID!
-  name: String!
   pathWithNamespace: String!
   description: String!
-  org: String!
+  bu: String!
 
   """JSON string for tags"""
   tags: String
@@ -40,7 +39,7 @@ input CreateRepoInput {
   name: String!
   pathWithNamespace: String!
   description: String!
-  org: String!
+  bu: String!
 
   """JSON string for tags"""
   tags: String!
@@ -59,7 +58,7 @@ input UpdateRepoInput {
   name: String
   pathWithNamespace: String
   description: String
-  org: String
+  bu: String
 
   """JSON string for tags"""
   tags: String

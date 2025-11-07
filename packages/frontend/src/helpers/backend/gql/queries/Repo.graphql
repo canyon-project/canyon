@@ -1,11 +1,9 @@
-# Repo list
 query Repos {
   repos {
     id
-    name
     pathWithNamespace
     description
-    org
+    bu
     tags
     members
     config
@@ -14,14 +12,12 @@ query Repos {
   }
 }
 
-# Repo by id
 query Repo($id: ID!) {
   repo(id: $id) {
     id
-    name
     pathWithNamespace
     description
-    org
+    bu
     tags
     members
     config

@@ -6,16 +6,13 @@ export class RepoModel {
   id: string;
 
   @Field()
-  name: string;
-
-  @Field()
   pathWithNamespace: string;
 
   @Field()
   description: string;
 
   @Field()
-  org: string;
+  bu: string;
 
   @Field(() => String, { nullable: true, description: 'JSON string for tags' })
   // 使用字符串承载 JSON，避免 GraphQL 标量依赖在前后端不同步

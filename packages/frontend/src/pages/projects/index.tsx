@@ -39,6 +39,8 @@ import BasicLayout from '@/layouts/BasicLayout.tsx';
 
 const { Text } = Typography;
 
+const { Search } = Input;
+
 type ProjectRow = {
   key: string;
   slug: string;
@@ -94,7 +96,7 @@ const ProjectPage = () => {
   const columns: TableColumnsType<ProjectRow> = [
     {
       title: 'ID',
-      dataIndex: 'slug',
+      dataIndex: 'id',
       width: 240,
       render: (value: string) => (
         <Space size={8}>
@@ -195,10 +197,9 @@ const ProjectPage = () => {
   ];
 
   const data: ProjectRow[] = (queryData?.repos ?? []).map((r) => ({
-    key: r.id,
-    slug: r.id,
+    id: r.id,
     repo: r.pathWithNamespace,
-    bu: r.org,
+    bu: r.bu,
     times: 0,
     maxCoverage: 0,
     latestAt: new Date(r.updatedAt).toLocaleString(),
@@ -237,11 +238,13 @@ const ProjectPage = () => {
             { label: '门票活动', value: '门票活动' },
           ]}
         />
-        <Input.Search
-          allowClear
-          style={{ width: '420px' }}
-          placeholder={t('projects.search_keywords')}
-        />
+        <div>
+          <Input
+            // allowClear
+            style={{ width: '420px' }}
+            placeholder={t('projects.search_keywords')}
+          />
+        </div>
         <Space className={'ml-5'}>
           <Text type={'secondary'}>{t('common.favor.only')}: </Text>
           <Switch
