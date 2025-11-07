@@ -1,5 +1,6 @@
 import { randomBytes, randomUUID } from 'node:crypto';
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
@@ -9,6 +10,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
   private extractEmail(oauthUser: any): string | undefined {
@@ -29,7 +31,9 @@ export class AuthService {
 
   async handleOAuthRedirect(req: any, res: Response) {
     const oauthUser = (req as any).user as any;
-    const frontendUrl = process.env.FRONTEND_URL;
+    const frontendUrl = await this.configService.get<string>(
+      'INFRA.VITE_BASE_URL',
+    );
     const target = new URL('/', frontendUrl);
 
     let boundUserId: string | undefined;
