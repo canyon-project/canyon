@@ -7,7 +7,7 @@ import {
   Avatar,
   Button,
   Dropdown,
-  Layout,
+  // Layout,
   Menu,
   Typography,
   theme,
@@ -17,8 +17,9 @@ import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import BuildInfo from '@/components/BuildInfo.tsx';
 
-const { Content } = Layout;
+// const { Content } = Layout;
 
 const BasicLayout: FC<{
   children: ReactNode;
@@ -249,6 +250,7 @@ const BasicLayout: FC<{
           </ErrorBoundary>
         </div>
       </div>
+      <BuildInfo />
     </div>
   );
 };
