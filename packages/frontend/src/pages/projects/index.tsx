@@ -2,6 +2,7 @@ import {
   FolderOpenOutlined,
   FolderOutlined,
   GitlabFilled,
+  HeartFilled,
   HeartTwoTone,
   InfoCircleOutlined,
   PlusOutlined,
@@ -36,7 +37,7 @@ import {
 } from '@/helpers/backend/gen/graphql.ts';
 import BasicLayout from '@/layouts/BasicLayout.tsx';
 
-// import {TextTypography} from "@/components/typography/text.tsx";
+const { Text } = Typography;
 
 type ProjectRow = {
   key: string;
@@ -225,7 +226,7 @@ const ProjectPage = () => {
         }
       />
 
-      <div className='mb-4 flex flex-wrap items-center gap-3'>
+      <div className='mb-4 flex items-center gap-3'>
         <Select
           allowClear
           placeholder='Bu'
@@ -236,23 +237,19 @@ const ProjectPage = () => {
             { label: '门票活动', value: '门票活动' },
           ]}
         />
-        <Select
-          allowClear
-          placeholder='Tag'
-          style={{ width: 200 }}
-          options={[{ label: '云梯', value: '云梯' }]}
-        />
         <Input.Search
           allowClear
-          className='flex-1 min-w-[240px]'
+          style={{ width: '420px' }}
           placeholder={t('projects.search_keywords')}
         />
-        <div className='flex items-center gap-2 ml-auto'>
-          <Switch />
-          <span className='text-[12px] text-gray-500'>
-            {t('common.favor.only')}
-          </span>
-        </div>
+        <Space className={'ml-5'}>
+          <Text type={'secondary'}>{t('common.favor.only')}: </Text>
+          <Switch
+            checkedChildren={<HeartFilled />}
+            defaultChecked={Boolean(localStorage.getItem('favorOnlyFilter'))}
+            onChange={(v) => {}}
+          />
+        </Space>
       </div>
       <CardPrimary>
         <Table<ProjectRow>
