@@ -34,7 +34,7 @@ const BasicLayout: FC<{
     username?: string;
   };
 
-  const backendUrl = 'https://app.canyonjs.io';
+  const backendUrl = '';
   const githubLoginUrl = `${backendUrl}/auth/github`;
   const gitlabLoginUrl = `${backendUrl}/auth/gitlab`;
 

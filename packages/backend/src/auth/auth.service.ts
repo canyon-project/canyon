@@ -29,7 +29,7 @@ export class AuthService {
 
   async handleOAuthRedirect(req: any, res: Response) {
     const oauthUser = (req as any).user as any;
-    const frontendUrl = process.env.FRONTEND_URL || 'https://app.canyonjs.io';
+    const frontendUrl = process.env.FRONTEND_URL;
     const target = new URL('/', frontendUrl);
 
     let boundUserId: string | undefined;

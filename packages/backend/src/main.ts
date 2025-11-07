@@ -1,5 +1,6 @@
 import * as path from 'node:path';
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import cookieParser from 'cookie-parser';
 import * as dotenv from 'dotenv';
@@ -19,6 +20,7 @@ dotenv.config({
 async function bootstrap() {
   const { AppModule } = await import('./app.module.js');
   const app = await NestFactory.create(AppModule);
+  const configService = app.get(ConfigService);
   app.use(
     json({
       limit: '50mb',
@@ -26,13 +28,8 @@ async function bootstrap() {
   );
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());
-  const allowOrigins = ['http://localhost:8000', 'https://app.canyonjs.io'];
   app.enableCors({
-    origin: (requestOrigin, callback) => {
-      if (!requestOrigin) return callback(null, true);
-      const matched = allowOrigins.some((o) => requestOrigin === o);
-      callback(null, matched);
-    },
+    origin: configService.get('INFRA.WHITELISTED_ORIGINS').split(','),
     credentials: true,
   });
   await app.listen(process.env.PORT || 8080);
