@@ -1,4 +1,4 @@
-import { Controller, Get, HttpStatus, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Put } from '@nestjs/common';
 // import { ThrottlerBehindProxyGuard } from 'src/guards/throttler-behind-proxy.guard';
 import { InfraConfigService } from './infra-config.service';
 // import {InfraConfigEnum} from "../types/InfraConfig";
@@ -10,28 +10,23 @@ import { InfraConfigService } from './infra-config.service';
 // import { throwHTTPErr } from 'src/utils';
 
 // @UseGuards(ThrottlerBehindProxyGuard)
-@Controller({ path: 'site', version: '1' })
-export class SiteController {
+@Controller('infra-config')
+export class InfraConfigController {
   constructor(private infraConfigService: InfraConfigService) {}
 
-  @Get('setup')
-  // @UseGuards(JwtAuthGuard, RESTAdminGuard)
-  async fetchSetupInfo() {
-    // const status = await this.infraConfigService.get(
-    //   InfraConfigEnum.IS_FIRST_TIME_INFRA_SETUP,
-    // );
-
-    // if (E.isLeft(status))
-    //   throwHTTPErr(<RESTError>{
-    //     message: status.left,
-    //     statusCode: HttpStatus.NOT_FOUND,
-    //   });
-    return {};
+  @Get()
+  async listAll() {
+    return this.infraConfigService.listAll();
   }
 
-  @Put('setup')
-  // @UseGuards(JwtAuthGuard, RESTAdminGuard)
-  async setSetupAsComplete() {
-    return {};
+  @Put()
+  async updateMany(
+    @Body()
+    body: {
+      items: Array<{ name: string; value: string; isEncrypted?: boolean }>;
+    },
+  ) {
+    const items = Array.isArray(body?.items) ? body.items : [];
+    return this.infraConfigService.upsertMany(items);
   }
 }
