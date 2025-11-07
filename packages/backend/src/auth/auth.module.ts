@@ -22,5 +22,6 @@ import { GitlabStrategy } from './strategies/gitlab.strategy';
   ],
   controllers: [AuthController],
   providers: [AuthService, GithubStrategy, GitlabStrategy, JwtStrategy],
+  exports: [AuthService],
 })
 export class AuthModule {}

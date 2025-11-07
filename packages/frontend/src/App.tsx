@@ -24,53 +24,6 @@ const App = () => {
   const isDark = localStorage.getItem('theme')
     ? localStorage.getItem('theme') === 'dark'
     : false;
-  const location = useLocation();
-  const [authed, setAuthed] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('auth:user');
-      if (raw) {
-        setAuthed(true);
-        return;
-      }
-    } catch {}
-    (async () => {
-      try {
-        const resp = await fetch(`/auth/me`, { credentials: 'include' });
-        if (resp.ok) {
-          const me = await resp.json();
-          if (me?.id) {
-            setAuthed(true);
-            return;
-          }
-        }
-      } catch {}
-      setAuthed(false);
-    })();
-  }, []);
-
-  const element = useRoutes(routes);
-
-  if (location.pathname === '/login') {
-    if (authed) return <Navigate to='/' replace />;
-    return (
-      <ConfigProvider
-        locale={languages[lng]}
-        theme={{
-          token: {
-            colorPrimary: '#0071c2',
-          },
-          algorithm: isDark ? [darkAlgorithm] : [],
-        }}
-      >
-        {element}
-      </ConfigProvider>
-    );
-  }
-
-  if (authed === null) return null;
-  if (!authed) return <Navigate to='/login' replace />;
 
   return (
     <ConfigProvider
@@ -82,7 +35,7 @@ const App = () => {
         algorithm: isDark ? [darkAlgorithm] : [],
       }}
     >
-      {element}
+      {useRoutes(routes)}
     </ConfigProvider>
   );
 };

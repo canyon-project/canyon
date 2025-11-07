@@ -10,7 +10,7 @@ import { InfraConfigService } from './infra-config.service';
 // import { throwHTTPErr } from 'src/utils';
 
 // @UseGuards(ThrottlerBehindProxyGuard)
-@Controller('infra-config')
+@Controller('api/infra-config')
 export class InfraConfigController {
   constructor(private infraConfigService: InfraConfigService) {}
 

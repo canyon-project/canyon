@@ -23,7 +23,7 @@ export default defineConfig({
     port: 8000,
     host: '0.0.0.0',
     proxy: {
-      '^/graphql|^/api|^/auth|^/infra-config': {
+      '^/graphql|^/api': {
         changeOrigin: true,
         target: apiTarget,
       },

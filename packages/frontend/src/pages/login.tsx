@@ -50,7 +50,7 @@ const LoginPage: FC = () => {
                   password: string;
                 }) => {
                   try {
-                    const resp = await fetch(`${apiPrefix}/auth/login`, {
+                    const resp = await fetch(`${apiPrefix}/api/user/login`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       credentials: 'include',

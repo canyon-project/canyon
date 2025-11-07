@@ -35,8 +35,8 @@ const BasicLayout: FC<{
   };
 
   const backendUrl = '';
-  const githubLoginUrl = `${backendUrl}/auth/github`;
-  const gitlabLoginUrl = `${backendUrl}/auth/gitlab`;
+  const githubLoginUrl = `${backendUrl}/api/auth/github`;
+  const gitlabLoginUrl = `${backendUrl}/api/auth/gitlab`;
 
   const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
     try {
@@ -51,7 +51,7 @@ const BasicLayout: FC<{
     // 通过 Cookie 获取登录态
     (async () => {
       try {
-        const resp = await fetch(`${backendUrl}/auth/me`, {
+        const resp = await fetch(`${backendUrl}/api/user/me`, {
           credentials: 'include',
         });
         if (resp.ok) {
@@ -166,7 +166,7 @@ const BasicLayout: FC<{
                 onClick: async ({ key }) => {
                   if (key === 'logout') {
                     try {
-                      await fetch(`${backendUrl}/auth/logout`, {
+                      await fetch(`${backendUrl}/api/user/logout`, {
                         credentials: 'include',
                       });
                     } catch {

@@ -15,6 +15,7 @@ import { InfraConfigModule } from './infra-config/infra-config.module';
 // import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import { RepoModule } from './repo/repo.module';
+import { UserModule } from './user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -26,6 +27,7 @@ import { RepoModule } from './repo/repo.module';
     HealthModule,
     AuthModule,
     RepoModule,
+    UserModule,
     ServeStaticModule.forRoot({
       rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
         ? join(__dirname, '../../frontend', 'dist')

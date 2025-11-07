@@ -1,7 +1,7 @@
 import { Body, Controller, Get, HttpStatus, Post, Query } from '@nestjs/common';
 import { InfraConfigService } from './infra-config.service';
 
-@Controller({ path: 'onboarding', version: '1' })
+@Controller({ path: 'api/onboarding', version: '1' })
 export class OnboardingController {
   constructor(private infraConfigService: InfraConfigService) {}
 
