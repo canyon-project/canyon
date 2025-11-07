@@ -60,7 +60,7 @@ export const visitorProgramExit = (api,path,serviceParams) => {
         sysPath.resolve(initialCoverageDataForTheCurrentFile.path +'.map'),
         'utf-8',
       );
-      initialCoverageDataForTheCurrentFile.inputSourceMap = JSON.parse(pathString)
+      initialCoverageDataForTheCurrentFile.inputSourceMap = JSON.parse(pathString);
     }
   } catch (e) {
   }
