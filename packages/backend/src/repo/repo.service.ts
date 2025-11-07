@@ -47,6 +47,7 @@ export class RepoService {
         tags: input.tags ? JSON.parse(input.tags) : undefined,
         members: input.members ? JSON.parse(input.members) : undefined,
         config: input.config,
+        bu: '',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
