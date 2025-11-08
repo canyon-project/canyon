@@ -64,3 +64,9 @@ packages/orm-demo
 packages/old-backend
 
 old-packages
+
+!packages/backend/src/coverage
+
+
+/schema.gql
+/schema.sql

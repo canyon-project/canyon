@@ -17,7 +17,6 @@ export async function loadInfraConfiguration() {
   try {
     const prisma = new PrismaService();
     const infraConfigs = await prisma.infraConfig.findMany();
-    console.log(infraConfigs, 'infraConfigs');
     const environmentObject: Record<string, string> = {};
     infraConfigs.forEach((infraConfig) => {
       if (infraConfig.isEncrypted) {
