@@ -104,7 +104,7 @@ export class CoverageClientService {
           versionID,
         },
       });
-    if (coverageType === 'hit' && coverageMapRelationCount) {
+    if (coverageType === 'hit' && coverageMapRelationCount === 0) {
       return {
         msg: '没map',
       };
