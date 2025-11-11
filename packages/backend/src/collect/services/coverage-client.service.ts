@@ -98,6 +98,17 @@ export class CoverageClientService {
 
     // 第二步：检查coverage类型
     const coverageType = checkCoverageType(coverage as any) as CoverageKind;
+    const coverageMapRelationCount =
+      await this.prisma.coverageMapRelation.count({
+        where: {
+          versionID,
+        },
+      });
+    if (coverageType === 'hit' && coverageMapRelationCount) {
+      return {
+        msg: '没map',
+      };
+    }
 
     // 第三步：插入 coverage 表
     const coverageCreateRes = await this.insertCoverage(
