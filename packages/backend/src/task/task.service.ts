@@ -54,6 +54,7 @@ export class TaskService {
       f: Record<string, number>;
       b: Record<string, number>;
       latestTs: Date;
+      inputSourceMap: number;
     }
     const groupMap = new Map<string, GroupAgg>();
     const idsToMark: string[] = [];
@@ -74,6 +75,7 @@ export class TaskService {
           f: fMap,
           b: bMap,
           latestTs: ts,
+          inputSourceMap: rec.inputSourceMap || 0,
         });
       } else {
         cur.s = addMaps(cur.s, sMap);
@@ -86,59 +88,61 @@ export class TaskService {
 
     // 写入/更新聚合表（按组一次）
     for (let agg of groupMap.values()) {
-      const incwd = await this.prisma.coverage
-        .findFirst({
-          where: {
-            versionID: agg.versionID,
-          },
-        })
-        .then((h) => h?.instrumentCwd || '');
-
-      const coverageMapRelation =
-        await this.prisma.coverageMapRelation.findFirst({
-          where: {
-            versionID: agg.versionID,
-            restoreFullFilePath: `${incwd}/${agg.filePath}`, // TODO review
-          },
-        });
-      if (coverageMapRelation) {
-        const coverMap = await this.prisma.coverMap.findFirst({
-          where: {
-            hash: {
-              startsWith: coverageMapRelation.coverageMapHashID,
-            },
-          },
-        });
-
-        const coverageSourceMap = await this.prisma.coverageSourceMap
+      if (agg.inputSourceMap === 1) {
+        const incwd = await this.prisma.coverage
           .findFirst({
             where: {
-              hash: coverageMapRelation.sourceMapHashID,
+              versionID: agg.versionID,
             },
           })
-          .then((r) => decodeCompressedObject(r?.sourceMap));
+          .then((h) => h?.instrumentCwd || '');
 
-        agg = await remapCoverageByOld({
-          [coverageMapRelation.restoreFullFilePath]: {
-            path: coverageMapRelation.restoreFullFilePath,
-            // @ts-expect-error
-            ...coverMap?.restore,
-            branchMap: {}, //暂时还不支持branchMap
-            inputSourceMap: coverageSourceMap,
-            b: agg.b,
-            f: agg.f,
-            s: agg.s,
-          },
-        }).then((r) => {
-          const o: any = Object.values(r)[0];
-          return {
-            ...agg,
-            b: o.b,
-            f: o.f,
-            s: o.s,
-            filePath: o.path.replace(incwd + '/', ''),
-          };
-        });
+        const coverageMapRelation =
+          await this.prisma.coverageMapRelation.findFirst({
+            where: {
+              versionID: agg.versionID,
+              restoreFullFilePath: `${incwd}/${agg.filePath}`, // TODO review
+            },
+          });
+        if (coverageMapRelation) {
+          const coverMap = await this.prisma.coverMap.findFirst({
+            where: {
+              hash: {
+                startsWith: coverageMapRelation.coverageMapHashID,
+              },
+            },
+          });
+
+          const coverageSourceMap = await this.prisma.coverageSourceMap
+            .findFirst({
+              where: {
+                hash: coverageMapRelation.sourceMapHashID,
+              },
+            })
+            .then((r) => decodeCompressedObject(r?.sourceMap));
+
+          agg = await remapCoverageByOld({
+            [coverageMapRelation.restoreFullFilePath]: {
+              path: coverageMapRelation.restoreFullFilePath,
+              // @ts-expect-error
+              ...coverMap?.restore,
+              branchMap: {}, //暂时还不支持branchMap
+              inputSourceMap: coverageSourceMap,
+              b: agg.b,
+              f: agg.f,
+              s: agg.s,
+            },
+          }).then((r) => {
+            const o: any = Object.values(r)[0];
+            return {
+              ...agg,
+              b: o.b,
+              f: o.f,
+              s: o.s,
+              filePath: o.path.replace(incwd + '/', ''),
+            };
+          });
+        }
       }
 
       const existing = await this.prisma.coverHitAgg.findFirst({
