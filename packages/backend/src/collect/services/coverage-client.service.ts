@@ -250,6 +250,7 @@ export class CoverageClientService {
           hash: generateObjectSignature(item.sourceMap as any),
           sourceMap: encodeObjectToCompressedBuffer(item.sourceMap) as any,
         })),
+      skipDuplicates: true,
     });
 
     return {};
