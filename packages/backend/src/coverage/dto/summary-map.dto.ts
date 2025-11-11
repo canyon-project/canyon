@@ -48,4 +48,8 @@ export class SummaryMapQueryDto {
   @IsString()
   @IsOptional()
   onlyChanged?: string; // 'true' | 'false'，是否仅返回变更文件
+
+  @IsString()
+  @IsOptional()
+  buildTarget?: string;
 }

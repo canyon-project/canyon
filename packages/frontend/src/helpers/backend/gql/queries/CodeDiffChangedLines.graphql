@@ -1,0 +1,8 @@
+query CodeDiffChangedLines($input: CodeDiffChangedLinesInput!) {
+  codeDiffChangedLines(input: $input) {
+    files {
+      additions
+      path
+    }
+  }
+}

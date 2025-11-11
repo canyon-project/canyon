@@ -75,7 +75,6 @@ export class CoverageMapForCommitService {
     const relationsAll = await this.prisma.coverageMapRelation.findMany({
       where: qb,
     });
-
     const pathToHash = new Map<string, string>();
     for (const r of relationsAll) {
       if (!pathToHash.has(r.filePath))

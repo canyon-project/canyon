@@ -4,7 +4,7 @@ import jaJP from 'antd/es/locale/ja_JP';
 import zhCN from 'antd/es/locale/zh_CN';
 // import { useEffect, useState } from 'react';
 import { useRoutes } from 'react-router-dom';
-// import CoverageReport from '@/components/CoverageReport.tsx';
+import CoverageReport from '@/components/CoverageReport.tsx';
 import routes from '~react-pages';
 
 const languages = {
@@ -17,6 +17,11 @@ const lng = (localStorage.getItem('language') ||
   'cn') as keyof typeof languages;
 
 const { darkAlgorithm } = theme;
+
+routes.push({
+  path: '/report/-/:provider/:org/:repo/:subject/:subjectID/-*',
+  element: <CoverageReport />,
+});
 
 message.config({});
 

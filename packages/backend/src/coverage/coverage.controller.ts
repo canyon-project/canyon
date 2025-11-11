@@ -19,17 +19,13 @@ export class CoverageController {
   @Get('summary/map')
   async getSummaryMap(@Query() q: SummaryMapQueryDto) {
     const { subject } = q;
-    const percent = (covered: number, total: number) =>
-      total <= 0
-        ? 100.0
-        : Math.floor((1000 * 100 * covered) / total / 10) / 100;
     switch (subject) {
       case 'commit': {
         const map = await this.coverageMapForCommitService.invoke({
           provider: q.provider,
           repoID: q.repoID,
           sha: q.subjectID,
-          buildTarget: '',
+          buildTarget: q.buildTarget || '',
           // buildID: q.buildID,
           reportProvider: q.reportProvider,
           reportID: q.reportID,
@@ -51,7 +47,7 @@ export class CoverageController {
           provider: q.provider,
           repoID: q.repoID,
           pullID: q.subjectID,
-          buildTarget: '', // TODO 废弃，用buildProvider代替
+          buildTarget: q.buildTarget || '',
           // buildID: q.buildID,
           reportProvider: q.reportProvider,
           reportID: q.reportID,
@@ -82,7 +78,7 @@ export class CoverageController {
           provider: q.provider,
           repoID: q.repoID,
           sha: q.subjectID,
-          buildTarget: q.buildTarget || '', // TODO 废弃，用buildProvider代替
+          buildTarget: q.buildTarget || '',
           // buildID: q.buildID,
           reportProvider: q.reportProvider,
           reportID: q.reportID,
@@ -103,7 +99,7 @@ export class CoverageController {
           provider: q.provider,
           repoID: q.repoID,
           pullID: q.subjectID,
-          buildTarget: q.buildTarget || '', // TODO 废弃，用buildProvider代替
+          buildTarget: q.buildTarget || '',
           // buildID: q.buildID,
           reportProvider: q.reportProvider,
           reportID: q.reportID,
