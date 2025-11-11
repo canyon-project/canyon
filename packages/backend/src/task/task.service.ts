@@ -1,4 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { remapCoverageByOld } from '../collect/helpers/canyon-data';
+import { decodeCompressedObject } from '../collect/helpers/transform';
 import { PrismaService } from '../prisma/prisma.service';
 
 // 暂时采用外部定时器触发
@@ -83,7 +85,62 @@ export class TaskService {
     }
 
     // 写入/更新聚合表（按组一次）
-    for (const agg of groupMap.values()) {
+    for (let agg of groupMap.values()) {
+      const incwd = await this.prisma.coverage
+        .findFirst({
+          where: {
+            versionID: agg.versionID,
+          },
+        })
+        .then((h) => h?.instrumentCwd || '');
+
+      const coverageMapRelation =
+        await this.prisma.coverageMapRelation.findFirst({
+          where: {
+            versionID: agg.versionID,
+            restoreFullFilePath: `${incwd}/${agg.filePath}`, // TODO review
+          },
+        });
+      if (coverageMapRelation) {
+        const coverMap = await this.prisma.coverMap.findFirst({
+          where: {
+            hash: {
+              startsWith: coverageMapRelation.coverageMapHashID,
+            },
+          },
+        });
+
+        const coverageSourceMap = await this.prisma.coverageSourceMap
+          .findFirst({
+            where: {
+              hash: coverageMapRelation.sourceMapHashID,
+            },
+          })
+          .then((r) => decodeCompressedObject(r?.sourceMap));
+
+        agg = await remapCoverageByOld({
+          [coverageMapRelation.restoreFullFilePath]: {
+            path: coverageMapRelation.restoreFullFilePath,
+            // @ts-expect-error
+            ...coverMap?.restore,
+            branchMap: {}, //暂时还不支持branchMap
+            inputSourceMap: coverageSourceMap,
+            b: agg.b,
+            f: agg.f,
+            s: agg.s,
+          },
+        }).then((r) => {
+          const o: any = Object.values(r)[0];
+          return {
+            ...agg,
+            b: o.b,
+            f: o.f,
+            s: o.s,
+            filePath: o.path.replace(incwd + '/', ''),
+          };
+        });
+      }
+
       const existing = await this.prisma.coverHitAgg.findFirst({
         where: {
           coverageID: agg.coverageID,
