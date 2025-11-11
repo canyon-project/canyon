@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CoverageClientDto } from '../dto/coverage-client.dto';
 import { remapCoverageByOld } from '../helpers/canyon-data';
@@ -46,9 +47,23 @@ export interface InsertCoverageResult {
 }
 @Injectable()
 export class CoverageClientService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async invoke(reporter: string, coverageClientDto: CoverageClientDto) {
+    const isdebug = await this.configService.get('INFRA.DEBUG_LOG');
+    // console.log(isdebug,'isdebug')
+    if (isdebug) {
+      await this.prisma.log.create({
+        data: {
+          // @ts-expect-error
+          content: coverageClientDto,
+        },
+      });
+    }
+
     const {
       provider,
       sha,
