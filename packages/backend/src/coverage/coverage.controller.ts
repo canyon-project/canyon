@@ -82,7 +82,7 @@ export class CoverageController {
           provider: q.provider,
           repoID: q.repoID,
           sha: q.subjectID,
-          buildTarget: '', // TODO 废弃，用buildProvider代替
+          buildTarget: q.buildTarget || '', // TODO 废弃，用buildProvider代替
           // buildID: q.buildID,
           reportProvider: q.reportProvider,
           reportID: q.reportID,
@@ -103,7 +103,7 @@ export class CoverageController {
           provider: q.provider,
           repoID: q.repoID,
           pullID: q.subjectID,
-          buildTarget: '', // TODO 废弃，用buildProvider代替
+          buildTarget: q.buildTarget || '', // TODO 废弃，用buildProvider代替
           // buildID: q.buildID,
           reportProvider: q.reportProvider,
           reportID: q.reportID,

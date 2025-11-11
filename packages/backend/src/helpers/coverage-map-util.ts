@@ -6,9 +6,6 @@ export function extractIstanbulData(obj) {
     b: {},
     f: {},
   };
-
-  Object.entries(obj.s).forEach(([k, v]: any) => {
-    o.statementMap[k] = v.origin;
-  });
+  o.statementMap = obj.origin.statementMap;
   return o;
 }

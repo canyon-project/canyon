@@ -103,8 +103,6 @@ export class TaskService {
             latestTs: agg.latestTs,
           },
         });
-        // console.log(entity)
-        // this.orm.em.persist(entity);
       } else {
         const existS = ensureNumMap(existing.s as unknown);
         const existF = ensureNumMap(existing.f as unknown);
@@ -131,7 +129,6 @@ export class TaskService {
             latestTs: existing.latestTs,
           },
         });
-        console.log(r);
         // this.orm.em.persist(existing);
       }
     }

@@ -4,7 +4,9 @@ import { Injectable } from '@nestjs/common';
 // import { transformFlatBranchHitsToArrays } from '../../../helpers/utils';
 // import { ChService } from '../../ch/ch.service';
 import { CodeService } from '../../code/service/code.service';
+import { remapCoverageByOld } from '../../collect/helpers/canyon-data';
 import { generateObjectSignature } from '../../collect/helpers/generateObjectSignature';
+import { decodeCompressedObject } from '../../collect/helpers/transform';
 // import { CoverHitAggEntity } from '../../../entities/cover-hit-agg.entity';
 // import { CoverageEntity } from '../../../entities/coverage.entity';
 // import { CoverageMapRelationEntity } from '../../../entities/coverage-map-relation.entity';
@@ -55,6 +57,7 @@ export class CoverageMapForCommitService {
       reportProvider,
       reportID,
     });
+
     // 生成versionID
     const versionID = generateObjectSignature({
       provider,
@@ -62,7 +65,11 @@ export class CoverageMapForCommitService {
       sha,
       buildTarget,
     });
-
+    const c = await this.prisma.coverage.findFirst({
+      where: {
+        versionID: versionID,
+      },
+    });
     const qb = {};
 
     if (filePath) {
@@ -98,7 +105,6 @@ export class CoverageMapForCommitService {
         versionID: versionID,
       },
     });
-
     // 9) 组装最终结果：合并命中、补齐 0 值、转换分支为数组
     const result: Record<string, unknown> = {};
     for (const r of rows || []) {
@@ -107,12 +113,26 @@ export class CoverageMapForCommitService {
         return i.hash === pathToHash.get(path);
       });
 
+      const sourceMapHashID = relationsAll.find(
+        (i) => i.filePath === filePath,
+      )?.sourceMapHashID;
+
+      const sd = await this.prisma.coverageSourceMap
+        .findFirst({
+          where: {
+            hash: sourceMapHashID,
+          },
+        })
+        .then((res) => decodeCompressedObject(res?.sourceMap));
+
       if (structure) {
-        result[path] = {
-          path,
+        const rPath = c?.instrumentCwd + '/' + path;
+        result[rPath] = {
+          path: rPath,
           ...extractIstanbulData(structure),
           s: r.s,
           contentHash: structure.hash.split('|')[1],
+          inputSourceMap: sd,
           // ...(structure as Record<string, unknown>),
           // s: sMap,
           // f: fMap,
@@ -122,7 +142,6 @@ export class CoverageMapForCommitService {
         };
       }
     }
-
     // include/exclude 过滤
     const repo = await this.prisma.repo.findFirst({
       where: {
@@ -130,6 +149,9 @@ export class CoverageMapForCommitService {
       },
     });
     const filtered = testExclude(result, repo?.config);
+
+    // const remapCoverageObject = await remapCoverageByOld(result as any);
     return result;
+    // return remapCoverageObject;
   }
 }
