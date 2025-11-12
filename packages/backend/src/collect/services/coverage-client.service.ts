@@ -53,8 +53,7 @@ export class CoverageClientService {
   ) {}
 
   async invoke(reporter: string, coverageClientDto: CoverageClientDto) {
-    const DEBUG_LOG = (await this.configService.get('INFRA.DEBUG_LOG')) || '';
-    if (DEBUG_LOG.split(',').includes(coverageClientDto.repoID)) {
+    if (coverageClientDto.reportID === 'mpaas_initial_coverage_data') {
       await this.prisma.log.create({
         data: {
           // @ts-expect-error
