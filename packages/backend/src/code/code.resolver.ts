@@ -32,27 +32,6 @@ export class CodeResolver {
   }
 
   @Query(() => String)
-  async codePullRequest(
-    @Args('projectID', { type: () => String }) projectID: string,
-    @Args('pullRequestID', { type: () => String }) pullRequestID: string,
-  ): Promise<string> {
-    const r = await this.code.getPullRequest({ projectID, pullRequestID });
-    return JSON.stringify(r);
-  }
-
-  @Query(() => String)
-  async codePullRequestChanges(
-    @Args('projectID', { type: () => String }) projectID: string,
-    @Args('pullRequestID', { type: () => String }) pullRequestID: string,
-  ): Promise<string> {
-    const r = await this.code.getPullRequestChanges({
-      projectID,
-      pullRequestID,
-    });
-    return JSON.stringify(r);
-  }
-
-  @Query(() => String)
   async codeProjectByPath(
     @Args('path', { type: () => String }) path: string,
   ): Promise<string> {

@@ -1,7 +1,5 @@
 import { Field, InputType } from '@nestjs/graphql';
-// import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { ServiceStatus } from './helper';
-// import { AuthProvider } from 'src/auth/helper';
 
 @InputType()
 export class InfraConfigArgs {

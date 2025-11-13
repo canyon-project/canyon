@@ -41,8 +41,6 @@ type Query {
   repos: [RepoModel!]!
   repo(id: ID!): RepoModel
   codeFileContent(repoID: String!, filepath: String!, sha: String, pullNumber: String, provider: String): CodeFileContent!
-  codePullRequest(projectID: String!, pullRequestID: String!): String!
-  codePullRequestChanges(projectID: String!, pullRequestID: String!): String!
   codeProjectByPath(path: String!): String!
   codeDiffChangedLines(input: CodeDiffChangedLinesInput!): CodeDiffChangedLinesOutput!
 }

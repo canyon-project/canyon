@@ -1,8 +1,6 @@
 import * as os from 'node:os';
 import { Controller, Get, Req } from '@nestjs/common';
 
-// import { Public } from 'src/auth/public.decorator';
-
 function parseBrowser(ua: string | undefined): string {
   const s = ua || '';
   const edge = s.match(/Edg\/(\d+\.?\d*)/);
@@ -18,7 +16,6 @@ function parseBrowser(ua: string | undefined): string {
   return 'Unknown Browser';
 }
 
-// @Public()
 @Controller('api/runtime')
 export class RuntimeController {
   @Get()

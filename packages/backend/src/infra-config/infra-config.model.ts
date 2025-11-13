@@ -1,6 +1,4 @@
 import { Field, ObjectType, registerEnumType } from '@nestjs/graphql';
-// import { AuthProvider } from 'src/auth/helper';
-// import { InfraConfigEnum } from 'src/types/InfraConfig';
 import { ServiceStatus } from './helper';
 
 @ObjectType()

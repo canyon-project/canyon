@@ -1,39 +1,15 @@
-// import { EntityRepository, QueryOrder } from '@mikro-orm/core';
-// import { InjectRepository } from '@mikro-orm/nestjs';
 import { Injectable } from '@nestjs/common';
-// import { transformFlatBranchHitsToArrays } from '../../../helpers/utils';
-// import { ChService } from '../../ch/ch.service';
-import { CodeService } from '../../code/service/code.service';
 import { generateObjectSignature } from '../../collect/helpers/generateObjectSignature';
-// import { CoverHitAggEntity } from '../../../entities/cover-hit-agg.entity';
-// import { CoverageEntity } from '../../../entities/coverage.entity';
-// import { CoverageMapRelationEntity } from '../../../entities/coverage-map-relation.entity';
-// import { RepoEntity } from '../../../entities/repo.entity';
 import { extractIstanbulData } from '../../helpers/coverage-map-util';
-// import { decodeID, encodeID } from '../../../helpers/coverageID';
 import { testExclude } from '../../helpers/test-exclude';
 import { PrismaService } from '../../prisma/prisma.service';
-// import { SystemConfigService } from '../../system-config/system-config.service';
-// import { tupleToMap } from '../coverage.utils';
 import { CoverageMapStoreService } from './coverage.map-store.service';
 
 @Injectable()
 export class CoverageMapForCommitService {
   constructor(
-    // private readonly ch: ChService,
-    // private readonly syscfg: SystemConfigService,
     private readonly coverageMapStoreService: CoverageMapStoreService,
     private readonly prisma: PrismaService,
-    // @InjectRepository(CoverageEntity)
-    // private readonly covRepo: EntityRepository<CoverageEntity>,
-    //
-    // @InjectRepository(CoverHitAggEntity)
-    // private readonly coverHitAggRepo: EntityRepository<CoverHitAggEntity>,
-    // @InjectRepository(RepoEntity)
-    // private readonly repo: EntityRepository<RepoEntity>,
-    // @InjectRepository(CoverageMapRelationEntity)
-    // private readonly relRepo: EntityRepository<CoverageMapRelationEntity>,
-    // private readonly codeService: CodeService,
   ) {}
   async invoke({
     provider,
@@ -112,12 +88,6 @@ export class CoverageMapForCommitService {
           ...extractIstanbulData(structure),
           s: r.s,
           contentHash: structure.hash.split('|')[1],
-          // ...(structure as Record<string, unknown>),
-          // s: sMap,
-          // f: fMap,
-          // b: bArr,
-          // change: s.files.find((item) => item.path === path),
-          // change: false,
         };
       }
     }

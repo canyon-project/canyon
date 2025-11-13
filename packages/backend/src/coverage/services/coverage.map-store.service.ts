@@ -1,8 +1,5 @@
-// import { InjectRepository } from '@mikro-orm/nestjs';
-// import { EntityRepository } from '@mikro-orm/postgresql';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-// import { CoverMapEntity } from '../../../entities/cover-map.entity';
 
 @Injectable()
 export class CoverageMapStoreService {
