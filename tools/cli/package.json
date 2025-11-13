@@ -1,0 +1,37 @@
+{
+  "name": "@canyonjs/cli",
+  "version": "1.0.12",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "bin"
+  ],
+  "bin": {
+    "canyon": "bin/canyon"
+  },
+  "scripts": {
+    "build": "rslib build",
+    "my-test": "npm run build && node ./bin/canyon upload",
+    "dev": "rslib build --watch",
+    "test": "rstest"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.3",
+    "@rslib/core": "^0.15.1",
+    "@rstest/core": "^0.5.1",
+    "@types/node": "^22.18.10",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "axios": "^1.12.2",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.1"
+  }
+}

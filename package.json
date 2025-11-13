@@ -1,0 +1,49 @@
+{
+  "name": "canyon",
+  "version": "3.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "preinstall": "node ./scripts/check.mjs",
+    "clean": "node ./scripts/clean.mjs",
+    "format": "biome check --write",
+    "dev": "pnpm run -r --stream dev",
+    "build": "pnpm run -r --stream build",
+    "prepare": "simple-git-hooks",
+    "migrate": "prisma migrate dev --schema ./packages/backend/prisma/schema.prisma",
+    "migrate:sql:root": "prisma migrate diff --from-empty --to-schema-datamodel ./packages/backend/prisma/schema.prisma --script > ./schema.sql"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "simple-git-hooks": {
+    "pre-commit": "npx nano-staged"
+  },
+  "nano-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,css}": [
+      "biome check --write"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.2",
+    "nano-staged": "latest",
+    "prisma": "6.18.0",
+    "simple-git-hooks": "latest"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.0.0",
+      "react-dom": "19.0.0",
+      "@types/react": "19.0.0",
+      "@types/react-dom": "19.0.0",
+      "@types/node": "24.6.0",
+      "globals": "16.0.0",
+      "prisma": "6.18.0",
+      "typescript": "5.9.3",
+      "vite": "npm:rolldown-vite@7.1.14"
+    }
+  },
+  "pacakgeManager": {
+    "packageManager": "pnpm@9"
+  }
+}
