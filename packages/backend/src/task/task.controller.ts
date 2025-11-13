@@ -1,8 +1,8 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { Public } from 'src/auth/public.decorator';
+// import { Public } from 'src/auth/public.decorator';
 import { TaskService } from './task.service';
 
-@Public()
+// @Public()
 @Controller('api/task')
 export class TaskController {
   constructor(

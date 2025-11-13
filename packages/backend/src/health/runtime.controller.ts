@@ -1,6 +1,7 @@
 import * as os from 'node:os';
 import { Controller, Get, Req } from '@nestjs/common';
-import { Public } from 'src/auth/public.decorator';
+
+// import { Public } from 'src/auth/public.decorator';
 
 function parseBrowser(ua: string | undefined): string {
   const s = ua || '';
@@ -17,7 +18,7 @@ function parseBrowser(ua: string | undefined): string {
   return 'Unknown Browser';
 }
 
-@Public()
+// @Public()
 @Controller('api/runtime')
 export class RuntimeController {
   @Get()

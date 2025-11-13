@@ -1,14 +1,14 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 // @ts-expect-error
 import { genSummaryMapByCoverageMap } from 'canyon-data';
-import { Public } from 'src/auth/public.decorator';
+// import { Public } from 'src/auth/public.decorator';
 import { MapQueryDto } from './dto/map.dto';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
 import { CoverageMapForCommitService } from './services/coverage-map-for-commit.service';
 import { CoverageMapForPullService } from './services/coverage-map-for-pull.service';
 // import { CoverageMapForPullService } from './services/coverage-map-for-pull.service';
 
-@Public()
+// @Public()
 @Controller('api/coverage')
 export class CoverageController {
   constructor(

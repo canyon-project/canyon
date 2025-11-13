@@ -1,10 +1,10 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { Public } from 'src/auth/public.decorator';
+// import { Public } from 'src/auth/public.decorator';
 import { CoverageClientDto } from './dto/coverage-client.dto';
 import { formatCoverageData } from './helpers/formatCoverageData';
 import { CoverageClientService } from './services/coverage-client.service';
 
-@Public()
+// @Public()
 @Controller('')
 export class CollectController {
   constructor(private coverageClientService: CoverageClientService) {}

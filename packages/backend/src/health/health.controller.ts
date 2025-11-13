@@ -4,10 +4,10 @@ import {
   HealthCheckService,
   PrismaHealthIndicator,
 } from '@nestjs/terminus';
-import { Public } from 'src/auth/public.decorator';
+// import { Public } from 'src/auth/public.decorator';
 import { PrismaService } from 'src/prisma/prisma.service';
 
-@Public()
+// @Public()
 @Controller('vi/health')
 export class HealthController {
   constructor(
