@@ -1,0 +1,149 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-1.1.x"]
+  output        = "../generated/prisma/client"
+}
+
+model User {
+  id        String   @id
+  email     String
+  password  String
+  nickname  String
+  avatar    String
+  favor     String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("canyon_user")
+}
+
+model InfraConfig {
+  id                     String   @id @default(cuid())
+  name                   String   @unique
+  value                  String
+  createdOn              DateTime @default(now()) @db.Timestamptz(3)
+  updatedOn              DateTime @updatedAt @db.Timestamptz(3)
+  isEncrypted            Boolean  @default(false)
+  lastSyncedEnvFileValue String
+
+  @@map("canyon_infra_config")
+}
+
+model Repo {
+  id                String   @id
+  pathWithNamespace String   @map("path_with_namespace")
+  description       String
+  config            String
+  bu                String
+  createdAt         DateTime @map("created_at")
+  updatedAt         DateTime @map("updated_at")
+  tags              Json
+  members           Json
+
+  @@map("canyon_repo")
+}
+
+model Log {
+  id        String   @id @default(cuid())
+  content   Json
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@map("canyon_log")
+}
+
+model Coverage {
+  id             String   @id
+  provider       String
+  repoID         String   @map("repo_id")
+  sha            String
+  branches       String?
+  builds         Json?
+  instrumentCwd  String   @map("instrument_cwd")
+  reportProvider String   @map("report_provider")
+  reportID       String   @map("report_id")
+  versionID      String   @map("version_id")
+  reporter       String
+  buildTarget    String   @map("build_target")
+  createdAt      DateTime @map("created_at")
+  updatedAt      DateTime @map("updated_at")
+
+  @@index([provider])
+  @@index([repoID], name: "repo_id_idx")
+  @@index([sha])
+  @@map("canyon_coverage")
+}
+
+model CoverageSourceMap {
+  hash      String @id
+  sourceMap Bytes  @map("source_map")
+
+  @@map("canyon_coverage_source_map")
+}
+
+model CoverageMapRelation {
+  id                  String @id
+  versionID           String @map("version_id")
+  coverageMapHashID   String @map("coverage_map_hash_id")
+  fullFilePath        String @map("full_file_path")
+  restoreFullFilePath String @map("restore_full_file_path")
+  filePath            String @map("file_path")
+  sourceMapHashID     String @map("source_map_hash_id")
+  contentHashID       String @map("content_hash_id")
+
+  @@index([versionID])
+  @@index([coverageMapHashID])
+  @@map("canyon_coverage_map_relation")
+}
+
+model CoverMap {
+  hash    String   @id
+  origin  Json
+  restore Json
+  ts      DateTime
+
+  @@map("canyon_map")
+}
+
+model CoverHit {
+  id             String   @id
+  coverageID     String   @map("coverage_id")
+  versionID      String   @map("version_id")
+  filePath       String   @map("file_path")
+  s              Json
+  f              Json
+  b              Json
+  inputSourceMap Int?     @map("input_source_map")
+  aggregated     Boolean
+  ts             DateTime
+
+  @@index([coverageID])
+  @@index([versionID])
+  @@map("canyon_hit")
+}
+
+model CoverHitAgg {
+  coverageID String   @map("coverage_id")
+  versionID  String   @map("version_id")
+  filePath   String   @map("file_path")
+  s          Json
+  f          Json
+  b          Json
+  latestTs   DateTime @map("latest_ts")
+
+  @@id([coverageID, versionID, filePath])
+  @@map("canyon_hit_agg")
+}
+
+model Config {
+  id        String   @id
+  key       String
+  value     String
+  createdAt DateTime @map("created_at")
+  updatedAt DateTime @map("updated_at")
+
+  @@map("canyon_config")
+}

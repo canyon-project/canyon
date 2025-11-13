@@ -1,0 +1,27 @@
+query Repos {
+  repos {
+    id
+    pathWithNamespace
+    description
+    bu
+    tags
+    members
+    config
+    createdAt
+    updatedAt
+  }
+}
+
+query Repo($id: ID!) {
+  repo(id: $id) {
+    id
+    pathWithNamespace
+    description
+    bu
+    tags
+    members
+    config
+    createdAt
+    updatedAt
+  }
+}
