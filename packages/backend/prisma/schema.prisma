@@ -9,18 +9,6 @@ generator client {
   output        = "../generated/prisma/client"
 }
 
-model User {
-  id        String   @id
-  email     String
-  password  String
-  nickname  String
-  avatar    String
-  favor     String
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-
-  @@map("canyon_user")
-}
-
 model InfraConfig {
   id                     String   @id @default(cuid())
   name                   String   @unique
@@ -136,14 +124,4 @@ model CoverHitAgg {
 
   @@id([coverageID, versionID, filePath])
   @@map("canyon_hit_agg")
-}
-
-model Config {
-  id        String   @id
-  key       String
-  value     String
-  createdAt DateTime @map("created_at")
-  updatedAt DateTime @map("updated_at")
-
-  @@map("canyon_config")
 }
