@@ -17,7 +17,7 @@ model InfraConfig {
   isEncrypted            Boolean  @default(false)
   lastSyncedEnvFileValue String
 
-  @@map("canyon_infra_config")
+  @@map("canyon_final_infra_config")
 }
 
 model Repo {
@@ -31,7 +31,7 @@ model Repo {
   tags              Json
   members           Json
 
-  @@map("canyon_repo")
+  @@map("canyon_final_repo")
 }
 
 model Log {
@@ -39,7 +39,7 @@ model Log {
   content   Json
   createdAt DateTime @default(now()) @db.Timestamptz(3)
 
-  @@map("canyon_log")
+  @@map("canyon_final_log")
 }
 
 model Coverage {
@@ -61,14 +61,14 @@ model Coverage {
   @@index([provider])
   @@index([repoID], name: "repo_id_idx")
   @@index([sha])
-  @@map("canyon_coverage")
+  @@map("canyon_final_coverage")
 }
 
 model CoverageSourceMap {
   hash      String @id
   sourceMap Bytes  @map("source_map")
 
-  @@map("canyon_coverage_source_map")
+  @@map("canyon_final_coverage_source_map")
 }
 
 model CoverageMapRelation {
@@ -83,7 +83,7 @@ model CoverageMapRelation {
 
   @@index([versionID])
   @@index([coverageMapHashID])
-  @@map("canyon_coverage_map_relation")
+  @@map("canyon_final_coverage_map_relation")
 }
 
 model CoverMap {
@@ -92,7 +92,7 @@ model CoverMap {
   restore Json
   ts      DateTime
 
-  @@map("canyon_map")
+  @@map("canyon_final_map")
 }
 
 model CoverHit {
@@ -109,7 +109,7 @@ model CoverHit {
 
   @@index([coverageID])
   @@index([versionID])
-  @@map("canyon_hit")
+  @@map("canyon_final_hit")
 }
 
 model CoverHitAgg {
@@ -122,5 +122,5 @@ model CoverHitAgg {
   latestTs   DateTime @map("latest_ts")
 
   @@id([coverageID, versionID, filePath])
-  @@map("canyon_hit_agg")
+  @@map("canyon_final_hit_agg")
 }
