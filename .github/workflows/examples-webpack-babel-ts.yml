@@ -29,21 +29,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Derive Playwright version
-        run: |
-          PWV=$(node -e "console.log(require('@playwright/test/package.json').version)")
-          echo "PW_VERSION=$PWV" >> $GITHUB_ENV
-
-      - name: Cache Playwright browsers
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ runner.os }}-playwright-${{ env.PW_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-playwright-
-
-      - name: Install Playwright browsers
-        run: pnpm playwright:install
       - name: Build example
         run: pnpm run build
 
@@ -64,11 +49,26 @@ jobs:
           --sha=${{ github.sha }}
           --branch=${{ github.ref_name }}
           --provider=github
-          --build_target=pc
           --debug=true
 
       - name: Cleanup Canyon output
         run: rm -rf .canyon_output
+
+      - name: Derive Playwright version
+        run: |
+          PWV=$(node -e "console.log(require('@playwright/test/package.json').version)")
+          echo "PW_VERSION=$PWV" >> $GITHUB_ENV
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ env.PW_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright browsers
+        run: pnpm playwright:install
 
       - name: Run E2E
         env:
