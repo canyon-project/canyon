@@ -50,7 +50,19 @@ export class CoverageClientService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-  ) {}
+  ) {
+    // this.prisma.log.findFirst({
+    //   where:{
+    //     id:'cmhwvi6m70000b0rspvvrb7ys'
+    //   }
+    // }).then(r=>{
+    //   console.log(r)
+    //   // @ts-expect-error
+    //   this.invoke('1',r?.content).then(r1=>{
+    //     console.log(r1)
+    //   })
+    // })
+  }
 
   async invoke(reporter: string, coverageClientDto: CoverageClientDto) {
     // if (coverageClientDto.reportID === 'mpaas_initial_coverage_data') {
