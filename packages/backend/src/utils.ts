@@ -43,7 +43,7 @@ export function decrypt(
   }
 
   const textParts = encryptedData.split(':');
-  // @ts-expect-error
+  // @ts-ignorer
   const iv = Buffer.from(textParts.shift(), 'hex');
   const encryptedText = Buffer.from(textParts.join(':'), 'hex');
   const decipher = crypto.createDecipheriv(

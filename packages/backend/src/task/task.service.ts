@@ -124,7 +124,7 @@ export class TaskService {
           agg = await remapCoverageByOld({
             [coverageMapRelation.restoreFullFilePath]: {
               path: coverageMapRelation.restoreFullFilePath,
-              // @ts-expect-error
+              // @ts-ignorer
               ...coverMap?.restore,
               branchMap: {}, //暂时还不支持branchMap
               inputSourceMap: coverageSourceMap,

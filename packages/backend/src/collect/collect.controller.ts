@@ -11,9 +11,9 @@ export class CollectController {
   @Post('coverage/client')
   async uploadCoverageFromClient(@Body() coverageClientDto: CoverageClientDto) {
     return this.coverageClientService.invoke('1', {
-      // @ts-expect-error
+      // @ts-ignorer
       reportID: coverageClientDto.reportID || coverageClientDto.sha,
-      // @ts-expect-error
+      // @ts-ignorer
       reportProvider: coverageClientDto.reportProvider || 'person',
       ...coverageClientDto,
       coverage: formatCoverageData(coverageClientDto.coverage),

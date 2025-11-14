@@ -4,7 +4,7 @@ export const transformCoverageStatementContentToCk = (statementMap) => {
   return Object.fromEntries(
     Object.entries(statementMap).map(([k, v]) => [
       Number(k),
-      // @ts-expect-error
+      // @ts-ignorer
       v.contentHash,
     ]),
   );

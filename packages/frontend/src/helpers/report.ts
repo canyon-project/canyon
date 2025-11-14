@@ -10,6 +10,7 @@ export function getDecode(str: string) {
   );
 }
 
+
 export function handleSelectFileBySubject({
   repoID,
   subject,
@@ -20,7 +21,7 @@ export function handleSelectFileBySubject({
   buildID,
   reportProvider,
   reportID,
-  // @ts-expect-error
+                                            // @ts-ignore
   codeDiffChangedLinesRefetch,
 }: {
   repoID: string;

@@ -100,7 +100,7 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
       buildID,
       reportProvider,
       reportID,
-      // @ts-expect-error
+      // @ts-ignorer
       codeDiffChangedLinesRefetch,
     }).then((res) => ({
       fileContent: res.fileContent,

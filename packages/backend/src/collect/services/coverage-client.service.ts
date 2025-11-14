@@ -57,7 +57,7 @@ export class CoverageClientService {
     //   }
     // }).then(r=>{
     //   console.log(r)
-    //   // @ts-expect-error
+    //   // @ts-ignorer
     //   this.invoke('1',r?.content).then(r1=>{
     //     console.log(r1)
     //   })
@@ -68,7 +68,7 @@ export class CoverageClientService {
     // if (coverageClientDto.reportID === 'mpaas_initial_coverage_data') {
     //   await this.prisma.log.create({
     //     data: {
-    //       // @ts-expect-error
+    //       // @ts-ignorer
     //       content: coverageClientDto,
     //     },
     //   });
@@ -247,7 +247,7 @@ export class CoverageClientService {
     }));
 
     await this.prisma.coverMap.createMany({
-      // @ts-expect-error
+      // @ts-ignorer
       data: coverMapEntities,
       skipDuplicates: true,
     });

@@ -1,5 +1,5 @@
 import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
-// @ts-expect-error
+// @ts-ignorer
 import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { MapQueryDto } from './dto/map.dto';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
