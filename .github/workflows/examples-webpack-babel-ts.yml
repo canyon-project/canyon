@@ -44,6 +44,31 @@ jobs:
 
       - name: Install Playwright browsers
         run: pnpm playwright:install
+      - name: Build example
+        run: pnpm run build
+
+      - name: Install Canyon CLI
+        run: npm i -g @canyonjs/cli
+
+      - name: Canyon help
+        run: canyon -h
+
+      - name: Upload coverage to Canyon
+        env:
+          CANYON_DSN: https://app.canyonjs.io/coverage/client
+        run: >
+          canyon upload
+          --dsn=$CANYON_DSN
+          --repo_id=${{ github.repository_id }}
+          --instrument_cwd=${{ github.workspace }}
+          --sha=${{ github.sha }}
+          --branch=${{ github.ref_name }}
+          --provider=github
+          --build_target=pc
+          --debug=true
+
+      - name: Cleanup Canyon output
+        run: rm -rf .canyon_output
 
       - name: Run E2E
         env:
