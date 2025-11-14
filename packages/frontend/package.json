@@ -7,11 +7,7 @@
     "dev": "VITE_COMMIT=dev VITE_NODE=$(node -v || echo unknown) vite",
     "build": "VITE_COMMIT=$(git rev-parse --short HEAD || echo dev) VITE_NODE=$(node -v || echo unknown) vite build",
     "postinstall": "npm run codegen",
-    "codegen": "graphql-codegen --config codegen.ts",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:headed": "playwright test --headed",
-    "playwright:install": "playwright install --with-deps"
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
@@ -38,7 +34,6 @@
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0",
     "@graphql-codegen/cli": "^6.0.1",
     "@graphql-codegen/client-preset": "^5.1.1",
     "@tailwindcss/vite": "^4.1.16",

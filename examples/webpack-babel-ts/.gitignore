@@ -35,3 +35,6 @@ pnpm-lock.yaml
 .env
 
 build
+
+test-results
+playwright-report
