@@ -1,4 +1,4 @@
-import { test, expect } from './base';
+import { test, expect } from '../base';
 
 test('counter increments on + click', async ({ page }) => {
   await page.goto('/index.html');
