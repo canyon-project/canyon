@@ -30,7 +30,9 @@ jobs:
         run: pnpm install
 
       - name: Derive Playwright version
-        run: echo "PW_VERSION=$(node -e \"console.log(require('@playwright/test/package.json').version)\")" >> $GITHUB_ENV
+        run: |
+          PWV=$(node -e "console.log(require('@playwright/test/package.json').version)")
+          echo "PW_VERSION=$PWV" >> $GITHUB_ENV
 
       - name: Cache Playwright browsers
         uses: actions/cache@v4
