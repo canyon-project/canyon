@@ -4,6 +4,7 @@ import {test as baseTest} from '@playwright/test';
 
 const canyonOutputDirPath = path.join(process.cwd(), '.canyon_output');
 
+
 export const test = baseTest.extend({
     context: async ({context}, use) => {
         await context.addInitScript(() =>
