@@ -64,6 +64,7 @@ export function handleSelectFileBySubject({
         filepath: codeParams.filepath,
         sha: codeParams.sha,
         pullNumber: codeParams.pullNumber,
+        provider
       },
       query:
         'query CodeFileContent($repoID: String!, $filepath: String!, $sha: String, $pullNumber: String, $provider: String) {\n  codeFileContent(\n    repoID: $repoID\n    filepath: $filepath\n    sha: $sha\n    pullNumber: $pullNumber\n    provider: $provider\n  ) {\n    content\n    __typename\n  }\n}',

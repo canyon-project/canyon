@@ -34,8 +34,16 @@ export class CodeResolver {
   @Query(() => String)
   async codeProjectByPath(
     @Args('path', { type: () => String }) path: string,
+    @Args('provider', { type: () => String, nullable: true })
+    provider?: string,
   ): Promise<string> {
-    const r = await this.code.getProjectByPath(path);
+    // 根据 provider 分流
+    let r: unknown;
+    if ((provider || 'gitlab') === 'gitlab') {
+      r = await this.code.getProjectByPath(path);
+    } else {
+      r = await this.code.getProjectByPathGithub(path, provider || 'github');
+    }
     return JSON.stringify(r);
   }
 

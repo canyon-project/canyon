@@ -29,7 +29,7 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
     | undefined;
   const buildTarget = searchParams.get('build_target') || '';
   const buildID = searchParams.get('build_id') || '';
-  const provider = searchParams.get('provider') || 'gitlab';
+  const provider = params.provider as string | 'github';
   const reportID = searchParams.get('report_id') || '';
   const reportProvider = searchParams.get('report_provider') || '';
   const defaultOnlyShowChanged =
