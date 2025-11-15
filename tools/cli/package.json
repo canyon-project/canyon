@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/cli",
-  "version": "1.0.12",
+  "version": "1.0.16",
   "type": "module",
   "exports": {
     ".": {
@@ -14,12 +14,14 @@
     "bin"
   ],
   "bin": {
-    "canyon": "bin/canyon"
+    "canyon": "bin/canyon.js"
   },
   "scripts": {
     "build": "rslib build",
-    "my-test": "npm run build && node ./bin/canyon upload",
+    "my-test": "npm run build && node ./bin/canyon.js upload",
+    "check": "biome check --write",
     "dev": "rslib build --watch",
+    "format": "biome format --write",
     "test": "rstest"
   },
   "devDependencies": {

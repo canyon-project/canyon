@@ -1,7 +1,7 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.3.2/schema.json",
   "files": {
-    "includes": ["packages/backend/src/**", "packages/frontend/src/**","!packages/frontend/src/helpers/backend/gen"]
+    "includes": ["tools/cli/src/**","packages/backend/src/**", "packages/frontend/src/**","!packages/frontend/src/helpers/backend/gen"]
   },
   "formatter": {
     "enabled": true,

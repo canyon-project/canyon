@@ -42,7 +42,7 @@ program
 // upload --dsn=http://local/coverage/client --repo_id=$CI_PROJECT_ID --instrument_cwd=$CI_PROJECT_DIR --sha=$CI_COMMIT_SHA --branch=$CI_COMMIT_REF_NAME --provider=gitlab
 program
   .command('upload')
-    .option('--debug <dsn>', 'debug')
+  .option('--debug <dsn>', 'debug')
   .option('--dsn <dsn>', 'dsn of the canyon server')
   .option('--repo_id <repo_id>', 'repo id of the canyon server')
   .option(
