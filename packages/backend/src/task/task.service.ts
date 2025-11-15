@@ -1,20 +1,99 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  OnModuleInit,
+} from '@nestjs/common';
 import { remapCoverageByOld } from '../collect/helpers/canyon-data';
 import { decodeCompressedObject } from '../collect/helpers/transform';
 import { PrismaService } from '../prisma/prisma.service';
 
-// 暂时采用外部定时器触发
-
 @Injectable()
-export class TaskService {
+export class TaskService implements OnModuleInit, OnModuleDestroy {
+  private readonly logger = new Logger(TaskService.name);
+  private pollTimer: NodeJS.Timeout | null = null;
+  private isRunning = false;
+  private readonly pollIntervalMs = Number(
+    process.env.TASK_COVERAGE_AGG_POLL_MS || 3000,
+  );
+
   constructor(private readonly prisma: PrismaService) {}
 
-  async taskCoverageAgg() {
-    // 参考 packages/backend/sql/cover_refresh_hit_agg.sql 实现：
-    // 简化为顺序处理，不做批量与事务：
-    // - 读取所有 aggregated=false 的 canyon_hit 记录
-    // - 逐条累加到 canyon_hit_agg（若存在则累加 s/f/b，latest_ts 取最大，否则插入）
-    // - 每条处理完即标记 aggregated=true
+  async onModuleInit() {
+    // 启动自轮询任务
+    this.startPolling();
+  }
+
+  async onModuleDestroy() {
+    if (this.pollTimer) {
+      clearInterval(this.pollTimer);
+      this.pollTimer = null;
+    }
+  }
+
+  private startPolling() {
+    if (this.pollTimer) return;
+    this.pollTimer = setInterval(() => {
+      void this.pollOnce();
+    }, this.pollIntervalMs);
+    this.logger.log(
+      `Task coverage aggregator polling every ${this.pollIntervalMs}ms`,
+    );
+  }
+
+  private async pollOnce() {
+    if (this.isRunning) return;
+    this.isRunning = true;
+    try {
+      // 取若干个最早的 coverageID，逐个尝试加锁，谁锁住就处理谁
+      const candidates = await this.prisma.coverHit.groupBy({
+        by: ['coverageID'],
+        where: { aggregated: false },
+        _min: { ts: true },
+        orderBy: { _min: { ts: 'asc' } },
+        take: 5,
+      });
+      for (const c of candidates) {
+        const coverageID = c.coverageID;
+        const locked = await this.tryAcquireCoverageLock(coverageID);
+        if (!locked) continue;
+        try {
+          const r = await this.taskCoverageAgg(coverageID);
+          if (r.processed > 0) {
+            this.logger.log(
+              `Aggregated coverage=${coverageID} processed=${r.processed}, groups=${r.groups}`,
+            );
+          }
+        } finally {
+          await this.releaseCoverageLock(coverageID);
+        }
+        // 每轮只处理一个 coverageID，留给其它实例处理其余 coverageID
+        break;
+      }
+    } catch (e) {
+      this.logger.error('pollOnce error', e as any);
+    } finally {
+      this.isRunning = false;
+    }
+  }
+
+  private async tryAcquireCoverageLock(coverageID: string): Promise<boolean> {
+    const rows = (await this.prisma.$queryRaw<
+      Array<{ locked: boolean }>
+    >`SELECT pg_try_advisory_lock(hashtext(${coverageID})::bigint) AS locked`) as Array<{
+      locked: boolean;
+    }>;
+    return rows?.[0]?.locked === true;
+  }
+
+  private async releaseCoverageLock(coverageID: string): Promise<void> {
+    await this.prisma
+      .$queryRaw`SELECT pg_advisory_unlock(hashtext(${coverageID})::bigint) AS unlocked`;
+  }
+
+  async taskCoverageAgg(targetCoverageID?: string) {
+    // 仅处理一个 coverageID 的“最早一批”（按 versionID 分组，取该 coverageID 下最早的 versionID）
+    // 避免一次性全量拉取
 
     type NumMap = Record<string, number>;
     function ensureNumMap(value: unknown): NumMap {
@@ -37,13 +116,40 @@ export class TaskService {
       return res;
     }
 
-    const list = await this.prisma.coverHit.findMany(
-      {
+    // 选择一个待处理的 coverageID（按最早 ts），或使用传入的 coverageID
+    let coverageID = targetCoverageID;
+    if (!coverageID) {
+      const covGroup = await this.prisma.coverHit.groupBy({
+        by: ['coverageID'],
         where: { aggregated: false },
-        orderBy: { ts: 'asc' },
-      },
-      // { orderBy: { ts: 'asc' } },
-    );
+        _min: { ts: true },
+        orderBy: { _min: { ts: 'asc' } },
+        take: 1,
+      });
+      if (covGroup.length === 0) {
+        return { processed: 0, groups: 0 };
+      }
+      coverageID = covGroup[0].coverageID;
+    }
+
+    // 在该 coverageID 内，选择最早的一批 versionID
+    const verGroup = await this.prisma.coverHit.groupBy({
+      by: ['versionID'],
+      where: { aggregated: false, coverageID },
+      _min: { ts: true },
+      orderBy: { _min: { ts: 'asc' } },
+      take: 1,
+    });
+    if (verGroup.length === 0) {
+      return { processed: 0, groups: 0 };
+    }
+    const versionID = verGroup[0].versionID;
+
+    // 拉取该 coverageID + versionID 的未聚合记录（按时间顺序）
+    const list = await this.prisma.coverHit.findMany({
+      where: { aggregated: false, coverageID, versionID },
+      orderBy: { ts: 'asc' },
+    });
 
     // 先分组累加，后统一写库
     interface GroupAgg {
@@ -124,7 +230,7 @@ export class TaskService {
           agg = await remapCoverageByOld({
             [coverageMapRelation.restoreFullFilePath]: {
               path: coverageMapRelation.restoreFullFilePath,
-              // @ts-ignorer
+              // @ts-expect-errorr
               ...coverMap?.restore,
               branchMap: {}, //暂时还不支持branchMap
               inputSourceMap: coverageSourceMap,
