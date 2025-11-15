@@ -210,7 +210,7 @@ export class TaskService implements OnModuleInit, OnModuleDestroy {
               restoreFullFilePath: `${incwd}/${agg.filePath}`, // TODO review
             },
           });
-        if (coverageMapRelation) {
+        if (coverageMapRelation && coverageMapRelation.coverageMapHashID) {
           const coverMap = await this.prisma.coverMap.findFirst({
             where: {
               hash: {
@@ -227,7 +227,7 @@ export class TaskService implements OnModuleInit, OnModuleDestroy {
             })
             .then((r) => decodeCompressedObject(r?.sourceMap));
 
-          agg = await remapCoverageByOld({
+          const aggBox = await remapCoverageByOld({
             [coverageMapRelation.restoreFullFilePath]: {
               path: coverageMapRelation.restoreFullFilePath,
               // @ts-expect-errorr
@@ -238,16 +238,24 @@ export class TaskService implements OnModuleInit, OnModuleDestroy {
               f: agg.f,
               s: agg.s,
             },
-          }).then((r) => {
-            const o: any = Object.values(r)[0];
-            return {
-              ...agg,
-              b: o.b,
-              f: o.f,
-              s: o.s,
-              filePath: o.path.replace(incwd + '/', ''),
-            };
-          });
+          })
+            .then((r) => {
+              const o: any = Object.values(r)[0];
+              return {
+                ...agg,
+                b: o.b,
+                f: o.f,
+                s: o.s,
+                filePath: o.path.replace(incwd + '/', ''),
+              };
+            })
+            .catch(() => {
+              return false;
+            });
+          if (aggBox) {
+            // @ts-expect-error
+            agg = aggBox;
+          }
         }
       }
 
