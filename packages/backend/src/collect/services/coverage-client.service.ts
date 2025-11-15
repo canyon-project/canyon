@@ -7,6 +7,7 @@ import { remapCoverageByOld } from '../helpers/canyon-data';
 import { checkCoverageType } from '../helpers/checkCoverageType';
 import { generateSecureId } from '../helpers/coverageID';
 import { generateObjectSignature } from '../helpers/generateObjectSignature';
+import { separateCoverage } from '../helpers/separateCoverage';
 import { encodeObjectToCompressedBuffer } from '../helpers/transform';
 
 type CoverageKind = 'hit' | 'map';
@@ -139,8 +140,19 @@ export class CoverageClientService {
         instrumentCwd,
       });
     } else {
+      // 如果map里也没input source的话那就能直接插入hit
+
+      const { separateCoverageHit } = separateCoverage(coverage);
+
       await this.insertMap({
         coverage: coverage as MapCoverage,
+        coverageID,
+        versionID,
+        instrumentCwd,
+      });
+
+      await this.insertHit({
+        coverage: separateCoverageHit as HitCoverage,
         coverageID,
         versionID,
         instrumentCwd,
