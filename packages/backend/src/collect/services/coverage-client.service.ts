@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { isUndefined } from '@nestjs/common/utils/shared.utils';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CoverageClientDto } from '../dto/coverage-client.dto';
@@ -57,7 +58,7 @@ export class CoverageClientService {
     //   }
     // }).then(r=>{
     //   console.log(r)
-    //   // @ts-ignorer
+    //   // @ts-expect-errorr
     //   this.invoke('1',r?.content).then(r1=>{
     //     console.log(r1)
     //   })
@@ -65,14 +66,15 @@ export class CoverageClientService {
   }
 
   async invoke(reporter: string, coverageClientDto: CoverageClientDto) {
-    // if (coverageClientDto.reportID === 'mpaas_initial_coverage_data') {
-    //   await this.prisma.log.create({
-    //     data: {
-    //       // @ts-ignorer
-    //       content: coverageClientDto,
-    //     },
-    //   });
-    // }
+    await this.prisma.log.create({
+      data: {
+        // @ts-expect-errorr
+        content: {
+          ...coverageClientDto,
+          coverage: {},
+        },
+      },
+    });
 
     const {
       provider,
@@ -247,7 +249,7 @@ export class CoverageClientService {
     }));
 
     await this.prisma.coverMap.createMany({
-      // @ts-ignorer
+      // @ts-expect-errorr
       data: coverMapEntities,
       skipDuplicates: true,
     });
