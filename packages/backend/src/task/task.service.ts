@@ -16,18 +16,28 @@ export class TaskService implements OnModuleInit, OnModuleDestroy {
   private readonly pollIntervalMs = Number(
     process.env.TASK_COVERAGE_AGG_POLL_MS || 3000,
   );
+  private delPollTimer: NodeJS.Timeout | null = null;
+  private isDelRunning = false;
+  private readonly delPollIntervalMs = Number(
+    process.env.TASK_COVERAGE_DEL_POLL_MS || 30000,
+  );
 
   constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
     // 启动自轮询任务
     this.startPolling();
+    this.startDelPolling();
   }
 
   async onModuleDestroy() {
     if (this.pollTimer) {
       clearInterval(this.pollTimer);
       this.pollTimer = null;
+    }
+    if (this.delPollTimer) {
+      clearInterval(this.delPollTimer);
+      this.delPollTimer = null;
     }
   }
 
@@ -38,6 +48,16 @@ export class TaskService implements OnModuleInit, OnModuleDestroy {
     }, this.pollIntervalMs);
     this.logger.log(
       `Task coverage aggregator polling every ${this.pollIntervalMs}ms`,
+    );
+  }
+
+  private startDelPolling() {
+    if (this.delPollTimer) return;
+    this.delPollTimer = setInterval(() => {
+      void this.pollDelOnce();
+    }, this.delPollIntervalMs);
+    this.logger.log(
+      `Task coverage delete polling every ${this.delPollIntervalMs}ms`,
     );
   }
 
@@ -74,6 +94,29 @@ export class TaskService implements OnModuleInit, OnModuleDestroy {
       this.logger.error('pollOnce error', e as any);
     } finally {
       this.isRunning = false;
+    }
+  }
+
+  private async pollDelOnce() {
+    if (this.isDelRunning) return;
+    this.isDelRunning = true;
+    try {
+      const locked = await this.tryAcquireNamespacedLock('cov_del', 'all');
+      if (!locked) return;
+      try {
+        const { count } = await this.prisma.coverHit.deleteMany({
+          where: { aggregated: true },
+        });
+        if (count > 0) {
+          this.logger.log(`Deleted aggregated hits count=${count}`);
+        }
+      } finally {
+        await this.releaseNamespacedLock('cov_del', 'all');
+      }
+    } catch (e) {
+      this.logger.error('pollDelOnce error', e as any);
+    } finally {
+      this.isDelRunning = false;
     }
   }
 
