@@ -68,7 +68,6 @@ export class CoverageClientService {
   async invoke(reporter: string, coverageClientDto: CoverageClientDto) {
     await this.prisma.log.create({
       data: {
-        // @ts-expect-errorr
         content: {
           ...coverageClientDto,
           coverage: {},
