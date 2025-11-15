@@ -91,6 +91,28 @@ export class TaskService implements OnModuleInit, OnModuleDestroy {
       .$queryRaw`SELECT pg_advisory_unlock(hashtext(${coverageID})::bigint) AS unlocked`;
   }
 
+  private async tryAcquireNamespacedLock(
+    namespace: string,
+    id: string,
+  ): Promise<boolean> {
+    const key = `${namespace}:${id}`;
+    const rows = (await this.prisma.$queryRaw<
+      Array<{ locked: boolean }>
+    >`SELECT pg_try_advisory_lock(hashtext(${key})::bigint) AS locked`) as Array<{
+      locked: boolean;
+    }>;
+    return rows?.[0]?.locked === true;
+  }
+
+  private async releaseNamespacedLock(
+    namespace: string,
+    id: string,
+  ): Promise<void> {
+    const key = `${namespace}:${id}`;
+    await this.prisma
+      .$queryRaw`SELECT pg_advisory_unlock(hashtext(${key})::bigint) AS unlocked`;
+  }
+
   async taskCoverageAgg(targetCoverageID?: string) {
     // 仅处理一个 coverageID 的“最早一批”（按 versionID 分组，取该 coverageID 下最早的 versionID）
     // 避免一次性全量拉取
@@ -327,10 +349,16 @@ export class TaskService implements OnModuleInit, OnModuleDestroy {
   }
 
   async taskCoverageDel() {
-    return this.prisma.coverHit.deleteMany({
-      where: {
-        aggregated: true,
-      },
-    });
+    // 分布式锁（全局），直接删除所有 aggregated=true
+    const locked = await this.tryAcquireNamespacedLock('cov_del', 'all');
+    if (!locked) return { deleted: 0, locked: false };
+    try {
+      const { count } = await this.prisma.coverHit.deleteMany({
+        where: { aggregated: true },
+      });
+      return { deleted: count, locked: true };
+    } finally {
+      await this.releaseNamespacedLock('cov_del', 'all');
+    }
   }
 }
