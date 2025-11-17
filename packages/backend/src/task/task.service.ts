@@ -275,7 +275,7 @@ export class TaskService implements OnModuleInit, OnModuleDestroy {
               restoreFullFilePath: `${incwd}/${agg.filePath}`, // TODO review
             },
           });
-        if (coverageMapRelation && coverageMapRelation.coverageMapHashID) {
+        if (coverageMapRelation && coverageMapRelation.coverageMapHashID && coverageMapRelation.sourceMapHashID) {
           const coverMap = await this.prisma.coverMap.findFirst({
             where: {
               hash: {
