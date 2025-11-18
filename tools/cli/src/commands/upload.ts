@@ -13,6 +13,7 @@ export async function mapCommand(params: any, options: any) {
     build_target,
     debug,
     instrument_cwd,
+    filter,
   } = params;
   if (!fs.existsSync(path.resolve(process.cwd(), '.canyon_output'))) {
     console.log('不存在');
@@ -27,7 +28,19 @@ export async function mapCommand(params: any, options: any) {
     );
     const fileCoverage = JSON.parse(fileCoverageString);
 
-    data = mergeCoverageMaps(data, fileCoverage);
+    // 如果传入了 filter，则仅合并键（文件路径）包含该子串的覆盖数据
+    let toMerge = fileCoverage;
+    if (filter && typeof filter === 'string') {
+      const filteredEntries = Object.entries(fileCoverage).filter(
+        ([filePath]) => filePath.includes(filter),
+      );
+      if (filteredEntries.length === 0) {
+        continue;
+      }
+      toMerge = Object.fromEntries(filteredEntries);
+    }
+
+    data = mergeCoverageMaps(data, toMerge);
   }
 
   const p = {

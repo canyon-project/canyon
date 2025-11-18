@@ -45,6 +45,7 @@ program
   .option('--debug <dsn>', 'debug')
   .option('--dsn <dsn>', 'dsn of the canyon server')
   .option('--repo_id <repo_id>', 'repo id of the canyon server')
+  .option('--filter <filter>', '仅合并路径包含该子串的文件覆盖率')
   .option(
     '--instrument_cwd <instrument_cwd>',
     'instrument cwd of the canyon server',
