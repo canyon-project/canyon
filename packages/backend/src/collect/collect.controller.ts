@@ -13,7 +13,14 @@ export class CollectController {
   constructor(
     private coverageClientService: CoverageClientService,
     private prisma: PrismaService,
-  ) {}
+  ) {
+    // this.prisma.project.findMany()
+    // this.prisma.repo.findFirst({
+    //   where:{}
+    // }).then(r=>{
+    //   console.log(r,'rrr')
+    // })
+  }
   @Post('coverage/client')
   async uploadCoverageFromClient(@Body() coverageClientDto: CoverageClientDto) {
     return this.coverageClientService.invoke('1', {
