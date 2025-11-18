@@ -225,6 +225,10 @@ export class CoverageClientService {
         (item: any) => item.oldPath === filePath,
       );
       if (remappedEntry && (entry as any).inputSourceMap) {
+        const inputSourceMapCoverageMapHash = generateObjectSignature({
+          ...chunkMap,
+          inputSourceMap: 1,
+        });
         return {
           origin: {
             statementMap: remappedEntry.statementMap,
@@ -233,7 +237,7 @@ export class CoverageClientService {
           },
           restore: chunkMap,
           ts: new Date(),
-          coverageMapHashID: coverageMapHash,
+          coverageMapHashID: inputSourceMapCoverageMapHash,
           contentHashID: contentHash,
           filePath: remappedEntry.path.replace(instrumentCwd + '/', ''),
           fullFilePath: remappedEntry.path,
