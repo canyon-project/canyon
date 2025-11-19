@@ -1,0 +1,21 @@
+    (async ()=>{
+      const p = await this.prisma.project.findMany()
+      this.prisma.repo.createMany({
+        data:p.map(i=>{
+          return {
+            id:i.id.split('-')[1],
+            pathWithNamespace: i.pathWithNamespace,
+            description:       i.description,
+            config :           '{}',
+            bu :               i.bu,
+            tags  :            [],
+            members   :        [],
+            createdAt:new Date(),
+            updatedAt:new Date()
+          }
+        }),
+        skipDuplicates:true
+      }).catch(er=>{
+        console.log(er)
+      })
+    })()
