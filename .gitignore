@@ -30,16 +30,11 @@ dist-ssr
 .pnpm-store
 
 
-#pnpm-lock.yaml
-
 .env
 
 db/sql
 
-
 coverage
-
-#schema.gql
 
 target/
 Cargo.lock
@@ -49,21 +44,6 @@ pnpm-lock.yaml
 package-lock.json
 
 .canyon_output
-
-.nx
-
-old-packages
-
-old-website
-
-backend copy
-
-!packages/backend/src/modules/coverage
-packages/orm-demo
-
-packages/old-backend
-
-old-packages
 
 !packages/backend/src/coverage
 
