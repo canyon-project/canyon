@@ -142,3 +142,19 @@ model CoverHitAgg {
   @@id([coverageID, versionID, filePath])
   @@map("canyon_final_hit_agg")
 }
+
+model Diff {
+  id String @id @default(cuid())
+
+  provider   String
+  repo_id    String
+  from       String
+  to         String
+  path       String
+  additions  Int[]
+  deletions  Int[]
+  subject    String
+  subject_id String
+
+  @@map("canyon_final_diff")
+}
