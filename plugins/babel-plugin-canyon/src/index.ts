@@ -134,7 +134,7 @@ export default declare((api, config, dirname) => {
             BUILD_PROVIDER: servePa.buildProvider,
           };
           if (config.debug) {
-            console.log('Canyon:', __canyon__);
+            // console.log('Canyon:', __canyon__);
           }
           if (config.oneByOne) {
             // 必须校验数据完整性
@@ -179,24 +179,24 @@ export default declare((api, config, dirname) => {
                     )
                     .then((r) => {
                       if (config.debug) {
-                        console.log('Posted coverage data:', r.data);
+                        // console.log('Posted coverage data:', r.data);
                       }
                     })
                     .catch((err) => {
                       if (config.debug) {
-                        console.log('Failed to post coverage data:', err);
+                        // console.log('Failed to post coverage data:', err);
                       }
                     });
                 } catch (e) {
                   if (config.debug) {
-                    console.log('Failed to post coverage data:', e);
+                    // console.log('Failed to post coverage data:', e);
                   }
                 }
               }
             } else {
               if (config.debug) {
                 console.log(
-                  JSON.stringify(initialCoverageDataForTheCurrentFile),
+                  // JSON.stringify(initialCoverageDataForTheCurrentFile),
                 );
               }
             }
