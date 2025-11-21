@@ -1,6 +1,6 @@
-import {extractCoverageData} from "./extract-coverage-data";
+import { extractCoverageData } from './extract-coverage-data';
 
-export const generateInitialCoverage = (paramsPath,serviceParams) => {
-  const initialCoverageDataForTheCurrentFile = extractCoverageData(paramsPath)
+export const generateInitialCoverage = (paramsPath, serviceParams) => {
+  const initialCoverageDataForTheCurrentFile = extractCoverageData(paramsPath);
   return initialCoverageDataForTheCurrentFile;
-}
+};

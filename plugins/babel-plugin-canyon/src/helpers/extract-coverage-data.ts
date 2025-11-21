@@ -1,6 +1,6 @@
 export function extractCoverageData(scriptContent) {
   const reg0 = /var\s+coverageData\s*=\s*({[\s\S]*?});/;
-  const reg1 = /var\s+(\w+)\s*=\s*function\s*\(\)\s*\{([\s\S]*?)\}\(\);/
+  const reg1 = /var\s+(\w+)\s*=\s*function\s*\(\)\s*\{([\s\S]*?)\}\(\);/;
   try {
     // 可能性一
     const match0 = reg0.exec(scriptContent);
@@ -19,5 +19,5 @@ export function extractCoverageData(scriptContent) {
   } catch (e) {
     return null;
   }
-  return null
+  return null;
 }
