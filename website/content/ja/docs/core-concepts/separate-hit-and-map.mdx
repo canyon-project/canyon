@@ -1,0 +1,69 @@
+import { Callout } from "nextra/components";
+
+# hitとmapの分離
+
+CIでbabelコンパイルによって生成された初期カバレッジソースファイルを収集する
+
+## 理由
+
+1. **コンパイルに参加するファイルの完全な収集**: コンパイル後のプロセスで、`babel-plugin-canyon`プラグインを通じて、
+   コンパイルに参加する各ファイルのカバレッジ初期ファイルを分析・解析し、`.canyon_out`フォルダに保存します。
+
+2. **事前収集による負荷軽減**: 初期カバレッジファイルを事前に報告しない場合、UI自動化テスト中にこれらのカバレッジファイルがすべて報告されます。
+   これにより、膨大な転送負荷が発生します。事前収集により、転送負荷を90%以上削減できます。
+
+> [!TIP]
+>
+> これは必須ではありませんが、正確で安定したカバレッジデータの収集が必要な場合は、設定を強くお勧めします。
+
+## 初期カバレッジデータの報告
+
+babel-plugin-canyonプラグインはコンパイル時にコンパイルに参加するファイルの元のカバレッジファイルを生成し、.canyon_outputフォルダに保存します。canyon-uploaderコマンドラインツールを提供しており、CIでCanyonサーバーに報告できます。
+
+```yml filename=".github/workflows/report-canyon-output.yml" {19,20} copy
+name: Report Canyon Output
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18" # プロジェクトの要件に応じてNode.jsバージョンを変更できます
+      - name: Install dependencies
+        run: npm install
+      - name: Generate output
+        run: npm run build
+
+      # .canyon_output ファイルの内容を報告
+      - name: Report output
+        run: canyon-uploader map --dsn=https://canyonjs.org
+```
+
+## babelプラグインの更新
+
+keepMapオプションをfalseに設定
+
+```js filename="babel.config.js" {7} copy
+module.exports = {
+  plugins: [
+    "istanbul",
+    [
+      "canyon",
+      {
+        keepMap: false,
+      },
+    ],
+  ],
+};
+```
+
+## 準備完了
+
+この時点でページのwindow.coverageオブジェクトをチェックしてください。スクリーンショットを参照してください。window.coverageにはもうmapデータがなく、
+UI自動化カバレッジ収集プロセス中の大量の転送コストを大幅に削減できます。
+
+![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/jietu1.png)

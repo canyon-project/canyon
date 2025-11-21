@@ -1,0 +1,55 @@
+# **Changed Code Coverage**
+
+**Changed Code Coverage** allows you to focus on the test coverage of the code changes in this commit.
+
+## Dimensions
+
+
+### **Added (File) Line Coverage**
+
+**Calculation Logic:**
+1. git diff between two commits to get the difference files => difference line numbers (may include comments, blank lines)
+2. Traverse the **branchMap**, **fnMap**, **statementMap** of the changed file's **coverageMap** to determine if they include the difference line numbers
+3. **Covered** definition: The **branchMap**, **fnMap**, **statementMap** containing the difference line numbers are all covered
+
+**Calculation Formula:**
+
+
+```
+Added (File) Line Coverage = Covered (File) Lines / Total Added (File) Lines
+```
+
+### **Added Branch Coverage**
+
+**Calculation Logic:**
+1. git diff between two commits to get the difference files => difference line numbers
+2. Traverse the **branchMap** of the changed file's **coverageMap** to determine if it includes the difference line numbers
+3. **Covered** definition: The **branchMap** containing the difference line numbers is covered
+
+**Calculation Formula:**
+```
+Added Branch Coverage = Covered Branches / Total Added Branches
+```
+
+### **Added Function Coverage**
+
+**Calculation Logic:**
+1. git diff between two commits to get the difference files => difference line numbers
+2. Traverse the **fnMap** of the changed file's **coverageMap** to determine if it includes the difference line numbers
+3. **Covered** definition: The **fnMap** containing the difference line numbers is covered
+
+**Calculation Formula:**
+```
+Added Function Coverage = Covered Functions / Total Added Functions
+```
+
+### **Added Statement Coverage**
+**Calculation Logic:**
+1. git diff between two commits to get the difference files => difference line numbers
+2. Traverse the **statementMap** of the changed file's **coverageMap** to determine if it includes the difference line numbers
+3. **Covered** definition: The **statementMap** containing the difference line numbers is covered
+
+**Calculation Formula:**
+```
+Added Statement Coverage = Covered Statements / Total Added Statements
+```

@@ -1,0 +1,240 @@
+# istanbuljs Coverage Data Dictionary
+
+## Overview
+istanbuljs is the gold standard for JavaScript code coverage. This data dictionary describes the main structures and fields of coverage data.
+
+## Main Data Structures
+
+### 1. Coverage Object
+The top-level coverage data structure containing coverage information for all files.
+
+```json
+{
+  "path/to/file.js": {
+    // FileCoverage object
+  }
+}
+```
+
+### 2. FileCoverage
+Complete coverage data for a single file.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `path` | string | Absolute path to the file |
+| `statementMap` | Object | Statement mapping table |
+| `fnMap` | Object | Function mapping table |
+| `branchMap` | Object | Branch mapping table |
+| `s` | Object | Statement execution counts |
+| `f` | Object | Function execution counts |
+| `b` | Object | Branch execution counts |
+
+### 3. StatementMap
+Describes the location information of each statement in the code.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `start` | Location | Statement start position |
+| `end` | Location | Statement end position |
+
+### 4. FunctionMap
+Describes information about each function in the code.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `name` | string | Function name (anonymous functions are "(anonymous_N)") |
+| `decl` | Location | Function declaration position |
+| `loc` | Location | Function body position |
+| `line` | number | Function declaration line number |
+
+### 5. BranchMap
+Describes information about each branch in the code.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `loc` | Location | Branch position |
+| `type` | string | Branch type (if, switch, cond-expr, binary-expr) |
+| `locations` | Array&lt;Location&gt; | All possible positions of branch conditions |
+
+### 6. Location
+Describes a location in the source code.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `start` | Position | Start position |
+| `end` | Position | End position |
+
+### 7. Position
+Specific coordinates in the source code.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `line` | number | Line number (starting from 1) |
+| `column` | number | Column number (starting from 0) |
+
+## Counter Objects
+
+### 8. Statement Counters
+Records the execution count of each statement.
+
+```json
+{
+  "0": 5,    // Statement ID 0 executed 5 times
+  "1": 0,    // Statement ID 1 not executed
+  "2": 3     // Statement ID 2 executed 3 times
+}
+```
+
+### 9. Function Counters
+Records the call count of each function.
+
+```json
+{
+  "0": 2,    // Function ID 0 called 2 times
+  "1": 0,    // Function ID 1 not called
+  "2": 1     // Function ID 2 called 1 time
+}
+```
+
+### 10. Branch Counters
+Records the execution count of each branch condition.
+
+```json
+{
+  "0": [5, 2],    // Branch ID 0: true branch 5 times, false branch 2 times
+  "1": [0, 3],    // Branch ID 1: true branch 0 times, false branch 3 times
+  "2": [1, 1]     // Branch ID 2: each branch executed 1 time
+}
+```
+
+## Branch Type Description
+
+### Branch Types
+
+| Type | Description | Example |
+|------|-------------|---------|
+| `if` | if statement | `if (condition) { ... }` |
+| `switch` | switch statement | `switch (value) { case 1: ... }` |
+| `cond-expr` | ternary operator | `condition ? value1 : value2` |
+| `binary-expr` | logical operator | `a && b`, `x \|\| y` |
+
+## Report Summary Data
+
+### 11. Summary
+Statistical summary for each coverage type.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `total` | number | Total count |
+| `covered` | number | Covered count |
+| `skipped` | number | Skipped count |
+| `pct` | number | Coverage percentage |
+
+### 12. Coverage Summary
+Coverage summary for a file or overall.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `lines` | Summary | Line coverage summary |
+| `functions` | Summary | Function coverage summary |
+| `statements` | Summary | Statement coverage summary |
+| `branches` | Summary | Branch coverage summary |
+
+## Practical Example
+
+### math.js File Content
+```javascript
+function add(a, b) {
+  return a + b;
+}
+
+function subtract(a, b) {
+  if (a > b) {
+    return a - b;
+  } else {
+    return b - a;
+  }
+}
+
+function multiply(a, b) {
+  return a * b;
+}
+
+function divide(a, b) {
+  if (b === 0) {
+    throw new Error('Division by zero');
+  }
+  return a / b;
+}
+
+module.exports = { add, subtract, multiply, divide };
+```
+
+### Complete FileCoverage Example
+```json
+{
+  "path": "/project/src/math.js",
+  "statementMap": {
+    "0": {"start": {"line": 1, "column": 0}, "end": {"line": 1, "column": 25}},
+    "1": {"start": {"line": 2, "column": 2}, "end": {"line": 2, "column": 13}},
+    "2": {"start": {"line": 5, "column": 0}, "end": {"line": 5, "column": 30}},
+    "3": {"start": {"line": 6, "column": 2}, "end": {"line": 6, "column": 25}},
+    "4": {"start": {"line": 8, "column": 4}, "end": {"line": 8, "column": 15}},
+    "5": {"start": {"line": 10, "column": 4}, "end": {"line": 10, "column": 15}},
+    "6": {"start": {"line": 13, "column": 0}, "end": {"line": 13, "column": 25}},
+    "7": {"start": {"line": 14, "column": 2}, "end": {"line": 14, "column": 13}},
+    "8": {"start": {"line": 17, "column": 0}, "end": {"line": 17, "column": 30}},
+    "9": {"start": {"line": 18, "column": 2}, "end": {"line": 18, "column": 25}},
+    "10": {"start": {"line": 20, "column": 4}, "end": {"line": 20, "column": 15}},
+    "11": {"start": {"line": 22, "column": 4}, "end": {"line": 22, "column": 15}},
+    "12": {"start": {"line": 25, "column": 0}, "end": {"line": 25, "column": 25}}
+  },
+  "fnMap": {
+    "0": {
+      "name": "add",
+      "decl": {"start": {"line": 1, "column": 9}, "end": {"line": 1, "column": 12}},
+      "loc": {"start": {"line": 1, "column": 20}, "end": {"line": 3, "column": 1}},
+      "line": 1
+    },
+    "1": {
+      "name": "subtract",
+      "decl": {"start": {"line": 5, "column": 9}, "end": {"line": 5, "column": 17}},
+      "loc": {"start": {"line": 5, "column": 25}, "end": {"line": 12, "column": 1}},
+      "line": 5
+    },
+    "2": {
+      "name": "multiply",
+      "decl": {"start": {"line": 13, "column": 9}, "end": {"line": 13, "column": 16}},
+      "loc": {"start": {"line": 13, "column": 24}, "end": {"line": 15, "column": 1}},
+      "line": 13
+    },
+    "3": {
+      "name": "divide",
+      "decl": {"start": {"line": 17, "column": 9}, "end": {"line": 17, "column": 15}},
+      "loc": {"start": {"line": 17, "column": 23}, "end": {"line": 24, "column": 1}},
+      "line": 17
+    }
+  },
+  "branchMap": {
+    "0": {
+      "loc": {"start": {"line": 6, "column": 2}, "end": {"line": 6, "column": 25}},
+      "type": "if",
+      "locations": [
+        {"start": {"line": 6, "column": 2}, "end": {"line": 6, "column": 25}},
+        {"start": {"line": 6, "column": 2}, "end": {"line": 6, "column": 25}}
+      ]
+    },
+    "1": {
+      "loc": {"start": {"line": 18, "column": 2}, "end": {"line": 18, "column": 25}},
+      "type": "if",
+      "locations": [
+        {"start": {"line": 18, "column": 2}, "end": {"line": 18, "column": 25}},
+        {"start": {"line": 18, "column": 2}, "end": {"line": 18, "column": 25}}
+      ]
+    }
+  },
+  "s": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 3, "5": 2, "6": 1, "7": 1, "8": 1, "9": 1, "10": 1, "11": 1, "12": 1},
+  "f": {"0": 5, "1": 3, "2": 2, "3": 1},
+  "b": {"0": [3, 2], "1": [1, 0]}
+}
+```

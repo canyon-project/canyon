@@ -1,0 +1,87 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# babel-plugin-canyon
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/plugins/babel-plugin-canyon'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+
+A Babel plugin for detecting CI environment variables. Works with istanbuljs to complete code instrumentation.
+
+## Usage
+
+Installation:
+
+```sh
+npm install --save-dev babel-plugin-canyon
+```
+
+Add these configurations in `babel.config.js`:
+
+```js
+module.exports = {
+  plugins:
+    process.env.CI_COMMIT_REF_NAME === "test-coverage"
+      ? ["istanbul", "canyon"]
+      : [],
+      // Note the plugin order, canyon plugin should be after istanbul plugin
+};
+```
+
+It does two things:
+
+1. Detect CI pipeline variables
+2. Check the previous step's istanbul instrumentation product and save it locally (when keepMap is false)
+
+## Configuration
+
+babel.config.js
+
+```js
+module.exports = {
+  plugins: [
+    "istanbul",
+    [
+      "canyon",
+      {
+        // #region == Step 1: CI variable configuration or manual explicit configuration
+        dsn: "http://yourdomain.com/coverage/client", // Coverage reporting address, the KEY for detecting CI pipeline variables is DSN
+        reporter: "your_token", // User token, used to distinguish different users, the KEY for detecting CI pipeline variables is REPORTER
+        // #endregion
+        // #region == Step 2: CI Provider automatic detection, generally no manual configuration needed, please check the Support Provider documentation for details
+        projectID: "230614", // Repository ID
+        sha: "xxxxxxxxx", // Git Commit SHA
+        branch: "master", // Git repository branch
+        // #endregion
+        // #region == Step 3: Coverage additional feature configuration (optional)
+        reportID: "case_id", // Used to distinguish different test cases
+        compareTarget: "develop", // Comparison target, used as the baseline for the current SHA, for calculating the coverage of changed lines
+        // #endregion
+        // #region == Step 4: hit and map data separation (optional)
+        keepMap: true, // Keep coverage map, optional, default is true, when false, it will generate .canyon_output file!!!
+        // #endregion
+        // #region == Step 5: Other configurations (optional)
+        instrumentCwd: "/path/to", // Instrumentation working directory, may need manual configuration in multi-repository mode
+        provider: "gitlab", // Source code provider (optional), default is gitlab
+        oneByOne: false, // Configure proxy server, optional, default is false. When true, it will report the initial coverage data of each file one by one during compilation. It can also be a proxy server configuration.
+        // #endregion
+      },
+    ],
+  ],
+};
+```
+
+| Configuration Item | Description                                                                                                                                                | Required                                                                                | Default Value |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- | ------------- |
+| dsn                | Coverage reporting address, the KEY for detecting CI pipeline variables is DSN                                                                               | Yes (fill in according to the situation in CI variable configuration or manual configuration) | None          |
+| reporter           | User token, used to distinguish different users, the KEY for detecting CI pipeline variables is REPORTER                                                     | Yes (fill in according to the situation in CI variable configuration or manual configuration) | None          |
+| projectID          | Repository ID                                                                                                                                               | Generally no manual configuration needed (automatic detection of CI Provider)           | None          |
+| sha                | Git Commit SHA                                                                                                                                               | Generally no manual configuration needed (automatic detection of CI Provider)           | None          |
+| branch             | Git repository branch                                                                                                                                        | Generally no manual configuration needed (automatic detection of CI Provider)           | None          |
+| reportID           | Used to distinguish different test cases                                                                                                                      | Optional                                                                                | None          |
+| compareTarget      | Comparison target, used as the baseline for the current SHA, for calculating the coverage of changed lines                                                     | Optional                                                                                | None          |
+| keepMap            | Keep coverage map, optional, default is true, when false, it will generate .canyon_output file                                                                | Optional                                                                                | true          |
+| instrumentCwd      | Instrumentation working directory, may need manual configuration in multi-repository mode                                                                     | Optional                                                                                | process.cwd() |
+| provider           | Source code provider (optional), default is gitlab                                                                                                             | Optional                                                                                | gitlab        |
+| oneByOne           | Configure proxy server, optional, default is false. When true, it will report the initial coverage data of each file one by one during compilation. It can also be a proxy server configuration | Optional                                                                                | false         |

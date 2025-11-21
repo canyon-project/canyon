@@ -1,0 +1,240 @@
+# istanbuljs カバレッジデータ辞書
+
+## 概要
+istanbuljsはJavaScriptコードカバレッジのゴールドスタンダードであり、このデータ辞書はカバレッジデータの主要な構造とフィールドを説明しています。
+
+## 主要データ構造
+
+### 1. Coverage Object (カバレッジオブジェクト)
+最上位のカバレッジデータ構造で、すべてのファイルのカバレッジ情報を含みます。
+
+```json
+{
+  "path/to/file.js": {
+    // FileCoverage オブジェクト
+  }
+}
+```
+
+### 2. FileCoverage (ファイルカバレッジ)
+単一ファイルの完全なカバレッジデータ。
+
+| フィールド | 型 | 説明 |
+|------|------|------|
+| `path` | string | ファイルの絶対パス |
+| `statementMap` | Object | ステートメントマッピングテーブル |
+| `fnMap` | Object | 関数マッピングテーブル |
+| `branchMap` | Object | ブランチマッピングテーブル |
+| `s` | Object | ステートメント実行カウント |
+| `f` | Object | 関数実行カウント |
+| `b` | Object | ブランチ実行カウント |
+
+### 3. StatementMap (ステートメントマッピング)
+コード内の各ステートメントの位置情報を記述します。
+
+| フィールド | 型 | 説明 |
+|------|------|------|
+| `start` | Location | ステートメント開始位置 |
+| `end` | Location | ステートメント終了位置 |
+
+### 4. FunctionMap (関数マッピング)
+コード内の各関数の情報を記述します。
+
+| フィールド | 型 | 説明 |
+|------|------|------|
+| `name` | string | 関数名（匿名関数は"(anonymous_N)"） |
+| `decl` | Location | 関数宣言位置 |
+| `loc` | Location | 関数本体位置 |
+| `line` | number | 関数宣言行番号 |
+
+### 5. BranchMap (ブランチマッピング)
+コード内の各分岐の情報を記述します。
+
+| フィールド | 型 | 説明 |
+|------|------|------|
+| `loc` | Location | 分岐位置 |
+| `type` | string | 分岐タイプ（if, switch, cond-expr, binary-expr） |
+| `locations` | Array&lt;Location&gt; | 分岐条件のすべての可能な位置 |
+
+### 6. Location (位置情報)
+ソースコード内の位置を記述します。
+
+| フィールド | 型 | 説明 |
+|------|------|------|
+| `start` | Position | 開始位置 |
+| `end` | Position | 終了位置 |
+
+### 7. Position (座標位置)
+ソースコード内の具体的な座標。
+
+| フィールド | 型 | 説明 |
+|------|------|------|
+| `line` | number | 行番号（1から始まる） |
+| `column` | number | 列番号（0から始まる） |
+
+## カウンターオブジェクト
+
+### 8. Statement Counters (ステートメントカウンター)
+各ステートメントの実行回数を記録します。
+
+```json
+{
+  "0": 5,    // ステートメントID 0 は5回実行された
+  "1": 0,    // ステートメントID 1 は実行されていない
+  "2": 3     // ステートメントID 2 は3回実行された
+}
+```
+
+### 9. Function Counters (関数カウンター)
+各関数の呼び出し回数を記録します。
+
+```json
+{
+  "0": 2,    // 関数ID 0 は2回呼び出された
+  "1": 0,    // 関数ID 1 は呼び出されていない
+  "2": 1     // 関数ID 2 は1回呼び出された
+}
+```
+
+### 10. Branch Counters (ブランチカウンター)
+各分岐条件の実行回数を記録します。
+
+```json
+{
+  "0": [5, 2],    // ブランチID 0: true分岐5回、false分岐2回
+  "1": [0, 3],    // ブランチID 1: true分岐0回、false分岐3回
+  "2": [1, 1]     // ブランチID 2: 両方の分岐がそれぞれ1回実行された
+}
+```
+
+## 分岐タイプの説明
+
+### Branch Types (分岐タイプ)
+
+| タイプ | 説明 | 例 |
+|------|------|------|
+| `if` | if文 | `if (condition) { ... }` |
+| `switch` | switch文 | `switch (value) { case 1: ... }` |
+| `cond-expr` | 三項演算子 | `condition ? value1 : value2` |
+| `binary-expr` | 論理演算子 | `a && b`, `x \|\| y` |
+
+## レポート要約データ
+
+### 11. Summary (要約情報)
+各カバレッジタイプの統計要約。
+
+| フィールド | 型 | 説明 |
+|------|------|------|
+| `total` | number | 総数 |
+| `covered` | number | カバーされた数 |
+| `skipped` | number | スキップされた数 |
+| `pct` | number | カバレッジ率（パーセント） |
+
+### 12. Coverage Summary (カバレッジ要約)
+ファイルまたは全体のカバレッジ要約。
+
+| フィールド | 型 | 説明 |
+|------|------|------|
+| `lines` | Summary | 行カバレッジ要約 |
+| `functions` | Summary | 関数カバレッジ要約 |
+| `statements` | Summary | ステートメントカバレッジ要約 |
+| `branches` | Summary | ブランチカバレッジ要約 |
+
+## 実際の例
+
+### math.js ファイルの内容
+```javascript
+function add(a, b) {
+  return a + b;
+}
+
+function subtract(a, b) {
+  if (a > b) {
+    return a - b;
+  } else {
+    return b - a;
+  }
+}
+
+function multiply(a, b) {
+  return a * b;
+}
+
+function divide(a, b) {
+  if (b === 0) {
+    throw new Error('Division by zero');
+  }
+  return a / b;
+}
+
+module.exports = { add, subtract, multiply, divide };
+```
+
+### 完全なFileCoverage例
+```json
+{
+  "path": "/project/src/math.js",
+  "statementMap": {
+    "0": {"start": {"line": 1, "column": 0}, "end": {"line": 1, "column": 25}},
+    "1": {"start": {"line": 2, "column": 2}, "end": {"line": 2, "column": 13}},
+    "2": {"start": {"line": 5, "column": 0}, "end": {"line": 5, "column": 30}},
+    "3": {"start": {"line": 6, "column": 2}, "end": {"line": 6, "column": 25}},
+    "4": {"start": {"line": 8, "column": 4}, "end": {"line": 8, "column": 15}},
+    "5": {"start": {"line": 10, "column": 4}, "end": {"line": 10, "column": 15}},
+    "6": {"start": {"line": 13, "column": 0}, "end": {"line": 13, "column": 25}},
+    "7": {"start": {"line": 14, "column": 2}, "end": {"line": 14, "column": 13}},
+    "8": {"start": {"line": 17, "column": 0}, "end": {"line": 17, "column": 30}},
+    "9": {"start": {"line": 18, "column": 2}, "end": {"line": 18, "column": 25}},
+    "10": {"start": {"line": 20, "column": 4}, "end": {"line": 20, "column": 15}},
+    "11": {"start": {"line": 22, "column": 4}, "end": {"line": 22, "column": 15}},
+    "12": {"start": {"line": 25, "column": 0}, "end": {"line": 25, "column": 25}}
+  },
+  "fnMap": {
+    "0": {
+      "name": "add",
+      "decl": {"start": {"line": 1, "column": 9}, "end": {"line": 1, "column": 12}},
+      "loc": {"start": {"line": 1, "column": 20}, "end": {"line": 3, "column": 1}},
+      "line": 1
+    },
+    "1": {
+      "name": "subtract",
+      "decl": {"start": {"line": 5, "column": 9}, "end": {"line": 5, "column": 17}},
+      "loc": {"start": {"line": 5, "column": 25}, "end": {"line": 12, "column": 1}},
+      "line": 5
+    },
+    "2": {
+      "name": "multiply",
+      "decl": {"start": {"line": 13, "column": 9}, "end": {"line": 13, "column": 16}},
+      "loc": {"start": {"line": 13, "column": 24}, "end": {"line": 15, "column": 1}},
+      "line": 13
+    },
+    "3": {
+      "name": "divide",
+      "decl": {"start": {"line": 17, "column": 9}, "end": {"line": 17, "column": 15}},
+      "loc": {"start": {"line": 17, "column": 23}, "end": {"line": 24, "column": 1}},
+      "line": 17
+    }
+  },
+  "branchMap": {
+    "0": {
+      "loc": {"start": {"line": 6, "column": 2}, "end": {"line": 6, "column": 25}},
+      "type": "if",
+      "locations": [
+        {"start": {"line": 6, "column": 2}, "end": {"line": 6, "column": 25}},
+        {"start": {"line": 6, "column": 2}, "end": {"line": 6, "column": 25}}
+      ]
+    },
+    "1": {
+      "loc": {"start": {"line": 18, "column": 2}, "end": {"line": 18, "column": 25}},
+      "type": "if",
+      "locations": [
+        {"start": {"line": 18, "column": 2}, "end": {"line": 18, "column": 25}},
+        {"start": {"line": 18, "column": 2}, "end": {"line": 18, "column": 25}}
+      ]
+    }
+  },
+  "s": {"0": 1, "1": 1, "2": 1, "3": 1, "4": 3, "5": 2, "6": 1, "7": 1, "8": 1, "9": 1, "10": 1, "11": 1, "12": 1},
+  "f": {"0": 5, "1": 3, "2": 2, "3": 1},
+  "b": {"0": [3, 2], "1": [1, 0]}
+}
+```

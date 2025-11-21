@@ -1,0 +1,501 @@
+# Restful
+
+## Summary Map
+
+- **方法**：GET
+- **路径**：`/api/coverage/summary/map`
+- **描述**：返回覆盖率的概要聚合（total/covered/percent），可按提交或合并请求维度，以及可选过滤条件。
+
+### 查询参数
+- **subject** (必填)：`commit | commits | pull | pulls | multiple-commits`
+- **subjectID** (必填)：当 subject 是 commit/commits 时为 `sha`；当为 pull/pulls 时为 `pullNumber`；当为 multiple-commits 时为提交范围 `a...b`
+- **provider** (必填)：代码托管服务提供商，例如 `github`、`gitlab`
+- **repoID** (必填)：仓库标识（例如 GitLab 的 projectId 或 GitHub 的 owner/repo）
+- **buildProvider** (可选)：构建/CI 提供方标识
+- **buildID** (可选)：构建 ID
+- **reportProvider** (可选)：报告提供方标识（如 mpaas、flytest、person 等）
+- **reportID** (可选)：报告 ID
+- **filePath** (可选)：仅汇总指定文件（或匹配到的相对路径结尾）
+- **mode** (可选)：`blockMerge | fileMerge | default`（pull/pulls/multiple-commits 时使用）
+- **compareTarget** (可选)：用于与当前 commit 对比的目标 ref/sha（仅 gitlab 支持）
+- **onlyChanged** (可选)：`true | false`，是否仅返回变更文件
+
+### 响应示例
+```json
+{
+  "src/components/B0.tsx": {
+    "lines": {
+      "total": 6,
+      "covered": 6,
+      "skipped": 0,
+      "pct": 100
+    },
+    "functions": {
+      "total": 3,
+      "covered": 3,
+      "skipped": 0,
+      "pct": 100
+    },
+    "statements": {
+      "total": 6,
+      "covered": 6,
+      "skipped": 0,
+      "pct": 100
+    },
+    "branches": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    },
+    "newlines": {
+      "total": 13,
+      "covered": 13,
+      "skipped": 0,
+      "pct": 100
+    },
+    "changebranches": {
+      "total": 0,
+      "covered": 0,
+      "skipped": 0,
+      "pct": 100
+    },
+    "changefunctions": {
+      "total": 3,
+      "covered": 3,
+      "skipped": 0,
+      "pct": 100
+    },
+    "path": "src/components/B0.tsx",
+    "change": true
+  }
+}
+```
+
+### 说明
+- 当 subject 为 `commit | commits` 时，内部使用提交维度的覆盖率映射进行聚合；
+- 当 subject 为 `pull | pulls` 时，内部使用合并请求维度的覆盖率映射进行聚合；
+- 当 subject 为 `multiple-commits` 时，`subjectID` 形如 `a...b`，以 `b` 为基线进行范围聚合；
+- `percent` 计算为 `covered/total` 的百分比，保留两位小数；
+- 若 `onlyChanged=true`，则仅统计变更文件的覆盖率。
+
+---
+
+## Coverage Map
+
+- **方法**：GET
+- **路径**：`/api/coverage/map`
+- **描述**：返回文件级命中明细，包含 statement/function/branch 的命中计数以及源码结构位置信息；可按提交或合并请求维度查询。
+
+### 查询参数
+- 与 Summary Map 相同（见上），包括 subject/subjectID/provider/repoID 及可选过滤条件。
+
+### 响应示例（部分结构）
+```json
+{
+  "src/app/foo.ts": {
+    "path": "src/app/foo.ts",
+    "statementMap": { "1": { "start": {"line":1,"column":0}, "end": {"line":3,"column":1} } },
+    "fnMap": { "1": { "name": "main", "decl": {"start":{"line":1,"column":0}, "end":{"line":1,"column":4}}, "loc": {"start":{"line":1,"column":0}, "end":{"line":10,"column":1}} } },
+    "branchMap": { "1": { "locations": [{"start":{"line":2,"column":0},"end":{"line":2,"column":10}}] } },
+    "s": { "1": 3 },
+    "f": { "1": 1 },
+    "b": { "1": [1,0] },
+    "change": { "path": "src/app/foo.ts", "added": [2,3], "deleted": [] }
+  }
+}
+```
+
+---
+
+## 覆盖率总览（Overview）
+
+- **方法**：GET
+- **路径（Commit）**：`/api/provider/:provider/repo/:repoID/coverage/overview/commits/:sha`
+- **路径（Pull）**：`/api/provider/:provider/repo/:repoID/coverage/overview/pulls/:pullNumber`
+- **路径（Multiple Commits）**：`/api/provider/:provider/repo/:repoID/coverage/overview/multiple-commits/:commitRange`
+- **描述**：按构建维度聚合返回覆盖率概要，包含自动/手动用例维度与可能的测试用例外链信息。
+
+### 路径参数
+- **provider**：`github | gitlab | ...`
+- **repoID**：仓库标识（GitLab 为 projectId，GitHub 常为 `owner/repo`）
+- **sha**（commit 路径）：提交 SHA
+- **pullNumber**（pull 路径）：合并请求编号
+ - **commitRange**（multiple-commits 路径）：提交范围，格式为 `a...b`
+
+### 查询参数
+
+- **mode** (可选)：`blockMerge | fileMerge | default`（pull/pulls/multiple-commits 时使用）
+
+### 响应字段
+- **resultList**：数组；每一项代表一个构建（build）
+  - **buildID**：构建 ID
+  - **buildProvider**：构建提供方
+  - **summary**：该构建维度的汇总 `{ total, covered, percent }`
+  - **modeList**：按“auto / manual”区分的用例维度
+    - **mode**：`auto | manual`
+    - **summary**：该维度下的汇总
+    - **caseList**：报告维度的列表（仅当存在时）
+      - **reportProvider**：报告提供方（如 mpaas、flytest、person 等）
+      - **reportID**：报告 ID
+      - **summary**：该报告的汇总
+      - **testCaseInfo**（当支持自动拉取时）：
+        - `caseName`, `passedCount`, `failedCount`, `totalCount`, `passRate`, `caseUrl`
+
+### 响应示例（Commit 概览）
+```json
+{
+    "resultList": [
+        {
+            "buildID": "29235962",
+            "buildProvider": "mpaas",
+            "summary": {
+                "functions": {
+                    "covered": 463,
+                    "total": 1843,
+                    "skipped": 0,
+                    "pct": 25.12
+                },
+                "statements": {
+                    "covered": 2300,
+                    "total": 8246,
+                    "skipped": 0,
+                    "pct": 27.89
+                },
+                "branches": {
+                    "covered": 771,
+                    "total": 5335,
+                    "skipped": 0,
+                    "pct": 14.45
+                },
+                "lines": {
+                    "covered": 2163,
+                    "total": 7886,
+                    "skipped": 0,
+                    "pct": 27.42
+                },
+                "newlines": {
+                    "covered": 0,
+                    "total": 0,
+                    "skipped": 0,
+                    "pct": 100
+                },
+                "changebranches": {
+                    "covered": 0,
+                    "total": 0,
+                    "skipped": 0,
+                    "pct": 100
+                },
+                "changefunctions": {
+                    "covered": 0,
+                    "total": 0,
+                    "skipped": 0,
+                    "pct": 100
+                }
+            },
+            "modeList": [
+                {
+                    "mode": "auto",
+                    "summary": {
+                        "functions": {
+                            "covered": 463,
+                            "total": 1843,
+                            "skipped": 0,
+                            "pct": 25.12
+                        },
+                        "statements": {
+                            "covered": 2300,
+                            "total": 8246,
+                            "skipped": 0,
+                            "pct": 27.89
+                        },
+                        "branches": {
+                            "covered": 771,
+                            "total": 5335,
+                            "skipped": 0,
+                            "pct": 14.45
+                        },
+                        "lines": {
+                            "covered": 2163,
+                            "total": 7886,
+                            "skipped": 0,
+                            "pct": 27.42
+                        },
+                        "newlines": {
+                            "covered": 0,
+                            "total": 0,
+                            "skipped": 0,
+                            "pct": 100
+                        },
+                        "changebranches": {
+                            "covered": 0,
+                            "total": 0,
+                            "skipped": 0,
+                            "pct": 100
+                        },
+                        "changefunctions": {
+                            "covered": 0,
+                            "total": 0,
+                            "skipped": 0,
+                            "pct": 100
+                        }
+                    },
+                    "caseList": []
+                },
+                {
+                    "mode": "manual",
+                    "summary": {
+                        "functions": {
+                            "covered": 463,
+                            "total": 1843,
+                            "skipped": 0,
+                            "pct": 25.12
+                        },
+                        "statements": {
+                            "covered": 2300,
+                            "total": 8246,
+                            "skipped": 0,
+                            "pct": 27.89
+                        },
+                        "branches": {
+                            "covered": 771,
+                            "total": 5335,
+                            "skipped": 0,
+                            "pct": 14.45
+                        },
+                        "lines": {
+                            "covered": 2163,
+                            "total": 7886,
+                            "skipped": 0,
+                            "pct": 27.42
+                        },
+                        "newlines": {
+                            "covered": 0,
+                            "total": 0,
+                            "skipped": 0,
+                            "pct": 100
+                        },
+                        "changebranches": {
+                            "covered": 0,
+                            "total": 0,
+                            "skipped": 0,
+                            "pct": 100
+                        },
+                        "changefunctions": {
+                            "covered": 0,
+                            "total": 0,
+                            "skipped": 0,
+                            "pct": 100
+                        }
+                    },
+                    "caseList": [
+                        {
+                            "summary": {
+                                "functions": {
+                                    "covered": 463,
+                                    "total": 1830,
+                                    "skipped": 0,
+                                    "pct": 25.3
+                                },
+                                "statements": {
+                                    "covered": 2300,
+                                    "total": 8197,
+                                    "skipped": 0,
+                                    "pct": 28.05
+                                },
+                                "branches": {
+                                    "covered": 771,
+                                    "total": 5306,
+                                    "skipped": 0,
+                                    "pct": 14.53
+                                },
+                                "lines": {
+                                    "covered": 2163,
+                                    "total": 7837,
+                                    "skipped": 0,
+                                    "pct": 27.59
+                                },
+                                "newlines": {
+                                    "covered": 0,
+                                    "total": 0,
+                                    "skipped": 0,
+                                    "pct": 100
+                                },
+                                "changebranches": {
+                                    "covered": 0,
+                                    "total": 0,
+                                    "skipped": 0,
+                                    "pct": 100
+                                },
+                                "changefunctions": {
+                                    "covered": 0,
+                                    "total": 0,
+                                    "skipped": 0,
+                                    "pct": 100
+                                }
+                            },
+                            "reportProvider": "person",
+                            "reportID": "29235962"
+                        },
+                        {
+                            "summary": {
+                                "functions": {
+                                    "covered": 0,
+                                    "total": 1843,
+                                    "skipped": 0,
+                                    "pct": 0
+                                },
+                                "statements": {
+                                    "covered": 0,
+                                    "total": 8246,
+                                    "skipped": 0,
+                                    "pct": 0
+                                },
+                                "branches": {
+                                    "covered": 0,
+                                    "total": 5335,
+                                    "skipped": 0,
+                                    "pct": 0
+                                },
+                                "lines": {
+                                    "covered": 0,
+                                    "total": 7886,
+                                    "skipped": 0,
+                                    "pct": 0
+                                },
+                                "newlines": {
+                                    "covered": 0,
+                                    "total": 0,
+                                    "skipped": 0,
+                                    "pct": 100
+                                },
+                                "changebranches": {
+                                    "covered": 0,
+                                    "total": 0,
+                                    "skipped": 0,
+                                    "pct": 100
+                                },
+                                "changefunctions": {
+                                    "covered": 0,
+                                    "total": 0,
+                                    "skipped": 0,
+                                    "pct": 100
+                                }
+                            },
+                            "reportProvider": "person",
+                            "reportID": "4217b519"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+```
+
+### 响应示例（Pull 概览）
+```json
+{
+    "resultList": [
+        {
+            "summary": {
+                "functions": {
+                    "covered": 463,
+                    "total": 1843,
+                    "skipped": 0,
+                    "pct": 25.12
+                },
+                "statements": {
+                    "covered": 2300,
+                    "total": 8246,
+                    "skipped": 0,
+                    "pct": 27.89
+                },
+                "branches": {
+                    "covered": 771,
+                    "total": 5335,
+                    "skipped": 0,
+                    "pct": 14.45
+                },
+                "lines": {
+                    "covered": 2163,
+                    "total": 7886,
+                    "skipped": 0,
+                    "pct": 27.42
+                },
+                "newlines": {
+                    "covered": 11,
+                    "total": 11,
+                    "skipped": 0,
+                    "pct": 100
+                },
+                "changebranches": {
+                    "covered": 1,
+                    "total": 2,
+                    "skipped": 0,
+                    "pct": 50
+                },
+                "changefunctions": {
+                    "covered": 1,
+                    "total": 1,
+                    "skipped": 0,
+                    "pct": 100
+                }
+            }
+        }
+    ]
+}
+```
+
+### 说明
+- Commit 概览：以“构建”为单位聚合，同一构建下按报告提供方再细分；部分报告提供方将自动聚合测试用例数据；
+- Pull 概览：基于 MR 的覆盖率聚合返回整体 summary；
+- 所有 overview 汇总均来源于底层 coverage map 的 summary 聚合。
+
+---
+
+## 纯报告页链接（Report Page URL）
+
+- **用途**：直接进入前端报告页（可选携带查询参数以指定构建/报告来源）。
+
+### 路由模板
+
+```text
+/report/-/:provider/:org/:repo/:subject/:subjectID/-/
+```
+
+### 路由占位符
+- `:provider`：`gitlab | github | ...`（页面路由用）
+- `:org`：组织或命名空间，例如 `canyon-project`
+- `:repo`：仓库名，例如 `canyon-demo`
+- `:subject`：`commit | commits | pull | pulls | multiple-commits`
+- `:subjectID`：
+  - 当 subject 为 commit/commits：提交 `sha`
+  - 当 subject 为 pull/pulls：`pullNumber`
+  - 当 subject 为 multiple-commits：提交范围 `a...b`，其中以 `b` 作为基线
+
+### 示例（multiple-commits）
+
+```text
+/report/-/gitlab/canyon-project/canyon-demo/multiple-commits/494989b4c2c9fcdba44e9e6412080e876f9c73e7...3056488dc00be874d9c99d1e1748e6c3211ece3a/-/
+```
+
+### 可选查询参数（用于后端数据选择）
+- `provider`：后端使用的代码托管提供方（默认 `gitlab`）。
+- `build_provider`：构建/CI 提供方（例如 `gitlab_runner`、`jenkins`）。
+- `build_id`：构建 ID。
+- `report_provider`：报告来源（如 `mpaas`、`flytest`、`person`）。
+- `report_id`：报告 ID。
+
+示例：
+
+```text
+/report/-/gitlab/canyon-project/canyon-demo/multiple-commits/494989b4...3056488.../-/?provider=gitlab&build_provider=gitlab_runner&build_id=123&report_provider=mpaas&report_id=case-001
+```
+
+### 文件直达
+- 末尾的 `/-/` 之后可追加文件相对路径以直达某文件，例如：
+
+```text
+/report/-/:provider/:org/:repo/:subject/:subjectID/-/src/app/foo.ts
+```

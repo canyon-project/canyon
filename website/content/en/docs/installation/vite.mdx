@@ -1,0 +1,47 @@
+# Vite
+
+import { Steps } from "nextra/components";
+
+Install and configure Vite.
+
+<Steps>
+
+  ### Create Project
+  First, create a new React project `vite` using the following command.
+
+  > [!TIP]
+  >
+  > Currently only the react template for vite is supported
+
+  ```sh npm2yarn copy
+  npm create vite@latest
+  ```
+
+  ### Add Canyon and Its Configuration
+
+  ```sh npm2yarn copy
+  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  ```
+
+  ### Configure babel Plugin
+
+  ``` ts filename="vite.config.ts" copy {7,8,9}
+  import { defineConfig } from 'vite'
+  import react from '@vitejs/plugin-react'
+
+  // https://vite.dev/config/
+  export default defineConfig({
+  plugins: [react({
+      babel:{
+        plugins:["istanbul","canyon"]
+      }
+    })],
+  })
+
+  ```
+
+  ### That's It
+  Continue to [First Coverage Data - Check](/docs/getting-started/first-coverage#check).
+</Steps>
+
+
