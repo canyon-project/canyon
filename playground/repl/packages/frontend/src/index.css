@@ -1,0 +1,89 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+a {
+  color: #0071c2;
+}
+a:hover {
+  color: #0071c2;
+  opacity: 0.8;
+  /* text-decoration: underline; */
+}
+
+@font-face {
+  font-family: "IBMPlexMono";
+  src: url("@ibm/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2")
+  format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*canyon-report*/
+
+.YourHighlightClass {
+  padding: 0 !important;
+  color: white !important;
+  background: rgb(244, 176, 27) !important;
+}
+
+/*新版canyon-report*/
+
+.line-number-wrapper {
+  display: flex;
+  /*从右边开始*/
+  justify-content: flex-end;
+  /*text-align: right;*/
+}
+
+.line-number-wrapper .line-number {
+  /*width: 60px;*/
+  padding-right: 5px;
+}
+
+.line-number-wrapper .line-change {
+  width: 4px;
+  /*display: block;*/
+}
+
+.line-number-wrapper .line-coverage {
+  width: 60px;
+  padding-right: 5px;
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.dark .line-number-wrapper .line-coverage {
+  width: 60px;
+  padding-right: 5px;
+  color: #eaeaea;
+}
+
+/*额外的*/
+.content-class-no-found-branch {
+  background: rgba(255, 229, 100, 0.6) !important;
+}
+
+.content-class-no-found {
+  background: rgba(255, 128, 160, 0.3);
+}
+
+.dark .content-class-no-found {
+  background: #ff000033;
+}
+
+.insert-e-decoration::before {
+  content: "E";
+  background-color: black;
+  color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+.insert-i-decoration::before {
+  content: "I";
+  background-color: black;
+  color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 5px;
+}
