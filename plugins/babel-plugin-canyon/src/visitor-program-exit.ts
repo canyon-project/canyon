@@ -113,7 +113,13 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
                 initialCoverageDataForTheCurrentFile,
             }).then((r) => {
               if (Object.keys(r).length > 0) {
-                console.log(Object.keys(r)[0]);
+                const originCodePath = Object.keys(r)[0];
+                // 检测源码文件存不存在，打印存在与否
+                if (fs.existsSync(originCodePath)) {
+                  console.log(originCodePath, '存在');
+                } else {
+                  console.log(originCodePath, '不存在');
+                }
               }
             });
           }
