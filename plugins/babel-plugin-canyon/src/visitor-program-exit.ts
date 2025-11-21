@@ -108,7 +108,6 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
             initialCoverageDataForTheCurrentFile.inputSourceMap &&
             cfg.debug
           ) {
-            // 检查
             remapCoverage({
               [initialCoverageDataForTheCurrentFile.path]:
                 initialCoverageDataForTheCurrentFile,
