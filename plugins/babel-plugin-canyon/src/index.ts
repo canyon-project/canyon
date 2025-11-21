@@ -107,6 +107,7 @@ export default declare((api, config, dirname) => {
             api,
             path,
             servePa,
+            config,
           );
 
           if (config.special) {

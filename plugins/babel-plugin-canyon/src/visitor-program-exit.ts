@@ -3,12 +3,13 @@ import fs from 'fs';
 import sysPath from 'path';
 import { generateInitialCoverage } from './helpers/generate-initial-coverage';
 import { computeHash } from './helpers/hash';
+import { remapCoverage } from './helpers/remapCoverage';
 import {
   enrichFnMapWithHash,
   enrichStatementMapWithHash,
 } from './helpers/statement-map-hash';
 
-export const visitorProgramExit = (api, path, serviceParams) => {
+export const visitorProgramExit = (api, path, serviceParams, cfg) => {
   const initialCoverageDataForTheCurrentFile = generateInitialCoverage(
     generate(path.node).code,
     serviceParams,
@@ -101,6 +102,22 @@ export const visitorProgramExit = (api, path, serviceParams) => {
             ),
             'utf-8',
           );
+
+          //   测试读取源码逻辑
+          if (
+            initialCoverageDataForTheCurrentFile.inputSourceMap &&
+            cfg.debug
+          ) {
+            // 检查
+            remapCoverage({
+              [initialCoverageDataForTheCurrentFile.path]:
+                initialCoverageDataForTheCurrentFile,
+            }).then((r) => {
+              if (Object.keys(r).length > 0) {
+                console.log(Object.keys(r)[0]);
+              }
+            });
+          }
         }
       }
     }

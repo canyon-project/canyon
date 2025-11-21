@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-canyon",
-  "version": "2.0.35",
+  "version": "2.0.36",
   "description": "A Babel plugin cooperates with istanbul to report the coverage",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
@@ -48,7 +48,9 @@
   },
   "dependencies": {
     "@babel/helper-plugin-utils": "^7.0.0",
-    "@babel/generator": "^7.25.6"
+    "@babel/generator": "^7.25.6",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-source-maps": "^4.0.1"
   },
   "peerDependencies": {
     "axios": "*"
