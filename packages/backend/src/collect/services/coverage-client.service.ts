@@ -141,9 +141,6 @@ export class CoverageClientService {
       });
     } else {
       // 如果map里也没input source的话那就能直接插入hit
-
-      const { separateCoverageHit } = separateCoverage(coverage);
-
       await this.insertMap({
         coverage: coverage as MapCoverage,
         coverageID,
@@ -151,12 +148,17 @@ export class CoverageClientService {
         instrumentCwd,
       });
 
-      await this.insertHit({
-        coverage: separateCoverageHit as HitCoverage,
-        coverageID,
-        versionID,
-        instrumentCwd,
-      });
+      if (reportID === 'initial_coverage_data' && reportProvider === 'ci') {
+        //   什么都不做
+      } else {
+        const { separateCoverageHit } = separateCoverage(coverage);
+        await this.insertHit({
+          coverage: separateCoverageHit as HitCoverage,
+          coverageID,
+          versionID,
+          instrumentCwd,
+        });
+      }
     }
     return {};
   }
