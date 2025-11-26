@@ -40,7 +40,8 @@
       "globals": "16.0.0",
       "prisma": "6.18.0",
       "typescript": "5.9.3",
-      "vite": "npm:rolldown-vite@7.1.14"
+      "vite": "6",
+      "antd": "5"
     }
   },
   "pacakgeManager": {
