@@ -7,5 +7,6 @@ export function extractIstanbulData(obj) {
     f: {},
   };
   o.statementMap = obj.origin.statementMap;
+  o.fnMap = obj.origin.fnMap;
   return o;
 }

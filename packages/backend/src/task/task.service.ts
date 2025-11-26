@@ -2,10 +2,10 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { remapCoverageByOld } from '../collect/helpers/canyon-data';
 import { decodeCompressedObject } from '../collect/helpers/transform';
+import { addMaps, ensureNumMap } from '../helpers/coverage-merge.util';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   GroupAgg,
-  NumMap,
   TaskCoverageAggResult,
   TaskCoverageDelResult,
 } from './task.types';
@@ -99,26 +99,6 @@ export class TaskService implements OnModuleInit {
   ): Promise<TaskCoverageAggResult> {
     // 仅处理一个 coverageID 的"最早一批"（按 versionID 分组，取该 coverageID 下最早的 versionID）
     // 避免一次性全量拉取
-    function ensureNumMap(value: unknown): NumMap {
-      if (!value || typeof value !== 'object') return {};
-      const src = value as Record<string, unknown>;
-      const out: NumMap = {};
-      for (const k of Object.keys(src)) {
-        const v = src[k] as any;
-        // 支持 number 或可转 number 的字符串
-        const n = typeof v === 'number' ? v : Number(v);
-        if (!Number.isNaN(n)) out[k] = (out[k] || 0) + n;
-      }
-      return out;
-    }
-
-    function addMaps(a: NumMap, b: NumMap): NumMap {
-      const res: NumMap = { ...a };
-      for (const k of Object.keys(b)) {
-        res[k] = (res[k] || 0) + b[k];
-      }
-      return res;
-    }
 
     // 选择一个待处理的 coverageID（按最早 ts），或使用传入的 coverageID
     let coverageID = targetCoverageID;

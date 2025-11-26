@@ -1,8 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { generateObjectSignature } from '../../collect/helpers/generateObjectSignature';
 import { extractIstanbulData } from '../../helpers/coverage-map-util';
+import { addMaps, ensureNumMap } from '../../helpers/coverage-merge.util';
 import { testExclude } from '../../helpers/test-exclude';
 import { PrismaService } from '../../prisma/prisma.service';
+import { NumMap } from '../../task/task.types';
 import { CoverageMapStoreService } from './coverage.map-store.service';
 
 @Injectable()
@@ -66,18 +68,50 @@ export class CoverageMapForCommitService {
       );
 
     // 查hit
-
-    // 确实都查出来的，但是没合并
     const rows = await this.prisma.coverHitAgg.findMany({
       where: {
         versionID: versionID,
       },
     });
 
+    // 按 filePath 分组并合并多个 coverageID 的数据
+    const mergedRows = new Map<
+      string,
+      {
+        filePath: string;
+        s: NumMap;
+        f: NumMap;
+        latestTs: Date;
+      }
+    >();
+
+    for (const r of rows || []) {
+      const filePath = r.filePath;
+      const sMap = ensureNumMap(r.s);
+      const fMap = ensureNumMap(r.f);
+      const ts = r.latestTs instanceof Date ? r.latestTs : new Date(r.latestTs);
+
+      const existing = mergedRows.get(filePath);
+      if (!existing) {
+        mergedRows.set(filePath, {
+          filePath,
+          s: sMap,
+          f: fMap,
+          latestTs: ts,
+        });
+      } else {
+        existing.s = addMaps(existing.s, sMap);
+        existing.f = addMaps(existing.f, fMap);
+        if (ts > existing.latestTs) {
+          existing.latestTs = ts;
+        }
+      }
+    }
+
     // 9) 组装最终结果：合并命中、补齐 0 值、转换分支为数组
     const result: Record<string, unknown> = {};
-    for (const r of rows || []) {
-      const path = r.filePath;
+    for (const mergedRow of mergedRows.values()) {
+      const path = mergedRow.filePath;
       const structure = hashToMap.find((i) => {
         return i.hash === pathToHash.get(path);
       });
@@ -86,7 +120,8 @@ export class CoverageMapForCommitService {
         result[path] = {
           path,
           ...extractIstanbulData(structure),
-          s: r.s,
+          s: mergedRow.s,
+          f: mergedRow.f,
           contentHash: structure.hash.split('|')[1],
         };
       }
