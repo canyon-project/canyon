@@ -3,11 +3,11 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class MapQueryDto {
   @IsString()
   @IsNotEmpty()
-  subject!: string; // commit|commits|pull|pulls
+  subject!: string; // commit|commits|pull|pulls|multiple-commits
 
   @IsString()
   @IsNotEmpty()
-  subjectID!: string; // sha or pullNumber
+  subjectID!: string; // sha or pullNumber or commit1...commit2
 
   @IsString()
   @IsNotEmpty()
