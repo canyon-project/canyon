@@ -52,19 +52,7 @@ export class CoverageClientService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
-  ) {
-    // this.prisma.log.findFirst({
-    //   where:{
-    //     id:'cmhwvi6m70000b0rspvvrb7ys'
-    //   }
-    // }).then(r=>{
-    //   console.log(r)
-    //   // @ts-expect-errorr
-    //   this.invoke('1',r?.content).then(r1=>{
-    //     console.log(r1)
-    //   })
-    // })
-  }
+  ) {}
 
   async invoke(reporter: string, coverageClientDto: CoverageClientDto) {
     await this.prisma.log.create({
@@ -108,7 +96,6 @@ export class CoverageClientService {
       buildTarget,
     });
 
-    console.log(versionID, 'versionID');
     // 第二步：检查coverage类型
     const coverageType = checkCoverageType(coverage as any) as CoverageKind;
     const coverageMapRelationCount =
