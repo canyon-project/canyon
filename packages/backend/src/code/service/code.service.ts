@@ -6,7 +6,7 @@ import axios from 'axios';
 export class CodeService {
   constructor(private readonly configService: ConfigService) {}
 
-  private async getGitLabCfg() {
+  public async getGitLabCfg() {
     const base = await this.configService.get('INFRA.GITLAB_BASE_URL');
     const token = await this.configService.get('INFRA.GITLAB_PRIVATE_TOKEN');
     if (!base || !token) throw new BadRequestException('GitLab 配置缺失');
