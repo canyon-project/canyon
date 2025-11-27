@@ -30,8 +30,7 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
   const provider = params.provider as string | 'github';
   const reportID = searchParams.get('report_id') || '';
   const reportProvider = searchParams.get('report_provider') || '';
-  const defaultOnlyShowChanged =
-    searchParams.get('only_show_change') === 'true';
+  const defaultOnlyShowChanged = subject === 'multiple-commits';
   const [activatedPath, setActivatedPath] = useState(
     params['*']?.replace('-/', ''),
   );
