@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CodeService } from './service/code.service';
-@Controller('code/diff')
+@Controller('api/code/diff')
 export class CodeController {
   constructor(
     private readonly codeService: CodeService,
