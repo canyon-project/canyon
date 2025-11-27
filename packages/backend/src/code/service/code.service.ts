@@ -430,7 +430,7 @@ export class CodeService {
     // 转换为返回格式
     const data = result.map(({ path, additions, deletions }) => {
       return {
-        id: `${provider}|${repoID}|multiple-commits|${subjectID}|${fingerprint}|${path}`,
+        id: `${provider}|${repoID}|multiple-commits|${subjectID}|${path}`,
         provider: provider,
         repo_id: repoID,
         from: fromShaTrimmed,
