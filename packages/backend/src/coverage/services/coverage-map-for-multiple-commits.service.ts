@@ -170,6 +170,23 @@ export class CoverageMapForMultipleCommitsService {
           buildTarget: buildTarget || '',
         });
 
+        // 先检查 Coverage 表是否存在数据，如果不存在则跳过（避免查询耗时的 coverageMapRelation）
+        const coverageCheck = await this.prisma.coverage.findFirst({
+          where: {
+            versionID: versionID,
+          },
+          select: {
+            id: true,
+          },
+        });
+
+        // 如果没有 coverage 数据，跳过这个 commit
+        if (!coverageCheck) {
+          console.warn(`commit ${sha} 没有覆盖率数据，跳过`);
+          coverageByCommit[sha] = {};
+          continue;
+        }
+
         // 构建查询条件
         const qb: any = {
           versionID: versionID,
