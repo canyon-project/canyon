@@ -15,9 +15,7 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
   const [searchParams] = useSearchParams();
   const params = useParams();
   const navigate = useNavigate();
-  const { refetch: codeDiffChangedLinesRefetch } = useQuery(
-    CodeDiffChangedLinesDocument,
-  );
+
   const subjectID = params.subjectID;
   const subject = params.subject as
     | 'commit'
@@ -37,7 +35,19 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
   const [activatedPath, setActivatedPath] = useState(
     params['*']?.replace('-/', ''),
   );
-
+  const { refetch: codeDiffChangedLinesRefetch } = useQuery(
+    CodeDiffChangedLinesDocument,
+    {
+      variables: {
+        input: {
+          repoID: '',
+          filepath: '',
+          subject: '',
+          subjectID: '',
+        },
+      },
+    },
+  );
   // 组装基础路径（带上现有 query），供选择文件时调整 URL
   const sp = searchParams.toString();
   const basePathPrefix = `/report/-/${params.provider}/${params.org}/${params.repo}/${params.subject}/${params.subjectID}`;
@@ -100,7 +110,7 @@ function CoverageReportContent({ repo }: { repo: { id: string } }) {
       buildID,
       reportProvider,
       reportID,
-      // @ts-ignorer
+      // @ts-expect-errorr
       codeDiffChangedLinesRefetch,
     }).then((res) => ({
       fileContent: res.fileContent,

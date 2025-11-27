@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { testExclude } from 'src/helpers/test-exclude';
 import { aggregateForCommits } from '../helpers/aggregate-for-commits';
 import { CoverageMapForCommitService } from './coverage-map-for-commit.service';
 
@@ -107,7 +108,6 @@ export class CoverageMapForMultipleCommitsService {
 
     // 对每个 commit 获取覆盖率数据
     const coverageByCommit: Record<string, Record<string, any>> = {};
-
     for (const sha of commitShas) {
       try {
         const coverage = await this.coverageMapForCommitService.invoke({
@@ -120,7 +120,7 @@ export class CoverageMapForMultipleCommitsService {
           filePath,
           onlyChanged: false, // 获取所有文件，后续再过滤
         });
-
+        console.log(coverage, 'coverage');
         // 转换格式以匹配 aggregateForCommits 的期望
         // aggregateForCommits 期望每个文件有 contentHash 字段
         // statementMap 中的每个 entry 应该有 contentHash 字段（从 extractIstanbulData 中获取）
@@ -165,6 +165,12 @@ export class CoverageMapForMultipleCommitsService {
 
     // 返回格式与 coverage-map-for-commit.service.ts 保持一致
     // aggregateForCommits 返回的是 CoverageByFile，格式已经正确
-    return aggregated;
+    const filtered = testExclude(
+      aggregated,
+      JSON.stringify({
+        exclude: ['dist/**'],
+      }),
+    );
+    return filtered;
   }
 }

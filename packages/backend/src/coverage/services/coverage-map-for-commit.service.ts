@@ -133,7 +133,12 @@ export class CoverageMapForCommitService {
         id: repoID,
       },
     });
-    const filtered = testExclude(result, repo?.config);
-    return result;
+    const filtered = testExclude(
+      result,
+      JSON.stringify({
+        exclude: ['dist/**'],
+      }),
+    );
+    return filtered;
   }
 }
