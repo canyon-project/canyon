@@ -97,13 +97,21 @@ export class CoverageMapForMultipleCommitsService {
     // 存储文件路径到 additions 的映射
     const filePathToAdditions = new Map<string, number[]>();
     if (onlyChanged) {
+      // 构建查询条件
+      const diffWhere: any = {
+        provider,
+        repo_id: repoID,
+        subject_id: subjectID,
+        subject: 'multiple-commits',
+      };
+
+      // 如果提供了 filePath，只查询该文件的变更行
+      if (filePath) {
+        diffWhere.path = filePath;
+      }
+
       const diffRecords = await this.prisma.diff.findMany({
-        where: {
-          provider,
-          repo_id: repoID,
-          subject_id: subjectID,
-          subject: 'multiple-commits',
-        },
+        where: diffWhere,
         select: {
           path: true,
           additions: true,
@@ -144,7 +152,6 @@ export class CoverageMapForMultipleCommitsService {
       onlyChanged && changedFilePaths && changedFilePaths.size > 0
         ? Array.from(changedFilePaths)
         : null;
-
     for (const sha of commitShas) {
       try {
         // 生成 coverageID 和 versionID
