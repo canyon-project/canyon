@@ -134,6 +134,17 @@ export class CoverageClientService {
         versionID,
         instrumentCwd,
       });
+      if (reportID === 'initial_coverage_data' && reportProvider === 'ci') {
+        const { separateCoverageHit } = separateCoverage(coverage);
+        await this.insertHit({
+          coverage: separateCoverageHit as HitCoverage,
+          coverageID,
+          versionID,
+          instrumentCwd,
+        });
+      } else {
+        //   什么都不做
+      }
     }
     return {};
   }
