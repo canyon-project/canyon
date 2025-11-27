@@ -3,7 +3,6 @@ import { isUndefined } from '@nestjs/common/utils/shared.utils';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CoverageClientDto } from '../dto/coverage-client.dto';
-import { remapCoverageByOld } from '../helpers/canyon-data';
 import { checkCoverageType } from '../helpers/checkCoverageType';
 import { generateSecureId } from '../helpers/coverageID';
 import { generateObjectSignature } from '../helpers/generateObjectSignature';
@@ -26,6 +25,7 @@ interface MapFileCoverageEntry {
   branchMap: unknown;
   inputSourceMap?: unknown;
   contentHash?: string;
+  oldPath?: string; // 如果有 oldPath，说明这是 remap 后的数据
 }
 type MapCoverage = Record<string, MapFileCoverageEntry>;
 
@@ -166,72 +166,66 @@ export class CoverageClientService {
     });
   }
 
-  // 尝试回溯覆盖率数据
-  async tryRecoverage(coverage: MapCoverage): Promise<Record<string, any>> {
-    // 第一步：如果没有 inputSourceMap，则直接返回
-    if (
-      Object.values(coverage).filter(({ inputSourceMap }) => inputSourceMap)
-        .length === 0
-    ) {
-      return coverage;
-    }
-    // 还原覆盖率
-    const remapCoverageObject = await remapCoverageByOld(coverage as any);
-    return remapCoverageObject;
-  }
-
   async insertMap({
     coverage,
     coverageID,
     versionID,
     instrumentCwd,
   }: InsertMapParams) {
-    const realcoverage = await this.tryRecoverage(coverage);
-
-    const mapItems = Object.entries(coverage).map(([filePath, entry]) => {
-      const chunkMap = {
-        statementMap: entry.statementMap,
-        fnMap: entry.fnMap,
-        branchMap: entry.branchMap,
-      };
-
-      const coverageMapHash = generateObjectSignature(chunkMap);
-      const contentHash = entry.contentHash || '';
-
-      const remappedEntry: any = Object.values(realcoverage).find(
-        (item: any) => item.oldPath === filePath,
-      );
-      if (remappedEntry && (entry as any).inputSourceMap) {
-        const inputSourceMapCoverageMapHash = generateObjectSignature({
-          ...chunkMap,
-          inputSourceMap: 1,
-        });
-        return {
-          origin: {
-            statementMap: remappedEntry.statementMap,
-            fnMap: remappedEntry.fnMap,
-            branchMap: remappedEntry.branchMap,
-          },
-          restore: chunkMap,
-          ts: new Date(),
-          coverageMapHashID: inputSourceMapCoverageMapHash,
-          contentHashID: contentHash,
-          filePath: remappedEntry.path.replace(instrumentCwd + '/', ''),
-          fullFilePath: remappedEntry.path,
-          sourceMap: (entry as any).inputSourceMap,
-          oldPath: remappedEntry.oldPath,
+    const mapItems = Object.entries(coverage)
+      // 过滤掉有 inputSourceMap 的 entry（原始数据，会被 remap 后的数据引用）
+      .filter(([filePath, entry]) => {
+        return !(entry as any).inputSourceMap;
+      })
+      .map(([filePath, entry]) => {
+        const chunkMap = {
+          statementMap: entry.statementMap,
+          fnMap: entry.fnMap,
+          branchMap: entry.branchMap,
         };
-      }
-      return {
-        origin: chunkMap,
-        restore: {},
-        ts: new Date(),
-        coverageMapHashID: coverageMapHash,
-        contentHashID: contentHash,
-        filePath: filePath.replace(instrumentCwd + '/', ''),
-        fullFilePath: filePath,
-      };
-    });
+
+        const coverageMapHash = generateObjectSignature(chunkMap);
+        const contentHash = entry.contentHash || '';
+
+        // 如果有 oldPath，说明这是 remap 后的数据
+        if (entry.oldPath) {
+          // 找到原来的数据（key 为 oldPath）
+          // originalEntry是带input Source Map的
+          const originalEntry = coverage[entry.oldPath];
+          if (originalEntry) {
+            const originalChunkMap = {
+              statementMap: originalEntry.statementMap,
+              fnMap: originalEntry.fnMap,
+              branchMap: originalEntry.branchMap,
+            };
+            const inputSourceMapCoverageMapHash = generateObjectSignature({
+              ...chunkMap,
+              inputSourceMap: 1,
+            });
+            return {
+              origin: chunkMap, // remap 后的数据作为 origin
+              restore: originalChunkMap, // 原来的数据作为 restore
+              ts: new Date(),
+              coverageMapHashID: inputSourceMapCoverageMapHash,
+              contentHashID: contentHash,
+              filePath: filePath.replace(instrumentCwd + '/', ''),
+              fullFilePath: filePath,
+              sourceMap: (originalEntry as any).inputSourceMap,
+              oldPath: entry.oldPath,
+            };
+          }
+        }
+        // 普通情况：没有 oldPath
+        return {
+          origin: chunkMap,
+          restore: {},
+          ts: new Date(),
+          coverageMapHashID: coverageMapHash,
+          contentHashID: contentHash,
+          filePath: filePath.replace(instrumentCwd + '/', ''),
+          fullFilePath: filePath,
+        };
+      });
 
     const coverMapEntities = mapItems.map((item) => ({
       hash: `${item.coverageMapHashID}|${item.contentHashID}`,
