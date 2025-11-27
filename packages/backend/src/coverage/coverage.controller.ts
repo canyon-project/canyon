@@ -48,10 +48,10 @@ export class CoverageController {
           .map((m: any) => {
             return {
               path: m.path,
-              additions: m.change.additions,
+              additions: m?.change?.additions || [],
             };
           })
-          .filter(Boolean);
+          .filter((item) => item.additions.length > 0);
 
         const summary = genSummaryMapByCoverageMap(map, c);
 
