@@ -28,8 +28,6 @@ function trim(obj) {
   }, {});
 }
 
-const onlyOne = true;
-
 export default declare((api, config, dirname) => {
   // 需要主动设置 assertVersion7 false
   if (config.assertVersion7 !== false) {
@@ -75,7 +73,6 @@ export default declare((api, config, dirname) => {
           const env_projectID = envs.CI_PROJECT_ID;
           const env_branch = envs.CI_COMMIT_BRANCH;
           const env_buildID = envs.CI_JOB_ID;
-          const env_CI_MERGE_REQUEST_ID = envs.CI_MERGE_REQUEST_ID;
           const env_buildProvider = 'gitlab_runner';
 
           const servePa: { provider?: string; compareTarget?: string } & any =
@@ -95,24 +92,10 @@ export default declare((api, config, dirname) => {
               buildTarget: config.buildTarget || '',
             });
 
-          // if (onlyOne){
-
-          //   console.log(`canyon args: ----------------`)
-          //   console.log(servePa)
-          //   console.log(`canyon args: ----------------`)
-          // }
-          // onlyOne = false
-
-          const { initialCoverageDataForTheCurrentFile } = visitorProgramExit(
-            api,
-            path,
-            servePa,
-            config,
-          );
+          visitorProgramExit(api, path, servePa, config);
 
           if (config.special) {
             //   其他逻辑
-
             // TODO: 需要删除writeCanyonToLocal
             const writeCanyonToLocal = writeCanyonToLocalTemplate({
               JSON: 'JSON',
@@ -120,86 +103,6 @@ export default declare((api, config, dirname) => {
             // TODO: 需要删除writeCanyonToLocal
             // @ts-expect-error
             path.node.body.unshift(writeCanyonToLocal);
-          }
-
-          const __canyon__ = {
-            DSN: servePa.dsn,
-            COMMIT_SHA: servePa.sha,
-            PROJECT_ID: `${servePa.provider || 'default'}-${servePa.projectID}-auto`,
-            BRANCH: servePa.branch,
-            REPORTER: servePa.reporter,
-            COMPARE_TARGET: servePa.compareTarget || '-',
-            INSTRUMENT_CWD: servePa.instrumentCwd,
-            BUILD_ID: servePa.buildID,
-            BUILD_PROVIDER: servePa.buildProvider,
-          };
-          if (config.debug) {
-            // console.log('Canyon:', __canyon__);
-          }
-          if (config.oneByOne) {
-            // 必须校验数据完整性
-            if (
-              initialCoverageDataForTheCurrentFile &&
-              __canyon__.COMMIT_SHA &&
-              __canyon__.PROJECT_ID
-            ) {
-              if (
-                __canyon__.COMMIT_SHA !== '-' &&
-                __canyon__.PROJECT_ID !== '-'
-              ) {
-                const proxy = config.oneByOne.proxy || {};
-                try {
-                  const axios = require('axios');
-                  axios
-                    .post(
-                      newatob(
-                        'aHR0cDovL2NhbnlvbnRlc3QuZmF0My5xYS5udC5jdHJpcGNvcnAuY29tL2NvdmVyYWdlL2NsaWVudA==',
-                      ),
-                      {
-                        coverage: {
-                          [initialCoverageDataForTheCurrentFile.path]:
-                            initialCoverageDataForTheCurrentFile,
-                        },
-                        commitSha: __canyon__.COMMIT_SHA,
-                        branch: __canyon__.BRANCH,
-                        projectID: __canyon__.PROJECT_ID,
-                        reportID: 'initial_coverage_data',
-                        instrumentCwd: __canyon__.INSTRUMENT_CWD,
-                        buildID: __canyon__.BUILD_ID,
-                        buildProvider: __canyon__.BUILD_PROVIDER,
-                      },
-                      {
-                        headers: {
-                          Authorization:
-                            'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InR6aGFuZ21AdHJpcC5jb20iLCJpZCI6Ijg0MTciLCJpYXQiOjE3NDEyNDEyOTQsImV4cCI6MjA1NjgxNzI5NH0.5R8HQ5ag_HG8_brkFJiSXMZXGTso9bwpLsQ58MQm0zw',
-                        },
-                        timeout: 15000,
-                        ...proxy,
-                      },
-                    )
-                    .then((r) => {
-                      if (config.debug) {
-                        // console.log('Posted coverage data:', r.data);
-                      }
-                    })
-                    .catch((err) => {
-                      if (config.debug) {
-                        // console.log('Failed to post coverage data:', err);
-                      }
-                    });
-                } catch (e) {
-                  if (config.debug) {
-                    // console.log('Failed to post coverage data:', e);
-                  }
-                }
-              }
-            } else {
-              if (config.debug) {
-                console.log(
-                  // JSON.stringify(initialCoverageDataForTheCurrentFile),
-                );
-              }
-            }
           }
         },
       },
