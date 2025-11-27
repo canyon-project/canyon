@@ -28,15 +28,8 @@ export class CoverageController {
           reportProvider: q.reportProvider,
           reportID: q.reportID,
           filePath: q.filePath,
-          // compareTarget: q.compareTarget,
-          onlyChanged: String(q.onlyChanged || '').toLowerCase() === 'true',
         });
-        const summary = genSummaryMapByCoverageMap(
-          map,
-          Object.values(map)
-            .map((m: any) => m.change)
-            .filter(Boolean),
-        );
+        const summary = genSummaryMapByCoverageMap(map, []);
 
         return summary;
       }
@@ -49,14 +42,18 @@ export class CoverageController {
           reportProvider: q.reportProvider,
           reportID: q.reportID,
           filePath: q.filePath,
-          onlyChanged: String(q.onlyChanged || '').toLowerCase() === 'true',
         });
-        const summary = genSummaryMapByCoverageMap(
-          map,
-          Object.values(map)
-            .map((m: any) => m.change)
-            .filter(Boolean),
-        );
+
+        const c = Object.values(map)
+          .map((m: any) => {
+            return {
+              path: m.path,
+              additions: m.change.additions,
+            };
+          })
+          .filter(Boolean);
+
+        const summary = genSummaryMapByCoverageMap(map, c);
 
         return summary;
       }
@@ -79,8 +76,6 @@ export class CoverageController {
           reportProvider: q.reportProvider,
           reportID: q.reportID,
           filePath: q.filePath,
-          // compareTarget: q.compareTarget, // TODO 废弃，用multiple-commits代替
-          onlyChanged: String(q.onlyChanged || '').toLowerCase() === 'true',
         });
       case 'multiple-commits':
         return this.coverageMapForMultipleCommitsService.invoke({
@@ -91,7 +86,6 @@ export class CoverageController {
           reportProvider: q.reportProvider,
           reportID: q.reportID,
           filePath: q.filePath,
-          onlyChanged: String(q.onlyChanged || '').toLowerCase() === 'true',
         });
       default:
         throw new BadRequestException('invalid subject');

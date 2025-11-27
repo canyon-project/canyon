@@ -21,8 +21,6 @@ export class CoverageMapForCommitService {
     reportProvider,
     reportID,
     filePath,
-    // compareTarget,
-    onlyChanged, // TODO 默认为true，显式传false才返回全部
   }) {
     // 第一步：生成coverageID，核心7个字段，确保顺序
     const coverageID = generateObjectSignature({

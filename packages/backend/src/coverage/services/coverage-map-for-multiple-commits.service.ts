@@ -1,15 +1,21 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { testExclude } from 'src/helpers/test-exclude';
+import { generateObjectSignature } from '../../collect/helpers/generateObjectSignature';
+import { extractIstanbulData } from '../../helpers/coverage-map-util';
+import { addMaps, ensureNumMap } from '../../helpers/coverage-merge.util';
+import { testExclude } from '../../helpers/test-exclude';
+import { PrismaService } from '../../prisma/prisma.service';
+import { NumMap } from '../../task/task.types';
 import { aggregateForCommits } from '../helpers/aggregate-for-commits';
-import { CoverageMapForCommitService } from './coverage-map-for-commit.service';
+import { CoverageMapStoreService } from './coverage.map-store.service';
 
 @Injectable()
 export class CoverageMapForMultipleCommitsService {
   constructor(
-    private readonly coverageMapForCommitService: CoverageMapForCommitService,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+    private readonly coverageMapStoreService: CoverageMapStoreService,
   ) {}
 
   private async getGitLabCfg() {
@@ -59,7 +65,7 @@ export class CoverageMapForMultipleCommitsService {
     reportProvider,
     reportID,
     filePath,
-    onlyChanged,
+    onlyChanged = true, // 默认为 true，只有显式设置为 false 才返回全部
   }: {
     provider: string;
     repoID: string;
@@ -86,6 +92,30 @@ export class CoverageMapForMultipleCommitsService {
     const fromShaTrimmed = fromSha.trim();
     const toShaTrimmed = toSha.trim();
 
+    // 从 diff 表获取变更文件列表（默认只返回变更的文件）
+    let changedFilePaths: Set<string> | null = null;
+    // 存储文件路径到 additions 的映射
+    const filePathToAdditions = new Map<string, number[]>();
+    if (onlyChanged) {
+      const diffRecords = await this.prisma.diff.findMany({
+        where: {
+          provider,
+          repo_id: repoID,
+          subject_id: subjectID,
+          subject: 'multiple-commits',
+        },
+        select: {
+          path: true,
+          additions: true,
+        },
+      });
+      changedFilePaths = new Set(diffRecords.map((d) => d.path));
+      // 构建文件路径到 additions 的映射
+      for (const record of diffRecords) {
+        filePathToAdditions.set(record.path, record.additions);
+      }
+    }
+
     // 获取从 fromSha 到 toSha 之间的所有 commit
     const commitShas = await this.getCommitsBetween({
       repoID,
@@ -108,36 +138,140 @@ export class CoverageMapForMultipleCommitsService {
 
     // 对每个 commit 获取覆盖率数据
     const coverageByCommit: Record<string, Record<string, any>> = {};
+
+    // 如果 onlyChanged 为 true 且有变更文件列表，只查询这些文件；否则查询所有文件
+    const filesToQuery =
+      onlyChanged && changedFilePaths && changedFilePaths.size > 0
+        ? Array.from(changedFilePaths)
+        : null;
+
     for (const sha of commitShas) {
       try {
-        const coverage = await this.coverageMapForCommitService.invoke({
+        // 生成 coverageID 和 versionID
+        const coverageID = generateObjectSignature({
           provider,
           repoID,
           sha,
           buildTarget: buildTarget || '',
           reportProvider,
           reportID,
-          filePath,
-          onlyChanged: false, // 获取所有文件，后续再过滤
         });
-        console.log(coverage, 'coverage');
-        // 转换格式以匹配 aggregateForCommits 的期望
-        // aggregateForCommits 期望每个文件有 contentHash 字段
-        // statementMap 中的每个 entry 应该有 contentHash 字段（从 extractIstanbulData 中获取）
-        const transformedCoverage: Record<string, any> = {};
-        for (const [filePathKey, fileData] of Object.entries(coverage)) {
-          const data = fileData as any;
-          transformedCoverage[filePathKey] = {
-            path: filePathKey,
-            statementMap: data.statementMap || {},
-            fnMap: data.fnMap || {},
-            branchMap: data.branchMap || {},
-            s: data.s || {},
-            f: data.f || {},
-            b: data.b || {}, // b 可能是对象或数组，aggregateForCommits 不处理它
-            contentHash: data.contentHash || '',
+        const versionID = generateObjectSignature({
+          provider,
+          repoID,
+          sha,
+          buildTarget: buildTarget || '',
+        });
+
+        // 构建查询条件
+        const qb: any = {
+          versionID: versionID,
+        };
+
+        // 处理文件路径过滤
+        if (filesToQuery && filesToQuery.length > 0) {
+          // 如果 onlyChanged 为 true 且有变更文件列表，使用文件列表过滤
+          qb['filePath'] = {
+            in: filesToQuery,
           };
+        } else if (filePath) {
+          // 如果指定了单个 filePath，使用单个文件路径
+          qb['filePath'] = filePath;
         }
+
+        // 查询 coverageMapRelation
+        const relationsAll = await this.prisma.coverageMapRelation.findMany({
+          where: qb,
+        });
+
+        const pathToHash = new Map<string, string>();
+        for (const r of relationsAll) {
+          if (!pathToHash.has(r.filePath)) {
+            pathToHash.set(
+              r.filePath,
+              `${r.coverageMapHashID}|${r.contentHashID}`,
+            );
+          }
+        }
+
+        const hashList = relationsAll.map(
+          (x) => `${x.coverageMapHashID}|${x.contentHashID}`,
+        );
+        const hashToMap =
+          await this.coverageMapStoreService.fetchCoverageMapsFromClickHouse(
+            hashList,
+          );
+
+        // 查询 hit 数据
+        const hitQuery: any = {
+          versionID: versionID,
+        };
+        // 处理文件路径过滤（与 coverageMapRelation 查询保持一致）
+        if (filesToQuery && filesToQuery.length > 0) {
+          hitQuery['filePath'] = {
+            in: filesToQuery,
+          };
+        } else if (filePath) {
+          hitQuery['filePath'] = filePath;
+        }
+        const rows = await this.prisma.coverHitAgg.findMany({
+          where: hitQuery,
+        });
+
+        // 按 filePath 分组并合并多个 coverageID 的数据
+        const mergedRows = new Map<
+          string,
+          {
+            filePath: string;
+            s: NumMap;
+            f: NumMap;
+            latestTs: Date;
+          }
+        >();
+
+        for (const r of rows || []) {
+          const filePath = r.filePath;
+          const sMap = ensureNumMap(r.s);
+          const fMap = ensureNumMap(r.f);
+          const ts =
+            r.latestTs instanceof Date ? r.latestTs : new Date(r.latestTs);
+
+          const existing = mergedRows.get(filePath);
+          if (!existing) {
+            mergedRows.set(filePath, {
+              filePath,
+              s: sMap,
+              f: fMap,
+              latestTs: ts,
+            });
+          } else {
+            existing.s = addMaps(existing.s, sMap);
+            existing.f = addMaps(existing.f, fMap);
+            if (ts > existing.latestTs) {
+              existing.latestTs = ts;
+            }
+          }
+        }
+
+        // 组装最终结果：合并命中、补齐 0 值、转换分支为数组
+        const transformedCoverage: Record<string, any> = {};
+        for (const mergedRow of mergedRows.values()) {
+          const path = mergedRow.filePath;
+          const structure = hashToMap.find((i) => {
+            return i.hash === pathToHash.get(path);
+          });
+
+          if (structure) {
+            transformedCoverage[path] = {
+              path,
+              ...extractIstanbulData(structure),
+              s: mergedRow.s,
+              f: mergedRow.f,
+              contentHash: structure.hash.split('|')[1],
+            };
+          }
+        }
+
         coverageByCommit[sha] = transformedCoverage;
       } catch (error) {
         // 如果某个 commit 没有覆盖率数据，跳过
@@ -155,18 +289,36 @@ export class CoverageMapForMultipleCommitsService {
 
     const aggregated = aggregateForCommits(coverageByCommit, toShaTrimmed);
 
-    // 如果指定了 onlyChanged，需要过滤出变更的文件
-    // 这里需要获取 diff 信息来确定哪些文件被修改了
-    if (onlyChanged) {
-      // TODO: 实现 onlyChanged 过滤逻辑
-      // 可以通过 getDiffChangedLines 获取变更文件列表
-      // 目前先返回所有文件
+    // 如果 onlyChanged 为 true 且有变更文件列表，只返回变更的文件
+    // 注意：由于已经在查询时过滤了文件，这里理论上不需要再次过滤
+    // 但为了保险起见，还是保留过滤逻辑
+    let result = aggregated;
+    if (onlyChanged && changedFilePaths && changedFilePaths.size > 0) {
+      result = {};
+      for (const [filePath, fileData] of Object.entries(aggregated)) {
+        if (changedFilePaths.has(filePath)) {
+          result[filePath] = fileData;
+        }
+      }
+    }
+
+    // 为每个覆盖率数据添加 change 字段（包含 additions）
+    for (const [filePath, fileData] of Object.entries(result)) {
+      const additions = filePathToAdditions.get(filePath);
+      if (additions !== undefined) {
+        (result[filePath] as any) = {
+          ...fileData,
+          change: {
+            additions,
+          },
+        };
+      }
     }
 
     // 返回格式与 coverage-map-for-commit.service.ts 保持一致
     // aggregateForCommits 返回的是 CoverageByFile，格式已经正确
     const filtered = testExclude(
-      aggregated,
+      result,
       JSON.stringify({
         exclude: ['dist/**'],
       }),

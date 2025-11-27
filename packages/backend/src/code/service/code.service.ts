@@ -2,10 +2,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { diffLine } from '../../helpers/diff';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CodeService {
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   public async getGitLabCfg() {
     const base = await this.configService.get('INFRA.GITLAB_BASE_URL');
@@ -245,10 +249,10 @@ export class CodeService {
   /**
    * 获取指定 subject 的所有差异文件及其差异行。
    * 新实现：先获取文件列表，再单独获取文件内容进行 JS diff 对比，避免 GitLab API 超限问题。
-   * - subject: 'commit' | 'pulls'
-   * - subjectID: commit sha 或 merge request number
+   * - subject: 'commit' | 'pulls' | 'multiple-commits'
+   * - subjectID: commit sha、merge request number 或 commit1...commit2
    * - compareTarget: 当 subject 为 commit 时用于 /compare；未提供则不对比（返回空）
-   * - filepath: 可选的文件路径筛选条件，支持模糊匹配（包含指定字符串的文件路径）
+   * - filepath: 可选的文件路径筛选条件，精确匹配
    */
   async getDiffChangedLines({
     repoID,
@@ -267,9 +271,45 @@ export class CodeService {
   }): Promise<{
     files: Array<{ path: string; additions: number[]; deletions: number[] }>;
   }> {
-    return new Promise((resolve) => {
-      resolve({ files: [] });
-    });
+    // 实现 multiple-commits 的情况
+    if (subject === 'multiple-commits') {
+      const providerValue = provider || 'gitlab';
+
+      // 构建查询条件
+      const where: any = {
+        provider: providerValue,
+        repo_id: repoID,
+        subject_id: subjectID,
+        subject: 'multiple-commits',
+      };
+
+      // 如果提供了 filepath，添加精确匹配条件
+      if (filepath) {
+        where.path = filepath;
+      }
+
+      // 查询 diff 表
+      const diffRecords = await this.prisma.diff.findMany({
+        where,
+        select: {
+          path: true,
+          additions: true,
+          deletions: true,
+        },
+      });
+
+      // 转换为返回格式
+      const files = diffRecords.map((record) => ({
+        path: record.path,
+        additions: record.additions,
+        deletions: record.deletions,
+      }));
+
+      return { files };
+    }
+
+    // 其他 subject 类型暂未实现
+    return { files: [] };
   }
 
   /**
