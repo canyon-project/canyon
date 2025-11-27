@@ -116,7 +116,15 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
                 const originCodePath = Object.keys(r)[0];
                 // 检测源码文件存不存在，打印存在与否
                 if (fs.existsSync(originCodePath)) {
-                  console.log(originCodePath, '存在');
+                  const daduixiang = {
+                    fileContent: fs.readFileSync(originCodePath, 'utf-8'),
+                    fileCoverage: r[originCodePath],
+                  };
+                  fs.writeFileSync(
+                    `./.canyon_output/cov-final-remap-${String(Math.random()).replace('0.', '')}.json`,
+                    JSON.stringify(daduixiang, null, 2),
+                    'utf-8',
+                  );
                 } else {
                   console.log(originCodePath, '不存在');
                 }

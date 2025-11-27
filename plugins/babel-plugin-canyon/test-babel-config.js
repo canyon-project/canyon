@@ -19,7 +19,8 @@ module.exports = {
       // addAttributes:['branch'], //默认全部，有的话用有的，适用于生产
       ci:true, // 默认false
       assertVersion7:false,
-      disableAutoUpload:true
+      disableAutoUpload:true,
+      debug:true
     }]
   ]
 }
