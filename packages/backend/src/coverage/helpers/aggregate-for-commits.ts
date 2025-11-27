@@ -8,18 +8,23 @@ import { BranchMapping, FunctionMapping, Range } from 'istanbul-lib-coverage';
 // 4. gitlab ci里
 
 type StatementId = string;
+type FunctionId = string;
 
 interface StatementMapEntry extends Range {
   contentHash: string;
 }
 
+interface FunctionMapEntry extends FunctionMapping {
+  contentHash?: string;
+}
+
 export interface IstanbulFileCoverageData {
   path: string;
   statementMap: Record<StatementId, StatementMapEntry>;
-  fnMap: Record<string, FunctionMapping>;
+  fnMap: Record<FunctionId, FunctionMapEntry>;
   branchMap: Record<string, BranchMapping>;
   s: Record<StatementId, number>;
-  f: Record<string, number>;
+  f: Record<FunctionId, number>;
   b: Record<string, number[]>;
 }
 
@@ -43,30 +48,52 @@ function mergeSameFile(
   incoming: FileCoverageWithHash,
 ): FileCoverageWithHash {
   base.s = sumCounters(base.s, incoming.s);
+  base.f = sumCounters(base.f, incoming.f);
   return base;
 }
 
-// 基于语句内容哈希进行合并：当文件内容不同但语句内容可匹配时，按 contentHash 汇总并累加到基准语句上
+// 基于语句和函数内容哈希进行合并：当文件内容不同但语句/函数内容可匹配时，按 contentHash 汇总并累加到基准语句/函数上
 function mergeByStatementContentHash(
   base: FileCoverageWithHash,
   incoming: FileCoverageWithHash,
 ): FileCoverageWithHash {
-  const incomingHashToCount: Record<string, number> = {};
+  // 处理语句（statements）
+  const incomingStmtHashToCount: Record<string, number> = {};
   for (const [incomingStmtId, count] of Object.entries(incoming.s)) {
     const meta = incoming.statementMap[incomingStmtId];
     if (!meta) continue;
     const hash = meta.contentHash;
-    incomingHashToCount[hash] = (incomingHashToCount[hash] || 0) + count;
+    incomingStmtHashToCount[hash] =
+      (incomingStmtHashToCount[hash] || 0) + count;
   }
 
   for (const [baseStmtId, baseCount] of Object.entries(base.s)) {
     const baseMeta = base.statementMap[baseStmtId];
     if (!baseMeta) continue;
-    const add = incomingHashToCount[baseMeta.contentHash];
+    const add = incomingStmtHashToCount[baseMeta.contentHash];
     if (add) {
       base.s[baseStmtId] = baseCount + add;
     }
   }
+
+  // 处理函数（functions）
+  const incomingFnHashToCount: Record<string, number> = {};
+  for (const [incomingFnId, count] of Object.entries(incoming.f)) {
+    const meta = incoming.fnMap[incomingFnId];
+    if (!meta || !meta.contentHash) continue;
+    const hash = meta.contentHash;
+    incomingFnHashToCount[hash] = (incomingFnHashToCount[hash] || 0) + count;
+  }
+
+  for (const [baseFnId, baseCount] of Object.entries(base.f)) {
+    const baseMeta = base.fnMap[baseFnId];
+    if (!baseMeta || !baseMeta.contentHash) continue;
+    const add = incomingFnHashToCount[baseMeta.contentHash];
+    if (add) {
+      base.f[baseFnId] = baseCount + add;
+    }
+  }
+
   return base;
 }
 
