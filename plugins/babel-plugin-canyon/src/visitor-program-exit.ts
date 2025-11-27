@@ -3,7 +3,7 @@ import fs from 'fs';
 import sysPath from 'path';
 import { generateInitialCoverage } from './helpers/generate-initial-coverage';
 import { computeHash } from './helpers/hash';
-import { remapCoverage } from './helpers/remapCoverage';
+import { remapCoverageByOld } from './helpers/remapCoverage';
 import {
   enrichFnMapWithHash,
   enrichStatementMapWithHash,
@@ -105,7 +105,7 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
 
           //   测试读取源码逻辑
           if (initialCoverageDataForTheCurrentFile.inputSourceMap) {
-            remapCoverage({
+            remapCoverageByOld({
               [initialCoverageDataForTheCurrentFile.path]:
                 initialCoverageDataForTheCurrentFile,
             }).then((r) => {
@@ -159,7 +159,13 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
                   // 命名为 cov-final-remap 的原因是与老版本的uploader区别，待恢复
                   fs.writeFileSync(
                     `./.canyon_output/cov-final-remap-${String(Math.random()).replace('0.', '')}.json`,
-                    JSON.stringify(remappedCoverage, null, 2),
+                    JSON.stringify(
+                      {
+                        [originCodePath]: remappedCoverage,
+                      },
+                      null,
+                      2,
+                    ),
                     'utf-8',
                   );
                 } else {
