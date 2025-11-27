@@ -296,12 +296,4 @@ export class TaskService implements OnModuleInit {
 
     return { processed: list.length, groups: groupMap.size };
   }
-
-  async taskCoverageDel(): Promise<TaskCoverageDelResult> {
-    // 直接删除所有 aggregated=true
-    const { count } = await this.prisma.coverHit.deleteMany({
-      where: { aggregated: true },
-    });
-    return { deleted: count };
-  }
 }
