@@ -22,15 +22,19 @@ export async function mapCommand(params: any, options: any) {
   const files = fs.readdirSync(path.resolve(process.cwd(), '.canyon_output'));
   let data: Record<string, any> = {};
   for (let i = 0; i < files.length; i++) {
+    const fileName = files[i];
+    // filter 只对形如 coverage-final-xxx.json 的文件生效
+    const isCoverageFinalFile = /^coverage-final-.*\.json$/.test(fileName);
+
     const fileCoverageString = fs.readFileSync(
-      path.resolve(process.cwd(), '.canyon_output', files[i]),
+      path.resolve(process.cwd(), '.canyon_output', fileName),
       'utf-8',
     );
     const fileCoverage = JSON.parse(fileCoverageString);
 
-    // 如果传入了 filter，则仅合并键（文件路径）包含该子串的覆盖数据
+    // 如果传入了 filter，且文件名匹配 coverage-final-xxx.json 模式，则仅合并键（文件路径）包含该子串的覆盖数据
     let toMerge = fileCoverage;
-    if (filter && typeof filter === 'string') {
+    if (filter && typeof filter === 'string' && isCoverageFinalFile) {
       const filteredEntries = Object.entries(fileCoverage).filter(
         ([filePath]) => filePath.includes(filter),
       );
