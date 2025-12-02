@@ -1,19 +1,15 @@
-name: Babel Publish NPM
+name: canyonjs-cli NPM Publish
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "*" ]
 
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: plugins/babel-plugin-canyon
-    # 新增条件：仅当提交信息匹配指定格式时触发
-    if: |
-      contains(github.event.head_commit.message, '(babel-plugin-canyon):') &&
-      (github.ref == 'refs/heads/dev')
+        working-directory: tools/cli
     steps:
       - uses: pnpm/action-setup@v4
         with:
@@ -24,6 +20,7 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
+      - run: pnpm run build
       - run: pnpm publish --access public -f --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
