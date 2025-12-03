@@ -182,7 +182,6 @@ export class CoverageMapForMultipleCommitsService {
 
         // 如果没有 coverage 数据，跳过这个 commit
         if (!coverageCheck) {
-          console.warn(`commit ${sha} 没有覆盖率数据，跳过`);
           coverageByCommit[sha] = {};
           continue;
         }
@@ -298,8 +297,6 @@ export class CoverageMapForMultipleCommitsService {
 
         coverageByCommit[sha] = transformedCoverage;
       } catch (error) {
-        // 如果某个 commit 没有覆盖率数据，跳过
-        console.warn(`无法获取 commit ${sha} 的覆盖率数据:`, error);
         coverageByCommit[sha] = {};
       }
     }
