@@ -38,6 +38,32 @@ export class TaskService implements OnModuleInit {
   async onModuleInit() {
     // 只有当 START_DISTRIBUTED_TASK 环境变量存在时才启动任务
     if (process.env['START_DISTRIBUTED_TASK']) {
+      setInterval(() => {
+        (async () => {
+          const p = await this.prisma.project.findMany();
+          this.prisma.repo
+            .createMany({
+              data: p.map((i) => {
+                return {
+                  id: i.id.split('-')[1],
+                  pathWithNamespace: i.pathWithNamespace,
+                  description: i.description,
+                  config: '{}',
+                  bu: i.bu,
+                  tags: [],
+                  members: [],
+                  createdAt: new Date(),
+                  updatedAt: new Date(),
+                };
+              }),
+              skipDuplicates: true,
+            })
+            .catch((er) => {
+              console.log(er);
+            });
+        })();
+      }, 6000);
+
       const pollInterval = setInterval(() => {
         void this.pollOnce();
       }, this.pollIntervalMs);
