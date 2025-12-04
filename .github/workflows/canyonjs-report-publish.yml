@@ -1,0 +1,26 @@
+name: canyonjs-report NPM Publish
+
+on:
+  push:
+    branches: [ "*" ]
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: report
+    steps:
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org/
+      - run: pnpm install
+      - run: pnpm run build
+      - run: pnpm publish --access public -f --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
