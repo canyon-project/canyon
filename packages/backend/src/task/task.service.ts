@@ -21,6 +21,14 @@ export class TaskService implements OnModuleInit {
   private readonly delPollIntervalMs = Number(
     process.env.TASK_COVERAGE_DEL_POLL_MS || 30000,
   );
+  // 4G 内存机器保险限制：每次查询最多处理 2000 条记录
+  private readonly queryLimit = Number(
+    process.env.TASK_COVERAGE_QUERY_LIMIT || 2000,
+  );
+  // 4G 内存机器保险限制：每次删除最多 5000 条记录
+  private readonly deleteLimit = Number(
+    process.env.TASK_COVERAGE_DELETE_LIMIT || 5000,
+  );
 
   constructor(
     private readonly prisma: PrismaService,
@@ -81,8 +89,21 @@ export class TaskService implements OnModuleInit {
     if (this.isDelRunning) return;
     this.isDelRunning = true;
     try {
-      const { count } = await this.prisma.coverHit.deleteMany({
+      // 先查询要删除的记录 ID，限制数量以控制内存使用
+      const toDelete = await this.prisma.coverHit.findMany({
         where: { aggregated: true },
+        select: { id: true },
+        take: this.deleteLimit,
+      });
+
+      if (toDelete.length === 0) return;
+
+      const { count } = await this.prisma.coverHit.deleteMany({
+        where: {
+          id: {
+            in: toDelete.map((r) => r.id),
+          },
+        },
       });
       if (count > 0) {
         this.logger.log(`Deleted aggregated hits count=${count}`);
@@ -116,10 +137,11 @@ export class TaskService implements OnModuleInit {
       coverageID = covGroup[0].coverageID;
     }
 
-    // 拉取该 coverageID 的未聚合记录（按时间顺序）
+    // 拉取该 coverageID 的未聚合记录（按时间顺序），限制数量以控制内存使用
     const list = await this.prisma.coverHit.findMany({
       where: { aggregated: false, coverageID },
       orderBy: { ts: 'asc' },
+      take: this.queryLimit,
     });
     if (list.length === 0) {
       return { processed: 0, groups: 0 };
