@@ -1,6 +1,6 @@
 {
-  "name": "canyon-report-spa",
-  "version": "0.0.1-beta.15",
+  "name": "@canyonjs/report-spa",
+  "version": "0.0.1-beta.16",
   "type": "module",
   "main": "./dist/index.umd.cjs",
   "module": "./dist/index.js",
