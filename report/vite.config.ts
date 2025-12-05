@@ -1,4 +1,3 @@
-import { vanillaExtractPlugin } from '@vanilla-extract/vite-plugin';
 import react from '@vitejs/plugin-react';
 // @ts-expect-error
 import dts from 'unplugin-dts/vite';
@@ -12,7 +11,6 @@ export default defineConfig({
         plugins: [['babel-plugin-react-compiler']],
       },
     }),
-    vanillaExtractPlugin(),
     dts({ tsconfigPath: './tsconfig.app.json' }),
   ],
   define: {
