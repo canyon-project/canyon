@@ -4,18 +4,23 @@ export function calculateChangeStatementsMapCoverageForSingleFile(
   coverage: FileCoverageData,
   newLine: number[],
 ) {
-  let total = 0;
-  let covered = 0;
-
-  Object.entries(coverage.statementMap).forEach(([key,value])=>{
-    const startAndEnd = [value.start.line,value.end.line]
-    if (newLine.some(line => line >= startAndEnd[0] && line <= startAndEnd[1])) {
-      total++;
-      if (coverage.s[key] > 0) {
-        covered++;
-      }
+  // 收集所有与新增行有交集的语句，作为“相关联语句”全集（分母）
+  const relatedStatementKeys = new Set<string>();
+  Object.entries(coverage.statementMap).forEach(([key, value]) => {
+    const startLine = value.start.line;
+    const endLine = value.end.line;
+    if (newLine.some((line) => line >= startLine && line <= endLine)) {
+      relatedStatementKeys.add(key);
     }
-  })
+  });
+
+  const total = relatedStatementKeys.size;
+  let covered = 0;
+  relatedStatementKeys.forEach((key) => {
+    if (coverage.s[key] > 0) {
+      covered++;
+    }
+  });
   return {
     total,
     covered,
