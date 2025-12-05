@@ -1,4 +1,4 @@
-import type React from 'react';
+import React, {useEffect} from 'react';
 import type { CanyonReportProps } from './types';
 
 /**
@@ -7,11 +7,16 @@ import type { CanyonReportProps } from './types';
  */
 export const CanyonReport: React.FC<CanyonReportProps> = ({
   name,
+  onSelect,
+  value
   // content,
   // className,
   // style,
   // bordered = true,
 }) => {
+  useEffect(() => {
+    onSelect(value)
+  }, [value]);
   return <div>{name}</div>;
 };
 
