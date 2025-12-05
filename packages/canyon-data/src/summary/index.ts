@@ -11,6 +11,9 @@ import {calculateChangeBranchesCoverageForSingleFile} from "../helpers/calculate
 import {
   calculateChangeFunctionsCoverageForSingleFile
 } from "../helpers/calculateChangeFunctionsCoverageForSingleFile.ts";
+import {
+  calculateChangeStatementsMapCoverageForSingleFile
+} from "../helpers/calculateChangeStatementsMapCoverageForSingleFile.ts";
 export interface CodeChange {
   path: string;
   additions: number[];
@@ -67,6 +70,7 @@ export const genSummaryMapByCoverageMap = (
     summaryMap[f] = {
       ...s.data,
       newlines:additions.length>0?calculateNewLineCoverageForSingleFile(fc.data,additions):{ total: 0, covered: 0, skipped: 0, pct: 100 },
+      changestatements:additions.length>0?calculateChangeStatementsMapCoverageForSingleFile(fc.data,additions):{ total: 0, covered: 0, skipped: 0, pct: 100 },
       changebranches:additions.length>0?calculateChangeBranchesCoverageForSingleFile(fc.data,additions):{ total: 0, covered: 0, skipped: 0, pct: 100 },
       changefunctions:additions.length>0?calculateChangeFunctionsCoverageForSingleFile(fc.data,additions):{ total: 0, covered: 0, skipped: 0, pct: 100 },
       path: f,
