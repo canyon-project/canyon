@@ -120,8 +120,10 @@ export const aggregateForCommits = (
         continue;
       }
       if (baseFile.contentHash === incoming.contentHash) {
+        // console.log(`sha: ${commitSha} file: ${filePath} contentHash match, merging directly.`);
         mergeSameFile(baseFile, incoming);
       } else {
+        // console.log(`sha: ${commitSha} file: ${filePath} contentHash differ, merging by statement/function content hash.`);
         mergeByStatementContentHash(baseFile, incoming);
       }
     }
