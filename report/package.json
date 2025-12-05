@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/report",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "module",
   "main": "./dist/canyon-report.umd.cjs",
   "module": "./dist/canyon-report.js",
