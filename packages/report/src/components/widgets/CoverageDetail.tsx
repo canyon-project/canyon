@@ -17,7 +17,8 @@ const FileCoverageDetail: FC<{
         content: fileContent,
         diff: fileCodeChange,
         theme: theme,
-        height:'100%'
+        height:'100%',
+        showDecorations: window.canyonShowDecorations
       });
     });
   }, []);
