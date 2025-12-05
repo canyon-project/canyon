@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/report",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "type": "module",
   "main": "./dist/canyon-report.umd.cjs",
   "module": "./dist/canyon-report.js",
@@ -17,13 +17,16 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "tsgo -b && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ant-design/icons": "^6.1.0",
     "antd": "^6.0.1",
+    "canyon-data": "2.0.0-beta.31",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "react-highlight-words": "^0.21.0"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "^7.55.1",
