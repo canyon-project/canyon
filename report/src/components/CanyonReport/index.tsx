@@ -11,6 +11,7 @@ import RIf from "./RIf.tsx";
 import {Spin} from "antd";
 
 export const CanyonReport: FC<CanyonReportProps> = ({ onSelect, value, dataSource, name }) => {
+  console.log(value)
   // 内部状态
   const [_isLoading, _setIsLoading] = useState<boolean>(false);
   const [filenameKeywords, setFilenameKeywords] = useState('');

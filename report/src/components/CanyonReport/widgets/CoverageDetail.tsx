@@ -1,5 +1,5 @@
 import { type FC, useEffect } from 'react';
-
+import * as res from 'canyon-report-spa';
 const FileCoverageDetail: FC<{
   fileContent: string;
   fileCodeChange: number[];
@@ -7,18 +7,12 @@ const FileCoverageDetail: FC<{
   theme: string;
 }> = ({ fileContent, fileCoverage, fileCodeChange, theme }) => {
   useEffect(() => {
-    // canyon-report-spa 源码地址 https://github.com/canyon-project/spa
-    import(
-      /* @vite-ignore */
-      `${window.UNPKG_URL || 'https://unpkg.com'}/canyon-report-spa/dist/index.js`
-    ).then((res) => {
-      res.initCanyonSpa(document.getElementById('canyon-report-box'), {
-        coverage: fileCoverage,
-        content: fileContent,
-        diff: fileCodeChange,
-        theme: theme,
-        height:'100%'
-      });
+    res.initCanyonSpa(document.getElementById('canyon-report-box'), {
+      coverage: fileCoverage,
+      content: fileContent,
+      diff: fileCodeChange,
+      theme: theme,
+      height:'500px'
     });
   }, []);
 
