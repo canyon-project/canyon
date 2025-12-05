@@ -85,7 +85,7 @@ const SummaryMetric: FC<{
               'branches',
               'functions',
               'lines',
-              'newlines',
+              'changestatements',
               // "changebranches",
               // "changefunctions"
             ];
@@ -98,7 +98,7 @@ const SummaryMetric: FC<{
               'branches',
               'functions',
               'lines',
-              'newlines',
+              'changestatements',
               // "changebranches",
               // "changefunctions"
             ].includes(key)
@@ -147,6 +147,7 @@ const SummaryHeader: FC<{
   data: CoverageSummaryData & { path: string };
   reportName: string;
 }> = ({ value, onSelect, data, reportName }) => {
+  console.log(data,'data')
   return (
     <div>
       <SummaryNav reportName={reportName} value={value} onClick={onSelect} />

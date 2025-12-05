@@ -56,9 +56,9 @@ const SummaryList: FC<{
       },
     },
     {
-      title: t('New Lines'),
-      key: 'newlines',
-      dataIndex: ['newlines'],
+      title: t('Change Statements'),
+      key: 'changestatements',
+      dataIndex: ['changestatements'],
       width:'220px',
       render(_){
         _=_||{
@@ -111,7 +111,7 @@ const SummaryList: FC<{
         );
       },
     },
-  ].filter(c=>((c.key!=='newlines')||(c.key==='newlines'&&onlyChange)))
+  ].filter(c=>((c.key!=='changestatements')||(c.key==='changestatements'&&onlyChange)))
   return (
     <div style={style}>
       <ConfigProvider
