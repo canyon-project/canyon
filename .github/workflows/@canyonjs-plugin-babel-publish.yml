@@ -1,0 +1,24 @@
+name: @canyonjs/plugin-babel NPM Publish
+
+on:
+  push:
+    branches: [ "dev" ]
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plugins/plugin-babel
+    steps:
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 20
+      - run: pnpm install
+      - run: pnpm publish --access public -f --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
