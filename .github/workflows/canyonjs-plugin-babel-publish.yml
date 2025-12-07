@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: plugins/plugin-babel
+        working-directory: plugins/babel-plugin
     steps:
       - uses: pnpm/action-setup@v4
         with:

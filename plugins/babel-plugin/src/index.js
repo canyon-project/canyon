@@ -4,7 +4,7 @@ module.exports = declare((api, options) => {
   api.assertVersion(7);
 
   return {
-    name: '@canyonjs/plugin-babel',
+    name: '@canyonjs/babel-plugin',
 
     visitor: {
       Program: {
