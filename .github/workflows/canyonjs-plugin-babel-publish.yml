@@ -1,4 +1,4 @@
-name: @canyonjs/plugin-babel NPM Publish
+name: canyonjs-plugin-babel NPM Publish
 
 on:
   push:
