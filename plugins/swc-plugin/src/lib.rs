@@ -87,10 +87,10 @@ fn object_lit_to_json(obj: &ObjectLit) -> Value {
             if let Prop::KeyValue(KeyValueProp { key, value }) = &**prop {
                 match key {
                     PropName::Str(Str { value: key_str, .. }) => {
-                        map.insert((&**key_str).to_string(), expr_to_json(value));  // 递归处理 value
+                        map.insert(key_str.to_str().to_string(), expr_to_json(value));  // 递归处理 value
                     }
                     PropName::Ident(IdentName { sym, .. }) => {
-                        map.insert((&**sym).to_string(), expr_to_json(value));
+                        map.insert(sym.to_str().to_string(), expr_to_json(value));
                     }
                     _ => {
                     }
@@ -165,11 +165,11 @@ impl TransformVisitor {
             
             // 将 HashMap<Atom, Value> 转换为 Map<String, Value>
             let converted_map: serde_json::Map<String, Value> = map.iter()
-                .map(|(k, v)| ((&**k).to_string(), v.clone()))
+                .map(|(k, v)| (k.to_str().to_string(), v.clone()))
                 .collect();
 
             // 获取path值
-            if let Some((path_key, path_val)) = map.iter().find(|(k, _)| &**k == "path") {
+            if let Some((_path_key, path_val)) = map.iter().find(|(k, _)| &**k == "path") {
                 if let Some(path_str) = path_val.as_str() {
                     final_map.insert(path_str.to_string(), Value::Object(converted_map));
                 }
