@@ -87,7 +87,7 @@ fn object_lit_to_json(obj: &ObjectLit) -> Value {
             if let Prop::KeyValue(KeyValueProp { key, value }) = &**prop {
                 match key {
                     PropName::Str(Str { value: key_str, .. }) => {
-                        map.insert(key_str.as_str().to_string(), expr_to_json(value));  // 递归处理 value
+                        map.insert(key_str.as_str().unwrap_or("").to_string(), expr_to_json(value));  // 递归处理 value
                     }
                     PropName::Ident(IdentName { sym, .. }) => {
                         map.insert(sym.to_string(), expr_to_json(value));
