@@ -1,8 +1,10 @@
 import {
   Body,
   Controller,
+  Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
 } from '@nestjs/common';
 import { RepoService } from './repo.service';
@@ -34,5 +36,10 @@ export class RepoController {
         HttpStatus.BAD_REQUEST,
       );
     }
+  }
+
+  @Get(':id')
+  async getRepo(@Param() dto) {
+    return this.repoService.get(dto.id);
   }
 }
