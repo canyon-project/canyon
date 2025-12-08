@@ -16,6 +16,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: plugins/swc-plugin
     steps:
       - uses: actions/checkout@v2
         with:
@@ -51,6 +54,6 @@ jobs:
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NODE_AUTH_TOKEN }}" > ~/.npmrc
 
       - name: Publish to npm
-        run: pnpm --filter=swc-plugin-canyon publish -f --no-git-checks --access=public
+        run: pnpm publish -f --no-git-checks --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NODE_AUTH_TOKEN }}
