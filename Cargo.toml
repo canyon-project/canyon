@@ -14,5 +14,4 @@ repository   = "https://github.com/canyon-project/canyon.git"
 rust-version = "1.70"
 
 [workspace.dependencies]
-swc_core           = "50.0.0"
-swc_common                  = "18.0.1"
+swc_core           = "50.1.3"
