@@ -37,10 +37,7 @@ export class RepoService {
       };
     } else {
       const r = await this.prisma.repo.findUnique({ where: { id } });
-      return {
-        success: false,
-        message: 'not found',
-      };
+      return r;
     }
   }
 
