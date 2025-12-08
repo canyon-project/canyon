@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { isUndefined } from '@nestjs/common/utils/shared.utils';
-import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CoverageClientDto } from '../dto/coverage-client.dto';
 import { checkCoverageType } from '../helpers/checkCoverageType';
@@ -43,27 +41,11 @@ interface InsertMapParams {
   instrumentCwd: string;
 }
 
-export interface InsertCoverageResult {
-  result: 'success';
-  coverageID: string;
-}
 @Injectable()
 export class CoverageClientService {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async invoke(reporter: string, coverageClientDto: CoverageClientDto) {
-    await this.prisma.log.create({
-      data: {
-        content: {
-          ...coverageClientDto,
-          coverage: {},
-        },
-      },
-    });
-
     const {
       provider,
       sha,
