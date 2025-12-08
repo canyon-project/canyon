@@ -1,0 +1,17 @@
+[workspace]
+members = ["plugins/swc-plugin"]
+
+
+resolver = "2"
+
+
+[workspace.package]
+authors      = ["Travis Zhang<https://github.com/travzhang>"]
+edition      = "2021"
+homepage     = "https://github.com/canyon-project/canyon"
+license      = "Apache-2.0"
+repository   = "https://github.com/canyon-project/canyon.git"
+rust-version = "1.70"
+
+[workspace.dependencies]
+swc_core           = { version = "22.2.1" }
