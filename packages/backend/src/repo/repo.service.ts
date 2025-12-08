@@ -24,6 +24,7 @@ export class RepoService {
   }
 
   async get(id: string) {
+    id = id.split('-')[1]; // 兼容带后缀的 ID
     if (id.includes('/')) {
       const r = await this.prisma.repo.findFirst({
         where: { pathWithNamespace: id },
@@ -36,11 +37,9 @@ export class RepoService {
       };
     } else {
       const r = await this.prisma.repo.findUnique({ where: { id } });
-      if (!r) return null as unknown as undefined;
       return {
-        ...r,
-        tags: JSON.stringify(r.tags ?? null),
-        members: JSON.stringify(r.members ?? null),
+        success: false,
+        message: 'not found',
       };
     }
   }
