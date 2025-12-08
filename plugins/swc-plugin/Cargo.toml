@@ -21,12 +21,8 @@ crate-type = ["cdylib", "rlib"]
 swc_core = { workspace = true, features = ["ecma_plugin_transform"] }
 swc_ecma_codegen = "7.0.0"
 rand = "0.8.5"
-serde = "=1.0.203"
-serde_derive = "=1.0.203"
-
-[patch.crates-io]
-serde = { version = "=1.0.203" }
-serde_derive = { version = "=1.0.203" }
+serde = "1.0.225"
+serde_derive = "1.0.225"
 
 # .cargo/config defines few alias to build plugin.
 # cargo build-wasi generates wasm-wasi32 binary
