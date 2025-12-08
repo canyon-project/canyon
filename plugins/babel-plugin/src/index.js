@@ -9,7 +9,6 @@ module.exports = declare((api, options) => {
     visitor: {
       Program: {
         enter(path, state) {
-          console.log('123')
           // Plugin logic will be implemented here
         }
       }
