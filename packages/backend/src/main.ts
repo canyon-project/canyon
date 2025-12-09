@@ -23,7 +23,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   app.use(
     json({
-      limit: '50mb',
+      limit: '200mb',
     }),
   );
   app.useGlobalPipes(new ValidationPipe());
