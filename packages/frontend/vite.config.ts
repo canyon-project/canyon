@@ -10,10 +10,10 @@ export default defineConfig({
   plugins: [
     react({
       babel:{
-        plugins:process.env['CI']?[
+        plugins:[
           'istanbul',
           'canyon'
-        ]:[]
+        ]
       }
     }),
     Pages({
