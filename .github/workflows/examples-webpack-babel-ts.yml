@@ -44,9 +44,9 @@ jobs:
         run: >
           canyon upload
           --dsn=$CANYON_DSN
-          --repo_id=${{ github.repository_id }}
+          --repo_id=76976715
           --instrument_cwd=${{ github.workspace }}
-          --sha=${{ github.sha }}
+          --sha=8bbf8ed2bf6d695afb23f82532669ac6e5b663e2
           --branch=${{ github.ref_name }}
           --provider=gitlab
           --debug=true
