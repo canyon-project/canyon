@@ -40,6 +40,8 @@
     "@types/react": "19.0.0",
     "@types/react-dom": "19.0.0",
     "@vitejs/plugin-react": "^5.0.4",
+    "babel-plugin-canyon": "^2.0.50",
+    "babel-plugin-istanbul": "^7.0.1",
     "tailwindcss": "^4.1.16",
     "typescript": "5.9.3",
     "vite": "npm:rolldown-vite@7.1.14",
