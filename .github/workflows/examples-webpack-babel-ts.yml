@@ -48,7 +48,7 @@ jobs:
           --instrument_cwd=${{ github.workspace }}
           --sha=${{ github.sha }}
           --branch=${{ github.ref_name }}
-          --provider=github
+          --provider=gitlab
           --debug=true
 
       - name: Cleanup Canyon output
