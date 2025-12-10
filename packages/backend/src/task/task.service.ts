@@ -59,18 +59,14 @@ export class TaskService implements OnModuleInit {
               skipDuplicates: true,
             })
             .catch((er) => {
-              console.log(er);
+              // console.log(er);
             });
         })();
       }, 6000);
 
-      const pollInterval = setInterval(() => {
-        void this.pollOnce();
-      }, this.pollIntervalMs);
-      this.schedulerRegistry.addInterval('coverageAggregation', pollInterval);
-      this.logger.log(
-        `Task coverage aggregator polling every ${this.pollIntervalMs}ms`,
-      );
+      // 启动无限循环的覆盖率聚合任务
+      void this.startCoverageAggregationLoop();
+      this.logger.log('Task coverage aggregator started with infinite loop');
 
       const delInterval = setInterval(() => {
         void this.pollDelOnce();
@@ -79,6 +75,48 @@ export class TaskService implements OnModuleInit {
       this.logger.log(
         `Task coverage delete polling every ${this.delPollIntervalMs}ms`,
       );
+    }
+  }
+
+  private async startCoverageAggregationLoop() {
+    while (true) {
+      if (this.isRunning) {
+        await this.sleep(1000); // 如果正在运行，等待1秒后重试
+        continue;
+      }
+
+      this.isRunning = true;
+      try {
+        // 取最早的 coverageID 进行处理
+        const candidate = await this.prisma.coverHit.groupBy({
+          by: ['coverageID'],
+          where: { aggregated: false },
+          _min: { ts: true },
+          orderBy: { _min: { ts: 'asc' } },
+          take: 1,
+        });
+
+        if (candidate.length === 0) {
+          // 没有数据时休眠10秒
+          this.isRunning = false;
+          await this.sleep(10000);
+          continue;
+        }
+
+        const coverageID = candidate[0].coverageID;
+        const r = await this.taskCoverageAgg(coverageID);
+        if (r.processed > 0) {
+          this.logger.log(
+            `Aggregated coverage=${coverageID} processed=${r.processed}, groups=${r.groups}`,
+          );
+        }
+      } catch (e) {
+        this.logger.error('Coverage aggregation loop error', e as any);
+        // 出错时也休眠一下，避免错误循环
+        await this.sleep(5000);
+      } finally {
+        this.isRunning = false;
+      }
     }
   }
 
@@ -109,6 +147,10 @@ export class TaskService implements OnModuleInit {
     } finally {
       this.isRunning = false;
     }
+  }
+
+  private sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   private async pollDelOnce() {
