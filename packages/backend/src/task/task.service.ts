@@ -1,80 +1,27 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { SchedulerRegistry } from '@nestjs/schedule';
 import { remapCoverageByOld } from '../collect/helpers/canyon-data';
 import { decodeCompressedObject } from '../collect/helpers/transform';
 import { addMaps, ensureNumMap } from '../helpers/coverage-merge.util';
 import { PrismaService } from '../prisma/prisma.service';
-import {
-  GroupAgg,
-  TaskCoverageAggResult,
-  TaskCoverageDelResult,
-} from './task.types';
+import { GroupAgg, TaskCoverageAggResult } from './task.types';
 
 @Injectable()
 export class TaskService implements OnModuleInit {
   private readonly logger = new Logger(TaskService.name);
   private isRunning = false;
-  private isDelRunning = false;
-  private readonly pollIntervalMs = Number(
-    process.env.TASK_COVERAGE_AGG_POLL_MS || 3000,
-  );
-  private readonly delPollIntervalMs = Number(
-    process.env.TASK_COVERAGE_DEL_POLL_MS || 30000,
-  );
   // 4G 内存机器保险限制：每次查询最多处理 2000 条记录
   private readonly queryLimit = Number(
     process.env.TASK_COVERAGE_QUERY_LIMIT || 2000,
   );
-  // 4G 内存机器保险限制：每次删除最多 5000 条记录
-  private readonly deleteLimit = Number(
-    process.env.TASK_COVERAGE_DELETE_LIMIT || 5000,
-  );
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly schedulerRegistry: SchedulerRegistry,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async onModuleInit() {
     // 只有当 START_DISTRIBUTED_TASK 环境变量存在时才启动任务
     if (process.env['START_DISTRIBUTED_TASK']) {
-      setInterval(() => {
-        (async () => {
-          const p = await this.prisma.project.findMany();
-          this.prisma.repo
-            .createMany({
-              data: p.map((i) => {
-                return {
-                  id: i.id.split('-')[1],
-                  pathWithNamespace: i.pathWithNamespace,
-                  description: i.description,
-                  config: '{}',
-                  bu: i.bu,
-                  tags: [],
-                  members: [],
-                  createdAt: new Date(),
-                  updatedAt: new Date(),
-                };
-              }),
-              skipDuplicates: true,
-            })
-            .catch((er) => {
-              // console.log(er);
-            });
-        })();
-      }, 6000);
-
       // 启动无限循环的覆盖率聚合任务
       void this.startCoverageAggregationLoop();
       this.logger.log('Task coverage aggregator started with infinite loop');
-
-      const delInterval = setInterval(() => {
-        void this.pollDelOnce();
-      }, this.delPollIntervalMs);
-      this.schedulerRegistry.addInterval('coverageDeletion', delInterval);
-      this.logger.log(
-        `Task coverage delete polling every ${this.delPollIntervalMs}ms`,
-      );
     }
   }
 
@@ -120,67 +67,8 @@ export class TaskService implements OnModuleInit {
     }
   }
 
-  private async pollOnce() {
-    if (this.isRunning) return;
-    this.isRunning = true;
-    try {
-      // 取最早的 coverageID 进行处理
-      const candidate = await this.prisma.coverHit.groupBy({
-        by: ['coverageID'],
-        where: { aggregated: false },
-        _min: { ts: true },
-        orderBy: { _min: { ts: 'asc' } },
-        take: 1,
-      });
-
-      if (candidate.length === 0) return;
-
-      const coverageID = candidate[0].coverageID;
-      const r = await this.taskCoverageAgg(coverageID);
-      if (r.processed > 0) {
-        this.logger.log(
-          `Aggregated coverage=${coverageID} processed=${r.processed}, groups=${r.groups}`,
-        );
-      }
-    } catch (e) {
-      this.logger.error('pollOnce error', e as any);
-    } finally {
-      this.isRunning = false;
-    }
-  }
-
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  private async pollDelOnce() {
-    if (this.isDelRunning) return;
-    this.isDelRunning = true;
-    try {
-      // 先查询要删除的记录 ID，限制数量以控制内存使用
-      const toDelete = await this.prisma.coverHit.findMany({
-        where: { aggregated: true },
-        select: { id: true },
-        take: this.deleteLimit,
-      });
-
-      if (toDelete.length === 0) return;
-
-      const { count } = await this.prisma.coverHit.deleteMany({
-        where: {
-          id: {
-            in: toDelete.map((r) => r.id),
-          },
-        },
-      });
-      if (count > 0) {
-        this.logger.log(`Deleted aggregated hits count=${count}`);
-      }
-    } catch (e) {
-      this.logger.error('pollDelOnce error', e as any);
-    } finally {
-      this.isDelRunning = false;
-    }
   }
 
   async taskCoverageAgg(
@@ -218,9 +106,6 @@ export class TaskService implements OnModuleInit {
     // 先分组累加，后统一写库
     const groupMap = new Map<string, GroupAgg>();
     const idsToMark: string[] = [];
-
-    // coverageID 相同的情况下，versionID 也一定相同，从第一条记录获取
-    const versionID = list[0].versionID;
 
     for (const rec of list) {
       const key = `${rec.coverageID}|${rec.filePath}`;
@@ -380,6 +265,15 @@ export class TaskService implements OnModuleInit {
         },
         data: {
           aggregated: true,
+        },
+      });
+
+      // 标记完成后立即删除这些记录
+      await this.prisma.coverHit.deleteMany({
+        where: {
+          id: {
+            in: idsToMark,
+          },
         },
       });
     }
