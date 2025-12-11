@@ -105,7 +105,7 @@ const ReportComponent: FC<ReportProps> = ({ theme, onSelect, value, dataSource, 
           }
         }}
       />
-      <SummaryHeader reportName={name} data={rootDataSource} value={value} onSelect={newOnSelect} />
+      <SummaryHeader reportName={name} data={rootDataSource} value={value} onSelect={newOnSelect} onlyChange={onlyChange}/>
 
       <RIf condition={mode === 'file'}>
         <div style={{

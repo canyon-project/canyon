@@ -6,10 +6,6 @@ import { getColor } from '../helpers/color';
 
 const { Text } = Typography;
 
-function convertFirstLetterToUpper(name) {
-  return name.charAt(0).toUpperCase() + name.slice(1);
-}
-
 const { useToken } = theme;
 
 const SummaryNav: FC<{
@@ -61,7 +57,8 @@ const SummaryNav: FC<{
 
 const SummaryMetric: FC<{
   data: CoverageSummaryData & { path: string };
-}> = ({ data }) => {
+  onlyChange: boolean
+}> = ({ data,onlyChange }) => {
   const t = useTrans();
   const summaryTreeItem = {
     summary: data,
@@ -93,15 +90,18 @@ const SummaryMetric: FC<{
             return order.indexOf(key1) - order.indexOf(key2);
           })
           .filter(([key]) =>
-            [
-              'statements',
-              'branches',
-              'functions',
-              'lines',
-              'changestatements',
-              // "changebranches",
-              // "changefunctions"
-            ].includes(key)
+            (
+              onlyChange?['statements','changestatements']:
+              [
+                'statements',
+                'branches',
+                'functions',
+                'lines',
+                'changestatements',
+                // "changebranches",
+                // "changefunctions"
+              ]
+            ).includes(key)
           )
           .map(([key, value]) => {
             return (
@@ -146,12 +146,12 @@ const SummaryHeader: FC<{
   onSelect: (value: string) => void;
   data: CoverageSummaryData & { path: string };
   reportName: string;
-}> = ({ value, onSelect, data, reportName }) => {
-  console.log(data,'data')
+  onlyChange: boolean
+}> = ({ value, onSelect, data, reportName,onlyChange }) => {
   return (
     <div>
       <SummaryNav reportName={reportName} value={value} onClick={onSelect} />
-      <SummaryMetric data={data} />
+      <SummaryMetric data={data} onlyChange={onlyChange} />
       <SummaryBar pct={data.statements.pct} />
     </div>
   );
