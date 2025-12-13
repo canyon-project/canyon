@@ -27,10 +27,13 @@ export interface ReportSummary {
 }
 
 export interface FileInfo {
-  [key: string]: any;
+  source:string,
+  path:string,
+  changedLines: number[],
 }
 
 export interface CanyonReportData {
+  instrumentCwd: string;
   type: string;
   reportPath: string;
   version: string;

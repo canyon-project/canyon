@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/report-html",
-  "version": "1.0.0-alpha.18",
+  "version": "1.0.0-alpha.19",
   "scripts": {
     "dev": "rspack dev",
     "build": "rspack build",

@@ -16,22 +16,31 @@ function App() {
     }
   })
 
-  const dddd = genSummaryMapByCoverageMap(_dataSource.reduce((acc, cur) => {
+  const summaryMapByCoverageMap = genSummaryMapByCoverageMap(_dataSource.reduce((acc, cur) => {
+    // @ts-ignore
     acc[cur.path] = cur;
     return acc;
   },{}))
 
 
-  function onSelect(val) {
+  function onSelect(val:string) {
     return new Promise((resolve) => {
       setValue(val)
       if (val.includes('.')) {
         const file = _dataSource.find(item=>item.path===val);
-        resolve({
-          fileCoverage: file,
-          fileContent: file.source,
-          fileCodeChange: file.changedLines,
-        });
+        if (file){
+          resolve({
+            fileCoverage: file,
+            fileContent: file.source,
+            fileCodeChange: file.changedLines,
+          });
+        } else {
+          resolve({
+            fileCoverage: undefined,
+            fileContent: '',
+            fileCodeChange: [],
+          });
+        }
       } else {
         resolve({
           fileCoverage: undefined,
@@ -42,9 +51,11 @@ function App() {
     });
   }
 
+
   return (
     <div>
-      <CanyonReport name={'All files'} value={value} dataSource={Object.values(dddd)} onSelect={onSelect} />
+      {/*// @ts-ignore*/}
+      <CanyonReport name={'All files'} value={value} dataSource={Object.values(summaryMapByCoverageMap)} onSelect={onSelect} />
     </div>
   );
 }
