@@ -77,8 +77,8 @@ function App() {
   function onSelect(val) {
     return new Promise((resolve) => {
       setValue(val)
-      const file = _dataSource.find(item=>item.path===val);
-      if (file) {
+      if (val.includes('.')) {
+        const file = _dataSource.find(item=>item.path===val);
         resolve({
           fileCoverage: file,
           fileContent: file.source,
