@@ -1,0 +1,7 @@
+{
+  "name": "@canyonjs/report-packages",
+  "private": true,
+  "scripts": {
+    "build": "pnpm run -r build"
+  }
+}

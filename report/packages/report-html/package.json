@@ -1,0 +1,37 @@
+{
+  "name": "@canyonjs/report-html",
+  "version": "1.0.0-alpha.15",
+  "scripts": {
+    "dev": "rspack dev",
+    "build": "rspack build",
+    "test": "npm run build && vitest run --coverage",
+    "preview": "rspack preview"
+  },
+  "main": "index.js",
+  "files": [
+    "dist",
+    "lib",
+    "index.js"
+  ],
+  "dependencies": {
+    "@canyonjs/report-component": "^0.0.1-beta.6",
+    "canyon-data": "2.0.0-beta.36",
+    "istanbul-lib-report": "^3.0.1",
+    "monaco-editor": "^0.55.1",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1"
+  },
+  "devDependencies": {
+    "@rspack/cli": "^1.6.7",
+    "@rspack/core": "^1.6.7",
+    "@rspack/plugin-react-refresh": "^1.5.3",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitest/coverage-istanbul": "4.0.15",
+    "copy-webpack-plugin": "^13.0.1",
+    "monaco-editor-webpack-plugin": "^7.1.1",
+    "react-refresh": "^0.18.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.15"
+  }
+}

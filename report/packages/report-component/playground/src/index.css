@@ -1,0 +1,8 @@
+a {
+  color: #0071c2;
+}
+a:hover {
+  color: #0071c2;
+  opacity: 0.8;
+  text-decoration: underline;
+}
