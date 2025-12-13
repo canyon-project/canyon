@@ -1,3 +1,4 @@
+import './helpers/loadReportData.ts';
 import './useWorker.ts';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';

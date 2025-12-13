@@ -1,17 +1,13 @@
 import { CanyonReport } from '@canyonjs/report-component'
 import {genSummaryMapByCoverageMap} from 'canyon-data'
 import {useState} from "react";
-import {base64ToUint8Array, decompressGzip} from "./helpers/decompress.ts";
 
-const reportDataBase64 = window.reportData
-
-const decompressedText = await decompressGzip(base64ToUint8Array(reportDataBase64));
 
 function App() {
 
   const [value,setValue] = useState('')
 
-  const { files: dataSource = [],instrumentCwd } = JSON.parse(decompressedText)
+  const { files: dataSource = [],instrumentCwd } = window.reportData
 
   const _dataSource = dataSource.map(item=>{
     return {
