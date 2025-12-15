@@ -14,7 +14,7 @@
   "dependencies": {
     "@apollo/server": "^5.0.0",
     "@as-integrations/express5": "^1.1.2",
-    "@canyonjs/report-html": "1.0.0-alpha.20",
+    "@canyonjs/report-html": "1.0.0-alpha.22",
     "@nestjs/apollo": "^13.2.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
