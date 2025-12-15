@@ -6,3 +6,11 @@ a:hover {
   opacity: 0.8;
   text-decoration: underline;
 }
+
+@font-face {
+  font-family: "IBMPlexMono";
+  src: url("@ibm/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2")
+  format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}

@@ -6,6 +6,7 @@ function CanyonReport({
                         fileCoverage,
                         fileCodeChange
                       }) {
+  console.log(fileCodeChange,'fileCodeChange')
   const ref = useRef(null);
   useEffect(() => {
     if (ref.current) {
@@ -13,7 +14,7 @@ function CanyonReport({
       const options = {
         value: fileContent,
         language: 'javascript',
-        // theme: 'vs-dark',
+        fontFamily:'IBMPlexMono'
       }
 
       if (window.monaco?.editor && dom) {
@@ -26,7 +27,6 @@ function CanyonReport({
   }, []);
   return (
     <div>
-      {JSON.stringify(fileCodeChange||[])}
       <div ref={ref} style={{ height: 'calc(100vh - 150px)' }} />
     </div>
   );

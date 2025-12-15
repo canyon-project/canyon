@@ -1,18 +1,17 @@
 {
   "name": "@canyonjs/report-component",
   "type": "module",
-  "version": "0.0.1-beta.8",
-  "description": "A starter for creating a React component library.",
-  "author": "Author Name <author.name@mail.com>",
-  "license": "MIT",
-  "homepage": "https://github.com/author/library#readme",
+  "version": "0.0.1-beta.9",
+  "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/author/library.git"
+    "url": "https://github.com/canyon-project/canyon"
   },
   "bugs": {
-    "url": "https://github.com/author/library/issues"
+    "url": "https://github.com/canyon-project/canyon/issues"
   },
+  "homepage": "https://github.com/canyon-project/canyon#readme",
+  "license": "MIT",
   "exports": {
     ".": "./dist/index.js",
     "./package.json": "./package.json"
@@ -51,6 +50,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
+    "@ibm/plex-mono": "^1.1.0",
     "@monaco-editor/react": "^4.7.0",
     "antd": "^6.1.0",
     "canyon-data": "2.0.0-beta.36",

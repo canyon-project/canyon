@@ -1,6 +1,15 @@
 {
   "name": "@canyonjs/report-html",
   "version": "1.0.0-alpha.20",
+  "author": "Travis Zhang<https://github.com/travzhang>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/canyon-project/canyon"
+  },
+  "bugs": {
+    "url": "https://github.com/canyon-project/canyon/issues"
+  },
+  "homepage": "https://github.com/canyon-project/canyon#readme",
   "scripts": {
     "dev": "rspack dev",
     "build": "rspack build",
@@ -15,6 +24,7 @@
   ],
   "dependencies": {
     "@canyonjs/report-component": "^0.0.1-beta.6",
+    "@ibm/plex-mono": "^1.1.0",
     "canyon-data": "2.0.0-beta.36",
     "istanbul-lib-report": "^3.0.1",
     "monaco-editor": "^0.55.1",
