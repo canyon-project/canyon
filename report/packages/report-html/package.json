@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/report-html",
-  "version": "1.0.0-alpha.21",
+  "version": "1.0.0-alpha.22",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "rspack dev",
     "build": "rspack build",
-    "test": "npm run build && vitest run --coverage",
+    "test": "npm run build && rstest run --coverage",
     "preview": "rspack preview"
   },
   "main": "index.js",
@@ -35,13 +35,13 @@
     "@rspack/cli": "^1.6.7",
     "@rspack/core": "^1.6.7",
     "@rspack/plugin-react-refresh": "^1.5.3",
+    "@rstest/core": "^0.7.3",
+    "@rstest/coverage-istanbul": "^0.1.1",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@vitest/coverage-istanbul": "4.0.15",
     "copy-webpack-plugin": "^13.0.1",
     "monaco-editor-webpack-plugin": "^7.1.1",
     "react-refresh": "^0.18.0",
-    "typescript": "^5.9.3",
-    "vitest": "^4.0.15"
+    "typescript": "^5.9.3"
   }
 }

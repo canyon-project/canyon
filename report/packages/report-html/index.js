@@ -1,9 +1,11 @@
 const { ReportBase } = require('istanbul-lib-report');
 const CR = require('./lib');
 module.exports = class CustomReporter extends ReportBase {
-  constructor() {
+  constructor(reportConfig) {
     super();
     this.coverage = {};
+    this.reportConfig = reportConfig || {};
+    console.log('diff', this.reportConfig.diff);
   }
 
   onStart(_root, _context) {}
