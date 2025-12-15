@@ -1,10 +1,15 @@
 import { useQuery } from '@apollo/client/react';
 import { useRequest } from 'ahooks';
-import { Spin } from 'antd';
+import { Button, Spin } from 'antd';
 import axios from 'axios';
 import Report from 'canyon-report';
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  href,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from 'react-router-dom';
 import {
   CodeDiffChangedLinesDocument,
   RepoDocument,
@@ -168,11 +173,30 @@ function CoverageReport() {
     },
   });
   const repo = data?.repo;
+  const href =
+    `/api/coverage/export?` +
+    new URLSearchParams({
+      sha: params.subjectID || '',
+      buildTarget:
+        new URLSearchParams(window.location.search).get('build_target') || '',
+      repoID: repo?.id || '',
+      provider: params.provider || '',
+    }).toString();
   if (loading || !repo) {
     return <Spin spinning={true} />;
   }
   return (
     <div className='p-[6px]'>
+      <Button
+        type={'link'}
+        href={href}
+        style={{
+          display:
+            localStorage.getItem('userName') === 'tzhangm' ? 'block' : 'none',
+        }}
+      >
+        Download Coverage Report
+      </Button>
       <CoverageReportContent repo={repo} />
     </div>
   );
