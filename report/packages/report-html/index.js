@@ -18,6 +18,7 @@ module.exports = class CustomReporter extends ReportBase {
     await cr.generate({
       coverage: this.coverage,
       targetDir: context.dir,
+      sourceFinder: context.sourceFinder,
     });
   }
 };
