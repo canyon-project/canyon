@@ -191,9 +191,17 @@ export class ReportExportService {
       // 3. 创建 Istanbul 覆盖率映射
       const istanbulCoverageMap = createCoverageMap();
 
-      // 4. 添加覆盖率数据（不需要添加 source 字段，Istanbul 会从文件系统读取）
+      // 4. 添加覆盖率数据（先检查源文件是否存在）
       Object.entries(coverageMap).forEach(
         ([filePath, coverage]: [string, any]) => {
+          // 检查源文件是否存在
+          if (!sourceFiles.has(filePath)) {
+            this.logger.warn(
+              `Source file not found for coverage data: ${filePath}`,
+            );
+            return; // 跳过这个文件的覆盖率数据
+          }
+
           // 更新文件路径为临时目录中的路径
           const processCwdPath = path.join(process.cwd(), filePath);
           const updatedCoverage = {
@@ -210,11 +218,12 @@ export class ReportExportService {
         coverageMap: istanbulCoverageMap,
         sourceFinder(filepath: string): string {
           // https://github.com/istanbuljs/istanbuljs/blob/0f328fd0896417ccb2085f4b7888dd8e167ba3fa/packages/istanbul-lib-report/lib/context.js#L13
+          const sourceFilePath = filepath.replace(
+            process.cwd(),
+            sourceDir.name,
+          );
           try {
-            return fs.readFileSync(
-              filepath.replace(process.cwd(), sourceDir.name),
-              'utf8',
-            );
+            return fs.readFileSync(sourceFilePath, 'utf8');
           } catch (ex) {
             throw new Error(
               `Unable to lookup source: ${filepath} (${ex.message})`,

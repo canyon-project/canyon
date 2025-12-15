@@ -10,7 +10,7 @@ export default defineConfig({
   plugins: [
     react({
       babel:{
-        plugins:process.env.NODE_ENV ==='production' ? []:[
+        plugins:process.env.NODE_ENV !=='production' ? []:[
           'istanbul',
           'canyon'
         ]
