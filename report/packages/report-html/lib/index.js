@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const {compress} = require("./compress");
+const { compress } = require('./compress');
 
 class CoverageReport {
   constructor(options = {}) {
@@ -37,7 +37,7 @@ class CoverageReport {
     });
   }
 
-  buildReportData(coverage, gitDiffData = {}) {
+  buildReportData(coverage, gitDiffData = {}, sourceFinder) {
     // 计算总体统计信息
     const summary = {};
 
@@ -46,15 +46,7 @@ class CoverageReport {
       const fileData = coverage[filePath];
 
       // 读取源文件内容
-      let source = fileData.source || '';
-      if (!source && fs.existsSync(filePath)) {
-        try {
-          source = fs.readFileSync(filePath, 'utf8');
-        } catch (error) {
-          console.warn(`无法读取文件 ${filePath}:`, error.message);
-          source = '';
-        }
-      }
+      const source = fileData.source || sourceFinder(filePath);
 
       // 查找匹配的 git diff 数据，使用 endsWith 匹配路径
       let changedLines = [];
@@ -79,7 +71,7 @@ class CoverageReport {
     });
 
     return {
-      instrumentCwd:process.cwd(),
+      instrumentCwd: process.cwd(),
       type: 'v8',
       reportPath: 'coverage/index.html',
       version: '2.12.9',
@@ -94,12 +86,8 @@ class CoverageReport {
       files,
     };
   }
-  async generate({ coverage, targetDir }) {
-    // console.log(targetDir,__dirname,process.cwd())
+  async generate({ coverage, targetDir, sourceFinder }) {
     this.initOptions();
-
-    // const _cov = JSON.stringify(coverage);
-
     // 读取 git diff 数据
     let gitDiffData = {};
     const gitDiffPath = path.join(process.cwd(), 'canyonjs-git-diff.json');
@@ -107,7 +95,11 @@ class CoverageReport {
       try {
         const gitDiffContent = fs.readFileSync(gitDiffPath, 'utf8');
         gitDiffData = JSON.parse(gitDiffContent);
-        console.log('成功读取 git diff 数据，包含', Object.keys(gitDiffData).length, '个文件的变更信息');
+        console.log(
+          '成功读取 git diff 数据，包含',
+          Object.keys(gitDiffData).length,
+          '个文件的变更信息',
+        );
       } catch (error) {
         console.warn('读取 canyonjs-git-diff.json 失败:', error.message);
       }
@@ -116,7 +108,11 @@ class CoverageReport {
     }
 
     // 构建报告数据
-    const reportData = this.buildReportData(coverage, gitDiffData);
+    const reportData = this.buildReportData(
+      coverage,
+      gitDiffData,
+      sourceFinder,
+    );
 
     // 复制dist文件夹内容到targetDir
     const sourceDir = path.resolve(__dirname, '../dist');
