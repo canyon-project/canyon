@@ -13,5 +13,6 @@
     "migrate:sql:root": "prisma migrate diff --from-empty --to-schema-datamodel ./packages/backend/prisma/schema.prisma --script > ./schema.sql"
   },
   "devDependencies": {
+    "@biomejs/biome": "catalog:"
   }
 }
