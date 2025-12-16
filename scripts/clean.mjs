@@ -6,7 +6,7 @@ function deleteNodeModules(dir) {
   for (const entry of entries) {
     const curPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      const time = new Date().getTime();
+      const time = Date.now();
       if (
         entry.name === 'node_modules' ||
         entry.name === 'dist' ||
@@ -14,7 +14,9 @@ function deleteNodeModules(dir) {
         entry.name === '.turbo'
       ) {
         fs.rmSync(curPath, { recursive: true, force: true });
-        console.log(`deleting: ${entry.name}, time consuming:${new Date().getTime() - time}`);
+        console.log(
+          `deleting: ${entry.name}, time consuming:${Date.now() - time}`,
+        );
       } else {
         deleteNodeModules(curPath);
       }
