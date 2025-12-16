@@ -200,6 +200,26 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
             // 获取 coverageData 对象的 properties
             const properties = variablePath.node.init.properties;
 
+            // 处理 inputSourceMap，替换为数字 1
+            const inputSourceMapIndex = properties.findIndex((prop) =>
+              t.isIdentifier(prop.key, { name: 'inputSourceMap' }),
+            );
+
+            // 如果没有，且keepMap为true，那就要写进去
+            if (
+              inputSourceMapIndex === -1 &&
+              serviceParams.keepMap &&
+              initialCoverageDataForTheCurrentFile?.inputSourceMap
+            ) {
+              const addField = t.objectProperty(
+                t.identifier('inputSourceMap'), // 键名
+                t.valueToNode(
+                  initialCoverageDataForTheCurrentFile.inputSourceMap,
+                ),
+              );
+              properties.push(addField);
+            }
+
             if (!serviceParams.keepMap) {
               // 替换 statementMap、fnMap、branchMap 删除逻辑，改成 inputSourceMap 替换为 1 的逻辑
               const keysToRemove = ['statementMap', 'fnMap', 'branchMap'];
@@ -212,11 +232,6 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
                   properties.splice(index, 1); // 删除属性
                 }
               });
-
-              // 处理 inputSourceMap，替换为数字 1
-              const inputSourceMapIndex = properties.findIndex((prop) =>
-                t.isIdentifier(prop.key, { name: 'inputSourceMap' }),
-              );
 
               if (inputSourceMapIndex !== -1) {
                 properties[inputSourceMapIndex] = t.objectProperty(
