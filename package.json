@@ -1,0 +1,17 @@
+{
+  "name": "@canyonjs/monorepo",
+  "version": "3.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "preinstall": "node ./scripts/check.mjs",
+    "clean": "node ./scripts/clean.mjs",
+    "format": "biome check --write",
+    "dev": "pnpm run -r dev",
+    "build": "pnpm run -r build",
+    "migrate": "prisma migrate dev --schema ./packages/backend/prisma/schema.prisma",
+    "migrate:sql:root": "prisma migrate diff --from-empty --to-schema-datamodel ./packages/backend/prisma/schema.prisma --script > ./schema.sql"
+  },
+  "devDependencies": {
+  }
+}
