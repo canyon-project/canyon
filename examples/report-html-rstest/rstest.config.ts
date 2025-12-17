@@ -4,8 +4,9 @@ export default defineConfig({
   coverage: {
     provider: 'istanbul',
     reporters: [
-      ['text', { skipFull: true }],
-      ['json', { file: 'coverage-final.json' }],
+      'json',
+      // @ts-ignore
+      '@canyonjs/report-html'
     ],
   }
 });
