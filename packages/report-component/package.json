@@ -29,7 +29,6 @@
     "build": "tsdown",
     "dev": "tsdown --watch",
     "play": "vite",
-    "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
