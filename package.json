@@ -7,6 +7,7 @@
     "preinstall": "node ./scripts/check.mjs",
     "clean": "node ./scripts/clean.mjs",
     "format": "biome check --write",
+    "lint": "biome lint",
     "test":"pnpm run -r test",
     "dev": "pnpm run -r dev",
     "build": "pnpm run -r build",
