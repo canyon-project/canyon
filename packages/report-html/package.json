@@ -1,7 +1,8 @@
 {
   "name": "@canyonjs/report-html",
-  "version": "1.0.0-alpha.24",
+  "version": "1.0.0-alpha.25",
   "author": "Travis Zhang<https://github.com/travzhang>",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/canyon-project/canyon"
