@@ -18,6 +18,13 @@
       "recommended": true,
       "style": {
         "useImportType": "off"
+      },
+      "a11y": {
+        "noStaticElementInteractions": "off",
+        "useValidAnchor": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "off"
       }
     }
   },

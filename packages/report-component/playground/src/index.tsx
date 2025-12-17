@@ -3,4 +3,7 @@ import './useWorker';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 
-createRoot(document.querySelector('#app')!).render(<App />);
+const appElement = document.querySelector('#app');
+if (appElement) {
+  createRoot(appElement).render(<App />);
+}

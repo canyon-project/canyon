@@ -20,7 +20,6 @@ const TopControl: FC<{
   onChangeOnlyChange,
   onlyChange,
 }) => {
-  const t = (v) => v;
   return (
     <div>
       <div

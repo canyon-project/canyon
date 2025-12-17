@@ -1,6 +1,6 @@
 import { genSummaryTreeItem } from 'canyon-data';
 
-function checkSummaryOnlyChange(item, onlyChange) {
+function checkSummaryOnlyChange(item: any, onlyChange: boolean) {
   // 如果只看改变的为false，就返回全部
   if (onlyChange === false) {
     return true;
@@ -11,11 +11,11 @@ function checkSummaryOnlyChange(item, onlyChange) {
   }
   return false;
 }
-function checkSummaryKeywords(item, keywords) {
+function checkSummaryKeywords(item: any, keywords: string) {
   return item.path.toLowerCase().includes(keywords.toLowerCase());
 }
 
-function checkStartValue(item, startValue) {
+function checkStartValue(item: any, startValue: string) {
   return item.path.toLowerCase().includes(startValue.toLowerCase());
 }
 
@@ -24,21 +24,22 @@ export const generateCoreDataForEachComponent = ({
   filenameKeywords,
   value,
   onlyChange,
+}: {
+  dataSource: any[];
+  filenameKeywords: string;
+  value: string;
+  onlyChange: boolean;
 }) => {
-  const listDataSource: any = Object.values(dataSource).filter(
-    (item) =>
+  const listDataSource = Object.values(dataSource).filter(
+    (item: any) =>
       checkStartValue(item, value) &&
       checkSummaryOnlyChange(item, onlyChange) &&
       checkSummaryKeywords(item, filenameKeywords),
   );
-  // @ts-expect-error
-  const summary = listDataSource
-    // @ts-expect-error
-    .reduce((acc: never, cur: never) => {
-      // @ts-expect-error
-      acc[cur.path] = cur;
-      return acc;
-    }, {});
+  const summary = listDataSource.reduce((acc: any, cur: any) => {
+    acc[cur.path] = cur;
+    return acc;
+  }, {});
 
   const aaaa = genSummaryTreeItem(value, summary);
   return {

@@ -9,11 +9,16 @@ export interface FileDataResponse {
   fileCodeChange: number[];
 }
 
+export interface DataSourceItem {
+  path: string;
+  [key: string]: any;
+}
+
 export interface CanyonReportProps {
   /** 报告名称 */
   name: string;
   /** 当前选中的文件 */
   value: string;
-  dataSource: any[];
+  dataSource: DataSourceItem[];
   onSelect: (val: string) => Promise<FileDataResponse>;
 }

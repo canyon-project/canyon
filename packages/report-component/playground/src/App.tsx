@@ -1,30 +1,44 @@
 import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { useState } from 'react';
-import { CanyonReport } from '../../src';
+import { CanyonReport, type FileDataResponse } from '../../src';
+
+// 扩展 Window 接口
+declare global {
+  interface Window {
+    reportData: {
+      files: Array<{
+        path: string;
+        source: string;
+        [key: string]: any;
+      }>;
+      instrumentCwd: string;
+    };
+  }
+}
 
 function App() {
   const [value, setValue] = useState('');
 
   const { files: dataSource = [], instrumentCwd } = window.reportData;
 
-  const _dataSource = dataSource.map((item) => {
+  const _dataSource = dataSource.map((item: any) => {
     return {
       ...item,
-      path: item.path.replace(instrumentCwd + '/', ''),
+      path: item.path.replace(`${instrumentCwd}/`, ''),
     };
   });
 
   const dddd = genSummaryMapByCoverageMap(
-    _dataSource.reduce((acc, cur) => {
+    _dataSource.reduce((acc: any, cur: any) => {
       acc[cur.path] = cur;
       return acc;
     }, {}),
   );
 
-  function onSelect(val) {
+  function onSelect(val: string): Promise<FileDataResponse> {
     return new Promise((resolve) => {
       setValue(val);
-      const file = _dataSource.find((item) => item.path === val);
+      const file = _dataSource.find((item: any) => item.path === val);
       if (file) {
         resolve({
           fileCoverage: file,

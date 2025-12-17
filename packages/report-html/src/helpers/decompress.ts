@@ -1,4 +1,4 @@
-export function base64ToUint8Array(base64: any) {
+export function base64ToUint8Array(base64: string) {
   const binaryString = atob(base64);
   const bytes = new Uint8Array(binaryString.length);
   for (let i = 0; i < binaryString.length; i++) {
@@ -7,7 +7,7 @@ export function base64ToUint8Array(base64: any) {
   return bytes;
 }
 
-export async function decompressGzip(compressedData: any) {
+export async function decompressGzip(compressedData: Uint8Array) {
   const stream = new DecompressionStream('gzip');
   const writer = stream.writable.getWriter();
   const reader = stream.readable.getReader();

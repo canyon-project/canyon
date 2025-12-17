@@ -10,7 +10,7 @@ function App() {
   const _dataSource = dataSource.map((item) => {
     return {
       ...item,
-      path: item.path.replace(instrumentCwd + '/', ''),
+      path: item.path.replace(`${instrumentCwd}/`, ''),
     };
   });
 

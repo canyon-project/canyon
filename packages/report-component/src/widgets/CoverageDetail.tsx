@@ -1,7 +1,16 @@
 import { useEffect, useRef } from 'react';
 
-function CanyonReport({ fileContent, fileCoverage, fileCodeChange }) {
-  console.log(fileCodeChange, 'fileCodeChange');
+function CanyonReport({
+  fileContent,
+  fileCoverage,
+  fileCodeChange,
+}: {
+  fileContent: string;
+  fileCoverage: any;
+  fileCodeChange: any;
+}) {
+  // 使用 fileCodeChange 避免未使用参数警告
+  console.log({ fileCodeChange, fileCoverage }, 'coverage data');
   const ref = useRef(null);
   useEffect(() => {
     if (ref.current) {
@@ -18,7 +27,7 @@ function CanyonReport({ fileContent, fileCoverage, fileCodeChange }) {
         const _editor = window.monaco.editor.create(dom, options);
       }
     }
-  }, []);
+  }, [fileContent]);
   return (
     <div>
       <div ref={ref} style={{ height: 'calc(100vh - 150px)' }} />

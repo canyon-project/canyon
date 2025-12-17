@@ -43,3 +43,5 @@ explainFiles.txt
 pnpm-lock.yaml
 
 .nyc_output
+
+.vscode

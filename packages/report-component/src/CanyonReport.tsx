@@ -1,5 +1,5 @@
 import { ConfigProvider, Spin } from 'antd';
-import { type FileCoverageData, Totals } from 'istanbul-lib-coverage';
+import { type FileCoverageData } from 'istanbul-lib-coverage';
 import { type FC, Suspense, useEffect, useMemo, useState } from 'react';
 import RIf from './components/RIf';
 import { generateCoreDataForEachComponent } from './helpers/generateCoreDataForEachComponent';
@@ -45,16 +45,19 @@ export const CanyonReport: FC<CanyonReportProps> = ({
   function onChangeOnlyChange(v: boolean) {
     setOnlyChange(v);
   }
-  async function newOnSelect(val: string) {
-    const res = await onSelect(val);
-    setFileContent(res.fileContent || '');
-    setFileCoverage(res.fileCoverage || {});
-    setFileCodeChange(res.fileCodeChange || '');
-    return res;
-  }
+  const newOnSelect = useMemo(() => {
+    return async (val: string) => {
+      const res = await onSelect(val);
+      setFileContent(res.fileContent || '');
+      setFileCoverage(res.fileCoverage || {});
+      setFileCodeChange(res.fileCodeChange || '');
+      return res;
+    };
+  }, [onSelect]);
+
   useEffect(() => {
     newOnSelect(value);
-  }, []);
+  }, [newOnSelect, value]);
   const isFile = useMemo(() => {
     // Check if it's a file by common frontend file extensions
     const isFile = /\.(js|jsx|ts|tsx|vue)$/.test(value);
@@ -65,7 +68,7 @@ export const CanyonReport: FC<CanyonReportProps> = ({
       return 'file';
     }
     return showMode;
-  }, [showMode, value]);
+  }, [showMode, isFile]);
 
   const isFileDataReady = useMemo(() => {
     const hasCoverage = fileCoverage && Object.keys(fileCoverage).length > 0;
