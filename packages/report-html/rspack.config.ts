@@ -9,6 +9,11 @@ export default defineConfig({
   entry: {
     main: './src/main.tsx',
   },
+  output: {
+    filename: 'js/[name].js',
+    chunkFilename: 'js/[name].js',
+    assetModuleFilename: 'assets/[name][ext]',
+  },
   resolve: {
     extensions: ['...', '.ts', '.tsx', '.jsx'],
   },
@@ -56,15 +61,34 @@ export default defineConfig({
     new rspack.CopyRspackPlugin({
       patterns: [{ from: 'public' }],
     }),
-  ],
-  optimization: {
-    minimizer: [
-      new rspack.SwcJsMinimizerRspackPlugin(),
-      new rspack.LightningCssMinimizerRspackPlugin({}),
-    ],
-  },
+    new rspack.CssExtractRspackPlugin({
+      filename: 'css/[name].css',
+      chunkFilename: 'css/[name].css',
+    }),
+  ].filter(Boolean),
+
   experiments: {
     css: true,
+  },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        styles: {
+          name: 'styles',
+          type: 'css/mini-extract',
+          chunks: 'all',
+          enforce: true,
+        },
+      },
+    },
+    minimizer: [
+      new rspack.SwcJsMinimizerRspackPlugin(),
+      new rspack.LightningCssMinimizerRspackPlugin({
+        minimizerOptions: {
+          targets: ['> 0.25%', 'not dead'],
+        },
+      }),
+    ],
   },
   devtool: false, // 设置为false即可关闭所有环境的sourcemap
 });
