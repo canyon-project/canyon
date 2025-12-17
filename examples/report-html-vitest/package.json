@@ -1,0 +1,17 @@
+{
+  "name": "canyon-reporter-html-vitest",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run --coverage"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@canyonjs/report-html": "catalog:",
+    "vitest": "latest",
+    "@vitest/coverage-v8": "latest"
+  }
+}
