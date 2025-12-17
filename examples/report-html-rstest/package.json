@@ -1,17 +1,17 @@
 {
-  "name": "report-html-vitest",
+  "name": "report-html-rstest",
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "vitest run --coverage"
+    "test": "rstest run --coverage"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
     "@canyonjs/report-html": "catalog:",
-    "vitest": "latest",
-    "@vitest/coverage-v8": "latest"
+    "@rstest/core": "latest",
+    "@rstest/coverage-istanbul": "latest"
   }
 }
