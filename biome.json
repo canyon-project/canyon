@@ -19,10 +19,7 @@
       "style": {
         "useImportType": "off"
       },
-      "a11y": {
-        "noStaticElementInteractions": "off",
-        "useValidAnchor": "off"
-      },
+      "a11y": "warn",
       "suspicious": {
         "noArrayIndexKey": "off"
       }
