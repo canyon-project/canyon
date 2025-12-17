@@ -1,9 +1,11 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const debug = require('debug')('canyon:report-html');
 const { compress } = require('./compress');
 
 class CoverageReport {
   constructor(options = {}) {
+    debug('Creating CoverageReport instance with options:', options);
     this.options = {
       ...options,
     };
@@ -13,13 +15,16 @@ class CoverageReport {
   initOptions() {}
 
   copyDistToTarget(sourceDir, targetDir) {
+    debug('Copying dist files from %s to %s', sourceDir, targetDir);
     // 确保目标目录存在
     if (!fs.existsSync(targetDir)) {
+      debug('Creating target directory: %s', targetDir);
       fs.mkdirSync(targetDir, { recursive: true });
     }
 
     // 读取源目录中的所有文件和文件夹
     const items = fs.readdirSync(sourceDir);
+    debug('Found %d items to copy: %o', items.length, items);
 
     items.forEach((item) => {
       const sourcePath = path.join(sourceDir, item);
@@ -29,15 +34,19 @@ class CoverageReport {
 
       if (stat.isDirectory()) {
         // 递归复制子目录
+        debug('Copying directory: %s', item);
         this.copyDistToTarget(sourcePath, targetPath);
       } else {
         // 复制文件
+        debug('Copying file: %s', item);
         fs.copyFileSync(sourcePath, targetPath);
       }
     });
   }
 
   buildReportData(coverage, gitDiffData = {}, sourceFinder) {
+    debug('Building report data for %d files', Object.keys(coverage).length);
+    debug('Git diff data keys: %o', Object.keys(gitDiffData));
     // 计算总体统计信息
     const summary = {};
 
@@ -52,6 +61,7 @@ class CoverageReport {
       let changedLines = [];
       for (const [gitPath, lines] of Object.entries(gitDiffData)) {
         if (filePath.endsWith(gitPath)) {
+          debug('Found git diff match for %s -> %s (%d changed lines)', filePath, gitPath, lines.length);
           changedLines = lines;
           break;
         }
@@ -70,7 +80,7 @@ class CoverageReport {
       };
     });
 
-    return {
+    const reportData = {
       instrumentCwd: process.cwd(),
       type: 'v8',
       reportPath: 'coverage/index.html',
@@ -85,8 +95,12 @@ class CoverageReport {
       summary,
       files,
     };
+    
+    debug('Built report data with %d files, instrumentCwd: %s', files.length, reportData.instrumentCwd);
+    return reportData;
   }
   async generate({ coverage, targetDir, sourceFinder }) {
+    debug('Starting report generation to target directory: %s', targetDir);
     this.initOptions();
 
     // 构建报告数据
@@ -98,19 +112,27 @@ class CoverageReport {
 
     // 复制dist文件夹内容到targetDir
     const sourceDir = path.resolve(__dirname, '../dist');
+    debug('Source dist directory: %s', sourceDir);
     if (fs.existsSync(sourceDir)) {
+      debug('Source dist directory exists, copying to target');
       this.copyDistToTarget(sourceDir, targetDir);
+    } else {
+      debug('Source dist directory does not exist: %s', sourceDir);
     }
 
     // 生成 report-data.js 文件
     const reportDataContent = `window.reportData = '${compress(JSON.stringify(reportData))}';`;
     const reportDataPath = path.join(targetDir, 'report-data.js');
+    debug('Writing report data to: %s (compressed size: %d bytes)', reportDataPath, reportDataContent.length);
     fs.writeFileSync(reportDataPath, reportDataContent, 'utf8');
 
-    return {
+    const result = {
       reportPath: path.join(targetDir, 'index.html'),
       reportData,
     };
+    
+    debug('Report generation completed. Report path: %s', result.reportPath);
+    return result;
   }
 }
 
