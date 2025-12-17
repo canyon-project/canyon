@@ -1,5 +1,5 @@
 const { multiply } = require('./multiply.js');
-const assert = require('assert');
+const assert = require('node:assert');
 
 describe('Multiply function', () => {
   it('multiplies 3 * 4 to equal 12', () => {

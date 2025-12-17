@@ -1,5 +1,5 @@
 const { add } = require('./sum.js');
-const assert = require('assert');
+const assert = require('node:assert');
 
 describe('Sum function', () => {
   it('adds 1 + 2 to equal 3', () => {
