@@ -1,6 +1,3 @@
-export default {
-  coverageReporters: [
-    'json',
-    '@canyonjs/report-html',
-  ],
+module.exports = {
+  coverageReporters: ['json', '@canyonjs/report-html']
 };

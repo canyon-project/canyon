@@ -1,4 +1,4 @@
-import { multiply } from './multiply.js';
+const { multiply } = require('./multiply.js');
 
 describe('Multiply function', () => {
   test('multiplies 3 * 4 to equal 12', () => {
