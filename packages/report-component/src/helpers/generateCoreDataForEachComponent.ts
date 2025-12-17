@@ -31,11 +31,11 @@ export const generateCoreDataForEachComponent = ({
       checkSummaryOnlyChange(item, onlyChange) &&
       checkSummaryKeywords(item, filenameKeywords),
   );
-  // @ts-ignore
+  // @ts-expect-error
   const summary = listDataSource
-    // @ts-ignore
+    // @ts-expect-error
     .reduce((acc: never, cur: never) => {
-      // @ts-ignore
+      // @ts-expect-error
       acc[cur.path] = cur;
       return acc;
     }, {});

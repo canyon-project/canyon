@@ -16,7 +16,7 @@ function App() {
 
   const summaryMapByCoverageMap = genSummaryMapByCoverageMap(
     _dataSource.reduce((acc, cur) => {
-      // @ts-ignore
+      // @ts-expect-error
       acc[cur.path] = cur;
       return acc;
     }, {}),

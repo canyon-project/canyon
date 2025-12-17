@@ -1,17 +1,17 @@
 import { ConfigProvider, Spin } from 'antd';
 import { type FileCoverageData, Totals } from 'istanbul-lib-coverage';
 import { type FC, Suspense, useEffect, useMemo, useState } from 'react';
+import RIf from './components/RIf';
+import { generateCoreDataForEachComponent } from './helpers/generateCoreDataForEachComponent';
 // import { add } from './helpers/add';
 import type { CanyonReportProps } from './types';
+import CoverageDetail from './widgets/CoverageDetail';
 import SummaryHeader from './widgets/SummaryHeader';
 import SummaryList from './widgets/SummaryList';
+import SummaryTree from './widgets/SummaryTree';
 // import CoverageDetail from './widgets/CoverageDetail';
 // import SummaryHeader from './widgets/SummaryHeader';
 import TopControl from './widgets/TopControl';
-import { generateCoreDataForEachComponent } from './helpers/generateCoreDataForEachComponent';
-import SummaryTree from './widgets/SummaryTree';
-import RIf from './components/RIf';
-import CoverageDetail from './widgets/CoverageDetail';
 
 export const CanyonReport: FC<CanyonReportProps> = ({
   value,

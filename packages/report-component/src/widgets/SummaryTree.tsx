@@ -4,6 +4,7 @@ import type { CoverageSummaryData } from 'istanbul-lib-coverage';
 import type React from 'react';
 import type { FC } from 'react';
 import { getColor } from '../helpers/color';
+
 // import { getColor } from "../helpers";
 
 function checkSuffix(str: string) {

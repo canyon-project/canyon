@@ -1,6 +1,6 @@
-import { CanyonReport } from '../../src';
 import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { useState } from 'react';
+import { CanyonReport } from '../../src';
 
 function App() {
   const [value, setValue] = useState('');
