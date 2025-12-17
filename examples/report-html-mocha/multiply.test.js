@@ -1,11 +1,12 @@
 const { multiply } = require('./multiply.js');
+const assert = require('assert');
 
 describe('Multiply function', () => {
-  test('multiplies 3 * 4 to equal 12', () => {
-    expect(multiply(3, 4)).toBe(12);
+  it('multiplies 3 * 4 to equal 12', () => {
+    assert.strictEqual(multiply(3, 4), 12);
   });
 
-  test('multiplies 6 * 7 to equal 42', () => {
-    expect(multiply(6, 7)).toBe(42);
+  it('multiplies 6 * 7 to equal 42', () => {
+    assert.strictEqual(multiply(6, 7), 42);
   });
 });

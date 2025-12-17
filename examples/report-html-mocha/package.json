@@ -4,7 +4,7 @@
   "main": "index.js",
 
   "scripts": {
-    "test": "nyc --reporter=@canyonjs/report-html --reporter=json mocha"
+    "test": "nyc --reporter=@canyonjs/report-html --reporter=json mocha '*.test.js'"
   },
   "author": "",
   "license": "ISC",

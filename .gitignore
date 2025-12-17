@@ -41,3 +41,5 @@ explainFiles.txt
 .next
 
 pnpm-lock.yaml
+
+.nyc_output
