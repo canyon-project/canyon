@@ -29,7 +29,7 @@ export const generateCoreDataForEachComponent = ({
     (item) =>
       checkStartValue(item, value) &&
       checkSummaryOnlyChange(item, onlyChange) &&
-      checkSummaryKeywords(item, filenameKeywords)
+      checkSummaryKeywords(item, filenameKeywords),
   );
   // @ts-ignore
   const summary = listDataSource

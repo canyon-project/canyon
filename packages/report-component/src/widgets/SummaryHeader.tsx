@@ -1,7 +1,7 @@
 import { Tag, Typography, theme } from 'antd';
 import type { CoverageSummaryData } from 'istanbul-lib-coverage';
 import type { FC } from 'react';
-import {getColor} from "../helpers/color";
+import { getColor } from '../helpers/color';
 
 const { Text } = Typography;
 

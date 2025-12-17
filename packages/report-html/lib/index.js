@@ -61,7 +61,12 @@ class CoverageReport {
       let changedLines = [];
       for (const [gitPath, lines] of Object.entries(gitDiffData)) {
         if (filePath.endsWith(gitPath)) {
-          debug('Found git diff match for %s -> %s (%d changed lines)', filePath, gitPath, lines.length);
+          debug(
+            'Found git diff match for %s -> %s (%d changed lines)',
+            filePath,
+            gitPath,
+            lines.length,
+          );
           changedLines = lines;
           break;
         }
@@ -96,7 +101,11 @@ class CoverageReport {
       files,
     };
 
-    debug('Built report data with %d files, instrumentCwd: %s', files.length, reportData.instrumentCwd);
+    debug(
+      'Built report data with %d files, instrumentCwd: %s',
+      files.length,
+      reportData.instrumentCwd,
+    );
     return reportData;
   }
   async generate({ coverage, targetDir, sourceFinder }) {
@@ -104,11 +113,7 @@ class CoverageReport {
     this.initOptions();
 
     // 构建报告数据
-    const reportData = this.buildReportData(
-      coverage,
-      {},
-      sourceFinder,
-    );
+    const reportData = this.buildReportData(coverage, {}, sourceFinder);
 
     // 复制dist文件夹内容到targetDir
     const sourceDir = path.resolve(__dirname, '../dist');
@@ -123,7 +128,11 @@ class CoverageReport {
     // 生成 report-data.js 文件
     const reportDataContent = `window.reportData = '${compress(JSON.stringify(reportData))}';`;
     const reportDataPath = path.join(targetDir, 'data/report-data.js');
-    debug('Writing report data to: %s (compressed size: %d bytes)', reportDataPath, reportDataContent.length);
+    debug(
+      'Writing report data to: %s (compressed size: %d bytes)',
+      reportDataPath,
+      reportDataContent.length,
+    );
     fs.writeFileSync(reportDataPath, reportDataContent, 'utf8');
 
     const result = {

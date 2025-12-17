@@ -1,30 +1,30 @@
 import { CanyonReport } from '../../src';
-import {genSummaryMapByCoverageMap} from 'canyon-data'
-import {useState} from "react";
+import { genSummaryMapByCoverageMap } from 'canyon-data';
+import { useState } from 'react';
 
 function App() {
+  const [value, setValue] = useState('');
 
-  const [value,setValue] = useState('')
+  const { files: dataSource = [], instrumentCwd } = window.reportData;
 
-  const { files: dataSource = [],instrumentCwd } = window.reportData;
-
-  const _dataSource = dataSource.map(item=>{
+  const _dataSource = dataSource.map((item) => {
     return {
       ...item,
-      path: item.path.replace(instrumentCwd+'/','')
-    }
-  })
+      path: item.path.replace(instrumentCwd + '/', ''),
+    };
+  });
 
-  const dddd = genSummaryMapByCoverageMap(_dataSource.reduce((acc, cur) => {
-    acc[cur.path] = cur;
-    return acc;
-  },{}))
-
+  const dddd = genSummaryMapByCoverageMap(
+    _dataSource.reduce((acc, cur) => {
+      acc[cur.path] = cur;
+      return acc;
+    }, {}),
+  );
 
   function onSelect(val) {
     return new Promise((resolve) => {
-      setValue(val)
-      const file = _dataSource.find(item=>item.path===val);
+      setValue(val);
+      const file = _dataSource.find((item) => item.path === val);
       if (file) {
         resolve({
           fileCoverage: file,
@@ -43,7 +43,12 @@ function App() {
 
   return (
     <div>
-      <CanyonReport name={'All files'} value={value} dataSource={Object.values(dddd)} onSelect={onSelect} />
+      <CanyonReport
+        name={'All files'}
+        value={value}
+        dataSource={Object.values(dddd)}
+        onSelect={onSelect}
+      />
     </div>
   );
 }

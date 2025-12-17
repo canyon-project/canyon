@@ -15,8 +15,8 @@ const SummaryTree: FC<{
   dataSource: (CoverageSummaryData & { path: string })[];
   onSelect: (path: string) => void;
   style?: React.CSSProperties;
-  onlyChange: boolean
-}> = ({ dataSource, onSelect, style,onlyChange }) => {
+  onlyChange: boolean;
+}> = ({ dataSource, onSelect, style, onlyChange }) => {
   const t = (res: string) => res;
 
   const columns = [
@@ -65,34 +65,42 @@ const SummaryTree: FC<{
       title: t('Change Statements'),
       key: 'changestatements',
       dataIndex: ['changestatements'],
-      width:'220px',
-      render(_){
-        _=_||{
-          pct:100,
-          total:0,
-          covered:0
-        }
-        return <div style={{
-          display:'flex',
-          alignItems:'center'
-        }}>
-          <Progress
-            percent={_.pct}
-            strokeLinecap='butt'
-            size={'small'}
-            strokeColor={getColor(_.pct)}
+      width: '220px',
+      render(_) {
+        _ = _ || {
+          pct: 100,
+          total: 0,
+          covered: 0,
+        };
+        return (
+          <div
             style={{
-              width:'100px',
-              paddingRight: '5px',
-              fontSize:'10px'
+              display: 'flex',
+              alignItems: 'center',
             }}
-            status={'normal'}
-          />
-          <span style={{
-            fontSize:'10px'
-          }}>({`${_.covered}/${_.total}`})</span>
-        </div>
-      }
+          >
+            <Progress
+              percent={_.pct}
+              strokeLinecap='butt'
+              size={'small'}
+              strokeColor={getColor(_.pct)}
+              style={{
+                width: '100px',
+                paddingRight: '5px',
+                fontSize: '10px',
+              }}
+              status={'normal'}
+            />
+            <span
+              style={{
+                fontSize: '10px',
+              }}
+            >
+              ({`${_.covered}/${_.total}`})
+            </span>
+          </div>
+        );
+      },
     },
     {
       title: `${t('Coverage')} %`,
@@ -117,7 +125,11 @@ const SummaryTree: FC<{
         );
       },
     },
-  ].filter(c=>((c.key!=='changestatements')||(c.key==='changestatements'&&onlyChange)))
+  ].filter(
+    (c) =>
+      c.key !== 'changestatements' ||
+      (c.key === 'changestatements' && onlyChange),
+  );
   return (
     <div style={style}>
       <ConfigProvider

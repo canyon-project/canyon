@@ -10,12 +10,12 @@ window.reportData = {
     lines: [50, 80],
   },
   summary: {},
-  instrumentCwd:'/Users/travzhang/github.com/istanbuljs/istanbuljs',
+  instrumentCwd: '/Users/travzhang/github.com/istanbuljs/istanbuljs',
   files: [
     {
-      diff:{
-        additions:[1,2,3],
-        deletions:[4,5,6]
+      diff: {
+        additions: [1, 2, 3],
+        deletions: [4, 5, 6],
       },
       source:
         "/*\n Copyright 2012-2015, Yahoo Inc.\n Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.\n */\n'use strict';\n\nconst { MapStore } = require('./lib/map-store');\n/**\n * @module Exports\n */\nmodule.exports = {\n    createSourceMapStore(opts) {\n        return new MapStore(opts);\n    }\n};\n",

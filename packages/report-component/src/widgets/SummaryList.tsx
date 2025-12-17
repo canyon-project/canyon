@@ -32,7 +32,7 @@ const SummaryList: FC<{
             }}
           >
             <Highlighter
-              highlightClassName="YourHighlightClass"
+              highlightClassName='YourHighlightClass'
               searchWords={[filenameKeywords]}
               autoEscape={true}
               textToHighlight={text}
@@ -77,7 +77,7 @@ const SummaryList: FC<{
           >
             <Progress
               percent={_.pct}
-              strokeLinecap="butt"
+              strokeLinecap='butt'
               size={'small'}
               strokeColor={getColor(_.pct)}
               style={{
@@ -110,7 +110,7 @@ const SummaryList: FC<{
         return (
           <Progress
             percent={text}
-            strokeLinecap="butt"
+            strokeLinecap='butt'
             size={'small'}
             strokeColor={getColor(text)}
             style={{

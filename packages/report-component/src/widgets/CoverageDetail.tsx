@@ -1,12 +1,7 @@
 import { useEffect, useRef } from 'react';
 
-
-function CanyonReport({
-                        fileContent,
-                        fileCoverage,
-                        fileCodeChange
-                      }) {
-  console.log(fileCodeChange,'fileCodeChange')
+function CanyonReport({ fileContent, fileCoverage, fileCodeChange }) {
+  console.log(fileCodeChange, 'fileCodeChange');
   const ref = useRef(null);
   useEffect(() => {
     if (ref.current) {
@@ -14,15 +9,14 @@ function CanyonReport({
       const options = {
         value: fileContent,
         language: 'javascript',
-        fontFamily:'IBMPlexMono'
-      }
+        fontFamily: 'IBMPlexMono',
+      };
 
       if (window.monaco?.editor && dom) {
         // 如果已经加载，直接创建编辑器
         // @ts-expect-error
         const _editor = window.monaco.editor.create(dom, options);
       }
-
     }
   }, []);
   return (

@@ -1,6 +1,6 @@
 import { ConfigProvider, Spin } from 'antd';
-import {type FileCoverageData, Totals} from 'istanbul-lib-coverage';
-import {type FC, Suspense, useEffect, useMemo, useState} from 'react';
+import { type FileCoverageData, Totals } from 'istanbul-lib-coverage';
+import { type FC, Suspense, useEffect, useMemo, useState } from 'react';
 // import { add } from './helpers/add';
 import type { CanyonReportProps } from './types';
 import SummaryHeader from './widgets/SummaryHeader';
@@ -8,19 +8,17 @@ import SummaryList from './widgets/SummaryList';
 // import CoverageDetail from './widgets/CoverageDetail';
 // import SummaryHeader from './widgets/SummaryHeader';
 import TopControl from './widgets/TopControl';
-import {generateCoreDataForEachComponent} from "./helpers/generateCoreDataForEachComponent";
+import { generateCoreDataForEachComponent } from './helpers/generateCoreDataForEachComponent';
 import SummaryTree from './widgets/SummaryTree';
-import RIf from "./components/RIf";
+import RIf from './components/RIf';
 import CoverageDetail from './widgets/CoverageDetail';
 
 export const CanyonReport: FC<CanyonReportProps> = ({
   value,
   name,
   dataSource,
-                                                      onSelect
+  onSelect,
 }) => {
-
-
   // 内部状态
   const [_isLoading, _setIsLoading] = useState<boolean>(false);
   const [filenameKeywords, setFilenameKeywords] = useState('');
@@ -37,16 +35,21 @@ export const CanyonReport: FC<CanyonReportProps> = ({
   const [fileContent, setFileContent] = useState<string>('');
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
   const [onlyChange, setOnlyChange] = useState(Boolean(false));
-  const rootClassName = useMemo(() => `report-scope-${Math.random().toString(36).slice(2, 9)}`,[/* once */]);
+  const rootClassName = useMemo(
+    () => `report-scope-${Math.random().toString(36).slice(2, 9)}`,
+    [
+      /* once */
+    ],
+  );
 
   function onChangeOnlyChange(v: boolean) {
     setOnlyChange(v);
   }
   async function newOnSelect(val: string) {
     const res = await onSelect(val);
-    setFileContent(res.fileContent||'');
-    setFileCoverage(res.fileCoverage||{});
-    setFileCodeChange(res.fileCodeChange||'');
+    setFileContent(res.fileContent || '');
+    setFileCoverage(res.fileCoverage || {});
+    setFileCodeChange(res.fileCodeChange || '');
     return res;
   }
   useEffect(() => {
@@ -63,7 +66,6 @@ export const CanyonReport: FC<CanyonReportProps> = ({
     }
     return showMode;
   }, [showMode, value]);
-
 
   const isFileDataReady = useMemo(() => {
     const hasCoverage = fileCoverage && Object.keys(fileCoverage).length > 0;
@@ -85,7 +87,7 @@ export const CanyonReport: FC<CanyonReportProps> = ({
         theme={{
           token: {
             colorPrimary: '#0071c2',
-            borderRadius: 2
+            borderRadius: 2,
           },
         }}
       >
@@ -116,15 +118,19 @@ export const CanyonReport: FC<CanyonReportProps> = ({
           onlyChange={onlyChange}
         />
 
-
         <RIf condition={mode === 'file'}>
-          <div style={{
-            flex: 1,
-            minHeight: 0,
-            overflow: 'auto',
-            height:'100%'
-          }}>
-            <Spin spinning={!isFileDataReady} wrapperClassName={'canyon-coverage-detail-spin-wrapper'}>
+          <div
+            style={{
+              flex: 1,
+              minHeight: 0,
+              overflow: 'auto',
+              height: '100%',
+            }}
+          >
+            <Spin
+              spinning={!isFileDataReady}
+              wrapperClassName={'canyon-coverage-detail-spin-wrapper'}
+            >
               <RIf condition={isFileDataReady}>
                 <CoverageDetail
                   fileContent={fileContent}
@@ -136,8 +142,14 @@ export const CanyonReport: FC<CanyonReportProps> = ({
           </div>
         </RIf>
 
-        <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
-          {mode === 'tree' && <SummaryTree dataSource={treeDataSource} onSelect={newOnSelect} onlyChange={onlyChange} />}
+        <Suspense fallback={<div className='p-8 text-center'>Loading...</div>}>
+          {mode === 'tree' && (
+            <SummaryTree
+              dataSource={treeDataSource}
+              onSelect={newOnSelect}
+              onlyChange={onlyChange}
+            />
+          )}
           {mode === 'list' && (
             <SummaryList
               dataSource={listDataSource}
@@ -149,7 +161,6 @@ export const CanyonReport: FC<CanyonReportProps> = ({
         </Suspense>
       </ConfigProvider>
     </div>
-
   );
 };
 

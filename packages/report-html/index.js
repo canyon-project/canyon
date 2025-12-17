@@ -17,17 +17,21 @@ module.exports = class CustomReporter extends ReportBase {
   onDetail(node) {
     const fileCoverage = node.getFileCoverage().toJSON();
     debug('Processing file coverage for: %s', fileCoverage.path);
-    debug('File coverage stats - statements: %d, functions: %d, branches: %d, lines: %d',
+    debug(
+      'File coverage stats - statements: %d, functions: %d, branches: %d, lines: %d',
       Object.keys(fileCoverage.s || {}).length,
       Object.keys(fileCoverage.f || {}).length,
       Object.keys(fileCoverage.b || {}).length,
-      fileCoverage.source ? fileCoverage.source.split('\n').length : 0
+      fileCoverage.source ? fileCoverage.source.split('\n').length : 0,
     );
     this.coverage[fileCoverage.path] = fileCoverage;
   }
 
   async onEnd(_rootNode, context) {
-    debug('Report generation ending. Processing %d files', Object.keys(this.coverage).length);
+    debug(
+      'Report generation ending. Processing %d files',
+      Object.keys(this.coverage).length,
+    );
     debug('Target directory: %s', context.dir);
     debug('Coverage files: %o', Object.keys(this.coverage));
 
@@ -38,6 +42,9 @@ module.exports = class CustomReporter extends ReportBase {
       sourceFinder: context.sourceFinder,
     });
 
-    debug('Report generation completed successfully. Report path: %s', result.reportPath);
+    debug(
+      'Report generation completed successfully. Report path: %s',
+      result.reportPath,
+    );
   }
 };

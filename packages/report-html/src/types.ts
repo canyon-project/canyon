@@ -27,9 +27,9 @@ export interface ReportSummary {
 }
 
 export interface FileInfo {
-  source:string,
-  path:string,
-  changedLines: number[],
+  source: string;
+  path: string;
+  changedLines: number[];
 }
 
 export interface CanyonReportData {
