@@ -95,7 +95,7 @@ class CoverageReport {
       summary,
       files,
     };
-    
+
     debug('Built report data with %d files, instrumentCwd: %s', files.length, reportData.instrumentCwd);
     return reportData;
   }
@@ -122,7 +122,7 @@ class CoverageReport {
 
     // 生成 report-data.js 文件
     const reportDataContent = `window.reportData = '${compress(JSON.stringify(reportData))}';`;
-    const reportDataPath = path.join(targetDir, 'report-data.js');
+    const reportDataPath = path.join(targetDir, 'data/report-data.js');
     debug('Writing report data to: %s (compressed size: %d bytes)', reportDataPath, reportDataContent.length);
     fs.writeFileSync(reportDataPath, reportDataContent, 'utf8');
 
@@ -130,7 +130,7 @@ class CoverageReport {
       reportPath: path.join(targetDir, 'index.html'),
       reportData,
     };
-    
+
     debug('Report generation completed. Report path: %s', result.reportPath);
     return result;
   }
