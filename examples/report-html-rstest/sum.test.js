@@ -1,4 +1,4 @@
-import { describe, it, expect } from '@rstest/core';
+import { describe, expect, it } from '@rstest/core';
 import { add } from './sum.js';
 
 describe('Sum function', () => {

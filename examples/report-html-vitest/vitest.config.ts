@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     coverage: {
       provider: 'v8',
-      reporter: ['json', '@canyonjs/report-html']
-    }
-  }
+      reporter: ['json', '@canyonjs/report-html'],
+    },
+  },
 });
