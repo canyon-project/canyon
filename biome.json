@@ -15,12 +15,21 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
-      "style": {
-        "useImportType": "off"
-      }
+      "recommended": true
     }
   },
+  "overrides": [
+    {
+      "includes": ["packages/backend/**/*"],
+      "linter": {
+        "rules": {
+          "style": {
+            "useImportType": "off"
+          }
+        }
+      }
+    }
+  ],
   "javascript": {
     "formatter": {
       "quoteStyle": "single",
