@@ -5,6 +5,8 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.enableCors()
+
   // Swagger 配置
   const config = new DocumentBuilder()
     .setTitle('Canyon Backend API')

@@ -17,6 +17,8 @@
     "nextra": "^4.6.1",
     "nextra-theme-docs": "^4.6.1",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "redoc": "^2.1.5",
+    "styled-components": "^6.1.13"
   }
 }
