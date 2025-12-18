@@ -12,6 +12,7 @@
     "resolveJsonModule": true,
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
 
     /* type checking */
     "strict": true,

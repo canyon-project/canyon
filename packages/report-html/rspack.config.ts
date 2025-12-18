@@ -1,6 +1,8 @@
 import { defineConfig } from '@rspack/cli';
 import { rspack, type SwcLoaderOptions } from '@rspack/core';
+// @ts-expect-error
 import { ReactRefreshRspackPlugin } from '@rspack/plugin-react-refresh';
+// @ts-expect-error
 import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
 
 const isDev = process.env.NODE_ENV === 'development';
