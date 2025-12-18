@@ -24,28 +24,33 @@ const SummaryNav: FC<{
         fontWeight: 'bold',
       }}
     >
-      {`${reportName}/${value}`.split('/').map((item, index) => {
+      {`${reportName}/${value}`.split('/').map((item, index, array) => {
+        const pathKey = `${reportName}-${array.slice(0, index + 1).join('/')}`;
         return (
           <div
-            key={index}
+            key={pathKey}
             style={{
               display: 'flex',
               gap: '6px',
             }}
           >
-            <a
+            <button
+              type='button'
               style={{
                 color: token.colorPrimary,
                 cursor: 'pointer',
                 textDecoration: 'none',
+                background: 'none',
+                border: 'none',
+                padding: 0,
+                font: 'inherit',
               }}
-              key={index}
               onClick={() => {
                 onClick(value.split('/').slice(0, index).join('/'));
               }}
             >
               {item}
-            </a>
+            </button>
             {index === value.split('/').length || !value ? null : (
               <span>/</span>
             )}

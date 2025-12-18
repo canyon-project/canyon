@@ -1,13 +1,21 @@
 import { useEffect, useRef } from 'react';
 
+interface FileCoverage {
+  [key: string]: unknown;
+}
+
+interface FileCodeChange {
+  [key: string]: unknown;
+}
+
 function CanyonReport({
   fileContent,
   fileCoverage,
   fileCodeChange,
 }: {
   fileContent: string;
-  fileCoverage: any;
-  fileCodeChange: any;
+  fileCoverage: FileCoverage;
+  fileCodeChange: FileCodeChange;
 }) {
   // 使用 fileCodeChange 避免未使用参数警告
   console.log({ fileCodeChange, fileCoverage }, 'coverage data');

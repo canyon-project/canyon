@@ -22,27 +22,36 @@ function checkStartValue(item: { path: string }, startValue: string) {
   return item.path.toLowerCase().includes(startValue.toLowerCase());
 }
 
+interface DataSourceItem {
+  path: string;
+  change: boolean;
+  [key: string]: unknown;
+}
+
 export const generateCoreDataForEachComponent = ({
   dataSource,
   filenameKeywords,
   value,
   onlyChange,
 }: {
-  dataSource: any[];
+  dataSource: DataSourceItem[];
   filenameKeywords: string;
   value: string;
   onlyChange: boolean;
 }) => {
   const listDataSource = Object.values(dataSource).filter(
-    (item: any) =>
+    (item: DataSourceItem) =>
       checkStartValue(item, value) &&
       checkSummaryOnlyChange(item, onlyChange) &&
       checkSummaryKeywords(item, filenameKeywords),
   );
-  const summary = listDataSource.reduce((acc: any, cur: any) => {
-    acc[cur.path] = cur;
-    return acc;
-  }, {});
+  const summary = listDataSource.reduce(
+    (acc: Record<string, DataSourceItem>, cur: DataSourceItem) => {
+      acc[cur.path] = cur;
+      return acc;
+    },
+    {},
+  );
 
   const aaaa = genSummaryTreeItem(value, summary);
   return {

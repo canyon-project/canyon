@@ -11,7 +11,7 @@ export interface FileDataResponse {
 
 export interface DataSourceItem {
   path: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface CanyonReportProps {

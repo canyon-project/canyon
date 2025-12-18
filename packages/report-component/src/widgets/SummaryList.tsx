@@ -21,11 +21,19 @@ const SummaryList: FC<{
       dataIndex: 'path',
       render(text) {
         return (
-          <a
+          <button
+            type='button'
             style={{
               width: '420px',
               display: 'block',
               overflowWrap: 'break-word',
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              textAlign: 'left',
+              cursor: 'pointer',
+              color: 'inherit',
+              font: 'inherit',
             }}
             onClick={() => {
               onSelect(text);
@@ -37,7 +45,7 @@ const SummaryList: FC<{
               autoEscape={true}
               textToHighlight={text}
             />
-          </a>
+          </button>
         );
       },
     },
