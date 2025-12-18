@@ -22,9 +22,6 @@
   "files": [
     "dist"
   ],
-  "publishConfig": {
-    "access": "public"
-  },
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
@@ -44,7 +41,7 @@
     "@vitejs/plugin-react": "^5.1.1",
     "istanbul-lib-coverage": "^3.2.2",
     "tsdown": "^0.17.0",
-    "typescript": "^5.9.3",
+    "@typescript/native-preview": "catalog:",
     "vite": "^7.2.6"
   },
   "dependencies": {

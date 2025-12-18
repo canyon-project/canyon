@@ -43,6 +43,7 @@
     "@types/react-dom": "^19.2.3",
     "copy-webpack-plugin": "^13.0.1",
     "monaco-editor-webpack-plugin": "^7.1.1",
-    "react-refresh": "^0.18.0"
+    "react-refresh": "^0.18.0",
+    "@typescript/native-preview": "catalog:"
   }
 }
