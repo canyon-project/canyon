@@ -6,7 +6,11 @@
     "useIgnoreFile": true
   },
   "files": {
-    "ignoreUnknown": false
+    "ignoreUnknown": false,
+    "includes": [
+      "**",
+      "!!packages/report-component/playground/public/report-data.js"
+    ]
   },
   "formatter": {
     "enabled": true,

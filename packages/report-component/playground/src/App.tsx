@@ -9,7 +9,7 @@ declare global {
       files: Array<{
         path: string;
         source: string;
-        [key: string]: any;
+        [key: string]: string;
       }>;
       instrumentCwd: string;
     };
@@ -21,7 +21,7 @@ function App() {
 
   const { files: dataSource = [], instrumentCwd } = window.reportData;
 
-  const _dataSource = dataSource.map((item: any) => {
+  const _dataSource = dataSource.map((item) => {
     return {
       ...item,
       path: item.path.replace(`${instrumentCwd}/`, ''),
@@ -29,7 +29,7 @@ function App() {
   });
 
   const dddd = genSummaryMapByCoverageMap(
-    _dataSource.reduce((acc: any, cur: any) => {
+    _dataSource.reduce((acc, cur) => {
       acc[cur.path] = cur;
       return acc;
     }, {}),
@@ -38,7 +38,7 @@ function App() {
   function onSelect(val: string): Promise<FileDataResponse> {
     return new Promise((resolve) => {
       setValue(val);
-      const file = _dataSource.find((item: any) => item.path === val);
+      const file = _dataSource.find((item) => item.path === val);
       if (file) {
         resolve({
           fileCoverage: file,

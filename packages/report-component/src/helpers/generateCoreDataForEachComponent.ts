@@ -1,6 +1,9 @@
 import { genSummaryTreeItem } from 'canyon-data';
 
-function checkSummaryOnlyChange(item: any, onlyChange: boolean) {
+function checkSummaryOnlyChange(
+  item: { change: boolean },
+  onlyChange: boolean,
+) {
   // 如果只看改变的为false，就返回全部
   if (onlyChange === false) {
     return true;
@@ -11,11 +14,11 @@ function checkSummaryOnlyChange(item: any, onlyChange: boolean) {
   }
   return false;
 }
-function checkSummaryKeywords(item: any, keywords: string) {
+function checkSummaryKeywords(item: { path: string }, keywords: string) {
   return item.path.toLowerCase().includes(keywords.toLowerCase());
 }
 
-function checkStartValue(item: any, startValue: string) {
+function checkStartValue(item: { path: string }, startValue: string) {
   return item.path.toLowerCase().includes(startValue.toLowerCase());
 }
 
