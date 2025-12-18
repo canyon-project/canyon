@@ -42,7 +42,7 @@
     "istanbul-lib-coverage": "^3.2.2",
     "tsdown": "^0.17.0",
     "@typescript/native-preview": "catalog:",
-    "vite": "^7.2.6"
+    "vite": "catalog:"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
