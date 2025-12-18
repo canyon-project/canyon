@@ -18,10 +18,6 @@
       "recommended": true,
       "style": {
         "useImportType": "off"
-      },
-      "a11y": "warn",
-      "suspicious": {
-        "noArrayIndexKey": "off"
       }
     }
   },

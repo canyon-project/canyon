@@ -1,5 +1,5 @@
 import { ConfigProvider, Spin } from 'antd';
-import { type FileCoverageData } from 'istanbul-lib-coverage';
+import type { FileCoverageData } from 'istanbul-lib-coverage';
 import { type FC, Suspense, useEffect, useMemo, useState } from 'react';
 import RIf from './components/RIf';
 import { generateCoreDataForEachComponent } from './helpers/generateCoreDataForEachComponent';
