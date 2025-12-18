@@ -5,8 +5,12 @@ export default defineConfig({
     provider: 'istanbul',
     reporters: [
       'json',
-      // @ts-expect-error
-      '@canyonjs/report-html',
+      [
+        '@canyonjs/report-html',
+        {
+          diff: [],
+        },
+      ],
     ],
   },
 });
