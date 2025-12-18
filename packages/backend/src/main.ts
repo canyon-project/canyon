@@ -19,7 +19,7 @@ async function bootstrap() {
   SwaggerModule.setup('api', app, document);
 
   // 添加 JSON 格式的 API 文档接口
-  app.getHttpAdapter().get('/api-json', (req, res) => {
+  app.getHttpAdapter().get('/api-json', (_req, res) => {
     res.json(document);
   });
 

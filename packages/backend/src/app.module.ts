@@ -1,9 +1,9 @@
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import { Module } from '@nestjs/common';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import {existsSync} from "node:fs";
-import {join} from "node:path";
-import { ServeStaticModule } from '@nestjs/serve-static';
 @Module({
   imports: [
     ServeStaticModule.forRoot({
