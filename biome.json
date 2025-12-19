@@ -25,10 +25,18 @@
   "overrides": [
     {
       "includes": ["packages/backend/**/*"],
+      "javascript": {
+        "parser": {
+          "unsafeParameterDecoratorsEnabled": true
+        }
+      },
       "linter": {
         "rules": {
           "style": {
             "useImportType": "off"
+          },
+          "correctness": {
+            "noUnusedFunctionParameters": "off"
           }
         }
       }

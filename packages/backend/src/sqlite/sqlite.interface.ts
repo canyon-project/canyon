@@ -1,10 +1,13 @@
 export interface SqliteExecuteResult {
   changes: number;
-  lastInsertRowid?: number;
+  lastInsertRowid?: number|bigint;
 }
 
 export interface SqliteDB {
-  query<T = any>(sql: string, params?: unknown[]): Promise<T[]>;
+  query<T = Record<string, unknown>>(
+    sql: string,
+    params?: unknown[],
+  ): Promise<T[]>;
   execute(sql: string, params?: unknown[]): Promise<SqliteExecuteResult>;
   close(): Promise<void>;
 }

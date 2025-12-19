@@ -26,11 +26,11 @@ catalog:
 
 catalogMode: prefer
 
+onlyBuiltDependencies:
+  - better-sqlite3
+
 overrides:
   '@typescript/native-preview': 7.0.0-dev.20251215.1
   vite: 8.0.0-beta.0
 
 shellEmulator: true
-
-onlyBuiltDependencies:
-  - better-sqlite3

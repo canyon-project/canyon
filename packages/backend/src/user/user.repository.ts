@@ -99,7 +99,7 @@ export class UserRepository {
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User | null> {
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
 
     if (updateUserDto.name !== undefined) {
       fields.push('name = ?');

@@ -1,5 +1,5 @@
 import BetterSqlite3 from 'better-sqlite3';
-import { SqliteDB, SqliteExecuteResult } from '../sqlite.interface';
+import type { SqliteDB, SqliteExecuteResult } from '../sqlite.interface';
 
 export class BetterSqliteAdapter implements SqliteDB {
   private db: BetterSqlite3.Database;
@@ -9,7 +9,10 @@ export class BetterSqliteAdapter implements SqliteDB {
     console.log(`📁 Better SQLite Adapter: Connected to ${filename}`);
   }
 
-  async query<T = any>(sql: string, params?: unknown[]): Promise<T[]> {
+  async query<T = Record<string, unknown>>(
+    sql: string,
+    params?: unknown[],
+  ): Promise<T[]> {
     try {
       return this.db.prepare(sql).all(params || []) as T[];
     } catch (error) {

@@ -1,5 +1,5 @@
 import { DatabaseSync } from 'node:sqlite';
-import { SqliteDB, SqliteExecuteResult } from '../sqlite.interface';
+import type { SqliteDB, SqliteExecuteResult } from '../sqlite.interface';
 
 export class NodeSqliteAdapter implements SqliteDB {
   private db: DatabaseSync;
@@ -9,10 +9,14 @@ export class NodeSqliteAdapter implements SqliteDB {
     console.log(`📁 Node SQLite Adapter: Connected to ${filename}`);
   }
 
-  async query<T = any>(sql: string, params?: unknown[]): Promise<T[]> {
+  async query<T = Record<string, unknown>>(
+    sql: string,
+    params?: unknown[],
+  ): Promise<T[]> {
     try {
       const stmt = this.db.prepare(sql);
       if (params && params.length > 0) {
+        // biome-ignore lint/suspicious/noExplicitAny: SQLite params need to be spread as any
         return stmt.all(...(params as any[])) as T[];
       }
       return stmt.all() as T[];
@@ -27,7 +31,8 @@ export class NodeSqliteAdapter implements SqliteDB {
       const stmt = this.db.prepare(sql);
       const result =
         params && params.length > 0
-          ? stmt.run(...(params as any[]))
+          ? // biome-ignore lint/suspicious/noExplicitAny: SQLite params need to be spread as any
+            stmt.run(...(params as any[]))
           : stmt.run();
 
       return {

@@ -25,16 +25,13 @@ export class UserController {
   }
 
   @Get()
-  async findAll(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-  ) {
+  async findAll(@Query('page') page?: string, @Query('limit') limit?: string) {
     if (page || limit) {
       const pageNum = page ? parseInt(page, 10) : 1;
       const limitNum = limit ? parseInt(limit, 10) : 10;
       return this.userService.findByPage(pageNum, limitNum);
     }
-    
+
     const users = await this.userService.findAll();
     return { users };
   }
