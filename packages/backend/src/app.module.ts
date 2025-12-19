@@ -6,11 +6,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SqliteModule } from './sqlite/sqlite.module';
 import { UserModule } from './user/user.module';
+import {CollectModule} from "./collect/collect.module";
 
 @Module({
   imports: [
     SqliteModule,
     UserModule,
+    CollectModule,
     ServeStaticModule.forRoot({
       rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
         ? join(__dirname, '../../frontend', 'dist')

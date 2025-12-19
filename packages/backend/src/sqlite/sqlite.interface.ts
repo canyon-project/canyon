@@ -1,6 +1,6 @@
 export interface SqliteExecuteResult {
   changes: number;
-  lastInsertRowid?: number|bigint;
+  lastInsertRowid?: number;
 }
 
 export interface SqliteDB {

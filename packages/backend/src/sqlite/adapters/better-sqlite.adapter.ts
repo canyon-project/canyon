@@ -27,7 +27,7 @@ export class BetterSqliteAdapter implements SqliteDB {
 
       return {
         changes: result.changes,
-        lastInsertRowid: result.lastInsertRowid,
+        lastInsertRowid: typeof result.lastInsertRowid ==='bigint'?0:result.lastInsertRowid,
       };
     } catch (error) {
       console.error(`❌ Execute failed: ${sql}`, error);

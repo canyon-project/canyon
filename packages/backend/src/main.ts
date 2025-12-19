@@ -1,8 +1,18 @@
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { AppModule } from './app.module';
+import * as dotenv from 'dotenv';
+import { json } from 'express';
+import path from "node:path";
+
+dotenv.config({
+  path: [
+    path.resolve(__dirname, '../../../.env'),
+    path.resolve(__dirname, '../.env'),
+  ],
+});
 
 async function bootstrap() {
+  const { AppModule } = await import('./app.module.js');
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();

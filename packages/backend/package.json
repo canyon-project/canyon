@@ -8,7 +8,8 @@
   "scripts": {
     "build": "nest build",
     "start": "nest start",
-    "dev": "nest start --watch"
+    "dev": "nest start --watch",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -17,6 +18,11 @@
     "@nestjs/serve-static": "^5.0.4",
     "@nestjs/swagger": "^8.0.0",
     "better-sqlite3": "^12.5.0",
+    "class-validator": "catalog:",
+    "dotenv": "catalog:",
+    "express": "catalog:",
+    "json-stable-stringify": "catalog:",
+    "prisma": "catalog:",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
