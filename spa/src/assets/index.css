@@ -33,6 +33,9 @@
 
 .line-number-wrapper .line-change {
     width: 10px;
+    color: green;
+    font-weight: bolder;
+    font-size: 14px;
     /*display: block;*/
 }
 
