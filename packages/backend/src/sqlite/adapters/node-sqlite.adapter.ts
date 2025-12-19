@@ -25,11 +25,16 @@ export class NodeSqliteAdapter implements SqliteDB {
   async execute(sql: string, params?: unknown[]): Promise<SqliteExecuteResult> {
     try {
       const stmt = this.db.prepare(sql);
-      const result = params && params.length > 0 ? stmt.run(...(params as any[])) : stmt.run();
-      
+      const result =
+        params && params.length > 0
+          ? stmt.run(...(params as any[]))
+          : stmt.run();
+
       return {
         changes: Number(result.changes) || 0,
-        lastInsertRowid: result.lastInsertRowid ? Number(result.lastInsertRowid) : undefined,
+        lastInsertRowid: result.lastInsertRowid
+          ? Number(result.lastInsertRowid)
+          : undefined,
       };
     } catch (error) {
       console.error(`❌ Execute failed: ${sql}`, error);

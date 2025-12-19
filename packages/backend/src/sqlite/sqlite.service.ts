@@ -1,6 +1,6 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
-import { SqliteDB } from './sqlite.interface';
 import { createSqliteDB } from './sqlite.factory';
+import { SqliteDB } from './sqlite.interface';
 
 @Injectable()
 export class SqliteService implements OnModuleDestroy {

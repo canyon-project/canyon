@@ -1,6 +1,11 @@
-import { Injectable, ConflictException, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
+import { CreateUserDto, UpdateUserDto, User } from './user.entity';
 import { UserRepository } from './user.repository';
-import { User, CreateUserDto, UpdateUserDto } from './user.entity';
 
 @Injectable()
 export class UserService implements OnModuleInit {
@@ -12,9 +17,11 @@ export class UserService implements OnModuleInit {
   }
 
   async create(createUserDto: CreateUserDto): Promise<User> {
-    console.log(createUserDto,'createUserDto')
+    console.log(createUserDto, 'createUserDto');
     // 检查邮箱是否已存在
-    const existingUser = await this.userRepository.findByEmail(createUserDto.email);
+    const existingUser = await this.userRepository.findByEmail(
+      createUserDto.email,
+    );
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
@@ -45,7 +52,9 @@ export class UserService implements OnModuleInit {
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
     // 如果要更新邮箱，检查新邮箱是否已被其他用户使用
     if (updateUserDto.email) {
-      const existingUser = await this.userRepository.findByEmail(updateUserDto.email);
+      const existingUser = await this.userRepository.findByEmail(
+        updateUserDto.email,
+      );
       if (existingUser && existingUser.id !== id) {
         throw new ConflictException('Email already exists');
       }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { SqliteService } from '../sqlite/sqlite.service';
-import { User, CreateUserDto, UpdateUserDto } from './user.entity';
+import { CreateUserDto, UpdateUserDto, User } from './user.entity';
 
 @Injectable()
 export class UserRepository {
@@ -28,12 +28,16 @@ export class UserRepository {
       VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     `;
 
-    const result = await this.sqliteService.connection.execute(sql, [name, email, age]);
+    const result = await this.sqliteService.connection.execute(sql, [
+      name,
+      email,
+      age,
+    ]);
 
     if (!result.lastInsertRowid) {
       throw new Error('Failed to create user - no insert ID returned');
     }
-    
+
     const user = await this.findById(result.lastInsertRowid);
     if (!user) {
       throw new Error('Failed to create user');
@@ -87,7 +91,9 @@ export class UserRepository {
       WHERE email = ?
     `;
 
-    const results = await this.sqliteService.connection.query<User>(sql, [email]);
+    const results = await this.sqliteService.connection.query<User>(sql, [
+      email,
+    ]);
     return results.length > 0 ? results[0] : null;
   }
 
@@ -127,18 +133,23 @@ export class UserRepository {
   async delete(id: number): Promise<boolean> {
     const sql = 'DELETE FROM users WHERE id = ?';
     const result = await this.sqliteService.connection.execute(sql, [id]);
-    
+
     return result.changes > 0;
   }
 
   async count(): Promise<number> {
     const sql = 'SELECT COUNT(*) as count FROM users';
-    const result = await this.sqliteService.connection.query<{ count: number }>(sql);
+    const result = await this.sqliteService.connection.query<{ count: number }>(
+      sql,
+    );
 
     return result[0]?.count || 0;
   }
 
-  async findByPage(page: number = 1, limit: number = 10): Promise<{ users: User[]; total: number; page: number; limit: number }> {
+  async findByPage(
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<{ users: User[]; total: number; page: number; limit: number }> {
     const offset = (page - 1) * limit;
 
     const sql = `
@@ -154,7 +165,10 @@ export class UserRepository {
       LIMIT ? OFFSET ?
     `;
 
-    const users = await this.sqliteService.connection.query<User>(sql, [limit, offset]);
+    const users = await this.sqliteService.connection.query<User>(sql, [
+      limit,
+      offset,
+    ]);
     const total = await this.count();
 
     return {

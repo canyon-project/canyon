@@ -21,7 +21,7 @@ export class BetterSqliteAdapter implements SqliteDB {
   async execute(sql: string, params?: unknown[]): Promise<SqliteExecuteResult> {
     try {
       const result = this.db.prepare(sql).run(params || []);
-      
+
       return {
         changes: result.changes,
         lastInsertRowid: result.lastInsertRowid,
