@@ -11,6 +11,7 @@ export class NodeSqliteAdapter implements SqliteDB {
 
   async query<T>(sql: string, params: SQLInputValue[] = []) {
     const stmt = this.db.prepare(sql);
+    console.log(stmt,'stmt')
     return stmt.all(...params) as T[];
   }
 

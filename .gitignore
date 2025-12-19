@@ -45,3 +45,6 @@ pnpm-lock.yaml
 .nyc_output
 
 .vscode
+
+
+data.db
