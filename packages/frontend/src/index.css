@@ -53,7 +53,9 @@ a:hover {
 
 .line-number-wrapper .line-change {
   width: 10px;
-  /*display: block;*/
+  color: green;
+  font-weight: bolder;
+  font-size: 14px;
 }
 
 .line-number-wrapper .line-coverage {
