@@ -1,38 +1,44 @@
-// adapters/node-sqlite.adapter.ts
-import { DatabaseSync, SQLInputValue } from 'node:sqlite';
-import { SqliteDB } from '../sqlite.interface';
+import { DatabaseSync } from 'node:sqlite';
+import { SqliteDB, SqliteExecuteResult } from '../sqlite.interface';
 
 export class NodeSqliteAdapter implements SqliteDB {
   private db: DatabaseSync;
 
   constructor(filename: string) {
     this.db = new DatabaseSync(filename);
+    console.log(`📁 Node SQLite Adapter: Connected to ${filename}`);
   }
 
-  async query<T>(sql: string, params: SQLInputValue[] = []) {
-    const stmt = this.db.prepare(sql);
-    return stmt.all(...params) as T[];
-  }
-
-  async execute(sql: string, params: SQLInputValue[] = []) {
-    const stmt = this.db.prepare(sql);
-    // stmt.run(...params);
-    console.log(stmt.run(...params),'stmt.run(...params)')
-  }
-
-  async transaction<T>(fn: (db: SqliteDB) => Promise<T>) {
-    this.db.exec('BEGIN');
+  async query<T = any>(sql: string, params?: unknown[]): Promise<T[]> {
     try {
-      const result = await fn(this);
-      this.db.exec('COMMIT');
-      return result;
-    } catch (e) {
-      this.db.exec('ROLLBACK');
-      throw e;
+      const stmt = this.db.prepare(sql);
+      if (params && params.length > 0) {
+        return stmt.all(...(params as any[])) as T[];
+      }
+      return stmt.all() as T[];
+    } catch (error) {
+      console.error(`❌ Query failed: ${sql}`, error);
+      throw error;
     }
   }
 
-  async close() {
+  async execute(sql: string, params?: unknown[]): Promise<SqliteExecuteResult> {
+    try {
+      const stmt = this.db.prepare(sql);
+      const result = params && params.length > 0 ? stmt.run(...(params as any[])) : stmt.run();
+      
+      return {
+        changes: Number(result.changes) || 0,
+        lastInsertRowid: result.lastInsertRowid ? Number(result.lastInsertRowid) : undefined,
+      };
+    } catch (error) {
+      console.error(`❌ Execute failed: ${sql}`, error);
+      throw error;
+    }
+  }
+
+  async close(): Promise<void> {
     this.db.close();
+    console.log('🔒 Node SQLite Adapter: Database closed');
   }
 }

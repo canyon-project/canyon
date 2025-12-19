@@ -30,10 +30,11 @@ export class UserRepository {
 
     const result = await this.sqliteService.connection.execute(sql, [name, email, age]);
 
-    // 获取插入的用户 ID (better-sqlite3 返回 lastInsertRowid)
-    const insertId = (result as any).lastInsertRowid || (result as any).insertId;
-    console.log(result,'resultresultresult')
-    const user = await this.findById(insertId);
+    if (!result.lastInsertRowid) {
+      throw new Error('Failed to create user - no insert ID returned');
+    }
+    
+    const user = await this.findById(result.lastInsertRowid);
     if (!user) {
       throw new Error('Failed to create user');
     }
@@ -125,11 +126,9 @@ export class UserRepository {
 
   async delete(id: number): Promise<boolean> {
     const sql = 'DELETE FROM users WHERE id = ?';
-    await this.sqliteService.connection.execute(sql, [id]);
-
-    // 检查是否删除成功
-    const user = await this.findById(id);
-    return user === null;
+    const result = await this.sqliteService.connection.execute(sql, [id]);
+    
+    return result.changes > 0;
   }
 
   async count(): Promise<number> {

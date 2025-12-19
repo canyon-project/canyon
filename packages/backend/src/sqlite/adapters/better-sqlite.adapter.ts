@@ -1,28 +1,39 @@
-// adapters/better-sqlite.adapter.ts
 import BetterSqlite3 from 'better-sqlite3';
-import { SqliteDB } from '../sqlite.interface';
+import { SqliteDB, SqliteExecuteResult } from '../sqlite.interface';
 
 export class BetterSqliteAdapter implements SqliteDB {
   private db: BetterSqlite3.Database;
 
   constructor(filename: string) {
     this.db = new BetterSqlite3(filename);
+    console.log(`📁 Better SQLite Adapter: Connected to ${filename}`);
   }
 
-  async query<T>(sql: string, params: unknown[] = []) {
-    return this.db.prepare(sql).all(params) as T[];
+  async query<T = any>(sql: string, params?: unknown[]): Promise<T[]> {
+    try {
+      return this.db.prepare(sql).all(params || []) as T[];
+    } catch (error) {
+      console.error(`❌ Query failed: ${sql}`, error);
+      throw error;
+    }
   }
 
-  async execute(sql: string, params: unknown[] = []) {
-    this.db.prepare(sql).run(params);
+  async execute(sql: string, params?: unknown[]): Promise<SqliteExecuteResult> {
+    try {
+      const result = this.db.prepare(sql).run(params || []);
+      
+      return {
+        changes: result.changes,
+        lastInsertRowid: result.lastInsertRowid,
+      };
+    } catch (error) {
+      console.error(`❌ Execute failed: ${sql}`, error);
+      throw error;
+    }
   }
 
-  async transaction<T>(fn: (db: SqliteDB) => Promise<T>) {
-    const trx = this.db.transaction(() => fn(this));
-    return trx();
-  }
-
-  async close() {
+  async close(): Promise<void> {
     this.db.close();
+    console.log('🔒 Better SQLite Adapter: Database closed');
   }
 }
