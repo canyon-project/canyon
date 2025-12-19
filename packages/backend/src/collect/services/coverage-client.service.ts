@@ -6,6 +6,7 @@ import { generateSecureId } from '../helpers/coverageID';
 import { generateObjectSignature } from '../helpers/generateObjectSignature';
 import { separateCoverage } from '../helpers/separateCoverage';
 import { encodeObjectToCompressedBuffer } from '../helpers/transform';
+import {logger} from "../../logger";
 
 type CoverageKind = 'hit' | 'map';
 type HitCounters = Record<string, number>;
@@ -117,6 +118,17 @@ export class CoverageClientService {
         instrumentCwd,
       });
       if (reportID === 'initial_coverage_data' && reportProvider === 'ci') {
+
+        logger({
+          type: "info",
+          title: "Canyon App initial_coverage_data ci",
+          message: `versionID${versionID};coverageID${coverageID}`,
+          addInfo: {
+            versionID,
+            coverageID
+          },
+        });
+
         const { separateCoverageHit } = separateCoverage(coverage);
         await this.insertHit({
           coverage: separateCoverageHit as HitCoverage,
