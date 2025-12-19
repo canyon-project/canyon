@@ -308,6 +308,7 @@ export function initCanyonSpa(dom, options) {
                 lineNumber,
                 linesState,
                 false,
+                addLines,
             );
         },
         lineNumbersMinChars: lineNumbersMinChars,
@@ -333,41 +334,56 @@ export function initCanyonSpa(dom, options) {
       const decorations = (()=>{
 
         const all = []
-        
+
         // 根据参数决定是否添加对应的装饰器
         if (showDecorations.statements) {
           const annotateStatementsList = annotateStatements(coverage, content);
           all.push(...annotateStatementsList);
         }
-        
+
         if (showDecorations.functions) {
         const annotateFunctionsList = annotateFunctions(coverage, content);
           all.push(...annotateFunctionsList);
         }
-        
+
         if (showDecorations.branches) {
         const annotateBranchesList = annotateBranches(coverage, content);
           all.push(...annotateBranchesList);
         }
 
+        // 如果有变更行，只过滤与变更行相关的装饰器
+        const addedLinesSet = new Set(addLines);
+        const filteredAll = addLines.length > 0
+          ? all.filter(decoration => {
+              const { startLine, endLine } = decoration;
+              // 检查装饰器是否与任何变更行相交
+              for (let line = startLine; line <= endLine; line++) {
+                if (addedLinesSet.has(line)) {
+                  return true;
+                }
+              }
+              return false;
+            })
+          : all;
+
         const arr = []
-        for (let i = 0; i < all.length; i++) {
+        for (let i = 0; i < filteredAll.length; i++) {
           const {startLine,
             startCol,
             endLine,
             endCol,
             // type,
-          } = all[i]
-          if (all[i].type==='S'||all[i].type==='F') {
+          } = filteredAll[i]
+          if (filteredAll[i].type==='S'||filteredAll[i].type==='F') {
             arr.push({
               range: new window.monaco.Range(startLine, startCol, endLine, endCol), // 第3行第5列前插入
               options: {
                 isWholeLine: false,
                 inlineClassName: 'content-class-no-found',
-                hoverMessage: { value:all[i].type==='S' ? "statement not covered" : "function not covered" }
+                hoverMessage: { value:filteredAll[i].type==='S' ? "statement not covered" : "function not covered" }
               },
             })
-          } else if (all[i].type==='B'){
+          } else if (filteredAll[i].type==='B'){
             arr.push({
               range: new window.monaco.Range(startLine, startCol, endLine, endCol), // 第3行第5列前插入
               options: {
@@ -376,7 +392,7 @@ export function initCanyonSpa(dom, options) {
                 hoverMessage: { value: "branch not covered" }
               },
             })
-          } else if (all[i].type==='I'){
+          } else if (filteredAll[i].type==='I'){
             arr.push({
               range: new window.monaco.Range(startLine, startCol, startLine, startCol), // 第3行第5列前插入
               options: {
@@ -384,7 +400,7 @@ export function initCanyonSpa(dom, options) {
                 stickiness: window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
               }
             })
-          } else if (all[i].type==='E'){
+          } else if (filteredAll[i].type==='E'){
             arr.push({
               range: new window.monaco.Range(startLine, startCol, startLine, startCol), // 第3行第5列前插入
               options: {

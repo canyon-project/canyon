@@ -18,7 +18,7 @@ setTimeout(()=>{
     initCanyonSpa(document.getElementById('app'),{
         coverage: mockData.coverage,
         content: mockData.content,
-        diff:[10,12],
+        diff:[10,12,123,124],
         height:'calc(100vh - 50px)',
         showDecorations: {
             statements: true,

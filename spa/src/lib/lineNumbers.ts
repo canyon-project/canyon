@@ -19,7 +19,7 @@ export const lineNumbers = (lineNumber: number, linesState, isDark) => {
   // 根据行号生成标识，后续会处理逻辑
   return `<div class="line-number-wrapper">
               <span class="line-number">${lineNumber}</span>
-              <span class="line-change" style="background: ${line.change ? "green" : "unset"}"></span>
-              <span class="line-coverage" style="background: ${genBgColor(line.hit, isDark)};width:${(len + 2) * 7.2}px">${line.hit > 0 ? line.hit + "x" : ""}</span>
+              <span class="line-change">${line.change?'+':''}</span>
+              ${line.change ? `<span class="line-coverage" style="background: ${genBgColor(line.hit, isDark)};width:${(len + 2) * 7.2}px">${line.hit > 0 ? line.hit + "x" : ""}</span>` : `<div class="line-coverage" style="width:${(len + 2) * 7.2}px;background: rgb(234, 234, 234)"></div>`}
             </div>`;
 };
