@@ -28,7 +28,7 @@ export class UserRepository {
       VALUES (?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
     `;
 
-    const result = await this.sqliteService.connection.query(sql, [name, email, age]);
+    const result = await this.sqliteService.connection.execute(sql, [name, email, age]);
 
     // 获取插入的用户 ID (better-sqlite3 返回 lastInsertRowid)
     const insertId = (result as any).lastInsertRowid || (result as any).insertId;
