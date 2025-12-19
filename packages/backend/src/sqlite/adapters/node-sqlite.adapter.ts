@@ -1,20 +1,22 @@
 // adapters/node-sqlite.adapter.ts
-import { Database as NodeSqlite } from 'node:sqlite';
+import { DatabaseSync, SQLInputValue } from 'node:sqlite';
 import { SqliteDB } from '../sqlite.interface';
 
 export class NodeSqliteAdapter implements SqliteDB {
-  private db: NodeSqlite;
+  private db: DatabaseSync;
 
   constructor(filename: string) {
-    this.db = new NodeSqlite(filename);
+    this.db = new DatabaseSync(filename);
   }
 
-  async query<T>(sql: string, params: unknown[] = []) {
-    return this.db.prepare(sql).all(params) as T[];
+  async query<T>(sql: string, params: SQLInputValue[] = []) {
+    const stmt = this.db.prepare(sql);
+    return stmt.all(...params) as T[];
   }
 
-  async execute(sql: string, params: unknown[] = []) {
-    this.db.prepare(sql).run(params);
+  async execute(sql: string, params: SQLInputValue[] = []) {
+    const stmt = this.db.prepare(sql);
+    stmt.run(...params);
   }
 
   async transaction<T>(fn: (db: SqliteDB) => Promise<T>) {
