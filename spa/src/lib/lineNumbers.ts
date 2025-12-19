@@ -2,7 +2,7 @@ function genBgColor(hit, isDark) {
   if (hit > 0) {
     return isDark ? "#0A6640" : "rgb(230, 245, 208)";
   } else if (hit === 0) {
-    return isDark ? "#7A5474" : "rgb(252, 225, 229)";
+    return isDark ? "#7A5474" : "#f3aeac";
   } else {
     return isDark ? "rgb(45, 52, 54)" : "rgb(234, 234, 234)";
   }
