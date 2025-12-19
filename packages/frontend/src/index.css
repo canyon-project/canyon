@@ -76,7 +76,7 @@ a:hover {
 }
 
 .content-class-no-found {
-  background: rgba(255, 128, 160, 0.3);
+  background: #f3aeac;
 }
 
 .dark .content-class-no-found {
