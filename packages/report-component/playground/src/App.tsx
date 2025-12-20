@@ -1,7 +1,7 @@
 import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { useState } from 'react';
 import { CanyonReport, type FileDataResponse } from '../../src';
-import '../../src/index.css'
+import '../../src/index.css';
 
 // 扩展 Window 接口
 declare global {
@@ -18,7 +18,9 @@ declare global {
 }
 
 function App() {
-  const [value, setValue] = useState('packages/istanbul-lib-source-maps/lib/map-store.js');
+  const [value, setValue] = useState(
+    'packages/istanbul-lib-source-maps/lib/map-store.js',
+  );
 
   const { files: dataSource = [], instrumentCwd } = window.reportData;
 

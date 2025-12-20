@@ -36,7 +36,8 @@ export const CanyonReport: FC<CanyonReportProps> = ({
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
   const [onlyChange, setOnlyChange] = useState(Boolean(false));
   const rootClassName = useMemo(
-    () => `report-scope-${Math.random().toString(36).slice(2, 9)} canyonjs-report-html`,
+    () =>
+      `report-scope-${Math.random().toString(36).slice(2, 9)} canyonjs-report-html`,
     [
       /* once */
     ],

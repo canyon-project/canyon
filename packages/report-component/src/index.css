@@ -1,20 +1,20 @@
-.canyonjs-report-html{
+.canyonjs-report-html {
   /*background-color: #535bf2;*/
 }
-.canyonjs-report-html .line-number-wrapper{
+.canyonjs-report-html .line-number-wrapper {
   display: flex;
   justify-self: end;
 }
-.canyonjs-report-html .line-number-wrapper>span {
+.canyonjs-report-html .line-number-wrapper > span {
   display: block;
   /*width: 300px;*/
 }
 
-.canyonjs-report-html .line-number{
+.canyonjs-report-html .line-number {
   /*width: 50px;*/
 }
 
-.canyonjs-report-html .line-change{
+.canyonjs-report-html .line-change {
   width: 18px;
   /*background-color: pink;*/
   font-size: 16px;
@@ -23,15 +23,13 @@
   color: green;
 }
 
-.canyonjs-report-html .line-coverage{
-  background-color: #EAEAEA;
+.canyonjs-report-html .line-coverage {
+  background-color: #eaeaea;
   width: 10px;
   padding-right: 5px;
   color: rgba(0, 0, 0, 0.5);
   /*height: 10px;*/
 }
-
-
 
 /* 老的*/
 
@@ -48,12 +46,12 @@
   background: rgba(255, 229, 100, 0.6) !important;
 }
 
-.canyonjs-report-html .content-class-no-found{
+.canyonjs-report-html .content-class-no-found {
   background: #f3aeac !important;
 }
 
 .canyonjs-report-html .insert-e-decoration::before {
-  content: 'E';
+  content: "E";
   background-color: black;
   color: yellow;
   padding: 0 2px;
@@ -62,7 +60,7 @@
 }
 
 .canyonjs-report-html .insert-i-decoration::before {
-  content: 'I';
+  content: "I";
   background-color: black;
   color: yellow;
   padding: 0 2px;

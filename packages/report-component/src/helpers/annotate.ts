@@ -4,18 +4,18 @@ export function annotateStatements(fileCoverage: any) {
   const statementMeta = fileCoverage.statementMap;
   Object.entries(statementStats).forEach(([stName, count]: any) => {
     const meta = statementMeta[stName];
-    const type = count > 0 ? "yes" : "no";
+    const type = count > 0 ? 'yes' : 'no';
     const startCol = meta.start.column;
     const endCol = meta.end.column + 1;
     const startLine = meta.start.line;
     const endLine = meta.end.line;
-    if (type === "no") {
+    if (type === 'no') {
       annotateStatementsList.push({
         startLine,
         endLine,
         startCol: startCol + 1,
         endCol: endCol + 1,
-        type:'S',
+        type: 'S',
       });
     }
   });
@@ -31,7 +31,7 @@ export function annotateFunctions(fileCoverage, structuredText) {
   const list = [];
   Object.entries(fnStats).forEach(([fName, count]) => {
     const meta = fnMeta[fName];
-    const type = count > 0 ? "yes" : "no";
+    const type = count > 0 ? 'yes' : 'no';
     // Some versions of the instrumenter in the wild populate 'func'
     // but not 'decl':
     const decl = meta.decl || meta.loc;
@@ -39,7 +39,7 @@ export function annotateFunctions(fileCoverage, structuredText) {
     let endCol = decl.end.column + 1;
     const startLine = decl.start.line;
     const endLine = decl.end.line;
-    if (type === "no") {
+    if (type === 'no') {
       if (endLine !== startLine) {
         endCol = structuredText[startLine - 1].length;
       }
@@ -48,7 +48,7 @@ export function annotateFunctions(fileCoverage, structuredText) {
         endLine,
         startCol: startCol + 1,
         endCol: endCol + 1,
-        type:'F',
+        type: 'F',
       });
     }
   });
@@ -78,9 +78,6 @@ export function annotateBranches(fileCoverage, structuredText) {
     let closeSpan;
     let text;
 
-
-
-
     // only highlight if partial branches are missing or if there is a
     // single uncovered branch.
     if (sumCount > 0 || (sumCount === 0 && branchArray.length === 1)) {
@@ -97,15 +94,11 @@ export function annotateBranches(fileCoverage, structuredText) {
       ) {
         metaArray[1] = {
           start: {},
-          end: {}
+          end: {},
         };
       }
 
-      for (
-        i = 0;
-        i < branchArray.length && i < metaArray.length;
-        i += 1
-      ) {
+      for (i = 0; i < branchArray.length && i < metaArray.length; i += 1) {
         count = branchArray[i];
         meta = metaArray[i];
         startCol = meta.start.column;
@@ -143,9 +136,9 @@ export function annotateBranches(fileCoverage, structuredText) {
               endLine,
               startCol: startCol + 1,
               endCol: endCol + 1,
-              type: (i === 0 ? 'I' : 'E'),
+              type: i === 0 ? 'I' : 'E',
               skip: meta.skip,
-            })
+            });
           } else {
             arr.push({
               startLine,
@@ -154,11 +147,11 @@ export function annotateBranches(fileCoverage, structuredText) {
               endCol: endCol + 1,
               type: 'B',
               skip: meta.skip,
-            })
+            });
           }
         }
       }
     }
   });
-  return arr
+  return arr;
 }

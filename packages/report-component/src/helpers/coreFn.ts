@@ -24,12 +24,12 @@ export function coreFn(
 
   const content = fileDetail;
   // 1.转换成数组
-  const rows = [""];
+  const rows = [''];
   let index = 0;
   for (let i = 0; i < content.length; i++) {
-    if (content[i] === "\n") {
+    if (content[i] === '\n') {
       index += 1;
-      rows.push("");
+      rows.push('');
     } else {
       rows[index] += content[i];
     }

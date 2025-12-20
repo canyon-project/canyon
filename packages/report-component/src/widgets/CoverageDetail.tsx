@@ -1,18 +1,22 @@
 import { useEffect, useRef } from 'react';
-import lineNumbers from "../helpers/lineNumbers";
-import {coreFn} from "../helpers/coreFn";
-import {annotateBranches, annotateFunctions, annotateStatements} from "../helpers/annotate";
+import {
+  annotateBranches,
+  annotateFunctions,
+  annotateStatements,
+} from '../helpers/annotate';
+import { coreFn } from '../helpers/coreFn';
+import lineNumbers from '../helpers/lineNumbers';
 
 interface coverage {
   [key: string]: unknown;
 }
 
 interface Diff {
-  additions:number[]
-  deletions:number[]
+  additions: number[];
+  deletions: number[];
 }
 
-const CoverageDetail  = ({
+const CoverageDetail = ({
   source,
   coverage,
   diff,
@@ -20,12 +24,12 @@ const CoverageDetail  = ({
   source: string;
   coverage: coverage;
   diff: Diff;
-})=> {
+}) => {
   // 使用 diff 避免未使用参数警告
   // console.log({ diff, coverage }, 'coverage data');
   const { lines } = coreFn(coverage, source);
 
-  const addLines = diff.additions||[]
+  const addLines = diff.additions || [];
 
   const linesState = (() => {
     return lines.map((line, index) => {
@@ -35,11 +39,11 @@ const CoverageDetail  = ({
         hit: line.executionNumber,
       };
     });
-  })()
+  })();
   const lineNumbersMinChars = (() => {
     const maxHit = Math.max(...linesState.map((line) => line.hit));
     return maxHit.toString().length + 8;
-  })()
+  })();
   const ref = useRef(null);
   useEffect(() => {
     if (ref.current) {
@@ -49,12 +53,8 @@ const CoverageDetail  = ({
         language: 'javascript',
         fontFamily: 'IBMPlexMono',
         lineHeight: 18,
-        lineNumbers: (lineNumber:number) => {
-          return lineNumbers(
-            lineNumber,
-            linesState,
-            addLines,
-          );
+        lineNumbers: (lineNumber: number) => {
+          return lineNumbers(lineNumber, linesState, addLines);
         },
         lineNumbersMinChars: lineNumbersMinChars,
         readOnly: true,
@@ -73,10 +73,8 @@ const CoverageDetail  = ({
         // @ts-expect-error
         const editor = window.monaco.editor.create(dom, options);
 
-
-        const decorations = (()=>{
-
-          const all = []
+        const decorations = (() => {
+          const all = [];
 
           const annotateStatementsList = annotateStatements(coverage, source);
           all.push(...annotateStatementsList);
@@ -87,74 +85,98 @@ const CoverageDetail  = ({
           const annotateBranchesList = annotateBranches(coverage, source);
           all.push(...annotateBranchesList);
 
+          console.log(all.length, 'all');
 
-          console.log(all.length,'all')
-
-          const arr = []
+          const arr = [];
 
           for (let i = 0; i < all.length; i++) {
-            const {startLine,
+            const {
+              startLine,
               startCol,
               endLine,
               endCol,
               // type,
-            } = all[i]
+            } = all[i];
 
+            console.log(all[i].type, 'all[i].type');
 
-            console.log(all[i].type,'all[i].type')
-
-            if (all[i].type==='S'||all[i].type==='F') {
+            if (all[i].type === 'S' || all[i].type === 'F') {
               arr.push({
-                range: new window.monaco.Range(startLine, startCol, endLine, endCol), // 第3行第5列前插入
+                range: new window.monaco.Range(
+                  startLine,
+                  startCol,
+                  endLine,
+                  endCol,
+                ), // 第3行第5列前插入
                 options: {
                   isWholeLine: false,
                   inlineClassName: 'content-class-no-found',
-                  hoverMessage: { value:all[i].type==='S' ? "statement not covered" : "function not covered" }
+                  hoverMessage: {
+                    value:
+                      all[i].type === 'S'
+                        ? 'statement not covered'
+                        : 'function not covered',
+                  },
                 },
-              })
-            } else if (all[i].type==='B'){
+              });
+            } else if (all[i].type === 'B') {
               arr.push({
-                range: new window.monaco.Range(startLine, startCol, endLine, endCol), // 第3行第5列前插入
+                range: new window.monaco.Range(
+                  startLine,
+                  startCol,
+                  endLine,
+                  endCol,
+                ), // 第3行第5列前插入
                 options: {
                   isWholeLine: false,
                   inlineClassName: 'content-class-no-found-branch',
-                  hoverMessage: { value: "branch not covered" }
+                  hoverMessage: { value: 'branch not covered' },
                 },
-              })
-            } else if (all[i].type==='I'){
+              });
+            } else if (all[i].type === 'I') {
               arr.push({
-                range: new window.monaco.Range(startLine, startCol, startLine, startCol), // 第3行第5列前插入
+                range: new window.monaco.Range(
+                  startLine,
+                  startCol,
+                  startLine,
+                  startCol,
+                ), // 第3行第5列前插入
                 options: {
                   beforeContentClassName: 'insert-i-decoration',
-                  stickiness: window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
-                }
-              })
-            } else if (all[i].type==='E'){
+                  stickiness:
+                    window.monaco.editor.TrackedRangeStickiness
+                      .NeverGrowsWhenTypingAtEdges,
+                },
+              });
+            } else if (all[i].type === 'E') {
               arr.push({
-                range: new window.monaco.Range(startLine, startCol, startLine, startCol), // 第3行第5列前插入
+                range: new window.monaco.Range(
+                  startLine,
+                  startCol,
+                  startLine,
+                  startCol,
+                ), // 第3行第5列前插入
                 options: {
                   beforeContentClassName: 'insert-e-decoration',
-                  stickiness: window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges
-                }
-              })
+                  stickiness:
+                    window.monaco.editor.TrackedRangeStickiness
+                      .NeverGrowsWhenTypingAtEdges,
+                },
+              });
             }
           }
 
+          return arr;
+        })();
 
-
-          return arr
-
-        })()
-
-        console.log(decorations,'decorations')
+        console.log(decorations, 'decorations');
 
         if (editor) {
           editor?.deltaDecorations?.(
             [], // oldDecorations 每次清空上次标记的
-            decorations
+            decorations,
           );
         }
-
       }
     }
   }, [source]);
@@ -163,6 +185,6 @@ const CoverageDetail  = ({
       <div ref={ref} style={{ height: 'calc(100vh - 150px)' }} />
     </div>
   );
-}
+};
 
 export default CoverageDetail;
