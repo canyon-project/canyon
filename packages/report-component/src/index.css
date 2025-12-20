@@ -1,0 +1,71 @@
+.canyonjs-report-html{
+  /*background-color: #535bf2;*/
+}
+.canyonjs-report-html .line-number-wrapper{
+  display: flex;
+  justify-self: end;
+}
+.canyonjs-report-html .line-number-wrapper>span {
+  display: block;
+  /*width: 300px;*/
+}
+
+.canyonjs-report-html .line-number{
+  /*width: 50px;*/
+}
+
+.canyonjs-report-html .line-change{
+  width: 18px;
+  /*background-color: pink;*/
+  font-size: 16px;
+  text-align: center;
+  font-weight: bolder;
+  color: green;
+}
+
+.canyonjs-report-html .line-coverage{
+  background-color: #EAEAEA;
+  width: 10px;
+  padding-right: 5px;
+  color: rgba(0, 0, 0, 0.5);
+  /*height: 10px;*/
+}
+
+
+
+/* 老的*/
+
+.canyonjs-report-html .YourHighlightClass {
+  padding: 0 !important;
+  color: white !important;
+  background: rgb(244, 176, 27) !important;
+}
+
+/*新版canyon-report*/
+
+/*额外的*/
+.canyonjs-report-html .content-class-no-found-branch {
+  background: rgba(255, 229, 100, 0.6) !important;
+}
+
+.canyonjs-report-html .content-class-no-found{
+  background: #f3aeac !important;
+}
+
+.canyonjs-report-html .insert-e-decoration::before {
+  content: 'E';
+  background-color: black;
+  color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+.canyonjs-report-html .insert-i-decoration::before {
+  content: 'I';
+  background-color: black;
+  color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 5px;
+}

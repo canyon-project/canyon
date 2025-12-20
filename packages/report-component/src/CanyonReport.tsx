@@ -36,7 +36,7 @@ export const CanyonReport: FC<CanyonReportProps> = ({
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
   const [onlyChange, setOnlyChange] = useState(Boolean(false));
   const rootClassName = useMemo(
-    () => `report-scope-${Math.random().toString(36).slice(2, 9)}`,
+    () => `report-scope-${Math.random().toString(36).slice(2, 9)} canyonjs-report-html`,
     [
       /* once */
     ],
@@ -136,9 +136,9 @@ export const CanyonReport: FC<CanyonReportProps> = ({
             >
               <RIf condition={isFileDataReady}>
                 <CoverageDetail
-                  fileContent={fileContent}
-                  fileCoverage={fileCoverage}
-                  fileCodeChange={fileCodeChange}
+                  source={fileContent}
+                  coverage={fileCoverage}
+                  diff={fileCodeChange}
                 />
               </RIf>
             </Spin>
