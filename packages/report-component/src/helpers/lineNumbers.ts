@@ -1,4 +1,13 @@
-function genBgColor(hit) {
+import React from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+
+interface LineState {
+  lineNumber: number;
+  hit: number;
+  change: boolean;
+}
+
+function genBgColor(hit: number): string {
   if (hit > 0) {
     return 'rgb(230, 245, 208)';
   } else if (hit === 0) {
@@ -7,18 +16,89 @@ function genBgColor(hit) {
     return 'rgb(234, 234, 234)';
   }
 }
-export default function lineNumbers(lineNumber: number, linesState, addLines) {
+
+// React 组件：行号
+const LineNumber = ({ lineNumber }: { lineNumber: number }) => {
+  return React.createElement(
+    'span',
+    { className: 'line-number' },
+    lineNumber
+  );
+};
+
+// React 组件：变更标识
+const LineChange = ({ hasChange }: { hasChange: boolean }) => {
+  return React.createElement(
+    'span',
+    { className: 'line-change' },
+    hasChange ? '+' : ''
+  );
+};
+
+// React 组件：覆盖率信息
+const LineCoverage = ({ 
+  hit, 
+  width 
+}: { 
+  hit: number; 
+  width: number; 
+}) => {
+  return React.createElement(
+    'span',
+    {
+      className: 'line-coverage',
+      style: {
+        background: genBgColor(hit),
+        width: `${width}px`
+      }
+    },
+    hit > 0 ? `${hit}x` : ''
+  );
+};
+
+// React 组件：完整的行号包装器
+const LineNumberWrapper = ({
+  lineNumber,
+  line,
+  maxHitWidth
+}: {
+  lineNumber: number;
+  line: LineState;
+  maxHitWidth: number;
+}) => {
+  return React.createElement(
+    'div',
+    { className: 'line-number-wrapper' },
+    React.createElement(LineNumber, { lineNumber }),
+    React.createElement(LineChange, { hasChange: line.change }),
+    React.createElement(LineCoverage, { 
+      hit: line.hit, 
+      width: maxHitWidth 
+    })
+  );
+};
+
+export default function lineNumbers(
+  lineNumber: number, 
+  linesState: LineState[], 
+  _addLines?: unknown
+): string {
   const line = linesState.find((line) => line.lineNumber === lineNumber) || {
     change: false,
     hit: 0,
     lineNumber: lineNumber,
   };
+  
   const maxHit = Math.max(...linesState.map((line) => line.hit));
   const len = maxHit.toString().length;
-  // 根据行号生成标识，后续会处理逻辑
-  return `<div class="line-number-wrapper">
-              <span class="line-number">${lineNumber}</span>
-              <span class="line-change">${true ? '+' : ''}</span>
-              <span class="line-coverage" style="background: ${genBgColor(line.hit)};width:${(len + 2) * 7.2}px">${line.hit > 0 ? line.hit + 'x' : ''}</span>
-            </div>`;
+  const maxHitWidth = (len + 2) * 7.2;
+  
+  // 使用 React 组件渲染整个行号包装器
+  return renderToStaticMarkup(
+    React.createElement(LineNumberWrapper, {
+      lineNumber,
+      line,
+      maxHitWidth
+    })
+  );
 }
