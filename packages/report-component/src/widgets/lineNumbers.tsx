@@ -18,28 +18,22 @@ function genBgColor(hit: number): string {
 
 // React 组件：行号
 const LineNumber = ({ lineNumber }: { lineNumber: number }) => {
-  return <span className="line-number">{lineNumber}</span>;
+  return <span className='line-number'>{lineNumber}</span>;
 };
 
 // React 组件：变更标识
 const LineChange = ({ hasChange }: { hasChange: boolean }) => {
-  return <span className="line-change">{hasChange ? '+' : ''}</span>;
+  return <span className='line-change'>{hasChange ? '+' : ''}</span>;
 };
 
 // React 组件：覆盖率信息
-const LineCoverage = ({ 
-  hit, 
-  width 
-}: { 
-  hit: number; 
-  width: number; 
-}) => {
+const LineCoverage = ({ hit, width }: { hit: number; width: number }) => {
   return (
     <span
-      className="line-coverage"
+      className='line-coverage'
       style={{
         background: genBgColor(hit),
-        width: `${width}px`
+        width: `${width}px`,
       }}
     >
       {hit > 0 ? `${hit}x` : ''}
@@ -51,14 +45,14 @@ const LineCoverage = ({
 const LineNumberWrapper = ({
   lineNumber,
   line,
-  maxHitWidth
+  maxHitWidth,
 }: {
   lineNumber: number;
   line: LineState;
   maxHitWidth: number;
 }) => {
   return (
-    <div className="line-number-wrapper">
+    <div className='line-number-wrapper'>
       <LineNumber lineNumber={lineNumber} />
       <LineChange hasChange={line.change} />
       <LineCoverage hit={line.hit} width={maxHitWidth} />
@@ -67,26 +61,26 @@ const LineNumberWrapper = ({
 };
 
 export default function lineNumbers(
-  lineNumber: number, 
-  linesState: LineState[], 
-  _addLines?: unknown
+  lineNumber: number,
+  linesState: LineState[],
+  _addLines?: unknown,
 ): string {
   const line = linesState.find((line) => line.lineNumber === lineNumber) || {
     change: false,
     hit: 0,
     lineNumber: lineNumber,
   };
-  
+
   const maxHit = Math.max(...linesState.map((line) => line.hit));
   const len = maxHit.toString().length;
   const maxHitWidth = (len + 2) * 7.2;
-  
+
   // 使用 React 组件渲染整个行号包装器
   return renderToStaticMarkup(
     <LineNumberWrapper
       lineNumber={lineNumber}
       line={line}
       maxHitWidth={maxHitWidth}
-    />
+    />,
   );
 }

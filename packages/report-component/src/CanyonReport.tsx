@@ -1,4 +1,4 @@
-import './index.css'
+import './index.css';
 import { ConfigProvider, Spin } from 'antd';
 import type { FileCoverageData } from 'istanbul-lib-coverage';
 import { type FC, Suspense, useEffect, useMemo, useState } from 'react';

@@ -2,7 +2,8 @@ import path from 'node:path';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
-import { json } from 'express';
+
+// import { json } from 'express';
 
 dotenv.config({
   path: [

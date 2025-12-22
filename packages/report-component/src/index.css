@@ -34,20 +34,20 @@
 /* 老的*/
 
 .canyonjs-report-html .YourHighlightClass {
-  padding: 0 !important;
-  color: white !important;
-  background: rgb(244, 176, 27) !important;
+  padding: 0;
+  color: white;
+  background: rgb(244, 176, 27);
 }
 
 /*新版canyon-report*/
 
 /*额外的*/
 .canyonjs-report-html .content-class-no-found-branch {
-  background: rgba(255, 229, 100, 0.6) !important;
+  background: rgba(255, 229, 100, 0.6);
 }
 
 .canyonjs-report-html .content-class-no-found {
-  background: #f3aeac !important;
+  background: #f3aeac;
 }
 
 .canyonjs-report-html .insert-e-decoration::before {

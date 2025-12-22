@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
 import type * as Monaco from 'monaco-editor';
+import { useEffect, useRef } from 'react';
 import {
   annotateBranches,
   annotateFunctions,
@@ -101,7 +101,6 @@ const CoverageDetail = ({
               // type,
             } = all[i];
 
-
             if (all[i].type === 'S' || all[i].type === 'F') {
               arr.push({
                 range: new window.monaco.Range(
@@ -165,9 +164,7 @@ const CoverageDetail = ({
         })();
 
         if (editor) {
-          editor?.createDecorationsCollection?.(
-            decorations,
-          );
+          editor?.createDecorationsCollection?.(decorations);
         }
       }
     }
