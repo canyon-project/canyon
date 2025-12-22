@@ -1,3 +1,4 @@
+// import '@canyonjs/report-component/dist/index.css'
 import './helpers/loadReportData.ts';
 import './useWorker.ts';
 import ReactDOM from 'react-dom/client';

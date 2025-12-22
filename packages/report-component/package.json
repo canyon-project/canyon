@@ -1,7 +1,7 @@
 {
   "name": "@canyonjs/report-component",
   "type": "module",
-  "version": "0.0.1-beta.15",
+  "version": "0.0.1-beta.16",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
     "type": "git",
@@ -14,7 +14,8 @@
   "license": "MIT",
   "exports": {
     ".": "./dist/index.js",
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./style.css": "./dist/style.css"
   },
   "main": "./dist/index.js",
   "module": "./dist/index.js",
