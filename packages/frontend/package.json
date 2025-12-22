@@ -12,6 +12,7 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "vite-plugin-pages": "latest",
     "@tailwindcss/vite": "latest",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
