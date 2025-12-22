@@ -25,13 +25,13 @@
   ],
   "dependencies": {
     "@canyonjs/report-component": "catalog:",
-    "@ibm/plex-mono": "^1.1.0",
+    "@ibm/plex-mono": "1.1.0",
     "canyon-data": "2.0.0-beta.36",
     "debug": "^4.3.7",
     "istanbul-lib-report": "^3.0.1",
-    "monaco-editor": "^0.55.1",
-    "react": "^19.2.1",
-    "react-dom": "^19.2.1"
+    "monaco-editor": "0.55.1",
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@rspack/cli": "^1.6.7",
@@ -39,8 +39,8 @@
     "@rspack/plugin-react-refresh": "^1.5.3",
     "@rstest/core": "latest",
     "@rstest/coverage-istanbul": "latest",
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
     "copy-webpack-plugin": "^13.0.1",
     "monaco-editor-webpack-plugin": "^7.1.1",
     "react-refresh": "^0.18.0",
