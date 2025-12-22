@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsgo -b && vite build"
+    "build": "vite build"
   },
   "dependencies": {
     "@ant-design/icons": "catalog:",
