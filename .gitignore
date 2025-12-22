@@ -52,3 +52,5 @@ data.db
 generated
 
 !/packages/backend/src/coverage
+
+local.db
