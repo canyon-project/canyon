@@ -10,7 +10,7 @@
     "start": "nest start",
     "dev": "nest start --watch",
     "generate": "prisma generate",
-    "generate-sqlite": "prisma generate --schema prisma/schema-sqlite.prisma"
+    "generate-sqlite": "prisma generate --config prisma/prisma-sqlite.config.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
