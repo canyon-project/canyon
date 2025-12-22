@@ -12,12 +12,14 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "latest",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react-swc": "^4.2.2",
+    "@typescript/native-preview": "catalog:",
+    "@vitejs/plugin-react": "latest",
     "globals": "catalog:",
-    "vite": "catalog:",
-    "@typescript/native-preview": "catalog:"
+    "tailwindcss": "latest",
+    "vite": "catalog:"
   }
 }
