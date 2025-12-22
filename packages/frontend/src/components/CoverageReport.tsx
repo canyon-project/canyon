@@ -1,6 +1,10 @@
+import {CanyonReport} from '@canyonjs/report-component'
 const CoverageReport = () => {
+  function onSelect() {
+
+  }
   return <div>
-    CoverageReport
+    <CanyonReport name={'nihao'} dataSource={[]} value={''} onSelect={onSelect}/>
   </div>
 }
 
