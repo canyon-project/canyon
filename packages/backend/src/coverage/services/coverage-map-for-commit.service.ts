@@ -1,6 +1,7 @@
 import {PrismaService} from "../../prisma/prisma.service";
 import {Injectable} from "@nestjs/common";
 import {PrismaSqliteService} from "../../prisma/prisma-sqlite.service";
+import {logger} from "../../logger";
 
 @Injectable()
 export class CoverageMapForCommitService {
@@ -10,6 +11,15 @@ export class CoverageMapForCommitService {
   ) {
   }
   async invoke(){
+    logger({
+      type: "info",
+      title: "test log",
+      message: 'test log',
+      addInfo:{
+        sha:'coverageClientDto.sha',
+        buildID:'coverageClientDto.buildID',
+      }
+    })
     const r1= await this.prisma.repo.findMany({
       where:{}
     })
