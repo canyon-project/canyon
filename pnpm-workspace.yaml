@@ -7,6 +7,8 @@ catalog:
   '@ant-design/icons': 6.1.0
   '@canyonjs/report-component': 0.0.1-beta.19
   '@canyonjs/report-html': 1.0.0-alpha.26
+  '@prisma/adapter-libsql': ^7.2.0
+  '@prisma/adapter-pg': ^7.2.0
   '@types/istanbul-lib-coverage': ^2.0.6
   '@types/istanbul-lib-report': ^3.0.3
   '@types/istanbul-lib-source-maps': ^4.0.4
