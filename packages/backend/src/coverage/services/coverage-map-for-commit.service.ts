@@ -10,13 +10,28 @@ export class CoverageMapForCommitService {
   ) {
   }
   async invoke(){
-    await this.prisma.repo.findMany({
+    const r1= await this.prisma.repo.findMany({
       where:{}
     })
 
-    await this.prismaSqlite.coverageQueue.findMany({
+    const r2 = await this.prismaSqlite.coverageQueue.create({
+      data:{
+        payload:{},
+        status:'PENDING',
+        retry:1,
+        createdAt:new Date()
+        // status    QueueStatus @default(PENDING)
+        // retry     Int         @default(0)
+      }
+    })
+
+    const r3 = await this.prismaSqlite.coverageQueue.findMany({
       where:{}
     })
-    return {}
+    return {
+      r1,
+      r2,
+      r3
+    }
   }
 }
