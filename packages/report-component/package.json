@@ -46,12 +46,12 @@
     "vite": "catalog:"
   },
   "dependencies": {
-    "@ant-design/icons": "^6.1.0",
-    "@ibm/plex-mono": "^1.1.0",
-    "@monaco-editor/react": "^4.7.0",
-    "antd": "^6.1.0",
+    "@ant-design/icons": "6.1.0",
+    "@ibm/plex-mono": "1.1.0",
+    "@monaco-editor/react": "4.7.0",
+    "antd": "6.1.0",
     "canyon-data": "2.0.0-beta.36",
-    "monaco-editor": "^0.55.1",
-    "react-highlight-words": "^0.21.0"
+    "monaco-editor": "0.55.1",
+    "react-highlight-words": "0.21.0"
   }
 }
