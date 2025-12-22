@@ -7,8 +7,9 @@ generator client2 {
 /**
  * 默认主库（Postgres）
  */
-datasource db {
+datasource db_sqlite {
   provider = "sqlite"
+  url      = "file:local.db"
 }
 
 //////////////////////

@@ -10,7 +10,7 @@
     "start": "nest start",
     "dev": "nest start --watch",
     "generate": "prisma generate",
-    "generate-sqlite": "prisma generate --config prisma/prisma-sqlite.config.ts"
+    "generate-sqlite": "prisma generate --schema prisma/schema-sqlite.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -18,15 +18,13 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/serve-static": "^5.0.4",
     "@nestjs/swagger": "^8.0.0",
-    "@prisma/adapter-libsql": "catalog:",
-    "@prisma/adapter-pg": "catalog:",
-    "@prisma/client": "7.2.0",
+    "@prisma/client": "6",
     "better-sqlite3": "^12.5.0",
     "class-validator": "catalog:",
     "dotenv": "catalog:",
     "express": "catalog:",
     "json-stable-stringify": "catalog:",
-    "prisma": "7.2.0",
+    "prisma": "6",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },

@@ -7,10 +7,12 @@ import * as dotenv from 'dotenv';
 
 dotenv.config({
   path: [
+    path.resolve(__dirname, '../../../../.env'),
     path.resolve(__dirname, '../../../.env'),
     path.resolve(__dirname, '../.env'),
   ],
 });
+// console.log(path.resolve(__dirname, '../../../.env'),path.resolve(__dirname, '../.env'))
 
 async function bootstrap() {
   const { AppModule } = await import('./app.module.js');
