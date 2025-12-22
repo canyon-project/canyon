@@ -7,7 +7,7 @@ import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 
-// @ts-ignorer
+// @ts-expect-errorr
 window.monaco = monaco;
 self.MonacoEnvironment = {
   getWorker(_, label) {

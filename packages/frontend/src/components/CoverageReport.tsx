@@ -1,11 +1,17 @@
-import {CanyonReport} from '@canyonjs/report-component'
+import { CanyonReport } from '@canyonjs/report-component';
+
 const CoverageReport = () => {
-  function onSelect() {
+  function onSelect() {}
+  return (
+    <div>
+      <CanyonReport
+        name={'nihao'}
+        dataSource={[]}
+        value={''}
+        onSelect={onSelect}
+      />
+    </div>
+  );
+};
 
-  }
-  return <div>
-    <CanyonReport name={'nihao'} dataSource={[]} value={''} onSelect={onSelect}/>
-  </div>
-}
-
-export default CoverageReport
+export default CoverageReport;
