@@ -1,11 +1,19 @@
 import { useEffect, useRef } from 'react';
+import type * as Monaco from 'monaco-editor';
 import {
   annotateBranches,
   annotateFunctions,
   annotateStatements,
 } from '../helpers/annotate';
 import { coreFn } from '../helpers/coreFn';
-import lineNumbers from '../helpers/lineNumbers';
+import lineNumbers from './lineNumbers';
+
+// 扩展 Window 接口以包含 monaco
+declare global {
+  interface Window {
+    monaco?: typeof Monaco;
+  }
+}
 
 interface coverage {
   [key: string]: unknown;
@@ -26,7 +34,6 @@ const CoverageDetail = ({
   diff: Diff;
 }) => {
   // 使用 diff 避免未使用参数警告
-  // console.log({ diff, coverage }, 'coverage data');
   const { lines } = coreFn(coverage, source);
 
   const addLines = diff.additions || [];
@@ -54,7 +61,7 @@ const CoverageDetail = ({
         fontFamily: 'IBMPlexMono',
         lineHeight: 18,
         lineNumbers: (lineNumber: number) => {
-          return lineNumbers(lineNumber, linesState, addLines);
+          return lineNumbers(lineNumber, linesState);
         },
         lineNumbersMinChars: lineNumbersMinChars,
         readOnly: true,
@@ -63,20 +70,18 @@ const CoverageDetail = ({
         scrollBeyondLastLine: false,
         showUnused: false,
         fontSize: 12,
-        // fontFamily: "IBMPlexMono",
         contextmenu: false,
-        automaticLayout: true, // 启用自动布局
+        automaticLayout: true,
       };
 
       if (window.monaco?.editor && dom) {
         // 如果已经加载，直接创建编辑器
-        // @ts-expect-error
         const editor = window.monaco.editor.create(dom, options);
 
         const decorations = (() => {
           const all = [];
 
-          const annotateStatementsList = annotateStatements(coverage, source);
+          const annotateStatementsList = annotateStatements(coverage);
           all.push(...annotateStatementsList);
 
           const annotateFunctionsList = annotateFunctions(coverage, source);
@@ -84,8 +89,6 @@ const CoverageDetail = ({
 
           const annotateBranchesList = annotateBranches(coverage, source);
           all.push(...annotateBranchesList);
-
-          console.log(all.length, 'all');
 
           const arr = [];
 
@@ -98,7 +101,6 @@ const CoverageDetail = ({
               // type,
             } = all[i];
 
-            console.log(all[i].type, 'all[i].type');
 
             if (all[i].type === 'S' || all[i].type === 'F') {
               arr.push({
@@ -111,12 +113,6 @@ const CoverageDetail = ({
                 options: {
                   isWholeLine: false,
                   inlineClassName: 'content-class-no-found',
-                  hoverMessage: {
-                    value:
-                      all[i].type === 'S'
-                        ? 'statement not covered'
-                        : 'function not covered',
-                  },
                 },
               });
             } else if (all[i].type === 'B') {
@@ -130,7 +126,6 @@ const CoverageDetail = ({
                 options: {
                   isWholeLine: false,
                   inlineClassName: 'content-class-no-found-branch',
-                  hoverMessage: { value: 'branch not covered' },
                 },
               });
             } else if (all[i].type === 'I') {
@@ -169,11 +164,8 @@ const CoverageDetail = ({
           return arr;
         })();
 
-        console.log(decorations, 'decorations');
-
         if (editor) {
-          editor?.deltaDecorations?.(
-            [], // oldDecorations 每次清空上次标记的
+          editor?.createDecorationsCollection?.(
             decorations,
           );
         }

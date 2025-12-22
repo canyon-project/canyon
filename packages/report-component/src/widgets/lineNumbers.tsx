@@ -1,4 +1,3 @@
-import React from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 
 interface LineState {
@@ -19,20 +18,12 @@ function genBgColor(hit: number): string {
 
 // React 组件：行号
 const LineNumber = ({ lineNumber }: { lineNumber: number }) => {
-  return React.createElement(
-    'span',
-    { className: 'line-number' },
-    lineNumber
-  );
+  return <span className="line-number">{lineNumber}</span>;
 };
 
 // React 组件：变更标识
 const LineChange = ({ hasChange }: { hasChange: boolean }) => {
-  return React.createElement(
-    'span',
-    { className: 'line-change' },
-    hasChange ? '+' : ''
-  );
+  return <span className="line-change">{hasChange ? '+' : ''}</span>;
 };
 
 // React 组件：覆盖率信息
@@ -43,16 +34,16 @@ const LineCoverage = ({
   hit: number; 
   width: number; 
 }) => {
-  return React.createElement(
-    'span',
-    {
-      className: 'line-coverage',
-      style: {
+  return (
+    <span
+      className="line-coverage"
+      style={{
         background: genBgColor(hit),
         width: `${width}px`
-      }
-    },
-    hit > 0 ? `${hit}x` : ''
+      }}
+    >
+      {hit > 0 ? `${hit}x` : ''}
+    </span>
   );
 };
 
@@ -66,15 +57,12 @@ const LineNumberWrapper = ({
   line: LineState;
   maxHitWidth: number;
 }) => {
-  return React.createElement(
-    'div',
-    { className: 'line-number-wrapper' },
-    React.createElement(LineNumber, { lineNumber }),
-    React.createElement(LineChange, { hasChange: line.change }),
-    React.createElement(LineCoverage, { 
-      hit: line.hit, 
-      width: maxHitWidth 
-    })
+  return (
+    <div className="line-number-wrapper">
+      <LineNumber lineNumber={lineNumber} />
+      <LineChange hasChange={line.change} />
+      <LineCoverage hit={line.hit} width={maxHitWidth} />
+    </div>
   );
 };
 
@@ -95,10 +83,10 @@ export default function lineNumbers(
   
   // 使用 React 组件渲染整个行号包装器
   return renderToStaticMarkup(
-    React.createElement(LineNumberWrapper, {
-      lineNumber,
-      line,
-      maxHitWidth
-    })
+    <LineNumberWrapper
+      lineNumber={lineNumber}
+      line={line}
+      maxHitWidth={maxHitWidth}
+    />
   );
 }

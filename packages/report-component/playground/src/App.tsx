@@ -1,7 +1,6 @@
 import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { useState } from 'react';
 import { CanyonReport, type FileDataResponse } from '../../src';
-import '../../src/index.css';
 
 // 扩展 Window 接口
 declare global {
