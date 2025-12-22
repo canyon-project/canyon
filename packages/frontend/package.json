@@ -8,11 +8,16 @@
     "build": "tsgo -b && vite build"
   },
   "dependencies": {
+    "@ant-design/icons": "catalog:",
+    "@canyonjs/report-component": "catalog:",
+    "@monaco-editor/react": "4.7.0",
+    "antd": "catalog:",
+    "monaco-editor": "0.55.1",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "react-router-dom": "latest"
   },
   "devDependencies": {
-    "vite-plugin-pages": "latest",
     "@tailwindcss/vite": "latest",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
@@ -21,6 +26,7 @@
     "@vitejs/plugin-react": "latest",
     "globals": "catalog:",
     "tailwindcss": "latest",
-    "vite": "catalog:"
+    "vite": "catalog:",
+    "vite-plugin-pages": "latest"
   }
 }

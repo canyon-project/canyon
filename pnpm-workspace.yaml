@@ -4,6 +4,7 @@ packages:
   - examples/*
 
 catalog:
+  '@ant-design/icons': 6.1.0
   '@canyonjs/report-component': 0.0.1-beta.19
   '@canyonjs/report-html': 1.0.0-alpha.26
   '@types/istanbul-lib-coverage': ^2.0.6
@@ -15,6 +16,7 @@ catalog:
   '@types/react-dom': 19.2.3
   '@typescript/native-preview': ^7.0.0-dev.20251215.1
   '@vitest/coverage-v8': ^4.0.16
+  antd: 6.1.0
   class-validator: ^0.14.3
   dotenv: ^17.2.3
   express: ^5.2.1

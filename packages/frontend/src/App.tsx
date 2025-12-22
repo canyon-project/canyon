@@ -1,33 +1,47 @@
-import { useState } from 'react';
-import viteLogo from '/vite.svg';
-import reactLogo from './assets/react.svg';
-import './App.css';
+import { ConfigProvider, message, theme } from 'antd';
+import enUS from 'antd/es/locale/en_US';
+import jaJP from 'antd/es/locale/ja_JP';
+import zhCN from 'antd/es/locale/zh_CN';
+import { useRoutes } from 'react-router-dom';
+import CoverageReport from '@/components/CoverageReport.tsx';
+import routes from '~react-pages';
 
-function App() {
-  const [count] = useState(0);
+const languages = {
+  cn: zhCN,
+  en: enUS,
+  ja: jaJP,
+};
+
+const lng = (localStorage.getItem('language') ||
+  'cn') as keyof typeof languages;
+
+const { darkAlgorithm } = theme;
+
+routes.push({
+  path: '/report/-/:provider/:org/:repo/:subject/:subjectID/-*',
+  element: <CoverageReport />,
+});
+
+message.config({});
+
+const App = () => {
+  const isDark = localStorage.getItem('theme')
+    ? localStorage.getItem('theme') === 'dark'
+    : false;
 
   return (
-    <>
-      <div>
-        <a href='https://vite.dev' target='_blank' rel='noopener'>
-          <img src={viteLogo} className='logo' alt='Vite logo' />
-        </a>
-        <a href='https://react.dev' target='_blank' rel='noopener'>
-          <img src={reactLogo} className='logo react' alt='React logo' />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className='card'>
-        <p>count is {count}</p>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className='read-the-docs'>
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <ConfigProvider
+      locale={languages[lng]}
+      theme={{
+        token: {
+          colorPrimary: '#0071c2',
+        },
+        algorithm: isDark ? [darkAlgorithm] : [],
+      }}
+    >
+      {useRoutes(routes)}
+    </ConfigProvider>
   );
-}
+};
 
 export default App;
