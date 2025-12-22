@@ -6,11 +6,13 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CollectModule } from './collect/collect.module';
 import {PrismaModule} from "./prisma/prisma.module";
+import {CoverageModule} from "./coverage/coverage.module";
 
 @Module({
   imports: [
     PrismaModule,
     CollectModule,
+    CoverageModule,
     ServeStaticModule.forRoot({
       rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
         ? join(__dirname, '../../frontend', 'dist')

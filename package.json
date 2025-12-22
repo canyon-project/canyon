@@ -17,6 +17,7 @@
     "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.9"
+    "@biomejs/biome": "2.3.9",
+    "prisma": "6"
   }
 }

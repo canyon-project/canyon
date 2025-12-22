@@ -50,3 +50,5 @@ pnpm-lock.yaml
 data.db
 
 generated
+
+!/packages/backend/src/coverage
