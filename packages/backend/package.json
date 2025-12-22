@@ -22,7 +22,8 @@
     "dotenv": "catalog:",
     "express": "catalog:",
     "json-stable-stringify": "catalog:",
-    "prisma": "catalog:",
+    "prisma": "7.2.0",
+    "@prisma/client": "7.2.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
