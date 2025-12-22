@@ -4,15 +4,15 @@ packages:
   - examples/*
 
 catalog:
-  '@canyonjs/report-component': 0.0.1-beta.17
+  '@canyonjs/report-component': 0.0.1-beta.18
   '@canyonjs/report-html': 1.0.0-alpha.26
   '@types/istanbul-lib-coverage': ^2.0.6
   '@types/istanbul-lib-report': ^3.0.3
   '@types/istanbul-lib-source-maps': ^4.0.4
   '@types/istanbul-reports': ^3.0.4
   '@types/node': ^24.10.1
-  '@types/react': 19.2.0
-  '@types/react-dom': 19.2.0
+  '@types/react': 19.2.3
+  '@types/react-dom': 19.2.3
   '@typescript/native-preview': ^7.0.0-dev.20251215.1
   '@vitest/coverage-v8': ^4.0.16
   class-validator: ^0.14.3
@@ -24,8 +24,8 @@ catalog:
   istanbul-lib-source-maps: ^5.0.6
   istanbul-reports: ^3.2.0
   json-stable-stringify: ^1.3.0
-  react: 19.2.0
-  react-dom: 19.2.0
+  react: 19.2.3
+  react-dom: 19.2.3
   vite: 8.0.0-beta.0
   vitest: ^4.0.16
 
