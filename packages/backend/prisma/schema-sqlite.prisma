@@ -1,0 +1,33 @@
+generator client2 {
+  provider     = "prisma-client"
+  output       = "../generated/schema-sqlite"
+  moduleFormat = "cjs"
+}
+
+/**
+ * 默认主库（Postgres）
+ */
+datasource db {
+  provider = "sqlite"
+}
+
+//////////////////////
+// SQLite models   //
+//////////////////////
+
+model CoverageQueue {
+  id        Int         @id @default(autoincrement())
+  payload   Json
+  status    QueueStatus @default(PENDING)
+  retry     Int         @default(0)
+  createdAt DateTime    @default(now())
+
+  @@map("coverage_queue")
+}
+
+enum QueueStatus {
+  PENDING
+  PROCESSING
+  DONE
+  FAILED
+}

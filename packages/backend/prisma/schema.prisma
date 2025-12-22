@@ -1,11 +1,14 @@
-datasource db {
-  provider = "postgresql"
+generator client {
+  provider     = "prisma-client"
+  output       = "../generated/prisma"
+  moduleFormat = "cjs"
 }
 
-generator client {
-  provider   = "prisma-client"
-  engineType = "client"
-  output   = "../src/generated
+/**
+ * 默认主库（Postgres）
+ */
+datasource db {
+  provider = "postgresql"
 }
 
 model InfraConfig {

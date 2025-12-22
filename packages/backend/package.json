@@ -9,7 +9,8 @@
     "build": "nest build",
     "start": "nest start",
     "dev": "nest start --watch",
-    "postinstall": "prisma generate"
+    "generate": "prisma generate",
+    "generate-sqlite": "prisma generate --schema prisma/schema-sqlite.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
