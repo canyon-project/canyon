@@ -1,3 +1,4 @@
+// import '@canyonjs/report-component/dist/index.css'
 import { CanyonReport } from '@canyonjs/report-component';
 import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { useState } from 'react';

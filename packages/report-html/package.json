@@ -24,7 +24,7 @@
     "index.js"
   ],
   "dependencies": {
-    "@canyonjs/report-component": "^0.0.1-beta.15",
+    "@canyonjs/report-component": "catalog:",
     "@ibm/plex-mono": "^1.1.0",
     "canyon-data": "2.0.0-beta.36",
     "debug": "^4.3.7",

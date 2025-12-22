@@ -4,6 +4,7 @@ packages:
   - examples/*
 
 catalog:
+  "@canyonjs/report-component": 0.0.1-beta.16
   '@canyonjs/report-html': 1.0.0-alpha.26
   '@types/istanbul-lib-coverage': ^2.0.6
   '@types/istanbul-lib-report': ^3.0.3

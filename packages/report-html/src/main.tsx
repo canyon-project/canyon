@@ -1,5 +1,5 @@
 // import '@canyonjs/report-component/dist/index.css'
-import './helpers/loadReportData.ts';
+import './helpers/loadData.ts';
 import './useWorker.ts';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
