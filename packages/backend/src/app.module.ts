@@ -7,9 +7,11 @@ import { AppService } from './app.service';
 import { CollectModule } from './collect/collect.module';
 import { SqliteModule } from './sqlite/sqlite.module';
 import { UserModule } from './user/user.module';
+import {PrismaModule} from "./prisma/prisma.module";
 
 @Module({
   imports: [
+    PrismaModule,
     SqliteModule,
     UserModule,
     CollectModule,
