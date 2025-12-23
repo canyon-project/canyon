@@ -175,3 +175,11 @@ model Diff {
 
   @@map("canyon_final_diff")
 }
+
+model CoverageLock {
+  coverageID String   @id @map("coverage_id")
+  lockedAt   DateTime @map("locked_at")
+  lockedBy   String   @map("locked_by")
+
+  @@map("canyon_final_coverage_lock")
+}

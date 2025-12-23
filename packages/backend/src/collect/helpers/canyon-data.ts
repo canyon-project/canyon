@@ -1,5 +1,4 @@
-// 覆盖率回溯，在覆盖率存储之前转换
-// @ts-expect-error
+// @ts-nocheck
 import { remapCoverage } from 'canyon-map';
 
 function eee(newMap, oldMap) {

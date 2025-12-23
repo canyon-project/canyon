@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { logger } from '../../logger';
 import { PrismaService } from '../../prisma/prisma.service';
+import { PrismaSqliteService } from '../../prisma/prisma-sqlite.service';
 import { CoverageClientDto } from '../dto/coverage-client.dto';
 import { checkCoverageType } from '../helpers/checkCoverageType';
 import { generateSecureId } from '../helpers/coverageID';
@@ -33,6 +34,8 @@ interface InsertHitParams {
   coverageID: string;
   versionID: string;
   instrumentCwd: string;
+  reportID?: string;
+  reportProvider?: string;
 }
 
 interface InsertMapParams {
@@ -44,7 +47,10 @@ interface InsertMapParams {
 
 @Injectable()
 export class CoverageClientService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly prismaSqlite: PrismaSqliteService,
+  ) {}
 
   async invoke(reporter: string, coverageClientDto: CoverageClientDto) {
     const {
@@ -108,6 +114,8 @@ export class CoverageClientService {
         coverageID,
         versionID,
         instrumentCwd,
+        reportID,
+        reportProvider,
       });
     } else {
       // 如果map里也没input source的话那就能直接插入hit
@@ -134,6 +142,8 @@ export class CoverageClientService {
           coverageID,
           versionID,
           instrumentCwd,
+          reportID,
+          reportProvider,
         });
       } else {
         //   什么都不做
@@ -147,27 +157,43 @@ export class CoverageClientService {
     coverageID,
     versionID,
     instrumentCwd,
+    reportID,
+    reportProvider,
   }: InsertHitParams): Promise<void> {
-    const hitEntities = Object.entries(coverage).map(([filePath, entry]) => {
-      const s: HitCounters = entry?.s || {};
-      // const f: HitCounters = entry?.f || {};
-      return {
-        // id: generateSecureId(),
-        coverageID,
-        versionID,
-        filePath: filePath,
-        s,
-        f: {},
-        b: {},
-        inputSourceMap: entry.inputSourceMap ? 1 : 0,
-        // aggregated: false,
-        ts: new Date(),
-      };
-    });
+    // 只有 reportID === 'initial_coverage_data' && reportProvider === 'ci' 才直接插入
+    if (reportID === 'initial_coverage_data' && reportProvider === 'ci') {
+      const hitEntities = Object.entries(coverage).map(([filePath, entry]) => {
+        const s: HitCounters = entry?.s || {};
+        return {
+          coverageID,
+          versionID,
+          filePath: filePath,
+          s,
+          f: {},
+          b: {},
+          inputSourceMap: entry.inputSourceMap ? 1 : 0,
+          ts: new Date(),
+        };
+      });
 
-    await this.prisma.coverHitAggNext.createMany({
-      data: hitEntities,
-    });
+      await this.prisma.coverHitAggNext.createMany({
+        data: hitEntities,
+      });
+    } else {
+      // 其他情况写入 SQLite 队列，由消费服务异步处理
+      await this.prismaSqlite.coverageQueue.create({
+        data: {
+          payload: {
+            coverage,
+            coverageID,
+            versionID,
+            instrumentCwd,
+          } as any,
+          status: 'PENDING',
+          retry: 0,
+        },
+      });
+    }
   }
 
   async insertMap({
