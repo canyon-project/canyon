@@ -68,7 +68,6 @@ export class CoverageConsumerService implements OnModuleInit {
             createdAt: 'asc',
           },
         });
-        console.log('queueItem', queueItem);
         if (!queueItem) {
           this.isRunning = false;
           await this.sleep(10000);
