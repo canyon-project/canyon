@@ -1,5 +1,7 @@
 # Canyon [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/canyon-project/canyon/blob/main/LICENSE) [![build status](https://github.com/canyon-project/canyon/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/canyon-project/canyon/actions/workflows/ci.yml) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/canyon-project/canyon) [![docker image size](https://img.shields.io/docker/image-size/zhangtao25/canyon/next)](https://hub.docker.com/r/zhangtao25/canyon)
 
+[![Made with Prisma](https://made-with.prisma.io/dark.svg)](https://prisma.io)
+
 English · [中文](./README-zh_CN.md)
 
 👋 Canyon is a JavaScript code coverage solution
@@ -64,7 +66,7 @@ Canyon (pronounced /ˈkænjən/) is a JavaScript code coverage collection platfo
 
 ## WeChat Group
 
-<img src="./screenshots/wechat55.jpg" style="width: 200px"/>
+<img src="./screenshots/wechat56.jpg" style="width: 200px"/>
 
 ## Developing
 
