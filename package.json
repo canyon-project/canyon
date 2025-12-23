@@ -18,7 +18,7 @@
     "prepare": "pnpm run build && simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "npx nano-staged"
+    "pre-commit": "nano-staged"
   },
   "nano-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs,md,mdx,css}": [
@@ -28,6 +28,7 @@
   "devDependencies": {
     "simple-git-hooks": "^2.13.1",
     "@biomejs/biome": "2.3.9",
-    "prisma": "6"
+    "prisma": "6",
+    "nano-staged": "^0.9.0"
   }
 }
