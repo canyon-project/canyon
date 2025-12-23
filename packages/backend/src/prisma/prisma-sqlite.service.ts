@@ -29,6 +29,7 @@ export class PrismaSqliteService
                                                   status TEXT NOT NULL DEFAULT 'PENDING'
                                                   CHECK (status IN ('PENDING', 'PROCESSING', 'DONE', 'FAILED')),
         retry INTEGER NOT NULL DEFAULT 0,
+        pid INTEGER,
         createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         );
     `);

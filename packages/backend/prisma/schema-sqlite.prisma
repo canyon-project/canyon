@@ -20,6 +20,7 @@ model CoverageQueue {
   payload   Json
   status    QueueStatus @default(PENDING)
   retry     Int         @default(0)
+  pid       Int?        // 当前进程 ID
   createdAt DateTime    @default(now())
 
   @@map("coverage_queue")
