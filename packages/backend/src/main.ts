@@ -12,8 +12,6 @@ dotenv.config({
     path.resolve(__dirname, '../.env'),
   ],
 });
-// console.log(path.resolve(__dirname, '../../../.env'),path.resolve(__dirname, '../.env'))
-
 async function bootstrap() {
   const { AppModule } = await import('./app.module.js');
   const app = await NestFactory.create(AppModule);
@@ -37,12 +35,6 @@ async function bootstrap() {
   app.getHttpAdapter().get('/api-json', (_req, res) => {
     res.json(document);
   });
-
-  console.log('📖 Swagger UI 可访问: http://localhost:8080/api');
-  console.log('📄 Swagger JSON 可访问: http://localhost:8080/api-json');
-
-  console.log('📖 Redoc UI 可访问: http://localhost:8080/api-docs.html');
   await app.listen(process.env.PORT ?? 8080);
-  console.log('🚀 Backend 服务已启动: http://localhost:8080');
 }
 bootstrap();
