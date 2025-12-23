@@ -146,6 +146,20 @@ model CoverHitAgg {
   @@map("canyon_final_hit_agg")
 }
 
+model CoverHitAggNext {
+  coverageID     String   @map("coverage_id")
+  versionID      String   @map("version_id")
+  filePath       String   @map("file_path")
+  s              Json
+  f              Json
+  b              Json
+  inputSourceMap Int?     @map("input_source_map")
+  ts             DateTime
+
+  @@id([coverageID, versionID, filePath])
+  @@map("canyon_final_hit_next")
+}
+
 model Diff {
   id String @id @default(cuid())
 

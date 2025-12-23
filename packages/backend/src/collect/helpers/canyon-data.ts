@@ -1,12 +1,12 @@
 // 覆盖率回溯，在覆盖率存储之前转换
-// @ts-expect-errorr
+// @ts-expect-error
 import { remapCoverage } from 'canyon-map';
 
 function eee(newMap, oldMap) {
   const o = {};
   Object.entries(newMap).forEach(([key, value]) => {
     o[key] = {
-      // @ts-expect-errorr
+      // @ts-expect-error
       ...value,
       contentHash: oldMap[key]?.contentHash || '',
     };
@@ -18,7 +18,7 @@ export async function remapCoverageByOld(obj: any) {
   const aaa = await Promise.all(
     Object.values(obj).map((item) => {
       return remapCoverage({
-        // @ts-expect-errorr
+        // @ts-expect-error
         [item.path]: item,
       })
         .then((res) => {
@@ -29,15 +29,15 @@ export async function remapCoverageByOld(obj: any) {
         })
         .then((res) => {
           const r = {
-            // @ts-expect-errorr
+            // @ts-expect-error
             ...res,
-            // @ts-expect-errorr
+            // @ts-expect-error
             statementMap: eee(res.statementMap, item.statementMap),
-            // @ts-expect-errorr
+            // @ts-expect-error
             fnMap: eee(res.fnMap, item.fnMap),
-            // @ts-expect-errorr
+            // @ts-expect-error
             oldPath: item.path,
-            // @ts-expect-errorr
+            // @ts-expect-error
             contentHash: item.contentHash,
           };
           return r;
@@ -48,11 +48,11 @@ export async function remapCoverageByOld(obj: any) {
     }),
   );
   const obj2 = {};
-  // @ts-expect-errorr
+  // @ts-expect-error
   aaa.forEach((item) => {
     // 过滤作用
     if (item.path) {
-      // @ts-expect-errorr
+      // @ts-expect-error
       obj2[item.path] = item;
     }
   });

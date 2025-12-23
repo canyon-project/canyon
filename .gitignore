@@ -56,3 +56,6 @@ generated
 local.db
 
 /old
+
+
+/schema.sql

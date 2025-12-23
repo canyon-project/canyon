@@ -150,22 +150,22 @@ export class CoverageClientService {
   }: InsertHitParams): Promise<void> {
     const hitEntities = Object.entries(coverage).map(([filePath, entry]) => {
       const s: HitCounters = entry?.s || {};
-      const f: HitCounters = entry?.f || {};
+      // const f: HitCounters = entry?.f || {};
       return {
-        id: generateSecureId(),
+        // id: generateSecureId(),
         coverageID,
         versionID,
-        filePath: filePath.replace(instrumentCwd + '/', ''),
+        filePath: filePath,
         s,
-        f,
+        f: {},
         b: {},
         inputSourceMap: entry.inputSourceMap ? 1 : 0,
-        aggregated: false,
+        // aggregated: false,
         ts: new Date(),
       };
     });
 
-    await this.prisma.coverHit.createMany({
+    await this.prisma.coverHitAggNext.createMany({
       data: hitEntities,
     });
   }
