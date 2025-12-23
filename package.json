@@ -18,7 +18,7 @@
     "prepare": "pnpm run build && simple-git-hooks"
   },
   "simple-git-hooks": {
-    "pre-commit": "nano-staged"
+    "pre-commit": "npx nano-staged"
   },
   "nano-staged": {
     "*.{js,jsx,ts,tsx,mjs,cjs,md,mdx,css}": [
