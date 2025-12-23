@@ -147,11 +147,24 @@ export class CoverageConsumerService implements OnModuleInit {
     });
 
     // 标记为处理中并设置当前进程 ID
-    await this.prismaSqlite.$executeRawUnsafe(`
+    // 使用原子更新，确保只有状态为 PENDING 的任务才能被处理
+    // 这样可以避免多个进程同时处理同一个任务
+    const updateResult = await this.prismaSqlite.$executeRawUnsafe(`
       UPDATE coverage_queue
       SET status = 'PROCESSING', pid = ${this.currentPid}
-      WHERE id = ${queueId}
+      WHERE id = ${queueId} AND status = 'PENDING'
     `);
+
+    // 如果更新行数为 0，说明任务已经被其他进程处理了
+    if (updateResult === 0) {
+      logger({
+        type: 'warn',
+        title: 'CoverageConsumer',
+        message: 'Queue item already processed by another process',
+        addInfo: { queueId, pid: this.currentPid },
+      });
+      return;
+    }
 
     try {
       const queueItem = await this.prismaSqlite.coverageQueue.findUnique({
@@ -416,47 +429,14 @@ export class CoverageConsumerService implements OnModuleInit {
     }
 
     // 写入/更新 CoverHitAggNext 表
+    // 使用 upsert 避免 findUnique + create/update 之间的竞态条件
+    // 虽然已经有分布式锁保护，但使用 upsert 更加安全可靠
     let createdCount = 0;
     let updatedCount = 0;
     for (const agg of groupMap.values()) {
-      const existing = await this.prisma.coverHitAggNext.findUnique({
-        where: {
-          coverageID_versionID_filePath: {
-            coverageID: agg.coverageID,
-            versionID: agg.versionID,
-            filePath: agg.filePath,
-          },
-        },
-      });
-
-      if (!existing) {
-        await this.prisma.coverHitAggNext.create({
-          data: {
-            coverageID: agg.coverageID,
-            versionID: agg.versionID,
-            filePath: agg.filePath,
-            s: agg.s,
-            f: agg.f,
-            b: agg.b as any,
-            inputSourceMap: agg.inputSourceMap,
-            ts: agg.latestTs,
-          },
-        });
-        createdCount++;
-      } else {
-        const existS = ensureNumMap(existing.s);
-        const existF = ensureNumMap(existing.f);
-        const mergedS = addMaps(existS, agg.s);
-        const mergedF = addMaps(existF, agg.f);
-        const mergedLatestTs =
-          (existing.ts instanceof Date ? existing.ts : new Date(existing.ts)) >
-          agg.latestTs
-            ? existing.ts instanceof Date
-              ? existing.ts
-              : new Date(existing.ts)
-            : agg.latestTs;
-
-        await this.prisma.coverHitAggNext.update({
+      try {
+        // 先尝试查找现有记录
+        const existing = await this.prisma.coverHitAggNext.findUnique({
           where: {
             coverageID_versionID_filePath: {
               coverageID: agg.coverageID,
@@ -464,15 +444,120 @@ export class CoverageConsumerService implements OnModuleInit {
               filePath: agg.filePath,
             },
           },
-          data: {
-            s: mergedS,
-            f: mergedF,
-            b: {} as any,
-            inputSourceMap: agg.inputSourceMap,
-            ts: mergedLatestTs,
+        });
+
+        if (!existing) {
+          // 不存在则创建，使用 try-catch 处理可能的并发创建冲突
+          try {
+            await this.prisma.coverHitAggNext.create({
+              data: {
+                coverageID: agg.coverageID,
+                versionID: agg.versionID,
+                filePath: agg.filePath,
+                s: agg.s,
+                f: agg.f,
+                b: agg.b as any,
+                inputSourceMap: agg.inputSourceMap,
+                ts: agg.latestTs,
+              },
+            });
+            createdCount++;
+          } catch (createError: any) {
+            // 如果创建失败（可能是唯一约束冲突），说明另一个进程已经创建了，重新查询并更新
+            if (createError?.code === 'P2002') {
+              const retryExisting =
+                await this.prisma.coverHitAggNext.findUnique({
+                  where: {
+                    coverageID_versionID_filePath: {
+                      coverageID: agg.coverageID,
+                      versionID: agg.versionID,
+                      filePath: agg.filePath,
+                    },
+                  },
+                });
+              if (retryExisting) {
+                const existS = ensureNumMap(retryExisting.s);
+                const existF = ensureNumMap(retryExisting.f);
+                const mergedS = addMaps(existS, agg.s);
+                const mergedF = addMaps(existF, agg.f);
+                const mergedLatestTs =
+                  (retryExisting.ts instanceof Date
+                    ? retryExisting.ts
+                    : new Date(retryExisting.ts)) > agg.latestTs
+                    ? retryExisting.ts instanceof Date
+                      ? retryExisting.ts
+                      : new Date(retryExisting.ts)
+                    : agg.latestTs;
+
+                await this.prisma.coverHitAggNext.update({
+                  where: {
+                    coverageID_versionID_filePath: {
+                      coverageID: agg.coverageID,
+                      versionID: agg.versionID,
+                      filePath: agg.filePath,
+                    },
+                  },
+                  data: {
+                    s: mergedS,
+                    f: mergedF,
+                    b: {} as any,
+                    inputSourceMap: agg.inputSourceMap,
+                    ts: mergedLatestTs,
+                  },
+                });
+                updatedCount++;
+              }
+            } else {
+              throw createError;
+            }
+          }
+        } else {
+          // 存在则更新
+          const existS = ensureNumMap(existing.s);
+          const existF = ensureNumMap(existing.f);
+          const mergedS = addMaps(existS, agg.s);
+          const mergedF = addMaps(existF, agg.f);
+          const mergedLatestTs =
+            (existing.ts instanceof Date
+              ? existing.ts
+              : new Date(existing.ts)) > agg.latestTs
+              ? existing.ts instanceof Date
+                ? existing.ts
+                : new Date(existing.ts)
+              : agg.latestTs;
+
+          await this.prisma.coverHitAggNext.update({
+            where: {
+              coverageID_versionID_filePath: {
+                coverageID: agg.coverageID,
+                versionID: agg.versionID,
+                filePath: agg.filePath,
+              },
+            },
+            data: {
+              s: mergedS,
+              f: mergedF,
+              b: {} as any,
+              inputSourceMap: agg.inputSourceMap,
+              ts: mergedLatestTs,
+            },
+          });
+          updatedCount++;
+        }
+      } catch (e) {
+        logger({
+          type: 'error',
+          title: 'CoverageConsumer',
+          message: 'Failed to upsert coverage data',
+          addInfo: {
+            coverageID: agg.coverageID,
+            versionID: agg.versionID,
+            filePath: agg.filePath,
+            pid: this.currentPid,
+            error: e instanceof Error ? e.message : String(e),
           },
         });
-        updatedCount++;
+        // 继续处理其他文件，不中断整个流程
       }
     }
 
