@@ -12,7 +12,7 @@
   },
   "homepage": "https://github.com/canyon-project/canyon#readme",
   "scripts": {
-    "dev": "rspack dev",
+    "dev-report-html": "rspack dev",
     "build": "rspack build",
     "test": "DEBUG=canyon:report-html rstest run --coverage",
     "preview": "rspack preview"

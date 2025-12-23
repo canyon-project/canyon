@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "VITE_COMMIT=$(git rev-parse --short HEAD || echo dev) VITE_NODE=$(node -v || echo unknown) vite build"
   },
   "dependencies": {
     "@ant-design/icons": "catalog:",
@@ -15,7 +15,17 @@
     "monaco-editor": "0.55.1",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "latest"
+    "react-router-dom": "latest",
+    "ahooks": "latest",
+    "axios": "latest",
+    "react-i18next": "latest",
+    "dayjs": "latest",
+    "tailwind-merge": "latest",
+    "clsx": "latest",
+    "react-error-boundary": "latest",
+    "@ibm/plex-mono": "^1.1.0",
+    "i18next": "latest",
+    "i18next-browser-languagedetector": "latest"
   },
   "devDependencies": {
     "@tailwindcss/vite": "latest",

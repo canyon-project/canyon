@@ -1,3 +1,4 @@
+import './i18n.ts';
 import './useWorker.ts';
 import './index.css';
 import { createRoot } from 'react-dom/client';

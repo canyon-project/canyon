@@ -1,8 +1,16 @@
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import BasicLayout from '@/layouts/BasicLayout.tsx';
+
 const IndexPage = () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    navigate(`/projects`);
+  });
   return (
-    <div>
-      <a href='/report/-/gitlab/canyon-project/canyon/commit/sha/-/'>go</a>
-    </div>
+    <BasicLayout>
+      <span className={'bg-amber-500'}>IndexPage</span>
+    </BasicLayout>
   );
 };
 

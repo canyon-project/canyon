@@ -1,0 +1,30 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+a {
+  color: #0071c2;
+}
+a:hover {
+  color: #0071c2;
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+@font-face {
+  font-family: "IBMPlexMono";
+  src: url("@ibm/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2")
+  format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*antd的样式*/
+
+.ant-menu.ant-menu-root.ant-menu-inline {
+  border-inline-end: none !important;
+}
+
+/*页脚离右边远一点*/
+.ant-table-wrapper .ant-table-pagination.ant-pagination {
+  margin-right: 16px;
+}
