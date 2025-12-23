@@ -5,8 +5,8 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CollectModule } from './collect/collect.module';
-import {PrismaModule} from "./prisma/prisma.module";
-import {CoverageModule} from "./coverage/coverage.module";
+import { CoverageModule } from './coverage/coverage.module';
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [

@@ -10,6 +10,6 @@ export class CoverageController {
 
   @Get('map')
   async getMap(@Query() q: MapQueryDto) {
-    return this.coverageMapForCommitService.invoke()
+    return this.coverageMapForCommitService.invoke();
   }
 }

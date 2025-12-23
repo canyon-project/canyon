@@ -5,8 +5,6 @@ import { CoverageMapForCommitService } from './services/coverage-map-for-commit.
 @Module({
   imports: [],
   controllers: [CoverageController],
-  providers: [
-    CoverageMapForCommitService,
-  ],
+  providers: [CoverageMapForCommitService],
 })
 export class CoverageModule {}
