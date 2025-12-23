@@ -14,7 +14,6 @@ import {
   Space,
   Switch,
   Table,
-  type TableColumnsType,
   Tooltip,
   Typography,
 } from 'antd';
@@ -273,25 +272,35 @@ const Projects = () => {
     {
       title: t('common.option'),
       key: 'option',
-      render: (_, { id }) => (
-        <>
-          <Link
-            to={{
-              pathname: `/projects/${id}`,
-            }}
-          >
-            {t('common.detail')}
-          </Link>
-          <Divider type={'vertical'} />
-          <Link
-            to={{
-              pathname: `/projects/${id}/settings`,
-            }}
-          >
-            {t('common.settings')}
-          </Link>
-        </>
-      ),
+      render: (_, { pathWithNamespace }) => {
+        // 从 pathWithNamespace 解析出 org 和 repo
+        // pathWithNamespace 格式通常是 "org/repo" 或 "group/org/repo"
+        const parts = pathWithNamespace.split('/');
+        const org = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
+        const repo = parts[parts.length - 1];
+        // 默认使用 gitlab 作为 provider（可以根据实际情况调整）
+        const provider = 'gitlab';
+
+        return (
+          <>
+            <Link
+              to={{
+                pathname: `/${provider}/${org}/${repo}`,
+              }}
+            >
+              {t('common.detail')}
+            </Link>
+            <Divider type={'vertical'} />
+            <Link
+              to={{
+                pathname: `/${provider}/${org}/${repo}/settings`,
+              }}
+            >
+              {t('common.settings')}
+            </Link>
+          </>
+        );
+      },
     },
   ];
 
