@@ -9,20 +9,13 @@ export class CoverageMapForCommitService {
     private readonly prisma: PrismaService,
     private readonly prismaSqlite: PrismaSqliteService,
   ) {}
-  async invoke() {
+  async invoke(data) {
     logger({
       type: 'info',
       title: 'test log',
       message: 'test log',
-      addInfo: {
-        sha: 'coverageClientDto.sha',
-        buildID: 'coverageClientDto.buildID',
-      },
+      addInfo: data,
     });
-    const r1 = await this.prisma.repo.findMany({
-      where: {},
-    });
-
     const r2 = await this.prismaSqlite.coverageQueue.create({
       data: {
         payload: {},
@@ -38,7 +31,6 @@ export class CoverageMapForCommitService {
       where: {},
     });
     return {
-      r1,
       r2,
       r3,
     };
