@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash } from 'crypto';
 import stringify from 'json-stable-stringify';
 
 // 需要使用 json-stable-stringify 来确保对象的键顺序稳定

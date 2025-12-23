@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { logger } from '../../logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CoverageClientDto } from '../dto/coverage-client.dto';
 import { checkCoverageType } from '../helpers/checkCoverageType';
@@ -117,6 +118,16 @@ export class CoverageClientService {
         instrumentCwd,
       });
       if (reportID === 'initial_coverage_data' && reportProvider === 'ci') {
+        logger({
+          type: 'info',
+          title: 'Canyon App initial_coverage_data ci',
+          message: `versionID${versionID};coverageID${coverageID}`,
+          addInfo: {
+            versionID,
+            coverageID,
+          },
+        });
+
         const { separateCoverageHit } = separateCoverage(coverage);
         await this.insertHit({
           coverage: separateCoverageHit as HitCoverage,
