@@ -8,6 +8,7 @@ import { CollectModule } from './collect/collect.module';
 import { CoverageModule } from './coverage/coverage.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { RepoModule } from './repo/repo.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PrismaModule } from './prisma/prisma.module';
     PrismaModule,
     CollectModule,
     CoverageModule,
+    RepoModule,
     ServeStaticModule.forRoot({
       rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
         ? join(__dirname, '../../frontend', 'dist')
