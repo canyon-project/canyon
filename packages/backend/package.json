@@ -29,7 +29,8 @@
     "json-stable-stringify": "catalog:",
     "prisma": "6",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "test-exclude": "^7.0.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
@@ -37,6 +38,7 @@
     "@types/better-sqlite3": "^7.6.13",
     "@types/express": "^5.0.0",
     "@types/node": "catalog:",
+    "@types/test-exclude": "^6.0.2",
     "globals": "catalog:",
     "source-map-support": "^0.5.21",
     "ts-loader": "^9.5.2",

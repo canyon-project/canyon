@@ -7,6 +7,7 @@ import {
   ensureNumMap,
   NumMap,
 } from '../../helpers/coverage-merge.util';
+import { testExclude } from '../../helpers/test-exclude';
 import { logger } from '../../logger';
 import { PrismaService } from '../../prisma/prisma.service';
 
@@ -61,11 +62,12 @@ export class CoverageMapForCommitService {
       where,
     });
 
-    // 按 filePath 分组并合并多个 coverageID 的数据
+    // 按 fullFilePath（未 remap 前的完整路径）分组并合并多个 coverageID 的数据
+    // 注意：coverHitAggNext 表中的 filePath 实际上是未 remap 前的完整路径（fullFilePath）
     const mergedRows = new Map<
       string,
       {
-        filePath: string;
+        fullFilePath: string; // 未 remap 前的完整路径
         s: NumMap;
         f: NumMap;
         b: Record<string, unknown>;
@@ -75,16 +77,17 @@ export class CoverageMapForCommitService {
     >();
 
     for (const r of rows || []) {
-      const filePath = r.filePath;
+      // r.filePath 实际上是未 remap 前的完整路径（fullFilePath）
+      const fullFilePath = r.filePath;
       const sMap = ensureNumMap(r.s);
       const fMap = ensureNumMap(r.f);
       const ts = r.ts instanceof Date ? r.ts : new Date(r.ts);
       const inputSourceMap = r.inputSourceMap || 0;
 
-      const existing = mergedRows.get(filePath);
+      const existing = mergedRows.get(fullFilePath);
       if (!existing) {
-        mergedRows.set(filePath, {
-          filePath,
+        mergedRows.set(fullFilePath, {
+          fullFilePath,
           s: sMap,
           f: fMap,
           b: (r.b as Record<string, unknown>) || {},
@@ -113,17 +116,27 @@ export class CoverageMapForCommitService {
     const instrumentCwd = coverage?.instrumentCwd || '';
 
     // 查询 coverageMapRelation 获取 path 到 hash 的映射
+    // 注意：需要查询所有相关的 relation，因为我们需要通过 restoreFullFilePath 来匹配
     const relationWhere: any = {
       versionID: versionID,
     };
-    if (filePath) {
-      relationWhere.filePath = filePath;
-    }
 
     const relationsAll = await this.prisma.coverageMapRelation.findMany({
       where: relationWhere,
     });
 
+    // 建立 restoreFullFilePath（未 remap 前的完整路径）到 relation 的映射
+    const restoreFullFilePathToRelation = new Map<
+      string,
+      (typeof relationsAll)[0]
+    >();
+    for (const r of relationsAll) {
+      if (!restoreFullFilePathToRelation.has(r.restoreFullFilePath)) {
+        restoreFullFilePathToRelation.set(r.restoreFullFilePath, r);
+      }
+    }
+
+    // 建立 filePath（remap 后的相对路径）到 hash 的映射
     const pathToHash = new Map<string, string>();
     for (const r of relationsAll) {
       if (!pathToHash.has(r.filePath)) {
@@ -156,7 +169,7 @@ export class CoverageMapForCommitService {
     const remappedRows = new Map<
       string,
       {
-        filePath: string;
+        filePath: string; // remap 后的相对路径
         s: NumMap;
         f: NumMap;
         b: Record<string, unknown>;
@@ -167,20 +180,17 @@ export class CoverageMapForCommitService {
     // 保存 remap 后的 filePath 到 coverMap 的映射
     const remappedPathToCoverMap = new Map<string, (typeof coverMaps)[0]>();
 
-    for (const [filePath, mergedRow] of mergedRows.entries()) {
+    for (const [fullFilePath, mergedRow] of mergedRows.entries()) {
       if (mergedRow.inputSourceMap === 1) {
         // 需要 remap
+        // 使用 restoreFullFilePath（未 remap 前的完整路径）来查找 relation
         const coverageMapRelation =
-          await this.prisma.coverageMapRelation.findFirst({
-            where: {
-              versionID: versionID,
-              restoreFullFilePath: `${mergedRow.filePath}`,
-            },
-          });
+          restoreFullFilePathToRelation.get(fullFilePath);
         if (
           coverageMapRelation &&
           coverageMapRelation.coverageMapHashID &&
-          coverageMapRelation.sourceMapHashID
+          coverageMapRelation.sourceMapHashID &&
+          coverageMapRelation.sourceMapHashID !== ''
         ) {
           const coverMap = await this.prisma.coverMap.findFirst({
             where: {
@@ -248,7 +258,34 @@ export class CoverageMapForCommitService {
       }
 
       // 不需要 remap 或 remap 失败，使用原始数据
-      remappedRows.set(filePath, mergedRow);
+      // 需要将 fullFilePath 转换为相对路径（filePath）
+      // 查找对应的 relation 来获取 remap 后的 filePath
+      const relation = restoreFullFilePathToRelation.get(fullFilePath);
+      if (relation) {
+        // 使用 relation 中的 filePath（remap 后的相对路径）
+        remappedRows.set(relation.filePath, {
+          filePath: relation.filePath,
+          s: mergedRow.s,
+          f: mergedRow.f,
+          b: mergedRow.b,
+          inputSourceMap: mergedRow.inputSourceMap,
+          latestTs: mergedRow.latestTs,
+        });
+      } else {
+        // 如果没有找到 relation，尝试从 fullFilePath 中提取相对路径
+        // 去掉 instrumentCwd 前缀
+        const relativePath = fullFilePath.startsWith(instrumentCwd + '/')
+          ? fullFilePath.replace(instrumentCwd + '/', '')
+          : fullFilePath;
+        remappedRows.set(relativePath, {
+          filePath: relativePath,
+          s: mergedRow.s,
+          f: mergedRow.f,
+          b: mergedRow.b,
+          inputSourceMap: mergedRow.inputSourceMap,
+          latestTs: mergedRow.latestTs,
+        });
+      }
     }
 
     // 组装最终结果
@@ -322,6 +359,18 @@ export class CoverageMapForCommitService {
       }
     }
 
-    return result;
+    // include/exclude 过滤
+    const repo = await this.prisma.repo.findFirst({
+      where: {
+        id: repoID,
+      },
+    });
+    const filtered = testExclude(
+      result,
+      JSON.stringify({
+        exclude: ['dist/**'],
+      }),
+    );
+    return filtered;
   }
 }
