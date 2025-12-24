@@ -14,8 +14,7 @@
     "build": "pnpm run -r build",
     "migrate": "prisma migrate dev --schema ./packages/backend/prisma/schema.prisma",
     "migrate:sql:root": "prisma migrate diff --from-empty --to-schema-datamodel ./packages/backend/prisma/schema.prisma --script > ./schema.sql",
-    "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs",
-    "prepare": "pnpm run build && simple-git-hooks"
+    "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs"
   },
   "simple-git-hooks": {
     "pre-commit": "npx nano-staged"
