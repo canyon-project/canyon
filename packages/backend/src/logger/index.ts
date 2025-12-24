@@ -1,5 +1,5 @@
 export interface LogMessage {
-  type: string;
+  type: 'info' | 'warn' | 'error' | 'fatal' | 'debug';
   title: string;
   message: string;
   addInfo?: object;

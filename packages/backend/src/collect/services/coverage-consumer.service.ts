@@ -49,7 +49,7 @@ export class CoverageConsumerService implements OnModuleInit {
 
   async onModuleInit() {
     logger({
-      type: 'log',
+      type: 'info',
       title: 'CoverageConsumer',
       message: 'Coverage consumer started with infinite loop',
       addInfo: { pid: this.currentPid },
@@ -107,7 +107,7 @@ export class CoverageConsumerService implements OnModuleInit {
         }
 
         logger({
-          type: 'log',
+          type: 'info',
           title: 'CoverageConsumer',
           message: 'Found queue item to process',
           addInfo: {
@@ -140,7 +140,7 @@ export class CoverageConsumerService implements OnModuleInit {
 
   private async processQueueItem(queueId: number) {
     logger({
-      type: 'log',
+      type: 'info',
       title: 'CoverageConsumer',
       message: 'Processing queue item',
       addInfo: { queueId, pid: this.currentPid },
@@ -185,7 +185,7 @@ export class CoverageConsumerService implements OnModuleInit {
       const { coverage, coverageID, versionID } = payload;
 
       logger({
-        type: 'log',
+        type: 'info',
         title: 'CoverageConsumer',
         message: 'Attempting to acquire lock',
         addInfo: {
@@ -221,7 +221,7 @@ export class CoverageConsumerService implements OnModuleInit {
       }
 
       logger({
-        type: 'log',
+        type: 'info',
         title: 'CoverageConsumer',
         message: 'Lock acquired successfully',
         addInfo: { queueId, coverageID, pid: this.currentPid },
@@ -230,7 +230,7 @@ export class CoverageConsumerService implements OnModuleInit {
       try {
         // 处理覆盖率数据合并
         logger({
-          type: 'log',
+          type: 'info',
           title: 'CoverageConsumer',
           message: 'Starting coverage data merge',
           addInfo: {
@@ -245,7 +245,7 @@ export class CoverageConsumerService implements OnModuleInit {
         await this.mergeCoverageData(coverage, coverageID, versionID);
 
         logger({
-          type: 'log',
+          type: 'info',
           title: 'CoverageConsumer',
           message: 'Coverage data merge completed',
           addInfo: {
@@ -263,7 +263,7 @@ export class CoverageConsumerService implements OnModuleInit {
         });
 
         logger({
-          type: 'log',
+          type: 'info',
           title: 'CoverageConsumer',
           message: 'Queue item processed successfully',
           addInfo: { queueId, coverageID, pid: this.currentPid },
@@ -618,7 +618,7 @@ export class CoverageConsumerService implements OnModuleInit {
       }
 
       logger({
-        type: 'log',
+        type: 'info',
         title: 'CoverageConsumer',
         message: 'Found items for local merge',
         addInfo: {
@@ -652,7 +652,7 @@ export class CoverageConsumerService implements OnModuleInit {
         }
 
         logger({
-          type: 'log',
+          type: 'info',
           title: 'CoverageConsumer',
           message: 'Merging local coverage items',
           addInfo: {
@@ -735,7 +735,7 @@ export class CoverageConsumerService implements OnModuleInit {
         }
 
         logger({
-          type: 'log',
+          type: 'info',
           title: 'CoverageConsumer',
           message: 'Local merge completed',
           addInfo: {
@@ -749,7 +749,7 @@ export class CoverageConsumerService implements OnModuleInit {
       }
 
       logger({
-        type: 'log',
+        type: 'info',
         title: 'CoverageConsumer',
         message: 'Local coverage data merge finished',
         addInfo: {
