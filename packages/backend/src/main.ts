@@ -1,9 +1,9 @@
 import path from 'node:path';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as dotenv from 'dotenv';
-import {ValidationPipe} from "@nestjs/common";
-import {json} from "express";
+import { json } from 'express';
 
 // import { json } from 'express';
 

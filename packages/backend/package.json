@@ -13,22 +13,23 @@
     "generate": "prisma generate && prisma generate --schema prisma/schema-sqlite.prisma"
   },
   "dependencies": {
-    "@nestjs/terminus": "^11.0.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/serve-static": "^5.0.4",
     "@nestjs/swagger": "^8.0.0",
+    "@nestjs/terminus": "^11.0.0",
     "@prisma/client": "6",
     "better-sqlite3": "^12.5.0",
+    "canyon-map": "latest",
+    "class-transformer": "^0.5.1",
     "class-validator": "catalog:",
     "dotenv": "catalog:",
     "express": "catalog:",
     "json-stable-stringify": "catalog:",
     "prisma": "6",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1",
-    "canyon-map": "latest"
+    "rxjs": "^7.8.1"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
