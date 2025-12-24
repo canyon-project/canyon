@@ -18,11 +18,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: pnpm install
       - run: pnpm run build
-      - run: pnpm --filter=@canyonjs/report-component publish --access public -f --no-git-checks
-        continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - run: pnpm --filter=@canyonjs/report-html publish --access public -f --no-git-checks
+      - run: pnpm publish --access public -f --no-git-checks
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
