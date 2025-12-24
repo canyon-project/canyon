@@ -1,6 +1,6 @@
 export default {
-  provider: '支持的 CI 提供商',
-  'istanbul-data-structure': 'istanbuljs 数据结构字典',
-  'custom-reporting': '自定义数据上报',
+  provider: 'Supported CI Providers',
+  'istanbul-data-structure': 'istanbuljs Data Structure Dictionary',
+  'custom-reporting': 'Custom Data Reporting',
   'canyon-report': 'Canyon Report',
 };

@@ -1,0 +1,77 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# Tools Collect
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/tools/collect'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+
+A script package for web sites to introduce coverage data collection. Automatically collects and reports coverage data when the page visibility changes.
+
+## Overview
+
+Tools Collect is a lightweight script that can be embedded in web pages to automatically collect and report coverage data. It listens for page visibility changes and sends coverage data when the page becomes hidden.
+
+## Installation
+
+```sh
+npm install @canyonjs/collect
+```
+
+## Usage
+
+Import the script in your web page:
+
+```html
+<script src="node_modules/@canyonjs/collect/dist/index.js"></script>
+```
+
+Or use it as an ES module:
+
+```javascript
+import '@canyonjs/collect';
+```
+
+## How It Works
+
+The script automatically:
+
+1. Monitors `window.__coverage__` object
+2. Listens for page visibility changes
+3. Sends coverage data to the server when the page becomes hidden (using the `visibilitychange` event)
+
+## Features
+
+- **Automatic Collection**: Automatically collects coverage data without manual intervention
+- **Visibility-Based Reporting**: Reports coverage data when the page visibility changes to hidden
+- **Lightweight**: Minimal overhead, only activates when needed
+- **Easy Integration**: Simple script tag or ES module import
+
+## Configuration
+
+The script reads configuration from `window.__coverage__` object, which is typically set by `babel-plugin-canyon`. It uses the following properties:
+
+- `dsn`: Coverage reporting service address
+- `reporter`: User token for authentication
+- Other coverage metadata
+
+## Example
+
+After instrumenting your code with `babel-plugin-canyon`, the `window.__coverage__` object will be populated. Simply include this script, and it will automatically handle coverage data collection and reporting.
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My App</title>
+</head>
+<body>
+  <!-- Your app content -->
+  
+  <!-- Include the collect script -->
+  <script src="node_modules/@canyonjs/collect/dist/index.js"></script>
+</body>
+</html>
+```
+

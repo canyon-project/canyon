@@ -16,7 +16,7 @@ Collect initial coverage source files generated during Babel compilation in CI
 
 ## Report Initial Coverage Data
 
-The babel-plugin-canyon plugin generates initial coverage files for compiled files during compilation and saves them to the .canyon_output folder. We provide the canyon-uploader command-line tool, which you can use in CI to report to the Canyon server.
+The babel-plugin-canyon plugin generates initial coverage files for compiled files during compilation and saves them to the .canyon_output folder. We provide the Tools CLI command-line tool, which you can use in CI to report to the Canyon server.
 
 ```yml filename=".github/workflows/report-canyon-output.yml" {19,20} copy
 name: Report Canyon Output

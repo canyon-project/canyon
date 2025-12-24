@@ -9,10 +9,10 @@ export default {
   },
   docs: {
     type: 'page',
-    title: '文档',
+    title: 'Documentation',
   },
   support: {
-    title: '支持',
+    title: 'Support',
     type: 'page',
   },
 };

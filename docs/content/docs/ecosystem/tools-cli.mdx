@@ -1,0 +1,24 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# Tools CLI
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/tools/cli'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+
+Canyon CLI is a binary tool for reporting coverage data. Provides binaries for Linux, macOS, and Windows platforms.
+
+Latest version can be downloaded from [GitHub Release](https://github.com/canyon-project/canyon/releases).
+
+## Features
+
+Reads and aggregates coverage data from local `.canyon_output` directory for reporting
+
+## Usage
+
+```bash
+chmod +x ./canyon-uploader
+canyon-uploader map --report-id=reportID
+```
+
