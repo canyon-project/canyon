@@ -36,7 +36,7 @@ catalogMode: prefer
 
 onlyBuiltDependencies:
   - better-sqlite3
-  - @prisma/client
+  - '@prisma/client'
   - prisma
 
 overrides:
