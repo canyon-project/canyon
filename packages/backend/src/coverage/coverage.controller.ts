@@ -14,9 +14,23 @@ export class CoverageController {
   ) {}
 
   @Get('map')
-  @ApiOperation({ summary: '获取覆盖率地图' })
   async getMap(@Query() q: MapQueryDto) {
-    return this.coverageMapForCommitService.invoke(q);
+    const { subject } = q;
+    switch (subject) {
+      case 'commit':
+        return this.coverageMapForCommitService.invoke({
+          provider: q.provider,
+          repoID: q.repoID,
+          sha: q.subjectID,
+          buildTarget: q.buildTarget || '',
+          // buildID: q.buildID,
+          reportProvider: q.reportProvider,
+          reportID: q.reportID,
+          filePath: q.filePath,
+        });
+      default:
+        throw new BadRequestException('invalid subject');
+    }
   }
 
   @Get('commits')
