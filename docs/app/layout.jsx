@@ -1,23 +1,50 @@
-import { Banner, Head } from 'nextra/components';
+import './styles.css';
+import { Head } from 'nextra/components';
 import { getPageMap } from 'nextra/page-map';
 import { Footer, Layout, Navbar } from 'nextra-theme-docs';
-import 'nextra-theme-docs/style.css';
 
 export const metadata = {
-  // Define your metadata here
-  // For more information on metadata API, see: https://nextjs.org/docs/app/building-your-application/optimizing/metadata
+  title: {
+    template: '%s - Canyon',
+    default: 'Canyon - JavaScript Code Coverage Solution',
+  },
+  description:
+    'An open-source solution to collect JavaScript coverage more accurately',
+  keywords: [
+    'JavaScript',
+    'code coverage',
+    'testing',
+    'E2E',
+    'Babel',
+    'Istanbul',
+  ],
+  authors: [{ name: 'Canyon Team' }],
+  creator: 'Canyon Team',
+  publisher: 'Canyon Team',
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://docs.canyonjs.io/en',
+    title: 'Canyon - JavaScript Code Coverage Solution',
+    description:
+      'An open-source solution to collect JavaScript coverage more accurately',
+    siteName: 'Canyon Documentation',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Canyon - JavaScript Code Coverage Solution',
+    description:
+      'An open-source solution to collect JavaScript coverage more accurately',
+  },
 };
 
-const banner = <Banner storageKey='some-key'>Nextra 4.0 is released 🎉</Banner>;
-const navbar = (
-  <Navbar
-    logo={<b>Nextra</b>}
-    // ... Your additional navbar options
-  />
-);
-const footer = <Footer>MIT {new Date().getFullYear()} © Nextra.</Footer>;
+const footer = <Footer>MIT {new Date().getFullYear()} © Canyon.</Footer>;
 
-export default async function RootLayout({ children }) {
+export default async function RootLayout({ children, params }) {
   return (
     <html
       // Not required, but good for SEO
@@ -30,14 +57,15 @@ export default async function RootLayout({ children }) {
       <Head
       // ... Your additional head options
       >
-        {/* Your additional tags should be passed as `children` of `<Head>` element */}
+        <link rel='icon' type='image/svg+xml' href='/logo.svg' />
+        <title>JavaScript Code Coverage Solution - CANYON</title>
       </Head>
       <body>
         <Layout
-          banner={banner}
-          navbar={navbar}
           pageMap={await getPageMap()}
-          docsRepositoryBase='https://github.com/shuding/nextra/tree/main/docs'
+          // banner={banner}
+          // navbar={navbar}
+          docsRepositoryBase='https://github.com/canyon-project/canyon/tree/dev/website'
           footer={footer}
           // ... Your additional layout options
         >

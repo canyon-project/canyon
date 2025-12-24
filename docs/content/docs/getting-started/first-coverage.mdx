@@ -1,0 +1,99 @@
+import { Steps, Callout, Cards } from "nextra/components";
+
+# 第一个覆盖率数据
+
+> [!NOTE]
+>
+> Canyon 提供[常见框架的安装指南](/docs/installation/getting-started)，帮助您快速上手。
+
+跟着以下步骤完成第一个覆盖率数据上报：
+
+## 作为新项目开始
+
+<Steps>
+  ### 安装
+
+在前端工程化和模块化开发中离不开Babel，对于Babel项目只需安装两个Babel插件，即可快速开始。
+
+```sh npm2yarn
+npm install babel-plugin-istanbul babel-plugin-canyon -D
+```
+
+在 [Babel 配置文件](https://babeljs.io/docs/config-files#configuration-file-types) 中添加 [`istanbul`](https://www.npmjs.com/package/babel-plugin-istanbul) 和 [`canyon`](https://www.npmjs.com/package/babel-plugin-canyon) 插件：
+
+  ```js filename="babel.config.js" {3,4} copy
+  module.exports = {
+    plugins: [
+      'istanbul',
+      'canyon'
+      // 需注意插件顺序，canyon插件应在istanbul插件之后
+      ],
+  };
+  ```
+
+### 检查
+
+配置完成后，启动项目并在控制台打印 **window.\_\_coverage\_\_**。如果输出与下图一致，则表示代码插桩成功。
+
+![coverage-canyon-console](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/getting-started/first-coverage/coverage-canyon-console.png)
+
+### 配置 CI 环境变量
+
+在 CI 环境中，我们需要配置一些环境变量以便上报覆盖率数据。
+
+> [!TIP]
+>
+> canyon会在编译时侦测流水线变量，我们适配了多个[流水线供应商](/docs/reference/provider)。<br/>
+> 没有您的流水线供应商？尝试[显式配置](/docs/ecosystem/babel-plugin-canyon#配置)。
+
+
+1. `DSN` 和 `REPORTER`
+
+- **DSN**：覆盖率数据上报的服务地址，\{\{url\}\}/coverage/client，其中 \{\{url\}\} 为 Canyon 服务地址。
+- **REPORTER**：用户 token，可在Canyon用户设置页面查看。
+
+2. 配置 CI 平台变量
+
+![gitlab](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/getting-started/first-coverage/gitlab-var-config.png)
+
+<Callout type="info" emoji="ℹ️">
+  其中，项目 ID、分支和 SHA 无需手动配置，Canyon 插件会自动侦测流水线环境变量。
+</Callout>
+
+  ### 更新babel插件生效条件
+
+  __在 CI 阶段，我们需要控制插件生效的条件，以防止在生产分支插桩。__
+
+  ```js {2,3} copy
+  module.exports = {
+    plugins: (process.env.CI &&
+              process.env.CI_COMMIT_REF_NAME !== 'release')
+              ? [
+                'istanbul',
+                'canyon'
+              ]:[],
+  };
+  ```
+
+  ### 上报覆盖率数据
+
+  等待 CI 完成后，页面发布到测试环境。
+
+  此时，覆盖率数据已存储在浏览器中。随着用户操作或UI自动化测试的执行，window.__coverage___数据会不断累积。
+
+  将这些数据准确无误的上报至 Canyon 服务端，即可实现覆盖率数据的实时展示。
+
+
+  以下是上报覆盖率数据的几种方式：
+
+  <Cards>
+  <Cards.Card
+    title="UI 自动化测试"
+    href="/docs/end-to-end-testing/playwright"
+  />
+  <Cards.Card
+    title="手动测试"
+    href="/docs/ecosystem/canyon-extension"
+  />
+</Cards>
+</Steps>

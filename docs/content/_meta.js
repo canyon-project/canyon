@@ -11,9 +11,8 @@ export default {
     type: 'page',
     title: '文档',
   },
-  api: {
-    title: 'API',
+  support: {
+    title: '支持',
     type: 'page',
-    href: '/api.html',
   },
 };
