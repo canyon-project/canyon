@@ -1,17 +1,17 @@
-# 自定义数据上报
+# Custom Data Reporting
 
-在某些场景下，特别是APP内嵌的H5页面需要上报覆盖率数据时，由于没有类似PC端的Canyon Chrome插件，需要自定义实现覆盖率数据的上报功能。
+In some scenarios, especially when APP-embedded H5 pages need to report coverage data, since there is no Canyon Chrome extension similar to PC, custom implementation of coverage data reporting functionality is required.
 
-## 适用场景
+## Applicable Scenarios
 
-- APP内嵌的H5页面
-- 无法使用Canyon Chrome插件的环境
-- 需要自定义上报逻辑的场景
-- 移动端Web应用
+- APP-embedded H5 pages
+- Environments where Canyon Chrome extension cannot be used
+- Scenarios requiring custom reporting logic
+- Mobile web applications
 
-## 实现方案
+## Implementation Solution
 
-以下是一个基本的自定义上报实现方案：
+The following is a basic custom reporting implementation solution:
 
 ```javascript copy
 const coverageFirstValue = Object.values(window.__coverage__||{})[0];

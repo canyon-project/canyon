@@ -1,14 +1,14 @@
 import { Steps, Callout, Cards } from "nextra/components";
 
-# 入门
+# Getting Started
 
-与单元测试不同的是，端到端测试会揭起浏览器，我们目标是收集浏览器内的覆盖率数据。所以复杂度会相对较高。以下是大致流程。
+Unlike unit tests, end-to-end tests launch a browser. Our goal is to collect coverage data within the browser. Therefore, the complexity is relatively higher. The following is the general process.
 
-- 暴露出浏览器的全局变量，在正确的时机把覆盖率数据写到本地
-- 在UI自动化完成后使用 [canyon-uploader](/docs/ecosystem/canyon-uploader) 读取本地 `.canyon_output` 目录下的覆盖率数据聚合上报。
-- 将caseID关联 [Report ID](/docs/core-concepts/report-id) ，保证case可回溯。
+- Expose browser global variables, write coverage data to local at the right time
+- After UI automation completes, use [canyon-uploader](/docs/ecosystem/canyon-uploader) to read coverage data from local `.canyon_output` directory and aggregate for reporting.
+- Associate caseID with [Report ID](/docs/core-concepts/report-id) to ensure cases are traceable.
 
-## 框架
+## Frameworks
 
 <Cards>
   <Cards.Card

@@ -2,26 +2,26 @@
 
 import { Steps } from "nextra/components";
 
-安装和配置 React Native 。
+Install and configure React Native.
 
 <Steps>
 
-  ### 创建项目
+  ### Create Project
 
-  React Native [文档](https://reactnative.dev/)
+  React Native [Documentation](https://reactnative.dev/)
 
-  ### 添加 Canyon 及其配置
+  ### Add Canyon and Configuration
 
   > [!TIP]
   >
-  > 您需要了解 [react-native-babel-preset](https://reactnative.dev/docs/javascript-environment#javascript-syntax-transformers) 。
+  > You need to understand [react-native-babel-preset](https://reactnative.dev/docs/javascript-environment#javascript-syntax-transformers).
 
 
   ```sh npm2yarn copy
   npm install babel-plugin-istanbul babel-plugin-canyon -D
   ```
 
-  ### 配置 babel 插件
+  ### Configure Babel Plugin
 
   ```js filename="babel.config.js" {3} copy
   module.exports = {
@@ -30,8 +30,8 @@ import { Steps } from "nextra/components";
   };
   ```
 
-  ### 就是这样
-  继续查看 [第一个覆盖率数据 - 检查](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)。
+  ### That's It
+  Continue to [First Coverage Data - Verification](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5).
 </Steps>
 
 

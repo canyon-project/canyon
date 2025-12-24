@@ -1,68 +1,68 @@
 import { Steps, Callout, Cards } from "nextra/components";
 
-# 第一个覆盖率数据
+# First Coverage Data
 
 > [!NOTE]
 >
-> Canyon 提供[常见框架的安装指南](/docs/installation/getting-started)，帮助您快速上手。
+> Canyon provides [installation guides for common frameworks](/docs/installation/getting-started) to help you get started quickly.
 
-跟着以下步骤完成第一个覆盖率数据上报：
+Follow these steps to complete your first coverage data report:
 
-## 作为新项目开始
+## Starting as a New Project
 
 <Steps>
-  ### 安装
+  ### Installation
 
-在前端工程化和模块化开发中离不开Babel，对于Babel项目只需安装两个Babel插件，即可快速开始。
+Babel is essential in frontend engineering and modular development. For Babel projects, you can get started quickly by installing just two Babel plugins.
 
 ```sh npm2yarn
 npm install babel-plugin-istanbul babel-plugin-canyon -D
 ```
 
-在 [Babel 配置文件](https://babeljs.io/docs/config-files#configuration-file-types) 中添加 [`istanbul`](https://www.npmjs.com/package/babel-plugin-istanbul) 和 [`canyon`](https://www.npmjs.com/package/babel-plugin-canyon) 插件：
+Add the [`istanbul`](https://www.npmjs.com/package/babel-plugin-istanbul) and [`canyon`](https://www.npmjs.com/package/babel-plugin-canyon) plugins to your [Babel configuration file](https://babeljs.io/docs/config-files#configuration-file-types):
 
   ```js filename="babel.config.js" {3,4} copy
   module.exports = {
     plugins: [
       'istanbul',
       'canyon'
-      // 需注意插件顺序，canyon插件应在istanbul插件之后
+      // Note the plugin order: canyon plugin should be after istanbul plugin
       ],
   };
   ```
 
-### 检查
+### Verification
 
-配置完成后，启动项目并在控制台打印 **window.\_\_coverage\_\_**。如果输出与下图一致，则表示代码插桩成功。
+After configuration, start your project and print **window.\_\_coverage\_\_** in the console. If the output matches the image below, code instrumentation was successful.
 
 ![coverage-canyon-console](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/getting-started/first-coverage/coverage-canyon-console.png)
 
-### 配置 CI 环境变量
+### Configure CI Environment Variables
 
-在 CI 环境中，我们需要配置一些环境变量以便上报覆盖率数据。
+In CI environments, we need to configure some environment variables to report coverage data.
 
 > [!TIP]
 >
-> canyon会在编译时侦测流水线变量，我们适配了多个[流水线供应商](/docs/reference/provider)。<br/>
-> 没有您的流水线供应商？尝试[显式配置](/docs/ecosystem/babel-plugin-canyon#配置)。
+> Canyon detects pipeline variables at compile time, and we support multiple [pipeline providers](/docs/reference/provider).<br/>
+> Don't see your pipeline provider? Try [explicit configuration](/docs/ecosystem/babel-plugin-canyon#配置).
 
 
-1. `DSN` 和 `REPORTER`
+1. `DSN` and `REPORTER`
 
-- **DSN**：覆盖率数据上报的服务地址，\{\{url\}\}/coverage/client，其中 \{\{url\}\} 为 Canyon 服务地址。
-- **REPORTER**：用户 token，可在Canyon用户设置页面查看。
+- **DSN**: Service address for coverage data reporting, \{\{url\}\}/coverage/client, where \{\{url\}\} is the Canyon service address.
+- **REPORTER**: User token, which can be viewed on the Canyon user settings page.
 
-2. 配置 CI 平台变量
+2. Configure CI Platform Variables
 
 ![gitlab](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/getting-started/first-coverage/gitlab-var-config.png)
 
 <Callout type="info" emoji="ℹ️">
-  其中，项目 ID、分支和 SHA 无需手动配置，Canyon 插件会自动侦测流水线环境变量。
+  Project ID, branch, and SHA do not need to be manually configured; the Canyon plugin will automatically detect pipeline environment variables.
 </Callout>
 
-  ### 更新babel插件生效条件
+  ### Update Babel Plugin Activation Conditions
 
-  __在 CI 阶段，我们需要控制插件生效的条件，以防止在生产分支插桩。__
+  __In the CI phase, we need to control plugin activation conditions to prevent instrumentation in production branches.__
 
   ```js {2,3} copy
   module.exports = {
@@ -75,24 +75,24 @@ npm install babel-plugin-istanbul babel-plugin-canyon -D
   };
   ```
 
-  ### 上报覆盖率数据
+  ### Report Coverage Data
 
-  等待 CI 完成后，页面发布到测试环境。
+  Wait for CI to complete, then deploy the page to the test environment.
 
-  此时，覆盖率数据已存储在浏览器中。随着用户操作或UI自动化测试的执行，window.__coverage___数据会不断累积。
+  At this point, coverage data is stored in the browser. As users interact or UI automation tests execute, window.__coverage___ data will continue to accumulate.
 
-  将这些数据准确无误的上报至 Canyon 服务端，即可实现覆盖率数据的实时展示。
+  Reporting this data accurately to the Canyon server enables real-time display of coverage data.
 
 
-  以下是上报覆盖率数据的几种方式：
+  Here are several ways to report coverage data:
 
   <Cards>
   <Cards.Card
-    title="UI 自动化测试"
+    title="UI Automation Testing"
     href="/docs/end-to-end-testing/playwright"
   />
   <Cards.Card
-    title="手动测试"
+    title="Manual Testing"
     href="/docs/ecosystem/canyon-extension"
   />
 </Cards>

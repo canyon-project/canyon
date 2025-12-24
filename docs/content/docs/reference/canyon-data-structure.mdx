@@ -1,34 +1,34 @@
-# CanyonJS 数据结构字典
+# CanyonJS Data Structure Dictionary
 
-面向覆盖率查询与聚合的核心字段说明，按“查询维度 / 构建维度 / 报告维度 / 统计范围”分组展示。
+Core field descriptions for coverage query and aggregation, grouped by "Query Dimension / Build Dimension / Report Dimension / Statistics Scope".
 
-## 覆盖率查询维度
+## Coverage Query Dimensions
 
-| 字段 | 含义 | 示例/备注 |
+| Field | Meaning | Example/Notes |
 | --- | --- | --- |
-| provider | 代码提供商 | `gitlab`、`github`、`gitea` |
-| repoID | 仓库 ID | 例如 `123` 或 `org/repo` |
-| subject | 查询主题 | `commit` / `pull` / `multiple-commits` |
-| subjectID | 主题 ID | `commit` → commit SHA；`pull` → pull ID |
+| provider | Code provider | `gitlab`, `github`, `gitea` |
+| repoID | Repository ID | For example `123` or `org/repo` |
+| subject | Query subject | `commit` / `pull` / `multiple-commits` |
+| subjectID | Subject ID | `commit` → commit SHA; `pull` → pull ID |
 
-## 构建维度
+## Build Dimensions
 
-| 字段 | 含义 | 示例/备注 |
+| Field | Meaning | Example/Notes |
 | --- | --- | --- |
-| buildProvider | 构建提供商 | 例如 `gitlab runner` |
-| buildID | 构建 ID | 例如 `123456` |
-| buildTarget | 构建目标 | 用于单仓多端（如 `web`/`ios`/`android`）；合并覆盖率时需按 `buildTarget` 区分统计 |
+| buildProvider | Build provider | For example `gitlab runner` |
+| buildID | Build ID | For example `123456` |
+| buildTarget | Build target | Used for single-repo multi-platform (e.g., `web`/`ios`/`android`); when merging coverage, statistics need to be distinguished by `buildTarget` |
 
-## 报告维度
+## Report Dimensions
 
-| 字段 | 含义 | 示例/备注 |
+| Field | Meaning | Example/Notes |
 | --- | --- | --- |
-| reportProvider | 覆盖率/用例提供方 | 如 `playwright`、人工测试 |
-| reportID | 报告/用例 ID | 自定义标识，用于区分不同报告来源 |
+| reportProvider | Coverage/test case provider | Such as `playwright`, manual testing |
+| reportID | Report/test case ID | Custom identifier for distinguishing different report sources |
 
-## 统计范围（scope）
+## Statistics Scope
 
-每个 `buildTarget` 建议配置一个 `scope`，包含 `includes` 与 `excludes`，用于独立统计。
+Each `buildTarget` is recommended to configure a `scope`, including `includes` and `excludes`, for independent statistics.
 
 ```json
 [

@@ -1,46 +1,46 @@
-# 先决条件
+# Prerequisites
 
-在您自己的基础架构上安装 Canyon 的先决条件。
+Prerequisites for installing Canyon on your own infrastructure.
 
-Canyon 是一个自托管 API 开发平台，打包为一组 Docker 容器。您可以在任何可以运行[Docker Engine](https://docs.docker.com/engine) 的操作系统上安装和运行 Canyon 。您可以在本地计算机或您选择的云提供商上使用 Canyon。
+Canyon is a self-hosted API development platform packaged as a set of Docker containers. You can install and run Canyon on any operating system that can run [Docker Engine](https://docs.docker.com/engine). You can use Canyon on your local computer or on a cloud provider of your choice.
 
-## 系统要求
+## System Requirements
 
-Canyon 的设计使其在小型和大型部署中都能良好运行。运行 Canyon 的最低要求是支持 Docker 的操作系统和 4 个 CPU 核心 + 4GB RAM 来生成构建映像，以及至少 1 个 CPU 核心 + 2GB RAM 来托管生成的输出文件。
+Canyon is designed to run well in both small and large deployments. The minimum requirements to run Canyon are a Docker-supported operating system and 4 CPU cores + 4GB RAM to generate build images, and at least 1 CPU core + 2GB RAM to host the generated output files.
 
-### 安装 Node.js、npm、pnpm
+### Install Node.js, npm, pnpm
 
 #### Node.js + npm
 
-安装 [`Node.js`](https://nodejs.org/en) (v18+) 和 [`npm`](https://www.npmjs.com) (v9+).
+Install [`Node.js`](https://nodejs.org/en) (v18+) and [`npm`](https://www.npmjs.com) (v9+).
 
-- [Node.js + npm 安装手册](https://nodejs.org/en/download)
+- [Node.js + npm Installation Guide](https://nodejs.org/en/download)
 
 
 ### pnpm
 
-安装 [`pnpm`](https://pnpm.io) (建议使用v9).
+Install [`pnpm`](https://pnpm.io) (v9 recommended).
 
-- [pnpm 安装手册](https://pnpm.io/installation)
+- [pnpm Installation Guide](https://pnpm.io/installation)
 
 ### Docker
 
-安装 [`Docker`](https://www.docker.com) (v20+).
+Install [`Docker`](https://www.docker.com) (v20+).
 
-- [Docker 安装手册](https://docs.docker.com/engine/install)
+- [Docker Installation Guide](https://docs.docker.com/engine/install)
 
-### Postgres数据库
+### Postgres Database
 
-Canyon 使用 Postgres 数据库来存储基础数据（需要14.x以上）。您可以使用您选择的任何 Postgres 数据库提供商 - 托管在本地或云提供商上。确保您拥有以下格式的有效 Postgres 数据库 URL：
+Canyon uses a Postgres database to store base data (requires 14.x or higher). You can use any Postgres database provider of your choice - hosted locally or on a cloud provider. Make sure you have a valid Postgres database URL in the following format:
 
 ```
 postgres://username:password@localhost:5432/dbname
 ```
 
-#### 创建表
+#### Create Tables
 
 ```shell
 pnpm run migrate
 ```
 
-或者直接使用建表 [SQL](https://github.com/canyon-project/canyon/blob/main/packages/canyon-backend/prisma/create_table.sql)。
+Or directly use the table creation [SQL](https://github.com/canyon-project/canyon/blob/main/packages/canyon-backend/prisma/create_table.sql).

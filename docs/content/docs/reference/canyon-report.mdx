@@ -1,64 +1,64 @@
 # Canyon Report
 
-一个基于 Monaco Editor 的前端代码覆盖率可视化组件（Library）。提供按行覆盖次数、变更行标记与语法区块（语句/函数/分支）未覆盖高亮能力，适合在 Web 页面中快速渲染单文件级别的覆盖详情。
+A frontend code coverage visualization component (Library) based on Monaco Editor. Provides line coverage count, changed line markers, and syntax block (statements/functions/branches) uncovered highlighting capabilities, suitable for quickly rendering single-file level coverage details in web pages.
 
-## 界面介绍
+## Interface Introduction
 
-### 界面图形展示
+### Interface Graphics Display
 
 ![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/getting-started/introduction/home-screen.png)
 
-### 界面染色说明
+### Interface Color Coding
 
-| 颜色 | pct(覆盖率百分比)     | 描述                                           |
+| Color | pct (Coverage Percentage)     | Description                                           |
 | ---- | --------------------- | ---------------------------------------------- |
-| 绿色 | pct >= 80             | statements 语句覆盖率 大于等于 80              |
-| 黄色 | pct >= 50 && pct < 80 | statements 语句覆盖率 大于等于 50 并且 小于 80 |
-| 红色 | pct < 50              | statements 语句覆盖率 小于 50                  |
+| Green | pct >= 80             | Statement coverage greater than or equal to 80              |
+| Yellow | pct >= 50 && pct < 80 | Statement coverage greater than or equal to 50 and less than 80 |
+| Red | pct < 50              | Statement coverage less than 50                  |
 
-### 界面区域功能
+### Interface Area Functions
 
-- **顶部控制栏 ([TopControl])**
+- **Top Control Bar ([TopControl])**
 
 ```javascript
-  视图模式切换: 在"代码树"和"文件列表"两种视图间切换
-  变更文件过滤: "仅显示变更"开关，过滤显示有代码变更的文件
-  文件搜索: 输入文件路径关键词进行搜索过滤
-  文件统计: 显示当前过滤条件下的文件总数
+  View mode toggle: Switch between "code tree" and "file list" views
+  Changed file filter: "Show changed only" toggle, filter to show files with code changes
+  File search: Enter file path keywords to search and filter
+  File statistics: Display total number of files under current filter conditions
 ```
 
-- **摘要头部区域 ([SummaryHeader])**
+- **Summary Header Area ([SummaryHeader])**
 
 ```javascript
-  项目路径导航: 显示当前查看的项目路径层级
+  Project path navigation: Display current project path hierarchy
 
-  覆盖率统计概览: 展示关键覆盖率指标
-    语句覆盖率 (Statements)
-    分支覆盖率 (Branches)
-    函数覆盖率 (Functions)
-    行覆盖率 (Lines)
-    新增行覆盖率 (New Lines)
-    新增函数覆盖率 (Changed Functions)
-    新增分支覆盖率 (Changed Branches)
-    新增语句覆盖率(Changed Statements)
+  Coverage statistics overview: Display key coverage metrics
+    Statement Coverage (Statements)
+    Branch Coverage (Branches)
+    Function Coverage (Functions)
+    Line Coverage (Lines)
+    New Line Coverage (New Lines)
+    Changed Function Coverage (Changed Functions)
+    Changed Branch Coverage (Changed Branches)
+    Changed Statement Coverage (Changed Statements)
 ```
 
-- **内容区域 ([SummaryTree]/[SummaryList])**
+- **Content Area ([SummaryTree]/[SummaryList])**
 
 ```javascript
-  表格展示: 以表格形式展示文件列表
-  列信息: 文件名、总数、已覆盖数、覆盖率百分比
-  进度条: 直观显示覆盖率水平
-  文件类型图标: 区分文件和文件夹
+  Table display: Display file list in table format
+  Column information: File name, total count, covered count, coverage percentage
+  Progress bar: Visually display coverage level
+  File type icons: Distinguish files and folders
 ```
 
-- **spa 组件([CoverageDetail])**
+- **SPA Component ([CoverageDetail])**
 
 ```javascript
-  绿色: 在行号侧显示执行次数。
-  深绿色: 在行号侧显示的变更标记，通过传入 diff 高亮变更行。
-  红色: 未覆盖的语句和函数
-  黄色: 未完全覆盖的分支代码
+  Green: Display execution count on the line number side.
+  Dark green: Changed markers displayed on the line number side, highlight changed lines by passing diff.
+  Red: Uncovered statements and functions
+  Yellow: Incompletely covered branch code
 
 ```
 
@@ -68,28 +68,28 @@
 [SummaryList]: https://dimg04.c-ctrip.com/images/1qv2612000ncrf7xxB6C4.png
 [CoverageDetail]: https://dimg04.c-ctrip.com/images/1qv3r12000ncrjohxACD0.png
 
-## 安装
+## Installation
 
 ```bash
 npm install canyon-report
 ```
 
-## 基本用法
+## Basic Usage
 
 ```jsx
 import Report from "canyon-report";
 
 function App() {
   const dataSource = {
-    // Istanbul 覆盖率数据
+    // Istanbul coverage data
   };
 
   const handleSelect = async (filePath) => {
-    // 返回选中文件的详细信息
+    // Return detailed information of selected file
     return {
-      fileContent: "文件内容",
+      fileContent: "File content",
       fileCoverage: {}, // Istanbul FileCoverageData
-      fileCodeChange: [], // 变更行号数组
+      fileCodeChange: [], // Array of changed line numbers
     };
   };
 
@@ -97,9 +97,9 @@ function App() {
     <Report
       theme="light"
       language="cn"
-      name="项目名称"
+      name="Project Name"
       dataSource={dataSource}
-      value="当前选中文件路径"
+      value="Currently selected file path"
       onSelect={handleSelect}
       defaultOnlyShowChanged={false}
     />
@@ -107,17 +107,17 @@ function App() {
 }
 ```
 
-## API 参数
+## API Parameters
 
-| 参数                   | 类型                                                                                                         | 描述                   |
+| Parameter                   | Type                                                                                                         | Description                   |
 | ---------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------- |
-| theme                  | `ThemeEnum `                                                                                                 | 主题模式               |
-| language               | `LanguageEnum`                                                                                               | 界面语言               |
-| name                   | `string`                                                                                                     | 项目名称               |
-| dataSource             | `{ [key: string]: CoverageSummaryData & { path: string,change:boolean } }`                                   | 覆盖率数据源           |
-| value                  | `string`                                                                                                     | 当前选中的文件         |
+| theme                  | `ThemeEnum `                                                                                                 | Theme mode               |
+| language               | `LanguageEnum`                                                                                               | Interface language               |
+| name                   | `string`                                                                                                     | Project name               |
+| dataSource             | `{ [key: string]: CoverageSummaryData & { path: string,change:boolean } }`                                   | Coverage data source           |
+| value                  | `string`                                                                                                     | Currently selected file         |
 | onSelect               | `(val: string) => Promise<{fileCoverage: FileCoverageData;fileContent: string; fileCodeChange: number[]; }>` |                        |
-| defaultOnlyShowChanged | `boolean`                                                                                                    | 是否默认只显示变更文件 |
+| defaultOnlyShowChanged | `boolean`                                                                                                    | Whether to show only changed files by default |
 
 ## 数据结构
 

@@ -1,61 +1,61 @@
-# 不同 Commit 代码覆盖率合并
+# Merge Code Coverage Across Different Commits
 
-目前多数项目的端到端测试仍以人工测试为主，UI 自动化使用率较低。在这种情况下，一次 Merge Request 通常包含多个 commit，每个 commit 对应一次测试覆盖率数据。
+Currently, most projects' end-to-end testing is still primarily manual, with low UI automation usage. In this case, a Merge Request typically contains multiple commits, with each commit corresponding to one test coverage data.
 
-Canyon 当前的覆盖率数据是以 Commit 为单位聚合的，无法全面反映整个 MR 的测试覆盖情况。为减轻回归测试工作量，提升测试效率，我们希望支持以 Merge Request ID 为单位聚合覆盖率数据。
+Canyon's current coverage data is aggregated by Commit, which cannot fully reflect the test coverage situation of the entire MR. To reduce regression testing workload and improve testing efficiency, we want to support aggregating coverage data by Merge Request ID.
 
 > [!IMPORTANT]
 >
-> 在使用合并功能时，可能会出现以下问题：
-> 1. 合并的最小纬度是语句块。
-> 2. 当a.ts的某个语句在commit1中被覆盖，但是在commit2中删除了该语句的使用，最终版本还是还原了a.ts，实际该语句的覆盖率是0。但是这里如果要合并的话会是100%。
+> When using the merge feature, the following issues may occur:
+> 1. The minimum dimension for merging is statement blocks.
+> 2. When a statement in a.ts is covered in commit1, but its usage is deleted in commit2, and the final version still restores a.ts, the actual coverage of that statement is 0. However, if merged here, it would be 100%.
 
-## 要点速览
+## Quick Overview
 
-- **MR 级聚合**：以 head commit 为基线，聚合多次提交的覆盖率。
-- **fileMerge**：文件级合并；对未变更文件计数累加。
-- **blockMerge**：先进行文件级合并，**再对变更文件按代码块合并**。
-- **实践建议**：默认使用 **fileMerge**；需精细到变更文件的块级命中时再用 **blockMerge**。
+- **MR-level aggregation**: Use head commit as baseline, aggregate coverage from multiple commits.
+- **fileMerge**: File-level merge; accumulate counts for unchanged files.
+- **blockMerge**: First perform file-level merge, **then merge changed files by code blocks**.
+- **Practice recommendation**: Use **fileMerge** by default; use **blockMerge** when you need block-level hits for changed files.
 
-## 方案
+## Solutions
 
-### 文件合并
+### File Merge
 
-- **fileMerge**：以 MR 的 head commit 为基线，合并所有 commit 的覆盖率数据
-  - 对于未变更的文件，直接累加命中计数
-  - 对于变更的文件，保持基线文件的覆盖率数据不变（**不进行块级合并**）
+- **fileMerge**: Use MR's head commit as baseline, merge coverage data from all commits
+  - For unchanged files, directly accumulate hit counts
+  - For changed files, keep baseline file's coverage data unchanged (**no block-level merge**)
 
-### 代码块合并
+### Code Block Merge
 
-- **blockMerge**：以 MR 的 head commit 为基线，合并所有 commit 的覆盖率数据（先按文件合并，再对变更文件按语句代码块合并）
-  - 对于未变更的文件，直接累加命中计数
-  - 对于变更的文件，进行块级合并：
-    - 基线文件的语句代码块保持不变
-    - 其他 commit 中与基线语句代码块位置相同的块，若有命中则累加计数
-    - 若合并过程中有多个相同的代码块，则不合并
+- **blockMerge**: Use MR's head commit as baseline, merge coverage data from all commits (first merge by file, then merge changed files by statement code blocks)
+  - For unchanged files, directly accumulate hit counts
+  - For changed files, perform block-level merge:
+    - Baseline file's statement code blocks remain unchanged
+    - Blocks in other commits that have the same position as baseline statement code blocks, if hit, accumulate counts
+    - If there are multiple identical code blocks during merging, do not merge
 
-### 选择指引
+### Selection Guide
 
-- **默认**：优先选择 `fileMerge`，简单、风险低。
-- **精细统计**：选择 `blockMerge`，对变更文件进行块级合并处理。
+- **Default**: Prefer `fileMerge`, simple and low risk.
+- **Fine-grained statistics**: Choose `blockMerge` to perform block-level merge processing on changed files.
 
-## 流程
+## Process
 
 ```mermaid
 graph TD
   A[HTTP GET /api/coverage/map] --> B{subject}
-  B -->|commit| C[单 commit 覆盖率]
-  B -->|pull| D[MR 覆盖率合并]
+  B -->|commit| C[Single commit coverage]
+  B -->|pull| D[MR coverage merge]
 
-  C --> C1[查询与汇总覆盖率数据]
-  C1 --> E[返回 JSON]
+  C --> C1[Query and aggregate coverage data]
+  C1 --> E[Return JSON]
 
-  D --> D1[解析 head 与 commits]
-  D1 --> D2[查询与汇总各 commit 覆盖率]
-  D2 --> D3{合并模式}
-  D3 -->|fileMerge| D31[按文件合并]
-  D3 -->|blockMerge| D32a[先按文件合并]
-  D32a --> D32b[再对变更文件按代码块合并]
+  D --> D1[Parse head and commits]
+  D1 --> D2[Query and aggregate each commit coverage]
+  D2 --> D3{Merge mode}
+  D3 -->|fileMerge| D31[Merge by file]
+  D3 -->|blockMerge| D32a[First merge by file]
+  D32a --> D32b[Then merge changed files by code blocks]
   D31 --> E
   D32b --> E
 ```

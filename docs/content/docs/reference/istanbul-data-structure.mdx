@@ -1,144 +1,144 @@
-# istanbuljs 覆盖率数据字典
+# istanbuljs Coverage Data Dictionary
 
-## 概述
-istanbuljs 是一个JavaScript代码覆盖率的黄金标准，本数据字典描述了覆盖率数据的主要结构和字段。
+## Overview
+istanbuljs is the gold standard for JavaScript code coverage. This data dictionary describes the main structure and fields of coverage data.
 
-## 主要数据结构
+## Main Data Structures
 
-### 1. Coverage Object (覆盖率对象)
-顶级覆盖率数据结构，包含所有文件的覆盖率信息。
+### 1. Coverage Object
+Top-level coverage data structure containing coverage information for all files.
 
 ```json
 {
   "path/to/file.js": {
-    // FileCoverage 对象
+    // FileCoverage object
   }
 }
 ```
 
-### 2. FileCoverage (文件覆盖率)
-单个文件的完整覆盖率数据。
+### 2. FileCoverage
+Complete coverage data for a single file.
 
-| 字段 | 类型 | 描述 |
+| Field | Type | Description |
 |------|------|------|
-| `path` | string | 文件的绝对路径 |
-| `statementMap` | Object | 语句映射表 |
-| `fnMap` | Object | 函数映射表 |
-| `branchMap` | Object | 分支映射表 |
-| `s` | Object | 语句执行计数 |
-| `f` | Object | 函数执行计数 |
-| `b` | Object | 分支执行计数 |
+| `path` | string | Absolute path of the file |
+| `statementMap` | Object | Statement mapping table |
+| `fnMap` | Object | Function mapping table |
+| `branchMap` | Object | Branch mapping table |
+| `s` | Object | Statement execution count |
+| `f` | Object | Function execution count |
+| `b` | Object | Branch execution count |
 
-### 3. StatementMap (语句映射)
-描述代码中每个语句的位置信息。
+### 3. StatementMap
+Describes the location information of each statement in the code.
 
-| 字段 | 类型 | 描述 |
+| Field | Type | Description |
 |------|------|------|
-| `start` | Location | 语句开始位置 |
-| `end` | Location | 语句结束位置 |
+| `start` | Location | Statement start position |
+| `end` | Location | Statement end position |
 
-### 4. FunctionMap (函数映射)
-描述代码中每个函数的信息。
+### 4. FunctionMap
+Describes information about each function in the code.
 
-| 字段 | 类型 | 描述 |
+| Field | Type | Description |
 |------|------|------|
-| `name` | string | 函数名称（匿名函数为"(anonymous_N)"） |
-| `decl` | Location | 函数声明位置 |
-| `loc` | Location | 函数体位置 |
-| `line` | number | 函数声明行号 |
+| `name` | string | Function name (anonymous functions are "(anonymous_N)") |
+| `decl` | Location | Function declaration position |
+| `loc` | Location | Function body position |
+| `line` | number | Function declaration line number |
 
-### 5. BranchMap (分支映射)
-描述代码中每个分支的信息。
+### 5. BranchMap
+Describes information about each branch in the code.
 
-| 字段 | 类型 | 描述 |
+| Field | Type | Description |
 |------|------|------|
-| `loc` | Location | 分支位置 |
-| `type` | string | 分支类型（if, switch, cond-expr, binary-expr） |
-| `locations` | Array&lt;Location&gt; | 分支条件的所有可能位置 |
+| `loc` | Location | Branch position |
+| `type` | string | Branch type (if, switch, cond-expr, binary-expr) |
+| `locations` | Array&lt;Location&gt; | All possible positions of branch conditions |
 
-### 6. Location (位置信息)
-描述源代码中的位置。
+### 6. Location
+Describes a position in source code.
 
-| 字段 | 类型 | 描述 |
+| Field | Type | Description |
 |------|------|------|
-| `start` | Position | 开始位置 |
-| `end` | Position | 结束位置 |
+| `start` | Position | Start position |
+| `end` | Position | End position |
 
-### 7. Position (坐标位置)
-源代码中的具体坐标。
+### 7. Position
+Specific coordinates in source code.
 
-| 字段 | 类型 | 描述 |
+| Field | Type | Description |
 |------|------|------|
-| `line` | number | 行号（从1开始） |
-| `column` | number | 列号（从0开始） |
+| `line` | number | Line number (starts from 1) |
+| `column` | number | Column number (starts from 0) |
 
-## 计数器对象
+## Counter Objects
 
-### 8. Statement Counters (语句计数器)
-记录每个语句的执行次数。
+### 8. Statement Counters
+Records the execution count of each statement.
 
 ```json
 {
-  "0": 5,    // 语句ID 0 执行了5次
-  "1": 0,    // 语句ID 1 未执行
-  "2": 3     // 语句ID 2 执行了3次
+  "0": 5,    // Statement ID 0 executed 5 times
+  "1": 0,    // Statement ID 1 not executed
+  "2": 3     // Statement ID 2 executed 3 times
 }
 ```
 
-### 9. Function Counters (函数计数器)
-记录每个函数的调用次数。
+### 9. Function Counters
+Records the call count of each function.
 
 ```json
 {
-  "0": 2,    // 函数ID 0 被调用了2次
-  "1": 0,    // 函数ID 1 未被调用
-  "2": 1     // 函数ID 2 被调用了1次
+  "0": 2,    // Function ID 0 called 2 times
+  "1": 0,    // Function ID 1 not called
+  "2": 1     // Function ID 2 called 1 time
 }
 ```
 
-### 10. Branch Counters (分支计数器)
-记录每个分支条件的执行次数。
+### 10. Branch Counters
+Records the execution count of each branch condition.
 
 ```json
 {
-  "0": [5, 2],    // 分支ID 0: true分支5次，false分支2次
-  "1": [0, 3],    // 分支ID 1: true分支0次，false分支3次
-  "2": [1, 1]     // 分支ID 2: 两个分支各执行1次
+  "0": [5, 2],    // Branch ID 0: true branch 5 times, false branch 2 times
+  "1": [0, 3],    // Branch ID 1: true branch 0 times, false branch 3 times
+  "2": [1, 1]     // Branch ID 2: both branches executed 1 time each
 }
 ```
 
-## 分支类型说明
+## Branch Type Descriptions
 
-### Branch Types (分支类型)
+### Branch Types
 
-| 类型 | 描述 | 示例 |
+| Type | Description | Example |
 |------|------|------|
-| `if` | if语句 | `if (condition) { ... }` |
-| `switch` | switch语句 | `switch (value) { case 1: ... }` |
-| `cond-expr` | 三元运算符 | `condition ? value1 : value2` |
-| `binary-expr` | 逻辑运算符 | `a && b`, `x \|\| y` |
+| `if` | if statement | `if (condition) { ... }` |
+| `switch` | switch statement | `switch (value) { case 1: ... }` |
+| `cond-expr` | Ternary operator | `condition ? value1 : value2` |
+| `binary-expr` | Logical operator | `a && b`, `x \|\| y` |
 
-## 报告摘要数据
+## Report Summary Data
 
-### 11. Summary (摘要信息)
-每种覆盖率类型的统计摘要。
+### 11. Summary
+Statistical summary for each coverage type.
 
-| 字段 | 类型 | 描述 |
+| Field | Type | Description |
 |------|------|------|
-| `total` | number | 总数量 |
-| `covered` | number | 已覆盖数量 |
-| `skipped` | number | 跳过数量 |
-| `pct` | number | 覆盖率百分比 |
+| `total` | number | Total count |
+| `covered` | number | Covered count |
+| `skipped` | number | Skipped count |
+| `pct` | number | Coverage percentage |
 
-### 12. Coverage Summary (覆盖率摘要)
-文件或整体的覆盖率摘要。
+### 12. Coverage Summary
+Coverage summary for files or overall.
 
-| 字段 | 类型 | 描述 |
+| Field | Type | Description |
 |------|------|------|
-| `lines` | Summary | 行覆盖率摘要 |
-| `functions` | Summary | 函数覆盖率摘要 |
-| `statements` | Summary | 语句覆盖率摘要 |
-| `branches` | Summary | 分支覆盖率摘要 |
+| `lines` | Summary | Line coverage summary |
+| `functions` | Summary | Function coverage summary |
+| `statements` | Summary | Statement coverage summary |
+| `branches` | Summary | Branch coverage summary |
 
 ## 实际示例
 

@@ -1,24 +1,24 @@
-# Restful
+# RESTful
 
 ## Summary Map
 
-- **方法**：GET
-- **路径**：`/api/coverage/summary/map`
-- **描述**：返回覆盖率的概要聚合（total/covered/percent），可按提交或合并请求维度，以及可选过滤条件。
+- **Method**: GET
+- **Path**: `/api/coverage/summary/map`
+- **Description**: Returns coverage summary aggregation (total/covered/percent), can be queried by commit or merge request dimension, with optional filter conditions.
 
-### 查询参数
-- **subject** (必填)：`commit | commits | pull | pulls | multiple-commits`
-- **subjectID** (必填)：当 subject 是 commit/commits 时为 `sha`；当为 pull/pulls 时为 `pullNumber`；当为 multiple-commits 时为提交范围 `a...b`
-- **provider** (必填)：代码托管服务提供商，例如 `github`、`gitlab`
-- **repoID** (必填)：仓库标识（例如 GitLab 的 projectId 或 GitHub 的 owner/repo）
-- **buildProvider** (可选)：构建/CI 提供方标识
-- **buildID** (可选)：构建 ID
-- **reportProvider** (可选)：报告提供方标识（如 mpaas、flytest、person 等）
-- **reportID** (可选)：报告 ID
-- **filePath** (可选)：仅汇总指定文件（或匹配到的相对路径结尾）
-- **mode** (可选)：`blockMerge | fileMerge | default`（pull/pulls/multiple-commits 时使用）
-- **compareTarget** (可选)：用于与当前 commit 对比的目标 ref/sha（仅 gitlab 支持）
-- **onlyChanged** (可选)：`true | false`，是否仅返回变更文件
+### Query Parameters
+- **subject** (Required): `commit | commits | pull | pulls | multiple-commits`
+- **subjectID** (Required): When subject is commit/commits, it's `sha`; when it's pull/pulls, it's `pullNumber`; when it's multiple-commits, it's commit range `a...b`
+- **provider** (Required): Code hosting service provider, e.g., `github`, `gitlab`
+- **repoID** (Required): Repository identifier (e.g., GitLab's projectId or GitHub's owner/repo)
+- **buildProvider** (Optional): Build/CI provider identifier
+- **buildID** (Optional): Build ID
+- **reportProvider** (Optional): Report provider identifier (such as mpaas, flytest, person, etc.)
+- **reportID** (Optional): Report ID
+- **filePath** (Optional): Only aggregate specified file (or matched relative path ending)
+- **mode** (Optional): `blockMerge | fileMerge | default` (used when pull/pulls/multiple-commits)
+- **compareTarget** (Optional): Target ref/sha for comparison with current commit (only GitLab supported)
+- **onlyChanged** (Optional): `true | false`, whether to return only changed files
 
 ### 响应示例
 ```json
@@ -72,23 +72,23 @@
 }
 ```
 
-### 说明
-- 当 subject 为 `commit | commits` 时，内部使用提交维度的覆盖率映射进行聚合；
-- 当 subject 为 `pull | pulls` 时，内部使用合并请求维度的覆盖率映射进行聚合；
-- 当 subject 为 `multiple-commits` 时，`subjectID` 形如 `a...b`，以 `b` 为基线进行范围聚合；
-- `percent` 计算为 `covered/total` 的百分比，保留两位小数；
-- 若 `onlyChanged=true`，则仅统计变更文件的覆盖率。
+### Notes
+- When subject is `commit | commits`, internally uses commit-dimension coverage mapping for aggregation;
+- When subject is `pull | pulls`, internally uses merge request-dimension coverage mapping for aggregation;
+- When subject is `multiple-commits`, `subjectID` is in the form `a...b`, using `b` as baseline for range aggregation;
+- `percent` is calculated as percentage of `covered/total`, rounded to two decimal places;
+- If `onlyChanged=true`, only statistics for changed files are returned.
 
 ---
 
 ## Coverage Map
 
-- **方法**：GET
-- **路径**：`/api/coverage/map`
-- **描述**：返回文件级命中明细，包含 statement/function/branch 的命中计数以及源码结构位置信息；可按提交或合并请求维度查询。
+- **Method**: GET
+- **Path**: `/api/coverage/map`
+- **Description**: Returns file-level hit details, including statement/function/branch hit counts and source code structure location information; can be queried by commit or merge request dimension.
 
-### 查询参数
-- 与 Summary Map 相同（见上），包括 subject/subjectID/provider/repoID 及可选过滤条件。
+### Query Parameters
+- Same as Summary Map (see above), including subject/subjectID/provider/repoID and optional filter conditions.
 
 ### 响应示例（部分结构）
 ```json
@@ -108,38 +108,38 @@
 
 ---
 
-## 覆盖率总览（Overview）
+## Coverage Overview
 
-- **方法**：GET
-- **路径（Commit）**：`/api/provider/:provider/repo/:repoID/coverage/overview/commits/:sha`
-- **路径（Pull）**：`/api/provider/:provider/repo/:repoID/coverage/overview/pulls/:pullNumber`
-- **路径（Multiple Commits）**：`/api/provider/:provider/repo/:repoID/coverage/overview/multiple-commits/:commitRange`
-- **描述**：按构建维度聚合返回覆盖率概要，包含自动/手动用例维度与可能的测试用例外链信息。
+- **Method**: GET
+- **Path (Commit)**: `/api/provider/:provider/repo/:repoID/coverage/overview/commits/:sha`
+- **Path (Pull)**: `/api/provider/:provider/repo/:repoID/coverage/overview/pulls/:pullNumber`
+- **Path (Multiple Commits)**: `/api/provider/:provider/repo/:repoID/coverage/overview/multiple-commits/:commitRange`
+- **Description**: Returns coverage summary aggregated by build dimension, including auto/manual test case dimensions and possible test case external chain information.
 
-### 路径参数
-- **provider**：`github | gitlab | ...`
-- **repoID**：仓库标识（GitLab 为 projectId，GitHub 常为 `owner/repo`）
-- **sha**（commit 路径）：提交 SHA
-- **pullNumber**（pull 路径）：合并请求编号
- - **commitRange**（multiple-commits 路径）：提交范围，格式为 `a...b`
+### Path Parameters
+- **provider**: `github | gitlab | ...`
+- **repoID**: Repository identifier (GitLab is projectId, GitHub is usually `owner/repo`)
+- **sha** (commit path): Commit SHA
+- **pullNumber** (pull path): Merge request number
+ - **commitRange** (multiple-commits path): Commit range, format is `a...b`
 
-### 查询参数
+### Query Parameters
 
-- **mode** (可选)：`blockMerge | fileMerge | default`（pull/pulls/multiple-commits 时使用）
+- **mode** (Optional): `blockMerge | fileMerge | default` (used when pull/pulls/multiple-commits)
 
-### 响应字段
-- **resultList**：数组；每一项代表一个构建（build）
-  - **buildID**：构建 ID
-  - **buildProvider**：构建提供方
-  - **summary**：该构建维度的汇总 `{ total, covered, percent }`
-  - **modeList**：按“auto / manual”区分的用例维度
-    - **mode**：`auto | manual`
-    - **summary**：该维度下的汇总
-    - **caseList**：报告维度的列表（仅当存在时）
-      - **reportProvider**：报告提供方（如 mpaas、flytest、person 等）
-      - **reportID**：报告 ID
-      - **summary**：该报告的汇总
-      - **testCaseInfo**（当支持自动拉取时）：
+### Response Fields
+- **resultList**: Array; each item represents a build
+  - **buildID**: Build ID
+  - **buildProvider**: Build provider
+  - **summary**: Summary for this build dimension `{ total, covered, percent }`
+  - **modeList**: Test case dimensions distinguished by "auto / manual"
+    - **mode**: `auto | manual`
+    - **summary**: Summary for this dimension
+    - **caseList**: List of report dimensions (only when present)
+      - **reportProvider**: Report provider (such as mpaas, flytest, person, etc.)
+      - **reportID**: Report ID
+      - **summary**: Summary for this report
+      - **testCaseInfo** (when auto-fetch is supported):
         - `caseName`, `passedCount`, `failedCount`, `totalCount`, `passRate`, `caseUrl`
 
 ### 响应示例（Commit 概览）
@@ -447,54 +447,54 @@
 }
 ```
 
-### 说明
-- Commit 概览：以“构建”为单位聚合，同一构建下按报告提供方再细分；部分报告提供方将自动聚合测试用例数据；
-- Pull 概览：基于 MR 的覆盖率聚合返回整体 summary；
-- 所有 overview 汇总均来源于底层 coverage map 的 summary 聚合。
+### Notes
+- Commit Overview: Aggregated by "build" unit, further subdivided by report provider under the same build; some report providers will automatically aggregate test case data;
+- Pull Overview: Returns overall summary based on MR coverage aggregation;
+- All overview summaries are derived from underlying coverage map summary aggregation.
 
 ---
 
-## 纯报告页链接（Report Page URL）
+## Report Page URL
 
-- **用途**：直接进入前端报告页（可选携带查询参数以指定构建/报告来源）。
+- **Purpose**: Directly enter the frontend report page (optionally carry query parameters to specify build/report source).
 
-### 路由模板
+### Route Template
 
 ```text
 /report/-/:provider/:org/:repo/:subject/:subjectID/-/
 ```
 
-### 路由占位符
-- `:provider`：`gitlab | github | ...`（页面路由用）
-- `:org`：组织或命名空间，例如 `canyon-project`
-- `:repo`：仓库名，例如 `canyon-demo`
-- `:subject`：`commit | commits | pull | pulls | multiple-commits`
-- `:subjectID`：
-  - 当 subject 为 commit/commits：提交 `sha`
-  - 当 subject 为 pull/pulls：`pullNumber`
-  - 当 subject 为 multiple-commits：提交范围 `a...b`，其中以 `b` 作为基线
+### Route Placeholders
+- `:provider`: `gitlab | github | ...` (for page routing)
+- `:org`: Organization or namespace, e.g., `canyon-project`
+- `:repo`: Repository name, e.g., `canyon-demo`
+- `:subject`: `commit | commits | pull | pulls | multiple-commits`
+- `:subjectID`:
+  - When subject is commit/commits: commit `sha`
+  - When subject is pull/pulls: `pullNumber`
+  - When subject is multiple-commits: commit range `a...b`, where `b` is used as baseline
 
-### 示例（multiple-commits）
+### Example (multiple-commits)
 
 ```text
 /report/-/gitlab/canyon-project/canyon-demo/multiple-commits/494989b4c2c9fcdba44e9e6412080e876f9c73e7...3056488dc00be874d9c99d1e1748e6c3211ece3a/-/
 ```
 
-### 可选查询参数（用于后端数据选择）
-- `provider`：后端使用的代码托管提供方（默认 `gitlab`）。
-- `build_provider`：构建/CI 提供方（例如 `gitlab_runner`、`jenkins`）。
-- `build_id`：构建 ID。
-- `report_provider`：报告来源（如 `mpaas`、`flytest`、`person`）。
-- `report_id`：报告 ID。
+### Optional Query Parameters (for backend data selection)
+- `provider`: Code hosting provider used by backend (default `gitlab`).
+- `build_provider`: Build/CI provider (e.g., `gitlab_runner`, `jenkins`).
+- `build_id`: Build ID.
+- `report_provider`: Report source (such as `mpaas`, `flytest`, `person`).
+- `report_id`: Report ID.
 
-示例：
+Example:
 
 ```text
 /report/-/gitlab/canyon-project/canyon-demo/multiple-commits/494989b4...3056488.../-/?provider=gitlab&build_provider=gitlab_runner&build_id=123&report_provider=mpaas&report_id=case-001
 ```
 
-### 文件直达
-- 末尾的 `/-/` 之后可追加文件相对路径以直达某文件，例如：
+### Direct File Access
+- After the trailing `/-/`, you can append file relative path to directly access a file, for example:
 
 ```text
 /report/-/:provider/:org/:repo/:subject/:subjectID/-/src/app/foo.ts
