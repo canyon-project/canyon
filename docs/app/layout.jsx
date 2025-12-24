@@ -1,8 +1,8 @@
 import './styles.css';
 import { Head } from 'nextra/components';
+import { GitHubIcon } from 'nextra/icons';
 import { getPageMap } from 'nextra/page-map';
 import { Footer, Layout, Navbar } from 'nextra-theme-docs';
-
 export const metadata = {
   title: {
     template: '%s - Canyon',
@@ -43,31 +43,36 @@ export const metadata = {
 };
 
 const footer = <Footer>MIT {new Date().getFullYear()} © Canyon.</Footer>;
-
+const navbar = (
+  <Navbar
+    projectLink='https://github.com/canyon-project/canyon'
+    projectIcon={<GitHubIcon height='24' />}
+    logo={
+      <div className='hover:nx-opacity-75 flex items-center'>
+        <img src='/logo.svg' style={{ width: '32px' }} alt='' />
+        <div className='mx-2 hidden select-none font-extrabold md:inline'>
+          CANYON
+        </div>
+        <div className='lg:!inline whitespace-no-wrap hidden font-normal text-gray-600'>
+          JavaScript code coverage solution
+        </div>
+      </div>
+    }
+  />
+);
 export default async function RootLayout({ children, params }) {
   return (
-    <html
-      // Not required, but good for SEO
-      lang='en'
-      // Required to be set
-      dir='ltr'
-      // Suggested by `next-themes` package https://github.com/pacocoursey/next-themes#with-app
-      suppressHydrationWarning
-    >
-      <Head
-      // ... Your additional head options
-      >
+    <html lang='en' dir='ltr' suppressHydrationWarning>
+      <Head>
         <link rel='icon' type='image/svg+xml' href='/logo.svg' />
         <title>JavaScript Code Coverage Solution - CANYON</title>
       </Head>
       <body>
         <Layout
           pageMap={await getPageMap()}
-          // banner={banner}
-          // navbar={navbar}
+          navbar={navbar}
           docsRepositoryBase='https://github.com/canyon-project/canyon/tree/dev/website'
           footer={footer}
-          // ... Your additional layout options
         >
           {children}
         </Layout>
