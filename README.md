@@ -1,6 +1,6 @@
 npm run lint:fix
 git add .
-git commit -m "feat: add ui" --no-verify
+git commit -m "feat: update" --no-verify
 
 本地消费策略
 1. 本地sqlite消息队列，存磁盘，根据pid分进程

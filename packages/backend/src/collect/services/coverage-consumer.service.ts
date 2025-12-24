@@ -406,7 +406,6 @@ export class CoverageConsumerService implements OnModuleInit {
     for (const entity of hitEntities) {
       const key = `${entity.coverageID}|${entity.filePath}`;
       const sMap = ensureNumMap(entity.s);
-      const fMap = ensureNumMap(entity.f);
       const ts = entity.ts instanceof Date ? entity.ts : new Date(entity.ts);
 
       const cur = groupMap.get(key);
@@ -416,14 +415,13 @@ export class CoverageConsumerService implements OnModuleInit {
           versionID: entity.versionID,
           filePath: entity.filePath,
           s: sMap,
-          f: fMap,
-          b: entity.b || {},
+          f: {},
+          b: {},
           latestTs: ts,
           inputSourceMap: entity.inputSourceMap || 0,
         });
       } else {
         cur.s = addMaps(cur.s, sMap);
-        cur.f = addMaps(cur.f, fMap);
         if (ts > cur.latestTs) cur.latestTs = ts;
       }
     }
@@ -455,8 +453,8 @@ export class CoverageConsumerService implements OnModuleInit {
                 versionID: agg.versionID,
                 filePath: agg.filePath,
                 s: agg.s,
-                f: agg.f,
-                b: agg.b as any,
+                f: {},
+                b: {} as any,
                 inputSourceMap: agg.inputSourceMap,
                 ts: agg.latestTs,
               },
@@ -477,9 +475,7 @@ export class CoverageConsumerService implements OnModuleInit {
                 });
               if (retryExisting) {
                 const existS = ensureNumMap(retryExisting.s);
-                const existF = ensureNumMap(retryExisting.f);
                 const mergedS = addMaps(existS, agg.s);
-                const mergedF = addMaps(existF, agg.f);
                 const mergedLatestTs =
                   (retryExisting.ts instanceof Date
                     ? retryExisting.ts
@@ -499,7 +495,7 @@ export class CoverageConsumerService implements OnModuleInit {
                   },
                   data: {
                     s: mergedS,
-                    f: mergedF,
+                    f: {},
                     b: {} as any,
                     inputSourceMap: agg.inputSourceMap,
                     ts: mergedLatestTs,
@@ -514,9 +510,7 @@ export class CoverageConsumerService implements OnModuleInit {
         } else {
           // 存在则更新
           const existS = ensureNumMap(existing.s);
-          const existF = ensureNumMap(existing.f);
           const mergedS = addMaps(existS, agg.s);
-          const mergedF = addMaps(existF, agg.f);
           const mergedLatestTs =
             (existing.ts instanceof Date
               ? existing.ts
@@ -536,7 +530,7 @@ export class CoverageConsumerService implements OnModuleInit {
             },
             data: {
               s: mergedS,
-              f: mergedF,
+              f: {},
               b: {} as any,
               inputSourceMap: agg.inputSourceMap,
               ts: mergedLatestTs,
@@ -685,16 +679,9 @@ export class CoverageConsumerService implements OnModuleInit {
 
             const merged = mergedCoverage[filePath];
             const sMap = ensureNumMap(entry?.s || {});
-            const fMap = ensureNumMap(entry?.f || {});
 
-            // 合并 s 和 f
+            // 合并 s
             merged.s = addMaps(ensureNumMap(merged.s), sMap);
-            merged.f = addMaps(ensureNumMap(merged.f), fMap);
-
-            // 合并 b（如果有）
-            if (entry?.b) {
-              merged.b = { ...merged.b, ...entry.b };
-            }
 
             // 保留 inputSourceMap（如果有）
             if (entry?.inputSourceMap) {
