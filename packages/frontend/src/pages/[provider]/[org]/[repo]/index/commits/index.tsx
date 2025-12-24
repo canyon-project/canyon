@@ -219,13 +219,21 @@ const CommitsPage = () => {
       title: t('common.option'),
       key: 'option',
       width: 80,
-      render: (_: any, record: CommitRecord) => (
-        <Link
-          to={`/${params.provider}/${params.org}/${params.repo}/commits/${record.sha}`}
-        >
-          {t('projects.reported_details')}
-        </Link>
-      ),
+      render: (_: any, record: CommitRecord) => {
+        const searchParams = new URLSearchParams();
+        if (record.buildTarget) {
+          searchParams.set('build_target', record.buildTarget);
+        }
+        if (record.reportID) {
+          searchParams.set('report_id', record.reportID);
+        }
+        if (record.reportProvider) {
+          searchParams.set('report_provider', record.reportProvider);
+        }
+        const queryString = searchParams.toString();
+        const reportPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
+        return <Link to={reportPath}>{t('projects.reported_details')}</Link>;
+      },
     },
   ];
 
