@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/babel-plugin",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.0-alpha.6",
   "description": "A Babel plugin for Canyon code coverage instrumentation",
   "author": "CanyonJS Team",
   "repository": {
