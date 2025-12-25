@@ -7,23 +7,29 @@ window.addEventListener('message', (e) => {
       Object.keys(window.__coverage__ || {}).length > 0
         ? Object.values(window.__coverage__)[0]
         : {};
-    console.log(canyon, 'canyon');
+    // 删除不需要的属性
+    const {
+      b,
+      f,
+      s,
+      path,
+      statementMap,
+      fnMap,
+      branchMap,
+      inputSourceMap,
+      _coverageSchema,
+      hash,
+      contentHash,
+      ...canyonWithoutUnused
+    } = canyon;
     window.postMessage(
       {
         type: '__canyon__event_get_coverage_and_canyon_data_response',
         payload: {
           canyon: {
-            ...canyon,
+            ...canyonWithoutUnused,
             reportID:
               localStorage.getItem('__canyon__report__id__') || undefined,
-            //   删除bfs等
-            statementMap: undefined,
-            fnMap: undefined,
-            branchMap: undefined,
-            inputSourceMap: undefined,
-            _coverageSchema: undefined,
-            hash: undefined,
-            contentHash: 'undefined',
           },
           coverage: window.__coverage__,
         },
