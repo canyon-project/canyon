@@ -81,7 +81,14 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
               }
             }
 
-            const addAttributes = Object.keys(serviceParams);
+            // 核心三要素
+            const addAttributes = [
+              'repoID',
+              'sha',
+              'provider',
+              'buildProvider',
+              'buildID',
+            ];
 
             for (let i = 0; i < addAttributes.length; i++) {
               // only add string type
