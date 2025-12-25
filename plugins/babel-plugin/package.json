@@ -2,7 +2,6 @@
   "name": "@canyonjs/babel-plugin",
   "version": "1.0.0-alpha.5",
   "description": "A Babel plugin for Canyon code coverage instrumentation",
-  "author": "CanyonJS Team",
   "repository": {
     "type": "git",
     "url": "https://github.com/canyon-project/canyon"
@@ -12,7 +11,7 @@
   },
   "homepage": "https://github.com/canyon-project/canyon#readme",
   "scripts": {
-    "release": "babel src --extensions \".js\" --out-dir lib",
+    "release": "babel src --extensions \".ts\" --out-dir lib",
     "pretest": "npm run release",
     "test": "babel features --config-file ./test-babel-config.js --out-dir dist",
     "prepublishOnly": "npm run release"
@@ -32,7 +31,8 @@
     "@babel/register": "^7.23.7",
     "babel-plugin-istanbul": "6.1.1",
     "cross-env": "^7.0.3",
-    "@types/node": "^22.10.2"
+    "@types/node": "^22.10.2",
+    "@babel/preset-typescript": "^7.26.0"
   },
   "dependencies": {
     "@babel/helper-plugin-utils": "^7.0.0",
