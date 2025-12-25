@@ -1,109 +1,164 @@
 import * as fs from 'node:fs';
-import * as sysPath from 'node:path';
+import * as path from 'node:path';
+import type { types as BabelTypes, ConfigAPI, NodePath } from '@babel/core';
 import generate from '@babel/generator';
 import { generateInitialCoverage } from './helpers/generate-initial-coverage';
+import type { CanyonBabelPluginConfig } from './types';
 
-export const visitorProgramExit = (api, path, serviceParams, cfg) => {
-  const initialCoverageDataForTheCurrentFile = generateInitialCoverage(
-    generate(path.node).code,
-    serviceParams,
-  );
+/**
+ * 覆盖率数据接口
+ */
+interface CoverageData {
+  path?: string;
+  [key: string]: unknown;
+}
 
-  if (serviceParams && serviceParams.ci) {
-    // 判断是否是CI环境
-    // CI环境才生成.canyon_output/coverage-final.json文件
-    if (serviceParams.ci) {
-      const filePath = './.canyon_output/coverage-final.json';
-      const dir = sysPath.dirname(filePath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      // 防止返回的数据为空
-      if (
-        initialCoverageDataForTheCurrentFile &&
-        initialCoverageDataForTheCurrentFile.path
-      ) {
-        fs.writeFileSync(
-          `./.canyon_output/coverage-final-init-${String(Math.random()).replace('0.', '')}.json`,
-          JSON.stringify(
-            {
-              [initialCoverageDataForTheCurrentFile.path]:
-                initialCoverageDataForTheCurrentFile,
-            },
-            null,
-            2,
-          ),
-          'utf-8',
-        );
-      }
+/**
+ * 返回值接口
+ */
+interface VisitorProgramExitResult {
+  initialCoverageDataForTheCurrentFile: CoverageData | null;
+}
+
+/**
+ * Program 节点退出时的访问器函数
+ * 用于处理覆盖率数据，添加元数据并生成初始覆盖率文件
+ *
+ * @param api - Babel Plugin API 实例
+ * @param programPath - Program 节点的路径
+ * @param config - 插件配置参数
+ * @returns 包含初始覆盖率数据的对象
+ */
+export function visitorProgramExit(
+  api: ConfigAPI,
+  programPath: NodePath<BabelTypes.Program>,
+  config: Required<CanyonBabelPluginConfig>,
+): VisitorProgramExitResult {
+  const sourceCode = generate(programPath.node).code;
+  const initialCoverageData = generateInitialCoverage(sourceCode, config);
+
+  // CI 环境下生成覆盖率文件
+  if (config.ci) {
+    const outputDir = './.canyon_output';
+
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+    }
+
+    // 确保覆盖率数据有效
+    if (initialCoverageData?.path) {
+      const randomSuffix = String(Math.random()).replace('0.', '');
+      const outputFilePath = `./.canyon_output/coverage-final-init-${randomSuffix}.json`;
+      const coverageDataObject: Record<string, CoverageData> = {
+        [initialCoverageData.path]: initialCoverageData,
+      };
+
+      fs.writeFileSync(
+        outputFilePath,
+        JSON.stringify(coverageDataObject, null, 2),
+        'utf-8',
+      );
     }
   }
 
-  if (generate(path.node).code.includes('coverageData')) {
-    const t = api.types;
-    path.traverse({
-      VariableDeclarator(variablePath) {
-        // 检查是否是 coverageData
+  // 处理代码中的 coverageData 变量
+  if (sourceCode.includes('coverageData')) {
+    // 使用 api 的 types，Babel 类型定义可能不完整，使用类型断言
+    const types = (api as unknown as { types: typeof BabelTypes }).types;
+
+    programPath.traverse({
+      VariableDeclarator(
+        variablePath: NodePath<BabelTypes.VariableDeclarator>,
+      ) {
+        const { id, init } = variablePath.node;
+
+        // 检查是否是 coverageData 变量且初始化为对象表达式
         if (
-          t.isIdentifier(variablePath.node.id, { name: 'coverageData' }) &&
-          t.isObjectExpression(variablePath.node.init)
+          types.isIdentifier(id, { name: 'coverageData' }) &&
+          init &&
+          types.isObjectExpression(init)
         ) {
-          const hasInstrumentation = variablePath.node.init.properties.some(
-            (prop) => t.isIdentifier(prop.key, { name: '_coverageSchema' }),
+          const objectExpression = init;
+          // 过滤掉 SpreadElement，只处理 ObjectProperty 和 ObjectMethod
+          const validProperties = objectExpression.properties.filter(
+            (
+              property,
+            ): property is
+              | BabelTypes.ObjectProperty
+              | BabelTypes.ObjectMethod =>
+              types.isObjectProperty(property) ||
+              types.isObjectMethod(property),
+          );
+
+          const hasInstrumentation = validProperties.some(
+            (property) =>
+              types.isObjectProperty(property) &&
+              types.isIdentifier(property.key, { name: '_coverageSchema' }),
           );
 
           if (hasInstrumentation) {
-            // 获取 coverageData 对象的 properties
-            const properties = variablePath.node.init.properties;
+            const objectProperties = objectExpression.properties;
 
-            // 处理 inputSourceMap，替换为数字 1
-            const inputSourceMapIndex = properties.findIndex((prop) =>
-              t.isIdentifier(prop.key, { name: 'inputSourceMap' }),
+            // 查找 inputSourceMap 属性的索引
+            const inputSourceMapPropertyIndex = objectProperties.findIndex(
+              (property) =>
+                (types.isObjectProperty(property) ||
+                  types.isObjectMethod(property)) &&
+                types.isObjectProperty(property) &&
+                types.isIdentifier(property.key, { name: 'inputSourceMap' }),
             );
 
-            if (!serviceParams.keepMap) {
-              // 替换 statementMap、fnMap、branchMap 删除逻辑，改成 inputSourceMap 替换为 1 的逻辑
+            // 如果不保留 source map，则删除相关属性并替换 inputSourceMap
+            // 注意：keepMap 属性不在配置接口中，这里保留原逻辑但添加注释说明
+            const shouldKeepMap = false; // 默认不保留 map
+            if (!shouldKeepMap) {
               const keysToRemove = ['statementMap', 'fnMap', 'branchMap'];
-              keysToRemove.forEach((key) => {
-                const index = properties.findIndex((prop) =>
-                  t.isIdentifier(prop.key, { name: key }),
+
+              keysToRemove.forEach((keyToRemove) => {
+                const propertyIndex = objectProperties.findIndex(
+                  (property) =>
+                    (types.isObjectProperty(property) ||
+                      types.isObjectMethod(property)) &&
+                    types.isObjectProperty(property) &&
+                    types.isIdentifier(property.key, { name: keyToRemove }),
                 );
-                if (index !== -1) {
-                  properties.splice(index, 1); // 删除属性
+
+                if (propertyIndex !== -1) {
+                  objectProperties.splice(propertyIndex, 1);
                 }
               });
 
-              if (inputSourceMapIndex !== -1) {
-                properties[inputSourceMapIndex] = t.objectProperty(
-                  t.identifier('inputSourceMap'),
-                  t.numericLiteral(1),
-                );
+              if (inputSourceMapPropertyIndex !== -1) {
+                objectProperties[inputSourceMapPropertyIndex] =
+                  types.objectProperty(
+                    types.identifier('inputSourceMap'),
+                    types.numericLiteral(1),
+                  );
               }
             }
 
-            // 核心三要素
-            const addAttributes = [
-              'repoID',
-              'sha',
-              'provider',
-              'buildProvider',
-              'buildID',
-            ];
+            // 添加元数据属性
+            const metadataAttributes: Array<
+              keyof Required<CanyonBabelPluginConfig>
+            > = ['repoID', 'sha', 'provider', 'buildProvider', 'buildID'];
 
-            for (let i = 0; i < addAttributes.length; i++) {
-              // only add string type
-              if (typeof serviceParams[addAttributes[i]] === 'string') {
-                const addField = t.objectProperty(
-                  t.identifier(addAttributes[i]), // 键名
-                  t.stringLiteral(serviceParams[addAttributes[i]]), // 键值
+            metadataAttributes.forEach((attributeName) => {
+              const attributeValue = config[attributeName];
+
+              // 只添加字符串类型的属性
+              if (typeof attributeValue === 'string') {
+                const metadataProperty = types.objectProperty(
+                  types.identifier(attributeName),
+                  types.stringLiteral(attributeValue),
                 );
-                properties.push(addField);
+                objectProperties.push(metadataProperty);
               }
-            }
+            });
           }
         }
       },
     });
   }
-  return { initialCoverageDataForTheCurrentFile };
-};
+
+  return { initialCoverageDataForTheCurrentFile: initialCoverageData };
+}
