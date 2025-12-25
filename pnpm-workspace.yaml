@@ -3,6 +3,7 @@ packages:
   - packages/*
   - examples/*
   - tools/*
+  - plugins/*
 
 catalog:
   '@ant-design/icons': 6.1.0
