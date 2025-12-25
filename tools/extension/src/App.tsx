@@ -25,12 +25,12 @@ function App() {
     projectId: '140539',
     commitSha: '6206109404e5ee32c7b2b59eb2f66af83f3ad687',
     branch: 'dev',
-    dsn: 'https://canyontest.fat3.qa.nt.ctripcorp.com/coverage/client',
+    dsn: 'https://canyontest.com/coverage/client',
     coverage: 9,
     intervalReport: 7,
     reportId: 'sfasfasfa',
-    reporter: 'eyJhbGciOiJlUzI1NilsInR5cCl6',
-    reporterEmail: 'tzhangm@trip.com',
+    reporter: 'xxxx',
+    reporterEmail: 'xxx@xxx.com',
   });
 
   const [result, setResult] = useState<string>('');
