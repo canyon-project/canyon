@@ -7,6 +7,7 @@ import {
 import { Button, ConfigProvider, Input, message, Space, Tooltip } from 'antd';
 import { useState } from 'react';
 import './index.css';
+import { getCoverageAndCanyonData, upload } from './helper.ts';
 
 interface ProjectData {
   projectId: string;
@@ -36,8 +37,11 @@ function App() {
   const [result, setResult] = useState<string>('');
 
   const handleUpload = () => {
-    message.success('上传成功');
-    setResult('上传操作已完成');
+    getCoverageAndCanyonData('rid').then((res) => {
+      upload(res);
+      message.success('上传成功');
+      setResult('上传操作已完成');
+    });
   };
 
   const handleRefresh = () => {
