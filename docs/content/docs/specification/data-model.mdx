@@ -12,7 +12,7 @@ This document defines the core data model for Canyon coverage collection system.
 
 This specification covers:
 
-- Core entities: Coverage Map, Coverage Hit, Scene, Version
+- Core entities: Coverage Map, Coverage Hit, Scene, Build
 - Identity model: How coverage data is uniquely identified
 - Data immutability principles
 - Merge semantics and rules
@@ -70,19 +70,20 @@ A Scene represents the **execution context** of coverage collection. It describe
 - Used for aggregation and filtering
 - Not part of identity (doesn't affect merge decisions)
 
-### Version
+### Build
 
-A Version represents a **code revision**. It identifies:
+A Build represents a **build/execution instance**. It identifies:
 
 - Repository (provider + repoID)
 - Commit SHA
 - Build target
+- Optional: Pipeline ID, Job ID
 
 **Key Properties:**
 
-- Stable across multiple builds
-- Used for version-level aggregation
-- Identified by `versionID` / `revisionHash`
+- Unique per build instance
+- Used for build-level aggregation
+- Identified by `buildHash`
 
 ## Identity Model
 
@@ -91,7 +92,7 @@ Canyon uses a multi-layered identity system:
 | Identity | Purpose | Used In |
 |----------|---------|---------|
 | `mapHash` | Code structure fingerprint | Hit, Map |
-| `versionID` | Code revision identity | Build, Version |
+| `buildHash` | Build instance identity | Build, Hit, Map |
 | `sceneKey` | Execution context signature | Hit, Scene |
 | `fileContentHash` | Source file content fingerprint | Map |
 
@@ -118,10 +119,9 @@ Canyon uses a multi-layered identity system:
 ## Relationships
 
 ```
-Version (versionID)
-  └─ Build (buildHash)
-      └─ Map (mapHash)
-          └─ Hit (mapHash + sceneKey)
+Build (buildHash)
+  └─ Map (mapHash)
+      └─ Hit (mapHash + sceneKey)
 ```
 
 ## Next Steps

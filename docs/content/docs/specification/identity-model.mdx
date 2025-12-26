@@ -34,27 +34,6 @@ mapHash = hash(
 
 **Used In**: Hit payload, Map payload
 
-### versionID / revisionHash
-
-**Purpose**: Identifies a code revision
-
-**Computed From**:
-```
-revisionHash = hash(
-  provider +
-  repoID +
-  commitSha +
-  buildTarget
-)
-```
-
-**Properties**:
-- ✅ Stable across multiple builds
-- ✅ Independent of execution context
-- ❌ Does NOT include: pipeline, job, tags
-
-**Used In**: Build records, Version aggregation
-
 ### buildHash
 
 **Purpose**: Identifies a specific build/execution instance
@@ -66,13 +45,13 @@ buildHash = hash(
   repoID +
   commitSha +
   buildTarget +
-  // Optional: pipelineId, jobId
+  // Optional: pipelineId, jobId, reportProvider, reportID
 )
 ```
 
 **Properties**:
 - ✅ Unique per build instance
-- ⚠️ May be same as revisionHash in simple cases
+- ✅ Identifies a specific build/execution
 - ❌ Does NOT include: tags (tags are attributes, not identity)
 
 **Used In**: Build records, optional in Hit payload
@@ -154,7 +133,6 @@ hash_v2(...)  // Future (if needed)
 Each hash answers exactly one question:
 
 - `mapHash`: What is the code structure?
-- `revisionHash`: What is the code version?
 - `buildHash`: Which build instance?
 - `sceneKey`: What execution context?
 - `fileContentHash`: What is the source content?
@@ -180,9 +158,9 @@ Hashes should NOT include:
 
 Same code structure → same `mapHash` → reusable across builds
 
-### Pattern 2: Version Aggregation
+### Pattern 2: Build Aggregation
 
-Same code version → same `revisionHash` → aggregate all builds
+Same build instance → same `buildHash` → aggregate all coverage
 
 ### Pattern 3: Scene Filtering
 

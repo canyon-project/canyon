@@ -12,12 +12,12 @@ This document defines when and how coverage hits can be merged. It establishes t
 Coverage hits can be merged **only if** they share the same merge identity:
 
 ```
-mergeIdentity = versionID + mapHash + sceneKey
+mergeIdentity = buildHash + mapHash + sceneKey
 ```
 
 ### Components
 
-1. **versionID**: Same code revision
+1. **buildHash**: Same build instance
 2. **mapHash**: Same instrumented structure  
 3. **sceneKey**: Same execution context
 
@@ -35,7 +35,7 @@ All three must match for hits to be mergeable.
 ❌ **Cannot Merge**:
 - Different `mapHash` (different code structure)
 - Different `sceneKey` (different execution context)
-- Different `versionID` (different code version)
+- Different `buildHash` (different build instance)
 
 ### Rule 2: Tags Do NOT Affect Merge
 
@@ -102,7 +102,7 @@ Aggregate **all** hits for a `mapHash`, ignoring `sceneKey`:
 ```sql
 SELECT mapHash, SUM(hits) 
 FROM hits 
-WHERE versionID = ? 
+WHERE buildHash = ? 
 GROUP BY mapHash
 ```
 
@@ -113,7 +113,7 @@ Aggregate hits for a specific `sceneKey`:
 ```sql
 SELECT mapHash, SUM(hits) 
 FROM hits 
-WHERE versionID = ? AND sceneKey = ? 
+WHERE buildHash = ? AND sceneKey = ? 
 GROUP BY mapHash
 ```
 
@@ -125,7 +125,7 @@ Compare coverage across different scenes:
 -- Automation vs Manual
 SELECT sceneKey, mapHash, SUM(hits)
 FROM hits
-WHERE versionID = ? AND sceneKey IN (?, ?)
+WHERE buildHash = ? AND sceneKey IN (?, ?)
 GROUP BY sceneKey, mapHash
 ```
 
@@ -165,7 +165,7 @@ GROUP BY sceneKey, mapHash
 Before merging, validate:
 
 1. ✅ `mapHash` exists in maps table
-2. ✅ `versionID` matches
+2. ✅ `buildHash` matches
 3. ✅ `sceneKey` format is valid
 4. ✅ Hit payload structure matches schema
 
