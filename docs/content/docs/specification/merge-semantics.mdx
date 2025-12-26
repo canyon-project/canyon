@@ -1,0 +1,176 @@
+# Merge Semantics
+
+> **Status**: Draft  
+> **Version**: 1.0.0-alpha
+
+## Overview
+
+This document defines when and how coverage hits can be merged. It establishes the rules that govern coverage data aggregation and ensures correctness.
+
+## Merge Identity
+
+Coverage hits can be merged **only if** they share the same merge identity:
+
+```
+mergeIdentity = versionID + mapHash + sceneKey
+```
+
+### Components
+
+1. **versionID**: Same code revision
+2. **mapHash**: Same instrumented structure  
+3. **sceneKey**: Same execution context
+
+All three must match for hits to be mergeable.
+
+## Merge Rules
+
+### Rule 1: Structure Determines Merge
+
+✅ **Can Merge**:
+- Same `mapHash` + same `sceneKey`
+- Multiple hits from same execution context
+- Retries of same test case
+
+❌ **Cannot Merge**:
+- Different `mapHash` (different code structure)
+- Different `sceneKey` (different execution context)
+- Different `versionID` (different code version)
+
+### Rule 2: Tags Do NOT Affect Merge
+
+Tags are **filtering dimensions**, not merge identity:
+
+```javascript
+// These CAN be merged (same mergeIdentity)
+hit1 = { mapHash: "abc", sceneKey: "xyz", tags: { type: "auto" } }
+hit2 = { mapHash: "abc", sceneKey: "xyz", tags: { type: "manual" } }
+
+// These CANNOT be merged (different sceneKey)
+hit3 = { mapHash: "abc", sceneKey: "xyz", tags: { env: "test" } }
+hit4 = { mapHash: "abc", sceneKey: "uvw", tags: { env: "prod" } }
+```
+
+### Rule 3: Idempotency
+
+Merging is **idempotent**:
+
+```
+merge(hit1, hit2) === merge(merge(hit1, hit2), hit2)
+```
+
+Same hits merged multiple times produce the same result.
+
+## Merge Operations
+
+### Hit Merging
+
+When merging hits, counts are **summed**:
+
+```javascript
+hit1 = { hits: { "s": { "1": 3, "2": 1 } } }
+hit2 = { hits: { "s": { "1": 2, "2": 0 } } }
+
+merged = {
+  hits: {
+    "s": { "1": 5, "2": 1 }  // Summed
+  }
+}
+```
+
+### Branch Merging
+
+Branch hits are arrays, merged element-wise:
+
+```javascript
+hit1 = { hits: { "b": { "0": [1, 0] } } }
+hit2 = { hits: { "b": { "0": [0, 1] } } }
+
+merged = {
+  hits: {
+    "b": { "0": [1, 1] }  // Element-wise sum
+  }
+}
+```
+
+## Aggregation Patterns
+
+### Pattern 1: Total Coverage
+
+Aggregate **all** hits for a `mapHash`, ignoring `sceneKey`:
+
+```sql
+SELECT mapHash, SUM(hits) 
+FROM hits 
+WHERE versionID = ? 
+GROUP BY mapHash
+```
+
+### Pattern 2: Scene-Specific Coverage
+
+Aggregate hits for a specific `sceneKey`:
+
+```sql
+SELECT mapHash, SUM(hits) 
+FROM hits 
+WHERE versionID = ? AND sceneKey = ? 
+GROUP BY mapHash
+```
+
+### Pattern 3: Scene Comparison
+
+Compare coverage across different scenes:
+
+```sql
+-- Automation vs Manual
+SELECT sceneKey, mapHash, SUM(hits)
+FROM hits
+WHERE versionID = ? AND sceneKey IN (?, ?)
+GROUP BY sceneKey, mapHash
+```
+
+## Edge Cases
+
+### Case 1: Map Arrives After Hit
+
+**Scenario**: Hit arrives before corresponding Map
+
+**Behavior**: 
+- Hit is stored (fail-open)
+- Map lookup deferred
+- Association happens asynchronously
+
+**Rule**: Never block hit storage waiting for map
+
+### Case 2: Multiple Builds, Same Map
+
+**Scenario**: Same `mapHash` used by multiple builds
+
+**Behavior**:
+- Map is reused (not duplicated)
+- Hits are associated with builds via `build_map_relation`
+- Aggregation respects build boundaries
+
+### Case 3: Plugin Version Upgrade
+
+**Scenario**: Same code, different plugin version → different `mapHash`
+
+**Behavior**:
+- Treated as different structures
+- Cannot merge across plugin versions
+- Historical data remains valid
+
+## Validation
+
+Before merging, validate:
+
+1. ✅ `mapHash` exists in maps table
+2. ✅ `versionID` matches
+3. ✅ `sceneKey` format is valid
+4. ✅ Hit payload structure matches schema
+
+## Next Steps
+
+- [Coverage Data Model](/docs/specification/data-model) - Core entities
+- [Map & Hit Protocol](/docs/specification/protocol) - API contract
+

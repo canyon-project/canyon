@@ -1,0 +1,195 @@
+# Fail-Open Semantics
+
+> **Status**: Draft  
+> **Version**: 1.0.0-alpha
+
+## Overview
+
+This document defines Canyon's fail-open behavior. It establishes that coverage collection must never interfere with application execution, even when the coverage system itself fails.
+
+## Core Principle
+
+> **Coverage is observability, not business logic.**
+> 
+> Coverage system failures must never impact application execution.
+
+## Fail-Open vs Fail-Close
+
+| Strategy | On Error | Impact |
+|----------|----------|--------|
+| **Fail-Close** | Throw / Reject | Blocks execution |
+| **Fail-Open** | Ignore / Drop | Execution continues |
+
+Canyon uses **Fail-Open** for all runtime coverage collection.
+
+## Where Fail-Open Applies
+
+### 1. Runtime SDK (Client-Side)
+
+**Rule**: Coverage SDK must never throw exceptions.
+
+```javascript
+// ✅ Correct: Fail-open
+try {
+  reportHit(mapHash, hits);
+} catch (error) {
+  // Silently ignore
+  console.debug('Coverage reporting failed', error);
+}
+
+// ❌ Wrong: Fail-close
+await reportHit(mapHash, hits); // Can throw
+```
+
+**Requirements**:
+- All exceptions caught and swallowed
+- Network timeouts: 100-300ms max
+- No await/blocking calls
+- Payload size limits enforced (drop if exceeded)
+
+### 2. Hit Endpoint (Server-Side)
+
+**Rule**: Hit endpoint always returns 200, even on errors.
+
+```typescript
+// ✅ Correct: Fail-open
+app.post('/api/coverage/hit', (req, res) => {
+  try {
+    processHit(req.body);
+  } catch (error) {
+    // Log but don't fail
+    logger.error('Hit processing failed', error);
+  }
+  res.status(200).json({ success: true });
+});
+```
+
+**Error Scenarios**:
+- Invalid payload → Drop, return 200
+- Missing mapHash → Drop, return 200
+- Database error → Queue for retry, return 200
+- Rate limit exceeded → Drop, return 200
+
+### 3. Map-Hit Ordering
+
+**Scenario**: Hit arrives before corresponding Map
+
+**Behavior**: 
+- Hit is stored (or dropped)
+- Map lookup deferred
+- Association happens asynchronously
+- Never block hit storage waiting for map
+
+```typescript
+// ✅ Correct: Async association
+async function processHit(hit) {
+  if (!mapExists(hit.mapHash)) {
+    // Store hit for later association
+    await storeHitForLaterAssociation(hit);
+  } else {
+    await processHitWithMap(hit);
+  }
+}
+```
+
+## Fail-Open Checklist
+
+### Runtime SDK
+
+- [ ] All network calls wrapped in try/catch
+- [ ] Timeout configured (100-300ms)
+- [ ] No await/blocking in critical path
+- [ ] Payload size validation (drop if too large)
+- [ ] No console.error (use debug level)
+
+### Hit Endpoint
+
+- [ ] Always returns 200
+- [ ] Invalid payloads are dropped (not rejected)
+- [ ] Errors logged but not returned
+- [ ] Rate limiting drops excess (doesn't reject)
+- [ ] Database errors don't propagate
+
+### Map Endpoint
+
+- [ ] Idempotent (can retry)
+- [ ] Partial failures don't fail entire request
+- [ ] Invalid maps rejected with details (but don't fail build)
+
+## When Fail-Open Doesn't Apply
+
+### Map Endpoint (Build-Time)
+
+Map reporting happens during CI/CD:
+
+- **Can fail**: Build should know if map reporting fails
+- **Can retry**: Idempotent, safe to retry
+- **Can block**: Not in critical user path
+
+**Exception**: Map endpoint can fail-close (it's build-time, not runtime).
+
+## Monitoring
+
+Since errors are swallowed, monitoring is critical:
+
+### Metrics to Track
+
+- Hit drop rate (invalid payloads)
+- Map miss rate (hits without maps)
+- Network failure rate
+- Payload size distribution
+
+### Alerts
+
+- Hit drop rate > 1%
+- Map miss rate > 5%
+- Network failure rate > 10%
+
+## Best Practices
+
+### 1. Logging
+
+```javascript
+// ✅ Good: Debug level
+logger.debug('Coverage hit dropped', { reason, mapHash });
+
+// ❌ Bad: Error level (can trigger alerts)
+logger.error('Coverage hit dropped', { reason, mapHash });
+```
+
+### 2. Retry Logic
+
+```javascript
+// ✅ Good: Best-effort, no retries
+reportHit(data); // Fire and forget
+
+// ❌ Bad: Retry logic (can accumulate)
+await retry(reportHit, data, { maxRetries: 3 });
+```
+
+### 3. Payload Validation
+
+```javascript
+// ✅ Good: Validate and drop
+if (!isValidHit(payload)) {
+  logger.debug('Invalid hit dropped', payload);
+  return; // Don't throw
+}
+
+// ❌ Bad: Throw on validation
+if (!isValidHit(payload)) {
+  throw new Error('Invalid hit'); // Can crash app
+}
+```
+
+## Summary
+
+Fail-open is not "ignore errors" — it's "prioritize application execution over coverage data collection."
+
+Coverage data is valuable, but not critical. Application execution is critical.
+
+## Next Steps
+
+- [Map & Hit Protocol](/docs/specification/protocol) - API contract
+- [Coverage Data Model](/docs/specification/data-model) - Core entities
+

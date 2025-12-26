@@ -1,0 +1,203 @@
+# Identity & Hash Model
+
+> **Status**: Draft  
+> **Version**: 1.0.0-alpha
+
+## Overview
+
+This document defines Canyon's identity and hash system. It describes how different types of hashes are computed, what they represent, and how they relate to each other.
+
+## Hash Types
+
+Canyon uses multiple hash types, each serving a specific purpose:
+
+### mapHash
+
+**Purpose**: Identifies the structure of instrumented code
+
+**Computed From**:
+```
+mapHash = hash(
+  relativeFilePath +
+  coverageMapStructure +
+  sourceMapVersion +
+  pluginVersion +
+  schemaVersion
+)
+```
+
+**Properties**:
+- ✅ Reusable across builds
+- ✅ Independent of build context
+- ✅ Stable across environments
+- ❌ Does NOT include: repoID, sha, pipeline, buildTarget
+
+**Used In**: Hit payload, Map payload
+
+### versionID / revisionHash
+
+**Purpose**: Identifies a code revision
+
+**Computed From**:
+```
+revisionHash = hash(
+  provider +
+  repoID +
+  commitSha +
+  buildTarget
+)
+```
+
+**Properties**:
+- ✅ Stable across multiple builds
+- ✅ Independent of execution context
+- ❌ Does NOT include: pipeline, job, tags
+
+**Used In**: Build records, Version aggregation
+
+### buildHash
+
+**Purpose**: Identifies a specific build/execution instance
+
+**Computed From**:
+```
+buildHash = hash(
+  provider +
+  repoID +
+  commitSha +
+  buildTarget +
+  // Optional: pipelineId, jobId
+)
+```
+
+**Properties**:
+- ✅ Unique per build instance
+- ⚠️ May be same as revisionHash in simple cases
+- ❌ Does NOT include: tags (tags are attributes, not identity)
+
+**Used In**: Build records, optional in Hit payload
+
+### sceneKey
+
+**Purpose**: Identifies execution context/scenario
+
+**Computed From**:
+```
+sceneKey = hash(
+  source +      // automation, manual, replay
+  type +        // e2e, unit, integration
+  env +         // test, staging, prod
+  trigger       // pipeline, schedule, manual
+)
+```
+
+**Properties**:
+- ✅ Normalized (lowercase, sorted)
+- ✅ Used for aggregation buckets
+- ❌ NOT part of merge identity (structure determines merge)
+
+**Used In**: Hit payload, Scene records
+
+### fileContentHash
+
+**Purpose**: Identifies source file content
+
+**Computed From**:
+```
+fileContentHash = hash(
+  normalize(sourceCode)
+)
+```
+
+**Normalization**:
+- Unified line endings (LF)
+- Remove BOM
+- Optional: trim trailing whitespace
+
+**Properties**:
+- ✅ Independent of build/execution
+- ✅ Useful for code deduplication
+- ❌ Does NOT include: instrumentation, sourcemap
+
+**Used In**: Map payload
+
+## Hash Algorithm
+
+### Current Algorithm
+
+Canyon uses a stable, deterministic hash algorithm:
+
+```typescript
+function generateObjectSignature(fields: Record<string, string>): string {
+  // 1. Sort keys
+  // 2. Canonicalize values
+  // 3. Generate hash (e.g., SHA-256)
+  // 4. Return hex string
+}
+```
+
+### Versioning
+
+Hash algorithms must be versioned:
+
+```typescript
+hash_v1(...)  // Current
+hash_v2(...)  // Future (if needed)
+```
+
+**Migration Rule**: Old hashes remain valid, new hashes use new algorithm.
+
+## Identity Rules
+
+### Rule 1: One Hash, One Purpose
+
+Each hash answers exactly one question:
+
+- `mapHash`: What is the code structure?
+- `revisionHash`: What is the code version?
+- `buildHash`: Which build instance?
+- `sceneKey`: What execution context?
+- `fileContentHash`: What is the source content?
+
+### Rule 2: Immutability
+
+Once assigned, identities never change:
+
+- Same input → same hash (deterministic)
+- Different input → different hash (collision-resistant)
+
+### Rule 3: No Business Logic in Hash
+
+Hashes should NOT include:
+- ❌ Pipeline IDs
+- ❌ Job IDs  
+- ❌ Report IDs
+- ❌ Tags (these are attributes, not identity)
+
+## Common Patterns
+
+### Pattern 1: Map Reuse
+
+Same code structure → same `mapHash` → reusable across builds
+
+### Pattern 2: Version Aggregation
+
+Same code version → same `revisionHash` → aggregate all builds
+
+### Pattern 3: Scene Filtering
+
+Same execution context → same `sceneKey` → filter/compare coverage
+
+## Collision Handling
+
+While collisions are extremely rare:
+
+1. **Prevention**: Use strong hash algorithms (SHA-256+)
+2. **Detection**: Database unique constraints
+3. **Resolution**: Include additional context (pluginVersion, schemaVersion)
+
+## Next Steps
+
+- [Coverage Data Model](/docs/specification/data-model) - Entity relationships
+- [Merge Semantics](/docs/specification/merge-semantics) - How identities affect merging
+
