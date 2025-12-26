@@ -16,4 +16,6 @@ export interface CanyonBabelPluginConfig {
   buildProvider?: string;
   /** 构建 ID */
   buildID?: string;
+  /** 构建目标 */
+  buildTarget?: string;
 }

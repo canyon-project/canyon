@@ -16,6 +16,7 @@ const defaultConfig: Required<CanyonBabelPluginConfig> = {
   ci: false,
   buildProvider: '',
   buildID: '',
+  buildTarget: '',
 };
 
 /**
@@ -42,6 +43,8 @@ function mergeConfig(
       ciConfig.buildProvider ??
       defaultConfig.buildProvider,
     buildID: config?.buildID ?? ciConfig.buildID ?? defaultConfig.buildID,
+    buildTarget:
+      config?.buildTarget ?? ciConfig.buildTarget ?? defaultConfig.buildTarget,
   };
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "babel-plugin-canyontest",
-  "version": "1.0.0-alpha.6",
+  "version": "1.0.0-alpha.7",
   "description": "A Babel plugin for Canyon code coverage instrumentation",
   "repository": {
     "type": "git",
@@ -37,6 +37,7 @@
     "@babel/core": "^7.24.1",
     "@babel/generator": "^7.25.6",
     "@babel/helper-plugin-utils": "^7.24.1",
-    "@babel/types": "^7.28.5"
+    "@babel/types": "^7.28.5",
+    "json-stable-stringify": "catalog:"
   }
 }

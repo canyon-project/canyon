@@ -1,6 +1,8 @@
+import { randomBytes } from 'node:crypto';
 import * as fs from 'node:fs';
 import type { types as BabelTypes, ConfigAPI, NodePath } from '@babel/core';
 import generate from '@babel/generator';
+import { generateBuildHash } from './helpers/generate-build-hash';
 import { generateInitialCoverage } from './helpers/generate-initial-coverage';
 import type { CanyonBabelPluginConfig } from './types';
 
@@ -46,7 +48,8 @@ export function visitorProgramExit(
 
     // 确保覆盖率数据有效
     if (initialCoverageData?.path) {
-      const randomSuffix = String(Math.random()).replace('0.', '');
+      // 使用 crypto.randomBytes 生成更安全的随机后缀（16 字节 = 32 个十六进制字符）
+      const randomSuffix = randomBytes(16).toString('hex');
       const outputFilePath = `./.canyon_output/coverage-final-init-${randomSuffix}.json`;
       const coverageDataObject: Record<string, CoverageData> = {
         [initialCoverageData.path]: initialCoverageData,
@@ -136,23 +139,15 @@ export function visitorProgramExit(
               }
             }
 
-            // 添加元数据属性
-            const metadataAttributes: Array<
-              keyof Required<CanyonBabelPluginConfig>
-            > = ['repoID', 'sha', 'provider', 'buildProvider', 'buildID'];
-
-            metadataAttributes.forEach((attributeName) => {
-              const attributeValue = config[attributeName];
-
-              // 只添加字符串类型的属性
-              if (typeof attributeValue === 'string') {
-                const metadataProperty = types.objectProperty(
-                  types.identifier(attributeName),
-                  types.stringLiteral(attributeValue),
-                );
-                objectProperties.push(metadataProperty);
-              }
-            });
+            // 添加 buildHash 元数据属性
+            // 根据架构设计，不再将 repoID、sha、provider 等业务信息直接插桩到产物中
+            // 而是生成 buildHash，服务端通过 buildHash 查询对应的构建信息
+            const buildHash = generateBuildHash(config);
+            const buildHashProperty = types.objectProperty(
+              types.identifier('buildHash'),
+              types.stringLiteral(buildHash),
+            );
+            objectProperties.push(buildHashProperty);
           }
         }
       },
