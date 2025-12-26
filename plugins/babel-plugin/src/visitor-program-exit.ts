@@ -1,5 +1,4 @@
 import * as fs from 'node:fs';
-// import * as path from 'node:path';
 import type { types as BabelTypes, ConfigAPI, NodePath } from '@babel/core';
 import generate from '@babel/generator';
 import { generateInitialCoverage } from './helpers/generate-initial-coverage';
