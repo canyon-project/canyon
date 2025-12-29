@@ -77,12 +77,11 @@ export async function mapCommand(params: any, options: any) {
       coverage: data,
     })
     .then((r) => {
+      console.log(JSON.stringify(r.data, null, 2));
       return r;
     })
     .catch((err) => {
-      if (err.response) {
-        console.log(err.response);
-      }
+      console.log(String(err));
       return err;
     });
 }
