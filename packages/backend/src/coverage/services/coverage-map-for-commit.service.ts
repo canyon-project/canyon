@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { generateObjectSignature } from '../../collect/helpers/generateObjectSignature';
+import { decodeCompressedObject } from '../../collect/helpers/transform';
 // import { extractIstanbulData } from '../../helpers/coverage-map-util';
 import {
   addMaps,
@@ -77,6 +78,28 @@ export class CoverageMapForCommitService {
       await this.coverageMapStoreService.fetchCoverageMapsFromClickHouse(
         hashList,
       );
+
+    const coverageSourceMapList = await this.prisma.coverageSourceMap
+      .findMany({
+        where: {
+          hash: {
+            in: coverageMapRelationList.map(
+              ({ sourceMapHash }) => sourceMapHash,
+            ),
+          },
+        },
+      })
+      .then((r) =>
+        r.map((i) => {
+          return {
+            sourceMap: decodeCompressedObject(i.sourceMap),
+            hash: i.hash,
+          };
+        }),
+      );
+
+    // TODO
+    // 应该使用coverageMapRelation查出来的结果来赋值，不应该再遍历一边，最后结果在reMap一边
 
     // 查hit
     const rows = await this.prisma.coverageHit.findMany({
