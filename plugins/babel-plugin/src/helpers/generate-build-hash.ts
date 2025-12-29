@@ -1,3 +1,4 @@
+import * as console from 'node:console';
 import { createHash } from 'node:crypto';
 import stringify from 'json-stable-stringify';
 import type { CanyonBabelPluginConfig } from '../types';
@@ -20,6 +21,8 @@ export function generateBuildHash(
     sha: config.sha || '',
     buildTarget: config.buildTarget || '',
   };
+
+  console.log(buildHashFields, 'buildHashFields');
 
   // 使用 json-stable-stringify 确保键顺序稳定，与后端保持一致
   const hash = createHash('sha1')
