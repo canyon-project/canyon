@@ -102,7 +102,7 @@ model CoverageHit {
   id             String   @id
   buildHash      String   @map("build_hash")
   sceneKey       String   @map("scene_key")
-  filePath       String   @map("file_path")
+  rawFilePath    String   @map("raw_file_path")
   s              Json
   f              Json
   b              Json
@@ -118,4 +118,20 @@ model CoverageLock {
   lockedBy   String   @map("locked_by")
 
   @@map("canyon_next_coverage_lock")
+}
+
+model Diff {
+  id String @id @default(cuid())
+
+  provider   String
+  repo_id    String
+  from       String
+  to         String
+  path       String
+  additions  Int[]
+  deletions  Int[]
+  subject    String
+  subject_id String
+
+  @@map("canyon_final_diff")
 }

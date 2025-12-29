@@ -30,7 +30,11 @@
     "prisma": "6",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "test-exclude": "^7.0.1"
+    "test-exclude": "^7.0.1",
+    "@nestjs/config": "^4.0.2",
+    "istanbul-lib-coverage": "^3.2.2",
+    "diff": "^8.0.2",
+    "axios": "^1.13.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
@@ -43,6 +47,7 @@
     "source-map-support": "^0.5.21",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
-    "tsconfig-paths": "^4.2.0"
+    "tsconfig-paths": "^4.2.0",
+    "@types/istanbul-lib-coverage": "^2.0.6"
   }
 }

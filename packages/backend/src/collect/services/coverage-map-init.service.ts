@@ -42,7 +42,7 @@ export class CoverageMapInitService {
           id: `${coverageCreateRes.buildHash}|${sceneKey}`,
           sceneKey: sceneKey,
           buildHash: coverageCreateRes.buildHash,
-          filePath: filePath.replace(instrumentCwd + '/', ''),
+          rawFilePath: filePath,
           s,
           f,
           b: {},
@@ -51,7 +51,6 @@ export class CoverageMapInitService {
         };
       },
     );
-
     await this.prisma.coverageHit.createMany({
       data: hitEntities,
       skipDuplicates: true,
