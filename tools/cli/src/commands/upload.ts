@@ -47,6 +47,10 @@ export async function mapCommand(params: any, options: any) {
     data = mergeCoverageMaps(data, toMerge);
   }
 
+  const env_branch = process.env.CI_COMMIT_BRANCH;
+  const env_buildID = process.env.CI_JOB_ID;
+  const env_buildProvider = 'gitlab_runner';
+
   const p = {
     dsn,
     provider: provider || 'gitlab',
@@ -57,6 +61,11 @@ export async function mapCommand(params: any, options: any) {
     reportProvider: 'ci',
     buildTarget: build_target || '',
     coverage: Object.keys(data),
+    build: {
+      buildProvider: env_buildProvider,
+      buildID: env_buildID,
+      branch: env_branch,
+    },
   };
   if (debug === 'true') {
     console.log(p);
