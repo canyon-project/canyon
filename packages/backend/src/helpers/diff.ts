@@ -267,7 +267,6 @@ export async function diffLine({
       //@ts-expect-error
       result.push({
         path: gitDiffsFiltered[i].new_path,
-        //@ts-expect-error
         ...calculateNewRows(contents[0], contents[1]),
       });
     }
