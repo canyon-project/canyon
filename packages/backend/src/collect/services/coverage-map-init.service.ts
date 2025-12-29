@@ -4,6 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { PrismaSqliteService } from '../../prisma/prisma-sqlite.service';
 import { CoverageMapInitDto } from '../dto/coverage-map-init.dto';
 import { remapCoverageByOld } from '../helpers/canyon-data';
+import { generateSecureId } from '../helpers/coverageID';
 import { generateObjectSignature } from '../helpers/generateObjectSignature';
 import { encodeObjectToCompressedBuffer } from '../helpers/transform';
 
@@ -27,6 +28,33 @@ export class CoverageMapInitService {
       // coverageID,
       buildHash: coverageCreateRes.buildHash,
       instrumentCwd,
+    });
+
+    // 再插入初始hit
+
+    const hitEntities = Object.entries(coverage).map(
+      ([filePath, entry]: any) => {
+        const s = entry?.s || {};
+        const f = entry?.f || {};
+        const scene = {};
+        const sceneKey = this.calculateSceneKey(scene);
+        return {
+          id: `${coverageCreateRes.buildHash}|${sceneKey}`,
+          sceneKey: sceneKey,
+          buildHash: coverageCreateRes.buildHash,
+          filePath: filePath.replace(instrumentCwd + '/', ''),
+          s,
+          f,
+          b: {},
+          inputSourceMap: entry.inputSourceMap ? 1 : 0,
+          createdAt: new Date(),
+        };
+      },
+    );
+
+    await this.prisma.coverageHit.createMany({
+      data: hitEntities,
+      skipDuplicates: true,
     });
 
     logger({
