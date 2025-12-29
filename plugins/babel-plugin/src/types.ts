@@ -6,16 +6,10 @@ export interface CanyonBabelPluginConfig {
   repoID?: string;
   /** Git commit SHA */
   sha?: string;
-  /** Git 分支名 */
-  branch?: string;
   /** Git 提供商 */
   provider?: string;
-  /** 是否为 CI 环境 */
-  ci?: boolean;
-  /** 构建提供商 */
-  buildProvider?: string;
-  /** 构建 ID */
-  buildID?: string;
   /** 构建目标 */
   buildTarget?: string;
+  /** 是否为 CI 环境 */
+  ci?: boolean;
 }

@@ -11,12 +11,9 @@ import { visitorProgramExit } from './visitor-program-exit';
 const defaultConfig: Required<CanyonBabelPluginConfig> = {
   repoID: '',
   sha: '',
-  branch: '',
   provider: '',
-  ci: false,
-  buildProvider: '',
-  buildID: '',
   buildTarget: '',
+  ci: false,
 };
 
 /**
@@ -35,16 +32,16 @@ function mergeConfig(
   return {
     repoID: config?.repoID ?? ciConfig.repoID ?? defaultConfig.repoID,
     sha: config?.sha ?? ciConfig.sha ?? defaultConfig.sha,
-    branch: config?.branch ?? ciConfig.branch ?? defaultConfig.branch,
+    // branch: config?.branch ?? ciConfig.branch ?? defaultConfig.branch,
     provider: config?.provider ?? ciConfig.provider ?? defaultConfig.provider,
-    ci: config?.ci ?? ciConfig.ci ?? defaultConfig.ci,
-    buildProvider:
-      config?.buildProvider ??
-      ciConfig.buildProvider ??
-      defaultConfig.buildProvider,
-    buildID: config?.buildID ?? ciConfig.buildID ?? defaultConfig.buildID,
     buildTarget:
       config?.buildTarget ?? ciConfig.buildTarget ?? defaultConfig.buildTarget,
+    ci: config?.ci ?? ciConfig.ci ?? defaultConfig.ci,
+    // buildProvider:
+    //   config?.buildProvider ??
+    //   ciConfig.buildProvider ??
+    //   defaultConfig.buildProvider,
+    // buildID: config?.buildID ?? ciConfig.buildID ?? defaultConfig.buildID,
   };
 }
 
