@@ -68,3 +68,6 @@ local.db
 Cargo.lock
 
 .canyon_output
+
+
+_pagefind
