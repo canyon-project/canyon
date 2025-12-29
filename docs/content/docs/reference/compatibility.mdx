@@ -1,0 +1,57 @@
+# Canyon Toolchain Compatibility
+
+This document describes the compatibility requirements for Canyon toolchain components.
+
+## Tooling Requirements
+
+| Tool | Node.js Requirement | Description |
+|------|---------------------|-------------|
+| `canyon-cli` | Node.js >= 16 | Command-line tool for uploading coverage data |
+| `babel-plugin-canyon` | Node.js >= 16 | Babel plugin for code instrumentation |
+| `swc-plugin-canyon` | Node.js >= 16 | SWC plugin for code instrumentation |
+
+## Instrumented Output
+
+Canyon plugins generate instrumented code with the following characteristics:
+
+- **JavaScript syntax**: ES5 (compatible with all modern browsers and Node.js)
+- **Runtime support**: 
+  - Browser (Chrome, Firefox, Safari, Edge)
+  - Node.js
+  - React Native
+
+## Build Tool Compatibility
+
+Canyon plugins are compatible with the following build tools:
+
+- **Babel**: Full support via `babel-plugin-canyon`
+- **SWC**: Full support via `swc-plugin-canyon`
+- **Webpack**: Compatible (via Babel or SWC)
+- **Vite**: Compatible (via Babel or SWC)
+- **Next.js**: Compatible (via Babel or SWC)
+- **React Native**: Compatible (via Babel)
+
+## CI/CD Compatibility
+
+Canyon automatically detects and adapts to the following CI/CD providers:
+
+- **GitLab CI**: Full support
+- **GitHub Actions**: Full support
+- **Other CI providers**: Manual configuration available
+
+## Browser Compatibility
+
+The instrumented code and coverage collection scripts are compatible with:
+
+- Chrome/Chromium 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
+
+## Node.js Compatibility
+
+- Node.js 16.x (LTS)
+- Node.js 18.x (LTS)
+- Node.js 20.x (LTS)
+- Node.js 22.x (Current)
+
