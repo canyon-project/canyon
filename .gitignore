@@ -66,3 +66,5 @@ local.db
 /target
 
 Cargo.lock
+
+.canyon_output
