@@ -19,17 +19,14 @@
   "scripts": {
     "build": "rslib build",
     "my-test": "npm run build && node ./bin/canyon.js upload",
-    "check": "biome check --write",
     "dev": "rslib build --watch",
-    "format": "biome format --write",
     "test": "rstest"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.2.3",
     "@rslib/core": "^0.15.1",
     "@rstest/core": "^0.5.1",
-    "@types/node": "^22.18.10",
-    "typescript": "^5.9.3"
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:"
   },
   "dependencies": {
     "axios": "^1.12.2",
