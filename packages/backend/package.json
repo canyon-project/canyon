@@ -34,7 +34,8 @@
     "@nestjs/config": "^4.0.2",
     "istanbul-lib-coverage": "^3.2.2",
     "diff": "^8.0.2",
-    "axios": "^1.13.2"
+    "axios": "^1.13.2",
+    "canyon-data": "latest"
   },
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
