@@ -26,7 +26,7 @@
     "class-validator": "catalog:",
     "dotenv": "catalog:",
     "express": "catalog:",
-    "json-stable-stringify": "catalog:",
+    "json-stable-stringify": "^1.3.0",
     "prisma": "6",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
