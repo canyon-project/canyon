@@ -9,15 +9,7 @@ function isValidCoverage(coverage) {
     return false;
   }
   // 检查是否有必须的属性
-  const requiredProperties = [
-    // "path",
-    // "statementMap",
-    // "fnMap",
-    // "branchMap",
-    's',
-    'f',
-    'b',
-  ];
+  const requiredProperties = ['s', 'f', 'b'];
   for (const prop of requiredProperties) {
     if (!(prop in coverage)) {
       return false;
@@ -25,10 +17,6 @@ function isValidCoverage(coverage) {
   }
   // 检查属性的类型和结构
   if (
-    // typeof coverage.path !== "string" ||
-    // typeof coverage.statementMap !== "object" ||
-    // typeof coverage.fnMap !== "object" ||
-    // typeof coverage.branchMap !== "object" ||
     typeof coverage.s !== 'object' ||
     typeof coverage.f !== 'object' ||
     typeof coverage.b !== 'object'

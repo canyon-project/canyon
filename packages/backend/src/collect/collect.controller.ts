@@ -10,13 +10,7 @@ export class CollectController {
   @Post('coverage/client')
   async uploadCoverageFromClient(@Body() coverageClientDto: CoverageClientDto) {
     return this.coverageClientService.invoke('1', {
-      // @ts-expect-errorr
-      reportID: coverageClientDto.reportID || coverageClientDto.sha,
-      // @ts-expect-errorr
-      reportProvider: coverageClientDto.reportProvider || 'person',
-      ...coverageClientDto,
       coverage: formatCoverageData(coverageClientDto.coverage),
-      buildTarget: coverageClientDto.buildTarget || '',
     });
   }
 }

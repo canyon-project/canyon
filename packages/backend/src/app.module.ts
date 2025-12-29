@@ -5,7 +5,7 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CollectModule } from './collect/collect.module';
-import { CoverageModule } from './coverage/coverage.module';
+// import { CoverageModule } from './coverage/coverage.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RepoModule } from './repo/repo.module';
@@ -15,7 +15,7 @@ import { RepoModule } from './repo/repo.module';
     HealthModule,
     PrismaModule,
     CollectModule,
-    CoverageModule,
+    // CoverageModule,
     RepoModule,
     ServeStaticModule.forRoot({
       rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
