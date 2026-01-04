@@ -39,7 +39,7 @@ export class CoverageMapInitService {
         const scene = {};
         const sceneKey = this.calculateSceneKey(scene);
         return {
-          id: `${coverageCreateRes.buildHash}|${sceneKey}`,
+          id: `${coverageCreateRes.buildHash}|${sceneKey}|${filePath}`,
           sceneKey: sceneKey,
           buildHash: coverageCreateRes.buildHash,
           rawFilePath: filePath,
@@ -223,8 +223,7 @@ export class CoverageMapInitService {
             fileContentHash: fileContentHash,
             fullFilePath: originalEntry.path,
             sourceMap: entry.inputSourceMap,
-            restoreFullFilePath: entry.path,
-            // oldPath: entry.oldPath,
+            restoreFullFilePath: originalEntry.oldPath,
           };
         }
       }
@@ -253,7 +252,7 @@ export class CoverageMapInitService {
     });
 
     const relationItems = mapItems.map((item) => ({
-      id: `${buildHash}|${item.filePath}`,
+      id: `${buildHash}|${item.fullFilePath}`,
       buildHash,
       fullFilePath: item.fullFilePath,
       restoreFullFilePath: item.restoreFullFilePath,
@@ -264,7 +263,6 @@ export class CoverageMapInitService {
       fileContentHash: item.fileContentHash,
       sourceMap: (item as any).sourceMap,
     }));
-
     await this.prisma.coverageMapRelation.createMany({
       data: relationItems.map((item) => ({
         id: item.id,

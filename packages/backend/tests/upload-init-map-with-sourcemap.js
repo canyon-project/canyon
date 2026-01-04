@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// 遍历 mock-data 文件夹，读取所有 JSON 文件并合并成 coverage 对象
-const mockDataDir = path.join(__dirname, 'mock-data');
+// 遍历 .canyon_output 文件夹，读取所有 JSON 文件并合并成 coverage 对象
+const mockDataDir = path.join(__dirname, '.canyon_output');
 const coverage = {};
 
 const jsonFiles = fs

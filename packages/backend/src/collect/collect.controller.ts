@@ -22,6 +22,40 @@ export class CollectController {
 
   @Post('map/init')
   async coverageMapInit(@Body() coverageMapInitDto: CoverageMapInitDto) {
+    // 从 coverage 的第一个值中提取参数
+    const coverageValues = Object.values(coverageMapInitDto.coverage);
+    if (coverageValues.length > 0) {
+      const firstEntry = coverageValues[0] as any;
+      // 如果第一个值中存在这些字段，则覆盖 DTO 中的值
+      if (firstEntry.sha !== undefined) {
+        coverageMapInitDto.sha = firstEntry.sha;
+        console.log(`从 coverage 的第一个值中提取的 sha: ${firstEntry.sha}`);
+      }
+      if (firstEntry.provider !== undefined) {
+        coverageMapInitDto.provider = firstEntry.provider;
+        console.log(
+          `从 coverage 的第一个值中提取的 provider: ${firstEntry.provider}`,
+        );
+      }
+      if (firstEntry.repoID !== undefined) {
+        coverageMapInitDto.repoID = firstEntry.repoID;
+        console.log(
+          `从 coverage 的第一个值中提取的 repoID: ${firstEntry.repoID}`,
+        );
+      }
+      if (firstEntry.instrumentCwd !== undefined) {
+        coverageMapInitDto.instrumentCwd = firstEntry.instrumentCwd;
+        console.log(
+          `从 coverage 的第一个值中提取的 instrumentCwd: ${firstEntry.instrumentCwd}`,
+        );
+      }
+      if (firstEntry.buildTarget !== undefined) {
+        coverageMapInitDto.buildTarget = firstEntry.buildTarget;
+        console.log(
+          `从 coverage 的第一个值中提取的 buildTarget: ${firstEntry.buildTarget}`,
+        );
+      }
+    }
     return this.coverageMapInitService.init(coverageMapInitDto);
   }
 }
