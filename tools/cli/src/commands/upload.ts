@@ -5,6 +5,8 @@ import axios from 'axios';
 import { mergeCoverageMaps } from '../utils/mergeCoverage';
 
 export async function mapCommand(params: any, options: any) {
+  console.log('Current working directory:', process.cwd());
+
   const {
     dsn,
     repo_id: repoID,
