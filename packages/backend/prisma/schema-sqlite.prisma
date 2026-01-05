@@ -17,9 +17,8 @@ datasource db_sqlite {
 
 model CoverageQueue {
   id        Int         @id @default(autoincrement())
-  payload   Json
+  payload   String      // JSON string
   status    QueueStatus @default(PENDING)
-  retry     Int         @default(0)
   pid       Int?        // 当前进程 ID
   createdAt DateTime    @default(now())
 
@@ -29,6 +28,5 @@ model CoverageQueue {
 enum QueueStatus {
   PENDING
   PROCESSING
-  DONE
   FAILED
 }

@@ -69,16 +69,16 @@ export class CoverageClientService {
 
     const sceneKey = generateObjectSignature(coverageClientDto.scene || {});
 
-    // 其他情况写入 SQLite 队列，由消费服务异步处理
+    // 写入 SQLite 队列，由消费服务异步处理
+    // payload 存储为 JSON string，因为 SQLite 不适合原生 JSON 类型
     await this.prismaSqlite.coverageQueue.create({
       data: {
-        payload: {
+        payload: JSON.stringify({
           coverage,
           buildHash,
-          sceneKey: sceneKey,
-        } as any,
+          sceneKey,
+        }),
         status: 'PENDING',
-        retry: 0,
         pid: process.pid,
       },
     });

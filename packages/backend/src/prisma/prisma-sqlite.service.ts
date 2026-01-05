@@ -21,17 +21,16 @@ export class PrismaSqliteService
     await this.$disconnect();
   }
   private async initTables() {
-    // 示例：健康检查 / 兜底表
+    // 队列表：payload 存储为 JSON string
     await this.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS coverage_queue (
-                                                  id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                                  payload TEXT NOT NULL,
-                                                  status TEXT NOT NULL DEFAULT 'PENDING'
-                                                  CHECK (status IN ('PENDING', 'PROCESSING', 'DONE', 'FAILED')),
-        retry INTEGER NOT NULL DEFAULT 0,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        payload TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'PENDING'
+          CHECK (status IN ('PENDING', 'PROCESSING', 'FAILED')),
         pid INTEGER,
         createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
+      );
     `);
   }
 }

@@ -1,6 +1,5 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { addMaps, ensureNumMap } from '../../helpers/coverage-merge.util';
-import { logger } from '../../logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PrismaSqliteService } from '../../prisma/prisma-sqlite.service';
 import { CoverageLockService } from './coverage-lock.service';
@@ -21,7 +20,6 @@ interface CoverageQueuePayload {
 
 @Injectable()
 export class CoverageConsumerService implements OnModuleInit {
-  private readonly logger = new Logger(CoverageConsumerService.name);
   private isRunning = false;
   private readonly queryLimit = Number(
     process.env.COVERAGE_CONSUMER_QUERY_LIMIT || 100,
@@ -35,12 +33,6 @@ export class CoverageConsumerService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    logger({
-      type: 'info',
-      title: 'CoverageConsumer',
-      message: 'Coverage consumer started with infinite loop',
-      addInfo: { pid: this.currentPid },
-    });
     void this.startConsumptionLoop();
   }
 
@@ -53,13 +45,6 @@ export class CoverageConsumerService implements OnModuleInit {
 
       this.isRunning = true;
       try {
-        logger({
-          type: 'debug',
-          title: 'CoverageConsumer',
-          message: 'Starting consumption loop iteration',
-          addInfo: { pid: this.currentPid },
-        });
-
         // 先本地聚合相同 coverageID 的数据
         await this.mergeLocalCoverageData();
 
@@ -67,7 +52,7 @@ export class CoverageConsumerService implements OnModuleInit {
         const queueItems = await this.prismaSqlite.$queryRawUnsafe<
           Array<{
             id: number;
-            payload: any;
+            payload: string;
             status: string;
             pid: number | null;
             createdAt: Date;
@@ -82,42 +67,14 @@ export class CoverageConsumerService implements OnModuleInit {
 
         const queueItem = queueItems[0];
         if (!queueItem) {
-          logger({
-            type: 'debug',
-            title: 'CoverageConsumer',
-            message: 'No pending queue items found, waiting...',
-            addInfo: { pid: this.currentPid },
-          });
           this.isRunning = false;
           await this.sleep(10000);
           continue;
         }
 
-        logger({
-          type: 'info',
-          title: 'CoverageConsumer',
-          message: 'Found queue item to process',
-          addInfo: {
-            queueId: queueItem.id,
-            pid: this.currentPid,
-            queuePid: queueItem.pid,
-            createdAt: queueItem.createdAt,
-          },
-        });
-
         // 处理任务
         await this.processQueueItem(queueItem.id);
       } catch (e) {
-        logger({
-          type: 'error',
-          title: 'CoverageConsumer',
-          message: 'Coverage consumption loop error',
-          addInfo: {
-            pid: this.currentPid,
-            error: e instanceof Error ? e.message : String(e),
-          },
-        });
-        this.logger.error('Coverage consumption loop error', e as any);
         await this.sleep(5000);
       } finally {
         this.isRunning = false;
@@ -126,13 +83,6 @@ export class CoverageConsumerService implements OnModuleInit {
   }
 
   private async processQueueItem(queueId: number) {
-    logger({
-      type: 'info',
-      title: 'CoverageConsumer',
-      message: 'Processing queue item',
-      addInfo: { queueId, pid: this.currentPid },
-    });
-
     // 标记为处理中并设置当前进程 ID
     const updateResult = await this.prismaSqlite.$executeRawUnsafe(`
       UPDATE coverage_queue
@@ -142,12 +92,6 @@ export class CoverageConsumerService implements OnModuleInit {
 
     // 如果更新行数为 0，说明任务已经被其他进程处理了
     if (updateResult === 0) {
-      logger({
-        type: 'warn',
-        title: 'CoverageConsumer',
-        message: 'Queue item already processed by another process',
-        addInfo: { queueId, pid: this.currentPid },
-      });
       return;
     }
 
@@ -157,49 +101,23 @@ export class CoverageConsumerService implements OnModuleInit {
       });
 
       if (!queueItem) {
-        logger({
-          type: 'warn',
-          title: 'CoverageConsumer',
-          message: 'Queue item not found',
-          addInfo: { queueId, pid: this.currentPid },
-        });
         return;
       }
 
-      const payload = queueItem.payload as unknown as CoverageQueuePayload;
+      // payload 是 JSON string，需要解析
+      const payload: CoverageQueuePayload = JSON.parse(
+        queueItem.payload as string,
+      );
+
       const { coverage, buildHash, sceneKey } = payload;
 
       // coverageID = buildHash + '|' + sceneKey
       const coverageID = `${buildHash}|${sceneKey}`;
 
-      logger({
-        type: 'info',
-        title: 'CoverageConsumer',
-        message: 'Attempting to acquire lock',
-        addInfo: {
-          queueId,
-          coverageID,
-          buildHash,
-          sceneKey,
-          pid: this.currentPid,
-          fileCount: Object.keys(coverage).length,
-        },
-      });
-
       // 尝试获取分布式锁
       const lockAcquired =
         await this.coverageLockService.acquireLock(coverageID);
       if (!lockAcquired) {
-        logger({
-          type: 'warn',
-          title: 'CoverageConsumer',
-          message: 'Failed to acquire lock, deferring task',
-          addInfo: {
-            queueId,
-            coverageID,
-            pid: this.currentPid,
-          },
-        });
         // 如果获取锁失败，更新 createdAt 时间，将其放到后面参加循环
         await this.prismaSqlite.$executeRawUnsafe(`
           UPDATE coverage_queue
@@ -210,71 +128,24 @@ export class CoverageConsumerService implements OnModuleInit {
         return;
       }
 
-      logger({
-        type: 'info',
-        title: 'CoverageConsumer',
-        message: 'Lock acquired successfully',
-        addInfo: { queueId, coverageID, pid: this.currentPid },
-      });
-
       try {
-        logger({
-          type: 'info',
-          title: 'CoverageConsumer',
-          message: 'Processing coverage data',
-          addInfo: {
-            queueId,
-            coverageID,
-            buildHash,
-            sceneKey,
-            pid: this.currentPid,
-            fileCount: Object.keys(coverage).length,
-          },
-        });
-
         // 消费逻辑：插入或更新 CoverageHit 表
         await this.mergeCoverageData(coverage, buildHash, sceneKey);
 
-        // 标记为完成
-        await this.prismaSqlite.coverageQueue.update({
+        // 成功消费后删除队列记录，避免 SQLite 数据无限膨胀
+        await this.prismaSqlite.coverageQueue.delete({
           where: { id: queueId },
-          data: { status: 'DONE' },
-        });
-
-        logger({
-          type: 'info',
-          title: 'CoverageConsumer',
-          message: 'Queue item processed successfully',
-          addInfo: { queueId, coverageID, pid: this.currentPid },
         });
       } finally {
         // 释放锁
-        logger({
-          type: 'debug',
-          title: 'CoverageConsumer',
-          message: 'Releasing lock',
-          addInfo: { queueId, coverageID, pid: this.currentPid },
-        });
         await this.coverageLockService.releaseLock(coverageID);
       }
     } catch (e) {
-      logger({
-        type: 'error',
-        title: 'CoverageConsumer',
-        message: 'Failed to process queue item',
-        addInfo: {
-          queueId,
-          pid: this.currentPid,
-          error: e instanceof Error ? e.message : String(e),
-        },
-      });
-      this.logger.error(`Failed to process queue item ${queueId}`, e as any);
       // 标记为失败
       await this.prismaSqlite.coverageQueue.update({
         where: { id: queueId },
         data: {
           status: 'FAILED',
-          retry: { increment: 1 },
         },
       });
     }
@@ -286,18 +157,12 @@ export class CoverageConsumerService implements OnModuleInit {
    */
   private async mergeLocalCoverageData(): Promise<void> {
     try {
-      logger({
-        type: 'debug',
-        title: 'CoverageConsumer',
-        message: 'Starting local coverage data merge',
-        addInfo: { pid: this.currentPid, queryLimit: this.queryLimit },
-      });
-
       // 获取当前进程的待处理任务或未分配的任务，按 coverageID 分组
+      // 支持全表合并，不限制数量
       const pendingItems = await this.prismaSqlite.$queryRawUnsafe<
         Array<{
           id: number;
-          payload: any;
+          payload: string;
           status: string;
           pid: number | null;
           createdAt: Date;
@@ -307,28 +172,11 @@ export class CoverageConsumerService implements OnModuleInit {
         WHERE status = 'PENDING'
           AND (pid IS NULL OR pid = ${this.currentPid})
         ORDER BY createdAt ASC
-        LIMIT ${this.queryLimit}
       `);
 
       if (pendingItems.length <= 1) {
-        logger({
-          type: 'debug',
-          title: 'CoverageConsumer',
-          message: 'No items to merge locally',
-          addInfo: { pid: this.currentPid, itemCount: pendingItems.length },
-        });
         return; // 没有或只有一个任务，无需合并
       }
-
-      logger({
-        type: 'info',
-        title: 'CoverageConsumer',
-        message: 'Found items for local merge',
-        addInfo: {
-          pid: this.currentPid,
-          itemCount: pendingItems.length,
-        },
-      });
 
       // 按 coverageID 分组
       const coverageGroups = new Map<
@@ -337,8 +185,31 @@ export class CoverageConsumerService implements OnModuleInit {
       >();
 
       for (const item of pendingItems) {
-        const payload = item.payload as unknown as CoverageQueuePayload;
-        const { buildHash, sceneKey } = payload;
+        // payload 是 JSON string，需要解析
+        let payload: CoverageQueuePayload;
+        try {
+          payload = JSON.parse(item.payload) as CoverageQueuePayload;
+        } catch (e) {
+          continue;
+        }
+
+        // 验证 payload 格式
+        if (!payload || typeof payload !== 'object') {
+          continue;
+        }
+
+        const { buildHash, sceneKey, coverage } = payload;
+
+        // 验证必要字段
+        if (
+          !buildHash ||
+          !sceneKey ||
+          !coverage ||
+          typeof coverage !== 'object'
+        ) {
+          continue;
+        }
+
         const coverageID = `${buildHash}|${sceneKey}`;
 
         if (!coverageGroups.has(coverageID)) {
@@ -356,30 +227,37 @@ export class CoverageConsumerService implements OnModuleInit {
           continue; // 只有一个任务，无需合并
         }
 
-        logger({
-          type: 'info',
-          title: 'CoverageConsumer',
-          message: 'Merging local coverage items',
-          addInfo: {
-            coverageID,
-            itemCount: items.length,
-            pid: this.currentPid,
-          },
-        });
-
         // 合并所有覆盖率数据
         const mergedCoverage: CoverageQueuePayload['coverage'] = {};
         let buildHash = '';
         let sceneKey = '';
 
         for (const item of items) {
-          buildHash = item.payload.buildHash;
-          sceneKey = item.payload.sceneKey;
+          const payload = item.payload;
+
+          // 验证 payload
+          if (
+            !payload ||
+            !payload.buildHash ||
+            !payload.sceneKey ||
+            !payload.coverage
+          ) {
+            continue;
+          }
+
+          buildHash = payload.buildHash;
+          sceneKey = payload.sceneKey;
+
+          // 验证 coverage 是对象
+          if (
+            typeof payload.coverage !== 'object' ||
+            payload.coverage === null
+          ) {
+            continue;
+          }
 
           // 合并覆盖率数据
-          for (const [filePath, entry] of Object.entries(
-            item.payload.coverage,
-          )) {
+          for (const [filePath, entry] of Object.entries(payload.coverage)) {
             if (!mergedCoverage[filePath]) {
               mergedCoverage[filePath] = {
                 s: {},
@@ -403,6 +281,15 @@ export class CoverageConsumerService implements OnModuleInit {
           }
         }
 
+        // 如果合并后的数据为空，跳过这个组
+        if (
+          Object.keys(mergedCoverage).length === 0 ||
+          !buildHash ||
+          !sceneKey
+        ) {
+          continue;
+        }
+
         // 创建合并后的 payload
         const mergedPayload: CoverageQueuePayload = {
           coverage: mergedCoverage,
@@ -416,10 +303,10 @@ export class CoverageConsumerService implements OnModuleInit {
         const otherItemIds = idsToDelete.slice(1);
 
         // 更新第一个任务为合并后的数据，并设置为当前进程
-        await (this.prismaSqlite.coverageQueue.update as any)({
+        await this.prismaSqlite.coverageQueue.update({
           where: { id: firstItemId },
           data: {
-            payload: mergedPayload,
+            payload: JSON.stringify(mergedPayload),
             pid: this.currentPid,
           },
         });
@@ -431,66 +318,21 @@ export class CoverageConsumerService implements OnModuleInit {
             WHERE id IN (${otherItemIds.map((id) => id.toString()).join(',')})
           `);
         }
-
-        logger({
-          type: 'info',
-          title: 'CoverageConsumer',
-          message: 'Local merge completed',
-          addInfo: {
-            coverageID,
-            mergedCount: items.length,
-            keptId: firstItemId,
-            deletedIds: otherItemIds,
-            pid: this.currentPid,
-          },
-        });
       }
-
-      logger({
-        type: 'info',
-        title: 'CoverageConsumer',
-        message: 'Local coverage data merge finished',
-        addInfo: {
-          pid: this.currentPid,
-          groupCount: coverageGroups.size,
-        },
-      });
     } catch (e) {
-      logger({
-        type: 'error',
-        title: 'CoverageConsumer',
-        message: 'Failed to merge local coverage data',
-        addInfo: {
-          pid: this.currentPid,
-          error: e instanceof Error ? e.message : String(e),
-        },
-      });
-      this.logger.error('Failed to merge local coverage data', e as any);
       // 不抛出错误，继续处理
     }
   }
 
   /**
    * 合并覆盖率数据并写入/更新 CoverageHit 表
+   * 使用 upsert 进行乐观更新
    */
   private async mergeCoverageData(
     coverage: CoverageQueuePayload['coverage'],
     buildHash: string,
     sceneKey: string,
   ): Promise<void> {
-    const fileCount = Object.keys(coverage).length;
-    logger({
-      type: 'debug',
-      title: 'CoverageConsumer',
-      message: 'Merging coverage data',
-      addInfo: {
-        buildHash,
-        sceneKey,
-        fileCount,
-        pid: this.currentPid,
-      },
-    });
-
     let createdCount = 0;
     let updatedCount = 0;
 
@@ -500,99 +342,53 @@ export class CoverageConsumerService implements OnModuleInit {
         const s = ensureNumMap(entry?.s || {});
         const f = ensureNumMap(entry?.f || {});
 
-        // 查找现有记录
+        // 使用 upsert 进行乐观更新
+        // 先查询现有记录以合并数据
         const existing = await this.prisma.coverageHit.findUnique({
           where: { id },
+          select: { s: true, f: true },
         });
 
-        if (!existing) {
-          // 不存在则创建
-          try {
-            await this.prisma.coverageHit.create({
-              data: {
-                id,
-                buildHash,
-                sceneKey,
-                rawFilePath: filePath,
-                s,
-                f,
-                b: (entry?.b || {}) as any,
-                inputSourceMap: entry?.inputSourceMap ? 1 : null,
-                createdAt: new Date(),
-              },
-            });
-            createdCount++;
-          } catch (createError: any) {
-            // 如果创建失败（可能是唯一约束冲突），说明另一个进程已经创建了，重新查询并更新
-            if (createError?.code === 'P2002') {
-              const retryExisting = await this.prisma.coverageHit.findUnique({
-                where: { id },
-              });
-              if (retryExisting) {
-                const existS = ensureNumMap(retryExisting.s);
-                const existF = ensureNumMap(retryExisting.f);
-                const mergedS = addMaps(existS, s);
-                const mergedF = addMaps(existF, f);
+        let mergedS = s;
+        let mergedF = f;
 
-                await this.prisma.coverageHit.update({
-                  where: { id },
-                  data: {
-                    s: mergedS,
-                    f: mergedF,
-                  },
-                });
-                updatedCount++;
-              }
-            } else {
-              throw createError;
-            }
-          }
-        } else {
-          // 存在则更新，合并 s 和 f 字段
+        if (existing) {
+          // 如果存在，合并 s 和 f 字段
           const existS = ensureNumMap(existing.s);
           const existF = ensureNumMap(existing.f);
-          const mergedS = addMaps(existS, s);
-          const mergedF = addMaps(existF, f);
-
-          await this.prisma.coverageHit.update({
-            where: { id },
-            data: {
-              s: mergedS,
-              f: mergedF,
-            },
-          });
-          updatedCount++;
+          mergedS = addMaps(existS, s);
+          mergedF = addMaps(existF, f);
         }
-      } catch (e) {
-        logger({
-          type: 'error',
-          title: 'CoverageConsumer',
-          message: 'Failed to upsert coverage data',
-          addInfo: {
+
+        // 使用 upsert 创建或更新
+        await this.prisma.coverageHit.upsert({
+          where: { id },
+          create: {
+            id,
             buildHash,
             sceneKey,
-            filePath,
-            pid: this.currentPid,
-            error: e instanceof Error ? e.message : String(e),
+            rawFilePath: filePath,
+            s: mergedS,
+            f: mergedF,
+            b: (entry?.b || {}) as any,
+            inputSourceMap: entry?.inputSourceMap ? 1 : null,
+            createdAt: new Date(),
+          },
+          update: {
+            s: mergedS,
+            f: mergedF,
           },
         });
+
+        if (existing) {
+          updatedCount++;
+        } else {
+          createdCount++;
+        }
+      } catch (e) {
         // 继续处理其他文件，不中断整个流程
       }
     }
-
-    logger({
-      type: 'debug',
-      title: 'CoverageConsumer',
-      message: 'Coverage data merge statistics',
-      addInfo: {
-        buildHash,
-        sceneKey,
-        totalFiles: fileCount,
-        created: createdCount,
-        updated: updatedCount,
-        pid: this.currentPid,
-      },
-    });
   }
 
   private sleep(ms: number): Promise<void> {
