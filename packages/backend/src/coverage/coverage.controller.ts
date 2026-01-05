@@ -11,9 +11,11 @@ import {
 // import * as fs from 'fs';
 // @ts-expect-errorr
 import { genSummaryMapByCoverageMap } from 'canyon-data';
+import { CommitsQueryDto } from './dto/commits.dto';
 import { MapQueryDto } from './dto/map.dto';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
 // import {ExportReportDto} from './dto/export-report.dto';
+import { CommitsService } from './services/commits.service';
 import { CoverageMapForCommitService } from './services/coverage-map-for-commit.service';
 
 // @Public()
@@ -21,6 +23,7 @@ import { CoverageMapForCommitService } from './services/coverage-map-for-commit.
 export class CoverageController {
   constructor(
     private readonly coverageMapForCommitService: CoverageMapForCommitService,
+    private readonly commitsService: CommitsService,
   ) {}
 
   @Get('summary/map')
@@ -65,5 +68,14 @@ export class CoverageController {
       default:
         throw new BadRequestException('invalid subject');
     }
+  }
+
+  @Get('commits')
+  async getCommits(@Query() q: CommitsQueryDto) {
+    const commits = await this.commitsService.getCommitsByRepoID(q.repoID);
+    return {
+      data: commits,
+      total: commits.length,
+    };
   }
 }

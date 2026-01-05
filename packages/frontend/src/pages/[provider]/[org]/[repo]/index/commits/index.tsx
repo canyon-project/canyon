@@ -21,6 +21,11 @@ type Repo = {
   updatedAt: string;
 };
 
+type SceneInfo = {
+  scene: Record<string, unknown>;
+  sceneKey: string;
+};
+
 type CommitRecord = {
   sha: string;
   branch: string;
@@ -35,6 +40,7 @@ type CommitRecord = {
   coverageID: string;
   reportID: string;
   reportProvider: string;
+  scenes?: SceneInfo[];
 };
 
 const CommitsPage = () => {
@@ -232,7 +238,11 @@ const CommitsPage = () => {
         }
         const queryString = searchParams.toString();
         const reportPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
-        return <Link to={reportPath}>{t('projects.reported_details')}</Link>;
+        return (
+          <a href={reportPath} target='_blank' rel='noreferrer'>
+            {t('projects.reported_details')}
+          </a>
+        );
       },
     },
   ];
@@ -279,6 +289,53 @@ const CommitsPage = () => {
           dataSource={commits}
           loading={loading}
           rowKey='sha'
+          expandable={{
+            expandedRowRender: (record) => {
+              if (!record.scenes || record.scenes.length === 0) {
+                return <div style={{ padding: '16px' }}>暂无场景信息</div>;
+              }
+              return (
+                <div style={{ padding: '16px' }}>
+                  <div style={{ marginBottom: '12px', fontWeight: 'bold' }}>
+                    场景信息 (共 {record.scenes.length} 个)
+                  </div>
+                  {record.scenes.map((sceneInfo, index) => (
+                    <div
+                      key={sceneInfo.sceneKey || index}
+                      style={{
+                        marginBottom: '16px',
+                        padding: '12px',
+                        backgroundColor: '#f5f5f5',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      <div style={{ marginBottom: '8px' }}>
+                        <Text strong>Scene Key:</Text>{' '}
+                        <Text code>{sceneInfo.sceneKey}</Text>
+                      </div>
+                      <div>
+                        <Text strong>Scene:</Text>
+                        <pre
+                          style={{
+                            marginTop: '8px',
+                            padding: '8px',
+                            backgroundColor: '#fff',
+                            borderRadius: '4px',
+                            fontSize: '12px',
+                            overflow: 'auto',
+                          }}
+                        >
+                          {JSON.stringify(sceneInfo.scene, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            },
+            rowExpandable: (record) =>
+              record.scenes && record.scenes.length > 0,
+          }}
           pagination={{
             current: page,
             pageSize: pageSize,

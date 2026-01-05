@@ -1,3 +1,4 @@
+import '@canyonjs/report-component/index.css';
 import './i18n.ts';
 import './useWorker.ts';
 import './index.css';

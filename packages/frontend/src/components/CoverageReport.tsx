@@ -4,6 +4,7 @@ import { Spin } from 'antd';
 import axios from 'axios';
 import { useCallback, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { getDecode } from '@/helpers/getDecode.ts';
 
 const CoverageReport = () => {
   const [searchParams] = useSearchParams();
@@ -58,7 +59,7 @@ const CoverageReport = () => {
 
   const { data: mapData, loading } = useRequest(
     () =>
-      axios('/api/coverage/map', {
+      axios('/api/coverage/summary/map', {
         params: {
           subject: subjectForQuery,
           subjectID,
@@ -100,7 +101,7 @@ const CoverageReport = () => {
           fileCodeChange: [],
         };
       }
-      if (!subject || !repoID) {
+      if (!subject || !repoID || !subjectID) {
         return {
           fileContent: '',
           fileCoverage: {},
@@ -109,21 +110,95 @@ const CoverageReport = () => {
       }
 
       try {
-        // 从 map 数据中查找文件信息
-        const fileData = data?.find((item: any) => item.path === val);
-        if (fileData) {
-          return {
-            fileContent: fileData.source || '',
-            fileCoverage: fileData || {},
-            fileCodeChange: fileData.changedLines || [],
-          };
+        // 根据 subject 类型确定如何获取文件内容
+        let sha: string | undefined;
+        let pullNumber: string | undefined;
+
+        if (subject === 'commit' || subject === 'commits') {
+          sha = subjectID;
+        } else if (subject === 'pull' || subject === 'pulls') {
+          pullNumber = subjectID;
+        } else if (subject === 'multiple-commits') {
+          // multiple-commits 格式为 commit1...commit2，使用 to (commit2) 作为 ref
+          const parts = subjectID.split('...');
+          if (parts.length === 2) {
+            sha = parts[1].trim();
+          }
         }
 
-        // 如果 map 数据中没有，尝试通过 API 获取
-        // TODO: 等待后端实现文件 API 端点
+        // 并行请求：文件内容、详细覆盖率数据
+        const requests = [];
+
+        // 1. 获取文件内容
+        if (sha || pullNumber) {
+          requests.push(
+            axios
+              .get('/api/code/file', {
+                params: {
+                  repoID,
+                  sha,
+                  pullNumber,
+                  filepath: val,
+                  provider,
+                },
+              })
+              .then((resp) => {
+                if (resp.data?.content) {
+                  return getDecode(resp.data?.content);
+                }
+                return '';
+              })
+              .catch((error) => {
+                console.error('Failed to fetch file content:', error);
+                return '';
+              }),
+          );
+        } else {
+          requests.push(Promise.resolve(''));
+        }
+
+        // 2. 获取详细的覆盖率数据（通过 /api/coverage/map）
+        const fileCoverageParams: any = {
+          provider,
+          repoID,
+          subject:
+            subject === 'commits'
+              ? 'commit'
+              : subject === 'pulls'
+                ? 'pull'
+                : subject,
+          subjectID,
+          filePath: val,
+        };
+        if (buildTarget) fileCoverageParams.buildTarget = buildTarget;
+        if (reportProvider) fileCoverageParams.reportProvider = reportProvider;
+        if (reportID) fileCoverageParams.reportID = reportID;
+
+        requests.push(
+          axios
+            .get('/api/coverage/map', {
+              params: {
+                ...fileCoverageParams,
+                mode: 'blockMerge',
+              },
+            })
+            .then((resp) => {
+              // 返回的数据是一个对象，通过 filepath 获取特定文件的覆盖率信息
+              return resp.data[val] || {};
+            })
+            .catch((error) => {
+              console.error('Failed to fetch coverage map:', error);
+              // 如果请求失败，尝试从 summary/map 数据中获取
+              const fileData = data?.find((item: any) => item.path === val);
+              return fileData || {};
+            }),
+        );
+
+        const [fileContent, fileCoverage] = await Promise.all(requests);
+
         return {
-          fileContent: '',
-          fileCoverage: {},
+          fileContent: fileContent || '',
+          fileCoverage: fileCoverage || {},
           fileCodeChange: [],
         };
       } catch (error) {
@@ -135,10 +210,17 @@ const CoverageReport = () => {
         };
       }
     },
-    [subject, repoID, data],
+    [
+      subject,
+      repoID,
+      subjectID,
+      provider,
+      buildTarget,
+      reportID,
+      reportProvider,
+      data,
+    ],
   );
-
-  const defaultOnlyShowChanged = subject === 'multiple-commits';
 
   return (
     <Spin spinning={loading}>
