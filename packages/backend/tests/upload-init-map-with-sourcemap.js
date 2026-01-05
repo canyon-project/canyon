@@ -18,19 +18,7 @@ jsonFiles.forEach((filePath) => {
 });
 
 const data = {
-  provider: 'gitlab',
-  repoID: '140539',
-  sha: 'ee85105c47336dd65ddb30154c7a03326777e0de',
-  instrumentCwd: '/builds/canyon-project/canyon-demo-xtaro',
-  reportID: 'initial_coverage_data',
-  reportProvider: 'ci',
-  buildTarget: 'h5',
   coverage: coverage,
-  build: {
-    buildProvider: 'gitlab_runner',
-    buildID: '159346667',
-    branch: 'dev',
-  },
 };
 
 fetch('http://localhost:8080/api/coverage/map/init', {
@@ -39,4 +27,11 @@ fetch('http://localhost:8080/api/coverage/map/init', {
   headers: {
     'Content-Type': 'application/json',
   },
-});
+})
+  .then((res) => res.json())
+  .then((res) => {
+    console.log('Response from server:', res);
+  })
+  .catch((err) => {
+    console.error('Error occurred:', err);
+  });

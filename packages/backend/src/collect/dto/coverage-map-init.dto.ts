@@ -11,20 +11,24 @@ import { IsValidCoverage } from '../valids/is-valid-coverage';
 
 export class CoverageMapInitDto {
   // buildHash五要素
+  @IsOptional()
   @IsString()
   @Matches(/^[a-f0-9]{40}$/i, { message: 'sha格式不正确' })
   @IsNotEmpty({ message: 'sha 不能为空' })
   sha: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'provider 不能为空' })
   provider: string;
 
+  @IsOptional()
   @IsString()
   @IsNotEmpty({ message: 'repoID 不能为空' })
   repoID: string;
 
   // istanbul覆盖率相关
+  @IsOptional()
   @IsString()
   @MinLength(1, { message: 'instrumentCwd长度最小为1' })
   @IsNotEmpty({ message: 'instrumentCwd不能为空' })
