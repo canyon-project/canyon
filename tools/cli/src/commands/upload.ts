@@ -83,7 +83,11 @@ export async function mapCommand(params: any, options: any) {
       return r;
     })
     .catch((err) => {
-      console.log(String(err));
+      if (err?.response?.data) {
+        console.log(err?.response?.data);
+      } else {
+        String(err);
+      }
       return err;
     });
 }
