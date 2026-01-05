@@ -20,7 +20,8 @@ module.exports = {
       ci:true, // 默认false
       assertVersion7:false,
       disableAutoUpload:true,
-      debug:true
+      debug:true,
+      buildTarget:'test_buildTarget',
     }]
   ]
 }

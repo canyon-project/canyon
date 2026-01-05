@@ -8,6 +8,8 @@ import {
   enrichFnMapWithHash,
   enrichStatementMapWithHash,
 } from './helpers/statement-map-hash';
+import crypto from 'crypto';
+import stringify from 'json-stable-stringify';
 
 export const visitorProgramExit = (api, path, serviceParams, cfg) => {
   const initialCoverageDataForTheCurrentFile = generateInitialCoverage(
@@ -90,12 +92,38 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
           initialCoverageDataForTheCurrentFile &&
           initialCoverageDataForTheCurrentFile.path
         ) {
+
+
+
+          // next版本补丁
+          // 暂时硬编码
+          const buildHashFields: Record<string, string> = {
+            provider: 'gitlab',
+            repoID: serviceParams.projectID || '',
+            sha: serviceParams.sha || '',
+            buildTarget: serviceParams.buildTarget || '',
+            instrumentCwd: serviceParams.instrumentCwd || '',
+          };
+          const buildHash = crypto.createHash('sha1')
+            .update(stringify(buildHashFields))
+            .digest('hex');
+          const coverageDataWithMetadata = {
+            ...initialCoverageDataForTheCurrentFile,
+            buildHash,
+            provider: 'gitlab',
+            repoID: buildHashFields.repoID,
+            sha: buildHashFields.sha,
+            buildTarget: buildHashFields.buildTarget,
+            instrumentCwd: buildHashFields.instrumentCwd,
+          };
+          // next版本补丁
+
           fs.writeFileSync(
             `./.canyon_output/coverage-final-init-${String(Math.random()).replace('0.', '')}.json`,
             JSON.stringify(
               {
                 [initialCoverageDataForTheCurrentFile.path]:
-                  initialCoverageDataForTheCurrentFile,
+                coverageDataWithMetadata,
               },
               null,
               2,
