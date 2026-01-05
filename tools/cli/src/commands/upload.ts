@@ -35,6 +35,7 @@ export async function mapCommand(params: any, options: any) {
     const fileCoverage = JSON.parse(fileCoverageString);
 
     // 如果传入了 filter，且文件名匹配 coverage-final-xxx.json 模式，则仅合并键（文件路径）包含该子串的覆盖数据
+    // 这里为了filter，要注意！！！
     let toMerge = fileCoverage;
     if (filter && typeof filter === 'string' && isCoverageFinalFile) {
       const filteredEntries = Object.entries(fileCoverage).filter(
