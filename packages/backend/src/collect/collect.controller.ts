@@ -22,6 +22,15 @@ export class CollectController {
 
   @Post('map/init')
   async coverageMapInit(@Body() coverageMapInitDto: CoverageMapInitDto) {
+    // 过滤掉 coverage 中 value 里有 oldPath 字段的项
+    const filteredCoverage: Record<string, any> = {};
+    for (const [key, value] of Object.entries(coverageMapInitDto.coverage)) {
+      if (value && typeof value === 'object' && !('oldPath' in value)) {
+        filteredCoverage[key] = value;
+      }
+    }
+    coverageMapInitDto.coverage = filteredCoverage;
+
     // 从 coverage 的第一个值中提取参数
     const coverageValues = Object.values(coverageMapInitDto.coverage);
     if (coverageValues.length > 0) {
@@ -55,7 +64,12 @@ export class CollectController {
           `从 coverage 的第一个值中提取的 buildTarget: ${firstEntry.buildTarget}`,
         );
       }
+      return this.coverageMapInitService.init(coverageMapInitDto);
+    } else {
+      return {
+        success: false,
+        message: 'Coverage data is empty, cannot extract parameters.',
+      };
     }
-    return this.coverageMapInitService.init(coverageMapInitDto);
   }
 }
