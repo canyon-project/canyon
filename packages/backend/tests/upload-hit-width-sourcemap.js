@@ -4,6 +4,9 @@ fetch(`http://localhost:8080/api/coverage/client`, {
   method: 'POST',
   body: JSON.stringify({
     coverage: data,
+    scene: {
+      hi: 'shoppingpage',
+    },
   }),
   headers: {
     'Content-Type': 'application/json',

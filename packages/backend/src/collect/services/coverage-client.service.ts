@@ -1,14 +1,9 @@
 import * as process from 'node:process';
 import { Injectable } from '@nestjs/common';
-import { logger } from '../../logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PrismaSqliteService } from '../../prisma/prisma-sqlite.service';
 import { CoverageClientDto } from '../dto/coverage-client.dto';
-import { checkCoverageType } from '../helpers/checkCoverageType';
-import { generateSecureId } from '../helpers/coverageID';
 import { generateObjectSignature } from '../helpers/generateObjectSignature';
-import { separateCoverage } from '../helpers/separateCoverage';
-import { encodeObjectToCompressedBuffer } from '../helpers/transform';
 
 type CoverageKind = 'hit' | 'map';
 type HitCounters = Record<string, number>;
@@ -67,6 +62,14 @@ export class CoverageClientService {
       },
     });
 
+    if (!prismacoverage) {
+      return {
+        success: false,
+        message:
+          '找不到对应的 coverage 记录，请先通过 /collect/map/init 接口上传覆盖率映射数据',
+      };
+    }
+
     const sceneKey = generateObjectSignature(coverageClientDto.scene || {});
 
     // 写入 SQLite 队列，由消费服务异步处理
@@ -82,6 +85,37 @@ export class CoverageClientService {
         pid: process.pid,
       },
     });
+
+    // 创建 coverage 记录，使用新的 id、sceneKey、scene，其他字段从 prismacoverage 复制
+    // 这个操作允许失败，通过 id 来保证唯一性
+    if (prismacoverage) {
+      try {
+        const id = `${buildHash}|${sceneKey}`;
+        const scene = coverageClientDto.scene || {};
+        const builds = Array.isArray(prismacoverage.builds)
+          ? prismacoverage.builds
+          : [];
+
+        await this.prisma.coverage.create({
+          data: {
+            id,
+            buildHash: prismacoverage.buildHash,
+            provider: prismacoverage.provider,
+            repoID: prismacoverage.repoID,
+            sha: prismacoverage.sha,
+            buildTarget: prismacoverage.buildTarget,
+            instrumentCwd: prismacoverage.instrumentCwd,
+            sceneKey,
+            scene,
+            builds: builds as any,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        });
+      } catch (e) {
+        // 允许失败，如果记录已存在（id 冲突）或其他错误，忽略即可
+      }
+    }
 
     return {
       success: true,
