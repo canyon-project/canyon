@@ -35,7 +35,6 @@ export class CoverageMapInitDto {
   instrumentCwd: string;
 
   @IsString()
-  @MinLength(1, { message: 'buildTarget长度最小为1' })
   @IsOptional({ message: 'buildTarget 可以为空' })
   buildTarget: string;
 
