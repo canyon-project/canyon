@@ -55,21 +55,6 @@ export class CoverageClientService {
     const coverageValue = Object.values(coverage)[0] as any;
 
     const buildHash = coverageValue.buildHash;
-
-    const prismacoverage = await this.prisma.coverage.findFirst({
-      where: {
-        buildHash,
-      },
-    });
-
-    if (!prismacoverage) {
-      return {
-        success: false,
-        message:
-          '找不到对应的 coverage 记录，请先通过 /collect/map/init 接口上传覆盖率映射数据',
-      };
-    }
-
     const sceneKey = generateObjectSignature(coverageClientDto.scene || {});
 
     // 写入 SQLite 队列，由消费服务异步处理
@@ -85,6 +70,20 @@ export class CoverageClientService {
         pid: process.pid,
       },
     });
+
+    const prismacoverage = await this.prisma.coverage.findFirst({
+      where: {
+        buildHash,
+      },
+    });
+
+    if (!prismacoverage) {
+      return {
+        success: false,
+        message:
+          '找不到对应的 coverage 记录，请先通过 /collect/map/init 接口上传覆盖率映射数据',
+      };
+    }
 
     // 创建 coverage 记录，使用新的 id、sceneKey、scene，其他字段从 prismacoverage 复制
     // 这个操作允许失败，通过 id 来保证唯一性
