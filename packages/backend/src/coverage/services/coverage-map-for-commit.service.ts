@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-// @ts-expect-error - canyon-map 类型定义可能不完整
-import { remapCoverage } from 'canyon-map';
 import { decodeCompressedObject } from '../../collect/helpers/transform';
 import {
   addMaps,
@@ -9,11 +7,8 @@ import {
 } from '../../helpers/coverage-merge.util';
 import { testExclude } from '../../helpers/test-exclude';
 import { PrismaService } from '../../prisma/prisma.service';
-// import { CoverageQueryParams } from '../../types';
-import { extractIstanbulData } from '../helpers/coverage-map-util';
 import { CoverageQueryParamsTypes } from '../types/coverage-query-params.types';
-import { CoverageMapStoreService } from './coverage.map-store.service';
-import {remapCoverageByOld} from "../../collect/helpers/canyon-data";
+import { remapCoverageByOld } from '../../collect/helpers/canyon-data';
 
 /*
 此服务是基本覆盖率查询服务，保持手作
@@ -22,10 +17,7 @@ import {remapCoverageByOld} from "../../collect/helpers/canyon-data";
 
 @Injectable()
 export class CoverageMapForCommitService {
-  constructor(
-    private readonly coverageMapStoreService: CoverageMapStoreService,
-    private readonly prisma: PrismaService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
   async invoke({
     provider,
     repoID,
@@ -35,7 +27,7 @@ export class CoverageMapForCommitService {
     reportID,
     filePath,
   }: CoverageQueryParamsTypes) {
-    const coverageList = await this.prisma.coverage.findMany({
+    const coverageRecords = await this.prisma.coverage.findMany({
       where: {
         provider,
         repoID,
@@ -44,80 +36,100 @@ export class CoverageMapForCommitService {
       },
     });
 
-    if (coverageList.length === 0) {
+    if (coverageRecords.length === 0) {
       return {};
     }
 
-    const coverage = coverageList[0];
-    const { instrumentCwd, buildHash } = coverage;
+    const coverageRecord = coverageRecords[0];
+    const { instrumentCwd, buildHash } = coverageRecord;
+    const instrumentCwdPrefix = instrumentCwd + '/';
 
-    // 有了init map方便很多，直接查关系表就行
-    const coverageMapRelationList =
+    const fullFilePath = instrumentCwdPrefix + filePath;
+    const mapRelations =
       await this.prisma.coverageMapRelation.findMany({
         where: {
-          buildHash: buildHash,
-          fullFilePath:
-            instrumentCwd +
-            '/' +
-            filePath,
+          buildHash,
+          fullFilePath,
         },
       });
-    // TODO 优化查询逻辑
 
-    const coverageSourceMapList = await this.prisma.coverageSourceMap.findMany({
-      where: {
-        hash: {
-          in: coverageMapRelationList.map((item) => item.sourceMapHash),
+    if (mapRelations.length === 0) {
+      return {};
+    }
+
+    // 使用 Set 去重，然后构建 Map 提高查找性能
+    const sourceMapHashSet = new Set<string>();
+    const coverageMapHashKeySet = new Set<string>();
+    for (const relation of mapRelations) {
+      sourceMapHashSet.add(relation.sourceMapHash);
+      coverageMapHashKeySet.add(
+        `${relation.coverageMapHash}|${relation.fileContentHash}`,
+      );
+    }
+
+    // 并行查询，使用 Map 存储结果
+    const [sourceMaps, coverageMaps] = await Promise.all([
+      this.prisma.coverageSourceMap.findMany({
+        where: {
+          hash: { in: Array.from(sourceMapHashSet) },
         },
-      },
-    });
-
-    const coverageMapList = await this.prisma.coverageMap.findMany({
-      where: {
-        hash: {
-          in: coverageMapRelationList.map(
-            (item) => `${item.coverageMapHash}|${item.fileContentHash}`,
-          ),
+      }),
+      this.prisma.coverageMap.findMany({
+        where: {
+          hash: { in: Array.from(coverageMapHashKeySet) },
         },
-      },
-    });
+      }),
+    ]);
 
-    const box = {};
+    // 构建 Map 索引，避免循环中的 find 操作
+    const sourceMapIndex = new Map<string, typeof sourceMaps[0]>();
+    for (const sourceMap of sourceMaps) {
+      sourceMapIndex.set(sourceMap.hash, sourceMap);
+    }
 
-    for (const relation of coverageMapRelationList) {
+    const coverageMapIndex = new Map<string, typeof coverageMaps[0]>();
+    for (const coverageMap of coverageMaps) {
+      coverageMapIndex.set(coverageMap.hash, coverageMap);
+    }
+
+    // 使用 Map 存储文件覆盖率映射，后续查找更快
+    const fileCoverageMap = new Map<string, any>();
+
+    for (const relation of mapRelations) {
       const rawFilePath = relation.restoreFullFilePath || relation.fullFilePath;
-      const sourceMapItem = coverageSourceMapList.find(
-        (item) => item.hash === relation.sourceMapHash,
-      );
-      const coverageMapItem = coverageMapList.find(
-        (item) =>
-          item.hash ===
-          `${relation.coverageMapHash}|${relation.fileContentHash}`,
-      );
+      const sourceMapRecord = sourceMapIndex.get(relation.sourceMapHash);
+      const coverageMapKey = `${relation.coverageMapHash}|${relation.fileContentHash}`;
+      const coverageMapRecord = coverageMapIndex.get(coverageMapKey);
 
-      // const inputSourceMap = sourceMapItem ? decodeCompressedObject(sourceMapItem.sourceMap) : null;
-      const coverageMap = coverageMapItem?.restore
-        ? decodeCompressedObject(coverageMapItem?.restore)
-        : decodeCompressedObject(coverageMapItem?.origin);
-      box[rawFilePath] = {
+      if (!coverageMapRecord) continue;
+
+      const decodedCoverageMap = coverageMapRecord.restore
+        ? decodeCompressedObject(coverageMapRecord.restore)
+        : decodeCompressedObject(coverageMapRecord.origin);
+
+      fileCoverageMap.set(rawFilePath, {
         path: rawFilePath,
-        ...coverageMap,
-        inputSourceMap: sourceMapItem
-          ? decodeCompressedObject(sourceMapItem.sourceMap)
+        ...decodedCoverageMap,
+        inputSourceMap: sourceMapRecord
+          ? decodeCompressedObject(sourceMapRecord.sourceMap)
           : undefined,
-      };
+      });
+    }
+
+    if (fileCoverageMap.size === 0) {
+      return {};
     }
 
 
-    // 查询所有相同 buildHash 的 coverageHit
-    const coverageHitList = await this.prisma.coverageHit.findMany({
+    // 查询所有相同 buildHash 的覆盖率命中数据
+    const coverageHits = await this.prisma.coverageHit.findMany({
       where: {
-        buildHash: buildHash,
+        buildHash,
       },
     });
 
     // 直接按 rawFilePath 聚合所有 hit 数据（不区分 sceneKey）
-    const aggregatedHits = new Map<
+    const aggregatedHitDataByFile = new Map<
       string,
       {
         s: NumMap;
@@ -125,71 +137,69 @@ export class CoverageMapForCommitService {
       }
     >();
 
-    for (const hit of coverageHitList) {
+    for (const coverageHit of coverageHits) {
       // 获取或创建 rawFilePath 的聚合数据
-      if (!aggregatedHits.has(hit.rawFilePath)) {
-        aggregatedHits.set(hit.rawFilePath, {
+      if (!aggregatedHitDataByFile.has(coverageHit.rawFilePath)) {
+        aggregatedHitDataByFile.set(coverageHit.rawFilePath, {
           s: {},
           f: {},
         });
       }
 
-      const aggregated = aggregatedHits.get(hit.rawFilePath)!;
+      const fileHitData = aggregatedHitDataByFile.get(coverageHit.rawFilePath)!;
       // 合并 s, f 字段（跨所有 sceneKey 聚合）
-      aggregated.s = addMaps(aggregated.s, ensureNumMap(hit.s));
-      aggregated.f = addMaps(aggregated.f, ensureNumMap(hit.f));
+      fileHitData.s = addMaps(fileHitData.s, ensureNumMap(coverageHit.s));
+      fileHitData.f = addMaps(fileHitData.f, ensureNumMap(coverageHit.f));
     }
 
-    // 将 hit 数据与 box 中的 map 重组
+    // 将 hit 数据与文件覆盖率映射重组
     // 只保留同时有 map 和 hit 的 rawFilePath
-    const result: Record<string, any> = {};
+    const mergedCoverageData: Record<string, any> = {};
 
-    // 遍历 box 中的所有文件，只保留同时有 map 和 hit 的文件
-    for (const [rawFilePath, coverageMapData] of Object.entries(box)) {
+    // 遍历文件覆盖率映射中的所有文件，只保留同时有 map 和 hit 的文件
+    for (const [rawFilePath, fileCoverageMapData] of fileCoverageMap.entries()) {
       // 获取该 rawFilePath 对应的聚合 hit 数据
-      const hitData = aggregatedHits.get(rawFilePath);
+      const fileHitData = aggregatedHitDataByFile.get(rawFilePath);
 
       // 只保留同时有 map 和 hit 的文件
-      if (hitData) {
+      if (fileHitData) {
         // 合并 map 结构和 hit 数据
-        result[rawFilePath] = {
-          ...(coverageMapData as Record<string, any>),
-          s: hitData.s,
-          f: hitData.f,
+        mergedCoverageData[rawFilePath] = {
+          ...fileCoverageMapData,
+          s: fileHitData.s,
+          f: fileHitData.f,
           b: {},
-          branchMap:{}
-          // path: rawFilePath,
+          branchMap: {},
         };
       }
     }
-    // return result
-    const remapped = await remapCoverageByOld(result);
-
-    // 替换返回值中的 instrumentCwd 前缀
-    const remappedWithoutInstrumentCwd: Record<string, any> = {};
-    const instrumentCwdPrefix = instrumentCwd + '/';
-
-    for (const [path, coverageData] of Object.entries(remapped)) {
-      // 去掉 key 中的 instrumentCwd 前缀
-      const newPath = path.startsWith(instrumentCwdPrefix)
-        ? path.replace(instrumentCwdPrefix, '')
-        : path;
-
-      // 如果 coverageData 中有 path 字段，也替换掉
-      const newCoverageData = {
-        ...(coverageData as Record<string, any>),
-        path: newPath,
-      };
-
-      remappedWithoutInstrumentCwd[newPath] = newCoverageData;
+    if (Object.keys(mergedCoverageData).length === 0) {
+      return {};
     }
 
-    const filtered = testExclude(
-      remappedWithoutInstrumentCwd,
+    const remappedCoverage = await remapCoverageByOld(mergedCoverageData);
+
+    // 替换返回值中的 instrumentCwd 前缀
+    const normalizedCoverage: Record<string, any> = {};
+
+    for (const [filePath, fileCoverage] of Object.entries(remappedCoverage)) {
+      // 去掉 key 中的 instrumentCwd 前缀
+      const normalizedPath = filePath.startsWith(instrumentCwdPrefix)
+        ? filePath.slice(instrumentCwdPrefix.length)
+        : filePath;
+
+      normalizedCoverage[normalizedPath] = {
+        ...(fileCoverage as Record<string, any>),
+        path: normalizedPath,
+      };
+    }
+
+    const finalCoverage = testExclude(
+      normalizedCoverage,
       JSON.stringify({
         exclude: ['dist/**'],
       }),
     );
-    return filtered;
+    return finalCoverage;
   }
 }
