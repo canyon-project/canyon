@@ -124,7 +124,6 @@ export class CoverageMapForCommitService {
         {
           s: NumMap;
           f: NumMap;
-          b: NumMap;
         }
       >
     >();
@@ -141,15 +140,13 @@ export class CoverageMapForCommitService {
         fileMap.set(hit.rawFilePath, {
           s: {},
           f: {},
-          b: {},
         });
       }
 
       const aggregated = fileMap.get(hit.rawFilePath)!;
-      // 合并 s, f, b 字段
+      // 合并 s, f 字段
       aggregated.s = addMaps(aggregated.s, ensureNumMap(hit.s));
       aggregated.f = addMaps(aggregated.f, ensureNumMap(hit.f));
-      aggregated.b = addMaps(aggregated.b, ensureNumMap(hit.b));
     }
 
     // 将 Map 结构转换为 JSON 对象
