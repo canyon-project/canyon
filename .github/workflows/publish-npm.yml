@@ -20,11 +20,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
-          path: |
-            packages/**/dist
-            tools/**/dist
-            plugins/**/lib
-            tools/cli/bin
+          path: .
+          retention-days: 1
 
   publish-npm:
     needs: build
@@ -43,6 +40,10 @@ jobs:
         with:
           version: 9
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: .
       - uses: actions/setup-node@v4
         with:
           node-version: 20
