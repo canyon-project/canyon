@@ -27,6 +27,7 @@ export class CoverageMapForCommitService {
     reportID,
     filePath,
   }: CoverageQueryParamsTypes) {
+    // #region Step 1: 查询覆盖率记录并获取基础信息
     const coverageRecords = await this.prisma.coverage.findMany({
       where: {
         provider,
@@ -43,19 +44,32 @@ export class CoverageMapForCommitService {
     const coverageRecord = coverageRecords[0];
     const { instrumentCwd, buildHash } = coverageRecord;
     const instrumentCwdPrefix = instrumentCwd + '/';
+    // #endregion
 
-    const fullFilePath = instrumentCwdPrefix + filePath;
+    // #region Step 2: 查询覆盖率映射关系
+    const whereCondition: {
+      buildHash: string;
+      fullFilePath?: string;
+    } = {
+      buildHash,
+    };
+
+    // 如果 filePath 存在，则添加 fullFilePath 查询条件
+    if (filePath) {
+      const fullFilePath = instrumentCwdPrefix + filePath;
+      whereCondition.fullFilePath = fullFilePath;
+    }
+
     const mapRelations = await this.prisma.coverageMapRelation.findMany({
-      where: {
-        buildHash,
-        fullFilePath,
-      },
+      where: whereCondition,
     });
 
     if (mapRelations.length === 0) {
       return {};
     }
+    // #endregion
 
+    // #region Step 3: 构建索引并查询源映射与覆盖率映射数据
     // 使用 Set 去重，然后构建 Map 提高查找性能
     const sourceMapHashSet = new Set<string>();
     const coverageMapHashKeySet = new Set<string>();
@@ -90,7 +104,9 @@ export class CoverageMapForCommitService {
     for (const coverageMap of coverageMaps) {
       coverageMapIndex.set(coverageMap.hash, coverageMap);
     }
+    // #endregion
 
+    // #region Step 4: 构建文件覆盖率映射
     // 使用 Map 存储文件覆盖率映射，后续查找更快
     const fileCoverageMap = new Map<string, any>();
 
@@ -118,7 +134,9 @@ export class CoverageMapForCommitService {
     if (fileCoverageMap.size === 0) {
       return {};
     }
+    // #endregion
 
+    // #region Step 5: 查询并聚合覆盖率命中数据
     // 查询所有相同 buildHash 的覆盖率命中数据
     const coverageHits = await this.prisma.coverageHit.findMany({
       where: {
@@ -149,7 +167,9 @@ export class CoverageMapForCommitService {
       fileHitData.s = addMaps(fileHitData.s, ensureNumMap(coverageHit.s));
       fileHitData.f = addMaps(fileHitData.f, ensureNumMap(coverageHit.f));
     }
+    // #endregion
 
+    // #region Step 6: 合并覆盖率映射和命中数据
     // 将 hit 数据与文件覆盖率映射重组
     // 只保留同时有 map 和 hit 的 rawFilePath
     const mergedCoverageData: Record<string, any> = {};
@@ -177,9 +197,13 @@ export class CoverageMapForCommitService {
     if (Object.keys(mergedCoverageData).length === 0) {
       return {};
     }
+    // #endregion
 
+    // #region Step 7: 重新映射覆盖率数据
     const remappedCoverage = await remapCoverageByOld(mergedCoverageData);
+    // #endregion
 
+    // #region Step 8: 标准化路径并过滤最终结果
     // 替换返回值中的 instrumentCwd 前缀
     const normalizedCoverage: Record<string, any> = {};
 
@@ -202,5 +226,6 @@ export class CoverageMapForCommitService {
       }),
     );
     return finalCoverage;
+    // #endregion
   }
 }
