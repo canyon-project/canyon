@@ -5,51 +5,36 @@ on:
     branches: [ "*" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: pnpm install
-      - run: pnpm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: .
-          retention-days: 1
-
   publish-npm:
-    needs: build
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        package-filter:
-          - "@canyonjs/report-component"
-          - "@canyonjs/report-html"
-          - "@canyonjs/collect"
-          - "babel-plugin-canyontest"
-          - "@canyonjs/cli"
-      fail-fast: false
     steps:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-      - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: .
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - name: Publish ${{ matrix.package-filter }} to npm
-        run: pnpm --filter=${{ matrix.package-filter }} publish --access public -f --no-git-checks
+      - run: pnpm install
+      - run: pnpm run build
+      - run: pnpm --filter=@canyonjs/report-component publish --access public -f --no-git-checks
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+      - run: pnpm --filter=@canyonjs/report-html publish --access public -f --no-git-checks
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+      - run: pnpm --filter=@canyonjs/collect publish --access public -f --no-git-checks
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+      - run: pnpm --filter=babel-plugin-canyontest publish --access public -f --no-git-checks
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+      - run: pnpm --filter=@canyonjs/cli publish --access public -f --no-git-checks
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
