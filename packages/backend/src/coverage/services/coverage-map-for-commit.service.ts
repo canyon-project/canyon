@@ -56,7 +56,7 @@ export class CoverageMapForCommitService {
         where: {
           buildHash: buildHash,
           fullFilePath:
-            instrumentCwd.replace('/dist/crn/rn_xtaro_ebk_roomInfo', '') +
+            instrumentCwd +
             '/' +
             filePath,
         },
@@ -107,16 +107,69 @@ export class CoverageMapForCommitService {
       };
     }
 
-    return {
-      // coverageMapRelationList,
-      // ss:instrumentCwd+'/'+filePath
-      ...box,
-      // box,
-      // coverageMapRelationList:coverageMapRelationList.length,
-      // coverageSourceMapList:coverageSourceMapList.length,
-      // coverageMapList:coverageMapList.length,
-      // x:coverageMapRelationList.map((item) => item.sourceMapHash)
-      // s:coverageMapRelationList.map((item) => item.coverageMapHash)
-    };
+
+    // 查询所有相同 buildHash 的 coverageHit
+    const coverageHitList = await this.prisma.coverageHit.findMany({
+      where: {
+        buildHash: buildHash,
+      },
+    });
+
+    // 先按 sceneKey 分组，然后按 rawFilePath 聚合
+    // 结构: Map<sceneKey, Map<rawFilePath, aggregatedHit>>
+    const groupedBySceneKey = new Map<
+      string,
+      Map<
+        string,
+        {
+          s: NumMap;
+          f: NumMap;
+          b: NumMap;
+        }
+      >
+    >();
+
+    for (const hit of coverageHitList) {
+      // 获取或创建 sceneKey 组
+      if (!groupedBySceneKey.has(hit.sceneKey)) {
+        groupedBySceneKey.set(hit.sceneKey, new Map());
+      }
+      const fileMap = groupedBySceneKey.get(hit.sceneKey)!;
+
+      // 获取或创建 rawFilePath 的聚合数据
+      if (!fileMap.has(hit.rawFilePath)) {
+        fileMap.set(hit.rawFilePath, {
+          s: {},
+          f: {},
+          b: {},
+        });
+      }
+
+      const aggregated = fileMap.get(hit.rawFilePath)!;
+      // 合并 s, f, b 字段
+      aggregated.s = addMaps(aggregated.s, ensureNumMap(hit.s));
+      aggregated.f = addMaps(aggregated.f, ensureNumMap(hit.f));
+      aggregated.b = addMaps(aggregated.b, ensureNumMap(hit.b));
+    }
+
+    // 将 Map 结构转换为 JSON 对象
+    const result: Record<
+      string,
+      Record<
+        string,
+        {
+          s: NumMap;
+          f: NumMap;
+        }
+      >
+    > = {};
+    for (const [sceneKey, fileMap] of groupedBySceneKey.entries()) {
+      result[sceneKey] = {};
+      for (const [rawFilePath, aggregated] of fileMap.entries()) {
+        result[sceneKey][rawFilePath] = aggregated;
+      }
+    }
+
+    return result;
   }
 }
