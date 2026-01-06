@@ -85,8 +85,8 @@ const ProjectDetailPage = () => {
         {!location.pathname.includes('/settings') && (
           <Tabs
             activeKey={
-              location.pathname.includes('/pulls')
-                ? 'pulls'
+              location.pathname.includes('/analysis')
+                ? 'analysis'
                 : location.pathname.includes('/multiple-commits')
                   ? 'multiple-commits'
                   : 'commits'
@@ -98,7 +98,7 @@ const ProjectDetailPage = () => {
             }}
             items={[
               { key: 'commits', label: 'Commits' },
-              { key: 'pulls', label: 'Pulls' },
+              { key: 'analysis', label: 'Analysis' },
             ]}
           />
         )}

@@ -285,7 +285,7 @@ const Projects = () => {
           <>
             <Link
               to={{
-                pathname: `/${provider}/${org}/${repo}`,
+                pathname: `/${provider}/${org}/${repo}/commits`,
               }}
             >
               {t('common.detail')}

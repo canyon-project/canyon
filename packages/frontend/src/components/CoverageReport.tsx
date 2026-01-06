@@ -17,8 +17,8 @@ const CoverageReport = () => {
   const subject = params.subject as
     | 'commit'
     | 'commits'
-    | 'pull'
-    | 'pulls'
+    | 'analysis'
+    | 'analyses'
     | 'multiple-commits'
     | undefined;
   const buildTarget = searchParams.get('build_target') || '';
@@ -31,13 +31,13 @@ const CoverageReport = () => {
   const subjectForQuery:
     | 'commit'
     | 'commits'
-    | 'pull'
-    | 'pulls'
+    | 'analysis'
+    | 'analyses'
     | 'multiple-commits' = (subject ?? 'commit') as
     | 'commit'
     | 'commits'
-    | 'pull'
-    | 'pulls'
+    | 'analysis'
+    | 'analyses'
     | 'multiple-commits';
 
   // 获取 repoID
@@ -112,12 +112,12 @@ const CoverageReport = () => {
       try {
         // 根据 subject 类型确定如何获取文件内容
         let sha: string | undefined;
-        let pullNumber: string | undefined;
+        let analysisNumber: string | undefined;
 
         if (subject === 'commit' || subject === 'commits') {
           sha = subjectID;
-        } else if (subject === 'pull' || subject === 'pulls') {
-          pullNumber = subjectID;
+        } else if (subject === 'analysis' || subject === 'analyses') {
+          analysisNumber = subjectID;
         } else if (subject === 'multiple-commits') {
           // multiple-commits 格式为 commit1...commit2，使用 to (commit2) 作为 ref
           const parts = subjectID.split('...');
@@ -130,14 +130,14 @@ const CoverageReport = () => {
         const requests = [];
 
         // 1. 获取文件内容
-        if (sha || pullNumber) {
+        if (sha || analysisNumber) {
           requests.push(
             axios
               .get('/api/code/file', {
                 params: {
                   repoID,
                   sha,
-                  pullNumber,
+                  analysisNumber,
                   filepath: val,
                   provider,
                 },
@@ -164,8 +164,8 @@ const CoverageReport = () => {
           subject:
             subject === 'commits'
               ? 'commit'
-              : subject === 'pulls'
-                ? 'pull'
+              : subject === 'analyses'
+                ? 'analysis'
                 : subject,
           subjectID,
           filePath: val,

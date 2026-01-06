@@ -12,21 +12,21 @@ export class CodeController {
   async getFileContent(
     @Query('repoID') repoID: string,
     @Query('sha') sha?: string,
-    @Query('pullNumber') pullNumber?: string,
+    @Query('analysisNumber') analysisNumber?: string,
     @Query('filepath') filepath?: string,
     @Query('provider') provider?: string,
   ) {
     if (!repoID || !filepath) {
       return { content: null };
     }
-    if (!sha && !pullNumber) {
+    if (!sha && !analysisNumber) {
       return { content: null };
     }
     try {
       return await this.codeService.getFileContent({
         repoID,
         sha: sha || null,
-        pullNumber: pullNumber || null,
+        analysisNumber: analysisNumber || null,
         filepath,
         provider: provider || null,
       });

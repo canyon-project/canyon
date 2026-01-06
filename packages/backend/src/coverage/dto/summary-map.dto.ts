@@ -3,11 +3,11 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class SummaryMapQueryDto {
   @IsString()
   @IsNotEmpty()
-  subject!: string; // commit|commits|pull|pulls|multiple-commits
+  subject!: string; // commit|commits|analysis|analyses|multiple-commits
 
   @IsString()
   @IsNotEmpty()
-  subjectID!: string; // sha or pullNumber or commit1...commit2
+  subjectID!: string; // sha or analysisNumber or commit1...commit2
 
   @IsString()
   @IsNotEmpty()
