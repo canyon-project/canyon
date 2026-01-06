@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { remapCoverageByOld } from '../../collect/helpers/canyon-data';
 import { decodeCompressedObject } from '../../collect/helpers/transform';
 import {
   addMaps,
@@ -8,7 +9,6 @@ import {
 import { testExclude } from '../../helpers/test-exclude';
 import { PrismaService } from '../../prisma/prisma.service';
 import { CoverageQueryParamsTypes } from '../types/coverage-query-params.types';
-import { remapCoverageByOld } from '../../collect/helpers/canyon-data';
 
 /*
 此服务是基本覆盖率查询服务，保持手作
@@ -45,13 +45,12 @@ export class CoverageMapForCommitService {
     const instrumentCwdPrefix = instrumentCwd + '/';
 
     const fullFilePath = instrumentCwdPrefix + filePath;
-    const mapRelations =
-      await this.prisma.coverageMapRelation.findMany({
-        where: {
-          buildHash,
-          fullFilePath,
-        },
-      });
+    const mapRelations = await this.prisma.coverageMapRelation.findMany({
+      where: {
+        buildHash,
+        fullFilePath,
+      },
+    });
 
     if (mapRelations.length === 0) {
       return {};
@@ -82,12 +81,12 @@ export class CoverageMapForCommitService {
     ]);
 
     // 构建 Map 索引，避免循环中的 find 操作
-    const sourceMapIndex = new Map<string, typeof sourceMaps[0]>();
+    const sourceMapIndex = new Map<string, (typeof sourceMaps)[0]>();
     for (const sourceMap of sourceMaps) {
       sourceMapIndex.set(sourceMap.hash, sourceMap);
     }
 
-    const coverageMapIndex = new Map<string, typeof coverageMaps[0]>();
+    const coverageMapIndex = new Map<string, (typeof coverageMaps)[0]>();
     for (const coverageMap of coverageMaps) {
       coverageMapIndex.set(coverageMap.hash, coverageMap);
     }
@@ -119,7 +118,6 @@ export class CoverageMapForCommitService {
     if (fileCoverageMap.size === 0) {
       return {};
     }
-
 
     // 查询所有相同 buildHash 的覆盖率命中数据
     const coverageHits = await this.prisma.coverageHit.findMany({
@@ -157,7 +155,10 @@ export class CoverageMapForCommitService {
     const mergedCoverageData: Record<string, any> = {};
 
     // 遍历文件覆盖率映射中的所有文件，只保留同时有 map 和 hit 的文件
-    for (const [rawFilePath, fileCoverageMapData] of fileCoverageMap.entries()) {
+    for (const [
+      rawFilePath,
+      fileCoverageMapData,
+    ] of fileCoverageMap.entries()) {
       // 获取该 rawFilePath 对应的聚合 hit 数据
       const fileHitData = aggregatedHitDataByFile.get(rawFilePath);
 
