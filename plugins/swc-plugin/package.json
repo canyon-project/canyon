@@ -4,7 +4,7 @@
   "description": "A SWC plugin cooperates with istanbul to report the coverage",
   "main": "swc_plugin_canyon.wasm",
   "scripts": {
-    "test": "npm run prepack && swc features -d dist",
+    "test-swc-plugin": "npm run prepack && swc features -d dist",
     "prepack": "cargo build --release -p swc_plugin_canyon --target wasm32-wasip1 && cp ../../target/wasm32-wasip1/release/swc_plugin_canyon.wasm ."
   },
   "files": [

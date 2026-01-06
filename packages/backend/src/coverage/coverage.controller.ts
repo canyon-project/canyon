@@ -1,20 +1,9 @@
-import {
-  BadRequestException,
-  Controller,
-  Get,
-  HttpStatus,
-  Post,
-  Query,
-  Res,
-} from '@nestjs/common';
-// import express from 'express';
-// import * as fs from 'fs';
+import { BadRequestException, Controller, Get, Query } from '@nestjs/common';
 // @ts-expect-errorr
 import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { CommitsQueryDto } from './dto/commits.dto';
 import { MapQueryDto } from './dto/map.dto';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
-// import {ExportReportDto} from './dto/export-report.dto';
 import { CommitsService } from './services/commits.service';
 import { CoverageMapForCommitService } from './services/coverage-map-for-commit.service';
 
@@ -36,7 +25,6 @@ export class CoverageController {
           repoID: q.repoID,
           sha: q.subjectID,
           buildTarget: q.buildTarget || '',
-          // buildID: q.buildID,
           reportProvider: q.reportProvider,
           reportID: q.reportID,
           filePath: q.filePath,

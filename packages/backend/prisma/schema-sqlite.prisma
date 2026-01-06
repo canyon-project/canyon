@@ -4,7 +4,7 @@ generator client2 {
 }
 
 /**
- * 默认主库（Postgres）
+ * 本地消息队列数据库
  */
 datasource db_sqlite {
   provider = "sqlite"
