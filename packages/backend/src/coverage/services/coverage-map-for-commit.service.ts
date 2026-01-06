@@ -9,7 +9,9 @@ import {
 } from '../../helpers/coverage-merge.util';
 import { testExclude } from '../../helpers/test-exclude';
 import { PrismaService } from '../../prisma/prisma.service';
+// import { CoverageQueryParams } from '../../types';
 import { extractIstanbulData } from '../helpers/coverage-map-util';
+import { CoverageQueryParamsTypes } from '../types/coverage-query-params.types';
 import { CoverageMapStoreService } from './coverage.map-store.service';
 
 /*
@@ -31,17 +33,7 @@ export class CoverageMapForCommitService {
     reportProvider,
     reportID,
     filePath,
-  }) {
-    // 第一步：生成coverageID，核心7个字段，确保顺序
-    // const coverageID = generateObjectSignature({
-    //   provider,
-    //   repoID,
-    //   sha,
-    //   buildTarget,
-    //   reportProvider,
-    //   reportID,
-    // });
-
+  }: CoverageQueryParamsTypes) {
     const coverageList = await this.prisma.coverage.findMany({
       where: {
         provider,
@@ -56,15 +48,17 @@ export class CoverageMapForCommitService {
     }
 
     const coverage = coverageList[0];
-    const instrumentCwd = coverage.instrumentCwd;
+    const { instrumentCwd, buildHash } = coverage;
 
     // 有了init map方便很多，直接查关系表就行
     const coverageMapRelationList =
       await this.prisma.coverageMapRelation.findMany({
         where: {
-          buildHash: coverage.buildHash,
+          buildHash: buildHash,
         },
       });
+
+    // TODO 优化查询逻辑
 
     const pathToHash = new Map<string, string>();
     const pathToRelation = new Map<
@@ -139,7 +133,7 @@ export class CoverageMapForCommitService {
     // 查hit
     const rows = await this.prisma.coverageHit.findMany({
       where: {
-        buildHash: coverage.buildHash,
+        buildHash: buildHash,
       },
     });
 
