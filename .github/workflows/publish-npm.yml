@@ -47,11 +47,6 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: .
-      - run: pnpm install --frozen-lockfile
       - name: Publish ${{ matrix.package-filter }} to npm
         run: pnpm --filter=${{ matrix.package-filter }} publish --access public -f --no-git-checks
         continue-on-error: true
