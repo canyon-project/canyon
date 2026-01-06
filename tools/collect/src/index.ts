@@ -1,8 +1,9 @@
 (() => {
   const sendCoverage = () => {
     const coverageFirstValue = Object.values(window.__coverage__ || {})[0];
-    if (coverageFirstValue) {
-      fetch(coverageFirstValue.dsn, {
+    const dsn = coverageFirstValue?.dsn||window.CANYON_DSN
+    if (dsn) {
+      fetch(dsn, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -15,9 +16,9 @@
     }
   };
 
-  // document.addEventListener('visibilitychange', () => {
-  //   if (document.visibilityState === 'hidden') {
-  //     sendCoverage();
-  //   }
-  // });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      sendCoverage();
+    }
+  });
 })();
