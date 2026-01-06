@@ -11,6 +11,7 @@
         body: JSON.stringify({
           coverage: window.__coverage__,
           ...coverageFirstValue,
+          scene:window.CANYON_SCENE||{}
         }),
       });
     }
