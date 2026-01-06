@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 // @ts-expect-error - canyon-map 类型定义可能不完整
 import { remapCoverage } from 'canyon-map';
-import { generateObjectSignature } from '../../collect/helpers/generateObjectSignature';
 import { decodeCompressedObject } from '../../collect/helpers/transform';
-// import { extractIstanbulData } from '../../helpers/coverage-map-util';
 import {
   addMaps,
   ensureNumMap,
@@ -12,8 +10,12 @@ import {
 import { testExclude } from '../../helpers/test-exclude';
 import { PrismaService } from '../../prisma/prisma.service';
 import { extractIstanbulData } from '../helpers/coverage-map-util';
-// import { NumMap } from '../../task/task.types';
 import { CoverageMapStoreService } from './coverage.map-store.service';
+
+/*
+此服务是基本覆盖率查询服务，保持手作
+手作りにこだわる
+*/
 
 @Injectable()
 export class CoverageMapForCommitService {

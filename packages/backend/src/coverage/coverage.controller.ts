@@ -16,21 +16,20 @@ export class CoverageController {
   ) {}
 
   @Get('summary/map')
-  async getSummaryMap(@Query() q: SummaryMapQueryDto) {
-    const { subject } = q;
+  async getSummaryMap(@Query() summaryMapQueryDto: SummaryMapQueryDto) {
+    const { subject } = summaryMapQueryDto;
     switch (subject) {
       case 'commit': {
         const map = await this.coverageMapForCommitService.invoke({
-          provider: q.provider,
-          repoID: q.repoID,
-          sha: q.subjectID,
-          buildTarget: q.buildTarget || '',
-          reportProvider: q.reportProvider,
-          reportID: q.reportID,
-          filePath: q.filePath,
+          provider: summaryMapQueryDto.provider,
+          repoID: summaryMapQueryDto.repoID,
+          sha: summaryMapQueryDto.subjectID,
+          buildTarget: summaryMapQueryDto.buildTarget || '',
+          reportProvider: summaryMapQueryDto.reportProvider,
+          reportID: summaryMapQueryDto.reportID,
+          filePath: summaryMapQueryDto.filePath,
         });
         const summary = genSummaryMapByCoverageMap(map, []);
-
         return summary;
       }
       default:
@@ -48,7 +47,6 @@ export class CoverageController {
           repoID: q.repoID,
           sha: q.subjectID,
           buildTarget: q.buildTarget || '',
-          // buildID: q.buildID,
           reportProvider: q.reportProvider,
           reportID: q.reportID,
           filePath: q.filePath,
