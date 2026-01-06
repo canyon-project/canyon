@@ -52,7 +52,11 @@ export class CollectController {
           `从 coverage 的第一个值中提取的 repoID: ${firstEntry.repoID}`,
         );
       }
-      if (firstEntry.instrumentCwd !== undefined) {
+      // TODO 这里特殊一点，如果 DTO 中已经有 instrumentCwd，就不覆盖
+      if (
+        firstEntry.instrumentCwd !== undefined &&
+        !coverageMapInitDto.instrumentCwd
+      ) {
         coverageMapInitDto.instrumentCwd = firstEntry.instrumentCwd;
         console.log(
           `从 coverage 的第一个值中提取的 instrumentCwd: ${firstEntry.instrumentCwd}`,
