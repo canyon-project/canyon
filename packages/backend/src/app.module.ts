@@ -3,7 +3,6 @@ import { join } from 'node:path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { AppController } from './app.controller';
 import { CodeModule } from './code/code.module';
 import { CollectModule } from './collect/collect.module';
 import { CoverageModule } from './coverage/coverage.module';
@@ -30,7 +29,7 @@ import { RepoModule } from './repo/repo.module';
         : join(__dirname, '..', 'public'),
     }),
   ],
-  controllers: [AppController],
+  controllers: [],
   providers: [],
 })
 export class AppModule {}

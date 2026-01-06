@@ -11,7 +11,7 @@ export class SummaryMapQueryDto {
 
   @IsString()
   @IsNotEmpty()
-  provider!: string;
+  provider!: 'gitlab'|'github';
 
   @IsString()
   @IsNotEmpty()
