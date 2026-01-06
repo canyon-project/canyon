@@ -13,6 +13,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { extractIstanbulData } from '../helpers/coverage-map-util';
 import { CoverageQueryParamsTypes } from '../types/coverage-query-params.types';
 import { CoverageMapStoreService } from './coverage.map-store.service';
+import {remapCoverageByOld} from "../../collect/helpers/canyon-data";
 
 /*
 此服务是基本覆盖率查询服务，保持手作
@@ -115,58 +116,80 @@ export class CoverageMapForCommitService {
       },
     });
 
-    // 先按 sceneKey 分组，然后按 rawFilePath 聚合
-    // 结构: Map<sceneKey, Map<rawFilePath, aggregatedHit>>
-    const groupedBySceneKey = new Map<
+    // 直接按 rawFilePath 聚合所有 hit 数据（不区分 sceneKey）
+    const aggregatedHits = new Map<
       string,
-      Map<
-        string,
-        {
-          s: NumMap;
-          f: NumMap;
-        }
-      >
+      {
+        s: NumMap;
+        f: NumMap;
+      }
     >();
 
     for (const hit of coverageHitList) {
-      // 获取或创建 sceneKey 组
-      if (!groupedBySceneKey.has(hit.sceneKey)) {
-        groupedBySceneKey.set(hit.sceneKey, new Map());
-      }
-      const fileMap = groupedBySceneKey.get(hit.sceneKey)!;
-
       // 获取或创建 rawFilePath 的聚合数据
-      if (!fileMap.has(hit.rawFilePath)) {
-        fileMap.set(hit.rawFilePath, {
+      if (!aggregatedHits.has(hit.rawFilePath)) {
+        aggregatedHits.set(hit.rawFilePath, {
           s: {},
           f: {},
         });
       }
 
-      const aggregated = fileMap.get(hit.rawFilePath)!;
-      // 合并 s, f 字段
+      const aggregated = aggregatedHits.get(hit.rawFilePath)!;
+      // 合并 s, f 字段（跨所有 sceneKey 聚合）
       aggregated.s = addMaps(aggregated.s, ensureNumMap(hit.s));
       aggregated.f = addMaps(aggregated.f, ensureNumMap(hit.f));
     }
 
-    // 将 Map 结构转换为 JSON 对象
-    const result: Record<
-      string,
-      Record<
-        string,
-        {
-          s: NumMap;
-          f: NumMap;
-        }
-      >
-    > = {};
-    for (const [sceneKey, fileMap] of groupedBySceneKey.entries()) {
-      result[sceneKey] = {};
-      for (const [rawFilePath, aggregated] of fileMap.entries()) {
-        result[sceneKey][rawFilePath] = aggregated;
+    // 将 hit 数据与 box 中的 map 重组
+    // 只保留同时有 map 和 hit 的 rawFilePath
+    const result: Record<string, any> = {};
+
+    // 遍历 box 中的所有文件，只保留同时有 map 和 hit 的文件
+    for (const [rawFilePath, coverageMapData] of Object.entries(box)) {
+      // 获取该 rawFilePath 对应的聚合 hit 数据
+      const hitData = aggregatedHits.get(rawFilePath);
+
+      // 只保留同时有 map 和 hit 的文件
+      if (hitData) {
+        // 合并 map 结构和 hit 数据
+        result[rawFilePath] = {
+          ...(coverageMapData as Record<string, any>),
+          s: hitData.s,
+          f: hitData.f,
+          b: {},
+          branchMap:{}
+          // path: rawFilePath,
+        };
       }
     }
+    // return result
+    const remapped = await remapCoverageByOld(result);
 
-    return result;
+    // 替换返回值中的 instrumentCwd 前缀
+    const remappedWithoutInstrumentCwd: Record<string, any> = {};
+    const instrumentCwdPrefix = instrumentCwd + '/';
+
+    for (const [path, coverageData] of Object.entries(remapped)) {
+      // 去掉 key 中的 instrumentCwd 前缀
+      const newPath = path.startsWith(instrumentCwdPrefix)
+        ? path.replace(instrumentCwdPrefix, '')
+        : path;
+
+      // 如果 coverageData 中有 path 字段，也替换掉
+      const newCoverageData = {
+        ...(coverageData as Record<string, any>),
+        path: newPath,
+      };
+
+      remappedWithoutInstrumentCwd[newPath] = newCoverageData;
+    }
+
+    const filtered = testExclude(
+      remappedWithoutInstrumentCwd,
+      JSON.stringify({
+        exclude: ['dist/**'],
+      }),
+    );
+    return filtered;
   }
 }
