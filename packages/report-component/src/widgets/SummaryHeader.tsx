@@ -34,23 +34,13 @@ const SummaryNav: FC<{
               gap: '6px',
             }}
           >
-            <button
-              type='button'
-              style={{
-                color: token.colorPrimary,
-                cursor: 'pointer',
-                textDecoration: 'none',
-                background: 'none',
-                border: 'none',
-                padding: 0,
-                font: 'inherit',
-              }}
+            <a
               onClick={() => {
                 onClick(value.split('/').slice(0, index).join('/'));
               }}
             >
               {item}
-            </button>
+            </a>
             {index === value.split('/').length || !value ? null : (
               <span>/</span>
             )}

@@ -27,17 +27,10 @@ const SummaryTree: FC<{
       dataIndex: 'path',
       render(text) {
         return (
-          <button
-            type='button'
+          <a
             style={{
               display: 'flex',
-              gap: '6px',
-              background: 'none',
-              border: 'none',
-              padding: 0,
-              cursor: 'pointer',
-              color: 'inherit',
-              font: 'inherit',
+              gap: '2px',
               alignItems: 'center',
             }}
             onClick={() => {
@@ -50,7 +43,7 @@ const SummaryTree: FC<{
               <FolderFilled style={{ fontSize: '16px' }} />
             )}
             {text.split('/').at(-1)}
-          </button>
+          </a>
         );
       },
     },
