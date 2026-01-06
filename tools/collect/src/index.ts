@@ -1,7 +1,7 @@
 (() => {
   const sendCoverage = () => {
     const coverageFirstValue = Object.values(window.__coverage__ || {})[0];
-    const dsn = coverageFirstValue?.dsn||window.CANYON_DSN
+    const dsn = coverageFirstValue?.dsn || window.CANYON_DSN;
     if (dsn) {
       fetch(dsn, {
         method: 'POST',

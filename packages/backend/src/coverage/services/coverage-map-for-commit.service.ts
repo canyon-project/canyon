@@ -38,7 +38,10 @@ export class CoverageMapForCommitService {
     });
 
     if (coverageRecords.length === 0) {
-      return {};
+      return {
+        success: false,
+        message: 'No coverage records found for the specified commit.',
+      };
     }
 
     const coverageRecord = coverageRecords[0];
@@ -65,7 +68,10 @@ export class CoverageMapForCommitService {
     });
 
     if (mapRelations.length === 0) {
-      return {};
+      return {
+        success: false,
+        message: 'No coverage map relations found for the specified criteria.',
+      };
     }
     // #endregion
 
@@ -115,10 +121,10 @@ export class CoverageMapForCommitService {
       const sourceMapRecord = sourceMapIndex.get(relation.sourceMapHash);
       const coverageMapKey = `${relation.coverageMapHash}|${relation.fileContentHash}`;
       const coverageMapRecord = coverageMapIndex.get(coverageMapKey);
-
       if (!coverageMapRecord) continue;
 
-      const decodedCoverageMap = coverageMapRecord.restore
+      // 这里不能用restore是否存在来判断，因为他是{}
+      const decodedCoverageMap = sourceMapRecord
         ? decodeCompressedObject(coverageMapRecord.restore)
         : decodeCompressedObject(coverageMapRecord.origin);
 
@@ -132,7 +138,10 @@ export class CoverageMapForCommitService {
     }
 
     if (fileCoverageMap.size === 0) {
-      return {};
+      return {
+        success: false,
+        message: 'No valid coverage maps found after processing relations.',
+      };
     }
     // #endregion
 
@@ -195,7 +204,11 @@ export class CoverageMapForCommitService {
       }
     }
     if (Object.keys(mergedCoverageData).length === 0) {
-      return {};
+      return {
+        success: false,
+        message:
+          'No coverage data could be merged after combining maps and hits.',
+      };
     }
     // #endregion
 

@@ -224,17 +224,19 @@ const CoverageReport = () => {
 
   return (
     <Spin spinning={loading}>
-      <div
-        style={{
-          height: 'calc(100vh - 12px)',
-        }}
-      >
-        <CanyonReport
-          name={repo}
-          value={activatedPath}
-          onSelect={onSelect}
-          dataSource={data}
-        />
+      <div className={'p-[6px]'}>
+        <div
+          style={{
+            height: 'calc(100vh - 12px)',
+          }}
+        >
+          <CanyonReport
+            name={repo}
+            value={activatedPath}
+            onSelect={onSelect}
+            dataSource={data}
+          />
+        </div>
       </div>
     </Spin>
   );
