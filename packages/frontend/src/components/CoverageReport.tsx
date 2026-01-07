@@ -24,6 +24,7 @@ const CoverageReport = () => {
   const buildTarget = searchParams.get('build_target') || '';
   const reportID = searchParams.get('report_id') || '';
   const reportProvider = searchParams.get('report_provider') || '';
+  const scene = searchParams.get('scene') || '';
   const provider = params.provider as string;
   const org = params.org as string;
   const repo = params.repo as string;
@@ -56,7 +57,7 @@ const CoverageReport = () => {
   );
 
   const repoID = repoData?.id || '';
-
+  console.log(scene, 'scene');
   const { data: mapData, loading } = useRequest(
     () =>
       axios('/api/coverage/summary/map', {
@@ -68,6 +69,7 @@ const CoverageReport = () => {
           provider,
           reportID,
           reportProvider,
+          scene,
         },
       }).then(({ data }) => data),
     {
@@ -173,6 +175,8 @@ const CoverageReport = () => {
         if (buildTarget) fileCoverageParams.buildTarget = buildTarget;
         if (reportProvider) fileCoverageParams.reportProvider = reportProvider;
         if (reportID) fileCoverageParams.reportID = reportID;
+        console.log(scene, 'scene');
+        if (scene) fileCoverageParams.scene = scene;
 
         requests.push(
           axios

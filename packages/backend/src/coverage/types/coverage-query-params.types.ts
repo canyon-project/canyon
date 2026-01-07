@@ -18,4 +18,5 @@ export interface CoverageQueryParamsTypes {
   reportID?: string;
   /** 文件路径（可选） */
   filePath?: string;
+  scene?: string;
 }

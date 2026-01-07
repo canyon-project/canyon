@@ -28,6 +28,7 @@ export class CoverageController {
           reportProvider: summaryMapQueryDto.reportProvider,
           reportID: summaryMapQueryDto.reportID,
           filePath: summaryMapQueryDto.filePath,
+          scene: summaryMapQueryDto.scene, // 新增字段，起筛选作用
         });
         const summary = genSummaryMapByCoverageMap(map, []);
         return summary;
@@ -50,6 +51,7 @@ export class CoverageController {
           reportProvider: q.reportProvider,
           reportID: q.reportID,
           filePath: q.filePath,
+          scene: q.scene, // 新增字段，起筛选作用
         });
       default:
         throw new BadRequestException('invalid subject');

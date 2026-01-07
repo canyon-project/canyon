@@ -36,4 +36,6 @@ export class BaseMapQueryDto {
   @IsString()
   @IsOptional()
   onlyChanged?: string; // 'true' | 'false'，是否仅返回变更文件，默认为 false，只有显式设置为 'true' 时才生效
+
+  scene: string;
 }

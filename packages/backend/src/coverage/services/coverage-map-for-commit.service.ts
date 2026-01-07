@@ -18,6 +18,59 @@ import { CoverageQueryParamsTypes } from '../types/coverage-query-params.types';
 @Injectable()
 export class CoverageMapForCommitService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * 将 key-value 格式的 scene 对象转换为 Prisma JSON 查询条件
+   * @param scene - JSON 字符串，格式为 { key1: 'value1', key2: 'value2' }
+   * @returns Prisma JSON 查询条件
+   */
+  private buildSceneQueryCondition(scene?: string) {
+    if (!scene) {
+      return undefined;
+    }
+
+    try {
+      const sceneObj = JSON.parse(scene);
+
+      // 如果解析后不是对象，返回 undefined
+      if (
+        typeof sceneObj !== 'object' ||
+        sceneObj === null ||
+        Array.isArray(sceneObj)
+      ) {
+        return undefined;
+      }
+
+      // 获取所有 key-value 对
+      const entries = Object.entries(sceneObj);
+
+      // 如果没有键值对，返回 undefined
+      if (entries.length === 0) {
+        return undefined;
+      }
+
+      // 如果只有一个键值对，直接返回单个查询条件
+      if (entries.length === 1) {
+        const [key, value] = entries[0];
+        return {
+          path: [key],
+          equals: String(value), // 确保 value 是字符串
+        };
+      }
+
+      // 如果有多个键值对，使用 AND 条件
+      return {
+        AND: entries.map(([key, value]) => ({
+          path: [key],
+          equals: String(value), // 确保 value 是字符串
+        })),
+      };
+    } catch {
+      // JSON 解析失败，返回 undefined
+      return undefined;
+    }
+  }
+
   async invoke({
     provider,
     repoID,
@@ -26,22 +79,36 @@ export class CoverageMapForCommitService {
     reportProvider,
     reportID,
     filePath,
+    scene,
   }: CoverageQueryParamsTypes) {
     // #region Step 1: 查询覆盖率记录并获取基础信息
-    const coverageRecords = await this.prisma.coverage.findMany({
-      where: {
-        provider,
-        repoID,
-        sha,
-        buildTarget,
-      },
-    });
+    const coverageWhereCondition: any = {
+      provider,
+      repoID,
+      sha,
+      buildTarget,
+    };
 
+    // 构建 scene 查询条件
+    const sceneCondition = this.buildSceneQueryCondition(scene);
+    if (sceneCondition) {
+      coverageWhereCondition.scene = sceneCondition;
+    }
+
+    const coverageRecords = await this.prisma.coverage.findMany({
+      where: coverageWhereCondition,
+    });
     if (coverageRecords.length === 0) {
       return {
         success: false,
         message: 'No coverage records found for the specified commit.',
       };
+    }
+
+    // 收集所有匹配记录的 sceneKey
+    const sceneKeys = new Set<string>();
+    for (const record of coverageRecords) {
+      sceneKeys.add(record.sceneKey);
     }
 
     const coverageRecord = coverageRecords[0];
@@ -50,7 +117,7 @@ export class CoverageMapForCommitService {
     // #endregion
 
     // #region Step 2: 查询覆盖率映射关系
-    const whereCondition: {
+    const mapRelationWhereCondition: {
       buildHash: string;
       fullFilePath?: string;
     } = {
@@ -60,11 +127,11 @@ export class CoverageMapForCommitService {
     // 如果 filePath 存在，则添加 fullFilePath 查询条件
     if (filePath) {
       const fullFilePath = instrumentCwdPrefix + filePath;
-      whereCondition.fullFilePath = fullFilePath;
+      mapRelationWhereCondition.fullFilePath = fullFilePath;
     }
 
     const mapRelations = await this.prisma.coverageMapRelation.findMany({
-      where: whereCondition,
+      where: mapRelationWhereCondition,
     });
 
     if (mapRelations.length === 0) {
@@ -146,11 +213,21 @@ export class CoverageMapForCommitService {
     // #endregion
 
     // #region Step 5: 查询并聚合覆盖率命中数据
-    // 查询所有相同 buildHash 的覆盖率命中数据
+    // 构建 coverageHit 查询条件
+    const coverageHitWhereCondition: any = {
+      buildHash,
+    };
+
+    // 如果通过 scene 筛选出了 coverage 记录，使用这些记录的 sceneKey 列表来筛选 coverageHit
+    if (sceneKeys.size > 0) {
+      coverageHitWhereCondition.sceneKey = {
+        in: Array.from(sceneKeys),
+      };
+    }
+
+    // 查询所有相同 buildHash（和 sceneKey 列表，如果通过 scene 筛选）的覆盖率命中数据
     const coverageHits = await this.prisma.coverageHit.findMany({
-      where: {
-        buildHash,
-      },
+      where: coverageHitWhereCondition,
     });
 
     // 直接按 rawFilePath 聚合所有 hit 数据（不区分 sceneKey）
