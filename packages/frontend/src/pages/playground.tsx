@@ -1,4 +1,5 @@
 import { Editor } from '@monaco-editor/react';
+import { useRequest } from 'ahooks';
 import { Card, Col, Form, Input, Row, Select, Typography } from 'antd';
 import { useMemo } from 'react';
 
@@ -9,11 +10,39 @@ const PlaygroundPage = () => {
 
   const formValues = Form.useWatch([], form);
 
+  // 根据 repoID 获取 pathWithNamespace
+  const { data: repoData } = useRequest(
+    async () => {
+      if (!formValues?.repoID) {
+        return null;
+      }
+      try {
+        const resp = await fetch(
+          `/api/repos/${encodeURIComponent(formValues.repoID)}`,
+          {
+            credentials: 'include',
+          },
+        );
+        if (resp.ok) {
+          return resp.json();
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    },
+    { refreshDeps: [formValues?.repoID] },
+  );
+
+  const pathWithNamespace = repoData?.pathWithNamespace || '';
+
   // 实时拼接 URL
   const url = useMemo(() => {
+    // 如果还没有 pathWithNamespace，使用占位符
+    const repoPath = pathWithNamespace || 'org/repo';
     const baseUrl =
       window.origin +
-      `/report/-/${formValues?.provider}/flight-mobile-tools/deepinsight/${formValues?.subject}/${formValues?.subjectID}/-/`;
+      `/report/-/${formValues?.provider}/${repoPath}/${formValues?.subject}/${formValues?.subjectID}/-/`;
     const params = new URLSearchParams();
 
     if (formValues?.buildTarget) {
@@ -31,7 +60,7 @@ const PlaygroundPage = () => {
 
     const queryString = params.toString();
     return queryString ? `${baseUrl}?${queryString}` : baseUrl;
-  }, [formValues]);
+  }, [formValues, pathWithNamespace]);
 
   return (
     <div className='p-6 max-w-4xl mx-auto'>
