@@ -118,7 +118,9 @@ export class CoverageClientService {
 
     return {
       success: true,
-      prismacoverage,
+      buildHash,
+      sceneKey,
+      coverageLength: Object.keys(coverage).length,
     };
   }
 }

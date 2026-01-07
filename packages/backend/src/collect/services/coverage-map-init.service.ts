@@ -285,6 +285,9 @@ export class CoverageMapInitService {
         })),
       skipDuplicates: true,
     });
-    return {};
+    return {
+      success: true,
+      message: 'Coverage map inserted',
+    };
   }
 }
