@@ -16,6 +16,7 @@ export async function mapCommand(params: any, options: any) {
     debug,
     instrument_cwd,
     filter,
+    scene,
   } = params;
   if (!fs.existsSync(path.resolve(process.cwd(), '.canyon_output'))) {
     console.log('不存在');
@@ -54,6 +55,22 @@ export async function mapCommand(params: any, options: any) {
   const env_buildID = process.env.CI_JOB_ID;
   const env_buildProvider = 'gitlab_runner';
 
+  // 解析 scene 参数（JSON 字符串格式）
+  let sceneMap: Record<string, string> | undefined;
+  if (scene) {
+    try {
+      sceneMap = typeof scene === 'string' ? JSON.parse(scene) : scene;
+      if (typeof sceneMap !== 'object' || Array.isArray(sceneMap)) {
+        throw new Error('scene must be a valid JSON object');
+      }
+    } catch (e) {
+      console.error(
+        `Failed to parse scene parameter: ${e}. Expected JSON format like '{"key1":"value1","key2":"value2"}'`,
+      );
+      return;
+    }
+  }
+
   const p = {
     dsn,
     provider: provider || 'gitlab',
@@ -69,6 +86,7 @@ export async function mapCommand(params: any, options: any) {
       buildID: env_buildID,
       branch: env_branch,
     },
+    ...(sceneMap && { scene: sceneMap }),
   };
   if (debug === 'true') {
     console.log(p);

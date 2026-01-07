@@ -55,6 +55,10 @@ program
   .option('--provider <provider>', 'provider of the canyon server')
   .option('--build_target <build_target>', 'build target of the canyon server')
   .option('--coverage <coverage>', 'coverage of the canyon server')
+  .option(
+    '--scene <scene>',
+    'scene map in JSON format, e.g. \'{"key1":"value1","key2":"value2"}\'',
+  )
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description('modify react native project code to adapt to canyon')

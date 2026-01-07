@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/cli",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "type": "module",
   "exports": {
     ".": {
@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "rslib build",
-    "my-test": "npm run build && node ./bin/canyon.js upload --debug=true",
+    "my-test": "npm run build && node ./bin/canyon.js upload --debug=true --scene='{\"key1\":\"value1\",\"key2\":\"value2\"}'",
     "dev-cli": "rslib build --watch"
   },
   "devDependencies": {
