@@ -8,7 +8,7 @@ export default defineConfig({
       [
         '@canyonjs/report-html',
         {
-          diff: [],
+          diff: '',
         },
       ],
     ], // 直接调试的是当前的index.js入口

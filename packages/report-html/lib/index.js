@@ -2,6 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const debug = require('debug')('canyon:report-html');
 const { compress } = require('./compress');
+const parseDiff = require('parse-diff')
 
 class CoverageReport {
   constructor(options = {}) {
@@ -57,21 +58,6 @@ class CoverageReport {
       // 读取源文件内容
       const source = fileData.source || sourceFinder(filePath);
 
-      // 查找匹配的 git diff 数据，使用 endsWith 匹配路径
-      let changedLines = [];
-      for (const [gitPath, lines] of Object.entries(gitDiffData)) {
-        if (filePath.endsWith(gitPath)) {
-          debug(
-            'Found git diff match for %s -> %s (%d changed lines)',
-            filePath,
-            gitPath,
-            lines.length,
-          );
-          changedLines = lines;
-          break;
-        }
-      }
-
       return {
         source,
         path: filePath,
@@ -81,7 +67,7 @@ class CoverageReport {
         s: fileData.s || {},
         f: fileData.f || {},
         b: fileData.b || {},
-        changedLines, // 添加变更行号信息
+        changedLines:[], // 添加变更行号信息
       };
     });
 
@@ -108,7 +94,34 @@ class CoverageReport {
     );
     return reportData;
   }
-  async generate({ coverage, targetDir, sourceFinder }) {
+  diffFn(diff=''){
+    const files = parseDiff(diff);
+    console.log('number of patched files',files.length); // number of patched files
+    files.forEach(function(file) {
+      const c = {
+        path: file.to,
+        changes: {
+          additions: [],
+          deletions: []
+        }
+      }
+      file.chunks.forEach(function(chunk) {
+        chunk.changes.forEach(function(change) {
+          if (change.type === 'add') {
+            c.changes.additions.push(change.ln)
+          }
+          if (change.type === 'del') {
+            c.changes.deletions.push(change.ln)
+          }
+        });
+      });
+      console.log(c)
+    });
+  }
+  async generate({ coverage, targetDir, sourceFinder,reportConfig }) {
+
+    this.diffFn(reportConfig?.diff);
+
     debug('Starting report generation to target directory: %s', targetDir);
     this.initOptions();
 

@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/report-html",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "license": "MIT",
   "repository": {
@@ -14,7 +14,8 @@
   "scripts": {
     "dev-report-html": "rspack dev",
     "build": "rspack build",
-    "test": "DEBUG=canyon:report-html rstest run --coverage",
+    "test:debug": "DEBUG=canyon:report-html rstest run --coverage",
+    "test": "rstest run --coverage",
     "preview": "rspack preview"
   },
   "main": "index.js",
@@ -31,7 +32,8 @@
     "istanbul-lib-report": "^3.0.1",
     "monaco-editor": "0.55.1",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "parse-diff": "^0.11.1"
   },
   "devDependencies": {
     "@rspack/cli": "^1.6.7",

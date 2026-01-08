@@ -40,6 +40,7 @@ module.exports = class CustomReporter extends ReportBase {
       coverage: this.coverage,
       targetDir: context.dir,
       sourceFinder: context.sourceFinder,
+      reportConfig: this.reportConfig,
     });
 
     debug(
