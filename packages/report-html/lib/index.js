@@ -2,7 +2,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const debug = require('debug')('canyon:report-html');
 const { compress } = require('./compress');
-const parseDiff = require('parse-diff')
+const parseDiff = require('parse-diff');
 
 class CoverageReport {
   constructor(options = {}) {
@@ -67,7 +67,7 @@ class CoverageReport {
         s: fileData.s || {},
         f: fileData.f || {},
         b: fileData.b || {},
-        changedLines:[], // 添加变更行号信息
+        changedLines: [], // 添加变更行号信息
       };
     });
 
@@ -94,32 +94,31 @@ class CoverageReport {
     );
     return reportData;
   }
-  diffFn(diff=''){
+  diffFn(diff = '') {
     const files = parseDiff(diff);
-    console.log('number of patched files',files.length); // number of patched files
-    files.forEach(function(file) {
+    console.log('number of patched files', files.length); // number of patched files
+    files.forEach((file) => {
       const c = {
         path: file.to,
         changes: {
           additions: [],
-          deletions: []
-        }
-      }
-      file.chunks.forEach(function(chunk) {
-        chunk.changes.forEach(function(change) {
+          deletions: [],
+        },
+      };
+      file.chunks.forEach((chunk) => {
+        chunk.changes.forEach((change) => {
           if (change.type === 'add') {
-            c.changes.additions.push(change.ln)
+            c.changes.additions.push(change.ln);
           }
           if (change.type === 'del') {
-            c.changes.deletions.push(change.ln)
+            c.changes.deletions.push(change.ln);
           }
         });
       });
-      console.log(c)
+      console.log(c);
     });
   }
-  async generate({ coverage, targetDir, sourceFinder,reportConfig }) {
-
+  async generate({ coverage, targetDir, sourceFinder, reportConfig }) {
     this.diffFn(reportConfig?.diff);
 
     debug('Starting report generation to target directory: %s', targetDir);
