@@ -1,11 +1,11 @@
 import { GithubOutlined } from "@ant-design/icons";
 import { Button } from "antd";
 
-# babel-plugin-canyon
+# @canyonjs/babel-plugin
 
 <div className={'h-10'}></div>
 
-<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/plugins/babel-plugin-canyon'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/plugins/@canyonjs/babel-plugin'} icon={<GithubOutlined />} size={'small'}>Source</Button>
 
 A Babel plugin for detecting CI environment variables. Works with istanbuljs to complete code instrumentation.
 
@@ -14,7 +14,7 @@ A Babel plugin for detecting CI environment variables. Works with istanbuljs to 
 Install:
 
 ```sh
-npm install --save-dev babel-plugin-canyon
+npm install --save-dev @canyonjs/babel-plugin
 ```
 
 Add these configurations in `babel.config.js`:
@@ -32,7 +32,7 @@ module.exports = {
 It does two things:
 
 1. Detect CI pipeline variables
-2. Check the istanbul instrumentation output from the previous step and save to local (when keepMap is false)
+2. 收集参与编译的文件覆盖率初始数据
 
 ## Configuration
 
@@ -45,26 +45,16 @@ module.exports = {
     [
       "canyon",
       {
-        // #region == Step 1: CI variable configuration or manual explicit configuration
-        dsn: "http://yourdomain.com/coverage/client", // Coverage reporting address, CI pipeline variable KEY is DSN
-        reporter: "your_token", // User token for distinguishing different users, CI pipeline variable KEY is REPORTER
-        // #endregion
         // #region == Step 2: CI Provider auto-detection, generally no manual configuration needed, see Support Provider documentation for details
-        projectID: "230614", // Repository ID
+        repoID: "230614", // Repository ID
         sha: "xxxxxxxxx", // Git Commit SHA
-        branch: "master", // Git repository branch
-        // #endregion
-        // #region == Step 3: Additional coverage feature configuration (optional)
-        reportID: "case_id", // Used to distinguish different test cases
-        compareTarget: "develop", // Comparison target, used as baseline for current SHA, for calculating changed line coverage
         // #endregion
         // #region == Step 4: Separate hit and map data (optional)
-        keepMap: true, // Keep coverage map, optional, default is true, when false, will generate .canyon_output file!!!
+        keepMap: false, // Keep coverage map, optional, default is false.
         // #endregion
         // #region == Step 5: Other configuration (optional)
         instrumentCwd: "/path/to", // Instrumentation working directory, may need manual configuration in multi-repo mode
         provider: "gitlab", // Source code provider (optional), default is gitlab
-        oneByOne: false, // Configure proxy server, optional, default is false. When true, will report initial coverage data for each file one by one during compilation. Can also be proxy server configuration.
         // #endregion
       },
     ],
@@ -76,7 +66,7 @@ module.exports = {
 | ------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------- |
 | dsn           | Coverage reporting address, CI pipeline variable KEY is DSN                                                                   | Yes (fill in CI variable configuration or manual explicit configuration as needed) | None            |
 | reporter      | User token for distinguishing different users, CI pipeline variable KEY is REPORTER                                               | Yes (fill in CI variable configuration or manual explicit configuration as needed) | None            |
-| projectID     | Repository ID                                                                                                        | Generally no manual configuration needed (auto-detect CI Provider)      | None            |
+| repoID     | Repository ID                                                                                                        | Generally no manual configuration needed (auto-detect CI Provider)      | None            |
 | sha           | Git Commit SHA                                                                                                | Generally no manual configuration needed (auto-detect CI Provider)      | None            |
 | branch        | Git repository branch                                                                                                   | Generally no manual configuration needed (auto-detect CI Provider)      | None            |
 | reportID      | Used to distinguish different test cases                                                                                        | Optional                                           | None            |

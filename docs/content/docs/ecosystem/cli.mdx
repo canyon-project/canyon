@@ -1,0 +1,76 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# @canyonjs/cli
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/tools/cli'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+
+Canyon CLI is a command-line tool for uploading coverage data to Canyon server. It reads and aggregates coverage data from local `.canyon_output` directory and uploads it to the configured Canyon server.
+
+## Installation
+
+Install via npm:
+
+```bash
+npm install -g @canyonjs/cli
+```
+
+Or download the latest version from [GitHub Release](https://github.com/canyon-project/canyon/releases).
+
+## Features
+
+- Reads and aggregates coverage data from local `.canyon_output` directory
+- Supports filtering coverage files by path
+- Supports scene-based coverage reporting
+- Automatically detects CI environment variables (GitLab CI)
+- Merges multiple coverage files into a single report
+
+## Usage
+
+### Basic Usage
+
+```bash
+canyon upload --dsn=http://your-canyon-server/api/coverage/client
+```
+
+
+Use `--scene` to add scene metadata for filtering coverage data:
+
+```bash
+canyon upload --dsn=$DSN \
+  --scene='{"source":"automation","type":"e2e","env":"test"}'
+```
+
+
+## Command Options
+
+| Option | Description | Required | Default |
+|--------|-------------|----------|---------|
+| `--dsn` | Canyon server endpoint URL | Yes | None |
+| `--repo_id` | Repository ID | No* | `CI_PROJECT_ID` |
+| `--sha` | Git commit SHA | No* | `CI_COMMIT_SHA` |
+| `--provider` | Source code provider (gitlab/github) | No | `gitlab` |
+| `--build_target` | Build target identifier | No | Empty string |
+| `--instrument_cwd` | Instrumentation working directory | No | `process.cwd()` |
+| `--filter` | Filter coverage files by path substring | No | None |
+| `--scene` | Scene metadata in JSON format | No | None |
+| `--debug` | Enable debug mode | No | `false` |
+
+\* Automatically detected from CI environment variables if not provided
+
+
+## Example: GitLab CI Integration
+
+```yaml
+coverage:
+  stage: test
+  script:
+    - npm test
+    - canyon upload --dsn=$CANYON_DSN --scene='{"type":"unit","env":"ci"}'
+  artifacts:
+    paths:
+      - .canyon_output/
+    expire_in: 1 week
+```
