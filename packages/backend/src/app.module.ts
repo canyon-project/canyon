@@ -8,6 +8,7 @@ import { CollectModule } from './collect/collect.module';
 import { CoverageModule } from './coverage/coverage.module';
 import { HealthModule } from './health/health.module';
 import { loadInfraConfiguration } from './infra-config/helper';
+import { ProviderModule } from './provider/provider.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { RepoModule } from './repo/repo.module';
 
@@ -23,6 +24,7 @@ import { RepoModule } from './repo/repo.module';
     CoverageModule,
     RepoModule,
     CodeModule,
+    ProviderModule,
     ServeStaticModule.forRoot({
       rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
         ? join(__dirname, '../../frontend', 'dist')

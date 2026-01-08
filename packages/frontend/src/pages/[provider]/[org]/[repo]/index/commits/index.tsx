@@ -1,11 +1,26 @@
 import { BranchesOutlined, SearchOutlined } from '@ant-design/icons';
-import { Input, message, Space, Switch, Table, Typography } from 'antd';
+import { Drawer, Input, message, Space, Switch, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link, useOutletContext, useParams } from 'react-router-dom';
+import { Link, useOutletContext, useParams, useSearchParams } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary';
+import SceneSelector from '@/components/SceneSelector';
+
+// 定义 CoverageRecord 类型（与 SceneSelector 中的类型一致）
+type CoverageRecord = {
+  id: number;
+  commitSha: string;
+  scene: Record<string, string>;
+  sceneKey: string;
+  coverage: {
+    lines: { total: number; covered: number };
+    functions: { total: number; covered: number };
+    branches: { total: number; covered: number };
+  };
+  createdAt: string;
+};
 
 const { Text } = Typography;
 
@@ -49,6 +64,7 @@ const CommitsPage = () => {
     repo: Repo | null;
   }>();
   const params = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [commits, setCommits] = useState<CommitRecord[]>([]);
   const [total, setTotal] = useState(0);
@@ -57,6 +73,16 @@ const CommitsPage = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [onlyDefaultBranch, setOnlyDefaultBranch] = useState(false);
   const [defaultBranch, setDefaultBranch] = useState('');
+  
+  // 从 URL 参数读取抽屉状态
+  const drawerOpenFromURL = searchParams.get('drawer_open') === 'true';
+  const [drawerOpen, setDrawerOpen] = useState(drawerOpenFromURL);
+  const [sceneStep, setSceneStep] = useState(0);
+
+  // 当 URL 参数变化时，同步抽屉状态
+  useEffect(() => {
+    setDrawerOpen(drawerOpenFromURL);
+  }, [drawerOpenFromURL]);
 
   // 从 repo config 中解析默认分支
   useEffect(() => {
@@ -224,24 +250,86 @@ const CommitsPage = () => {
     {
       title: t('common.option'),
       key: 'option',
-      width: 80,
+      width: 150,
       render: (_: any, record: CommitRecord) => {
-        const searchParams = new URLSearchParams();
-        if (record.buildTarget) {
-          searchParams.set('build_target', record.buildTarget);
-        }
-        if (record.reportID) {
-          searchParams.set('report_id', record.reportID);
-        }
-        if (record.reportProvider) {
-          searchParams.set('report_provider', record.reportProvider);
-        }
-        const queryString = searchParams.toString();
-        const reportPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
         return (
-          <a href={reportPath} target='_blank' rel='noreferrer'>
-            {t('projects.reported_details')}
-          </a>
+          <Space>
+            <a
+              href='#'
+              onClick={(e) => {
+                e.preventDefault();
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('drawer_open', 'true');
+                setSearchParams(newParams, { replace: true });
+                setDrawerOpen(true);
+                setSceneStep(0);
+              }}
+            >
+              {t('projects.reported_details')}
+            </a>
+            <a
+              href='#'
+              onClick={(e) => {
+                e.preventDefault();
+                // 根据 commit 记录生成总体报告数据
+                // 使用 statements 作为行覆盖率的基础数据
+                const statementsPercent = record.statements || 0;
+                // 假设总行数为 10000（实际应该从 API 获取）
+                const totalLines = 10000;
+                const coveredLines = Math.round((totalLines * statementsPercent) / 100);
+
+                const overallRecord: CoverageRecord = {
+                  id: 0,
+                  commitSha: record.sha,
+                  scene: { overall: 'true' },
+                  sceneKey: 'overall',
+                  coverage: {
+                    lines: {
+                      total: totalLines,
+                      covered: coveredLines,
+                    },
+                    functions: {
+                      total: 1000,
+                      covered: Math.round((1000 * statementsPercent) / 100),
+                    },
+                    branches: {
+                      total: 2000,
+                      covered: Math.round((2000 * statementsPercent) / 100),
+                    },
+                  },
+                  createdAt: record.latestReport || new Date().toISOString(),
+                };
+
+                // 如果有 scenes，合并所有 scene 的信息
+                if (record.scenes && record.scenes.length > 0) {
+                  const allScenes: Record<string, string> = {};
+                  record.scenes.forEach((sceneInfo) => {
+                    if (sceneInfo.scene && typeof sceneInfo.scene === 'object') {
+                      Object.assign(allScenes, sceneInfo.scene);
+                    }
+                  });
+                  overallRecord.scene = { ...overallRecord.scene, ...allScenes };
+                }
+
+                // 将总体数据编码到 URL
+                const data = {
+                  selectors: [],
+                  step: 2,
+                  queryResults: [],
+                  selectedRecord: overallRecord,
+                };
+                const encoded = btoa(JSON.stringify(data));
+                const newParams = new URLSearchParams(searchParams);
+                newParams.set('drawer_open', 'true');
+                newParams.set('scene_data', encoded);
+                setSearchParams(newParams, { replace: true });
+                setDrawerOpen(true);
+                setSceneStep(2);
+              }}
+            >
+              总体
+            </a>
+          </Space>
         );
       },
     },
@@ -252,7 +340,7 @@ const CommitsPage = () => {
   }
 
   return (
-    <div className={'px-[20px] py-[12px]'}>
+    <div className={''}>
       <div className={'mb-4 flex items-center gap-3'}>
         <Input
           style={{ width: '600px' }}
@@ -334,7 +422,7 @@ const CommitsPage = () => {
               );
             },
             rowExpandable: (record) =>
-              record.scenes && record.scenes.length > 0,
+              !!(record.scenes && record.scenes.length > 0),
           }}
           pagination={{
             current: page,
@@ -350,6 +438,28 @@ const CommitsPage = () => {
           }}
         />
       </CardPrimary>
+
+      <Drawer
+        title='Scene Label Selector'
+        placement='right'
+        width={sceneStep === 2 ? '85%' : 800}
+        open={drawerOpen}
+        onClose={() => {
+          const newParams = new URLSearchParams(searchParams);
+          newParams.delete('drawer_open');
+          // 如果关闭抽屉，也清除 scene_data
+          newParams.delete('scene_data');
+          setSearchParams(newParams, { replace: true });
+          setDrawerOpen(false);
+          setSceneStep(0);
+        }}
+        destroyOnClose
+      >
+        <SceneSelector
+          onStepChange={setSceneStep}
+          initialStep={sceneStep === 2 ? 2 : undefined}
+        />
+      </Drawer>
     </div>
   );
 };

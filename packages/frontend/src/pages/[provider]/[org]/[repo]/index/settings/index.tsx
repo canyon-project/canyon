@@ -126,7 +126,7 @@ const RepoSettings = () => {
   }
 
   return (
-    <div className={'px-[20px] py-[12px] space-y-[12px]'}>
+    <div className={'space-y-[12px]'}>
       <Card title={'项目设置'}>
         <div className={'space-y-[12px]'}>
           <Title level={5} className={'flex items-center gap-1'}>

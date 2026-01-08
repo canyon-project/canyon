@@ -57,7 +57,6 @@ const CoverageReport = () => {
   );
 
   const repoID = repoData?.id || '';
-  console.log(scene, 'scene');
   const { data: mapData, loading } = useRequest(
     () =>
       axios('/api/coverage/summary/map', {
@@ -79,6 +78,7 @@ const CoverageReport = () => {
         buildTarget,
         reportID,
         reportProvider,
+        scene, // 添加 scene 到依赖数组
         repoID,
       ],
       ready: !!repoID, // 只有当 repoID 存在时才请求
@@ -175,7 +175,6 @@ const CoverageReport = () => {
         if (buildTarget) fileCoverageParams.buildTarget = buildTarget;
         if (reportProvider) fileCoverageParams.reportProvider = reportProvider;
         if (reportID) fileCoverageParams.reportID = reportID;
-        console.log(scene, 'scene');
         if (scene) fileCoverageParams.scene = scene;
 
         requests.push(
@@ -222,6 +221,7 @@ const CoverageReport = () => {
       buildTarget,
       reportID,
       reportProvider,
+      scene, // 添加 scene 到依赖数组
       data,
     ],
   );

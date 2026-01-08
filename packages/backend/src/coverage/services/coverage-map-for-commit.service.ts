@@ -20,55 +20,145 @@ export class CoverageMapForCommitService {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
-   * 将 key-value 格式的 scene 对象转换为 Prisma JSON 查询条件
-   * @param scene - JSON 字符串，格式为 { key1: 'value1', key2: 'value2' }
-   * @returns Prisma JSON 查询条件
+   * 解析单个 label selector 字符串
+   * @param selectorStr - 格式: key=value, key!=value, key=~"regex", key!~"regex"
+   * @returns 解析后的对象 { key, operator, value } 或 null
    */
-  private buildSceneQueryCondition(scene?: string) {
+  private parseSelector(selectorStr: string): {
+    key: string;
+    operator: '=' | '!=' | '=~' | '!~';
+    value: string;
+  } | null {
+    const trimmed = selectorStr.trim();
+    if (!trimmed) return null;
+
+    // 匹配 key=value, key!=value, key=~"regex", key!~"regex"
+    const match = trimmed.match(/^([a-zA-Z_][a-zA-Z0-9_]*)\s*(=~|!~|!=|=)\s*(.+)$/);
+    if (!match) return null;
+
+    const [, key, operator, value] = match;
+    // 移除引号（如果存在）
+    const cleanValue = value.replace(/^["']|["']$/g, '');
+
+    return {
+      key,
+      operator: operator as '=' | '!=' | '=~' | '!~',
+      value: cleanValue,
+    };
+  }
+
+  /**
+   * 解析 scene selector 字符串，返回所有条件
+   * @param scene - 字符串，格式为 "key=value,key2!=value2,key3=~\"regex\"" 或 JSON 字符串 "{ key1: 'value1', key2: 'value2' }"
+   * @returns 条件数组
+   */
+  private parseSceneSelectors(scene?: string): Array<{
+    key: string;
+    operator: '=' | '!=' | '=~' | '!~';
+    value: string;
+  }> {
     if (!scene) {
-      return undefined;
+      return [];
     }
 
+    const trimmed = scene.trim();
+    if (!trimmed) {
+      return [];
+    }
+
+    // 尝试解析为 LogQL/PromQL 风格的 selector（例如: "key=value,key2!=value2,key3=~\"regex\""）
+    if (trimmed.includes('=') || trimmed.includes('!=')) {
+      const parts = trimmed.split(',').map((s) => s.trim()).filter(Boolean);
+      return parts
+        .map((part) => this.parseSelector(part))
+        .filter((s): s is NonNullable<typeof s> => s !== null);
+    }
+
+    // 兼容旧的 JSON 格式（向后兼容）
     try {
       const sceneObj = JSON.parse(scene);
 
-      // 如果解析后不是对象，返回 undefined
+      // 如果解析后不是对象，返回空数组
       if (
         typeof sceneObj !== 'object' ||
         sceneObj === null ||
         Array.isArray(sceneObj)
       ) {
-        return undefined;
+        return [];
       }
 
-      // 获取所有 key-value 对
-      const entries = Object.entries(sceneObj);
-
-      // 如果没有键值对，返回 undefined
-      if (entries.length === 0) {
-        return undefined;
-      }
-
-      // 如果只有一个键值对，直接返回单个查询条件
-      if (entries.length === 1) {
-        const [key, value] = entries[0];
-        return {
-          path: [key],
-          equals: String(value), // 确保 value 是字符串
-        };
-      }
-
-      // 如果有多个键值对，使用 AND 条件
-      return {
-        AND: entries.map(([key, value]) => ({
-          path: [key],
-          equals: String(value), // 确保 value 是字符串
-        })),
-      };
+      // 获取所有 key-value 对，转换为 = 操作符
+      return Object.entries(sceneObj).map(([key, value]) => ({
+        key,
+        operator: '=' as const,
+        value: String(value),
+      }));
     } catch {
-      // JSON 解析失败，返回 undefined
-      return undefined;
+      // JSON 解析失败，返回空数组
+      return [];
     }
+  }
+
+  /**
+   * 使用 JavaScript 过滤 coverage 记录，根据 scene 条件
+   * @param records - coverage 记录数组
+   * @param selectors - scene selector 条件数组
+   * @returns 过滤后的记录数组
+   */
+  private filterBySceneSelectors<T extends { scene: any }>(
+    records: T[],
+    selectors: Array<{ key: string; operator: '=' | '!=' | '=~' | '!~'; value: string }>,
+  ): T[] {
+    if (selectors.length === 0) {
+      return records;
+    }
+
+    return records.filter((record) => {
+      const scene = record.scene;
+      if (!scene || typeof scene !== 'object') {
+        return false;
+      }
+
+      // 所有条件都必须满足（AND 关系）
+      return selectors.every((selector) => {
+        const { key, operator, value } = selector;
+        const sceneValue = scene[key];
+
+        // 如果 scene 中没有这个 key，不匹配
+        if (sceneValue === undefined) {
+          return false;
+        }
+
+        const sceneValueStr = String(sceneValue);
+
+        switch (operator) {
+          case '=':
+            return sceneValueStr === value;
+          case '!=':
+            return sceneValueStr !== value;
+          case '=~':
+            // 正则匹配
+            try {
+              const regex = new RegExp(value);
+              return regex.test(sceneValueStr);
+            } catch {
+              // 正则表达式无效，不匹配
+              return false;
+            }
+          case '!~':
+            // 正则不匹配
+            try {
+              const regex = new RegExp(value);
+              return !regex.test(sceneValueStr);
+            } catch {
+              // 正则表达式无效，不匹配
+              return false;
+            }
+          default:
+            return false;
+        }
+      });
+    });
   }
 
   async invoke({
@@ -82,6 +172,7 @@ export class CoverageMapForCommitService {
     scene,
   }: CoverageQueryParamsTypes) {
     // #region Step 1: 查询覆盖率记录并获取基础信息
+    // 先查询所有符合条件的记录（不包含 scene 条件）
     const coverageWhereCondition: any = {
       provider,
       repoID,
@@ -89,15 +180,18 @@ export class CoverageMapForCommitService {
       buildTarget,
     };
 
-    // 构建 scene 查询条件
-    const sceneCondition = this.buildSceneQueryCondition(scene);
-    if (sceneCondition) {
-      coverageWhereCondition.scene = sceneCondition;
-    }
-
-    const coverageRecords = await this.prisma.coverage.findMany({
+    const allCoverageRecords = await this.prisma.coverage.findMany({
       where: coverageWhereCondition,
     });
+
+    // 解析 scene selector 条件
+    const sceneSelectors = this.parseSceneSelectors(scene);
+
+    // 使用 JavaScript 过滤 scene 条件
+    const coverageRecords = this.filterBySceneSelectors(
+      allCoverageRecords,
+      sceneSelectors,
+    );
     if (coverageRecords.length === 0) {
       return {
         success: false,

@@ -220,7 +220,7 @@ const BasicLayout: FC<{
           </ErrorBoundary>
         </div>
       </div>
-      <BuildInfo />
+      {/* <BuildInfo /> */}
     </div>
   );
 };

@@ -56,7 +56,7 @@ const ProjectDetailPage = () => {
   return (
     <BasicLayout>
       <RIf condition={!loading && repo !== null}>
-        <div className={'h-[48px] flex items-center justify-between px-[16px]'}>
+        <div className={'h-[48px] flex items-center justify-between'}>
           <Breadcrumb
             items={[
               {
