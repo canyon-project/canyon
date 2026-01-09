@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
-     "rootDir": "./src",
-     "outDir": "./dist",
+    "rootDir": "./src",
+    "outDir": "./dist",
     "module": "node16",
     "target": "es2020",
-     "lib": ["esnext"],
-     "types": ["node"],
+    "lib": ["esnext"],
+    "types": ["node"],
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
@@ -17,6 +17,6 @@
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
-    "skipLibCheck": true,
+    "skipLibCheck": true
   }
 }

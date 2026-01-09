@@ -1,11 +1,11 @@
 import { randomBytes } from 'node:crypto';
 import * as fs from 'node:fs';
+import * as path from 'node:path';
 import type { types as BabelTypes, ConfigAPI, NodePath } from '@babel/core';
 import generate from '@babel/generator';
 import { generateBuildHash } from './helpers/generate-build-hash';
 import { generateInitialCoverage } from './helpers/generate-initial-coverage';
 import type { CanyonBabelPluginConfig } from './types';
-import * as path from "node:path";
 
 /**
  * 覆盖率数据接口
@@ -135,7 +135,12 @@ export function visitorProgramExit(
             // 注意：keepMap 属性不在配置接口中，这里保留原逻辑但添加注释说明
             const shouldKeepMap = false; // 默认不保留 map
             if (!shouldKeepMap) {
-              const keysToRemove = ['statementMap', 'fnMap', 'branchMap','inputSourceMap'];
+              const keysToRemove = [
+                'statementMap',
+                'fnMap',
+                'branchMap',
+                'inputSourceMap',
+              ];
               keysToRemove.forEach((keyToRemove) => {
                 const propertyIndex = objectProperties.findIndex(
                   (property) =>

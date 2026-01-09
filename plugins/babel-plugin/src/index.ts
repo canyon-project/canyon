@@ -1,10 +1,10 @@
+import * as path from 'node:path';
 import type { ConfigAPI, NodePath } from '@babel/core';
 import { declare } from '@babel/helper-plugin-utils';
 import type * as t from '@babel/types';
 import { detectCIConfig } from './helpers/detect-ci-config';
 import type { CanyonBabelPluginConfig } from './types';
 import { visitorProgramExit } from './visitor-program-exit';
-import * as path from 'node:path';
 
 /**
  * 默认配置对象
