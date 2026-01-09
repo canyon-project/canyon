@@ -14,6 +14,7 @@
   "scripts": {
     "dev-report-html": "rspack dev",
     "build": "rspack build",
+    "pretest": "npm run build",
     "test:debug": "DEBUG=canyon:report-html rstest run --coverage",
     "test": "rstest run --coverage",
     "preview": "rspack preview"

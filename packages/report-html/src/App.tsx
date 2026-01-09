@@ -32,7 +32,7 @@ function App() {
           resolve({
             fileCoverage: file,
             fileContent: file.source,
-            fileCodeChange: file.changedLines,
+            fileCodeChange: file.diff || { additions: [], deletions: [] },
           });
         } else {
           resolve({
@@ -52,7 +52,9 @@ function App() {
   }
 
   return (
-    <div>
+    <div style={{
+      height:'calc(100vh - 16px)',
+    }}>
       {/*// @ts-ignore*/}
       <CanyonReport
         name={'All files'}
