@@ -6,6 +6,7 @@ import {
   annotateStatements,
 } from '../helpers/annotate';
 import { coreFn } from '../helpers/coreFn';
+import ChangedCodeCoverageTable, { type ChangedCodeCoverageTableProps } from './ChangedCodeCoverageTable';
 import lineNumbers from './lineNumbers';
 
 // 扩展 Window 接口以包含 monaco
@@ -33,10 +34,15 @@ const CoverageDetail = ({
   coverage: coverage;
   diff: Diff;
 }) => {
-  // 使用 diff 避免未使用参数警告
   const { lines } = coreFn(coverage, source);
-
   const addLines = diff.additions || [];
+  const ref = useRef<HTMLDivElement>(null);
+
+  // 检查是否有变更行数据
+  const hasChangedLines =
+    addLines.length > 0 &&
+    coverage['s'] &&
+    coverage['statementMap'];
 
   const linesState = (() => {
     return lines.map((line, index) => {
@@ -47,11 +53,12 @@ const CoverageDetail = ({
       };
     });
   })();
+
   const lineNumbersMinChars = (() => {
     const maxHit = Math.max(...linesState.map((line) => line.hit));
     return maxHit.toString().length + 8;
   })();
-  const ref = useRef(null);
+
   useEffect(() => {
     if (ref.current) {
       const dom = ref.current;
@@ -168,8 +175,26 @@ const CoverageDetail = ({
         }
       }
     }
-  }, [source]);
-  return <div ref={ref} style={{ height: '100%' }} />;
+  }, [source, coverage]);
+
+  return (
+    <div className="canyon-coverage-detail-container" style={{ height: '100%', position: 'relative' }}>
+      {hasChangedLines ? (
+        <ChangedCodeCoverageTable coverage={coverage as ChangedCodeCoverageTableProps['coverage']} addLines={addLines} />
+      ) : null}
+      <div
+        ref={ref}
+        className="canyon-coverage-detail-editor"
+        style={{
+          height: hasChangedLines ? 'calc(100% - 33px)' : '100%',
+          top: hasChangedLines ? '33px' : '0',
+          position: 'absolute',
+          left: 0,
+          right: 0,
+        }}
+      />
+    </div>
+  );
 };
 
 export default CoverageDetail;

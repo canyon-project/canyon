@@ -73,3 +73,5 @@ Cargo.lock
 _pagefind
 
 features-dist
+
+old-spa
