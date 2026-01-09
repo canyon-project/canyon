@@ -169,11 +169,7 @@ const CoverageDetail = ({
       }
     }
   }, [source]);
-  return (
-    <div>
-      <div ref={ref} style={{ height: 'calc(100vh - 150px)' }} />
-    </div>
-  );
+  return <div ref={ref} style={{ height: '100%' }} />;
 };
 
 export default CoverageDetail;

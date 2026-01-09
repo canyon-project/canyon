@@ -1,7 +1,7 @@
 window.reportData = {
-  type: 'v8',
+  type: 'istanbuljs',
   reportPath: 'coverage/index.html',
-  version: '2.12.9',
+  version: '1.0.0',
   watermarks: {
     bytes: [50, 80],
     statements: [50, 80],

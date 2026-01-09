@@ -1,5 +1,24 @@
+.canyonjs-report-html .canyon-coverage-detail-spin-wrapper {
+  height: 100%;
+}
+.canyonjs-report-html
+  .canyon-coverage-detail-spin-wrapper
+  > .ant-spin-container {
+  height: 100%;
+}
 .canyonjs-report-html {
-  /*background-color: #535bf2;*/
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.canyonjs-report-html a {
+  color: #0071c2;
+  cursor: pointer;
+}
+.canyonjs-report-html a:hover {
+  color: #0071c2;
+  opacity: 0.8;
+  text-decoration: underline;
 }
 .canyonjs-report-html .line-number-wrapper {
   display: flex;

@@ -1,13 +1,3 @@
-a {
-  color: #0071c2;
-  cursor: pointer;
-}
-a:hover {
-  color: #0071c2;
-  opacity: 0.8;
-  text-decoration: underline;
-}
-
 @font-face {
   font-family: "IBMPlexMono";
   src: url("@ibm/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2")

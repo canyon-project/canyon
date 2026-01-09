@@ -86,15 +86,15 @@ export const CanyonReport: FC<CanyonReportProps> = ({
     });
   }, [dataSource, value, filenameKeywords, onlyChange]);
   return (
-    <div className={rootClassName}>
-      <ConfigProvider
-        theme={{
-          token: {
-            colorPrimary: '#0071c2',
-            borderRadius: 2,
-          },
-        }}
-      >
+    <ConfigProvider
+      theme={{
+        token: {
+          colorPrimary: '#0071c2',
+          borderRadius: 2,
+        },
+      }}
+    >
+      <div className={rootClassName}>
         <style>
           {`
           .${rootClassName} .canyon-coverage-detail-spin-wrapper { height: 100%; }
@@ -128,7 +128,6 @@ export const CanyonReport: FC<CanyonReportProps> = ({
               flex: 1,
               minHeight: 0,
               overflow: 'auto',
-              height: '100%',
             }}
           >
             <Spin
@@ -163,8 +162,8 @@ export const CanyonReport: FC<CanyonReportProps> = ({
             />
           )}
         </Suspense>
-      </ConfigProvider>
-    </div>
+      </div>
+    </ConfigProvider>
   );
 };
 

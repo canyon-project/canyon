@@ -1,6 +1,6 @@
 import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { useState } from 'react';
-import { CanyonReport, type FileDataResponse } from '../../src';
+import { CanyonReport } from '../../src';
 
 // 扩展 Window 接口
 declare global {
@@ -37,7 +37,7 @@ function App() {
     }, {}),
   );
 
-  function onSelect(val: string): Promise<FileDataResponse> {
+  function onSelect(val: string): Promise<any> {
     return new Promise((resolve) => {
       setValue(val);
       const file = _dataSource.find((item) => item.path === val);
@@ -58,7 +58,11 @@ function App() {
   }
 
   return (
-    <div>
+    <div
+      style={{
+        height: 'calc(100vh - 16px)',
+      }}
+    >
       <CanyonReport
         name={'All files'}
         value={value}
