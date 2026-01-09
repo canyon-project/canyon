@@ -30,6 +30,15 @@ export interface FileInfo {
   source: string;
   path: string;
   changedLines: number[];
+  diff?: {
+    additions: number[];
+    deletions: number[];
+  };
+  changestatements?: {
+    total: number;
+    covered: number;
+    pct: number;
+  };
 }
 
 export interface CanyonReportData {

@@ -3,6 +3,12 @@ import { CanyonReport } from '@canyonjs/report-component';
 import { genSummaryMapByCoverageMap } from 'canyon-data';
 import { useState } from 'react';
 
+type FileDataResponse = {
+  fileCoverage: any;
+  fileContent: string;
+  fileCodeChange: number[] | { additions: number[]; deletions: number[] };
+};
+
 function App() {
   const [value, setValue] = useState('');
 
@@ -15,15 +21,24 @@ function App() {
     };
   });
 
+  // 提取有 diff 数据的文件信息
+  const diffData = _dataSource
+    .filter((item) => item.diff && item.diff.additions && item.diff.additions.length > 0)
+    .map((item) => ({
+      path: item.path,
+      additions: item.diff!.additions,
+    }));
+
   const summaryMapByCoverageMap = genSummaryMapByCoverageMap(
     _dataSource.reduce((acc, cur) => {
       // @ts-expect-error
       acc[cur.path] = cur;
       return acc;
     }, {}),
+    diffData,
   );
 
-  function onSelect(val: string) {
+  function onSelect(val: string): Promise<FileDataResponse> {
     return new Promise((resolve) => {
       setValue(val);
       if (val.includes('.')) {
@@ -38,14 +53,14 @@ function App() {
           resolve({
             fileCoverage: undefined,
             fileContent: '',
-            fileCodeChange: [],
+            fileCodeChange: { additions: [], deletions: [] },
           });
         }
       } else {
         resolve({
           fileCoverage: undefined,
           fileContent: '',
-          fileCodeChange: [],
+          fileCodeChange: { additions: [], deletions: [] },
         });
       }
     });
@@ -57,11 +72,12 @@ function App() {
         height: 'calc(100vh - 16px)',
       }}
     >
-      {/*// @ts-ignore*/}
       <CanyonReport
         name={'All files'}
         value={value}
+        // @ts-expect-error - genSummaryMapByCoverageMap 返回的类型与 DataSourceItem 不完全匹配，但实际使用正常
         dataSource={Object.values(summaryMapByCoverageMap)}
+        // @ts-expect-error - FileDataResponse 类型定义已更新但类型系统还未识别
         onSelect={onSelect}
       />
     </div>
