@@ -9,7 +9,10 @@ declare global {
       files: Array<{
         path: string;
         source: string;
-        [key: string]: string;
+        diff: {
+          additions: number[];
+          deletions: number[];
+        }
       }>;
       instrumentCwd: string;
     };
@@ -30,11 +33,15 @@ function App() {
     };
   });
 
-  const dddd = genSummaryMapByCoverageMap(
+  const summaryMapByCoverageMap = genSummaryMapByCoverageMap(
     _dataSource.reduce((acc, cur) => {
       acc[cur.path] = cur;
       return acc;
     }, {}),
+    [{
+      path: 'packages/istanbul-lib-source-maps/lib/map-store.js',
+      additions:[1,10,20,30,50,60,70,80,90,100,110,120,130,140,150,160,170,180],
+    }]
   );
 
   function onSelect(val: string): Promise<any> {
@@ -45,7 +52,7 @@ function App() {
         resolve({
           fileCoverage: file,
           fileContent: file.source,
-          fileCodeChange: [],
+          fileCodeChange: file.diff,
         });
       } else {
         resolve({
@@ -66,7 +73,7 @@ function App() {
       <CanyonReport
         name={'All files'}
         value={value}
-        dataSource={Object.values(dddd)}
+        dataSource={Object.values(summaryMapByCoverageMap)}
         onSelect={onSelect}
       />
     </div>
