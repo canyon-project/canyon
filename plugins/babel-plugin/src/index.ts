@@ -4,6 +4,7 @@ import type * as t from '@babel/types';
 import { detectCIConfig } from './helpers/detect-ci-config';
 import type { CanyonBabelPluginConfig } from './types';
 import { visitorProgramExit } from './visitor-program-exit';
+import * as path from 'node:path';
 
 /**
  * 默认配置对象
@@ -14,6 +15,7 @@ const defaultConfig: Required<CanyonBabelPluginConfig> = {
   provider: '',
   buildTarget: '',
   ci: false,
+  instrumentCwd: process.cwd(),
 };
 
 /**
@@ -37,6 +39,7 @@ function mergeConfig(
     buildTarget:
       config?.buildTarget ?? ciConfig.buildTarget ?? defaultConfig.buildTarget,
     ci: config?.ci ?? ciConfig.ci ?? defaultConfig.ci,
+    instrumentCwd: config?.instrumentCwd ?? defaultConfig.instrumentCwd,
     // buildProvider:
     //   config?.buildProvider ??
     //   ciConfig.buildProvider ??

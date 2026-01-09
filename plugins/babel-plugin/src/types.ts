@@ -12,4 +12,6 @@ export interface CanyonBabelPluginConfig {
   buildTarget?: string;
   /** 是否为 CI 环境 */
   ci?: boolean;
+  /** 插桩工作目录，默认为当前路径 */
+  instrumentCwd?: string;
 }

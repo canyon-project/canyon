@@ -1,4 +1,3 @@
-import * as console from 'node:console';
 import { createHash } from 'node:crypto';
 import stringify from 'json-stable-stringify';
 import type { CanyonBabelPluginConfig } from '../types';
@@ -13,16 +12,15 @@ import type { CanyonBabelPluginConfig } from '../types';
 export function generateBuildHash(
   config: Required<CanyonBabelPluginConfig>,
 ): string {
-  // buildHash 只包含这四个核心字段：
-  // provider + repoID + sha + buildTarget
+  // buildHash 包含这些核心字段：
+  // provider + repoID + sha + buildTarget + instrumentCwd
   const buildHashFields: Record<string, string> = {
     provider: config.provider || '',
     repoID: config.repoID || '',
     sha: config.sha || '',
     buildTarget: config.buildTarget || '',
+    instrumentCwd: config.instrumentCwd || '',
   };
-
-  console.log(buildHashFields, 'buildHashFields');
 
   // 使用 json-stable-stringify 确保键顺序稳定，与后端保持一致
   const hash = createHash('sha1')

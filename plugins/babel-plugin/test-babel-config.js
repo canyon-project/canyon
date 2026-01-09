@@ -2,7 +2,7 @@ module.exports = {
   plugins: [
     'istanbul',
     [
-      './lib',
+      './dist',
       {
         repoID: '9050', //buildHash
         sha: 'xxxxx', //buildHash
