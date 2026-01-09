@@ -52,9 +52,11 @@ function App() {
   }
 
   return (
-    <div style={{
-      height:'calc(100vh - 16px)',
-    }}>
+    <div
+      style={{
+        height: 'calc(100vh - 16px)',
+      }}
+    >
       {/*// @ts-ignore*/}
       <CanyonReport
         name={'All files'}

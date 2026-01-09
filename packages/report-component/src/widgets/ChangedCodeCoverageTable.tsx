@@ -35,11 +35,7 @@ const ChangedCodeCoverageTable = ({
 
   // 计算与变更行相关的语句
   const relatedStatements = useMemo<RelatedStatement[]>(() => {
-    if (
-      addLines.length === 0 ||
-      !coverage.s ||
-      !coverage.statementMap
-    ) {
+    if (addLines.length === 0 || !coverage.s || !coverage.statementMap) {
       return [];
     }
 
@@ -144,27 +140,27 @@ const ChangedCodeCoverageTable = ({
   ];
 
   return (
-    <div className="canyon-changed-code-coverage-table">
+    <div className='canyon-changed-code-coverage-table'>
       <button
-        className="canyon-changed-code-coverage-toggle"
+        className='canyon-changed-code-coverage-toggle'
         onClick={() => setIsOpen(!isOpen)}
-        type="button"
+        type='button'
       >
-        <span className="canyon-changed-code-coverage-icon">📊</span>
+        <span className='canyon-changed-code-coverage-icon'>📊</span>
         <span>
           Changed Code Coverage: {coverageStats.coveragePercent}% (
           {coverageStats.coveredCount}/{coverageStats.totalCount})
         </span>
-        <span className="canyon-changed-code-coverage-arrow">
+        <span className='canyon-changed-code-coverage-arrow'>
           {isOpen ? '▲' : '▼'}
         </span>
       </button>
       <div
-        className="canyon-changed-code-coverage-content"
+        className='canyon-changed-code-coverage-content'
         style={{ maxHeight: isOpen ? '350px' : '0' }}
       >
-        <div className="canyon-changed-code-coverage-table-wrapper">
-          <div className="canyon-changed-code-coverage-table-title">
+        <div className='canyon-changed-code-coverage-table-wrapper'>
+          <div className='canyon-changed-code-coverage-table-title'>
             Changed Code Statements ({coverageStats.totalCount}) - Coverage:{' '}
             {coverageStats.coveragePercent}% ({coverageStats.coveredCount}/
             {coverageStats.totalCount})
@@ -180,7 +176,7 @@ const ChangedCodeCoverageTable = ({
               dataSource={relatedStatements}
               columns={tableColumns}
               pagination={false}
-              size="small"
+              size='small'
               bordered
             />
           </ConfigProvider>

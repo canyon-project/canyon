@@ -12,7 +12,7 @@ declare global {
         diff: {
           additions: number[];
           deletions: number[];
-        }
+        };
       }>;
       instrumentCwd: string;
     };
@@ -38,10 +38,15 @@ function App() {
       acc[cur.path] = cur;
       return acc;
     }, {}),
-    [{
-      path: 'packages/istanbul-lib-source-maps/lib/map-store.js',
-      additions:[1,10,20,30,50,60,70,80,90,100,110,120,130,140,150,160,170,180],
-    }]
+    [
+      {
+        path: 'packages/istanbul-lib-source-maps/lib/map-store.js',
+        additions: [
+          1, 10, 20, 30, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160,
+          170, 180,
+        ],
+      },
+    ],
   );
 
   function onSelect(val: string): Promise<any> {

@@ -58,7 +58,9 @@ class CoverageReport {
     }
 
     // 尝试规范化路径后匹配
-    const normalizedCoveragePath = path.normalize(coveragePath).replace(/\\/g, '/');
+    const normalizedCoveragePath = path
+      .normalize(coveragePath)
+      .replace(/\\/g, '/');
     for (const [diffPath, diffData] of Object.entries(diffMap)) {
       const normalizedDiffPath = path.normalize(diffPath).replace(/\\/g, '/');
 
@@ -68,8 +70,10 @@ class CoverageReport {
       }
 
       // 文件名匹配（处理路径前缀不同的情况）
-      if (normalizedCoveragePath.endsWith(normalizedDiffPath) ||
-          normalizedDiffPath.endsWith(normalizedCoveragePath)) {
+      if (
+        normalizedCoveragePath.endsWith(normalizedDiffPath) ||
+        normalizedDiffPath.endsWith(normalizedCoveragePath)
+      ) {
         return diffData;
       }
 
@@ -102,7 +106,9 @@ class CoverageReport {
       const fileDiff = this.matchFileDiff(filePath, diffMap) || {};
       const addLines = fileDiff.additions || [];
       const delLines = fileDiff.deletions || [];
-      const changedLines = [...new Set([...addLines, ...delLines])].sort((a, b) => a - b);
+      const changedLines = [...new Set([...addLines, ...delLines])].sort(
+        (a, b) => a - b,
+      );
 
       // 计算变更覆盖率
       const changedCoverage = this.calculateChangedCoverage(fileData, addLines);
@@ -181,7 +187,12 @@ class CoverageReport {
           additions,
           deletions,
         };
-        debug('File %s: %d additions, %d deletions', filePath, additions.length, deletions.length);
+        debug(
+          'File %s: %d additions, %d deletions',
+          filePath,
+          additions.length,
+          deletions.length,
+        );
       }
     });
 
