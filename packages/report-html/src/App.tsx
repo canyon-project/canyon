@@ -23,7 +23,10 @@ function App() {
 
   // 提取有 diff 数据的文件信息
   const diffData = _dataSource
-    .filter((item) => item.diff && item.diff.additions && item.diff.additions.length > 0)
+    .filter(
+      (item) =>
+        item.diff && item.diff.additions && item.diff.additions.length > 0,
+    )
     .map((item) => ({
       path: item.path,
       additions: item.diff!.additions,
