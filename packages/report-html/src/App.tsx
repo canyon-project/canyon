@@ -82,6 +82,7 @@ function App() {
         dataSource={Object.values(summaryMapByCoverageMap)}
         // @ts-expect-error - FileDataResponse 类型定义已更新但类型系统还未识别
         onSelect={onSelect}
+        defaultOnlyChange={true}
       />
     </div>
   );
