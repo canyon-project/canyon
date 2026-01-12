@@ -18,6 +18,9 @@ export const CanyonReport: FC<CanyonReportProps> = ({
   name,
   dataSource,
   onSelect,
+  defaultOnlyChange = false,
+  onlyChange: controlledOnlyChange,
+  onChangeOnlyChange: controlledOnChangeOnlyChange,
 }) => {
   // 内部状态
   const [_isLoading, _setIsLoading] = useState<boolean>(false);
@@ -34,7 +37,16 @@ export const CanyonReport: FC<CanyonReportProps> = ({
   });
   const [fileContent, setFileContent] = useState<string>('');
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
-  const [onlyChange, setOnlyChange] = useState(Boolean(false));
+  
+  // 判断是否为受控模式
+  const isControlled = controlledOnlyChange !== undefined && controlledOnChangeOnlyChange !== undefined;
+  
+  // 内部状态（非受控模式使用）
+  const [internalOnlyChange, setInternalOnlyChange] = useState(defaultOnlyChange);
+  
+  // 使用受控或非受控的值
+  const onlyChange = isControlled ? controlledOnlyChange : internalOnlyChange;
+  
   const rootClassName = useMemo(
     () =>
       `report-scope-${Math.random().toString(36).slice(2, 9)} canyonjs-report-html`,
@@ -44,7 +56,13 @@ export const CanyonReport: FC<CanyonReportProps> = ({
   );
 
   function onChangeOnlyChange(v: boolean) {
-    setOnlyChange(v);
+    if (isControlled && controlledOnChangeOnlyChange) {
+      // 受控模式：调用外部回调
+      controlledOnChangeOnlyChange(v);
+    } else {
+      // 非受控模式：更新内部状态
+      setInternalOnlyChange(v);
+    }
   }
   const newOnSelect = useMemo(() => {
     return async (val: string) => {

@@ -80,6 +80,7 @@ function App() {
         value={value}
         dataSource={Object.values(summaryMapByCoverageMap)}
         onSelect={onSelect}
+        defaultOnlyChange={true}
       />
     </div>
   );
