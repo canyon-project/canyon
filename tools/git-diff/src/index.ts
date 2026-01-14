@@ -146,6 +146,21 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
     }
   } else if (platform === 'github') {
     // GitHub Actions 逻辑
+    // 先打印近5次 commit sha
+    try {
+      const recentCommits = execSync('git log -5 --pretty=format:"%H"', {
+        encoding: 'utf-8',
+        stdio: 'pipe',
+      });
+      const commitList = recentCommits.trim().split('\n').filter(Boolean);
+      console.log('Recent 5 commits:');
+      commitList.forEach((sha: string, index: number) => {
+        console.log(`  ${index + 1}. ${sha}`);
+      });
+    } catch (error) {
+      console.warn('Warning: Failed to get recent commits', error);
+    }
+
     if (env.GITHUB_EVENT_NAME === 'pull_request') {
       console.log('GitHub PR diff');
 
