@@ -1,4 +1,6 @@
 const { ReportBase } = require('istanbul-lib-report');
+const fs = require('node:fs');
+const path = require('node:path');
 const debug = require('debug')('canyon:report-html');
 const CR = require('./lib');
 module.exports = class CustomReporter extends ReportBase {
@@ -34,6 +36,23 @@ module.exports = class CustomReporter extends ReportBase {
     );
     debug('Target directory: %s', context.dir);
     debug('Coverage files: %o', Object.keys(this.coverage));
+
+    // 如果 reportConfig.diff 不存在，尝试从当前工作目录读取 diff.txt
+    if (!this.reportConfig.diff) {
+      const diffFilePath = path.resolve(process.cwd(), 'diff.txt');
+      if (fs.existsSync(diffFilePath)) {
+        debug('Reading diff from file: %s', diffFilePath);
+        try {
+          const diffContent = fs.readFileSync(diffFilePath, 'utf-8');
+          this.reportConfig.diff = diffContent;
+          debug('Successfully read diff file, size: %d bytes', diffContent.length);
+        } catch (error) {
+          debug('Failed to read diff.txt file: %o', error);
+        }
+      } else {
+        debug('diff.txt file not found at: %s', diffFilePath);
+      }
+    }
 
     const cr = CR();
     const result = await cr.generate({
