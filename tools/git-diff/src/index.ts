@@ -105,6 +105,74 @@ function executeGitDiff(command: string): string {
         return '';
       }
 
+      // 退出码 128 通常表示 git 错误，如 "bad object"
+      // 尝试 fetch 缺失的 commit 后重试
+      if (execError.status === 128) {
+        const stderr = execError.stderr;
+        const errorMessage =
+          typeof stderr === 'string'
+            ? stderr
+            : Buffer.isBuffer(stderr)
+              ? stderr.toString('utf-8')
+              : 'Unknown git error';
+
+        // 检查是否是 "bad object" 错误
+        if (errorMessage.includes('bad object')) {
+          // 从命令中提取 commit SHA
+          const shaMatches = command.matchAll(/\b([a-f0-9]{40})\b/g);
+          const shas = Array.from(shaMatches, (m) => m[1]);
+
+          // 尝试 fetch 所有涉及的 commit
+          for (const sha of shas) {
+            try {
+              console.log(`Attempting to fetch commit ${sha}...`);
+              execSync(`git fetch origin ${sha}`, {
+                encoding: 'utf-8',
+                stdio: 'inherit',
+              });
+            } catch (fetchError) {
+              console.warn(`Warning: Failed to fetch commit ${sha}`, fetchError);
+            }
+          }
+
+          // 重试 git diff
+          try {
+            const retryOutput = execSync(command, {
+              encoding: 'utf-8',
+              stdio: ['pipe', 'pipe', 'pipe'],
+              maxBuffer: 10 * 1024 * 1024,
+            });
+            return retryOutput;
+          } catch (retryError: unknown) {
+            // 如果重试仍然失败，检查是否是正常的差异（退出码 1）
+            if (
+              retryError &&
+              typeof retryError === 'object' &&
+              'status' in retryError
+            ) {
+              const retryExecError = retryError as {
+                status?: number;
+                stdout?: string | Buffer;
+              };
+              if (retryExecError.status === 1) {
+                const stdout = retryExecError.stdout;
+                if (typeof stdout === 'string') {
+                  return stdout;
+                }
+                if (Buffer.isBuffer(stdout)) {
+                  return stdout.toString('utf-8');
+                }
+              }
+            }
+            // 如果重试后仍然失败，抛出原始错误
+            throw error;
+          }
+        }
+
+        // 其他 git 错误直接抛出
+        throw error;
+      }
+
       // 其他错误需要抛出
       throw error;
     }
@@ -215,6 +283,24 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
       const beforeSha = getGitHubEventBefore();
 
       if (beforeSha && beforeSha !== '0000000000000000000000000000000000000000') {
+        // 先 fetch before SHA 和 current SHA
+        try {
+          execSync(`git fetch origin ${beforeSha}`, {
+            encoding: 'utf-8',
+            stdio: 'inherit',
+          });
+        } catch (error) {
+          console.warn(`Warning: Failed to fetch origin ${beforeSha}`, error);
+        }
+        try {
+          execSync(`git fetch origin ${currentSha}`, {
+            encoding: 'utf-8',
+            stdio: 'inherit',
+          });
+        } catch (error) {
+          console.warn(`Warning: Failed to fetch origin ${currentSha}`, error);
+        }
+
         // 使用 github.event.before 和 github.sha
         command = `git diff --unified=0 --no-color ${beforeSha} ${currentSha}`;
         console.log('Command:', command);
