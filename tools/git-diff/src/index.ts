@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 /**
  * CI 环境变量接口
@@ -340,9 +341,26 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
 }
 
 /**
+ * 获取并打印版本信息
+ */
+function printVersion(): void {
+  try {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = dirname(__filename);
+    const packageJsonPath = resolve(__dirname, '../package.json');
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+    console.log(`${packageJson.name} v${packageJson.version}`);
+  } catch (error) {
+    console.warn('Warning: Failed to read version from package.json', error);
+  }
+}
+
+/**
  * CLI 入口
  */
 export async function main(): Promise<void> {
+  printVersion();
+  
   try {
     const args = process.argv.slice(2);
     const outputIndex = args.indexOf('--output');
