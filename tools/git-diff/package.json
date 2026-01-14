@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/git-diff",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "type": "module",
   "description": "Generate git diff file for GitLab CI pipelines",
   "author": "Travis Zhang<https://github.com/travzhang>",
