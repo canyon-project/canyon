@@ -196,6 +196,7 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
       try {
         diffContent = executeGitDiff(command);
       } catch (error) {
+        console.log('Error:', error);
         // 如果 SHA~1 不存在（比如第一次提交），返回空内容
         console.warn(
           'Warning: Previous commit does not exist, using empty diff',
