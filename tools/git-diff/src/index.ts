@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 /**
@@ -49,6 +49,27 @@ function detectCIPlatform(env: CIEnv): 'gitlab' | 'github' | 'unknown' {
     return 'github';
   }
   return 'unknown';
+}
+
+/**
+ * 从 GitHub Actions event 文件中获取 before SHA
+ * @returns before SHA，如果不存在则返回 null
+ */
+function getGitHubEventBefore(): string | null {
+  const eventPath = process.env.GITHUB_EVENT_PATH;
+  if (!eventPath) {
+    return null;
+  }
+
+  try {
+    const eventContent = readFileSync(eventPath, 'utf-8');
+    const event = JSON.parse(eventContent);
+    // push 事件中有 before 字段
+    return event.before || null;
+  } catch (error) {
+    console.warn('Warning: Failed to read GITHUB_EVENT_PATH', error);
+    return null;
+  }
 }
 
 /**
@@ -189,19 +210,29 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
     } else {
       console.log('GitHub Commit diff');
 
-      // 对于 push 事件，比较 HEAD~1 和 HEAD
+      // 对于 push 事件，使用 github.event.before 和 github.sha
       const currentSha = env.GITHUB_SHA || 'HEAD';
-      command = `git diff --unified=0 --no-color ${currentSha}~1 ${currentSha}`;
-      console.log('Command:', command);
-      try {
+      const beforeSha = getGitHubEventBefore();
+
+      if (beforeSha && beforeSha !== '0000000000000000000000000000000000000000') {
+        // 使用 github.event.before 和 github.sha
+        command = `git diff --unified=0 --no-color ${beforeSha} ${currentSha}`;
+        console.log('Command:', command);
         diffContent = executeGitDiff(command);
-      } catch (error) {
-        console.log('Error:', error);
-        // 如果 SHA~1 不存在（比如第一次提交），返回空内容
-        console.warn(
-          'Warning: Previous commit does not exist, using empty diff',
-        );
-        diffContent = '';
+      } else {
+        // fallback: 如果 before 不存在或是空 commit，尝试使用 SHA~1
+        console.warn('Warning: github.event.before not available, falling back to SHA~1');
+        command = `git diff --unified=0 --no-color ${currentSha}~1 ${currentSha}`;
+        console.log('Command:', command);
+        try {
+          diffContent = executeGitDiff(command);
+        } catch (error) {
+          // 如果 SHA~1 也不存在（比如第一次提交），返回空内容
+          console.warn(
+            'Warning: Previous commit does not exist, using empty diff',
+          );
+          diffContent = '';
+        }
       }
     }
   } else {
