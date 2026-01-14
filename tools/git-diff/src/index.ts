@@ -192,7 +192,7 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
       // 对于 push 事件，比较 HEAD~1 和 HEAD
       const currentSha = env.GITHUB_SHA || 'HEAD';
       command = `git diff --unified=0 --no-color ${currentSha}~1 ${currentSha}`;
-
+      console.log('Command:', command);
       try {
         diffContent = executeGitDiff(command);
       } catch (error) {
