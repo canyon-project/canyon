@@ -60,7 +60,7 @@ const CoverageDetail = ({
   })();
 
   useEffect(() => {
-    if (ref.current) {
+    if (ref.current && ref.current.innerHTML === '') {
       const dom = ref.current;
       const options = {
         value: source,

@@ -45,7 +45,10 @@ module.exports = class CustomReporter extends ReportBase {
         try {
           const diffContent = fs.readFileSync(diffFilePath, 'utf-8');
           this.reportConfig.diff = diffContent;
-          debug('Successfully read diff file, size: %d bytes', diffContent.length);
+          debug(
+            'Successfully read diff file, size: %d bytes',
+            diffContent.length,
+          );
         } catch (error) {
           debug('Failed to read diff.txt file: %o', error);
         }

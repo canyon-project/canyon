@@ -37,16 +37,19 @@ export const CanyonReport: FC<CanyonReportProps> = ({
   });
   const [fileContent, setFileContent] = useState<string>('');
   const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
-  
+
   // 判断是否为受控模式
-  const isControlled = controlledOnlyChange !== undefined && controlledOnChangeOnlyChange !== undefined;
-  
+  const isControlled =
+    controlledOnlyChange !== undefined &&
+    controlledOnChangeOnlyChange !== undefined;
+
   // 内部状态（非受控模式使用）
-  const [internalOnlyChange, setInternalOnlyChange] = useState(defaultOnlyChange);
-  
+  const [internalOnlyChange, setInternalOnlyChange] =
+    useState(defaultOnlyChange);
+
   // 使用受控或非受控的值
   const onlyChange = isControlled ? controlledOnlyChange : internalOnlyChange;
-  
+
   const rootClassName = useMemo(
     () =>
       `report-scope-${Math.random().toString(36).slice(2, 9)} canyonjs-report-html`,

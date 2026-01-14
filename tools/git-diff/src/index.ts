@@ -71,7 +71,7 @@ function executeGitDiff(command: string): string {
         stdout?: string | Buffer;
         stderr?: string | Buffer;
       };
-      
+
       // 退出码 1 表示有差异，这是正常的，返回 stdout
       if (execError.status === 1) {
         const stdout = execError.stdout;
@@ -83,7 +83,7 @@ function executeGitDiff(command: string): string {
         }
         return '';
       }
-      
+
       // 其他错误需要抛出
       throw error;
     }
@@ -107,7 +107,7 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
     // GitLab CI 逻辑
     if (env.CI_PIPELINE_SOURCE === 'merge_request_event') {
       console.log('GitLab MR diff');
-      
+
       if (!env.CI_MERGE_REQUEST_DIFF_BASE_SHA) {
         throw new Error(
           'CI_MERGE_REQUEST_DIFF_BASE_SHA is not set for merge request event',
@@ -116,7 +116,7 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
 
       // 获取 base SHA
       const baseSha = env.CI_MERGE_REQUEST_DIFF_BASE_SHA;
-      
+
       // 先 fetch base SHA
       try {
         execSync(`git fetch origin ${baseSha}`, {
@@ -132,10 +132,10 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
       diffContent = executeGitDiff(command);
     } else {
       console.log('GitLab Commit diff');
-      
+
       // 对于 commit 事件，比较 HEAD~1 和 HEAD
       command = 'git diff --unified=0 --no-color HEAD~1 HEAD';
-      
+
       try {
         diffContent = executeGitDiff(command);
       } catch (error) {
@@ -148,21 +148,22 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
     // GitHub Actions 逻辑
     if (env.GITHUB_EVENT_NAME === 'pull_request') {
       console.log('GitHub PR diff');
-      
+
       if (!env.GITHUB_BASE_REF) {
-        throw new Error(
-          'GITHUB_BASE_REF is not set for pull request event',
-        );
+        throw new Error('GITHUB_BASE_REF is not set for pull request event');
       }
 
       const baseRef = env.GITHUB_BASE_REF;
-      
+
       // 先 fetch 基础分支和所有引用
       try {
-        execSync('git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*', {
-          encoding: 'utf-8',
-          stdio: 'inherit',
-        });
+        execSync(
+          'git fetch --no-tags --prune --depth=1 origin +refs/heads/*:refs/remotes/origin/*',
+          {
+            encoding: 'utf-8',
+            stdio: 'inherit',
+          },
+        );
       } catch (error) {
         console.warn(`Warning: Failed to fetch origin branches`, error);
       }
@@ -172,16 +173,18 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
       diffContent = executeGitDiff(command);
     } else {
       console.log('GitHub Commit diff');
-      
+
       // 对于 push 事件，比较 HEAD~1 和 HEAD
       const currentSha = env.GITHUB_SHA || 'HEAD';
       command = `git diff --unified=0 --no-color ${currentSha}~1 ${currentSha}`;
-      
+
       try {
         diffContent = executeGitDiff(command);
       } catch (error) {
         // 如果 SHA~1 不存在（比如第一次提交），返回空内容
-        console.warn('Warning: Previous commit does not exist, using empty diff');
+        console.warn(
+          'Warning: Previous commit does not exist, using empty diff',
+        );
         diffContent = '';
       }
     }
@@ -189,7 +192,7 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
     // 未知平台，使用默认逻辑
     console.log('Unknown CI platform, using default commit diff');
     command = 'git diff --unified=0 --no-color HEAD~1 HEAD';
-    
+
     try {
       diffContent = executeGitDiff(command);
     } catch (error) {
