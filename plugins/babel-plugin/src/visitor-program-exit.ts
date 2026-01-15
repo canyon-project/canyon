@@ -5,6 +5,8 @@ import type { types as BabelTypes, ConfigAPI, NodePath } from '@babel/core';
 import generate from '@babel/generator';
 import { generateBuildHash } from './helpers/generate-build-hash';
 import { generateInitialCoverage } from './helpers/generate-initial-coverage';
+import { computeHash } from './helpers/hash';
+import { enrichStatementMapWithHash } from './helpers/statement-map-hash';
 import type { CanyonBabelPluginConfig } from './types';
 
 /**
@@ -38,6 +40,43 @@ export function visitorProgramExit(
 ): VisitorProgramExitResult {
   const sourceCode = generate(programPath.node).code;
   const initialCoverageData = generateInitialCoverage(sourceCode, config);
+
+  // 获取原始源码（用于 hash 计算）
+  // 优先使用 hub.file.code，如果没有则使用生成的代码
+  const hub = programPath.hub as { file?: { code?: string } } | undefined;
+  const originalCode = hub?.file?.code ?? sourceCode;
+
+  // 这部分代码未经过大规模测试验证，谨防异常错误
+  // 基于 statementMap 的位置信息，提取源码片段并写入 contentHash 字段
+  try {
+    if (
+      initialCoverageData &&
+      initialCoverageData.statementMap &&
+      typeof initialCoverageData.statementMap === 'object'
+    ) {
+      enrichStatementMapWithHash(
+        initialCoverageData.statementMap as Parameters<
+          typeof enrichStatementMapWithHash
+        >[0],
+        originalCode,
+      );
+    }
+  } catch (_error) {
+    // 忽略提取失败，保持现有行为
+  }
+
+  // 基于文件内容计算 contentHash，并写入内存对象
+  try {
+    if (
+      initialCoverageData &&
+      typeof initialCoverageData === 'object'
+    ) {
+      const contentHash = computeHash(originalCode);
+      initialCoverageData.contentHash = contentHash;
+    }
+  } catch (_error) {
+    // 忽略
+  }
 
   // 尝试读取 source map 文件（如果 inputSourceMap 不存在）
   if (initialCoverageData && !initialCoverageData.inputSourceMap) {
