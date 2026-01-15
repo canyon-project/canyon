@@ -13,7 +13,6 @@
     "generate": "prisma generate && prisma generate --schema prisma/schema-sqlite.prisma"
   },
   "dependencies": {
-    "@inquirer/prompts": "8.1.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
@@ -39,7 +38,7 @@
     "canyon-data": "latest"
   },
   "devDependencies": {
-    "@nestjs/cli": "^11.0.0",
+    "@nestjs/cli": "11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/express": "^5.0.0",
