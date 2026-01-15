@@ -198,7 +198,7 @@ export class CoverageMapInitService {
       };
 
       const coverageMapHash = generateObjectSignature(chunkMap);
-      const fileContentHash = entry.fileContentHash || '';
+      const fileContentHash = entry.contentHash || '';
 
       const originalEntry: any = Object.values(originalCoverage).find(
         (iiii: any) => iiii.oldPath === filePath,
