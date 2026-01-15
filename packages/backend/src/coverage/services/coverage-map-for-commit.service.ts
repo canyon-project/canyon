@@ -76,8 +76,6 @@ export class CoverageMapForCommitService {
     repoID,
     sha,
     buildTarget,
-    reportProvider,
-    reportID,
     filePath,
     scene,
   }: CoverageQueryParamsTypes) {

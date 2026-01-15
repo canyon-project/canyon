@@ -5,6 +5,7 @@ import { CommitsQueryDto } from './dto/commits.dto';
 import { MapQueryDto } from './dto/map.dto';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
 import { CommitsService } from './services/commits.service';
+import { CoverageMapForAnalysisService } from './services/coverage-map-for-analysis.service';
 import { CoverageMapForCommitService } from './services/coverage-map-for-commit.service';
 
 // @Public()
@@ -12,6 +13,7 @@ import { CoverageMapForCommitService } from './services/coverage-map-for-commit.
 export class CoverageController {
   constructor(
     private readonly coverageMapForCommitService: CoverageMapForCommitService,
+    private readonly coverageMapForAnalysisService: CoverageMapForAnalysisService,
     private readonly commitsService: CommitsService,
   ) {}
 
@@ -25,8 +27,6 @@ export class CoverageController {
           repoID: summaryMapQueryDto.repoID,
           sha: summaryMapQueryDto.subjectID,
           buildTarget: summaryMapQueryDto.buildTarget || '',
-          reportProvider: summaryMapQueryDto.reportProvider,
-          reportID: summaryMapQueryDto.reportID,
           filePath: summaryMapQueryDto.filePath,
           scene: summaryMapQueryDto.scene, // 新增字段，起筛选作用
         });
@@ -48,10 +48,16 @@ export class CoverageController {
           repoID: q.repoID,
           sha: q.subjectID,
           buildTarget: q.buildTarget || '',
-          reportProvider: q.reportProvider,
-          reportID: q.reportID,
           filePath: q.filePath,
           scene: q.scene, // 新增字段，起筛选作用
+        });
+      case 'analysis':
+        return this.coverageMapForAnalysisService.invoke({
+          provider: q.provider,
+          repoID: q.repoID,
+          analysisID: q.subjectID,
+          buildTarget: q.buildTarget || '',
+          filePath: q.filePath,
         });
       default:
         throw new BadRequestException('invalid subject');
