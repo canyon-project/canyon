@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { resolve, dirname } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 /**
@@ -132,7 +132,10 @@ function executeGitDiff(command: string): string {
                 stdio: 'inherit',
               });
             } catch (fetchError) {
-              console.warn(`Warning: Failed to fetch commit ${sha}`, fetchError);
+              console.warn(
+                `Warning: Failed to fetch commit ${sha}`,
+                fetchError,
+              );
             }
           }
 
@@ -283,7 +286,10 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
       const currentSha = env.GITHUB_SHA || 'HEAD';
       const beforeSha = getGitHubEventBefore();
 
-      if (beforeSha && beforeSha !== '0000000000000000000000000000000000000000') {
+      if (
+        beforeSha &&
+        beforeSha !== '0000000000000000000000000000000000000000'
+      ) {
         // 先 fetch before SHA 和 current SHA
         try {
           execSync(`git fetch origin ${beforeSha}`, {
@@ -308,7 +314,9 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
         diffContent = executeGitDiff(command);
       } else {
         // fallback: 如果 before 不存在或是空 commit，尝试使用 SHA~1
-        console.warn('Warning: github.event.before not available, falling back to SHA~1');
+        console.warn(
+          'Warning: github.event.before not available, falling back to SHA~1',
+        );
         command = `git diff --unified=0 --no-color ${currentSha}~1 ${currentSha}`;
         console.log('Command:', command);
         try {
@@ -360,7 +368,7 @@ function printVersion(): void {
  */
 export async function main(): Promise<void> {
   printVersion();
-  
+
   try {
     const args = process.argv.slice(2);
     const outputIndex = args.indexOf('--output');
