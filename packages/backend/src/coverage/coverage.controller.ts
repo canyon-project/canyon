@@ -74,6 +74,11 @@ export class CoverageController {
           analysisID: q.subjectID,
           buildTarget: q.buildTarget || '',
           filePath: q.filePath,
+        }).then((result)=>{
+          if (result.success && result.coverage) {
+            return result.coverage;
+          }
+          throw new BadRequestException('Failed to get analysis coverage data');
         });
       default:
         throw new BadRequestException('invalid subject');
