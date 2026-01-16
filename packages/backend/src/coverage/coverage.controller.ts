@@ -33,6 +33,22 @@ export class CoverageController {
         const summary = genSummaryMapByCoverageMap(map, []);
         return summary;
       }
+      case 'analysis': {
+        const result = await this.coverageMapForAnalysisService.invoke({
+          provider: summaryMapQueryDto.provider,
+          repoID: summaryMapQueryDto.repoID,
+          analysisID: summaryMapQueryDto.subjectID,
+          buildTarget: summaryMapQueryDto.buildTarget || '',
+          filePath: summaryMapQueryDto.filePath,
+        });
+        // analysis service 返回的是 { success, baseCommit, comparisonResults, coverage }
+        // 我们需要使用 coverage 字段来生成 summary
+        if (result.success && result.coverage) {
+          const summary = genSummaryMapByCoverageMap(result.coverage, []);
+          return summary;
+        }
+        throw new BadRequestException('Failed to get analysis coverage data');
+      }
       default:
         throw new BadRequestException('invalid subject');
     }

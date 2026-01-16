@@ -2,7 +2,7 @@ import { CanyonReport } from '@canyonjs/report-component';
 import { useRequest } from 'ahooks';
 import { Spin } from 'antd';
 import axios from 'axios';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { getDecode } from '@/helpers/getDecode.ts';
 
@@ -29,17 +29,15 @@ const CoverageReport = () => {
   const org = params.org as string;
   const repo = params.repo as string;
 
-  const subjectForQuery:
-    | 'commit'
-    | 'commits'
-    | 'analysis'
-    | 'analyses'
-    | 'multiple-commits' = (subject ?? 'commit') as
-    | 'commit'
-    | 'commits'
-    | 'analysis'
-    | 'analyses'
-    | 'multiple-commits';
+  // 将 subject 映射为后端接口需要的格式
+  // 'commits' -> 'commit', 'analyses' -> 'analysis', 'multiple-commits' -> 'commit'
+  const subjectForQuery = useMemo((): 'commit' | 'analysis' => {
+    if (subject === 'analysis' || subject === 'analyses') {
+      return 'analysis';
+    }
+    // 'commit', 'commits', 'multiple-commits' 都映射为 'commit'
+    return 'commit';
+  }, [subject]);
 
   // 获取 repoID
   const { data: repoData } = useRequest(
@@ -74,12 +72,13 @@ const CoverageReport = () => {
       }).then(({ data }) => data),
     {
       refreshDeps: [
-        subject,
+        subjectForQuery, // 使用映射后的 subject
         subjectID,
         buildTarget,
         reportID,
         reportProvider,
         repoID,
+        scene,
       ],
       ready: !!repoID, // 只有当 repoID 存在时才请求
     },
@@ -119,7 +118,15 @@ const CoverageReport = () => {
         if (subject === 'commit' || subject === 'commits') {
           sha = subjectID;
         } else if (subject === 'analysis' || subject === 'analyses') {
-          analysisNumber = subjectID;
+          // analysis 格式为 afterCommitSHA...nowCommitSHA
+          // 使用 nowCommitSHA (后面的部分) 作为 ref
+          const parts = subjectID.split('...');
+          if (parts.length === 2) {
+            sha = parts[1].trim();
+            analysisNumber = subjectID; // 保留完整的 analysisID 用于查询
+          } else {
+            analysisNumber = subjectID;
+          }
         } else if (subject === 'multiple-commits') {
           // multiple-commits 格式为 commit1...commit2，使用 to (commit2) 作为 ref
           const parts = subjectID.split('...');
@@ -163,12 +170,7 @@ const CoverageReport = () => {
         const fileCoverageParams: any = {
           provider,
           repoID,
-          subject:
-            subject === 'commits'
-              ? 'commit'
-              : subject === 'analyses'
-                ? 'analysis'
-                : subject,
+          subject: subjectForQuery, // 使用统一的 subject 映射
           subjectID,
           filePath: val,
         };
@@ -215,7 +217,7 @@ const CoverageReport = () => {
       }
     },
     [
-      subject,
+      subjectForQuery,
       repoID,
       subjectID,
       provider,
