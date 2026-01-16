@@ -255,17 +255,135 @@ export class CoverageMapForAnalysisService {
         // 比较 fileContentHash
         const fileContentHashEqual = nowShaFileCoverage.fileContentHash === otherFileCoverage.fileContentHash;
 
+        // 如果文件 contentHash 相同，直接可以合并
+        if (fileContentHashEqual) {
+          fileComparisons.push({
+            filePath,
+            status: 'fileContentHashEqual',
+            fileContentHash: nowShaFileCoverage.fileContentHash,
+            canMerge: true,
+          });
+          continue;
+        }
 
-        Object.entries(otherFileCoverage.statementMap).forEach((item:any)=>{
-          const statementId = item[0];
-          const otherStatement = item[1];
-          const nowStatement = nowShaFileCoverage.statementMap[statementId];
+        // 文件 contentHash 不同，需要深入到语句层，以 contentHash 为 key 进行比较
+        const nowShaStatementMap = nowShaFileCoverage.statementMap || {};
+        const otherStatementMap = otherFileCoverage.statementMap || {};
 
-          // console.log(otherStatement.contentHash===nowStatement.contentHash)
-        //   TODO 这里要改成用hash作为key比较，注意多个hash可能对应同一个statementId的情况，这种不要合并
-        //   restore貌似不需要了，因为只要有未转换的map就行了，只需要插入的时候获取一次实际路径就行，map只需要存原始的
+        // 构建 contentHash -> statementId[] 的映射
+        // nowSha 的映射：contentHash -> statementId[]
+        const nowShaHashToStatementIds = new Map<string, string[]>();
+        for (const [statementId, statement] of Object.entries(nowShaStatementMap)) {
+          const stmt = statement as any;
+          if (stmt && stmt.contentHash) {
+            if (!nowShaHashToStatementIds.has(stmt.contentHash)) {
+              nowShaHashToStatementIds.set(stmt.contentHash, []);
+            }
+            nowShaHashToStatementIds.get(stmt.contentHash)!.push(statementId);
+          }
+        }
 
-        })
+        // other 的映射：contentHash -> statementId[]
+        const otherHashToStatementIds = new Map<string, string[]>();
+        for (const [statementId, statement] of Object.entries(otherStatementMap)) {
+          const stmt = statement as any;
+          if (stmt && stmt.contentHash) {
+            if (!otherHashToStatementIds.has(stmt.contentHash)) {
+              otherHashToStatementIds.set(stmt.contentHash, []);
+            }
+            otherHashToStatementIds.get(stmt.contentHash)!.push(statementId);
+          }
+        }
+
+        // 找出所有唯一的 contentHash
+        const allContentHashes = new Set([
+          ...nowShaHashToStatementIds.keys(),
+          ...otherHashToStatementIds.keys(),
+        ]);
+
+        // 分析可以合并和不能合并的语句
+        const mergeableStatements: Array<{
+          contentHash: string;
+          nowShaStatementId: string;
+          otherStatementId: string;
+        }> = [];
+
+        const nonMergeableStatements: Array<{
+          contentHash: string;
+          reason: 'nowShaMultiple' | 'otherMultiple' | 'nowShaMissing' | 'otherMissing';
+          nowShaStatementIds?: string[];
+          otherStatementIds?: string[];
+        }> = [];
+
+        for (const contentHash of allContentHashes) {
+          const nowShaStmtIds = nowShaHashToStatementIds.get(contentHash) || [];
+          const otherStmtIds = otherHashToStatementIds.get(contentHash) || [];
+
+          // 如果 nowSha 中没有这个 contentHash
+          if (nowShaStmtIds.length === 0) {
+            nonMergeableStatements.push({
+              contentHash,
+              reason: 'nowShaMissing',
+              otherStatementIds: otherStmtIds,
+            });
+            continue;
+          }
+
+          // 如果 other 中没有这个 contentHash
+          if (otherStmtIds.length === 0) {
+            nonMergeableStatements.push({
+              contentHash,
+              reason: 'otherMissing',
+              nowShaStatementIds: nowShaStmtIds,
+            });
+            continue;
+          }
+
+          // 如果 nowSha 中同一个 contentHash 对应多个 statementId，不能合并
+          if (nowShaStmtIds.length > 1) {
+            nonMergeableStatements.push({
+              contentHash,
+              reason: 'nowShaMultiple',
+              nowShaStatementIds: nowShaStmtIds,
+              otherStatementIds: otherStmtIds,
+            });
+            continue;
+          }
+
+          // 如果 other 中同一个 contentHash 对应多个 statementId，不能合并
+          if (otherStmtIds.length > 1) {
+            nonMergeableStatements.push({
+              contentHash,
+              reason: 'otherMultiple',
+              nowShaStatementIds: nowShaStmtIds,
+              otherStatementIds: otherStmtIds,
+            });
+            continue;
+          }
+
+          // 两个版本中都只有一个 statementId，可以合并
+          mergeableStatements.push({
+            contentHash,
+            nowShaStatementId: nowShaStmtIds[0],
+            otherStatementId: otherStmtIds[0],
+          });
+        }
+
+        // 判断是否可以合并（至少有一个可以合并的语句）
+        const canMerge = mergeableStatements.length > 0;
+
+        fileComparisons.push({
+          filePath,
+          status: 'fileContentHashDifferent',
+          nowShaFileContentHash: nowShaFileCoverage.fileContentHash,
+          otherFileContentHash: otherFileCoverage.fileContentHash,
+          mergeableStatementsCount: mergeableStatements.length,
+          nonMergeableStatementsCount: nonMergeableStatements.length,
+          totalContentHashes: allContentHashes.size,
+          mergeableStatements: mergeableStatements.length > 0 ? mergeableStatements : undefined,
+          nonMergeableStatements: nonMergeableStatements.length > 0 ? nonMergeableStatements : undefined,
+          canMerge,
+        });
 
       }
 
