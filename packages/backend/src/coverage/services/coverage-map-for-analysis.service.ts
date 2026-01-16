@@ -134,9 +134,7 @@ export class CoverageMapForAnalysisService {
       const coverageMapRecord = nowShaCoverageMapIndex.get(coverageMapKey);
       if (!coverageMapRecord) continue;
 
-      const decodedCoverageMap = sourceMapRecord
-        ? decodeCompressedObject(coverageMapRecord.origin)
-        : decodeCompressedObject(coverageMapRecord.restore);
+      const decodedCoverageMap = decodeCompressedObject(coverageMapRecord.map)
 
       nowShaFileCoverageMap.set(rawFilePath, {
         path: rawFilePath,
@@ -229,9 +227,7 @@ export class CoverageMapForAnalysisService {
         const coverageMapRecord = coverageMapIndex.get(coverageMapKey);
         if (!coverageMapRecord) continue;
 
-        const decodedCoverageMap = sourceMapRecord
-          ? decodeCompressedObject(coverageMapRecord.origin)
-          : decodeCompressedObject(coverageMapRecord.restore);
+        const decodedCoverageMap = decodeCompressedObject(coverageMapRecord.map)
         fileCoverageMap.set(rawFilePath, {
           path: rawFilePath,
           fileContentHash: relation.fileContentHash,

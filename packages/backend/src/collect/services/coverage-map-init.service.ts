@@ -206,18 +206,19 @@ export class CoverageMapInitService {
 
       if (entry.inputSourceMap) {
         if (originalEntry) {
-          const originalChunkMap = {
-            statementMap: originalEntry.statementMap,
-            fnMap: originalEntry.fnMap,
-            branchMap: originalEntry.branchMap,
-          };
+          // const originalChunkMap = {
+          //   statementMap: originalEntry.statementMap,
+          //   fnMap: originalEntry.fnMap,
+          //   branchMap: originalEntry.branchMap,
+          // };
           const inputSourceMapCoverageMapHash = generateObjectSignature({
             ...chunkMap,
             inputSourceMap: 1,
           });
           return {
-            origin: chunkMap, // remap 后的数据作为 origin
-            restore: originalChunkMap, // 原来的数据作为 restore
+            map:chunkMap,
+            // origin: chunkMap, // remap 后的数据作为 origin
+            // restore: originalChunkMap, // 原来的数据作为 restore
             createdAt: new Date(),
             coverageMapHash: inputSourceMapCoverageMapHash,
             fileContentHash: fileContentHash,
@@ -229,8 +230,7 @@ export class CoverageMapInitService {
       }
       // 普通情况：没有 oldPath
       return {
-        origin: chunkMap,
-        restore: {},
+        map: chunkMap,
         createdAt: new Date(),
         coverageMapHash: coverageMapHash,
         fileContentHash: fileContentHash,
@@ -241,8 +241,7 @@ export class CoverageMapInitService {
 
     const coverMapEntities = mapItems.map((item) => ({
       hash: `${item.coverageMapHash}|${item.fileContentHash}`,
-      origin: encodeObjectToCompressedBuffer(item.origin),
-      restore: encodeObjectToCompressedBuffer(item.restore),
+      map: encodeObjectToCompressedBuffer(item.map),
       createdAt: item.createdAt,
     }));
 

@@ -84,8 +84,7 @@ model CoverageMapRelation {
 
 model CoverageMap {
   hash      String   @id
-  origin    Bytes
-  restore   Bytes
+  map       Bytes
   createdAt DateTime @map("created_at")
 
   @@map("canyon_next_coverage_map")

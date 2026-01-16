@@ -189,9 +189,7 @@ export class CoverageMapForCommitService {
       if (!coverageMapRecord) continue;
 
       // 这里不能用restore是否存在来判断，因为他是{}
-      const decodedCoverageMap = sourceMapRecord
-        ? decodeCompressedObject(coverageMapRecord.origin)
-        : decodeCompressedObject(coverageMapRecord.restore);
+      const decodedCoverageMap = decodeCompressedObject(coverageMapRecord.map)
       fileCoverageMap.set(rawFilePath, {
         path: rawFilePath,
         ...decodedCoverageMap,
