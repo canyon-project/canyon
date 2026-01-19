@@ -37,6 +37,20 @@ model Repo {
   @@map("canyon_final_repo")
 }
 
+model Commit {
+  // provider+repoID+sha
+  id            String   @id
+  sha           String
+  provider      String
+  repoID        String   @map("repo_id")
+  commitMessage String   @map("commit_message")
+  authorName    String?  @map("author_name")
+  authorEmail   String?  @map("author_email")
+  createdAt     DateTime @map("created_at") // commit 的创建时间
+
+  @@map("canyon_next_commit")
+}
+
 model Coverage {
   // buildHash+sceneKey
   id            String @id
