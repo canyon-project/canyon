@@ -22,6 +22,9 @@ export class CoverageMapInitService {
     // 备注：如果存在就更新build信息
     const coverageCreateRes = await this.insertCoverage(coverageMapInitDto);
 
+    // 上报 commit 信息
+    await this.insertCommit(coverageMapInitDto);
+
     // 如果map里也没input source的话那就能直接插入hit
     await this.insertMap({
       coverage: coverage,
@@ -99,6 +102,77 @@ export class CoverageMapInitService {
    */
   private calculateSceneKey(scene: Record<string, any>): string {
     return generateObjectSignature(scene);
+  }
+
+  /**
+   * 插入或更新 commit 信息
+   */
+  async insertCommit(coverageMapInitDto: CoverageMapInitDto) {
+    const { sha, provider, repoID, build } = coverageMapInitDto;
+
+    if (!sha || !provider || !repoID) {
+      return;
+    }
+
+    // 生成 commit id: provider+repoID+sha
+    const commitId = `${provider}${repoID}${sha}`;
+
+    // 尝试从 build 对象中提取 commit 信息
+    const commitMessage =
+      (build as any)?.commitMessage ||
+      (build as any)?.message ||
+      (build as any)?.commit?.message ||
+      '';
+    const authorName =
+      (build as any)?.authorName ||
+      (build as any)?.author?.name ||
+      (build as any)?.commit?.author?.name ||
+      null;
+    const authorEmail =
+      (build as any)?.authorEmail ||
+      (build as any)?.author?.email ||
+      (build as any)?.commit?.author?.email ||
+      null;
+    const createdAt = (build as any)?.commitCreatedAt
+      ? new Date((build as any).commitCreatedAt)
+      : (build as any)?.commit?.createdAt
+        ? new Date((build as any).commit.createdAt)
+        : new Date();
+
+    // 使用 upsert 插入或更新 commit 记录
+    try {
+      await this.prisma.commit.create({
+        data: {
+          id: commitId,
+          sha,
+          provider,
+          repoID,
+          commitMessage: commitMessage || '',
+          authorName,
+          authorEmail,
+          createdAt,
+        },
+      });
+      logger({
+        type: 'info',
+        title: 'CommitInsert',
+        message: 'Commit inserted',
+        addInfo: {
+          commitId,
+        },
+      });
+    } catch (error) {
+      // 如果出错，记录日志但不影响主流程
+      logger({
+        type: 'warn',
+        title: 'CommitInsert',
+        message: 'Failed to insert commit',
+        addInfo: {
+          commitId,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+    }
   }
 
   async insertCoverage(coverageMapInitDto: CoverageMapInitDto) {
