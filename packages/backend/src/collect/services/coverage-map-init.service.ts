@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
 import { logger } from '../../logger';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PrismaSqliteService } from '../../prisma/prisma-sqlite.service';
@@ -13,6 +15,7 @@ export class CoverageMapInitService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly prismaSqlite: PrismaSqliteService,
+    private readonly configService: ConfigService,
   ) {}
 
   async init(coverageMapInitDto: CoverageMapInitDto) {
@@ -106,9 +109,10 @@ export class CoverageMapInitService {
 
   /**
    * 插入或更新 commit 信息
+   * 通过调用 GitLab/GitHub API 获取 commit 详细信息
    */
   async insertCommit(coverageMapInitDto: CoverageMapInitDto) {
-    const { sha, provider, repoID, build } = coverageMapInitDto;
+    const { sha, provider, repoID } = coverageMapInitDto;
 
     if (!sha || !provider || !repoID) {
       return;
@@ -117,48 +121,103 @@ export class CoverageMapInitService {
     // 生成 commit id: provider+repoID+sha
     const commitId = `${provider}${repoID}${sha}`;
 
-    // 尝试从 build 对象中提取 commit 信息
-    const commitMessage =
-      (build as any)?.commitMessage ||
-      (build as any)?.message ||
-      (build as any)?.commit?.message ||
-      '';
-    const authorName =
-      (build as any)?.authorName ||
-      (build as any)?.author?.name ||
-      (build as any)?.commit?.author?.name ||
-      null;
-    const authorEmail =
-      (build as any)?.authorEmail ||
-      (build as any)?.author?.email ||
-      (build as any)?.commit?.author?.email ||
-      null;
-    const createdAt = (build as any)?.commitCreatedAt
-      ? new Date((build as any).commitCreatedAt)
-      : (build as any)?.commit?.createdAt
-        ? new Date((build as any).commit.createdAt)
-        : new Date();
+    // 检查 commit 是否已存在
+    const existingCommit = await this.prisma.commit.findUnique({
+      where: { id: commitId },
+    });
 
-    // 使用 upsert 插入或更新 commit 记录
+    if (existingCommit) {
+      // 如果已存在，跳过
+      return;
+    }
+
     try {
+      let commitMessage = '';
+      let authorName: string | null = null;
+      let authorEmail: string | null = null;
+      let createdAt = new Date();
+
+      // 根据 provider 调用不同的 API
+      if (provider === 'gitlab' || provider.startsWith('gitlab')) {
+        const base = await this.configService.get('INFRA.GITLAB_BASE_URL');
+        const token = await this.configService.get('INFRA.GITLAB_PRIVATE_TOKEN');
+
+        if (base && token) {
+          const url = `${base}/api/v4/projects/${repoID}/repository/commits/${sha}`;
+          const resp = await axios.get(url, {
+            headers: {
+              'PRIVATE-TOKEN': token,
+            },
+          }).then(({ data }) => data);
+
+          commitMessage = resp.message || '';
+          authorName = resp.author_name || null;
+          authorEmail = resp.author_email || null;
+          createdAt = resp.authored_date
+            ? new Date(resp.authored_date)
+            : resp.created_at
+              ? new Date(resp.created_at)
+              : new Date();
+        }
+      } else if (provider === 'github' || provider.startsWith('github')) {
+        const token = await this.configService.get('INFRA.GITHUB_PRIVATE_TOKEN');
+
+        if (token) {
+          // GitHub API 需要先解析 owner/repo
+          // 这里简化处理，假设 repoID 可能是 owner/repo 格式或数字 ID
+          let owner: string;
+          let repo: string;
+
+          if (repoID.includes('/')) {
+            [owner, repo] = repoID.split('/');
+          } else {
+            // 如果是数字 ID，需要通过 API 解析（这里简化，直接使用 repoID）
+            owner = '';
+            repo = repoID;
+          }
+
+          if (owner && repo) {
+            const url = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}`;
+            const resp = await axios.get(url, {
+              headers: {
+                Authorization: `token ${token}`,
+                Accept: 'application/vnd.github.v3+json',
+              },
+            }).then(({ data }) => data);
+
+            commitMessage = resp.commit?.message || '';
+            authorName = resp.commit?.author?.name || null;
+            authorEmail = resp.commit?.author?.email || null;
+            createdAt = resp.commit?.author?.date
+              ? new Date(resp.commit.author.date)
+              : resp.commit?.committer?.date
+                ? new Date(resp.commit.committer.date)
+                : new Date();
+          }
+        }
+      }
+
+      // 插入 commit 记录
       await this.prisma.commit.create({
         data: {
           id: commitId,
           sha,
           provider,
           repoID,
-          commitMessage: commitMessage || '',
+          commitMessage,
           authorName,
           authorEmail,
           createdAt,
         },
       });
+
       logger({
         type: 'info',
         title: 'CommitInsert',
         message: 'Commit inserted',
         addInfo: {
           commitId,
+          sha,
         },
       });
     } catch (error) {
@@ -169,6 +228,7 @@ export class CoverageMapInitService {
         message: 'Failed to insert commit',
         addInfo: {
           commitId,
+          sha,
           error: error instanceof Error ? error.message : String(error),
         },
       });
