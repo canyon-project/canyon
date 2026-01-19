@@ -56,7 +56,7 @@ const CoverageDetail = ({
 
   const lineNumbersMinChars = (() => {
     const maxHit = Math.max(...linesState.map((line) => line.hit));
-    return maxHit.toString().length + 8;
+    return maxHit.toString().length + 9; // 额外留出一些空间
   })();
 
   useEffect(() => {
