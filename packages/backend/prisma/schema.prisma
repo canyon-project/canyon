@@ -146,5 +146,5 @@ model Diff {
   subject    String
   subject_id String
 
-  @@map("canyon_final_diff")
+  @@map("canyon_next_diff")
 }
