@@ -281,7 +281,7 @@ const AnalysisPage = () => {
   }
 
   return (
-    <div className={'px-[20px] py-[12px]'}>
+    <div className={''}>
       <div className={'mb-4 flex items-center justify-between'}>
         <div>
           <h2 style={{ margin: 0 }}>分析记录</h2>
