@@ -189,23 +189,6 @@ const AnalysisPage = () => {
       ),
     },
     {
-      title: 'Subject ID',
-      dataIndex: 'subjectID',
-      key: 'subjectID',
-      ellipsis: true,
-      render: (text: string) => (
-        <Text code style={{ fontSize: '12px' }}>
-          {text}
-        </Text>
-      ),
-    },
-    {
-      title: 'Subject',
-      dataIndex: 'subject',
-      key: 'subject',
-      width: 100,
-    },
-    {
       title: '操作',
       key: 'action',
       width: 200,
@@ -304,68 +287,6 @@ const AnalysisPage = () => {
           dataSource={analysisRecords}
           loading={loading}
           rowKey='id'
-          expandable={{
-            expandedRowRender: (record) => {
-              if (!record.files || record.files.length === 0) {
-                return <div style={{ padding: '16px' }}>暂无差异文件</div>;
-              }
-              return (
-                <div style={{ padding: '16px' }}>
-                  <div style={{ marginBottom: '12px', fontWeight: 'bold' }}>
-                    差异文件列表 (共 {record.files.length} 个文件)
-                  </div>
-                  <div style={{ maxHeight: '400px', overflow: 'auto' }}>
-                    {record.files.map((file, index) => (
-                      <div
-                        key={`${file.path}-${index}`}
-                        style={{
-                          marginBottom: '12px',
-                          padding: '12px',
-                          backgroundColor: '#f5f5f5',
-                          borderRadius: '4px',
-                        }}
-                      >
-                        <div style={{ marginBottom: '8px' }}>
-                          <Text strong>文件路径:</Text>{' '}
-                          <Text code style={{ fontSize: '12px' }}>
-                            {file.path}
-                          </Text>
-                        </div>
-                        <div style={{ display: 'flex', gap: '16px', fontSize: '12px' }}>
-                          <div>
-                            <Text type='success'>新增行数: </Text>
-                            <Text strong>{file.additions?.length || 0}</Text>
-                          </div>
-                          <div>
-                            <Text type='danger'>删除行数: </Text>
-                            <Text strong>{file.deletions?.length || 0}</Text>
-                          </div>
-                        </div>
-                        {file.additions && file.additions.length > 0 && (
-                          <div style={{ marginTop: '8px' }}>
-                            <Text type='secondary' style={{ fontSize: '11px' }}>
-                              新增行号: {file.additions.slice(0, 20).join(', ')}
-                              {file.additions.length > 20 && '...'}
-                            </Text>
-                          </div>
-                        )}
-                        {file.deletions && file.deletions.length > 0 && (
-                          <div style={{ marginTop: '4px' }}>
-                            <Text type='secondary' style={{ fontSize: '11px' }}>
-                              删除行号: {file.deletions.slice(0, 20).join(', ')}
-                              {file.deletions.length > 20 && '...'}
-                            </Text>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            },
-            rowExpandable: (record) =>
-              record.files && record.files.length > 0,
-          }}
           pagination={{
             total: total,
             showTotal: (total) => `共 ${total} 条记录`,
