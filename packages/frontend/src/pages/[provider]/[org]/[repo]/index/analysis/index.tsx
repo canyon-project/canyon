@@ -55,6 +55,7 @@ const AnalysisPage = () => {
   }>();
   const params = useParams();
   const [loading, setLoading] = useState(false);
+  const [addLoading, setAddLoading] = useState(false);
   const [analysisRecords, setAnalysisRecords] = useState<AnalysisRecord[]>([]);
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -101,6 +102,7 @@ const AnalysisPage = () => {
     const subjectID = `${values.from}...${values.to}`;
     const subject = 'analysis';
 
+    setAddLoading(true);
     try {
       const resp = await fetch('/api/code/diff', {
         method: 'POST',
@@ -128,6 +130,8 @@ const AnalysisPage = () => {
     } catch (error) {
       message.error('创建分析记录失败');
       console.error(error);
+    } finally {
+      setAddLoading(false);
     }
   };
 
@@ -299,14 +303,18 @@ const AnalysisPage = () => {
         title='新增分析记录'
         open={isModalOpen}
         onCancel={() => {
-          setIsModalOpen(false);
-          form.resetFields();
+          if (!addLoading) {
+            setIsModalOpen(false);
+            form.resetFields();
+          }
         }}
         onOk={() => {
           form.submit();
         }}
         okText='创建'
         cancelText='取消'
+        confirmLoading={addLoading}
+        cancelButtonProps={{ disabled: addLoading }}
       >
         <Form
           form={form}
@@ -324,7 +332,7 @@ const AnalysisPage = () => {
               },
             ]}
           >
-            <Input placeholder='请输入完整的 40 位 Commit SHA' />
+            <Input placeholder='请输入完整的 40 位 Commit SHA' disabled={addLoading} />
           </Form.Item>
           <Form.Item
             name='to'
@@ -337,7 +345,7 @@ const AnalysisPage = () => {
               },
             ]}
           >
-            <Input placeholder='请输入完整的 40 位 Commit SHA' />
+            <Input placeholder='请输入完整的 40 位 Commit SHA' disabled={addLoading} />
           </Form.Item>
         </Form>
       </Modal>
