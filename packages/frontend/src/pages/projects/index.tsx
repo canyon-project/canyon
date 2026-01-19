@@ -226,29 +226,29 @@ const Projects = () => {
       },
       render: (text) => text || 0,
     },
-    {
-      title: (
-        <>
-          <Tooltip
-            title={t('projects.max_coverage_tooltip')}
-            className={'!mr-2'}
-          >
-            <QuestionCircleOutlined />
-          </Tooltip>
-          最大{t(`projects.${''}`)}覆盖率
-        </>
-      ),
-      dataIndex: 'maxCoverage',
-      key: 'maxCoverage',
-      sorter: true,
-      render: (text) => {
-        return (
-          <Space>
-            {text || 0}%{90}
-          </Space>
-        );
-      },
-    },
+    // {
+    //   title: (
+    //     <>
+    //       <Tooltip
+    //         title={t('projects.max_coverage_tooltip')}
+    //         className={'!mr-2'}
+    //       >
+    //         <QuestionCircleOutlined />
+    //       </Tooltip>
+    //       最大{t(`projects.${''}`)}覆盖率
+    //     </>
+    //   ),
+    //   dataIndex: 'maxCoverage',
+    //   key: 'maxCoverage',
+    //   sorter: true,
+    //   render: (text) => {
+    //     return (
+    //       <Space>
+    //         {text || 0}%{90}
+    //       </Space>
+    //     );
+    //   },
+    // },
     {
       title: t('projects.latest_report_time'),
       dataIndex: 'lastReportTime',
