@@ -97,8 +97,8 @@ const ProjectDetailPage = () => {
               );
             }}
             items={[
-              { key: 'commits', label: 'Commits' },
               { key: 'analysis', label: 'Analysis' },
+              { key: 'commits', label: 'Commits' },
             ]}
           />
         )}

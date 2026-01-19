@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "dev": "tsdown --watch"
+    "dev-git-diff": "tsdown --watch"
   },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.8",

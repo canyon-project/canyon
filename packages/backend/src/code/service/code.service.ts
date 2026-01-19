@@ -342,7 +342,6 @@ export class CodeService {
       fromSha: fromShaTrimmed,
       toSha: toShaTrimmed,
     });
-
     if (commitShas.length === 0) {
       throw new BadRequestException('未找到任何 commit');
     }
@@ -360,7 +359,6 @@ export class CodeService {
       gitlabUrl: base,
       token,
     });
-
     // 转换为返回格式
     const data = result.map(({ path, additions, deletions }) => {
       return {
