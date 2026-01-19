@@ -200,21 +200,34 @@ export class CodeController {
       }
     }
 
-    // 为每个分析记录设置 buildTargets 和 commit 信息
-    for (const record of analysisRecords) {
+    // 为每个分析记录设置 buildTargets 和 commit 信息，并映射字段名
+    const mappedRecords = analysisRecords.map((record) => {
       const buildTargetSet = buildTargetsMap.get(record.to);
-      record.buildTargets = buildTargetSet ? Array.from(buildTargetSet) : [];
+      const buildTargets = buildTargetSet ? Array.from(buildTargetSet) : [];
 
       // 添加 commit 概要信息
       const fromCommitInfo = commitInfoMap.get(record.from);
       const toCommitInfo = commitInfoMap.get(record.to);
-      (record as any).fromCommit = fromCommitInfo || null;
-      (record as any).toCommit = toCommitInfo || null;
-    }
+
+      // 映射字段名：from -> after, to -> now
+      return {
+        id: record.id,
+        provider: record.provider,
+        repoID: record.repoID,
+        after: record.from,
+        now: record.to,
+        subject: record.subject,
+        subjectID: record.subjectID,
+        files: record.files,
+        buildTargets,
+        fromCommit: fromCommitInfo || null,
+        toCommit: toCommitInfo || null,
+      };
+    });
 
     return {
-      data: analysisRecords,
-      total: analysisRecords.length,
+      data: mappedRecords,
+      total: mappedRecords.length,
     };
   }
 

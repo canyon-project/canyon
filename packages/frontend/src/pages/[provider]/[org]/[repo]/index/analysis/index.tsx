@@ -49,8 +49,8 @@ type AnalysisRecord = {
   id: string;
   provider: string;
   repoID: string;
-  from: string;
-  to: string;
+  after: string;
+  now: string;
   subject: string;
   subjectID: string;
   files: DiffFile[];
@@ -104,12 +104,12 @@ const AnalysisPage = () => {
     fetchAnalysisRecords();
   }, [repo?.id, params.provider]);
 
-  const handleAdd = async (values: { from: string; to: string }) => {
+  const handleAdd = async (values: { after: string; now: string }) => {
     if (!repo?.id || !params.provider) {
       return;
     }
 
-    const subjectID = `${values.from}...${values.to}`;
+    const subjectID = `${values.after}...${values.now}`;
     const subject = 'analysis';
 
     setAddLoading(true);
@@ -189,13 +189,13 @@ const AnalysisPage = () => {
 
   const columns: ColumnsType<AnalysisRecord> = [
     {
-      title: 'From (起始 Commit)',
-      dataIndex: 'from',
-      key: 'from',
+      title: 'After',
+      dataIndex: 'after',
+      key: 'after',
       width: 250,
       render: (text: string, record: AnalysisRecord) => {
         const commitInfo = record.fromCommit;
-        const shortSha = text.substring(0, 7);
+        const shortSha = text ? text.substring(0, 7) : '-';
         const commitMessage = commitInfo?.commitMessage
           ? commitInfo.commitMessage.split('\n')[0].substring(0, 60)
           : null;
@@ -209,7 +209,7 @@ const AnalysisPage = () => {
             <Text code style={{ fontSize: '12px' }}>
               {shortSha}
             </Text>
-            {commitMessage && (
+            {commitMessage && commitInfo && (
               <div
                 style={{ fontSize: '12px', marginTop: '4px', color: '#666' }}
               >
@@ -232,13 +232,13 @@ const AnalysisPage = () => {
       },
     },
     {
-      title: 'To (结束 Commit)',
-      dataIndex: 'to',
-      key: 'to',
+      title: 'Now',
+      dataIndex: 'now',
+      key: 'now',
       width: 250,
       render: (text: string, record: AnalysisRecord) => {
         const commitInfo = record.toCommit;
-        const shortSha = text.substring(0, 7);
+        const shortSha = text ? text.substring(0, 7) : '-';
         const commitMessage = commitInfo?.commitMessage
           ? commitInfo.commitMessage.split('\n')[0].substring(0, 60)
           : null;
@@ -252,7 +252,7 @@ const AnalysisPage = () => {
             <Text code style={{ fontSize: '12px' }}>
               {shortSha}
             </Text>
-            {commitMessage && (
+            {commitMessage && commitInfo && (
               <div
                 style={{ fontSize: '12px', marginTop: '4px', color: '#666' }}
               >
@@ -403,10 +403,10 @@ const AnalysisPage = () => {
       >
         <Form form={form} layout='vertical' onFinish={handleAdd}>
           <Form.Item
-            name='from'
-            label='起始 Commit SHA'
+            name='after'
+            label='After Commit SHA'
             rules={[
-              { required: true, message: '请输入起始 Commit SHA' },
+              { required: true, message: '请输入 After Commit SHA' },
               {
                 pattern: /^[a-f0-9]{40}$/i,
                 message: 'SHA 格式不正确（应为 40 位十六进制字符串）',
@@ -419,10 +419,10 @@ const AnalysisPage = () => {
             />
           </Form.Item>
           <Form.Item
-            name='to'
-            label='结束 Commit SHA'
+            name='now'
+            label='Now Commit SHA'
             rules={[
-              { required: true, message: '请输入结束 Commit SHA' },
+              { required: true, message: '请输入 Now Commit SHA' },
               {
                 pattern: /^[a-f0-9]{40}$/i,
                 message: 'SHA 格式不正确（应为 40 位十六进制字符串）',
