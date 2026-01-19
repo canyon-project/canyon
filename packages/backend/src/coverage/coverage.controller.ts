@@ -41,10 +41,22 @@ export class CoverageController {
           buildTarget: summaryMapQueryDto.buildTarget || '',
           filePath: summaryMapQueryDto.filePath,
         });
+
+
+
+
         // analysis service 返回的是 { success, baseCommit, comparisonResults, coverage }
         // 我们需要使用 coverage 字段来生成 summary
         if (result.success && result.coverage) {
-          const summary = genSummaryMapByCoverageMap(result.coverage, []);
+          const c = Object.values(result.coverage)
+          .map((m: any) => {
+            return {
+              path: m.path,
+              additions: m?.diff?.additions || [],
+            };
+          })
+          .filter((item) => item.additions.length > 0);
+          const summary = genSummaryMapByCoverageMap(result.coverage, c);
           return summary;
         }
         throw new BadRequestException('Failed to get analysis coverage data');

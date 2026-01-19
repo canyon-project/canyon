@@ -39,6 +39,11 @@ export class CoverageMapForAnalysisService {
         provider,
         repo_id: repoID,
       },
+      select: {
+        path: true,
+        additions: true,
+        deletions: true,
+      },
     });
 
     // 构建GitLab Compare API URL
@@ -679,6 +684,12 @@ export class CoverageMapForAnalysisService {
     // 重新映射覆盖率数据
     const remappedCoverage = await remapCoverageByOld(mergedCoverageData);
 
+    // 构建 diffList 的 path -> additions 映射
+    const diffListMap = new Map<string, number[]>();
+    for (const diff of diffList) {
+      diffListMap.set(diff.path, diff.additions as number[]);
+    }
+
     // 标准化路径并过滤最终结果
     const normalizedCoverage: Record<string, any> = {};
 
@@ -688,9 +699,15 @@ export class CoverageMapForAnalysisService {
         ? filePath.slice(nowShaInstrumentCwdPrefix.length)
         : filePath;
 
+      // 从 diffList 中获取该文件的新增行数组
+      const additions = diffListMap.get(normalizedPath) || [];
+
       normalizedCoverage[normalizedPath] = {
         ...(fileCoverage as Record<string, any>),
         path: normalizedPath,
+        diff: {
+          additions,
+        },
       };
     }
 
