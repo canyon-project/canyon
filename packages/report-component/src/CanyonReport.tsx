@@ -36,7 +36,13 @@ export const CanyonReport: FC<CanyonReportProps> = ({
     b: {},
   });
   const [fileContent, setFileContent] = useState<string>('');
-  const [fileCodeChange, setFileCodeChange] = useState<number[]>([]);
+  const [fileCodeChange, setFileCodeChange] = useState<{
+    additions: number[];
+    deletions: number[];
+  }>({
+    additions: [],
+    deletions: [],
+  });
 
   // 判断是否为受控模式
   const isControlled =
@@ -72,7 +78,10 @@ export const CanyonReport: FC<CanyonReportProps> = ({
       const res = await onSelect(val);
       setFileContent(res.fileContent || '');
       setFileCoverage(res.fileCoverage || {});
-      setFileCodeChange(res.fileCodeChange || '');
+      setFileCodeChange(res.fileCodeChange || {
+        additions: [],
+        deletions: [],
+      });
       return res;
     };
   }, [onSelect]);

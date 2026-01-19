@@ -6,7 +6,10 @@ import type { FileCoverageData } from 'istanbul-lib-coverage';
 export interface FileDataResponse {
   fileCoverage: FileCoverageData;
   fileContent: string;
-  fileCodeChange: number[];
+  fileCodeChange: {
+    additions: number[];
+    deletions: number[];
+  };
 }
 
 export interface DataSourceItem {
