@@ -231,96 +231,6 @@ const CommitsPage = () => {
       },
     },
     {
-      title: '场景',
-      dataIndex: 'currentScenes',
-      key: 'currentScenes',
-      render: (_: SceneInfo[], record: FlatCommitRow) => {
-        const scenes = record.currentScenes || [];
-        
-        if (scenes.length === 0) {
-          return '-';
-        }
-        
-        // 收集所有场景中的所有 key-value 对，去重
-        const kvPairs = new Map<string, { key: string; value: unknown }>();
-        scenes.forEach((sceneInfo) => {
-          const scene = sceneInfo.scene || {};
-          Object.entries(scene).forEach(([key, value]) => {
-            const kvKey = `${key}=${value}`;
-            if (!kvPairs.has(kvKey)) {
-              kvPairs.set(kvKey, { key, value });
-            }
-          });
-        });
-
-        const kvPairsArray = Array.from(kvPairs.values());
-        
-        if (kvPairsArray.length === 0) {
-          return '-';
-        }
-        
-        if (kvPairsArray.length === 1) {
-          // 如果只有一个 key-value 对，直接显示链接
-          const { key, value } = kvPairsArray[0];
-          const sceneObj = { [key]: value };
-          const searchParams = new URLSearchParams();
-          if (record.currentBuildTarget) {
-            searchParams.set('build_target', record.currentBuildTarget);
-          }
-          if (record.reportID) {
-            searchParams.set('report_id', record.reportID);
-          }
-          if (record.reportProvider) {
-            searchParams.set('report_provider', record.reportProvider);
-          }
-          searchParams.set('scene', JSON.stringify(sceneObj));
-          const queryString = searchParams.toString();
-          const reportPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
-          
-          return (
-            <a href={reportPath} target='_blank' rel='noreferrer'>
-              {key}={String(value)}
-            </a>
-          );
-        } else {
-          // 如果有多个 key-value 对，使用下拉菜单
-          const menuItems: MenuProps['items'] = kvPairsArray.map(({ key, value }, index) => {
-            const sceneObj = { [key]: value };
-            const searchParams = new URLSearchParams();
-            if (record.currentBuildTarget) {
-              searchParams.set('build_target', record.currentBuildTarget);
-            }
-            if (record.reportID) {
-              searchParams.set('report_id', record.reportID);
-            }
-            if (record.reportProvider) {
-              searchParams.set('report_provider', record.reportProvider);
-            }
-            searchParams.set('scene', JSON.stringify(sceneObj));
-            const queryString = searchParams.toString();
-            const reportPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
-            
-            return {
-              key: index,
-              label: (
-                <a href={reportPath} target='_blank' rel='noreferrer'>
-                  {key}={String(value)}
-                </a>
-              ),
-            };
-          });
-
-          return (
-            <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>
-              <a onClick={(e) => e.preventDefault()}>
-                场景 <DownOutlined />
-              </a>
-            </Dropdown>
-          );
-        }
-      },
-    },
-    {
       title: t('projects.report_times'),
       dataIndex: 'times',
       key: 'times',
@@ -342,8 +252,87 @@ const CommitsPage = () => {
       render: (_: any, record: FlatCommitRow) => {
         const detailPath = `/${params.provider}/${params.org}/${params.repo}/commits/${record.sha}`;
 
+        // 构建报告路径的辅助函数
+        const buildReportPath = (scene: Record<string, unknown>) => {
+          const searchParams = new URLSearchParams();
+          if (record.currentBuildTarget) {
+            searchParams.set('build_target', record.currentBuildTarget);
+          }
+          if (record.reportID) {
+            searchParams.set('report_id', record.reportID);
+          }
+          if (record.reportProvider) {
+            searchParams.set('report_provider', record.reportProvider);
+          }
+          if (scene && Object.keys(scene).length > 0) {
+            searchParams.set('scene', JSON.stringify(scene));
+          }
+          const queryString = searchParams.toString();
+          return `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
+        };
+
+        // 处理场景显示
+        const scenes = record.currentScenes || [];
+        let sceneDropdown = null;
+        
+        if (scenes.length > 0) {
+          // 收集所有场景中的所有 key-value 对，去重
+          const kvPairs = new Map<string, { key: string; value: unknown }>();
+          scenes.forEach((sceneInfo) => {
+            const scene = sceneInfo.scene || {};
+            Object.entries(scene).forEach(([key, value]) => {
+              const kvKey = `${key}=${value}`;
+              if (!kvPairs.has(kvKey)) {
+                kvPairs.set(kvKey, { key, value });
+              }
+            });
+          });
+
+          const kvPairsArray = Array.from(kvPairs.values());
+          
+          if (kvPairsArray.length > 0) {
+            if (kvPairsArray.length === 1) {
+              // 如果只有一个 key-value 对，直接显示链接
+              const { key, value } = kvPairsArray[0];
+              const sceneObj = { [key]: value };
+              const reportPath = buildReportPath(sceneObj);
+              sceneDropdown = (
+                <a href={reportPath} target='_blank' rel='noreferrer'>
+                  {key}={String(value)}
+                </a>
+              );
+            } else {
+              // 如果有多个 key-value 对，使用下拉菜单
+              const menuItems: MenuProps['items'] = kvPairsArray.map(({ key, value }, index) => {
+                const sceneObj = { [key]: value };
+                const reportPath = buildReportPath(sceneObj);
+                
+                return {
+                  key: index,
+                  label: (
+                    <a href={reportPath} target='_blank' rel='noreferrer'>
+                      {key}={String(value)}
+                    </a>
+                  ),
+                };
+              });
+
+              sceneDropdown = (
+                <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>
+                  <a onClick={(e) => e.preventDefault()}>
+                    场景 <DownOutlined />
+                  </a>
+                </Dropdown>
+              );
+            }
+          }
+        }
+
         return (
-          <Link to={detailPath}>{t('projects.reported_details')}</Link>
+          <Space>
+            <Link to={detailPath}>{t('projects.reported_details')}</Link>
+            {sceneDropdown}
+          </Space>
         );
       },
     },
