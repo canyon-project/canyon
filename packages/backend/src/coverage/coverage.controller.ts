@@ -68,18 +68,22 @@ export class CoverageController {
           scene: q.scene, // 新增字段，起筛选作用
         });
       case 'analysis':
-        return this.coverageMapForAnalysisService.invoke({
-          provider: q.provider,
-          repoID: q.repoID,
-          analysisID: q.subjectID,
-          buildTarget: q.buildTarget || '',
-          filePath: q.filePath,
-        }).then((result)=>{
-          if (result.success && result.coverage) {
-            return result.coverage;
-          }
-          throw new BadRequestException('Failed to get analysis coverage data');
-        });
+        return this.coverageMapForAnalysisService
+          .invoke({
+            provider: q.provider,
+            repoID: q.repoID,
+            analysisID: q.subjectID,
+            buildTarget: q.buildTarget || '',
+            filePath: q.filePath,
+          })
+          .then((result) => {
+            if (result.success && result.coverage) {
+              return result.coverage;
+            }
+            throw new BadRequestException(
+              'Failed to get analysis coverage data',
+            );
+          });
       default:
         throw new BadRequestException('invalid subject');
     }

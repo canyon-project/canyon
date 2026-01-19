@@ -140,15 +140,19 @@ export class CoverageMapInitService {
       // 根据 provider 调用不同的 API
       if (provider === 'gitlab' || provider.startsWith('gitlab')) {
         const base = await this.configService.get('INFRA.GITLAB_BASE_URL');
-        const token = await this.configService.get('INFRA.GITLAB_PRIVATE_TOKEN');
+        const token = await this.configService.get(
+          'INFRA.GITLAB_PRIVATE_TOKEN',
+        );
 
         if (base && token) {
           const url = `${base}/api/v4/projects/${repoID}/repository/commits/${sha}`;
-          const resp = await axios.get(url, {
-            headers: {
-              'PRIVATE-TOKEN': token,
-            },
-          }).then(({ data }) => data);
+          const resp = await axios
+            .get(url, {
+              headers: {
+                'PRIVATE-TOKEN': token,
+              },
+            })
+            .then(({ data }) => data);
 
           commitMessage = resp.message || '';
           authorName = resp.author_name || null;
@@ -160,7 +164,9 @@ export class CoverageMapInitService {
               : new Date();
         }
       } else if (provider === 'github' || provider.startsWith('github')) {
-        const token = await this.configService.get('INFRA.GITHUB_PRIVATE_TOKEN');
+        const token = await this.configService.get(
+          'INFRA.GITHUB_PRIVATE_TOKEN',
+        );
 
         if (token) {
           // GitHub API 需要先解析 owner/repo
@@ -178,12 +184,14 @@ export class CoverageMapInitService {
 
           if (owner && repo) {
             const url = `https://api.github.com/repos/${owner}/${repo}/commits/${sha}`;
-            const resp = await axios.get(url, {
-              headers: {
-                Authorization: `token ${token}`,
-                Accept: 'application/vnd.github.v3+json',
-              },
-            }).then(({ data }) => data);
+            const resp = await axios
+              .get(url, {
+                headers: {
+                  Authorization: `token ${token}`,
+                  Accept: 'application/vnd.github.v3+json',
+                },
+              })
+              .then(({ data }) => data);
 
             commitMessage = resp.commit?.message || '';
             authorName = resp.commit?.author?.name || null;
@@ -350,7 +358,7 @@ export class CoverageMapInitService {
             inputSourceMap: 1,
           });
           return {
-            map:chunkMap,
+            map: chunkMap,
             // origin: chunkMap, // remap 后的数据作为 origin
             // restore: originalChunkMap, // 原来的数据作为 restore
             createdAt: new Date(),

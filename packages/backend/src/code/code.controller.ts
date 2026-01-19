@@ -1,4 +1,12 @@
-import { BadRequestException, Body, Controller, Delete, Get, Post, Query } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CodeService } from './service/code.service';
 @Controller('api/code')
@@ -141,12 +149,15 @@ export class CodeController {
     });
 
     // 构建 commit 信息映射表
-    const commitInfoMap = new Map<string, {
-      commitMessage: string;
-      authorName: string | null;
-      authorEmail: string | null;
-      createdAt: Date;
-    }>();
+    const commitInfoMap = new Map<
+      string,
+      {
+        commitMessage: string;
+        authorName: string | null;
+        authorEmail: string | null;
+        createdAt: Date;
+      }
+    >();
     for (const commit of commits) {
       commitInfoMap.set(commit.sha, {
         commitMessage: commit.commitMessage,
@@ -192,10 +203,8 @@ export class CodeController {
     // 为每个分析记录设置 buildTargets 和 commit 信息
     for (const record of analysisRecords) {
       const buildTargetSet = buildTargetsMap.get(record.to);
-      record.buildTargets = buildTargetSet
-        ? Array.from(buildTargetSet)
-        : [];
-      
+      record.buildTargets = buildTargetSet ? Array.from(buildTargetSet) : [];
+
       // 添加 commit 概要信息
       const fromCommitInfo = commitInfoMap.get(record.from);
       const toCommitInfo = commitInfoMap.get(record.to);
@@ -244,17 +253,19 @@ export class CodeController {
   ) {
     const { repoID, provider, subjectID, subject } = body;
     console.log(repoID, provider, subjectID, subject, 'body');
-    
+
     // 解析 subjectID 获取 from 和 to commit SHA
     const parts = subjectID.split('...');
     if (parts.length !== 2) {
-      throw new BadRequestException('subjectID 格式错误，应为 commit1...commit2');
+      throw new BadRequestException(
+        'subjectID 格式错误，应为 commit1...commit2',
+      );
     }
-    const [fromSha, toSha] = parts.map(s => s.trim());
+    const [fromSha, toSha] = parts.map((s) => s.trim());
     if (!fromSha || !toSha) {
       throw new BadRequestException('subjectID 格式错误，from 和 to 不能为空');
     }
-    
+
     // 检查并插入缺失的 commit
     await Promise.all([
       this.codeService.insertCommitIfNotExists({
@@ -268,7 +279,7 @@ export class CodeController {
         repoID,
       }),
     ]);
-    
+
     // 先删除旧数据（根据 provider、repoID、subjectID、subject 匹配）
     await this.prisma.diff.deleteMany({
       where: {

@@ -1,4 +1,8 @@
-import { BranchesOutlined, DownOutlined, SearchOutlined } from '@ant-design/icons';
+import {
+  BranchesOutlined,
+  DownOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   Dropdown,
   Input,
@@ -66,7 +70,6 @@ type FlatCommitRow = CommitRecord & {
   currentScenes: SceneInfo[]; // 该 buildTarget 的所有 scene
   rowKey: string; // 用于唯一标识每一行
 };
-
 
 const CommitsPage = () => {
   const { t } = useTranslation();
@@ -155,7 +158,7 @@ const CommitsPage = () => {
         for (const buildTargetScene of commit.buildTargetScenes) {
           const buildTarget = buildTargetScene.buildTarget || '';
           const scenes = buildTargetScene.scenes || [];
-          
+
           // 每个 buildTarget 创建一行
           result.push({
             ...commit,
@@ -168,7 +171,7 @@ const CommitsPage = () => {
         // 回退逻辑：如果没有 buildTargetScenes，使用 buildTargets 和 scenes
         const buildTargets = commit.buildTargets || [];
         const scenes = commit.scenes || [];
-        
+
         if (buildTargets.length === 0) {
           // 如果没有 buildTargets，至少创建一行
           result.push({
@@ -192,9 +195,6 @@ const CommitsPage = () => {
     }
     return result;
   }, [commits]);
-
-
-
 
   const columns: ColumnsType<FlatCommitRow> = [
     {
@@ -274,7 +274,7 @@ const CommitsPage = () => {
         // 处理场景显示
         const scenes = record.currentScenes || [];
         let sceneDropdown = null;
-        
+
         if (scenes.length > 0) {
           // 收集所有场景中的所有 key-value 对，去重
           const kvPairs = new Map<string, { key: string; value: unknown }>();
@@ -289,7 +289,7 @@ const CommitsPage = () => {
           });
 
           const kvPairsArray = Array.from(kvPairs.values());
-          
+
           if (kvPairsArray.length > 0) {
             if (kvPairsArray.length === 1) {
               // 如果只有一个 key-value 对，直接显示链接
@@ -303,19 +303,21 @@ const CommitsPage = () => {
               );
             } else {
               // 如果有多个 key-value 对，使用下拉菜单
-              const menuItems: MenuProps['items'] = kvPairsArray.map(({ key, value }, index) => {
-                const sceneObj = { [key]: value };
-                const reportPath = buildReportPath(sceneObj);
-                
-                return {
-                  key: index,
-                  label: (
-                    <a href={reportPath} target='_blank' rel='noreferrer'>
-                      {key}={String(value)}
-                    </a>
-                  ),
-                };
-              });
+              const menuItems: MenuProps['items'] = kvPairsArray.map(
+                ({ key, value }, index) => {
+                  const sceneObj = { [key]: value };
+                  const reportPath = buildReportPath(sceneObj);
+
+                  return {
+                    key: index,
+                    label: (
+                      <a href={reportPath} target='_blank' rel='noreferrer'>
+                        {key}={String(value)}
+                      </a>
+                    ),
+                  };
+                },
+              );
 
               sceneDropdown = (
                 <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>

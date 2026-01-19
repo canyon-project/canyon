@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
-import {
-  CoverageAnalysisQueryParamsTypes,
-} from '../types/coverage-query-params.types';
-import {ConfigService} from "@nestjs/config";
+import { CoverageAnalysisQueryParamsTypes } from '../types/coverage-query-params.types';
+import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { decodeCompressedObject } from '../../collect/helpers/transform';
 import { remapCoverageByOld } from '../../collect/helpers/canyon-data';
@@ -16,7 +14,10 @@ import { testExclude } from '../../helpers/test-exclude';
 
 @Injectable()
 export class CoverageMapForAnalysisService {
-  constructor(private readonly prisma: PrismaService,    private readonly configService: ConfigService,) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) {}
 
   async invoke({
     provider,
@@ -32,28 +33,30 @@ export class CoverageMapForAnalysisService {
     const [afterSha, nowSha] = analysisID.split('...');
     // 关键点，对于Analysis来说，必须要通过diff过滤，不然分析数据量太大
     const diffList = await this.prisma.diff.findMany({
-      where:{
+      where: {
         from: afterSha,
         to: nowSha,
         provider,
         repo_id: repoID,
-      }
-    })
+      },
+    });
 
     // 构建GitLab Compare API URL
     const url = `${base}/api/v4/projects/${repoID}/repository/compare?from=${afterSha}&to=${nowSha}`;
-    const resp = await axios.get(url, {
-      headers: {
-        'PRIVATE-TOKEN': token,
-      },
-    }).then(({data})=>data);
+    const resp = await axios
+      .get(url, {
+        headers: {
+          'PRIVATE-TOKEN': token,
+        },
+      })
+      .then(({ data }) => data);
 
-    const allCommits = resp.commits.map((commit)=>commit.id).concat([afterSha, nowSha]);
+    const allCommits = resp.commits
+      .map((commit) => commit.id)
+      .concat([afterSha, nowSha]);
 
     // 去重复
-    const filteredCommits = [
-      ...new Set(allCommits)
-    ]
+    const filteredCommits = [...new Set(allCommits)];
 
     // 准备基准map - 以 nowSha 为基准
     const nowShaIndex = filteredCommits.indexOf(nowSha);
@@ -82,7 +85,8 @@ export class CoverageMapForAnalysisService {
     }
 
     const nowShaCoverageRecord = nowShaCoverageRecords[0];
-    const { instrumentCwd: nowShaInstrumentCwd, buildHash: nowShaBuildHash } = nowShaCoverageRecord;
+    const { instrumentCwd: nowShaInstrumentCwd, buildHash: nowShaBuildHash } =
+      nowShaCoverageRecord;
     const nowShaInstrumentCwdPrefix = nowShaInstrumentCwd + '/';
 
     // 查询 nowSha 的 mapRelations（只查询 diffList 中的文件）
@@ -90,7 +94,7 @@ export class CoverageMapForAnalysisService {
       where: {
         buildHash: nowShaBuildHash,
         fullFilePath: {
-          in: diffList.map(d => nowShaInstrumentCwdPrefix + d.path),
+          in: diffList.map((d) => nowShaInstrumentCwdPrefix + d.path),
         },
       },
     });
@@ -122,12 +126,18 @@ export class CoverageMapForAnalysisService {
     ]);
 
     // 构建索引
-    const nowShaCoverageMapIndex = new Map<string, (typeof nowShaCoverageMaps)[0]>();
+    const nowShaCoverageMapIndex = new Map<
+      string,
+      (typeof nowShaCoverageMaps)[0]
+    >();
     for (const coverageMap of nowShaCoverageMaps) {
       nowShaCoverageMapIndex.set(coverageMap.hash, coverageMap);
     }
 
-    const nowShaSourceMapIndex = new Map<string, (typeof nowShaSourceMaps)[0]>();
+    const nowShaSourceMapIndex = new Map<
+      string,
+      (typeof nowShaSourceMaps)[0]
+    >();
     for (const sourceMap of nowShaSourceMaps) {
       nowShaSourceMapIndex.set(sourceMap.hash, sourceMap);
     }
@@ -143,13 +153,13 @@ export class CoverageMapForAnalysisService {
       const normalizedPath = rawFilePath.startsWith(nowShaInstrumentCwdPrefix)
         ? rawFilePath.slice(nowShaInstrumentCwdPrefix.length)
         : rawFilePath;
-      
+
       const sourceMapRecord = nowShaSourceMapIndex.get(relation.sourceMapHash);
       const coverageMapKey = `${relation.coverageMapHash}|${relation.fileContentHash}`;
       const coverageMapRecord = nowShaCoverageMapIndex.get(coverageMapKey);
       if (!coverageMapRecord) continue;
 
-      const decodedCoverageMap = decodeCompressedObject(coverageMapRecord.map)
+      const decodedCoverageMap = decodeCompressedObject(coverageMapRecord.map);
 
       // console.log('decodedCoverageMap', decodedCoverageMap);
 
@@ -171,17 +181,22 @@ export class CoverageMapForAnalysisService {
     });
 
     // 聚合 nowSha 的 hit 数据（按 normalizedPath，去掉插桩路径前缀）
-    const nowShaHitDataByFile = new Map<string, {
-      s: NumMap;
-      f: NumMap;
-    }>();
+    const nowShaHitDataByFile = new Map<
+      string,
+      {
+        s: NumMap;
+        f: NumMap;
+      }
+    >();
 
     for (const coverageHit of nowShaCoverageHits) {
       // 去掉插桩路径前缀，得到相对路径作为 key
-      const normalizedPath = coverageHit.rawFilePath.startsWith(nowShaInstrumentCwdPrefix)
+      const normalizedPath = coverageHit.rawFilePath.startsWith(
+        nowShaInstrumentCwdPrefix,
+      )
         ? coverageHit.rawFilePath.slice(nowShaInstrumentCwdPrefix.length)
         : coverageHit.rawFilePath;
-      
+
       if (!nowShaHitDataByFile.has(normalizedPath)) {
         nowShaHitDataByFile.set(normalizedPath, {
           s: {},
@@ -232,7 +247,7 @@ export class CoverageMapForAnalysisService {
         where: {
           buildHash,
           fullFilePath: {
-            in: diffList.map(d => instrumentCwdPrefix + d.path),
+            in: diffList.map((d) => instrumentCwdPrefix + d.path),
           },
         },
       });
@@ -278,18 +293,21 @@ export class CoverageMapForAnalysisService {
       // 使用去掉插桩路径前缀的相对路径作为 key，以便后续比较
       const fileCoverageMap = new Map<string, any>();
       for (const relation of mapRelations) {
-        const rawFilePath = relation.restoreFullFilePath || relation.fullFilePath;
+        const rawFilePath =
+          relation.restoreFullFilePath || relation.fullFilePath;
         // 去掉插桩路径前缀，得到相对路径作为 key
         const normalizedPath = rawFilePath.startsWith(instrumentCwdPrefix)
           ? rawFilePath.slice(instrumentCwdPrefix.length)
           : rawFilePath;
-        
+
         const sourceMapRecord = sourceMapIndex.get(relation.sourceMapHash);
         const coverageMapKey = `${relation.coverageMapHash}|${relation.fileContentHash}`;
         const coverageMapRecord = coverageMapIndex.get(coverageMapKey);
         if (!coverageMapRecord) continue;
 
-        const decodedCoverageMap = decodeCompressedObject(coverageMapRecord.map)
+        const decodedCoverageMap = decodeCompressedObject(
+          coverageMapRecord.map,
+        );
         fileCoverageMap.set(normalizedPath, {
           path: rawFilePath, // 保留完整路径在 path 字段中
           fileContentHash: relation.fileContentHash,
@@ -308,17 +326,22 @@ export class CoverageMapForAnalysisService {
       });
 
       // 聚合该 commit 的 hit 数据（按 normalizedPath，去掉插桩路径前缀）
-      const hitDataByFile = new Map<string, {
-        s: NumMap;
-        f: NumMap;
-      }>();
+      const hitDataByFile = new Map<
+        string,
+        {
+          s: NumMap;
+          f: NumMap;
+        }
+      >();
 
       for (const coverageHit of coverageHits) {
         // 去掉插桩路径前缀，得到相对路径作为 key
-        const normalizedPath = coverageHit.rawFilePath.startsWith(instrumentCwdPrefix)
+        const normalizedPath = coverageHit.rawFilePath.startsWith(
+          instrumentCwdPrefix,
+        )
           ? coverageHit.rawFilePath.slice(instrumentCwdPrefix.length)
           : coverageHit.rawFilePath;
-        
+
         if (!hitDataByFile.has(normalizedPath)) {
           hitDataByFile.set(normalizedPath, {
             s: {},
@@ -340,7 +363,10 @@ export class CoverageMapForAnalysisService {
       const fileComparisons: any[] = [];
 
       // 遍历 nowSha 的文件
-      for (const [filePath, nowShaFileCoverage] of nowShaFileCoverageMap.entries()) {
+      for (const [
+        filePath,
+        nowShaFileCoverage,
+      ] of nowShaFileCoverageMap.entries()) {
         const otherFileCoverage = fileCoverageMap.get(filePath);
 
         if (!otherFileCoverage) {
@@ -354,7 +380,9 @@ export class CoverageMapForAnalysisService {
         }
 
         // 比较 fileContentHash
-        const fileContentHashEqual = nowShaFileCoverage.fileContentHash === otherFileCoverage.fileContentHash;
+        const fileContentHashEqual =
+          nowShaFileCoverage.fileContentHash ===
+          otherFileCoverage.fileContentHash;
 
         // 如果文件 contentHash 相同，直接可以合并
         if (fileContentHashEqual) {
@@ -374,7 +402,9 @@ export class CoverageMapForAnalysisService {
         // 构建 contentHash -> statementId[] 的映射
         // nowSha 的映射：contentHash -> statementId[]
         const nowShaHashToStatementIds = new Map<string, string[]>();
-        for (const [statementId, statement] of Object.entries(nowShaStatementMap)) {
+        for (const [statementId, statement] of Object.entries(
+          nowShaStatementMap,
+        )) {
           const stmt = statement as any;
           if (stmt && stmt.contentHash) {
             if (!nowShaHashToStatementIds.has(stmt.contentHash)) {
@@ -386,7 +416,9 @@ export class CoverageMapForAnalysisService {
 
         // other 的映射：contentHash -> statementId[]
         const otherHashToStatementIds = new Map<string, string[]>();
-        for (const [statementId, statement] of Object.entries(otherStatementMap)) {
+        for (const [statementId, statement] of Object.entries(
+          otherStatementMap,
+        )) {
           const stmt = statement as any;
           if (stmt && stmt.contentHash) {
             if (!otherHashToStatementIds.has(stmt.contentHash)) {
@@ -411,7 +443,11 @@ export class CoverageMapForAnalysisService {
 
         const nonMergeableStatements: Array<{
           contentHash: string;
-          reason: 'nowShaMultiple' | 'otherMultiple' | 'nowShaMissing' | 'otherMissing';
+          reason:
+            | 'nowShaMultiple'
+            | 'otherMultiple'
+            | 'nowShaMissing'
+            | 'otherMissing';
           nowShaStatementIds?: string[];
           otherStatementIds?: string[];
         }> = [];
@@ -481,11 +517,14 @@ export class CoverageMapForAnalysisService {
           mergeableStatementsCount: mergeableStatements.length,
           nonMergeableStatementsCount: nonMergeableStatements.length,
           totalContentHashes: allContentHashes.size,
-          mergeableStatements: mergeableStatements.length > 0 ? mergeableStatements : undefined,
-          nonMergeableStatements: nonMergeableStatements.length > 0 ? nonMergeableStatements : undefined,
+          mergeableStatements:
+            mergeableStatements.length > 0 ? mergeableStatements : undefined,
+          nonMergeableStatements:
+            nonMergeableStatements.length > 0
+              ? nonMergeableStatements
+              : undefined,
           canMerge,
         });
-
       }
 
       comparisonResults.push({
@@ -498,9 +537,12 @@ export class CoverageMapForAnalysisService {
     // 首先复制 nowSha 的 map 数据，并添加 hit 数据
     const mergedCoverageData: Record<string, any> = {};
 
-    for (const [filePath, nowShaFileCoverage] of nowShaFileCoverageMap.entries()) {
+    for (const [
+      filePath,
+      nowShaFileCoverage,
+    ] of nowShaFileCoverageMap.entries()) {
       const nowShaHitData = nowShaHitDataByFile.get(filePath);
-      
+
       if (!nowShaHitData) {
         // 如果没有 hit 数据，跳过
         continue;
@@ -519,13 +561,15 @@ export class CoverageMapForAnalysisService {
     // 遍历其他 commit，合并 hit 数据
     for (const [commitSha, commitData] of commitDataMap.entries()) {
       // 找到对应的比较结果
-      const comparisonResult = comparisonResults.find(r => r.commitSha === commitSha);
+      const comparisonResult = comparisonResults.find(
+        (r) => r.commitSha === commitSha,
+      );
       if (!comparisonResult) continue;
 
       for (const fileComp of comparisonResult.fileComparisons) {
         const filePath = fileComp.filePath;
         const commitFileHitData = commitData.hitDataByFile.get(filePath);
-        
+
         if (!commitFileHitData) continue;
 
         const mergedFileData = mergedCoverageData[filePath];
@@ -535,9 +579,16 @@ export class CoverageMapForAnalysisService {
           // 文件 contentHash 相同，直接合并所有 hit 数据
           mergedFileData.s = addMaps(mergedFileData.s, commitFileHitData.s);
           mergedFileData.f = addMaps(mergedFileData.f, commitFileHitData.f);
-        } else if (fileComp.status === 'fileContentHashDifferent' && fileComp.canMerge) {
+        } else if (
+          fileComp.status === 'fileContentHashDifferent' &&
+          fileComp.canMerge
+        ) {
           // 文件 contentHash 不同，但语句可以合并，根据 mergeableStatements 映射合并
-          if (!fileComp.mergeableStatements || fileComp.mergeableStatements.length === 0) continue;
+          if (
+            !fileComp.mergeableStatements ||
+            fileComp.mergeableStatements.length === 0
+          )
+            continue;
 
           // 获取 other commit 的 fileCoverageMap
           const otherFileCoverage = commitData.fileCoverageMap.get(filePath);
@@ -557,12 +608,14 @@ export class CoverageMapForAnalysisService {
           for (const mergeableStmt of fileComp.mergeableStatements) {
             mergeableHashToNowShaStmtId.set(
               mergeableStmt.contentHash,
-              mergeableStmt.nowShaStatementId
+              mergeableStmt.nowShaStatementId,
             );
           }
 
           // 合并 hit 数据：遍历 other commit 的 hit 数据，如果对应的 statement 可以合并，则累加到 nowSha 的对应 statement 上
-          for (const [otherStmtId, otherCount] of Object.entries(commitFileHitData.s)) {
+          for (const [otherStmtId, otherCount] of Object.entries(
+            commitFileHitData.s,
+          )) {
             const contentHash = otherStmtIdToHash.get(otherStmtId);
             if (!contentHash) continue;
 
@@ -570,7 +623,8 @@ export class CoverageMapForAnalysisService {
             if (!nowShaStmtId) continue;
 
             // 累加到 nowSha 的对应 statement
-            mergedFileData.s[nowShaStmtId] = (mergedFileData.s[nowShaStmtId] || 0) + otherCount;
+            mergedFileData.s[nowShaStmtId] =
+              (mergedFileData.s[nowShaStmtId] || 0) + otherCount;
           }
 
           // 处理函数（functions）- 类似逻辑
@@ -592,22 +646,31 @@ export class CoverageMapForAnalysisService {
               // 检查 other 中是否有相同 contentHash 的函数
               for (const [otherFnId, otherFn] of Object.entries(otherFnMap)) {
                 const otherFnData = otherFn as any;
-                if (otherFnData && otherFnData.contentHash === fnData.contentHash) {
-                  mergeableFnHashToNowShaFnId.set(fnData.contentHash, nowShaFnId);
+                if (
+                  otherFnData &&
+                  otherFnData.contentHash === fnData.contentHash
+                ) {
+                  mergeableFnHashToNowShaFnId.set(
+                    fnData.contentHash,
+                    nowShaFnId,
+                  );
                   break;
                 }
               }
             }
           }
 
-          for (const [otherFnId, otherCount] of Object.entries(commitFileHitData.f)) {
+          for (const [otherFnId, otherCount] of Object.entries(
+            commitFileHitData.f,
+          )) {
             const contentHash = otherFnIdToHash.get(otherFnId);
             if (!contentHash) continue;
 
             const nowShaFnId = mergeableFnHashToNowShaFnId.get(contentHash);
             if (!nowShaFnId) continue;
 
-            mergedFileData.f[nowShaFnId] = (mergedFileData.f[nowShaFnId] || 0) + otherCount;
+            mergedFileData.f[nowShaFnId] =
+              (mergedFileData.f[nowShaFnId] || 0) + otherCount;
           }
         }
       }

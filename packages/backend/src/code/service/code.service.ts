@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
-import {diffLine} from "../../helpers/diff";
+import { diffLine } from '../../helpers/diff';
 
 @Injectable()
 export class CodeService {
@@ -251,10 +251,10 @@ export class CodeService {
    * 使用 GitLab API 的 compare 接口
    */
   private async getCommitsBetween({
-                                    repoID,
-                                    fromSha,
-                                    toSha,
-                                  }: {
+    repoID,
+    fromSha,
+    toSha,
+  }: {
     repoID: string;
     fromSha: string;
     toSha: string;
@@ -299,10 +299,10 @@ export class CodeService {
    * @returns 差异文件列表，包含 fingerprint（所有 commit SHA 用逗号连接）
    */
   async getDiffForMultipleCommits({
-                                    repoID,
-                                    provider,
-                                    subjectID,
-                                  }: {
+    repoID,
+    provider,
+    subjectID,
+  }: {
     repoID: string;
     provider: string;
     subjectID: string; // commit1...commit2，commit1 是 from，commit2 是基线
@@ -418,15 +418,19 @@ export class CodeService {
       // 根据 provider 调用不同的 API
       if (provider === 'gitlab' || provider.startsWith('gitlab')) {
         const base = await this.configService.get('INFRA.GITLAB_BASE_URL');
-        const token = await this.configService.get('INFRA.GITLAB_PRIVATE_TOKEN');
+        const token = await this.configService.get(
+          'INFRA.GITLAB_PRIVATE_TOKEN',
+        );
 
         if (base && token) {
           const url = `${base}/api/v4/projects/${encodeURIComponent(repoID)}/repository/commits/${sha}`;
-          const resp = await axios.get(url, {
-            headers: {
-              'PRIVATE-TOKEN': token,
-            },
-          }).then(({ data }) => data);
+          const resp = await axios
+            .get(url, {
+              headers: {
+                'PRIVATE-TOKEN': token,
+              },
+            })
+            .then(({ data }) => data);
 
           commitMessage = resp.message || '';
           authorName = resp.author_name || null;
@@ -438,7 +442,9 @@ export class CodeService {
               : new Date();
         }
       } else if (provider === 'github' || provider.startsWith('github')) {
-        const token = await this.configService.get('INFRA.GITHUB_PRIVATE_TOKEN');
+        const token = await this.configService.get(
+          'INFRA.GITHUB_PRIVATE_TOKEN',
+        );
 
         if (token) {
           const { base } = await this.getGithubCfg();
@@ -449,12 +455,14 @@ export class CodeService {
           );
 
           const url = `${base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${sha}`;
-          const resp = await axios.get(url, {
-            headers: {
-              Authorization: `token ${token}`,
-              Accept: 'application/vnd.github.v3+json',
-            },
-          }).then(({ data }) => data);
+          const resp = await axios
+            .get(url, {
+              headers: {
+                Authorization: `token ${token}`,
+                Accept: 'application/vnd.github.v3+json',
+              },
+            })
+            .then(({ data }) => data);
 
           commitMessage = resp.commit?.message || '';
           authorName = resp.commit?.author?.name || null;

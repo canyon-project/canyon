@@ -56,7 +56,10 @@ export class CommitsService {
     // 用于跟踪每个 commit 的 buildTarget，避免重复
     const commitBuildTargetsMap = new Map<string, Set<string>>();
     // 用于跟踪每个 commit 的每个 buildTarget 对应的 scene
-    const commitBuildTargetScenesMap = new Map<string, Map<string, Map<string, SceneInfo>>>();
+    const commitBuildTargetScenesMap = new Map<
+      string,
+      Map<string, Map<string, SceneInfo>>
+    >();
 
     for (const coverage of coverages) {
       const sha = coverage.sha;
@@ -111,7 +114,10 @@ export class CommitsService {
 
       // 收集 buildTarget
       const buildTargetSet = commitBuildTargetsMap.get(sha)!;
-      const buildTarget = coverage.buildTarget && coverage.buildTarget.trim() !== '' ? coverage.buildTarget : '';
+      const buildTarget =
+        coverage.buildTarget && coverage.buildTarget.trim() !== ''
+          ? coverage.buildTarget
+          : '';
       if (buildTarget) {
         buildTargetSet.add(buildTarget);
       }
@@ -153,7 +159,7 @@ export class CommitsService {
     for (const [sha, record] of commitsMap.entries()) {
       const sceneMap = commitScenesMap.get(sha)!;
       record.scenes = Array.from(sceneMap.values());
-      
+
       // 设置 buildTargets 数组
       const buildTargetSet = commitBuildTargetsMap.get(sha)!;
       record.buildTargets = Array.from(buildTargetSet);
@@ -164,10 +170,12 @@ export class CommitsService {
 
       // 设置 buildTargetScenes 数组
       const buildTargetScenesMap = commitBuildTargetScenesMap.get(sha)!;
-      record.buildTargetScenes = Array.from(buildTargetScenesMap.entries()).map(([bt, sceneMap]) => ({
-        buildTarget: bt,
-        scenes: Array.from(sceneMap.values()),
-      }));
+      record.buildTargetScenes = Array.from(buildTargetScenesMap.entries()).map(
+        ([bt, sceneMap]) => ({
+          buildTarget: bt,
+          scenes: Array.from(sceneMap.values()),
+        }),
+      );
     }
 
     // 转换为数组，按最新报告时间倒序排列

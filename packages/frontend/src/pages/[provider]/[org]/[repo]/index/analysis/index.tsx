@@ -203,14 +203,16 @@ const AnalysisPage = () => {
         const createdAt = commitInfo?.createdAt
           ? formatDate(commitInfo.createdAt)
           : null;
-        
+
         return (
           <div>
             <Text code style={{ fontSize: '12px' }}>
               {shortSha}
             </Text>
             {commitMessage && (
-              <div style={{ fontSize: '12px', marginTop: '4px', color: '#666' }}>
+              <div
+                style={{ fontSize: '12px', marginTop: '4px', color: '#666' }}
+              >
                 <Tooltip title={commitInfo.commitMessage}>
                   {commitMessage}
                   {commitInfo.commitMessage.length > 60 ? '...' : ''}
@@ -218,7 +220,9 @@ const AnalysisPage = () => {
               </div>
             )}
             {author && (
-              <div style={{ fontSize: '11px', marginTop: '2px', color: '#999' }}>
+              <div
+                style={{ fontSize: '11px', marginTop: '2px', color: '#999' }}
+              >
                 {author}
                 {createdAt && ` · ${createdAt}`}
               </div>
@@ -242,14 +246,16 @@ const AnalysisPage = () => {
         const createdAt = commitInfo?.createdAt
           ? formatDate(commitInfo.createdAt)
           : null;
-        
+
         return (
           <div>
             <Text code style={{ fontSize: '12px' }}>
               {shortSha}
             </Text>
             {commitMessage && (
-              <div style={{ fontSize: '12px', marginTop: '4px', color: '#666' }}>
+              <div
+                style={{ fontSize: '12px', marginTop: '4px', color: '#666' }}
+              >
                 <Tooltip title={commitInfo.commitMessage}>
                   {commitMessage}
                   {commitInfo.commitMessage.length > 60 ? '...' : ''}
@@ -257,7 +263,9 @@ const AnalysisPage = () => {
               </div>
             )}
             {author && (
-              <div style={{ fontSize: '11px', marginTop: '2px', color: '#999' }}>
+              <div
+                style={{ fontSize: '11px', marginTop: '2px', color: '#999' }}
+              >
                 {author}
                 {createdAt && ` · ${createdAt}`}
               </div>
@@ -280,10 +288,10 @@ const AnalysisPage = () => {
       width: 200,
       render: (_: any, record: AnalysisRecord) => {
         const buildTargets = record.buildTargets || [];
-        
+
         // 构建菜单项：如果没有 buildTarget，添加一个"默认"选项
         const menuItems: MenuProps['items'] = [];
-        
+
         if (buildTargets.length === 0) {
           // 如果没有 buildTarget，添加一个"默认"选项
           menuItems.push({
@@ -330,12 +338,7 @@ const AnalysisPage = () => {
               okText='确定'
               cancelText='取消'
             >
-              <Button
-                type='link'
-                danger
-                icon={<DeleteOutlined />}
-                size='small'
-              >
+              <Button type='link' danger icon={<DeleteOutlined />} size='small'>
                 删除
               </Button>
             </Popconfirm>
@@ -398,11 +401,7 @@ const AnalysisPage = () => {
         confirmLoading={addLoading}
         cancelButtonProps={{ disabled: addLoading }}
       >
-        <Form
-          form={form}
-          layout='vertical'
-          onFinish={handleAdd}
-        >
+        <Form form={form} layout='vertical' onFinish={handleAdd}>
           <Form.Item
             name='from'
             label='起始 Commit SHA'
@@ -414,7 +413,10 @@ const AnalysisPage = () => {
               },
             ]}
           >
-            <Input placeholder='请输入完整的 40 位 Commit SHA' disabled={addLoading} />
+            <Input
+              placeholder='请输入完整的 40 位 Commit SHA'
+              disabled={addLoading}
+            />
           </Form.Item>
           <Form.Item
             name='to'
@@ -427,7 +429,10 @@ const AnalysisPage = () => {
               },
             ]}
           >
-            <Input placeholder='请输入完整的 40 位 Commit SHA' disabled={addLoading} />
+            <Input
+              placeholder='请输入完整的 40 位 Commit SHA'
+              disabled={addLoading}
+            />
           </Form.Item>
         </Form>
       </Modal>
