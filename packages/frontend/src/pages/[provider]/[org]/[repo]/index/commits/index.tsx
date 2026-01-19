@@ -1,10 +1,9 @@
-import { BranchesOutlined, SearchOutlined } from '@ant-design/icons';
+import { BranchesOutlined, DownOutlined, SearchOutlined } from '@ant-design/icons';
 import {
-  Button,
+  Dropdown,
   Input,
   message,
   Modal,
-  Select,
   Space,
   Switch,
   Table,
@@ -12,8 +11,9 @@ import {
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import type { MenuProps } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useOutletContext, useParams } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary';
@@ -68,8 +68,6 @@ const CommitsPage = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [onlyDefaultBranch, setOnlyDefaultBranch] = useState(false);
   const [defaultBranch, setDefaultBranch] = useState('');
-  const [selectedBuildTargets, setSelectedBuildTargets] = useState<string[]>([]);
-  const [selectedScenes, setSelectedScenes] = useState<string[]>([]);
   
   // 查看报告弹窗状态
   const [reportModalVisible, setReportModalVisible] = useState(false);
@@ -194,76 +192,6 @@ const CommitsPage = () => {
   }, [reportModalVisible, currentCommit, selectedBuildTarget, repo?.id]);
 
 
-  // 收集所有唯一的 buildTarget
-  const allBuildTargets = useMemo(() => {
-    const targets = new Set<string>();
-    commits.forEach((commit) => {
-      if (commit.buildTarget) {
-        targets.add(commit.buildTarget);
-      }
-    });
-    return Array.from(targets).sort();
-  }, [commits]);
-
-  // 收集所有唯一的场景 key-value 对
-  const allSceneOptions = useMemo(() => {
-    const sceneMap = new Map<string, { label: string; value: string }>();
-    
-    commits.forEach((commit) => {
-      if (commit.scenes) {
-        commit.scenes.forEach((sceneInfo) => {
-          const scene = sceneInfo.scene || {};
-          Object.entries(scene).forEach(([key, value]) => {
-            const label = `${key}: ${value}`;
-            const valueStr = JSON.stringify({ [key]: value });
-            if (!sceneMap.has(valueStr)) {
-              sceneMap.set(valueStr, { label, value: valueStr });
-            }
-          });
-        });
-      }
-    });
-    
-    return Array.from(sceneMap.values());
-  }, [commits]);
-
-  // 应用筛选
-  const filteredData = useMemo(() => {
-    let filtered = commits;
-
-    // 按 buildTarget 筛选
-    if (selectedBuildTargets.length > 0) {
-      filtered = filtered.filter((commit) =>
-        selectedBuildTargets.includes(commit.buildTarget),
-      );
-    }
-
-    // 按场景筛选
-    if (selectedScenes.length > 0) {
-      filtered = filtered.filter((commit) => {
-        if (!commit.scenes || commit.scenes.length === 0) {
-          return false;
-        }
-        // 检查 commit 的任意一个 scene 是否匹配选中的场景
-        return commit.scenes.some((sceneInfo) => {
-          const scene = sceneInfo.scene || {};
-          return selectedScenes.some((selectedSceneStr) => {
-            try {
-              const selectedScene = JSON.parse(selectedSceneStr);
-              // 检查 scene 是否包含 selectedScene 的所有键值对
-              return Object.entries(selectedScene).every(
-                ([key, value]) => scene[key] === value,
-              );
-            } catch {
-              return false;
-            }
-          });
-        });
-      });
-    }
-
-    return filtered;
-  }, [commits, selectedBuildTargets, selectedScenes]);
 
   const columns: ColumnsType<CommitRecord> = [
     {
@@ -285,39 +213,6 @@ const CommitsPage = () => {
       ),
     },
     {
-      title: (
-        <Space>
-          <BranchesOutlined />
-          {t('projects.branch')}
-        </Space>
-      ),
-      dataIndex: 'branch',
-      key: 'branch',
-      width: 150,
-      ellipsis: true,
-    },
-    {
-      title: (
-        <Space>
-          <BranchesOutlined />
-          {t('projects.compare_target')}
-        </Space>
-      ),
-      dataIndex: 'compareTarget',
-      key: 'compareTarget',
-      width: 100,
-      render: (text: string) =>
-        text ? (
-          <Link
-            to={`/${params.provider}/${params.org}/${params.repo}/commits/${text}`}
-          >
-            {text.substring(0, 7)}
-          </Link>
-        ) : (
-          '-'
-        ),
-    },
-    {
       title: t('projects.message'),
       dataIndex: 'commitMessage',
       key: 'commitMessage',
@@ -328,62 +223,8 @@ const CommitsPage = () => {
       title: 'Build Target',
       dataIndex: 'buildTarget',
       key: 'buildTarget',
-      width: 120,
+      // width: 120,
       render: (text: string) => (text ? <Tag>{text}</Tag> : '-'),
-    },
-    {
-      title: '场景',
-      key: 'scene',
-      width: 250,
-      render: (_: any, record: CommitRecord) => {
-        if (!record.scenes || record.scenes.length === 0) {
-          return <Text type='secondary'>-</Text>;
-        }
-        return (
-          <Space wrap>
-            {record.scenes.map((sceneInfo, index) => {
-              const scene = sceneInfo.scene || {};
-              const entries = Object.entries(scene);
-              if (entries.length === 0) {
-                return (
-                  <Tag key={index} color='default'>
-                    (空)
-                  </Tag>
-                );
-              }
-              return entries.map(([key, value]) => (
-                <Tag key={`${index}_${key}`} color='blue'>
-                  {key}: {String(value)}
-                </Tag>
-              ));
-            })}
-          </Space>
-        );
-      },
-    },
-    {
-      title: t('projects.statements'),
-      dataIndex: 'statements',
-      key: 'statements',
-      width: 100,
-      align: 'right',
-      render: (text: number) => (
-        <Text style={{ color: '#1890ff' }}>
-          {text ? `${text.toFixed(2)}%` : '-'}
-        </Text>
-      ),
-    },
-    {
-      title: t('projects.newlines'),
-      dataIndex: 'newLines',
-      key: 'newLines',
-      width: 100,
-      align: 'right',
-      render: (text: number) => (
-        <Text style={{ color: '#1890ff' }}>
-          {text ? `${text.toFixed(2)}%` : '-'}
-        </Text>
-      ),
     },
     {
       title: t('projects.report_times'),
@@ -407,47 +248,84 @@ const CommitsPage = () => {
       render: (_: any, record: CommitRecord) => {
         const detailPath = `/${params.provider}/${params.org}/${params.repo}/commits/${record.sha}`;
         
-        const handleViewReport = async () => {
-          setCurrentCommit(record);
-          setSelectedBuildTarget('');
-          setSelectedScene('');
-          setAvailableScenes([]);
-          
-          // 查询该 commit 的所有 buildTarget
-          try {
-            const resp = await fetch(
-              `/api/coverage/commits/buildTargets?repoID=${encodeURIComponent(repo?.id || '')}&sha=${encodeURIComponent(record.sha)}`,
-              { credentials: 'include' }
-            );
-            if (resp.ok) {
-              const data = await resp.json();
-              const buildTargets = data.buildTargets || [];
-              setAvailableBuildTargets(buildTargets.length > 0 ? buildTargets : [record.buildTarget || '']);
-              if (buildTargets.length > 0) {
-                setSelectedBuildTarget(buildTargets[0]);
-              } else if (record.buildTarget) {
-                setSelectedBuildTarget(record.buildTarget);
-              }
-            } else {
-              // 如果 API 不存在，使用当前记录的 buildTarget
-              setAvailableBuildTargets([record.buildTarget || '']);
-              setSelectedBuildTarget(record.buildTarget || '');
-            }
-          } catch {
-            // 如果查询失败，使用当前记录的 buildTarget
-            setAvailableBuildTargets([record.buildTarget || '']);
-            setSelectedBuildTarget(record.buildTarget || '');
+        // 构建报告路径的辅助函数
+        const buildReportPath = (scene?: Record<string, unknown>) => {
+          const searchParams = new URLSearchParams();
+          if (record.buildTarget) {
+            searchParams.set('build_target', record.buildTarget);
           }
-          
-          setReportModalVisible(true);
+          if (record.reportID) {
+            searchParams.set('report_id', record.reportID);
+          }
+          if (record.reportProvider) {
+            searchParams.set('report_provider', record.reportProvider);
+          }
+          if (scene && Object.keys(scene).length > 0) {
+            searchParams.set('scene', JSON.stringify(scene));
+          }
+          const queryString = searchParams.toString();
+          return `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
         };
+
+        // 收集所有场景中的所有 key-value 对，去重
+        const kvPairs = new Map<string, { key: string; value: unknown }>();
+        if (record.scenes && record.scenes.length > 0) {
+          record.scenes.forEach((sceneInfo) => {
+            const scene = sceneInfo.scene || {};
+            Object.entries(scene).forEach(([key, value]) => {
+              const kvKey = `${key}=${value}`;
+              if (!kvPairs.has(kvKey)) {
+                kvPairs.set(kvKey, { key, value });
+              }
+            });
+          });
+        }
+
+        const kvPairsArray = Array.from(kvPairs.values());
+
+        // 场景下拉菜单
+        let sceneDropdown = null;
+        if (kvPairsArray.length > 0) {
+          if (kvPairsArray.length === 1) {
+            // 如果只有一个 key-value 对，直接显示链接
+            const { key, value } = kvPairsArray[0];
+            const scene = { [key]: value };
+            const reportPath = buildReportPath(scene);
+            sceneDropdown = (
+              <a href={reportPath} target='_blank' rel='noreferrer'>
+                {key}={String(value)}
+              </a>
+            );
+          } else {
+            // 如果有多个 key-value 对，使用下拉菜单
+            const menuItems: MenuProps['items'] = kvPairsArray.map(({ key, value }, index) => {
+              const scene = { [key]: value };
+              const reportPath = buildReportPath(scene);
+              
+              return {
+                key: index,
+                label: (
+                  <a href={reportPath} target='_blank' rel='noreferrer'>
+                    {key}={String(value)}
+                  </a>
+                ),
+              };
+            });
+
+            sceneDropdown = (
+              <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>
+                <a onClick={(e) => e.preventDefault()}>
+                  场景 <DownOutlined />
+                </a>
+              </Dropdown>
+            );
+          }
+        }
 
         return (
           <Space>
             <Link to={detailPath}>{t('projects.reported_details')}</Link>
-            <Button type='link' size='small' onClick={handleViewReport}>
-              查看报告
-            </Button>
+            {sceneDropdown}
           </Space>
         );
       },
@@ -460,77 +338,46 @@ const CommitsPage = () => {
 
   return (
     <div className={''}>
-      <div className={'mb-4 flex flex-col gap-3'}>
-        <div className='flex items-center gap-3'>
-          <Input
-            style={{ width: '600px' }}
-            placeholder={t('projects.overview_search_keywords')}
-            prefix={<SearchOutlined />}
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            onPressEnter={() => {
-              setPage(1);
-              fetchCommits();
-            }}
-            allowClear
-            onClear={() => {
-              setSearchKeyword('');
-              setPage(1);
-            }}
-          />
-          {defaultBranch && (
-            <Space>
-              <Text type={'secondary'}>{t('projects.only.default.branch')}:</Text>
-              <Switch
-                checked={onlyDefaultBranch}
-                onChange={(checked) => {
-                  setOnlyDefaultBranch(checked);
-                  setPage(1);
-                }}
-              />
-            </Space>
-          )}
-        </div>
-        <div className='flex items-center gap-3'>
+      <div className={'mb-4 flex items-center gap-3'}>
+        <Input
+          style={{ width: '600px' }}
+          placeholder={t('projects.overview_search_keywords')}
+          prefix={<SearchOutlined />}
+          value={searchKeyword}
+          onChange={(e) => setSearchKeyword(e.target.value)}
+          onPressEnter={() => {
+            setPage(1);
+            fetchCommits();
+          }}
+          allowClear
+          onClear={() => {
+            setSearchKeyword('');
+            setPage(1);
+          }}
+        />
+        {defaultBranch && (
           <Space>
-            <Text type='secondary'>Build Target:</Text>
-            <Select
-              mode='multiple'
-              placeholder='选择 Build Target'
-              style={{ width: 300 }}
-              value={selectedBuildTargets}
-              onChange={setSelectedBuildTargets}
-              allowClear
-              options={allBuildTargets.map((target) => ({
-                label: target || '(空)',
-                value: target,
-              }))}
+            <Text type={'secondary'}>{t('projects.only.default.branch')}:</Text>
+            <Switch
+              checked={onlyDefaultBranch}
+              onChange={(checked) => {
+                setOnlyDefaultBranch(checked);
+                setPage(1);
+              }}
             />
           </Space>
-          <Space>
-            <Text type='secondary'>场景:</Text>
-            <Select
-              mode='multiple'
-              placeholder='选择场景'
-              style={{ width: 400 }}
-              value={selectedScenes}
-              onChange={setSelectedScenes}
-              allowClear
-              options={allSceneOptions}
-            />
-          </Space>
-        </div>
+        )}
       </div>
       <CardPrimary>
         <Table<CommitRecord>
           columns={columns}
-          dataSource={filteredData}
+          dataSource={commits}
           loading={loading}
           rowKey='sha'
           pagination={{
             current: page,
             pageSize: pageSize,
-            total: filteredData.length,
+            total: commits.length,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} / ${total} ${t('common.total_items', { total })}`,
             onChange: (newPage, newPageSize) => {
