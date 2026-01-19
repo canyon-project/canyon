@@ -2,6 +2,7 @@ import {
   BranchesOutlined,
   DownOutlined,
   SearchOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import {
   Dropdown,
@@ -62,6 +63,9 @@ type CommitRecord = {
   reportID: string;
   reportProvider: string;
   scenes?: SceneInfo[];
+  authorName?: string | null;
+  authorEmail?: string | null;
+  createdAt?: string;
 };
 
 // 展平后的行类型：每个 buildTarget 一行
@@ -217,10 +221,43 @@ const CommitsPage = () => {
     },
     {
       title: t('projects.message'),
-      dataIndex: 'commitMessage',
-      key: 'commitMessage',
+      key: 'commitInfo',
       ellipsis: true,
-      render: (text: string) => text || '-',
+      render: (_: any, record: FlatCommitRow) => {
+        const hasMessage = record.commitMessage;
+        const hasAuthor = record.authorName || record.authorEmail;
+        const hasTime = record.createdAt;
+
+        if (!hasMessage && !hasAuthor && !hasTime) {
+          return '-';
+        }
+
+        return (
+          <Space direction='vertical' size={2} style={{ width: '100%' }}>
+            {hasMessage && (
+              <Text ellipsis={{ tooltip: record.commitMessage }}>
+                {record.commitMessage}
+              </Text>
+            )}
+            {hasAuthor && (
+              <Space size={4}>
+                <UserOutlined />
+                <Text type='secondary' style={{ fontSize: '12px' }}>
+                  {record.authorName || record.authorEmail || '-'}
+                  {record.authorEmail && record.authorName && (
+                    <> ({record.authorEmail})</>
+                  )}
+                </Text>
+              </Space>
+            )}
+            {hasTime && (
+              <Text type='secondary' style={{ fontSize: '12px' }}>
+                {dayjs(record.createdAt).format('YYYY-MM-DD HH:mm:ss')}
+              </Text>
+            )}
+          </Space>
+        );
+      },
     },
     {
       title: 'Build Target',

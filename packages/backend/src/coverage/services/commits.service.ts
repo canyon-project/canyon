@@ -28,6 +28,10 @@ type CommitRecord = {
   reportID: string;
   reportProvider: string;
   scenes: SceneInfo[];
+  provider: string;
+  authorName?: string | null;
+  authorEmail?: string | null;
+  createdAt?: string;
 };
 
 @Injectable()
@@ -60,6 +64,8 @@ export class CommitsService {
       string,
       Map<string, Map<string, SceneInfo>>
     >();
+    // 用于跟踪每个 commit 的 provider
+    const commitProviderMap = new Map<string, string>();
 
     for (const coverage of coverages) {
       const sha = coverage.sha;
@@ -96,11 +102,13 @@ export class CommitsService {
           reportID,
           reportProvider,
           scenes: [],
+          provider: coverage.provider,
         });
         // 初始化 scene map 和 buildTarget set
         commitScenesMap.set(sha, new Map());
         commitBuildTargetsMap.set(sha, new Set<string>());
         commitBuildTargetScenesMap.set(sha, new Map());
+        commitProviderMap.set(sha, coverage.provider);
       }
 
       // 更新记录：增加次数，更新最新报告时间
@@ -178,8 +186,45 @@ export class CommitsService {
       );
     }
 
+    // 从 Commit 表中查询 commit 的详细信息
+    const commits = Array.from(commitsMap.values());
+    const commitShas = commits.map((c) => c.sha);
+    const providers = Array.from(
+      new Set(commits.map((c) => commitProviderMap.get(c.sha) || c.provider)),
+    );
+
+    // 批量查询 Commit 表
+    const commitDetails = await this.prisma.commit.findMany({
+      where: {
+        sha: { in: commitShas },
+        repoID,
+        provider: { in: providers },
+      },
+    });
+
+    // 构建 commit 详情映射：key 为 provider+repoID+sha
+    const commitDetailsMap = new Map<string, (typeof commitDetails)[0]>();
+    for (const commitDetail of commitDetails) {
+      const key = `${commitDetail.provider}+${commitDetail.repoID}+${commitDetail.sha}`;
+      commitDetailsMap.set(key, commitDetail);
+    }
+
+    // 为每个 commit 填充详细信息
+    for (const commit of commits) {
+      const provider = commitProviderMap.get(commit.sha) || commit.provider;
+      const key = `${provider}+${repoID}+${commit.sha}`;
+      const commitDetail = commitDetailsMap.get(key);
+
+      if (commitDetail) {
+        commit.commitMessage = commitDetail.commitMessage;
+        commit.authorName = commitDetail.authorName;
+        commit.authorEmail = commitDetail.authorEmail;
+        commit.createdAt = commitDetail.createdAt.toISOString();
+      }
+    }
+
     // 转换为数组，按最新报告时间倒序排列
-    return Array.from(commitsMap.values()).sort((a, b) => {
+    return commits.sort((a, b) => {
       return (
         new Date(b.latestReport).getTime() - new Date(a.latestReport).getTime()
       );
