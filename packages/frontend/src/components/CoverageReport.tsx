@@ -202,10 +202,14 @@ const CoverageReport = () => {
 
         const [fileContent, fileCoverage] = await Promise.all(requests);
 
+        // 从 fileCoverage 中提取 diff 信息（additions 数组）
+        // 根据类型定义，fileCodeChange 应该是 number[]，但实际使用时需要转换为对象
+        const fileCodeChange = fileCoverage?.diff?.additions || [];
+        console.log(fileCodeChange, 'fileCodeChange');
         return {
           fileContent: fileContent || '',
           fileCoverage: fileCoverage || {},
-          fileCodeChange: [],
+          fileCodeChange,
         };
       } catch (error) {
         console.error('Failed to fetch file:', error);

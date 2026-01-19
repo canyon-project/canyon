@@ -32,13 +32,20 @@ export class CoverageMapForAnalysisService {
     const token = await this.configService.get('INFRA.GITLAB_PRIVATE_TOKEN');
     const [afterSha, nowSha] = analysisID.split('...');
     // 关键点，对于Analysis来说，必须要通过diff过滤，不然分析数据量太大
+    const diffListWhereCondition: any = {
+      from: afterSha,
+      to: nowSha,
+      provider,
+      repo_id: repoID,
+    };
+
+    // 如果 filePath 存在，则只查询该文件的 diff
+    if (filePath) {
+      diffListWhereCondition.path = filePath;
+    }
+
     const diffList = await this.prisma.diff.findMany({
-      where: {
-        from: afterSha,
-        to: nowSha,
-        provider,
-        repo_id: repoID,
-      },
+      where: diffListWhereCondition,
       select: {
         path: true,
         additions: true,
