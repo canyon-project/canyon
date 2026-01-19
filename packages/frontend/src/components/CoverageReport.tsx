@@ -113,19 +113,15 @@ const CoverageReport = () => {
       try {
         // 根据 subject 类型确定如何获取文件内容
         let sha: string | undefined;
-        let analysisNumber: string | undefined;
 
         if (subject === 'commit' || subject === 'commits') {
           sha = subjectID;
         } else if (subject === 'analysis' || subject === 'analyses') {
           // analysis 格式为 afterCommitSHA...nowCommitSHA
-          // 使用 nowCommitSHA (后面的部分) 作为 ref
+          // 只需要关心 now commit，使用 nowCommitSHA (后面的部分) 作为 ref
           const parts = subjectID.split('...');
           if (parts.length === 2) {
             sha = parts[1].trim();
-            analysisNumber = subjectID; // 保留完整的 analysisID 用于查询
-          } else {
-            analysisNumber = subjectID;
           }
         } else if (subject === 'multiple-commits') {
           // multiple-commits 格式为 commit1...commit2，使用 to (commit2) 作为 ref
@@ -138,15 +134,14 @@ const CoverageReport = () => {
         // 并行请求：文件内容、详细覆盖率数据
         const requests = [];
 
-        // 1. 获取文件内容
-        if (sha || analysisNumber) {
+        // 1. 获取文件内容（只使用 now commit 的 sha）
+        if (sha) {
           requests.push(
             axios
               .get('/api/code/file', {
                 params: {
                   repoID,
                   sha,
-                  analysisNumber,
                   filepath: val,
                   provider,
                 },
@@ -204,8 +199,7 @@ const CoverageReport = () => {
 
         // 从 fileCoverage 中提取 diff 信息（additions 数组）
         // 根据类型定义，fileCodeChange 应该是 number[]，但实际使用时需要转换为对象
-        const fileCodeChange = fileCoverage?.diff?.additions || [];
-        console.log(fileCodeChange, 'fileCodeChange');
+        const fileCodeChange = fileCoverage?.diff || { additions: [], deletions: [] };
         return {
           fileContent: fileContent || '',
           fileCoverage: fileCoverage || {},
