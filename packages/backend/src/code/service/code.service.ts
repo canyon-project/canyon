@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { PrismaService } from '../../prisma/prisma.service';
+import {diffLine} from "../../helpers/diff";
 
 @Injectable()
 export class CodeService {
@@ -243,5 +244,140 @@ export class CodeService {
     });
     if (resp.status < 200 || resp.status >= 300) return { path, project: null };
     return resp.data;
+  }
+
+  /**
+   * 获取两个 commit 之间的所有 commit SHA 列表（包含 from 和 to）
+   * 使用 GitLab API 的 compare 接口
+   */
+  private async getCommitsBetween({
+                                    repoID,
+                                    fromSha,
+                                    toSha,
+                                  }: {
+    repoID: string;
+    fromSha: string;
+    toSha: string;
+  }): Promise<string[]> {
+    const { base, token } = await this.getGitLabCfg();
+    const pid = encodeURIComponent(repoID);
+    // GitLab compare API: /projects/{id}/repository/compare?from={from}&to={to}
+    const url = `${base}/api/v4/projects/${pid}/repository/compare?from=${encodeURIComponent(fromSha)}&to=${encodeURIComponent(toSha)}`;
+    const resp = await axios.get(url, {
+      headers: {
+        'PRIVATE-TOKEN': token,
+      },
+    });
+
+    if (resp.status < 200 || resp.status >= 300) {
+      throw new BadRequestException('无法获取 GitLab commit 列表');
+    }
+
+    // GitLab 返回的 commits 数组，按时间顺序从旧到新
+    const commits = resp.data.commits || [];
+    const commitShas = commits
+      .map((c: { id?: string }) => c.id)
+      .filter(Boolean);
+
+    // 确保 fromSha 在列表中，如果不在则添加到开头
+    if (!commitShas.includes(fromSha)) {
+      commitShas.unshift(fromSha);
+    }
+    // 确保 toSha 在列表中，如果不在则添加
+    if (!commitShas.includes(toSha)) {
+      commitShas.push(toSha);
+    }
+
+    return commitShas;
+  }
+
+  /**
+   * 获取多个 commit 之间的代码差异
+   * @param repoID 仓库 ID
+   * @param provider 提供商
+   * @param subjectID 格式: commit1...commit2，commit1 是 from，commit2 是 to（基线）
+   * @returns 差异文件列表，包含 fingerprint（所有 commit SHA 用逗号连接）
+   */
+  async getDiffForMultipleCommits({
+                                    repoID,
+                                    provider,
+                                    subjectID,
+                                  }: {
+    repoID: string;
+    provider: string;
+    subjectID: string; // commit1...commit2，commit1 是 from，commit2 是基线
+  }): Promise<
+    Array<{
+      id: string;
+      provider: string;
+      repo_id: string;
+      from: string;
+      to: string;
+      subject_id: string;
+      subject: string;
+      path: string;
+      additions: number[];
+      deletions: number[];
+      // fingerprint: string;
+    }>
+  > {
+    // 解析 subjectID: commit1...commit2
+    const parts = subjectID.split('...');
+    if (parts.length !== 2) {
+      throw new BadRequestException(
+        'subjectID 格式错误，应为 commit1...commit2',
+      );
+    }
+    const [fromSha, toSha] = parts;
+    if (!fromSha || !toSha) {
+      throw new BadRequestException('subjectID 格式错误，from 和 to 不能为空');
+    }
+
+    const fromShaTrimmed = fromSha.trim();
+    const toShaTrimmed = toSha.trim();
+
+    // 获取从 fromSha 到 toSha 之间的所有 commit
+    const commitShas = await this.getCommitsBetween({
+      repoID,
+      fromSha: fromShaTrimmed,
+      toSha: toShaTrimmed,
+    });
+
+    if (commitShas.length === 0) {
+      throw new BadRequestException('未找到任何 commit');
+    }
+
+    // fingerprint 是所有 commit SHA 用逗号连接
+    const fingerprint = commitShas.join(',');
+
+    // 获取代码差异
+    const { base, token } = await this.getGitLabCfg();
+    const result = await diffLine({
+      repoID,
+      baseCommitSha: fromShaTrimmed,
+      compareCommitSha: toShaTrimmed,
+      includesFileExtensions: ['ts', 'tsx', 'jsx', 'vue', 'js'],
+      gitlabUrl: base,
+      token,
+    });
+
+    // 转换为返回格式
+    const data = result.map(({ path, additions, deletions }) => {
+      return {
+        id: `${provider}|${repoID}|multiple-commits|${subjectID}|${path}`,
+        provider: provider,
+        repo_id: repoID,
+        from: fromShaTrimmed,
+        to: toShaTrimmed,
+        subject_id: subjectID,
+        subject: 'multiple-commits',
+        path,
+        additions,
+        deletions,
+        // fingerprint,
+      };
+    });
+
+    return data;
   }
 }
