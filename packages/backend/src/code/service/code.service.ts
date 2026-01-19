@@ -378,4 +378,115 @@ export class CodeService {
 
     return data;
   }
+
+  /**
+   * 检查并插入 commit（如果不存在）
+   * 通过调用 GitLab/GitHub API 获取 commit 详细信息并插入数据库
+   */
+  async insertCommitIfNotExists({
+    sha,
+    provider,
+    repoID,
+  }: {
+    sha: string;
+    provider: string;
+    repoID: string;
+  }): Promise<void> {
+    if (!sha || !provider || !repoID) {
+      return;
+    }
+
+    // 生成 commit id: provider+repoID+sha
+    const commitId = `${provider}${repoID}${sha}`;
+
+    // 检查 commit 是否已存在
+    const existingCommit = await this.prisma.commit.findUnique({
+      where: { id: commitId },
+    });
+
+    if (existingCommit) {
+      // 如果已存在，跳过
+      return;
+    }
+
+    try {
+      let commitMessage = '';
+      let authorName: string | null = null;
+      let authorEmail: string | null = null;
+      let createdAt = new Date();
+
+      // 根据 provider 调用不同的 API
+      if (provider === 'gitlab' || provider.startsWith('gitlab')) {
+        const base = await this.configService.get('INFRA.GITLAB_BASE_URL');
+        const token = await this.configService.get('INFRA.GITLAB_PRIVATE_TOKEN');
+
+        if (base && token) {
+          const url = `${base}/api/v4/projects/${encodeURIComponent(repoID)}/repository/commits/${sha}`;
+          const resp = await axios.get(url, {
+            headers: {
+              'PRIVATE-TOKEN': token,
+            },
+          }).then(({ data }) => data);
+
+          commitMessage = resp.message || '';
+          authorName = resp.author_name || null;
+          authorEmail = resp.author_email || null;
+          createdAt = resp.authored_date
+            ? new Date(resp.authored_date)
+            : resp.created_at
+              ? new Date(resp.created_at)
+              : new Date();
+        }
+      } else if (provider === 'github' || provider.startsWith('github')) {
+        const token = await this.configService.get('INFRA.GITHUB_PRIVATE_TOKEN');
+
+        if (token) {
+          const { base } = await this.getGithubCfg();
+          const { owner, repo } = await this.resolveGithubOwnerRepoByID(
+            repoID,
+            base,
+            token,
+          );
+
+          const url = `${base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${sha}`;
+          const resp = await axios.get(url, {
+            headers: {
+              Authorization: `token ${token}`,
+              Accept: 'application/vnd.github.v3+json',
+            },
+          }).then(({ data }) => data);
+
+          commitMessage = resp.commit?.message || '';
+          authorName = resp.commit?.author?.name || null;
+          authorEmail = resp.commit?.author?.email || null;
+          createdAt = resp.commit?.author?.date
+            ? new Date(resp.commit.author.date)
+            : resp.commit?.committer?.date
+              ? new Date(resp.commit.committer.date)
+              : new Date();
+        }
+      }
+
+      // 插入 commit 记录
+      await this.prisma.commit.create({
+        data: {
+          id: commitId,
+          sha,
+          provider,
+          repoID,
+          commitMessage,
+          authorName,
+          authorEmail,
+          createdAt,
+        },
+      });
+    } catch (error) {
+      // 如果出错，记录日志但不影响主流程
+      console.warn('Failed to insert commit:', {
+        commitId,
+        sha,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
 }

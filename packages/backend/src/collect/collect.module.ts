@@ -14,5 +14,6 @@ import { CoverageMapInitService } from './services/coverage-map-init.service';
     CoverageConsumerService,
     CoverageLockService,
   ],
+  exports: [CoverageMapInitService],
 })
 export class CollectModule {}

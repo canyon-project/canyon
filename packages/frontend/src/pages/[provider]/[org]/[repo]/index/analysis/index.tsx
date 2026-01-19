@@ -9,6 +9,7 @@ import {
   Popconfirm,
   Space,
   Table,
+  Tooltip,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -37,6 +38,13 @@ type DiffFile = {
   deletions: number[];
 };
 
+type CommitInfo = {
+  commitMessage: string;
+  authorName: string | null;
+  authorEmail: string | null;
+  createdAt: string;
+};
+
 type AnalysisRecord = {
   id: string;
   provider: string;
@@ -47,6 +55,8 @@ type AnalysisRecord = {
   subjectID: string;
   files: DiffFile[];
   buildTargets: string[];
+  fromCommit: CommitInfo | null;
+  toCommit: CommitInfo | null;
 };
 
 const AnalysisPage = () => {
@@ -161,28 +171,100 @@ const AnalysisPage = () => {
     }
   };
 
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return '';
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleString('zh-CN', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
   const columns: ColumnsType<AnalysisRecord> = [
     {
       title: 'From (起始 Commit)',
       dataIndex: 'from',
       key: 'from',
-      width: 120,
-      render: (text: string) => (
-        <Text code style={{ fontSize: '12px' }}>
-          {text.substring(0, 7)}
-        </Text>
-      ),
+      width: 250,
+      render: (text: string, record: AnalysisRecord) => {
+        const commitInfo = record.fromCommit;
+        const shortSha = text.substring(0, 7);
+        const commitMessage = commitInfo?.commitMessage
+          ? commitInfo.commitMessage.split('\n')[0].substring(0, 60)
+          : null;
+        const author = commitInfo?.authorName || null;
+        const createdAt = commitInfo?.createdAt
+          ? formatDate(commitInfo.createdAt)
+          : null;
+        
+        return (
+          <div>
+            <Text code style={{ fontSize: '12px' }}>
+              {shortSha}
+            </Text>
+            {commitMessage && (
+              <div style={{ fontSize: '12px', marginTop: '4px', color: '#666' }}>
+                <Tooltip title={commitInfo.commitMessage}>
+                  {commitMessage}
+                  {commitInfo.commitMessage.length > 60 ? '...' : ''}
+                </Tooltip>
+              </div>
+            )}
+            {author && (
+              <div style={{ fontSize: '11px', marginTop: '2px', color: '#999' }}>
+                {author}
+                {createdAt && ` · ${createdAt}`}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: 'To (结束 Commit)',
       dataIndex: 'to',
       key: 'to',
-      width: 120,
-      render: (text: string) => (
-        <Text code style={{ fontSize: '12px' }}>
-          {text.substring(0, 7)}
-        </Text>
-      ),
+      width: 250,
+      render: (text: string, record: AnalysisRecord) => {
+        const commitInfo = record.toCommit;
+        const shortSha = text.substring(0, 7);
+        const commitMessage = commitInfo?.commitMessage
+          ? commitInfo.commitMessage.split('\n')[0].substring(0, 60)
+          : null;
+        const author = commitInfo?.authorName || null;
+        const createdAt = commitInfo?.createdAt
+          ? formatDate(commitInfo.createdAt)
+          : null;
+        
+        return (
+          <div>
+            <Text code style={{ fontSize: '12px' }}>
+              {shortSha}
+            </Text>
+            {commitMessage && (
+              <div style={{ fontSize: '12px', marginTop: '4px', color: '#666' }}>
+                <Tooltip title={commitInfo.commitMessage}>
+                  {commitMessage}
+                  {commitInfo.commitMessage.length > 60 ? '...' : ''}
+                </Tooltip>
+              </div>
+            )}
+            {author && (
+              <div style={{ fontSize: '11px', marginTop: '2px', color: '#999' }}>
+                {author}
+                {createdAt && ` · ${createdAt}`}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: '文件数量',
