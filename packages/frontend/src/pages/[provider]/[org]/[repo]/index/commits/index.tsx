@@ -3,7 +3,6 @@ import {
   Dropdown,
   Input,
   message,
-  Modal,
   Space,
   Switch,
   Table,
@@ -13,7 +12,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useOutletContext, useParams } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary';
@@ -37,6 +36,11 @@ type SceneInfo = {
   sceneKey: string;
 };
 
+type BuildTargetSceneInfo = {
+  buildTarget: string;
+  scenes: SceneInfo[];
+};
+
 type CommitRecord = {
   sha: string;
   branch: string;
@@ -47,11 +51,20 @@ type CommitRecord = {
   times: number;
   latestReport: string;
   buildTarget: string;
+  buildTargets: string[];
+  buildTargetScenes?: BuildTargetSceneInfo[];
   versionID: string;
   coverageID: string;
   reportID: string;
   reportProvider: string;
   scenes?: SceneInfo[];
+};
+
+// 展平后的行类型：每个 buildTarget 一行
+type FlatCommitRow = CommitRecord & {
+  currentBuildTarget: string;
+  currentScenes: SceneInfo[]; // 该 buildTarget 的所有 scene
+  rowKey: string; // 用于唯一标识每一行
 };
 
 
@@ -68,15 +81,6 @@ const CommitsPage = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [onlyDefaultBranch, setOnlyDefaultBranch] = useState(false);
   const [defaultBranch, setDefaultBranch] = useState('');
-  
-  // 查看报告弹窗状态
-  const [reportModalVisible, setReportModalVisible] = useState(false);
-  const [currentCommit, setCurrentCommit] = useState<CommitRecord | null>(null);
-  const [selectedBuildTarget, setSelectedBuildTarget] = useState<string>('');
-  const [selectedScene, setSelectedScene] = useState<string>('');
-  const [availableBuildTargets, setAvailableBuildTargets] = useState<string[]>([]);
-  const [availableScenes, setAvailableScenes] = useState<Array<{ label: string; value: string; scene: Record<string, unknown> }>>([]);
-  const [loadingScenes, setLoadingScenes] = useState(false);
 
   // 从 repo config 中解析默认分支
   useEffect(() => {
@@ -142,58 +146,57 @@ const CommitsPage = () => {
     defaultBranch,
   ]);
 
-  // 当 buildTarget 改变时，自动加载场景
-  useEffect(() => {
-    if (reportModalVisible && currentCommit && selectedBuildTarget && repo?.id) {
-      setLoadingScenes(true);
-      fetch(`/api/coverage/commits/scenes?repoID=${encodeURIComponent(repo.id)}&sha=${encodeURIComponent(currentCommit.sha)}&buildTarget=${encodeURIComponent(selectedBuildTarget)}`, {
-        credentials: 'include',
-      })
-        .then((resp) => {
-          if (resp.ok) {
-            return resp.json();
+  // 展平数据：每个 buildTarget 一行（按 sha + buildTarget 分组）
+  const flatData = useMemo(() => {
+    const result: FlatCommitRow[] = [];
+    for (const commit of commits) {
+      // 如果有 buildTargetScenes，使用它；否则回退到旧的逻辑
+      if (commit.buildTargetScenes && commit.buildTargetScenes.length > 0) {
+        for (const buildTargetScene of commit.buildTargetScenes) {
+          const buildTarget = buildTargetScene.buildTarget || '';
+          const scenes = buildTargetScene.scenes || [];
+          
+          // 每个 buildTarget 创建一行
+          result.push({
+            ...commit,
+            currentBuildTarget: buildTarget,
+            currentScenes: scenes,
+            rowKey: `${commit.sha}_${buildTarget}`,
+          });
+        }
+      } else {
+        // 回退逻辑：如果没有 buildTargetScenes，使用 buildTargets 和 scenes
+        const buildTargets = commit.buildTargets || [];
+        const scenes = commit.scenes || [];
+        
+        if (buildTargets.length === 0) {
+          // 如果没有 buildTargets，至少创建一行
+          result.push({
+            ...commit,
+            currentBuildTarget: commit.buildTarget || '',
+            currentScenes: scenes,
+            rowKey: `${commit.sha}_empty`,
+          });
+        } else {
+          // 为每个 buildTarget 创建一行，所有 scene 都关联到该 buildTarget
+          for (const buildTarget of buildTargets) {
+            result.push({
+              ...commit,
+              currentBuildTarget: buildTarget,
+              currentScenes: scenes,
+              rowKey: `${commit.sha}_${buildTarget}`,
+            });
           }
-          throw new Error('Failed to fetch scenes');
-        })
-        .then((data) => {
-          const scenes = data.scenes || [];
-          const sceneOptions = scenes.map((sceneInfo: SceneInfo) => {
-            const scene = sceneInfo.scene || {};
-            const sceneLabel = Object.entries(scene)
-              .map(([key, value]) => `${key}: ${value}`)
-              .join(', ') || '(空)';
-            return {
-              label: sceneLabel,
-              value: JSON.stringify(scene),
-              scene: scene,
-            };
-          });
-          setAvailableScenes(sceneOptions.length > 0 ? sceneOptions : [{ label: '(空)', value: JSON.stringify({}), scene: {} }]);
-        })
-        .catch(() => {
-          // 如果 API 不存在，使用当前 commit 的场景
-          const sceneOptions = (currentCommit.scenes || []).map((sceneInfo) => {
-            const scene = sceneInfo.scene || {};
-            const sceneLabel = Object.entries(scene)
-              .map(([key, value]) => `${key}: ${value}`)
-              .join(', ') || '(空)';
-            return {
-              label: sceneLabel,
-              value: JSON.stringify(scene),
-              scene: scene,
-            };
-          });
-          setAvailableScenes(sceneOptions.length > 0 ? sceneOptions : [{ label: '(空)', value: JSON.stringify({}), scene: {} }]);
-        })
-        .finally(() => {
-          setLoadingScenes(false);
-        });
+        }
+      }
     }
-  }, [reportModalVisible, currentCommit, selectedBuildTarget, repo?.id]);
+    return result;
+  }, [commits]);
 
 
 
-  const columns: ColumnsType<CommitRecord> = [
+
+  const columns: ColumnsType<FlatCommitRow> = [
     {
       title: (
         <Space>
@@ -204,11 +207,11 @@ const CommitsPage = () => {
       dataIndex: 'sha',
       key: 'sha',
       width: 100,
-      render: (text: string) => (
+      render: (_: string, record: FlatCommitRow) => (
         <Link
-          to={`/${params.provider}/${params.org}/${params.repo}/commits/${text}`}
+          to={`/${params.provider}/${params.org}/${params.repo}/commits/${record.sha}`}
         >
-          {text.substring(0, 7)}
+          {record.sha.substring(0, 7)}
         </Link>
       ),
     },
@@ -221,10 +224,101 @@ const CommitsPage = () => {
     },
     {
       title: 'Build Target',
-      dataIndex: 'buildTarget',
-      key: 'buildTarget',
-      // width: 120,
-      render: (text: string) => (text ? <Tag>{text}</Tag> : '-'),
+      dataIndex: 'currentBuildTarget',
+      key: 'currentBuildTarget',
+      render: (text: string) => {
+        return text ? <Tag>{text}</Tag> : '-';
+      },
+    },
+    {
+      title: '场景',
+      dataIndex: 'currentScenes',
+      key: 'currentScenes',
+      render: (_: SceneInfo[], record: FlatCommitRow) => {
+        const scenes = record.currentScenes || [];
+        
+        if (scenes.length === 0) {
+          return '-';
+        }
+        
+        // 收集所有场景中的所有 key-value 对，去重
+        const kvPairs = new Map<string, { key: string; value: unknown }>();
+        scenes.forEach((sceneInfo) => {
+          const scene = sceneInfo.scene || {};
+          Object.entries(scene).forEach(([key, value]) => {
+            const kvKey = `${key}=${value}`;
+            if (!kvPairs.has(kvKey)) {
+              kvPairs.set(kvKey, { key, value });
+            }
+          });
+        });
+
+        const kvPairsArray = Array.from(kvPairs.values());
+        
+        if (kvPairsArray.length === 0) {
+          return '-';
+        }
+        
+        if (kvPairsArray.length === 1) {
+          // 如果只有一个 key-value 对，直接显示链接
+          const { key, value } = kvPairsArray[0];
+          const sceneObj = { [key]: value };
+          const searchParams = new URLSearchParams();
+          if (record.currentBuildTarget) {
+            searchParams.set('build_target', record.currentBuildTarget);
+          }
+          if (record.reportID) {
+            searchParams.set('report_id', record.reportID);
+          }
+          if (record.reportProvider) {
+            searchParams.set('report_provider', record.reportProvider);
+          }
+          searchParams.set('scene', JSON.stringify(sceneObj));
+          const queryString = searchParams.toString();
+          const reportPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
+          
+          return (
+            <a href={reportPath} target='_blank' rel='noreferrer'>
+              {key}={String(value)}
+            </a>
+          );
+        } else {
+          // 如果有多个 key-value 对，使用下拉菜单
+          const menuItems: MenuProps['items'] = kvPairsArray.map(({ key, value }, index) => {
+            const sceneObj = { [key]: value };
+            const searchParams = new URLSearchParams();
+            if (record.currentBuildTarget) {
+              searchParams.set('build_target', record.currentBuildTarget);
+            }
+            if (record.reportID) {
+              searchParams.set('report_id', record.reportID);
+            }
+            if (record.reportProvider) {
+              searchParams.set('report_provider', record.reportProvider);
+            }
+            searchParams.set('scene', JSON.stringify(sceneObj));
+            const queryString = searchParams.toString();
+            const reportPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
+            
+            return {
+              key: index,
+              label: (
+                <a href={reportPath} target='_blank' rel='noreferrer'>
+                  {key}={String(value)}
+                </a>
+              ),
+            };
+          });
+
+          return (
+            <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>
+              <a onClick={(e) => e.preventDefault()}>
+                场景 <DownOutlined />
+              </a>
+            </Dropdown>
+          );
+        }
+      },
     },
     {
       title: t('projects.report_times'),
@@ -245,88 +339,11 @@ const CommitsPage = () => {
       title: t('common.option'),
       key: 'option',
       width: 200,
-      render: (_: any, record: CommitRecord) => {
+      render: (_: any, record: FlatCommitRow) => {
         const detailPath = `/${params.provider}/${params.org}/${params.repo}/commits/${record.sha}`;
-        
-        // 构建报告路径的辅助函数
-        const buildReportPath = (scene?: Record<string, unknown>) => {
-          const searchParams = new URLSearchParams();
-          if (record.buildTarget) {
-            searchParams.set('build_target', record.buildTarget);
-          }
-          if (record.reportID) {
-            searchParams.set('report_id', record.reportID);
-          }
-          if (record.reportProvider) {
-            searchParams.set('report_provider', record.reportProvider);
-          }
-          if (scene && Object.keys(scene).length > 0) {
-            searchParams.set('scene', JSON.stringify(scene));
-          }
-          const queryString = searchParams.toString();
-          return `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ''}`;
-        };
-
-        // 收集所有场景中的所有 key-value 对，去重
-        const kvPairs = new Map<string, { key: string; value: unknown }>();
-        if (record.scenes && record.scenes.length > 0) {
-          record.scenes.forEach((sceneInfo) => {
-            const scene = sceneInfo.scene || {};
-            Object.entries(scene).forEach(([key, value]) => {
-              const kvKey = `${key}=${value}`;
-              if (!kvPairs.has(kvKey)) {
-                kvPairs.set(kvKey, { key, value });
-              }
-            });
-          });
-        }
-
-        const kvPairsArray = Array.from(kvPairs.values());
-
-        // 场景下拉菜单
-        let sceneDropdown = null;
-        if (kvPairsArray.length > 0) {
-          if (kvPairsArray.length === 1) {
-            // 如果只有一个 key-value 对，直接显示链接
-            const { key, value } = kvPairsArray[0];
-            const scene = { [key]: value };
-            const reportPath = buildReportPath(scene);
-            sceneDropdown = (
-              <a href={reportPath} target='_blank' rel='noreferrer'>
-                {key}={String(value)}
-              </a>
-            );
-          } else {
-            // 如果有多个 key-value 对，使用下拉菜单
-            const menuItems: MenuProps['items'] = kvPairsArray.map(({ key, value }, index) => {
-              const scene = { [key]: value };
-              const reportPath = buildReportPath(scene);
-              
-              return {
-                key: index,
-                label: (
-                  <a href={reportPath} target='_blank' rel='noreferrer'>
-                    {key}={String(value)}
-                  </a>
-                ),
-              };
-            });
-
-            sceneDropdown = (
-              <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>
-                <a onClick={(e) => e.preventDefault()}>
-                  场景 <DownOutlined />
-                </a>
-              </Dropdown>
-            );
-          }
-        }
 
         return (
-          <Space>
-            <Link to={detailPath}>{t('projects.reported_details')}</Link>
-            {sceneDropdown}
-          </Space>
+          <Link to={detailPath}>{t('projects.reported_details')}</Link>
         );
       },
     },
@@ -369,15 +386,15 @@ const CommitsPage = () => {
         )}
       </div>
       <CardPrimary>
-        <Table<CommitRecord>
+        <Table<FlatCommitRow>
           columns={columns}
-          dataSource={commits}
+          dataSource={flatData}
           loading={loading}
-          rowKey='sha'
+          rowKey='rowKey'
           pagination={{
             current: page,
             pageSize: pageSize,
-            total: commits.length,
+            total: flatData.length,
             showTotal: (total, range) =>
               `${range[0]}-${range[1]} / ${total} ${t('common.total_items', { total })}`,
             onChange: (newPage, newPageSize) => {
@@ -389,152 +406,6 @@ const CommitsPage = () => {
           }}
         />
       </CardPrimary>
-
-      {/* 查看报告弹窗 */}
-      <Modal
-        title='查看报告'
-        open={reportModalVisible}
-        onCancel={() => {
-          setReportModalVisible(false);
-          setCurrentCommit(null);
-          setSelectedBuildTarget('');
-          setSelectedScene('');
-          setAvailableBuildTargets([]);
-          setAvailableScenes([]);
-        }}
-        onOk={() => {
-          if (!currentCommit) return;
-          
-          // 构建报告路径
-          const searchParams = new URLSearchParams();
-          if (selectedBuildTarget) {
-            searchParams.set('build_target', selectedBuildTarget);
-          }
-          if (currentCommit.reportID) {
-            searchParams.set('report_id', currentCommit.reportID);
-          }
-          if (currentCommit.reportProvider) {
-            searchParams.set('report_provider', currentCommit.reportProvider);
-          }
-          if (selectedScene) {
-            try {
-              const sceneObj = JSON.parse(selectedScene);
-              searchParams.set('scene', JSON.stringify(sceneObj));
-            } catch {
-              // 忽略解析错误
-            }
-          }
-          
-          const queryString = searchParams.toString();
-          const reportPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${currentCommit.sha}/-/${queryString ? `?${queryString}` : ''}`;
-          
-          window.open(reportPath, '_blank');
-          setReportModalVisible(false);
-          setCurrentCommit(null);
-          setSelectedBuildTarget('');
-          setSelectedScene('');
-          setAvailableBuildTargets([]);
-          setAvailableScenes([]);
-        }}
-        okText='确定'
-        cancelText='取消'
-      >
-        {currentCommit && (
-          <Space direction='vertical' style={{ width: '100%' }} size='large'>
-            <div>
-              <Text strong>Commit SHA: </Text>
-              <Text code>{currentCommit.sha.substring(0, 7)}</Text>
-            </div>
-            
-            <div>
-              <Text strong>Build Target: </Text>
-              <Select
-                style={{ width: '100%', marginTop: '8px' }}
-                placeholder='选择 Build Target'
-                value={selectedBuildTarget}
-                onChange={async (value) => {
-                  setSelectedBuildTarget(value);
-                  setSelectedScene(''); // 清空场景选择
-                  
-                  // 查询该 buildTarget 下的所有场景
-                  if (!currentCommit || !repo?.id) return;
-                  
-                  setLoadingScenes(true);
-                  try {
-                    const resp = await fetch(
-                      `/api/coverage/commits/scenes?repoID=${encodeURIComponent(repo.id)}&sha=${encodeURIComponent(currentCommit.sha)}&buildTarget=${encodeURIComponent(value)}`,
-                      { credentials: 'include' }
-                    );
-                    if (resp.ok) {
-                      const data = await resp.json();
-                      const scenes = data.scenes || [];
-                      const sceneOptions = scenes.map((sceneInfo: SceneInfo) => {
-                        const scene = sceneInfo.scene || {};
-                        const sceneLabel = Object.entries(scene)
-                          .map(([key, value]) => `${key}: ${value}`)
-                          .join(', ') || '(空)';
-                        return {
-                          label: sceneLabel,
-                          value: JSON.stringify(scene),
-                          scene: scene,
-                        };
-                      });
-                      setAvailableScenes(sceneOptions.length > 0 ? sceneOptions : [{ label: '(空)', value: JSON.stringify({}), scene: {} }]);
-                    } else {
-                      // 如果 API 不存在，使用当前 commit 的场景
-                      const sceneOptions = (currentCommit.scenes || []).map((sceneInfo) => {
-                        const scene = sceneInfo.scene || {};
-                        const sceneLabel = Object.entries(scene)
-                          .map(([key, value]) => `${key}: ${value}`)
-                          .join(', ') || '(空)';
-                        return {
-                          label: sceneLabel,
-                          value: JSON.stringify(scene),
-                          scene: scene,
-                        };
-                      });
-                      setAvailableScenes(sceneOptions.length > 0 ? sceneOptions : [{ label: '(空)', value: JSON.stringify({}), scene: {} }]);
-                    }
-                  } catch {
-                    // 如果查询失败，使用当前 commit 的场景
-                    const sceneOptions = (currentCommit.scenes || []).map((sceneInfo) => {
-                      const scene = sceneInfo.scene || {};
-                      const sceneLabel = Object.entries(scene)
-                        .map(([key, value]) => `${key}: ${value}`)
-                        .join(', ') || '(空)';
-                      return {
-                        label: sceneLabel,
-                        value: JSON.stringify(scene),
-                        scene: scene,
-                      };
-                    });
-                    setAvailableScenes(sceneOptions.length > 0 ? sceneOptions : [{ label: '(空)', value: JSON.stringify({}), scene: {} }]);
-                  } finally {
-                    setLoadingScenes(false);
-                  }
-                }}
-                options={availableBuildTargets.map((bt) => ({
-                  label: bt || '(空)',
-                  value: bt,
-                }))}
-              />
-            </div>
-            
-            <div>
-              <Text strong>场景: </Text>
-              <Select
-                style={{ width: '100%', marginTop: '8px' }}
-                placeholder={loadingScenes ? '加载中...' : '先选择 Build Target'}
-                value={selectedScene}
-                onChange={setSelectedScene}
-                disabled={!selectedBuildTarget || loadingScenes}
-                loading={loadingScenes}
-                options={availableScenes}
-              />
-            </div>
-          </Space>
-        )}
-      </Modal>
     </div>
   );
 };
