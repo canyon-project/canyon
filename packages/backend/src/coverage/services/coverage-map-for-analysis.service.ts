@@ -135,9 +135,15 @@ export class CoverageMapForAnalysisService {
     // console.log('sourceMap', sourceMap);
 
     // 构建 nowSha 的 fileCoverageMap
+    // 使用去掉插桩路径前缀的相对路径作为 key，以便后续比较
     const nowShaFileCoverageMap = new Map<string, any>();
     for (const relation of nowShaMapRelations) {
       const rawFilePath = relation.restoreFullFilePath || relation.fullFilePath;
+      // 去掉插桩路径前缀，得到相对路径作为 key
+      const normalizedPath = rawFilePath.startsWith(nowShaInstrumentCwdPrefix)
+        ? rawFilePath.slice(nowShaInstrumentCwdPrefix.length)
+        : rawFilePath;
+      
       const sourceMapRecord = nowShaSourceMapIndex.get(relation.sourceMapHash);
       const coverageMapKey = `${relation.coverageMapHash}|${relation.fileContentHash}`;
       const coverageMapRecord = nowShaCoverageMapIndex.get(coverageMapKey);
@@ -147,8 +153,8 @@ export class CoverageMapForAnalysisService {
 
       // console.log('decodedCoverageMap', decodedCoverageMap);
 
-      nowShaFileCoverageMap.set(rawFilePath, {
-        path: rawFilePath,
+      nowShaFileCoverageMap.set(normalizedPath, {
+        path: rawFilePath, // 保留完整路径在 path 字段中
         fileContentHash: relation.fileContentHash,
         ...decodedCoverageMap,
         inputSourceMap: sourceMapRecord
@@ -164,20 +170,25 @@ export class CoverageMapForAnalysisService {
       },
     });
 
-    // 聚合 nowSha 的 hit 数据（按 rawFilePath）
+    // 聚合 nowSha 的 hit 数据（按 normalizedPath，去掉插桩路径前缀）
     const nowShaHitDataByFile = new Map<string, {
       s: NumMap;
       f: NumMap;
     }>();
 
     for (const coverageHit of nowShaCoverageHits) {
-      if (!nowShaHitDataByFile.has(coverageHit.rawFilePath)) {
-        nowShaHitDataByFile.set(coverageHit.rawFilePath, {
+      // 去掉插桩路径前缀，得到相对路径作为 key
+      const normalizedPath = coverageHit.rawFilePath.startsWith(nowShaInstrumentCwdPrefix)
+        ? coverageHit.rawFilePath.slice(nowShaInstrumentCwdPrefix.length)
+        : coverageHit.rawFilePath;
+      
+      if (!nowShaHitDataByFile.has(normalizedPath)) {
+        nowShaHitDataByFile.set(normalizedPath, {
           s: {},
           f: {},
         });
       }
-      const fileHitData = nowShaHitDataByFile.get(coverageHit.rawFilePath)!;
+      const fileHitData = nowShaHitDataByFile.get(normalizedPath)!;
       fileHitData.s = addMaps(fileHitData.s, ensureNumMap(coverageHit.s));
       fileHitData.f = addMaps(fileHitData.f, ensureNumMap(coverageHit.f));
     }
@@ -264,17 +275,23 @@ export class CoverageMapForAnalysisService {
       }
 
       // 构建该 commit 的 fileCoverageMap
+      // 使用去掉插桩路径前缀的相对路径作为 key，以便后续比较
       const fileCoverageMap = new Map<string, any>();
       for (const relation of mapRelations) {
         const rawFilePath = relation.restoreFullFilePath || relation.fullFilePath;
+        // 去掉插桩路径前缀，得到相对路径作为 key
+        const normalizedPath = rawFilePath.startsWith(instrumentCwdPrefix)
+          ? rawFilePath.slice(instrumentCwdPrefix.length)
+          : rawFilePath;
+        
         const sourceMapRecord = sourceMapIndex.get(relation.sourceMapHash);
         const coverageMapKey = `${relation.coverageMapHash}|${relation.fileContentHash}`;
         const coverageMapRecord = coverageMapIndex.get(coverageMapKey);
         if (!coverageMapRecord) continue;
 
         const decodedCoverageMap = decodeCompressedObject(coverageMapRecord.map)
-        fileCoverageMap.set(rawFilePath, {
-          path: rawFilePath,
+        fileCoverageMap.set(normalizedPath, {
+          path: rawFilePath, // 保留完整路径在 path 字段中
           fileContentHash: relation.fileContentHash,
           ...decodedCoverageMap,
           inputSourceMap: sourceMapRecord
@@ -290,20 +307,25 @@ export class CoverageMapForAnalysisService {
         },
       });
 
-      // 聚合该 commit 的 hit 数据（按 rawFilePath）
+      // 聚合该 commit 的 hit 数据（按 normalizedPath，去掉插桩路径前缀）
       const hitDataByFile = new Map<string, {
         s: NumMap;
         f: NumMap;
       }>();
 
       for (const coverageHit of coverageHits) {
-        if (!hitDataByFile.has(coverageHit.rawFilePath)) {
-          hitDataByFile.set(coverageHit.rawFilePath, {
+        // 去掉插桩路径前缀，得到相对路径作为 key
+        const normalizedPath = coverageHit.rawFilePath.startsWith(instrumentCwdPrefix)
+          ? coverageHit.rawFilePath.slice(instrumentCwdPrefix.length)
+          : coverageHit.rawFilePath;
+        
+        if (!hitDataByFile.has(normalizedPath)) {
+          hitDataByFile.set(normalizedPath, {
             s: {},
             f: {},
           });
         }
-        const fileHitData = hitDataByFile.get(coverageHit.rawFilePath)!;
+        const fileHitData = hitDataByFile.get(normalizedPath)!;
         fileHitData.s = addMaps(fileHitData.s, ensureNumMap(coverageHit.s));
         fileHitData.f = addMaps(fileHitData.f, ensureNumMap(coverageHit.f));
       }
