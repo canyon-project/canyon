@@ -1,14 +1,10 @@
 import chalk from 'chalk';
 import { program } from 'commander';
 import { version } from '../package.json';
-// import { hitCommand } from "./commands/hit";
 import { mapCommand } from './commands/upload.ts';
 
 const accent = chalk.greenBright;
 
-/**
- * * Program Default Configuration
- */
 const CLI_BEFORE_ALL_TXT = `canyon: The ${accent(
   'Canyon',
 )} CLI - Version ${version} (${accent(
@@ -36,10 +32,7 @@ program
   })
   .showHelpAfterError(true);
 
-/**
- * * CLI Commands with upload
- */
-// upload --dsn=http://local/coverage/client --repo_id=$CI_PROJECT_ID --instrument_cwd=$CI_PROJECT_DIR --sha=$CI_COMMIT_SHA --branch=$CI_COMMIT_REF_NAME --provider=gitlab
+
 program
   .command('upload')
   .option('--debug <dsn>', 'debug')
@@ -56,8 +49,13 @@ program
   .option('--build_target <build_target>', 'build target of the canyon server')
   .option('--coverage <coverage>', 'coverage of the canyon server')
   .option(
-    '--scene <scene>',
-    'scene map in JSON format, e.g. \'{"key1":"value1","key2":"value2"}\'',
+    '--scene <key=value>',
+    'scene key-value pair, can be used multiple times, e.g. --scene env=prod --scene type=e2e',
+    (value, previous: string[] = []) => {
+      previous.push(value);
+      return previous;
+    },
+    [],
   )
   .allowExcessArguments(false)
   .allowUnknownOption(false)

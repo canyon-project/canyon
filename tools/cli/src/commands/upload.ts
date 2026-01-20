@@ -1,4 +1,3 @@
-import * as console from 'node:console';
 import fs from 'node:fs';
 import path from 'node:path';
 import axios from 'axios';
@@ -19,7 +18,7 @@ export async function mapCommand(params: any, options: any) {
     scene,
   } = params;
   if (!fs.existsSync(path.resolve(process.cwd(), '.canyon_output'))) {
-    console.log('不存在');
+    console.log('No .canyon_output directory found, skipping upload.');
     return;
   }
   const files = fs.readdirSync(path.resolve(process.cwd(), '.canyon_output'));
@@ -55,19 +54,33 @@ export async function mapCommand(params: any, options: any) {
   const env_buildID = process.env.CI_JOB_ID;
   const env_buildProvider = 'gitlab_runner';
 
-  // 解析 scene 参数（JSON 字符串格式）
+  // 解析 scene 参数（key=value 格式，支持多个）
   let sceneMap: Record<string, string> | undefined;
-  if (scene) {
-    try {
-      sceneMap = typeof scene === 'string' ? JSON.parse(scene) : scene;
-      if (typeof sceneMap !== 'object' || Array.isArray(sceneMap)) {
-        throw new Error('scene must be a valid JSON object');
+  if (scene && Array.isArray(scene)) {
+    sceneMap = {};
+    for (const pair of scene) {
+      if (typeof pair !== 'string') {
+        console.error(
+          `Invalid scene parameter: ${pair}. Expected format: key=value`,
+        );
+        return;
       }
-    } catch (e) {
-      console.error(
-        `Failed to parse scene parameter: ${e}. Expected JSON format like '{"key1":"value1","key2":"value2"}'`,
-      );
-      return;
+      const equalIndex = pair.indexOf('=');
+      if (equalIndex === -1 || equalIndex === 0) {
+        console.error(
+          `Invalid scene parameter format: ${pair}. Expected format: key=value`,
+        );
+        return;
+      }
+      const key = pair.substring(0, equalIndex);
+      const value = pair.substring(equalIndex + 1);
+      if (!key || !value) {
+        console.error(
+          `Invalid scene parameter format: ${pair}. Key and value cannot be empty`,
+        );
+        return;
+      }
+      sceneMap[key] = value;
     }
   }
 
