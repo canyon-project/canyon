@@ -14,4 +14,5 @@ export interface CanyonBabelPluginConfig {
   ci?: boolean;
   /** 插桩工作目录，默认为当前路径 */
   instrumentCwd?: string;
+  keepMap?: boolean;
 }

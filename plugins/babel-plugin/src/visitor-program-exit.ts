@@ -1,4 +1,3 @@
-import * as console from 'node:console';
 import { randomBytes } from 'node:crypto';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
@@ -7,7 +6,6 @@ import generate from '@babel/generator';
 import { generateBuildHash } from './helpers/generate-build-hash';
 import { generateInitialCoverage } from './helpers/generate-initial-coverage';
 import { computeHash } from './helpers/hash';
-import { remapCoverageByOld } from './helpers/remap-coverage';
 import { enrichStatementMapWithHash } from './helpers/statement-map-hash';
 import type { CanyonBabelPluginConfig } from './types';
 
@@ -129,83 +127,6 @@ export function visitorProgramExit(
         JSON.stringify(coverageDataObject, null, 2),
         'utf-8',
       );
-
-      // 如果有 sourceMap，需要对 remap 后的覆盖率数据做 hash 处理
-      if (initialCoverageData.inputSourceMap && initialCoverageData.path) {
-        // 使用 Promise 处理异步 remap 操作，不阻塞主流程
-        remapCoverageByOld({
-          [initialCoverageData.path]: initialCoverageData,
-        })
-          .then((remappedCoverage) => {
-            if (Object.keys(remappedCoverage).length > 0) {
-              const originCodePath = Object.keys(remappedCoverage)[0];
-              if (!originCodePath) {
-                return;
-              }
-
-              // 检测源码文件是否存在
-              if (fs.existsSync(originCodePath)) {
-                // @ts-expect-error
-                const remappedCoverageEntry = remappedCoverage[originCodePath];
-                if (!remappedCoverageEntry) {
-                  return;
-                }
-
-                const originCodeContent = fs.readFileSync(
-                  originCodePath,
-                  'utf-8',
-                );
-
-                // 对 remap 后的覆盖率数据做 hash 处理（只对语句维度）
-                try {
-                  if (
-                    remappedCoverageEntry.statementMap &&
-                    typeof remappedCoverageEntry.statementMap === 'object'
-                  ) {
-                    enrichStatementMapWithHash(
-                      remappedCoverageEntry.statementMap as Parameters<
-                        typeof enrichStatementMapWithHash
-                      >[0],
-                      originCodeContent,
-                    );
-                  }
-                } catch (_error) {
-                  // 忽略提取失败，保持现有行为
-                }
-
-                // 计算源码文件的 contentHash
-                const remappedContentHash = computeHash(originCodeContent);
-                try {
-                  if (typeof remappedCoverageEntry === 'object') {
-                    remappedCoverageEntry.contentHash = remappedContentHash;
-                  }
-                } catch (_error) {
-                  // 忽略
-                }
-
-                // 写入 remap 后的覆盖率文件
-                const remapRandomSuffix = randomBytes(16).toString('hex');
-                const remapOutputFilePath = `./.canyon_output/cov-final-remap-${remapRandomSuffix}.json`;
-
-                fs.writeFileSync(
-                  remapOutputFilePath,
-                  JSON.stringify(
-                    {
-                      [originCodePath]: remappedCoverageEntry,
-                    },
-                    null,
-                    2,
-                  ),
-                  'utf-8',
-                );
-              }
-            }
-          })
-          .catch((_error) => {
-            console.log(_error);
-            // 忽略 remap 失败，保持现有行为
-          });
-      }
     }
   }
 
@@ -248,7 +169,7 @@ export function visitorProgramExit(
             const objectProperties = objectExpression.properties;
 
             // 注意：keepMap 属性不在配置接口中，这里保留原逻辑但添加注释说明
-            const shouldKeepMap = false; // 默认不保留 map
+            const shouldKeepMap = config.keepMap; // 默认不保留 map
             if (!shouldKeepMap) {
               const keysToRemove = [
                 'statementMap',
@@ -269,14 +190,6 @@ export function visitorProgramExit(
                   objectProperties.splice(propertyIndex, 1);
                 }
               });
-
-              // 添加 hasInputSourceMap 属性
-              const hasInputSourceMap = !!initialCoverageData?.inputSourceMap;
-              const hasInputSourceMapProperty = types.objectProperty(
-                types.identifier('hasInputSourceMap'),
-                types.booleanLiteral(hasInputSourceMap),
-              );
-              objectProperties.push(hasInputSourceMapProperty);
             }
 
             // 添加 buildHash 元数据属性

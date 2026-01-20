@@ -1,4 +1,3 @@
-import * as path from 'node:path';
 import type { ConfigAPI, NodePath } from '@babel/core';
 import { declare } from '@babel/helper-plugin-utils';
 import type * as t from '@babel/types';
@@ -16,6 +15,7 @@ const defaultConfig: Required<CanyonBabelPluginConfig> = {
   buildTarget: '',
   ci: false,
   instrumentCwd: process.cwd(),
+  keepMap:false
 };
 
 /**
@@ -40,6 +40,7 @@ function mergeConfig(
       config?.buildTarget ?? ciConfig.buildTarget ?? defaultConfig.buildTarget,
     ci: config?.ci ?? ciConfig.ci ?? defaultConfig.ci,
     instrumentCwd: config?.instrumentCwd ?? defaultConfig.instrumentCwd,
+    keepMap: config?.keepMap ?? defaultConfig.keepMap,
     // buildProvider:
     //   config?.buildProvider ??
     //   ciConfig.buildProvider ??

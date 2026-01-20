@@ -4,11 +4,12 @@ module.exports = {
     [
       './dist',
       {
-        repoID: '9050', //buildHash
-        sha: 'xxxxx', //buildHash
-        provider: 'tripgl', //buildHash
-        buildTarget: '', //buildHash
-        ci: true, // 开关
+        repoID: '9050',
+        sha: 'xxxxx',
+        provider: 'gitlab',
+        buildTarget: '',
+        ci: true,
+        keepMap: true
       },
     ],
   ],
