@@ -51,7 +51,7 @@
     "newlines": "New Lines",
     "reported_details": "Logs",
     "reporter": "Reporter",
-    "search_keywords": "Search by project id or name",
+    "search_keywords": "Search by repo id or name",
     "overview_search_keywords": "Enter the \"Commit Sha\" or \"Branch\" or \"Compare Target\" keyword for search",
     "coverage_details": "Coverage Details",
     "report_id": "Report ID",
