@@ -116,11 +116,18 @@ const SummaryList: FC<{
         );
       },
     },
-  ].filter(
-    (c) =>
-      c.key !== 'changestatements' ||
-      (c.key === 'changestatements' && onlyChange),
-  );
+  ].filter((c) => {
+    // Files 列始终显示
+    if (c.key === 'path') {
+      return true;
+    }
+    // 变更模式：只显示 changestatements 列
+    if (onlyChange) {
+      return c.key === 'changestatements';
+    }
+    // 非变更模式：显示其他列，不显示 changestatements
+    return c.key !== 'changestatements';
+  });
   return (
     <div style={style}>
       <ConfigProvider

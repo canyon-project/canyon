@@ -18,7 +18,7 @@ const SummaryNav: FC<{
     <div
       style={{
         display: 'flex',
-        gap: '6px',
+        gap: '3px',
         marginBottom: '6px',
         fontSize: '16px',
         fontWeight: 'bold',
@@ -31,7 +31,7 @@ const SummaryNav: FC<{
             key={pathKey}
             style={{
               display: 'flex',
-              gap: '6px',
+              gap: '3px',
             }}
           >
             <a
