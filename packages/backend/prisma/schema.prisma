@@ -13,7 +13,7 @@ datasource db {
 
 model InfraConfig {
   id                     String   @id @default(cuid())
-  name                   String   @unique
+  name                   String
   value                  String
   createdOn              DateTime @default(now()) @db.Timestamptz(3)
   updatedOn              DateTime @updatedAt @db.Timestamptz(3)
