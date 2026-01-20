@@ -1,16 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
-import { CoverageAnalysisQueryParamsTypes } from '../types/coverage-query-params.types';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { decodeCompressedObject } from '../../collect/helpers/transform';
 import { remapCoverageByOld } from '../../collect/helpers/canyon-data';
+import { decodeCompressedObject } from '../../collect/helpers/transform';
 import {
   addMaps,
   ensureNumMap,
   NumMap,
 } from '../../helpers/coverage-merge.util';
 import { testExclude } from '../../helpers/test-exclude';
+import { PrismaService } from '../../prisma/prisma.service';
+import { CoverageAnalysisQueryParamsTypes } from '../types/coverage-query-params.types';
 
 @Injectable()
 export class CoverageMapForAnalysisService {

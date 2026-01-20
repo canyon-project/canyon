@@ -5,12 +5,12 @@ import {
   annotateFunctions,
   annotateStatements,
 } from '../helpers/annotate';
+import { changeModeFilterIrrelevantData } from '../helpers/changeModeFilterIrrelevantData';
 import { coreFn } from '../helpers/coreFn';
 import ChangedCodeCoverageTable, {
   type ChangedCodeCoverageTableProps,
 } from './ChangedCodeCoverageTable';
 import lineNumbers from './lineNumbers';
-import {changeModeFilterIrrelevantData} from "../helpers/changeModeFilterIrrelevantData";
 
 // 扩展 Window 接口以包含 monaco
 declare global {
@@ -42,8 +42,6 @@ const CoverageDetail = ({
   coverage: coverage;
   diff: Diff;
 }) => {
-
-
   const addLines = diff.additions || [];
 
   coverage = changeModeFilterIrrelevantData(coverage, diff);

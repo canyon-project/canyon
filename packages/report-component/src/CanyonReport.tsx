@@ -78,10 +78,12 @@ export const CanyonReport: FC<CanyonReportProps> = ({
       const res = await onSelect(val);
       setFileContent(res.fileContent || '');
       setFileCoverage(res.fileCoverage || {});
-      setFileCodeChange(res.fileCodeChange || {
-        additions: [],
-        deletions: [],
-      });
+      setFileCodeChange(
+        res.fileCodeChange || {
+          additions: [],
+          deletions: [],
+        },
+      );
       return res;
     };
   }, [onSelect]);

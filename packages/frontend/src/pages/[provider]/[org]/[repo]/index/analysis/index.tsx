@@ -1,11 +1,12 @@
 import { DeleteOutlined, DownOutlined, PlusOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 import {
   Button,
   Dropdown,
   Form,
   Input,
-  message,
   Modal,
+  message,
   Popconfirm,
   Space,
   Table,
@@ -13,7 +14,6 @@ import {
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { MenuProps } from 'antd';
 import { useEffect, useState } from 'react';
 import { useOutletContext, useParams } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary';

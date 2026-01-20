@@ -1,4 +1,4 @@
-export function changeModeFilterIrrelevantData(coverage,diff) {
+export function changeModeFilterIrrelevantData(coverage, diff) {
   const addLines = diff.additions || [];
   const statementMap = coverage['statementMap'] || {};
   const s = coverage['s'] || {};
@@ -28,5 +28,5 @@ export function changeModeFilterIrrelevantData(coverage,diff) {
     f: {},
     statementMap: newStatementMap,
     s: newS,
-  }
+  };
 }

@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { PrismaService } from '../../prisma/prisma.service';
 import { diffLine } from '../../helpers/diff';
+import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CodeService {
