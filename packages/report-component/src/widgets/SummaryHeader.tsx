@@ -87,7 +87,7 @@ const SummaryMetric: FC<{
           })
           .filter(([key]) =>
             (onlyChange
-              ? ['statements', 'changestatements']
+              ? ['changestatements']
               : [
                   'statements',
                   'branches',

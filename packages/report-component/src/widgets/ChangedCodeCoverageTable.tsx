@@ -160,11 +160,6 @@ const ChangedCodeCoverageTable = ({
         style={{ maxHeight: isOpen ? '350px' : '0' }}
       >
         <div className='canyon-changed-code-coverage-table-wrapper'>
-          <div className='canyon-changed-code-coverage-table-title'>
-            Changed Code Statements ({coverageStats.totalCount}) - Coverage:{' '}
-            {coverageStats.coveragePercent}% ({coverageStats.coveredCount}/
-            {coverageStats.totalCount})
-          </div>
           <ConfigProvider
             theme={{
               token: {

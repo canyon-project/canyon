@@ -10,6 +10,7 @@ import ChangedCodeCoverageTable, {
   type ChangedCodeCoverageTableProps,
 } from './ChangedCodeCoverageTable';
 import lineNumbers from './lineNumbers';
+import {changeModeFilterIrrelevantData} from "../helpers/changeModeFilterIrrelevantData";
 
 // 扩展 Window 接口以包含 monaco
 declare global {
@@ -27,6 +28,11 @@ interface Diff {
   deletions: number[];
 }
 
+/*有两个模式
+1. 无变更行数据
+2. 有变更行数据
+*/
+
 const CoverageDetail = ({
   source,
   coverage,
@@ -36,8 +42,14 @@ const CoverageDetail = ({
   coverage: coverage;
   diff: Diff;
 }) => {
-  const { lines } = coreFn(coverage, source);
+
+
   const addLines = diff.additions || [];
+
+  coverage = changeModeFilterIrrelevantData(coverage, diff);
+
+  const { lines } = coreFn(coverage, source);
+
   const ref = useRef<HTMLDivElement>(null);
 
   // 检查是否有变更行数据
