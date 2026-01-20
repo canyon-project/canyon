@@ -1,5 +1,6 @@
 import { Breadcrumb, Button, Divider, message, Tabs } from 'antd';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import RIf from '@/components/RIf.tsx';
 import BasicLayout from '@/layouts/BasicLayout.tsx';
@@ -17,6 +18,7 @@ type Repo = {
 };
 
 const ProjectDetailPage = () => {
+  const { t } = useTranslation();
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -36,12 +38,12 @@ const ProjectDetailPage = () => {
           const data = await resp.json();
           setRepo(data);
         } else if (resp.status === 404) {
-          message.error('仓库不存在');
+          message.error(t('projects.detail.repo.not.found'));
         } else {
-          message.error('获取仓库信息失败');
+          message.error(t('projects.detail.repo.fetch.failed'));
         }
       } catch (error) {
-        message.error('获取仓库信息失败');
+        message.error(t('projects.detail.repo.fetch.failed'));
         console.error(error);
       } finally {
         setLoading(false);
@@ -60,7 +62,7 @@ const ProjectDetailPage = () => {
           <Breadcrumb
             items={[
               {
-                title: 'Project',
+                title: t('menus.projects'),
                 href: '/projects',
               },
               {
@@ -97,8 +99,8 @@ const ProjectDetailPage = () => {
               );
             }}
             items={[
-              { key: 'analysis', label: 'Analysis' },
-              { key: 'commits', label: 'Commits' },
+              { key: 'analysis', label: t('projects.detail.tabs.analysis') },
+              { key: 'commits', label: t('projects.detail.tabs.commits') },
             ]}
           />
         )}

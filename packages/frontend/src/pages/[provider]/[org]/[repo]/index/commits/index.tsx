@@ -132,10 +132,10 @@ const CommitsPage = () => {
         const data = await resp.json();
         setCommits(data.data || []);
       } else {
-        message.error('获取记录失败');
+        message.error(t('projects.commits.fetch.failed'));
       }
     } catch (error) {
-      message.error('获取记录失败');
+      message.error(t('projects.commits.fetch.failed'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -205,7 +205,7 @@ const CommitsPage = () => {
       title: (
         <Space>
           <BranchesOutlined />
-          Sha
+          {t('projects.commits.columns.sha')}
         </Space>
       ),
       dataIndex: 'sha',
@@ -260,7 +260,7 @@ const CommitsPage = () => {
       },
     },
     {
-      title: 'Build Target',
+      title: t('projects.commits.columns.buildTarget'),
       dataIndex: 'currentBuildTarget',
       key: 'currentBuildTarget',
       render: (text: string) => {
@@ -359,7 +359,7 @@ const CommitsPage = () => {
               sceneDropdown = (
                 <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>
                   <a onClick={(e) => e.preventDefault()}>
-                    场景 <DownOutlined />
+                    {t('projects.commits.columns.scene')} <DownOutlined />
                   </a>
                 </Dropdown>
               );
@@ -369,7 +369,7 @@ const CommitsPage = () => {
 
         return (
           <Space>
-            <Link to={detailPath} target={'_blank'}>总体</Link>
+            <Link to={detailPath} target={'_blank'}>{t('projects.commits.columns.overall')}</Link>
             {sceneDropdown}
           </Space>
         );
@@ -378,7 +378,7 @@ const CommitsPage = () => {
   ];
 
   if (!repo) {
-    return <div>加载中...</div>;
+    return <div>{t('projects.commits.loading')}</div>;
   }
 
   return (

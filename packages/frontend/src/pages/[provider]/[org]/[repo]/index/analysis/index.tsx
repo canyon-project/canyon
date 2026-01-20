@@ -15,6 +15,7 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useOutletContext, useParams } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary';
 
@@ -60,6 +61,7 @@ type AnalysisRecord = {
 };
 
 const AnalysisPage = () => {
+  const { t } = useTranslation();
   const { repo } = useOutletContext<{
     repo: Repo | null;
   }>();
@@ -90,10 +92,10 @@ const AnalysisPage = () => {
         setAnalysisRecords(data.data || []);
         setTotal(data.total || 0);
       } else {
-        message.error('获取分析记录失败');
+        message.error(t('projects.analysis.fetch.failed'));
       }
     } catch (error) {
-      message.error('获取分析记录失败');
+      message.error(t('projects.analysis.fetch.failed'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -129,16 +131,16 @@ const AnalysisPage = () => {
       });
 
       if (resp.ok) {
-        message.success('分析记录创建成功');
+        message.success(t('projects.analysis.create.success'));
         setIsModalOpen(false);
         form.resetFields();
         fetchAnalysisRecords();
       } else {
         const errorData = await resp.json();
-        message.error(errorData.message || '创建分析记录失败');
+        message.error(errorData.message || t('projects.analysis.create.failed'));
       }
     } catch (error) {
-      message.error('创建分析记录失败');
+      message.error(t('projects.analysis.create.failed'));
       console.error(error);
     } finally {
       setAddLoading(false);
@@ -160,13 +162,13 @@ const AnalysisPage = () => {
       );
 
       if (resp.ok) {
-        message.success('删除成功');
+        message.success(t('projects.analysis.delete.success'));
         fetchAnalysisRecords();
       } else {
-        message.error('删除失败');
+        message.error(t('projects.analysis.delete.failed'));
       }
     } catch (error) {
-      message.error('删除失败');
+      message.error(t('projects.analysis.delete.failed'));
       console.error(error);
     }
   };
@@ -175,7 +177,13 @@ const AnalysisPage = () => {
     if (!dateStr) return '';
     try {
       const date = new Date(dateStr);
-      return date.toLocaleString('zh-CN', {
+      const lng = localStorage.getItem('language') || 'en';
+      const localeMap: Record<string, string> = {
+        cn: 'zh-CN',
+        en: 'en-US',
+        ja: 'ja-JP',
+      };
+      return date.toLocaleString(localeMap[lng] || 'en-US', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
@@ -189,7 +197,7 @@ const AnalysisPage = () => {
 
   const columns: ColumnsType<AnalysisRecord> = [
     {
-      title: 'After',
+      title: t('projects.analysis.columns.after'),
       dataIndex: 'after',
       key: 'after',
       width: 250,
@@ -232,7 +240,7 @@ const AnalysisPage = () => {
       },
     },
     {
-      title: 'Now',
+      title: t('projects.analysis.columns.now'),
       dataIndex: 'now',
       key: 'now',
       width: 250,
@@ -275,7 +283,7 @@ const AnalysisPage = () => {
       },
     },
     {
-      title: '文件数量',
+      title: t('projects.analysis.columns.fileCount'),
       key: 'fileCount',
       width: 100,
       render: (_: any, record: AnalysisRecord) => (
@@ -283,7 +291,7 @@ const AnalysisPage = () => {
       ),
     },
     {
-      title: '操作',
+      title: t('projects.analysis.columns.action'),
       key: 'action',
       width: 200,
       render: (_: any, record: AnalysisRecord) => {
@@ -302,7 +310,7 @@ const AnalysisPage = () => {
                 target='_blank'
                 rel='noreferrer'
               >
-                默认（无 buildTarget）
+                {t('projects.analysis.default.buildTarget')}
               </a>
             ),
           });
@@ -317,7 +325,7 @@ const AnalysisPage = () => {
                   target='_blank'
                   rel='noreferrer'
                 >
-                  {buildTarget || '(空)'}
+                  {buildTarget || t('projects.analysis.empty.buildTarget')}
                 </a>
               ),
             });
@@ -329,17 +337,17 @@ const AnalysisPage = () => {
           <Space>
             <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>
               <a onClick={(e) => e.preventDefault()}>
-                查看报告 <DownOutlined />
+                {t('projects.analysis.view.report')} <DownOutlined />
               </a>
             </Dropdown>
             <Popconfirm
-              title='确定要删除这条分析记录吗？'
+              title={t('projects.analysis.delete.confirm')}
               onConfirm={() => handleDelete(record)}
-              okText='确定'
-              cancelText='取消'
+              okText={t('projects.analysis.modal.confirm')}
+              cancelText={t('projects.analysis.modal.cancel')}
             >
               <Button type='link' danger icon={<DeleteOutlined />} size='small'>
-                删除
+                {t('common.delete')}
               </Button>
             </Popconfirm>
           </Space>
@@ -349,16 +357,16 @@ const AnalysisPage = () => {
   ];
 
   if (!repo) {
-    return <div>加载中...</div>;
+    return <div>{t('projects.commits.loading')}</div>;
   }
 
   return (
     <div className={''}>
       <div className={'mb-4 flex items-center justify-between'}>
         <div>
-          <h2 style={{ margin: 0 }}>分析记录</h2>
+          <h2 style={{ margin: 0 }}>{t('projects.analysis.title')}</h2>
           <Text type='secondary' style={{ fontSize: '12px' }}>
-            管理 Git commit 之间的分析记录
+            {t('projects.analysis.desc')}
           </Text>
         </div>
         <Button
@@ -366,7 +374,7 @@ const AnalysisPage = () => {
           icon={<PlusOutlined />}
           onClick={() => setIsModalOpen(true)}
         >
-          新增分析
+          {t('projects.analysis.add')}
         </Button>
       </div>
 
@@ -378,14 +386,14 @@ const AnalysisPage = () => {
           rowKey='id'
           pagination={{
             total: total,
-            showTotal: (total) => `共 ${total} 条记录`,
+            showTotal: (total) => t('projects.analysis.pagination.total', { total }),
             pageSize: 10,
           }}
         />
       </CardPrimary>
 
       <Modal
-        title='新增分析记录'
+        title={t('projects.analysis.modal.title')}
         open={isModalOpen}
         onCancel={() => {
           if (!addLoading) {
@@ -396,41 +404,41 @@ const AnalysisPage = () => {
         onOk={() => {
           form.submit();
         }}
-        okText='创建'
-        cancelText='取消'
+        okText={t('projects.analysis.modal.create')}
+        cancelText={t('projects.analysis.modal.cancel')}
         confirmLoading={addLoading}
         cancelButtonProps={{ disabled: addLoading }}
       >
         <Form form={form} layout='vertical' onFinish={handleAdd}>
           <Form.Item
             name='after'
-            label='After Commit SHA'
+            label={t('projects.analysis.form.after.label')}
             rules={[
-              { required: true, message: '请输入 After Commit SHA' },
+              { required: true, message: t('projects.analysis.form.after.required') },
               {
                 pattern: /^[a-f0-9]{40}$/i,
-                message: 'SHA 格式不正确（应为 40 位十六进制字符串）',
+                message: t('projects.analysis.form.after.invalid'),
               },
             ]}
           >
             <Input
-              placeholder='请输入完整的 40 位 Commit SHA'
+              placeholder={t('projects.analysis.form.after.placeholder')}
               disabled={addLoading}
             />
           </Form.Item>
           <Form.Item
             name='now'
-            label='Now Commit SHA'
+            label={t('projects.analysis.form.now.label')}
             rules={[
-              { required: true, message: '请输入 Now Commit SHA' },
+              { required: true, message: t('projects.analysis.form.now.required') },
               {
                 pattern: /^[a-f0-9]{40}$/i,
-                message: 'SHA 格式不正确（应为 40 位十六进制字符串）',
+                message: t('projects.analysis.form.now.invalid'),
               },
             ]}
           >
             <Input
-              placeholder='请输入完整的 40 位 Commit SHA'
+              placeholder={t('projects.analysis.form.now.placeholder')}
               disabled={addLoading}
             />
           </Form.Item>

@@ -26,7 +26,7 @@ i18n
       escapeValue: false,
     },
     resources: resources,
-    lng: localStorage.getItem('language') || 'en',
+    lng: localStorage.getItem('language') || 'cn',
   });
 
 export default i18n;
