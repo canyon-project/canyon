@@ -1,5 +1,7 @@
+import Icon, { BarsOutlined } from '@ant-design/icons';
 import { Divider, Input, Segmented, Space, Switch, Typography } from 'antd';
 import type { FC } from 'react';
+import PhTreeViewIcon from '../icons/PhTreeView';
 
 // import PhTreeViewIcon from '../icons/PhTreeView';
 
@@ -49,12 +51,12 @@ const TopControl: FC<{
                 {
                   label: 'Code Tree',
                   value: 'tree',
-                  // icon: <Icon component={PhTreeViewIcon} />,
+                  icon: <Icon component={PhTreeViewIcon} />,
                 },
                 {
                   label: 'File List',
                   value: 'list',
-                  // icon: <BarsOutlined />,
+                  icon: <BarsOutlined />,
                 },
               ]}
             />
