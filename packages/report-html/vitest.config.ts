@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitest/config';
 import {mockDiff} from "./mock-diff";
+import path from 'path';
 
 export default defineConfig({
   test:{
@@ -8,7 +9,7 @@ export default defineConfig({
       reporter: [
         'json',
         [
-          // '/Users/travzhang/github.com/canyon-project/canyon/packages/report-html/index.js',
+          path.resolve(__dirname, 'index.js'),
           {
             diff: mockDiff,
           },
