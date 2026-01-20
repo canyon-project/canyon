@@ -32,7 +32,6 @@ program
   })
   .showHelpAfterError(true);
 
-
 program
   .command('upload')
   .option('--debug <dsn>', 'debug')

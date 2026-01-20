@@ -56,9 +56,12 @@ const NewProject = () => {
     setChecking(true);
     try {
       // 先检查本地数据库是否有该仓库
-      const localResp = await fetch(`/api/repos/${encodeURIComponent(repoId)}`, {
-        credentials: 'include',
-      });
+      const localResp = await fetch(
+        `/api/repos/${encodeURIComponent(repoId)}`,
+        {
+          credentials: 'include',
+        },
+      );
 
       if (localResp.ok) {
         // 本地数据库已有该仓库
@@ -83,8 +86,7 @@ const NewProject = () => {
           const gitlabData = await gitlabResp.json();
           // GitLab API 返回的数据包含 id (数字ID) 和 path_with_namespace
           const gitlabId = String(gitlabData.id); // 使用 GitLab 返回的数字 ID
-          const pathWithNamespace =
-            gitlabData.path_with_namespace || repoId;
+          const pathWithNamespace = gitlabData.path_with_namespace || repoId;
 
           // 生成默认配置
           const defaultBranch = gitlabData.default_branch || 'main';
@@ -195,9 +197,7 @@ const NewProject = () => {
         // 跳转到项目详情页
         const pathParts = finalRepoInfo.pathWithNamespace.split('/');
         if (pathParts.length >= 2) {
-          navigate(
-            `/${provider}/${pathParts[0]}/${pathParts[1]}/analysis`,
-          );
+          navigate(`/${provider}/${pathParts[0]}/${pathParts[1]}/analysis`);
         } else {
           navigate('/projects');
         }
@@ -340,9 +340,7 @@ const NewProject = () => {
                 }`}
               >
                 <div className='flex items-center gap-2'>
-                  <span className='text-lg'>
-                    {repoExists ? '✅' : '⚠️'}
-                  </span>
+                  <span className='text-lg'>{repoExists ? '✅' : '⚠️'}</span>
                   <Text
                     className={`text-sm font-medium ${
                       repoExists

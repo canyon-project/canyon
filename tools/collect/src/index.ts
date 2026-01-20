@@ -5,7 +5,12 @@
     if (dsn && coverage) {
       // 复制 coverage 对象并删除不需要的字段
       const cleanedCoverage: Record<string, any> = {};
-      const fieldsToRemove = ['statementMap', 'fnMap', 'branchMap', 'inputSourceMap'];
+      const fieldsToRemove = [
+        'statementMap',
+        'fnMap',
+        'branchMap',
+        'inputSourceMap',
+      ];
 
       for (const [filePath, coverageData] of Object.entries(coverage)) {
         if (coverageData && typeof coverageData === 'object') {

@@ -369,7 +369,9 @@ const CommitsPage = () => {
 
         return (
           <Space>
-            <Link to={detailPath} target={'_blank'}>{t('projects.commits.columns.overall')}</Link>
+            <Link to={detailPath} target={'_blank'}>
+              {t('projects.commits.columns.overall')}
+            </Link>
             {sceneDropdown}
           </Space>
         );

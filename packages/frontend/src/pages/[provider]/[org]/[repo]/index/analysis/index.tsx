@@ -137,7 +137,9 @@ const AnalysisPage = () => {
         fetchAnalysisRecords();
       } else {
         const errorData = await resp.json();
-        message.error(errorData.message || t('projects.analysis.create.failed'));
+        message.error(
+          errorData.message || t('projects.analysis.create.failed'),
+        );
       }
     } catch (error) {
       message.error(t('projects.analysis.create.failed'));
@@ -386,7 +388,8 @@ const AnalysisPage = () => {
           rowKey='id'
           pagination={{
             total: total,
-            showTotal: (total) => t('projects.analysis.pagination.total', { total }),
+            showTotal: (total) =>
+              t('projects.analysis.pagination.total', { total }),
             pageSize: 10,
           }}
         />
@@ -414,7 +417,10 @@ const AnalysisPage = () => {
             name='after'
             label={t('projects.analysis.form.after.label')}
             rules={[
-              { required: true, message: t('projects.analysis.form.after.required') },
+              {
+                required: true,
+                message: t('projects.analysis.form.after.required'),
+              },
               {
                 pattern: /^[a-f0-9]{40}$/i,
                 message: t('projects.analysis.form.after.invalid'),
@@ -430,7 +436,10 @@ const AnalysisPage = () => {
             name='now'
             label={t('projects.analysis.form.now.label')}
             rules={[
-              { required: true, message: t('projects.analysis.form.now.required') },
+              {
+                required: true,
+                message: t('projects.analysis.form.now.required'),
+              },
               {
                 pattern: /^[a-f0-9]{40}$/i,
                 message: t('projects.analysis.form.now.invalid'),

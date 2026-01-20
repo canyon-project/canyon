@@ -1,9 +1,9 @@
-import { defineConfig } from 'vitest/config';
-import {mockDiff} from "./mock-diff";
 import path from 'path';
+import { defineConfig } from 'vitest/config';
+import { mockDiff } from './mock-diff';
 
 export default defineConfig({
-  test:{
+  test: {
     coverage: {
       provider: 'istanbul',
       reporter: [
@@ -16,5 +16,5 @@ export default defineConfig({
         ],
       ],
     },
-  }
+  },
 });

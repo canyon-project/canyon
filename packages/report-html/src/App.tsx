@@ -73,13 +73,15 @@ function App() {
     <div
       style={{
         height: 'calc(100vh - 16px)',
-        display:'flex',
-        flexDirection:'column',
+        display: 'flex',
+        flexDirection: 'column',
       }}
     >
-      <div style={{
-        flex:1
-      }}>
+      <div
+        style={{
+          flex: 1,
+        }}
+      >
         <CanyonReport
           name={'All files'}
           value={value}
@@ -92,7 +94,7 @@ function App() {
       </div>
       <div
         style={{
-          textAlign:'center',
+          textAlign: 'center',
           fontSize: '12px',
           color: 'rgba(0,0,0,0.5)',
         }}

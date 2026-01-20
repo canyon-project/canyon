@@ -18,4 +18,4 @@ index 1234567..abcdefg 100644
 +  console.log('计算中...');
    return a + b;
 +  // 结束注释
- }`
+ }`;

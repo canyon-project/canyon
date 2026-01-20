@@ -15,7 +15,7 @@ const defaultConfig: Required<CanyonBabelPluginConfig> = {
   buildTarget: '',
   ci: false,
   instrumentCwd: process.cwd(),
-  keepMap:false
+  keepMap: false,
 };
 
 /**
