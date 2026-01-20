@@ -290,14 +290,14 @@ const Projects = () => {
             >
               {t('common.detail')}
             </Link>
-            {/*<Divider type={'vertical'} />*/}
-            {/*<Link*/}
-            {/*  to={{*/}
-            {/*    pathname: `/${provider}/${org}/${repo}/settings`,*/}
-            {/*  }}*/}
-            {/*>*/}
-            {/*  {t('common.settings')}*/}
-            {/*</Link>*/}
+            <Divider type={'vertical'} />
+            <Link
+              to={{
+                pathname: `/${provider}/${org}/${repo}/settings`,
+              }}
+            >
+              {t('common.settings')}
+            </Link>
           </>
         );
       },

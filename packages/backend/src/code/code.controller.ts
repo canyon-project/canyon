@@ -16,6 +16,28 @@ export class CodeController {
     private readonly prisma: PrismaService,
   ) {}
 
+  @Get('project')
+  async getProject(
+    @Query('path') path: string,
+    @Query('provider') provider?: string,
+  ) {
+    if (!path) {
+      throw new BadRequestException('项目路径不能为空');
+    }
+    try {
+      if (provider === 'gitlab' || !provider) {
+        return await this.codeService.getProjectByPath(path);
+      } else if (provider === 'github') {
+        return await this.codeService.getProjectByPathGithub(path, provider);
+      } else {
+        throw new BadRequestException('不支持的 provider');
+      }
+    } catch (error) {
+      console.error('Failed to get project:', error);
+      throw new BadRequestException('获取项目信息失败');
+    }
+  }
+
   @Get('file')
   async getFileContent(
     @Query('repoID') repoID: string,
