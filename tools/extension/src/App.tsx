@@ -4,10 +4,11 @@ import {
   GithubOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
-import { Button, ConfigProvider, Input, message, Space, Tooltip } from 'antd';
+import {Button, ConfigProvider, Divider, Input, message, Space, Tooltip} from 'antd';
 import { useState } from 'react';
 import './index.css';
 import { getCoverageAndCanyonData, upload } from './helper.ts';
+import AppFooter from "./components/app/footer.tsx";
 
 interface ProjectData {
   projectId: string;
@@ -58,13 +59,13 @@ function App() {
     <ConfigProvider
       theme={{
         token: {
-          colorPrimary: '#0071c2',
+          colorPrimary: '#3264ff',
         },
       }}
     >
-      <div className='min-h-screen bg-white'>
+      <div className='w-[500px]'>
         {/* Header */}
-        <header className='bg-[#0071c2] text-white px-6 py-4 flex items-center justify-between'>
+        <header className='bg-[#3264ff] text-white px-6 py-4 flex items-center justify-between'>
           <div className='flex items-center gap-2'>
             <img src='/logo-128.png' alt='Canyon' className='w-8 h-8' />
             <span className='text-xl font-semibold'>Canyon</span>
@@ -73,21 +74,24 @@ function App() {
             href='https://github.com/canyon-project/canyon'
             target='_blank'
             rel='noopener noreferrer'
-            className='text-white hover:opacity-80'
+            className='hover:opacity-80'
+            style={{
+              color:'white'
+            }}
           >
             <GithubOutlined className='text-2xl' />
           </a>
         </header>
 
         {/* Main Content */}
-        <main className='max-w-4xl mx-auto px-6 py-8'>
+        <main className='px-6 pt-4'>
           {/* Data Section */}
           <section className='mb-8'>
             <div className='flex items-center gap-3 mb-4'>
-              <div className='w-1 h-8 bg-[#0071c2]'></div>
-              <h2 className='text-xl font-semibold text-gray-800'>Data</h2>
+              <div className='w-1 h-4 bg-[#3264ff]'></div>
+              <h2 className=' font-semibold text-gray-800'>Data</h2>
             </div>
-            <div className='bg-white border border-gray-200 rounded-lg p-6 space-y-4'>
+            <div className=''>
               {/* Project ID */}
               <div className='flex items-center'>
                 <span className='w-32 text-gray-600 font-medium'>
@@ -130,93 +134,37 @@ function App() {
                       e.preventDefault();
                       handleDownloadCoverage();
                     }}
-                    className='text-[#0071c2] hover:underline'
+                    className='text-[#3264ff] hover:underline'
                   >
                     {data.coverage}
                   </a>
-                  <DownloadOutlined className='text-gray-500 cursor-pointer hover:text-[#0071c2]' />
-                </Space>
-              </div>
-
-              {/* Interval Report */}
-              <div className='flex items-center'>
-                <span className='w-32 text-gray-600 font-medium flex items-center gap-1'>
-                  Interval Report:
-                  <Tooltip title='报告间隔时间（秒）'>
-                    <QuestionCircleOutlined className='text-gray-400 cursor-help' />
-                  </Tooltip>
-                </span>
-                <Input
-                  type='number'
-                  value={data.intervalReport}
-                  onChange={(e) =>
-                    setData({ ...data, intervalReport: Number(e.target.value) })
-                  }
-                  className='w-24'
-                  suffix='s'
-                />
-              </div>
-
-              {/* Report ID */}
-              <div className='flex items-center'>
-                <span className='w-32 text-gray-600 font-medium flex items-center gap-1'>
-                  Report ID:
-                  <Tooltip title='报告标识符'>
-                    <QuestionCircleOutlined className='text-gray-400 cursor-help' />
-                  </Tooltip>
-                </span>
-                <Input
-                  value={data.reportId}
-                  onChange={(e) =>
-                    setData({ ...data, reportId: e.target.value })
-                  }
-                  className='flex-1 max-w-md'
-                />
-              </div>
-
-              {/* Reporter */}
-              <div className='flex items-center'>
-                <span className='w-32 text-gray-600 font-medium'>
-                  Reporter:
-                </span>
-                <Space className='flex-1'>
-                  <Input
-                    value={data.reporter}
-                    onChange={(e) =>
-                      setData({ ...data, reporter: e.target.value })
-                    }
-                    className='flex-1 max-w-md'
-                  />
-                  <span className='text-gray-600'>{data.reporterEmail}</span>
-                  <CheckCircleOutlined className='text-green-500 text-lg' />
+                  <DownloadOutlined className='text-gray-500 cursor-pointer hover:text-[#3264ff]' />
                 </Space>
               </div>
             </div>
           </section>
-
+          <Divider/>
           {/* Action Section */}
           <section className='mb-8'>
             <div className='flex items-center gap-3 mb-4'>
-              <div className='w-1 h-8 bg-[#0071c2]'></div>
-              <h2 className='text-xl font-semibold text-gray-800'>Action</h2>
+              <div className='w-1 h-4 bg-[#3264ff]'></div>
+              <h2 className='font-semibold text-gray-800'>Action</h2>
             </div>
-            <div className='bg-white border border-gray-200 rounded-lg p-6'>
-              <Space>
-                <Button type='primary' size='large' onClick={handleUpload}>
-                  Upload
-                </Button>
-                <Button size='large' onClick={handleRefresh}>
-                  Refresh
-                </Button>
-              </Space>
+            <div className='flex justify-between gap-3'>
+              <Button className={'w-full'} type='primary' onClick={handleUpload}>
+                Upload
+              </Button>
+              <Button className={'w-full'} onClick={handleRefresh}>
+                Refresh
+              </Button>
             </div>
           </section>
 
           {/* Result Section */}
           <section>
             <div className='flex items-center gap-3 mb-4'>
-              <div className='w-1 h-8 bg-[#0071c2]'></div>
-              <h2 className='text-xl font-semibold text-gray-800'>Result</h2>
+              <div className='w-1 h-4 bg-[#3264ff]'></div>
+              <h2 className='font-semibold text-gray-800'>Result</h2>
             </div>
             <div className='bg-white border border-gray-200 rounded-lg p-6 min-h-[200px]'>
               {result ? (
@@ -226,7 +174,16 @@ function App() {
               )}
             </div>
           </section>
+          <Divider/>
         </main>
+
+        <div className={'px-6 mb-4'}>
+          <a style={{
+            fontSize:'12px',
+            textDecoration:'underline',
+          }} href="">Something wrong or missing?</a>
+        </div>
+        <AppFooter/>
       </div>
     </ConfigProvider>
   );

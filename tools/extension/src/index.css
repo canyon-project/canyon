@@ -2,10 +2,10 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 a {
-  color: #0071c2;
+  color: #3264ff;
 }
 a:hover {
-  color: #0071c2;
+  color: #3264ff;
   opacity: 0.8;
   text-decoration: underline;
 }
