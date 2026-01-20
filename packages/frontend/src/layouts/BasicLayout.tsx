@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import BuildInfo from '@/components/BuildInfo.tsx';
+
 
 const BasicLayout: FC<{
   children: ReactNode;
@@ -115,12 +115,6 @@ const BasicLayout: FC<{
           label: <Link to='/projects'>{t('menus.projects')}</Link>,
           onClick: () => navigate('/projects'),
         },
-        {
-          key: '/settings',
-          icon: <SettingOutlined />,
-          label: t('menus.settings'),
-          onClick: () => navigate('/settings'),
-        },
       ]}
     />
   );
@@ -220,7 +214,6 @@ const BasicLayout: FC<{
           </ErrorBoundary>
         </div>
       </div>
-      <BuildInfo />
     </div>
   );
 };

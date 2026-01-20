@@ -155,18 +155,18 @@ const Projects = () => {
       render(text, record) {
         return (
           <Space>
-            <div
-              className={'favor-heart'}
-              style={{
-                visibility: record.favored ? 'unset' : undefined,
-              }}
-            >
-              {record.favored ? (
-                <HeartFilled style={{ color: 'red' }} />
-              ) : (
-                <HeartOutlined />
-              )}
-            </div>
+            {/*<div*/}
+            {/*  className={'favor-heart'}*/}
+            {/*  style={{*/}
+            {/*    visibility: record.favored ? 'unset' : undefined,*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  {record.favored ? (*/}
+            {/*    <HeartFilled style={{ color: 'red' }} />*/}
+            {/*  ) : (*/}
+            {/*    <HeartOutlined />*/}
+            {/*  )}*/}
+            {/*</div>*/}
             {text}
           </Space>
         );
@@ -192,7 +192,7 @@ const Projects = () => {
                 style={{ color: 'unset' }}
                 target={'_blank'}
                 // @ts-expect-error
-                href={`${window.GITLAB_URL || ''}/${text}`}
+                // href={`${window.GITLAB_URL || ''}/${text}`}
                 rel='noreferrer'
               >
                 {text}
@@ -290,14 +290,14 @@ const Projects = () => {
             >
               {t('common.detail')}
             </Link>
-            <Divider type={'vertical'} />
-            <Link
-              to={{
-                pathname: `/${provider}/${org}/${repo}/settings`,
-              }}
-            >
-              {t('common.settings')}
-            </Link>
+            {/*<Divider type={'vertical'} />*/}
+            {/*<Link*/}
+            {/*  to={{*/}
+            {/*    pathname: `/${provider}/${org}/${repo}/settings`,*/}
+            {/*  }}*/}
+            {/*>*/}
+            {/*  {t('common.settings')}*/}
+            {/*</Link>*/}
           </>
         );
       },
@@ -366,20 +366,20 @@ const Projects = () => {
             }}
           />
         </div>
-        <Space className={'ml-5'}>
-          <Text type={'secondary'}>{t('common.favor.only')}: </Text>
-          <Switch
-            checkedChildren={<HeartFilled />}
-            defaultChecked={Boolean(localStorage.getItem('favorOnlyFilter'))}
-            onChange={(v) => {
-              if (v) {
-                localStorage.setItem('favorOnlyFilter', 'true');
-              } else {
-                localStorage.removeItem('favorOnlyFilter');
-              }
-            }}
-          />
-        </Space>
+        {/*<Space className={'ml-5'}>*/}
+        {/*  <Text type={'secondary'}>{t('common.favor.only')}: </Text>*/}
+        {/*  <Switch*/}
+        {/*    checkedChildren={<HeartFilled />}*/}
+        {/*    defaultChecked={Boolean(localStorage.getItem('favorOnlyFilter'))}*/}
+        {/*    onChange={(v) => {*/}
+        {/*      if (v) {*/}
+        {/*        localStorage.setItem('favorOnlyFilter', 'true');*/}
+        {/*      } else {*/}
+        {/*        localStorage.removeItem('favorOnlyFilter');*/}
+        {/*      }*/}
+        {/*    }}*/}
+        {/*  />*/}
+        {/*</Space>*/}
       </div>
       <CardPrimary>
         <Table<ProjectRow>

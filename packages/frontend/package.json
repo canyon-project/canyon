@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "VITE_COMMIT=$(git rev-parse --short HEAD || echo dev) VITE_NODE=$(node -v || echo unknown) vite build"
+    "build": "vite build"
   },
   "dependencies": {
     "@ant-design/icons": "catalog:",

@@ -65,21 +65,21 @@ const ProjectDetailPage = () => {
               },
               {
                 title: params.repo,
-                href: `/${params.provider}/${params.org}/${params.repo}/commits`,
+                href: `/${params.provider}/${params.org}/${params.repo}/analysis`,
               },
             ]}
           />
 
-          <Button
-            type={'primary'}
-            onClick={() =>
-              navigate(
-                `/${params.provider}/${params.org}/${params.repo}/settings`,
-              )
-            }
-          >
-            设置
-          </Button>
+          {/*<Button*/}
+          {/*  type={'primary'}*/}
+          {/*  onClick={() =>*/}
+          {/*    navigate(*/}
+          {/*      `/${params.provider}/${params.org}/${params.repo}/settings`,*/}
+          {/*    )*/}
+          {/*  }*/}
+          {/*>*/}
+          {/*  设置*/}
+          {/*</Button>*/}
         </div>
         <Divider style={{ margin: '0' }} />
         {!location.pathname.includes('/settings') && (
