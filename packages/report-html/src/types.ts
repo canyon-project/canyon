@@ -46,6 +46,7 @@ export interface CanyonReportData {
   type: string;
   reportPath: string;
   version: string;
+  generatedAt?: string;
   watermarks: Watermarks;
   summary: ReportSummary;
   files: FileInfo[];

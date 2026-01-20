@@ -136,6 +136,7 @@ class CoverageReport {
       type: 'v8',
       reportPath: 'coverage/index.html',
       version: '2.12.9',
+      generatedAt: new Date().toISOString(),
       watermarks: {
         bytes: [50, 80],
         statements: [50, 80],
