@@ -205,9 +205,9 @@ const BasicLayout: FC<{
 
         <SidebarMenu />
 
-        <SidebarUser />
+        {/*<SidebarUser />*/}
       </div>
-      <div className={'flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] min-h-[100vh]'}>
+      <div className={'flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] h-[100vh] overflow-auto'}>
         <div className={'m-auto max-w-[1200px] min-w-[1000px] p-[12px]'}>
           <ErrorBoundary fallback={<p>⚠️Something went wrong</p>}>
             {children}
