@@ -20,7 +20,7 @@ model InfraConfig {
   isEncrypted            Boolean  @default(false)
   lastSyncedEnvFileValue String
 
-  @@map("canyon_final_infra_config")
+  @@map("canyon_next_infra_config")
 }
 
 model Repo {
@@ -34,7 +34,7 @@ model Repo {
   tags              Json
   members           Json
 
-  @@map("canyon_final_repo")
+  @@map("canyon_next_repo")
 }
 
 model Commit {
