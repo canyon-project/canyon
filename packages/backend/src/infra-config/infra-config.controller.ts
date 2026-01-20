@@ -9,15 +9,4 @@ export class InfraConfigController {
   async listAll() {
     return this.infraConfigService.listAll();
   }
-
-  @Put()
-  async updateMany(
-    @Body()
-    body: {
-      items: Array<{ name: string; value: string; isEncrypted?: boolean }>;
-    },
-  ) {
-    const items = Array.isArray(body?.items) ? body.items : [];
-    return this.infraConfigService.upsertMany(items);
-  }
 }
