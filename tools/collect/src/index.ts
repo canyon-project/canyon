@@ -1,8 +1,7 @@
 (() => {
   const sendCoverage = () => {
-    const coverageFirstValue = Object.values(window.__coverage__ || {})[0];
-    const dsn = coverageFirstValue?.dsn || window.CANYON_DSN;
-    if (dsn) {
+    const dsn = window.CANYON_DSN;
+    if (dsn && window.__coverage__) {
       fetch(dsn, {
         method: 'POST',
         headers: {
@@ -10,7 +9,6 @@
         },
         body: JSON.stringify({
           coverage: window.__coverage__,
-          ...coverageFirstValue,
           scene: window.CANYON_SCENE || {},
         }),
       });
