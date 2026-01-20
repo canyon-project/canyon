@@ -1,81 +1,38 @@
 export const mockCoverage = {
-  '/builds/canyon/canyon-demo/src/App.tsx': {
-    path: '/builds/canyon/canyon-demo/src/App.tsx',
-    statementMap: {
-      '0': {
-        start: {
-          line: 5,
-          column: 24,
-        },
-        end: {
-          line: 5,
-          column: 47,
-        },
-      },
-      '1': {
-        start: {
-          line: 6,
-          column: 2,
-        },
-        end: {
-          line: 9,
-          column: 5,
-        },
-      },
+  '/builds/canyon-project/canyon-demo-xtaro/dist/pc/src/pages/xtaroDemo/index.tsx':{
+    "path": "/builds/canyon-project/canyon-demo-xtaro/dist/pc/src/pages/xtaroDemo/index.tsx",
+    "s": {
+      "0": 1,
+      "1": 1,
+      "2": 0,
+      "3": 1,
+      "4": 0,
+      "5": 1,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 1
     },
-    fnMap: {
-      '0': {
-        name: 'App',
-        decl: {
-          start: {
-            line: 4,
-            column: 9,
-          },
-          end: {
-            line: 4,
-            column: 12,
-          },
-        },
-        loc: {
-          start: {
-            line: 4,
-            column: 15,
-          },
-          end: {
-            line: 10,
-            column: 1,
-          },
-        },
-        line: 4,
-      },
+    "f": {
+      "0": 1,
+      "1": 0,
+      "2": 0,
+      "3": 0,
+      "4": 1
     },
-    branchMap: {},
-    s: {
-      '0': 1,
-      '1': 1,
-    },
-    f: {
-      '0': 1,
-    },
-    b: {},
-    inputSourceMap: {
-      version: 3,
-      file: null,
-      sources: ['/builds/canyon/canyon-demo/src/App.tsx'],
-      names: [
-        'useRoutes',
-        'routerConfig',
-        'jsx',
-        '_jsx',
-        'App',
-        'routesContent',
-        'className',
-        'children',
+    "b": {
+      "0": [
+        0,
+        0
       ],
-      mappings:
-        'AACA,SAASA,iBAAiB;AAG1B,OAAOC,kBAAkB;AAAY,SAAAC,OAAAC,YAAA;AACrC,SAASC,MAAM;AACX,QAAMC,gBAAgBL,UAAUC,YAAY;AAC9C,SACEE,qBAAA,OAAA;AAAA,IAAKG,WAAU;AAAA,IAAKC,UACfF;AAAAA,EAAa,CACb;AAET;AAEA,eAAeD;',
+      "1": [
+        0,
+        0
+      ]
     },
-    _coverageSchema: '1a1c01bbd47fc00a2c39e90264f33305004495a9',
-    hash: '4fdd9105f78588a78cc41c8b65ab1966bf2e1d60',
-  },
-};
+    "_coverageSchema": "1a1c01bbd47fc00a2c39e90264f33305004495a9",
+    "hash": "2cf4ebda3c20f2ae35d319dde816e33dbe0183ad",
+    "hasInputSourceMap": true,
+    "buildHash": "4a88282efeb3b9dc76abe97da6c0125939a61121"
+  }
+}
