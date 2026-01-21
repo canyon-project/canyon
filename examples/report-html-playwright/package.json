@@ -6,13 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "tsgo -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "playwright test"
   },
   "dependencies": {
     "react": "catalog:",
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@canyonjs/playwright": "latest",
+    "@playwright/test": "1.56.1",
+    "babel-plugin-istanbul": "latest",
+    "@canyonjs/babel-plugin": "latest",
     "babel-plugin-react-compiler": "^1.0.0",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
