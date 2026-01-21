@@ -10,7 +10,8 @@ export default defineConfig({
           ['babel-plugin-react-compiler'],
           ['istanbul'],
           ['@canyonjs',{
-          ci:true
+          ci:true,
+            keepMap:true
           }]
         ],
       },
