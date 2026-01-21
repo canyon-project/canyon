@@ -42,3 +42,7 @@ jobs:
         continue-on-error: true
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+      - run: pnpm --filter=@canyonjs/playwright publish --access public -f --no-git-checks
+        continue-on-error: true
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}

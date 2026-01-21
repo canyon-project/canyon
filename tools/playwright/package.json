@@ -1,0 +1,31 @@
+{
+  "name": "@canyonjs/playwright",
+  "version": "0.0.1",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "description": "A Playwright E2E adapter that collects browser-side Istanbul coverage and exports it to Canyon-compatible reports.",
+  "author": "Travis Zhang<https://github.com/travzhang>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/canyon-project/canyon"
+  },
+  "bugs": {
+    "url": "https://github.com/canyon-project/canyon/issues"
+  },
+  "homepage": "https://github.com/canyon-project/canyon#readme",
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "devDependencies": {
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "catalog:",
+    "tsdown": "^0.17.0",
+    "@typescript/native-preview": "catalog:"
+  },
+  "dependencies": {}
+}
