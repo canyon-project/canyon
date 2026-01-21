@@ -43,8 +43,8 @@ const CoverageDetail = ({
   diff: Diff;
 }) => {
   const addLines = diff.additions || [];
-
-  coverage = changeModeFilterIrrelevantData(coverage, diff);
+  console.log(addLines,'addLines')
+  coverage = addLines.length>0?changeModeFilterIrrelevantData(coverage, diff):coverage
 
   const { lines } = coreFn(coverage, source);
 
