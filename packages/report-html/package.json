@@ -16,7 +16,7 @@
     "build": "rspack build",
     "pretest": "npm run build",
     "test:debug": "DEBUG=canyon:report-html vitest run --coverage",
-    "test": "vitest run --coverage",
+    "test": "rstest run --coverage",
     "preview": "rspack preview"
   },
   "main": "index.js",
@@ -37,6 +37,8 @@
     "parse-diff": "^0.11.1"
   },
   "devDependencies": {
+    "@rstest/core": "latest",
+    "@rstest/coverage-istanbul": "latest",
     "@rspack/cli": "^1.6.7",
     "@rspack/core": "^1.6.7",
     "@rspack/plugin-react-refresh": "^1.5.3",
