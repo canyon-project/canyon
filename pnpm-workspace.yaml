@@ -16,7 +16,7 @@ catalog:
   '@types/node': ^24.10.1
   '@types/react': 19.2.3
   '@types/react-dom': 19.2.3
-  '@typescript/native-preview': 7.0.0-dev.20260119.1
+  '@typescript/native-preview': 7.0.0-dev.20260126.1
   '@vitest/coverage-v8': ^4.0.16
   antd: 6.1.0
   class-validator: ^0.14.3
@@ -41,7 +41,7 @@ onlyBuiltDependencies:
   - prisma
 
 overrides:
-  '@typescript/native-preview': 7.0.0-dev.20260119.1
+  '@typescript/native-preview': 7.0.0-dev.20260126.1
   vite: 8.0.0-beta.10
 
 shellEmulator: true

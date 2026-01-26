@@ -43,13 +43,17 @@ const CoverageDetail = ({
   diff: Diff;
 }) => {
   const addLines = diff.additions || [];
-  coverage = addLines.length>0?changeModeFilterIrrelevantData(coverage, diff):coverage
+  coverage =
+    addLines.length > 0
+      ? changeModeFilterIrrelevantData(coverage, diff)
+      : coverage;
 
   const { lines } = coreFn(coverage, source);
 
   const ref = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
-  const highlightDecorationsRef = useRef<Monaco.editor.IEditorDecorationsCollection | null>(null);
+  const highlightDecorationsRef =
+    useRef<Monaco.editor.IEditorDecorationsCollection | null>(null);
   const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 检查是否有变更行数据
@@ -186,7 +190,9 @@ const CoverageDetail = ({
         if (editor) {
           editor?.createDecorationsCollection?.(decorations);
           // 创建用于跳转高亮的装饰集合
-          highlightDecorationsRef.current = editor.createDecorationsCollection([]);
+          highlightDecorationsRef.current = editor.createDecorationsCollection(
+            [],
+          );
         }
       }
     }
@@ -213,7 +219,12 @@ const CoverageDetail = ({
         <ChangedCodeCoverageTable
           coverage={coverage as ChangedCodeCoverageTableProps['coverage']}
           addLines={addLines}
-          onJumpToRange={(startLine: number, startCol: number, endLine: number, endCol: number) => {
+          onJumpToRange={(
+            startLine: number,
+            startCol: number,
+            endLine: number,
+            endCol: number,
+          ) => {
             if (editorRef.current && window.monaco) {
               const editor = editorRef.current;
 
@@ -225,7 +236,12 @@ const CoverageDetail = ({
                 highlightDecorationsRef.current.clear();
               }
 
-              const range = new window.monaco.Range(startLine, startCol, endLine, endCol);
+              const range = new window.monaco.Range(
+                startLine,
+                startCol,
+                endLine,
+                endCol,
+              );
 
               // 创建高亮装饰
               if (highlightDecorationsRef.current) {
@@ -235,7 +251,9 @@ const CoverageDetail = ({
                     options: {
                       isWholeLine: false,
                       inlineClassName: 'canyon-jump-highlight-range',
-                      stickiness: window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+                      stickiness:
+                        window.monaco.editor.TrackedRangeStickiness
+                          .NeverGrowsWhenTypingAtEdges,
                     },
                   },
                 ]);

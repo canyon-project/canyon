@@ -30,7 +30,12 @@ interface RelatedStatement {
 export interface ChangedCodeCoverageTableProps {
   coverage: Coverage;
   addLines: number[];
-  onJumpToRange?: (startLine: number, startCol: number, endLine: number, endCol: number) => void;
+  onJumpToRange?: (
+    startLine: number,
+    startCol: number,
+    endLine: number,
+    endCol: number,
+  ) => void;
 }
 
 // 将行号数组转换为区间格式，如 [19,20,21,22,23,24,56,57,58,59] -> "19-24, 56-59"
@@ -165,7 +170,11 @@ const ChangedCodeCoverageTable = ({
 
     if (notCovered.length > 0) {
       groups.push({
-        label: <span style={{ fontWeight: 500, color: '#f44336' }}>✗ Not Covered ({notCovered.length})</span>,
+        label: (
+          <span style={{ fontWeight: 500, color: '#f44336' }}>
+            ✗ Not Covered ({notCovered.length})
+          </span>
+        ),
         title: 'Not Covered',
         options: notCovered.map((stmt) => ({
           value: stmt.key,
@@ -176,7 +185,11 @@ const ChangedCodeCoverageTable = ({
 
     if (covered.length > 0) {
       groups.push({
-        label: <span style={{ fontWeight: 500, color: '#4caf50' }}>✓ Covered ({covered.length})</span>,
+        label: (
+          <span style={{ fontWeight: 500, color: '#4caf50' }}>
+            ✓ Covered ({covered.length})
+          </span>
+        ),
         title: 'Covered',
         options: covered.map((stmt) => ({
           value: stmt.key,
@@ -191,7 +204,12 @@ const ChangedCodeCoverageTable = ({
   // 计算覆盖率（基于所有语句）
   const coverageStats = useMemo(() => {
     if (relatedStatements.length === 0) {
-      return { coveredCount: 0, totalCount: 0, coveragePercent: 0, notCoveredCount: 0 };
+      return {
+        coveredCount: 0,
+        totalCount: 0,
+        coveragePercent: 0,
+        notCoveredCount: 0,
+      };
     }
     const coveredCount = relatedStatements.filter((s) =>
       s.Status.includes('✓'),
@@ -213,7 +231,12 @@ const ChangedCodeCoverageTable = ({
     const statement = allStatementsForSelect.find((s) => s.key === value);
     if (statement && onJumpToRange) {
       // 跳转到对应的代码范围
-      onJumpToRange(statement.startLine, statement.startCol, statement.endLine, statement.endCol);
+      onJumpToRange(
+        statement.startLine,
+        statement.startCol,
+        statement.endLine,
+        statement.endCol,
+      );
     }
   };
 
@@ -227,7 +250,8 @@ const ChangedCodeCoverageTable = ({
         <span className='canyon-changed-code-coverage-icon'>📊</span>
         <span>
           Changed Code Coverage: {coverageStats.coveragePercent}% (
-          {coverageStats.coveredCount}/{coverageStats.totalCount}) - {coverageStats.notCoveredCount} Not Covered
+          {coverageStats.coveredCount}/{coverageStats.totalCount}) -{' '}
+          {coverageStats.notCoveredCount} Not Covered
         </span>
         <span className='canyon-changed-code-coverage-arrow'>
           {isOpen ? '▲' : '▼'}
@@ -310,7 +334,9 @@ const ChangedCodeCoverageTable = ({
                 return option.label; // 分组标题直接返回
               }
 
-              const stmt = allStatementsForSelect.find((s) => s.key === option.value);
+              const stmt = allStatementsForSelect.find(
+                (s) => s.key === option.value,
+              );
               if (!stmt) return option.label;
 
               const isCovered = stmt.Status.includes('✓');

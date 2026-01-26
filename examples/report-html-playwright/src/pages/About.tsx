@@ -1,9 +1,9 @@
 const About = () => {
   return (
-    <div className="page">
+    <div className='page'>
       <h1>关于我们</h1>
       <p>这是一个懒加载的关于页面组件</p>
-      <div className="content">
+      <div className='content'>
         <h2>项目特点</h2>
         <ul>
           <li>React 19 + TypeScript</li>
@@ -13,7 +13,7 @@ const About = () => {
         </ul>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default About
+export default About;

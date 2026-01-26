@@ -1,10 +1,4 @@
-import {
-  FolderOutlined,
-  HeartFilled,
-  HeartOutlined,
-  PlusOutlined,
-  QuestionCircleOutlined,
-} from '@ant-design/icons';
+import { FolderOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   Button,
   Divider,
@@ -12,9 +6,7 @@ import {
   message,
   Select,
   Space,
-  Switch,
   Table,
-  Tooltip,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';

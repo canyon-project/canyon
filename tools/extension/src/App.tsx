@@ -4,11 +4,19 @@ import {
   GithubOutlined,
   QuestionCircleOutlined,
 } from '@ant-design/icons';
-import {Button, ConfigProvider, Divider, Input, message, Space, Tooltip} from 'antd';
+import {
+  Button,
+  ConfigProvider,
+  Divider,
+  Input,
+  message,
+  Space,
+  Tooltip,
+} from 'antd';
 import { useState } from 'react';
 import './index.css';
+import AppFooter from './components/app/footer.tsx';
 import { getCoverageAndCanyonData, upload } from './helper.ts';
-import AppFooter from "./components/app/footer.tsx";
 
 interface ProjectData {
   projectId: string;
@@ -76,7 +84,7 @@ function App() {
             rel='noopener noreferrer'
             className='hover:opacity-80'
             style={{
-              color:'white'
+              color: 'white',
             }}
           >
             <GithubOutlined className='text-2xl' />
@@ -143,7 +151,7 @@ function App() {
               </div>
             </div>
           </section>
-          <Divider/>
+          <Divider />
           {/* Action Section */}
           <section className='mb-8'>
             <div className='flex items-center gap-3 mb-4'>
@@ -151,7 +159,11 @@ function App() {
               <h2 className='font-semibold text-gray-800'>Action</h2>
             </div>
             <div className='flex justify-between gap-3'>
-              <Button className={'w-full'} type='primary' onClick={handleUpload}>
+              <Button
+                className={'w-full'}
+                type='primary'
+                onClick={handleUpload}
+              >
                 Upload
               </Button>
               <Button className={'w-full'} onClick={handleRefresh}>
@@ -174,16 +186,21 @@ function App() {
               )}
             </div>
           </section>
-          <Divider/>
+          <Divider />
         </main>
 
         <div className={'px-6 mb-4'}>
-          <a style={{
-            fontSize:'12px',
-            textDecoration:'underline',
-          }} href="">Something wrong or missing?</a>
+          <a
+            style={{
+              fontSize: '12px',
+              textDecoration: 'underline',
+            }}
+            href=''
+          >
+            Something wrong or missing?
+          </a>
         </div>
-        <AppFooter/>
+        <AppFooter />
       </div>
     </ConfigProvider>
   );

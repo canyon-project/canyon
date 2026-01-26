@@ -1,5 +1,5 @@
 import { defineConfig } from '@rstest/core';
-import path from "path";
+import path from 'path';
 import { mockDiff } from './mock-diff';
 
 export default defineConfig({

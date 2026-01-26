@@ -152,11 +152,14 @@
   border-bottom: 1px solid #e0e0e0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  transition: max-height 0.3s ease, opacity 0.3s ease;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
   opacity: 0;
 }
 
-.canyonjs-report-html .canyon-changed-code-coverage-content[style*="max-height: auto"] {
+.canyonjs-report-html
+  .canyon-changed-code-coverage-content[style*="max-height: auto"] {
   opacity: 1;
 }
 
@@ -170,16 +173,21 @@
 }
 
 /* 下拉选项样式优化 */
-.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper .ant-select-item {
+.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper
+  .ant-select-item {
   padding: 6px 12px !important;
   line-height: 20px !important;
 }
 
-.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper .ant-select-item-option-active {
+.canyonjs-report-html
+  .canyon-changed-code-coverage-select-wrapper
+  .ant-select-item-option-active {
   background-color: #f5f5f5;
 }
 
-.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper .ant-select-item-option-content {
+.canyonjs-report-html
+  .canyon-changed-code-coverage-select-wrapper
+  .ant-select-item-option-content {
   display: flex;
   align-items: center;
 }

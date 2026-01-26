@@ -1,4 +1,4 @@
-import { test, expect } from './base';
+import { expect, test } from './base';
 
 test('has title', async ({ page }) => {
   await page.goto('/');
