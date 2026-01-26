@@ -3,7 +3,7 @@ import enUS from 'antd/es/locale/en_US';
 import jaJP from 'antd/es/locale/ja_JP';
 import zhCN from 'antd/es/locale/zh_CN';
 import { useRoutes } from 'react-router-dom';
-import CoverageReport from '@/components/CoverageReport.tsx';
+import CoverageReport from '@/independents/report/index.tsx';
 import routes from '~react-pages';
 
 const languages = {

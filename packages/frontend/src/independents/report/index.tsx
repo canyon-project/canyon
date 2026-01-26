@@ -6,7 +6,7 @@ import { useCallback, useMemo, useState } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { getDecode } from '@/helpers/getDecode.ts';
 
-const CoverageReport = () => {
+const ReportIndependent = () => {
   const [searchParams] = useSearchParams();
   const params = useParams();
   const [activatedPath, setActivatedPath] = useState(
@@ -249,4 +249,4 @@ const CoverageReport = () => {
   );
 };
 
-export default CoverageReport;
+export default ReportIndependent;
