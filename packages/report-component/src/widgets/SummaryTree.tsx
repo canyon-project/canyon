@@ -8,7 +8,6 @@ import { getColor } from '../helpers/color';
 // import { getColor } from "../helpers";
 
 function checkSuffix(str: string) {
-  console.log(str);
   return true;
 }
 

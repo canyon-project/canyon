@@ -1,7 +1,7 @@
 {
   "name": "@canyonjs/report-component",
   "type": "module",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
     "type": "git",
