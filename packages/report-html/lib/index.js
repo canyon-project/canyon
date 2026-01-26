@@ -70,12 +70,12 @@ class CoverageReport {
       }
 
       // 文件名匹配（处理路径前缀不同的情况）
-      if (
-        normalizedCoveragePath.endsWith(normalizedDiffPath) ||
-        normalizedDiffPath.endsWith(normalizedCoveragePath)
-      ) {
-        return diffData;
-      }
+      // if (
+      //   normalizedCoveragePath.endsWith(normalizedDiffPath) ||
+      //   normalizedDiffPath.endsWith(normalizedCoveragePath)
+      // ) {
+      //   return diffData;
+      // }
 
       // 只比较文件名
       const coverageBasename = path.basename(normalizedCoveragePath);
