@@ -186,7 +186,12 @@ const ReportIndependent = () => {
       // 更新 URL（只有当路径变化时才更新）
       if (activatedPath !== val) {
         const newPath = `/report/-/${routeParams.provider}/${routeParams.org}/${routeParams.repo}/${routeParams.subject}/${routeParams.subjectID}/-/${val}`;
-        navigate(newPath, { replace: true });
+        // 保留查询参数
+        const searchParamsString = searchParams.toString();
+        const fullPath = searchParamsString
+          ? `${newPath}?${searchParamsString}`
+          : newPath;
+        navigate(fullPath, { replace: true });
       }
 
       // 如果不是文件，返回空数据
@@ -206,11 +211,12 @@ const ReportIndependent = () => {
         ? `${repoID}-${sha}-${val}-${routeParams.provider}`
         : null;
 
+      // 此时 subject 和 subjectID 已经确定不为空
       const fileCoverageParams: Record<string, string> = {
         provider: routeParams.provider,
         repoID,
-        subject: subject,
-        subjectID: routeParams.subjectID || '',
+        subject: routeParams.subject,
+        subjectID: routeParams.subjectID,
         filePath: val,
       };
 
