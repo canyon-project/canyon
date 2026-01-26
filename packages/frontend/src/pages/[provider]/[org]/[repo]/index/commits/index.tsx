@@ -213,7 +213,7 @@ const CommitsPage = () => {
       width: 100,
       render: (_: string, record: FlatCommitRow) => (
         <Link
-          to={`/${params.provider}/${params.org}/${params.repo}/commits/${record.sha}`}
+          to={`/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}`}
         >
           {record.sha.substring(0, 7)}
         </Link>
@@ -287,7 +287,7 @@ const CommitsPage = () => {
       key: 'option',
       width: 200,
       render: (_: any, record: FlatCommitRow) => {
-        const detailPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commits/${record.sha}/-/?build_target=${record.currentBuildTarget}`;
+        const detailPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/?build_target=${record.currentBuildTarget}`;
 
         // 构建报告路径的辅助函数
         const buildReportPath = (scene: Record<string, unknown>) => {
