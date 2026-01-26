@@ -227,7 +227,7 @@ const ChangedCodeCoverageTable = ({
         <span className='canyon-changed-code-coverage-icon'>📊</span>
         <span>
           Changed Code Coverage: {coverageStats.coveragePercent}% (
-          {coverageStats.coveredCount}/{coverageStats.totalCount}) - {coverageStats.notCoveredCount} 未覆盖
+          {coverageStats.coveredCount}/{coverageStats.totalCount}) - {coverageStats.notCoveredCount} Not Covered
         </span>
         <span className='canyon-changed-code-coverage-arrow'>
           {isOpen ? '▲' : '▼'}
