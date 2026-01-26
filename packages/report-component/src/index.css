@@ -152,21 +152,72 @@
   border-bottom: 1px solid #e0e0e0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   z-index: 1000;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
 }
 
-.canyonjs-report-html .canyon-changed-code-coverage-table-wrapper {
-  padding: 16px;
+.canyonjs-report-html .canyon-changed-code-coverage-content[style*="max-height: auto"] {
+  opacity: 1;
+}
+
+.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper {
+  padding: 12px 16px;
   background: #ffffff;
   font-family:
     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  overflow: auto;
-  max-height: 300px;
+  display: flex;
+  justify-content: flex-start;
 }
 
-.canyonjs-report-html .canyon-changed-code-coverage-table-title {
-  font-weight: bold;
-  font-size: 14px;
-  color: #007acc;
-  margin-bottom: 12px;
+/* 下拉选项样式优化 */
+.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper .ant-select-item {
+  padding: 6px 12px !important;
+  line-height: 20px !important;
+}
+
+.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper .ant-select-item-option-active {
+  background-color: #f5f5f5;
+}
+
+.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper .ant-select-item-option-content {
+  display: flex;
+  align-items: center;
+}
+
+/* 跳转高亮样式 - 整行高亮 */
+.canyonjs-report-html .canyon-jump-highlight-line {
+  background-color: rgba(255, 193, 7, 0.4) !important;
+  border-left: 4px solid #ff9800;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+  animation: canyon-jump-pulse 0.6s ease-out;
+}
+
+/* 跳转高亮样式 - 行号区域高亮 */
+.canyonjs-report-html .canyon-jump-highlight-line-margin {
+  background-color: rgba(255, 193, 7, 0.3) !important;
+}
+
+/* 跳转高亮样式 - 范围高亮 */
+.canyonjs-report-html .canyon-jump-highlight-range {
+  background-color: rgba(255, 193, 7, 0.5) !important;
+  border: 2px solid #ff9800;
+  border-radius: 3px;
+  box-shadow: 0 0 6px rgba(255, 193, 7, 0.6);
+  animation: canyon-jump-pulse 0.6s ease-out;
+}
+
+/* 脉冲动画效果 - 让高亮更醒目 */
+@keyframes canyon-jump-pulse {
+  0% {
+    background-color: rgba(255, 193, 7, 0.7);
+    box-shadow: 0 0 12px rgba(255, 193, 7, 0.8);
+  }
+  50% {
+    background-color: rgba(255, 193, 7, 0.5);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+  }
+  100% {
+    background-color: rgba(255, 193, 7, 0.4);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+  }
 }

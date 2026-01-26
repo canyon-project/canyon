@@ -43,12 +43,14 @@ const CoverageDetail = ({
   diff: Diff;
 }) => {
   const addLines = diff.additions || [];
-  console.log(addLines,'addLines')
   coverage = addLines.length>0?changeModeFilterIrrelevantData(coverage, diff):coverage
 
   const { lines } = coreFn(coverage, source);
 
   const ref = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
+  const highlightDecorationsRef = useRef<Monaco.editor.IEditorDecorationsCollection | null>(null);
+  const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 检查是否有变更行数据
   const hasChangedLines =
@@ -94,6 +96,7 @@ const CoverageDetail = ({
       if (window.monaco?.editor && dom) {
         // 如果已经加载，直接创建编辑器
         const editor = window.monaco.editor.create(dom, options);
+        editorRef.current = editor;
 
         const decorations = (() => {
           const all = [];
@@ -182,9 +185,23 @@ const CoverageDetail = ({
 
         if (editor) {
           editor?.createDecorationsCollection?.(decorations);
+          // 创建用于跳转高亮的装饰集合
+          highlightDecorationsRef.current = editor.createDecorationsCollection([]);
         }
       }
     }
+
+    // 组件卸载时清理编辑器
+    return () => {
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+      }
+      if (editorRef.current) {
+        editorRef.current.dispose();
+        editorRef.current = null;
+      }
+      highlightDecorationsRef.current = null;
+    };
   }, [source, coverage]);
 
   return (
@@ -196,6 +213,45 @@ const CoverageDetail = ({
         <ChangedCodeCoverageTable
           coverage={coverage as ChangedCodeCoverageTableProps['coverage']}
           addLines={addLines}
+          onJumpToRange={(startLine: number, startCol: number, endLine: number, endCol: number) => {
+            if (editorRef.current && window.monaco) {
+              const editor = editorRef.current;
+
+              // 清除之前的高亮
+              if (highlightTimeoutRef.current) {
+                clearTimeout(highlightTimeoutRef.current);
+              }
+              if (highlightDecorationsRef.current) {
+                highlightDecorationsRef.current.clear();
+              }
+
+              const range = new window.monaco.Range(startLine, startCol, endLine, endCol);
+
+              // 创建高亮装饰
+              if (highlightDecorationsRef.current) {
+                highlightDecorationsRef.current.set([
+                  {
+                    range: range,
+                    options: {
+                      isWholeLine: false,
+                      inlineClassName: 'canyon-jump-highlight-range',
+                      stickiness: window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
+                    },
+                  },
+                ]);
+              }
+
+              editor.setPosition({ lineNumber: startLine, column: startCol });
+              editor.revealRange(range, window.monaco.editor.ScrollType.Smooth);
+
+              // 3秒后清除高亮
+              highlightTimeoutRef.current = setTimeout(() => {
+                if (highlightDecorationsRef.current) {
+                  highlightDecorationsRef.current.clear();
+                }
+              }, 3000);
+            }
+          }}
         />
       ) : null}
       <div
