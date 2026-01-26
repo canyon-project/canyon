@@ -28,6 +28,7 @@
     "i18next-browser-languagedetector": "latest"
   },
   "devDependencies": {
+    "dotenv": "catalog:",
     "@tailwindcss/vite": "latest",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

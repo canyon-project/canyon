@@ -8,7 +8,6 @@ import { json } from 'express';
 dotenv.config({
   path: [
     path.resolve(__dirname, '../../../.env'),
-    path.resolve(__dirname, '../.env'),
   ],
 });
 async function bootstrap() {
