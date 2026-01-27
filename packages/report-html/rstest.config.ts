@@ -1,5 +1,5 @@
 import { defineConfig } from '@rstest/core';
-import path from 'path';
+
 import { mockDiff } from './mock-diff';
 
 export default defineConfig({
@@ -8,7 +8,7 @@ export default defineConfig({
     reporters: [
       'json',
       [
-        path.resolve(__dirname, 'index.js'),
+        '/Users/travzhang/github.com/canyon-project/canyon/packages/report/dist/index.cjs',
         {
           diff: mockDiff,
         },
