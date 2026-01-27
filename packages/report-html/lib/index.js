@@ -1,12 +1,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const debug = require('debug')('canyon:report-html');
 const { compress } = require('./compress');
 const parseDiff = require('parse-diff');
 
 class CoverageReport {
   constructor(options = {}) {
-    debug('Creating CoverageReport instance with options:', options);
     this.options = {
       ...options,
     };
@@ -16,17 +14,13 @@ class CoverageReport {
   initOptions() {}
 
   copyDistToTarget(sourceDir, targetDir) {
-    debug('Copying dist files from %s to %s', sourceDir, targetDir);
     // 确保目标目录存在
     if (!fs.existsSync(targetDir)) {
-      debug('Creating target directory: %s', targetDir);
       fs.mkdirSync(targetDir, { recursive: true });
     }
 
     // 读取源目录中的所有文件和文件夹
     const items = fs.readdirSync(sourceDir);
-    debug('Found %d items to copy: %o', items.length, items);
-
     items.forEach((item) => {
       const sourcePath = path.join(sourceDir, item);
       const targetPath = path.join(targetDir, item);
@@ -35,11 +29,9 @@ class CoverageReport {
 
       if (stat.isDirectory()) {
         // 递归复制子目录
-        debug('Copying directory: %s', item);
         this.copyDistToTarget(sourcePath, targetPath);
       } else {
         // 复制文件
-        debug('Copying file: %s', item);
         fs.copyFileSync(sourcePath, targetPath);
       }
     });
@@ -53,37 +45,12 @@ class CoverageReport {
    */
   matchFileDiff(coveragePath, diffMap) {
     // 直接匹配
-    if (diffMap[coveragePath]) {
-      return diffMap[coveragePath];
-    }
-
-    // 尝试规范化路径后匹配
-    const normalizedCoveragePath = path
-      .normalize(coveragePath)
-      .replace(/\\/g, '/');
-    for (const [diffPath, diffData] of Object.entries(diffMap)) {
-      const normalizedDiffPath = path.normalize(diffPath).replace(/\\/g, '/');
-
-      // 完全匹配
-      if (normalizedCoveragePath === normalizedDiffPath) {
-        return diffData;
-      }
-
-      // 只比较文件名
-      const coverageBasename = path.basename(normalizedCoveragePath);
-      const diffBasename = path.basename(normalizedDiffPath);
-      if (coverageBasename === diffBasename && coverageBasename) {
-        debug('Matched file by basename: %s <-> %s', coveragePath, diffPath);
-        return diffData;
-      }
-    }
-
-    return null;
+    const base = process.cwd();
+    const relativePath = path.relative(base, coveragePath);
+    return diffMap[relativePath] || null;
   }
 
   buildReportData(coverage, diffMap = {}, sourceFinder) {
-    debug('data for %d files', Object.keys(coverage).length);
-    debug('Diff map keys: %o', Object.keys(diffMap));
     // 计算总体统计信息
     const summary = {};
 
@@ -140,11 +107,6 @@ class CoverageReport {
       files,
     };
 
-    debug(
-      'Built report data with %d files, instrumentCwd: %s',
-      files.length,
-      reportData.instrumentCwd,
-    );
     return reportData;
   }
   diffFn(diff = '') {
@@ -152,7 +114,6 @@ class CoverageReport {
       return {};
     }
     const parsedFiles = parseDiff(diff);
-    debug('Parsed %d files from diff', parsedFiles.length);
 
     // 构建文件路径到变更行号的映射
     const diffMap = {};
@@ -180,12 +141,6 @@ class CoverageReport {
           additions,
           deletions,
         };
-        debug(
-          'File %s: %d additions, %d deletions',
-          filePath,
-          additions.length,
-          deletions.length,
-        );
       }
     });
 
@@ -252,37 +207,26 @@ class CoverageReport {
     // 解析 diff 数据
     const diffMap = this.diffFn(reportConfig?.diff || '');
 
-    debug('Starting report generation to target directory: %s', targetDir);
     this.initOptions();
 
     // 构建报告数据，传入 diff 映射
     const reportData = this.buildReportData(coverage, diffMap, sourceFinder);
     // 复制dist文件夹内容到targetDir
     const sourceDir = path.resolve(__dirname, '../dist');
-    debug('Source dist directory: %s', sourceDir);
     if (fs.existsSync(sourceDir)) {
-      debug('Source dist directory exists, copying to target');
       this.copyDistToTarget(sourceDir, targetDir);
     } else {
-      debug('Source dist directory does not exist: %s', sourceDir);
     }
 
     // 生成 report-data.js 文件
     const reportDataContent = `window.reportData = '${compress(JSON.stringify(reportData))}';`;
     const reportDataPath = path.join(targetDir, 'data/report-data.js');
-    debug(
-      'Writing report data to: %s (compressed size: %d bytes)',
-      reportDataPath,
-      reportDataContent.length,
-    );
     fs.writeFileSync(reportDataPath, reportDataContent, 'utf8');
 
     const result = {
       reportPath: path.join(targetDir, 'index.html'),
       reportData,
     };
-
-    debug('Report generation completed. Report path: %s', result.reportPath);
     return result;
   }
 }
