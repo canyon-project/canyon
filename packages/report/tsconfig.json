@@ -8,7 +8,7 @@
     "module": "preserve",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
-    "types": [],
+    "types": ["node"],
     "declaration": true,
     "emitDeclarationOnly": true,
     "verbatimModuleSyntax": true

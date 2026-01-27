@@ -22,6 +22,7 @@
     "@types/istanbul-lib-report": "^3.0.1"
   },
   "dependencies": {
-    "istanbul-lib-report": "^3.0.1"
+    "istanbul-lib-report": "^3.0.1",
+    "@canyonjs/report-html": "catalog:"
   }
 }
