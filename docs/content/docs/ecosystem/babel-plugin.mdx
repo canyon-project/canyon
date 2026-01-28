@@ -7,17 +7,17 @@ import { Button } from "antd";
 
 <Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/plugins/@canyonjs/babel-plugin'} icon={<GithubOutlined />} size={'small'}>Source</Button>
 
-A Babel plugin for detecting CI environment variables. Works with istanbuljs to complete code instrumentation.
+一个用于检测 CI 环境变量的 Babel 插件。与 istanbuljs 配合使用，完成代码插桩。
 
-## Usage
+## 使用方法
 
-Install:
+安装：
 
 ```sh
 npm install --save-dev @canyonjs/babel-plugin
 ```
 
-Add these configurations in `babel.config.js`:
+在 `babel.config.js` 中添加这些配置：
 
 ```js
 module.exports = {
@@ -25,16 +25,16 @@ module.exports = {
     process.env.CI_COMMIT_REF_NAME === "test-coverage"
       ? ["istanbul", "canyon"]
       : [],
-      // Note the plugin order: canyon plugin should be after istanbul plugin
+      // 注意插件顺序：canyon 插件应在 istanbul 插件之后
 };
 ```
 
-It does two things:
+它做了两件事：
 
-1. Detect CI pipeline variables
+1. 检测 CI 流水线变量
 2. 收集参与编译的文件覆盖率初始数据
 
-## Configuration
+## 配置
 
 babel.config.js
 
@@ -62,16 +62,16 @@ module.exports = {
 };
 ```
 
-| Configuration Item | Description                                                                                                          | Required                                       | Default        |
+| 配置项 | 描述 | 是否必填 | 默认值 |
 | ------------- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- | ------------- |
-| dsn           | Coverage reporting address, CI pipeline variable KEY is DSN                                                                   | Yes (fill in CI variable configuration or manual explicit configuration as needed) | None            |
-| reporter      | User token for distinguishing different users, CI pipeline variable KEY is REPORTER                                               | Yes (fill in CI variable configuration or manual explicit configuration as needed) | None            |
-| repoID     | Repository ID                                                                                                        | Generally no manual configuration needed (auto-detect CI Provider)      | None            |
-| sha           | Git Commit SHA                                                                                                | Generally no manual configuration needed (auto-detect CI Provider)      | None            |
-| branch        | Git repository branch                                                                                                   | Generally no manual configuration needed (auto-detect CI Provider)      | None            |
-| reportID      | Used to distinguish different test cases                                                                                        | Optional                                           | None            |
-| compareTarget | Comparison target, used as baseline for current SHA, for calculating changed line coverage                                                           | Optional                                           | None            |
-| keepMap       | Keep coverage map, optional, default is true, when false, will generate .canyon_output file                                       | Optional                                           | true          |
-| instrumentCwd | Instrumentation working directory, may need manual configuration in multi-repo mode                                                                  | Optional                                           | process.cwd() |
-| provider      | Source code provider (optional), default is gitlab                                                                          | Optional                                           | gitlab        |
-| oneByOne      | Configure proxy server, optional, default is false. When true, will report initial coverage data for each file one by one during compilation. Can also be proxy server configuration | Optional                                           | false         |
+| dsn           | 覆盖率报告地址，CI 流水线变量 KEY 为 DSN                                                                   | 是（根据需要在 CI 变量配置中填写或手动显式配置） | None            |
+| reporter      | 用于区分不同用户的用户令牌，CI 流水线变量 KEY 为 REPORTER                                               | 是（根据需要在 CI 变量配置中填写或手动显式配置） | None            |
+| repoID     | 仓库 ID                                                                                                        | 一般无需手动配置（自动检测 CI Provider）      | None            |
+| sha           | Git 提交 SHA                                                                                                | 一般无需手动配置（自动检测 CI Provider）      | None            |
+| branch        | Git 仓库分支                                                                                                   | 一般无需手动配置（自动检测 CI Provider）      | None            |
+| reportID      | 用于区分不同测试用例                                                                                        | 可选                                           | None            |
+| compareTarget | 比较目标，作为当前 SHA 的基准，用于计算变更行覆盖率                                                           | 可选                                           | None            |
+| keepMap       | 保留覆盖率地图，可选，默认为 true，当为 false 时，将生成 .canyon_output 文件                                       | 可选                                           | true          |
+| instrumentCwd | 插桩工作目录，在多仓库模式下可能需要手动配置                                                                  | 可选                                           | process.cwd() |
+| provider      | 源代码提供商（可选），默认为 gitlab                                                                          | 可选                                           | gitlab        |
+| oneByOne      | 配置代理服务器，可选，默认为 false。当为 true 时，会在编译过程中逐个报告每个文件的初始覆盖率数据。也可以是代理服务器配置 | 可选                                           | false         |

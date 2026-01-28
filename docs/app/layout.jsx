@@ -1,3 +1,4 @@
+import 'katex/dist/katex.min.css'
 import './styles.css';
 import { Head } from 'nextra/components';
 import { GitHubIcon } from 'nextra/icons';

@@ -1,4 +1,4 @@
 export default {
-  introduction: 'Introduction',
-  'first-coverage': 'First Coverage Data',
+  introduction: '介绍',
+  'first-coverage': '首次获取覆盖率数据',
 };

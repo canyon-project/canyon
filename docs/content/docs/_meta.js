@@ -4,5 +4,4 @@ export default {
   'core-concepts': 'Core Concepts',
   'end-to-end-testing': 'E2E Testing',
   ecosystem: 'Ecosystem',
-  specification: 'Specification',
 };

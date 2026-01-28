@@ -1,17 +1,17 @@
-# Restore Source Code Coverage
+# 还原源代码覆盖率
 
-Frontend applications have various compilation forms. In many cases, pre-compiled AST is handed over to Babel for transformation, which makes it impossible to directly map coverage to source code. Therefore, we need to restore source code coverage.
+前端应用有各种编译形式。在很多情况下，预编译的 AST 会交给 Babel 进行转换，这使得无法直接将覆盖率映射到源代码。因此，我们需要还原源代码覆盖率。
 
 ## Source Map
 
 >
-> In frontend development, JavaScript code is often minified, obfuscated, or transformed using preprocessors (such as TypeScript, Babel) to improve performance and compatibility. These processes make the code deployed to production very different from the original source code, making debugging difficult. Source Map solves this problem by recording the mapping relationship between compiled code and original code, allowing developers to view and debug original code in browser developer tools. -- [web.dev](https://web.dev/articles/source-maps)
+> 在前端开发中，JavaScript 代码通常会被压缩、混淆或使用预处理器（如 TypeScript、Babel）进行转换，以提高性能和兼容性。这些过程使得部署到生产环境的代码与原始源代码非常不同，增加了调试难度。Source Map 通过记录编译后代码与原始代码之间的映射关系来解决这个问题，允许开发者在浏览器开发者工具中查看和调试原始代码。 -- [web.dev](https://web.dev/articles/source-maps)
 
-In most cases, you don't need to manually obtain sourceMap files, because most build tools pass sourceMap files during the process of `handing pre-compiled AST to Babel for transformation`.
+在大多数情况下，您不需要手动获取 sourceMap 文件，因为大多数构建工具在`将预编译的 AST 交给 Babel 进行转换`的过程中会传递 sourceMap 文件。
 
-However, in some cases, you may need to configure sourceMap files.
+然而，在某些情况下，您可能需要配置 sourceMap 文件。
 
-## Cases Where sourceMap Option Needs to Be Enabled
+## 需要启用 sourceMap 选项的情况
 
 ```js filename="webpack.config.js" {4}
 const path = require('path');
@@ -34,7 +34,7 @@ module.exports = {
 };
 ```
 
-In this example, webpack's entry file is `./build/main.js`, which is the output of tsc compiling TypeScript files. We need to set `sourceMap` to `true` in tsconfig.json __to ensure sourceMap data is passed.__
+在这个例子中，webpack 的入口文件是 `./build/main.js`，这是 tsc 编译 TypeScript 文件的输出。我们需要在 tsconfig.json 中将 `sourceMap` 设置为 `true` __以确保传递 sourceMap 数据。__
 
 ```json filename="tsconfig.json" {3}
 {
@@ -44,19 +44,19 @@ In this example, webpack's entry file is `./build/main.js`, which is the output 
 }
 ```
 
-## Cases Where sourceMap Needs to Be Manually Set
+## 需要手动设置 sourceMap 的情况
 
-When your sourceMap generation method falls into the following cases, you need to manually set sourceMap.
+当您的 sourceMap 生成方式属于以下情况时，您需要手动设置 sourceMap。
 
-| Category              | devtool                       |  Description                                    |
+| 类别              | devtool                       |  描述                                    |
 |-------------------|-------------------------------|-----------------------------------------|
-| Generate source map file, don't show source code   | hidden-source-map             |  Map file is not referenced at the end of the file                 |
-| Generate source map file, don't show source code   | nosources-source-map           | Map file is not referenced at the end of the file                 |
+| 生成 source map 文件，不显示源代码   | hidden-source-map             |  文件末尾不引用 map 文件                 |
+| 生成 source map 文件，不显示源代码   | nosources-source-map           | 文件末尾不引用 map 文件                 |
 
-### How to Manually Set sourceMap
+### 如何手动设置 sourceMap
 
-In this case, you need to use [Separate Hit and Map](/docs/core-concepts/separate-hit-and-map). Through Tools CLI, detect local sourceMap files during the build phase, and Canyon will match and upload them with initial coverage data.
+在这种情况下，您需要使用[分离 Hit 和 Map](/docs/core-concepts/separate-hit-and-map)。通过 Tools CLI，在构建阶段检测本地 sourceMap 文件，Canyon 会将它们与初始覆盖率数据进行匹配并上传。
 
 > [!NOTE]
 >
-> This is also a disadvantage of JavaScript being too flexible. To collect accurate source code coverage data, we need to chain these sourceMap files together so that code instrumentation can correctly map to source code.
+> 这也是 JavaScript 过于灵活的一个缺点。为了收集准确的源代码覆盖率数据，我们需要将这些 sourceMap 文件链接在一起，以便代码插桩能够正确映射到源代码。

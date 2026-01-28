@@ -7,36 +7,36 @@ import { Button } from "antd";
 
 <Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/tools/cli'} icon={<GithubOutlined />} size={'small'}>Source</Button>
 
-Canyon CLI is a command-line tool for uploading coverage data to Canyon server. It reads and aggregates coverage data from local `.canyon_output` directory and uploads it to the configured Canyon server.
+Canyon CLI 是一个用于将覆盖率数据上传到 Canyon 服务器的命令行工具。它从本地 `.canyon_output` 目录读取并聚合覆盖率数据，然后将其上传到配置的 Canyon 服务器。
 
-## Installation
+## 安装
 
-Install via npm:
+通过 npm 安装：
 
 ```bash
 npm install -g @canyonjs/cli
 ```
 
-Or download the latest version from [GitHub Release](https://github.com/canyon-project/canyon/releases).
+或者从 [GitHub Release](https://github.com/canyon-project/canyon/releases) 下载最新版本。
 
-## Features
+## 特性
 
-- Reads and aggregates coverage data from local `.canyon_output` directory
-- Supports filtering coverage files by path
-- Supports scene-based coverage reporting
-- Automatically detects CI environment variables (GitLab CI)
-- Merges multiple coverage files into a single report
+- 从本地 `.canyon_output` 目录读取并聚合覆盖率数据
+- 支持按路径过滤覆盖率文件
+- 支持基于场景的覆盖率报告
+- 自动检测 CI 环境变量（GitLab CI）
+- 将多个覆盖率文件合并为单个报告
 
-## Usage
+## 使用方法
 
-### Basic Usage
+### 基本用法
 
 ```bash
 canyon upload --dsn=http://your-canyon-server/api/coverage/client
 ```
 
 
-Use `--scene` to add scene metadata for filtering coverage data:
+使用 `--scene` 添加场景元数据以过滤覆盖率数据：
 
 ```bash
 canyon upload --dsn=$DSN \
@@ -44,24 +44,24 @@ canyon upload --dsn=$DSN \
 ```
 
 
-## Command Options
+## 命令选项
 
-| Option | Description | Required | Default |
+| 选项 | 描述 | 是否必填 | 默认值 |
 |--------|-------------|----------|---------|
-| `--dsn` | Canyon server endpoint URL | Yes | None |
-| `--repo_id` | Repository ID | No* | `CI_PROJECT_ID` |
-| `--sha` | Git commit SHA | No* | `CI_COMMIT_SHA` |
-| `--provider` | Source code provider (gitlab/github) | No | `gitlab` |
-| `--build_target` | Build target identifier | No | Empty string |
-| `--instrument_cwd` | Instrumentation working directory | No | `process.cwd()` |
-| `--filter` | Filter coverage files by path substring | No | None |
-| `--scene` | Scene metadata in JSON format | No | None |
-| `--debug` | Enable debug mode | No | `false` |
+| `--dsn` | Canyon 服务器端点 URL | 是 | None |
+| `--repo_id` | 仓库 ID | 否* | `CI_PROJECT_ID` |
+| `--sha` | Git 提交 SHA | 否* | `CI_COMMIT_SHA` |
+| `--provider` | 源代码提供商 (gitlab/github) | 否 | `gitlab` |
+| `--build_target` | 构建目标标识符 | 否 | 空字符串 |
+| `--instrument_cwd` | 插桩工作目录 | 否 | `process.cwd()` |
+| `--filter` | 按路径子串过滤覆盖率文件 | 否 | None |
+| `--scene` | JSON 格式的场景元数据 | 否 | None |
+| `--debug` | 启用调试模式 | 否 | `false` |
 
-\* Automatically detected from CI environment variables if not provided
+\* 如果未提供，将从 CI 环境变量自动检测
 
 
-## Example: GitLab CI Integration
+## 示例：GitLab CI 集成
 
 ```yaml
 coverage:

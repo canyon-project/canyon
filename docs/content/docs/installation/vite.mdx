@@ -2,28 +2,28 @@
 
 import { Steps } from "nextra/components";
 
-Install and configure Vite.
+安装和配置 Vite。
 
 <Steps>
 
-  ### Create Project
-  First, create a new React project `vite` using the following command.
+  ### 创建项目
+  首先，使用以下命令创建一个新的 React 项目 `vite`。
 
   > [!TIP]
   >
-  > Currently only Vite's React template is supported
+  > 目前仅支持 Vite 的 React 模板
 
   ```sh npm2yarn copy
   npm create vite@latest
   ```
 
-  ### Add Canyon and Configuration
+  ### 添加 Canyon 和配置
 
   ```sh npm2yarn copy
-  npm install babel-plugin-istanbul babel-plugin-canyon -D
+  npm install babel-plugin-istanbul @canyonjs/babel-plugin -D
   ```
 
-  ### Configure Babel Plugin
+  ### 配置 Babel 插件
 
   ``` ts filename="vite.config.ts" copy {7,8,9}
   import { defineConfig } from 'vite'
@@ -40,8 +40,8 @@ Install and configure Vite.
 
   ```
 
-  ### That's It
-  Continue to [First Coverage Data - Verification](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5).
+  ### 完成了
+  继续查看[首次获取覆盖率数据 - 验证](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)。
 </Steps>
 
 

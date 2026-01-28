@@ -1,7 +1,5 @@
 export default {
-  compatibility: 'Toolchain Compatibility',
-  provider: 'Supported CI Providers',
-  'istanbul-data-structure': 'istanbuljs Data Structure Dictionary',
-  'custom-reporting': 'Custom Data Reporting',
-  'canyon-report': 'Canyon Report',
+  'istanbul-data-structure': 'istanbuljs 数据结构字典',
+  'custom-reporting': '自定义数据报告',
+  'report-period-component': '报告期组件说明',
 };

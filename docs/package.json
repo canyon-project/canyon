@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "katex": "^0.16.27",
     "@ant-design/icons": "6.1.0",
     "antd": "6.1.0",
     "next": "^16.0.10",

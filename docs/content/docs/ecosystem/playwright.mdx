@@ -1,0 +1,76 @@
+import {Button} from "antd";
+
+# @canyonjs/playwright
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/next/tools/playwright'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+
+为 Playwright 测试提供浏览器端 JavaScript 覆盖率收集。
+
+import {GithubOutlined} from "@ant-design/icons";
+
+### 前置条件
+
+* 你的应用程序必须经过 istanbuljs 代码插桩
+
+---
+
+## 安装
+
+```bash npm2yarn
+npm install --save-dev @canyonjs/playwright
+```
+
+## 使用
+
+扩展 Playwright 的 context 功能以支持覆盖率收集：
+
+```js filename="playwright.config.ts"
+import {test as baseTest} from '@playwright/test';
+import {createCoverageContextFixture} from '@canyonjs/playwright'
+
+export const test = baseTest.extend({
+  context: createCoverageContextFixture({
+    outputDir:'.canyon_output'
+  })
+});
+
+export const expect = test.expect;
+```
+
+在你的 E2E 测试文件中使用此 `test` 导出，而不是 Playwright 的默认 `test`。
+
+---
+
+### 这行代码做了什么
+
+* 从已插桩的应用程序中收集 **浏览器端 JavaScript 覆盖率**
+* 在以下时机刷新覆盖率数据：
+  * 页面卸载时
+  * 测试拆卸时
+* 将覆盖率文件写入指定的输出目录
+* 通过扩展 Playwright fixtures 在 **用户代码层面** 完全实现
+
+> 此集成 **不会** 修补或替换 Playwright 的测试运行器。
+
+---
+
+
+
+### 输出
+
+覆盖率文件将被写入：
+
+```text
+.canyon_output/
+  ├─ coverage-1700000000000.json
+  ├─ coverage-1700000001234.json
+  └─ ...
+```
+
+这些文件可以：
+
+* 与 `nyc` 合并
+* 上传到 Canyon 平台
+* 通过 Canyon CLI 工具进行后处理

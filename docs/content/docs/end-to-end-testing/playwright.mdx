@@ -1,48 +1,25 @@
+import {Steps} from "nextra/components";
+import SetupReactPlaywright from '../../../components/setup-react-playwright.mdx';
+
 # Playwright
 
-In Playwright, get the context, write coverage data to local files when test cases execute, and finally use the Tools CLI to aggregate and report.
+在 [playwright](https://playwright.dev/docs/intro) 中集成覆盖率收集与报告生成
 
-## Write Coverage Data to Local Files
+## 使用该方案的优势
 
-The following is a Node.js code example:
+对于端到端测试而言，该方案的核心优势包括：
 
-```ts copy
-import * as fs from 'fs';
-import * as path from 'path';
-import {test as baseTest} from '@playwright/test';
+- **支持现代化 Web 应用**：现代化的 Web 应用都会经过 JS bundle 打包，Playwright 提供的默认方案只能对原生 JS 等简单场景使用 V8 收集覆盖率，而该方案通过 Babel 插桩可以准确收集打包后代码的覆盖率
+- **确保变更代码覆盖率完整性**：`@canyonjs/babel-plugin` 会在构建时生成一份初始覆盖率数据，确保在 CI 集成时，能够收集到因懒加载而可能丢失的变更代码覆盖率
+- **与 Playwright 无缝集成**：通过扩展 Playwright 的 context fixture，在用户代码层面完全实现，不会修补或替换 Playwright 的测试运行器
+- **灵活的覆盖率报告**：支持本地生成 HTML 报告，也可以上传到 Canyon 服务器进行统一管理和分析
 
-const canyonOutputDirPath = path.join(process.cwd(), '.canyon_output');
+> [!TIP]
+>
+> 该方案特别适合使用现代构建工具（如 Vite、Webpack）的 React、Vue 等框架项目，能够准确追踪打包后代码的覆盖率情况。
 
-export const test = baseTest.extend({
-  context: async ({context}, use) => {
-    await context.addInitScript(() =>
-      window.addEventListener('beforeunload', () =>
-        (window as any).collectIstanbulCoverage((window as any).__coverage__)
-      ),
-    );
-    await fs.promises.mkdir(canyonOutputDirPath, {recursive: true});
-    await context.exposeFunction('collectIstanbulCoverage', (coverageJSON) => {
-      console.log('Coverage collected',coverageJSON);
-      if (coverageJSON) {
-        fs.writeFileSync(path.join(canyonOutputDirPath, `coverage-final-${new Date().valueOf()}.json`), JSON.stringify(coverageJSON));
-      }
-    });
-    await use(context);
-    for (const page of context.pages()) {
-      await page.evaluate(() => (window as any).collectIstanbulCoverage((window as any).__coverage__));
-    }
-  }
-});
+## 以新项目的形式开始
 
-export const expect = test.expect;
-
-
-```
-
-## Aggregate and Report
-
-Use the Tools CLI to aggregate and report. For specific usage, see the [Tools CLI](/docs/ecosystem/tools-cli) documentation.
-
-```bash copy
-./canyon-uploader map --dsn=https://canyonjs.org
-```
+<Steps>
+<SetupReactPlaywright/>
+</Steps>

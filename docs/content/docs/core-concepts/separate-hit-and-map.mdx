@@ -1,22 +1,18 @@
 import { Callout } from "nextra/components";
 
-# Separate Hit and Map
+# 分离 Hit 和 Map
 
-Collect initial coverage source files generated during Babel compilation in CI
+在 CI 中收集 Babel 编译期间生成的初始覆盖率源文件
 
-## Reasons
+## 原因
 
-1. **Collect complete compiled files**: During the compilation process, through the `babel-plugin-canyon` plugin, analyze and parse the initial coverage files for each compiled file, and save them to the `.canyon_out` folder.
+1. **收集完整的编译文件**：在编译过程中，通过 `@canyonjs/babel-plugin` 插件，分析并解析每个编译文件的初始覆盖率文件，并将其保存到 `.canyon_out` 文件夹中。
 
-2. **Collect early to reduce pressure**: When you don't report initial coverage files, these coverage files will be reported during UI automation testing, which creates enormous transmission pressure. Collecting early can reduce transmission pressure by more than 90%.
+2. **早期收集以减轻压力**：如果不报告初始覆盖率文件，这些覆盖率文件将在 UI 自动化测试期间被报告，这会产生巨大的传输压力。早期收集可以减少超过 90% 的传输压力。
 
-> [!TIP]
->
-> This is not mandatory, but if you need accurate and stable coverage data collection, it is strongly recommended that you configure it.
+## 报告初始覆盖率数据
 
-## Report Initial Coverage Data
-
-The babel-plugin-canyon plugin generates initial coverage files for compiled files during compilation and saves them to the .canyon_output folder. We provide the Tools CLI command-line tool, which you can use in CI to report to the Canyon server.
+@canyonjs/babel-plugin 插件在编译过程中为编译后的文件生成初始覆盖率文件，并将其保存到 .canyon_output 文件夹中。我们提供了 Tools CLI 命令行工具，您可以在 CI 中使用它向 Canyon 服务器报告。
 
 ```yml filename=".github/workflows/report-canyon-output.yml" {19,20} copy
 name: Report Canyon Output
@@ -30,7 +26,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18" # You can modify the Node.js version according to project requirements
+          node-version: "18" # 您可以根据项目要求修改 Node.js 版本
       - name: Install dependencies
         run: npm install
       - name: Generate output
@@ -41,9 +37,9 @@ jobs:
         run: canyon-uploader map --dsn=https://canyonjs.org
 ```
 
-## Update Babel Plugin
+## 更新 Babel 插件
 
-Configure the keepMap option to false
+将 keepMap 选项配置为 false
 
 ```js filename="babel.config.js" {7} copy
 module.exports = {
@@ -59,8 +55,8 @@ module.exports = {
 };
 ```
 
-## Ready
+## 准备就绪
 
-Now check the window.coverage object on the page, see the screenshot. The window.coverage no longer contains map data, which can greatly reduce the large transmission costs during UI automation coverage collection.
+现在检查页面上的 window.coverage 对象，如截图所示。window.coverage 不再包含 map 数据，这可以大大降低 UI 自动化覆盖率收集过程中的大量传输成本。
 
 ![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/jietu1.png)
