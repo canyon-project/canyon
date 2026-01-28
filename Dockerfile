@@ -9,14 +9,19 @@ RUN corepack disable || true && npm i -g pnpm@${PNPM_VERSION}
 
 # Build backend (install with scripts, then compile)
 FROM base AS build-backend
+WORKDIR /app
+# Copy workspace config files for catalog resolution
+COPY pnpm-workspace.yaml package.json ./
+COPY packages/backend ./packages/backend
 WORKDIR /app/packages/backend
-COPY packages/backend ./
 RUN pnpm install
 RUN pnpm build
 
 # Build frontend
 FROM base AS build-frontend
 WORKDIR /app
+# Copy workspace config files for catalog resolution
+COPY pnpm-workspace.yaml package.json ./
 # Copy frontend source before install so that postinstall (codegen) has config & docs
 COPY packages/frontend ./packages/frontend
 WORKDIR /app/packages/frontend
@@ -27,13 +32,16 @@ RUN pnpm build
 
 # ---------- Runtime: Unified (NestJS serving static) ----------
 FROM node:${NODE_VERSION}-alpine AS final
-WORKDIR /app/packages/backend
+WORKDIR /app
 # Avoid corepack signature issues in containers; install pnpm via npm
 RUN corepack disable || true && npm i -g pnpm@${PNPM_VERSION}
 ENV NODE_ENV=production
 
+# Copy workspace config files for catalog resolution
+COPY pnpm-workspace.yaml package.json ./
 # Install production deps only for backend (no workspace scripts)
-COPY packages/backend/package.json ./package.json
+COPY packages/backend/package.json ./packages/backend/package.json
+WORKDIR /app/packages/backend
 ENV PRISMA_SKIP_POSTINSTALL_GENERATE=1
 RUN pnpm install --prod --ignore-scripts
 
