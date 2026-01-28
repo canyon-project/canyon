@@ -1,0 +1,13 @@
+{
+  "templates": [
+    {
+      "name": "report-template-playwright",
+      "displayName": "Playwright 测试模板",
+      "description": "使用 Playwright 进行端到端测试并生成覆盖率报告的完整示例",
+      "repository": "https://github.com/canyon-project/report-template-playwright",
+      "category": "testing",
+      "framework": "playwright",
+      "language": "typescript"
+    }
+  ]
+}

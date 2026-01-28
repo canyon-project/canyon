@@ -1,0 +1,2 @@
+# 此文件用于确保 templates 目录被 git 跟踪
+# 模板仓库应作为 git submodule 添加到此目录
