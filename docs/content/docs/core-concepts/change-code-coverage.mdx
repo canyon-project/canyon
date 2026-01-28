@@ -1,0 +1,115 @@
+# 变更代码覆盖率
+
+
+定义 Canyon 对「变更代码覆盖率」的明确计算标准，用于评估一次变更（从 `base` 到 `head`）中新增加代码的测试覆盖情况，并指导 CI 校验与报告展示。
+
+---
+
+## 一、概述（Why）
+
+变更代码覆盖率衡量的是本次变更中新增加代码在测试（单元 / E2E / 集成）下被执行的比例。不同于仓库整体覆盖率，变更覆盖率聚焦 **"本次改动新增的可执行代码"**，能更直接反映变更风险与测试有效性，从而用于 MR 质量门控、review 指标与回归风险评估。
+
+---
+
+## 二、数据源（Data Sources）
+
+1. **代码变更（diff）**
+
+   * 数据来源：Git 两个提交（`base` → `head`）之间的差异（`git diff` 或 CI 的合并变更范围）。
+   * 我们只关心 **新增（added）行**，即 diff 中以 `+` 标记的行（不包含上下文与删除行）。
+   * 对象范围：每个变更文件（通常只考虑源码文件，如 `.js`, `.ts`, `.jsx`, `.tsx` 等）。
+
+2. **覆盖率数据（coverage）**
+
+   * 数据来源：测试运行后导出的 Istanbul 风格覆盖率 JSON（例如 `nyc`/`istanbul` 输出），或等价结构。
+   * 我们只关注 **“语句（statements）”** 维度（Statement-level coverage）。理由见后文。
+
+> 前提：覆盖率数据需要能够映射到**源码行号**（即插桩/构建阶段应保持 source-map 或直接对源码插桩），否则无法准确把新增行归属到语句范围。
+
+---
+
+## 三、定义（Definitions）
+
+* **新增代码行集合 `L_f`（for file f）**：在 `file f` 从 `base` 到 `head` 中被新增的行号集合（相对于文件在 `head` 的行号空间）。
+
+* **文件语句集合 `S_f`**：由覆盖率数据中 `statementMap` 给出的所有语句范围（每个语句为一段行区间，含起始行与结束行）。语句通常带有一个 id（statementId）；对应的执行次数由 `s[statementId]` 给出。
+
+* **落到语句范围的语句（impacted statements）`I_f`**：对于文件 `f`，所有满足 `statementRange ∩ L_f ≠ ∅` 的语句集合。即：任何新增行落入该语句的行区间，则该语句被认为“影响到本次变更”。
+
+* **已覆盖的影响语句集合 `C_f`**：在 `I_f` 中，执行次数 > 0（或定义为被覆盖）的语句集合。
+
+
+* **变更代码覆盖率（文件级）**：
+
+### 文件级变更覆盖率计算
+
+```math
+coverage_f = \dfrac{|C_f|}{|I_f|} \quad (|I_f| > 0)
+```
+
+### 总体变更覆盖率计算
+
+```math
+coverage_{change} = \dfrac{\sum_f |C_f|}{\sum_f |I_f|} \quad (\sum_f |I_f| > 0)
+```
+
+
+---
+
+## 四、详细计算逻辑（Step-by-step）
+
+**输入**：`base` commit、`head` commit、coverage JSON（基于 `head` 的源码行号）
+**输出**：每个变更文件的变更覆盖率，以及合并后的变更覆盖率
+
+1. **获取变更文件与新增行**
+
+   * 使用 `git diff --unified=0 base..head -- <file>` 或 CI 提供的 changed-files 接口。
+   * 从 diff 中解析所有新增行段（hunk header `@@ -a,b +c,d @@`，新增行从 `c` 开始，长度为 `d`，或以 `+` 行前缀收集行号）。
+   * 结果：对每个文件 `f`，得到新增行号集合 `L_f = {l1, l2, ...}`。
+
+2. **加载文件的覆盖率信息**（Istanbul JSON）
+
+   * coverage[filePath] 包含 `statementMap`（语句范围）与 `s`（语句执行次数）。
+   * `statementMap`：例如 `{ "1": { "start": {line, column}, "end": {line, column} }, ... }`
+   * `s`：例如 `{ "1": 0, "2": 3, ... }`。
+
+3. **计算 impacted statements `I_f`**
+
+   * 对每个 `statementId`，取其行区间 `[start.line, end.line]`。
+   * 如果该区间与 `L_f` 有交集（存在 l ∈ L_f 使得 start.line ≤ l ≤ end.line），则把该 `statementId` 加入 `I_f`。
+
+4. **判定覆盖**
+
+   * 对 `I_f` 中每个 `statementId`，若 `s[statementId] > 0` 则认为该语句被覆盖，加入 `C_f`。
+
+5. **计算文件级和合并覆盖率**
+
+   * 文件级：`coverage_f = |C_f| / |I_f|`
+   * 全量：合并分子与分母求比。
+
+6. **输出结果与字段**
+
+   * 每个文件：`{ file, impacted_statements: |I_f|, covered_statements: |C_f|, coverage: coverage_f }`
+   * 合并：`{ total_impacted: Σ|I_f|, total_covered: Σ|C_f|, change_coverage: Σ|C_f|/Σ|I_f| }`
+
+---
+
+## 五、示例（示意）
+
+假设文件 `foo.js` 的覆盖率中有 3 个语句：
+
+* stmt1: lines 1–3, execCount = 2
+* stmt2: lines 4–6, execCount = 0
+* stmt3: lines 7–10, execCount = 1
+
+`git diff` 发现新增行集合 `L_foo = {2, 5}`，则：
+
+* stmt1 intersects line 2 → impacted
+* stmt2 intersects line 5 → impacted
+* stmt3 不受影响
+
+于是 `I_foo = {stmt1, stmt2}`，`C_foo = {stmt1}`（因为 stmt2 执行次数 0）
+
+文件级 coverage: `coverage_foo = 1 / 2 = 50%`
+
+若这是唯一变更文件，则 `change_coverage = 50%`

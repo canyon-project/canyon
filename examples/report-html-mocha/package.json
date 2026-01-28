@@ -1,0 +1,17 @@
+{
+  "name": "report-html-mocha",
+  "version": "1.0.0",
+  "main": "index.js",
+
+  "scripts": {
+    "test": "nyc --reporter=@canyonjs/report-html --reporter=json mocha '*.test.js'"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@canyonjs/report-html": "catalog:",
+    "mocha": "^11.1.0",
+    "nyc": "^17.1.0"
+  }
+}

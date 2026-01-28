@@ -1,0 +1,17 @@
+{
+  "name": "report-html-rstest",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "rstest run --coverage"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@canyonjs/report-html": "catalog:",
+    "@rstest/core": "latest",
+    "@rstest/coverage-istanbul": "latest"
+  }
+}

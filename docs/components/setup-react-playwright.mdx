@@ -1,0 +1,119 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+### 创建 React 项目
+
+使用 [Vite](https://vite.dev/) 创建一个 React 项目：
+
+```sh npm2yarn copy
+npm create vite@latest my-react-app -- --template react-ts
+```
+
+安装代码插桩所需的 Babel 插件：
+
+```sh npm2yarn copy
+npm install babel-plugin-istanbul @canyonjs/babel-plugin -D
+```
+
+### 初始化 Playwright
+
+在项目根目录下初始化 Playwright：
+
+```sh npm2yarn copy
+npm init playwright@latest
+```
+
+按照提示选择配置选项。
+
+### 编写 Playwright 测试用例
+
+创建一个测试文件来测试你的 React 应用：
+
+```ts filename="tests/example.spec.ts" copy
+import { test, expect } from './baseTest';
+
+test('首页加载测试', async ({ page }) => {
+  await page.goto('http://localhost:5173');
+
+  await expect(page).toHaveTitle(/React/);
+});
+```
+
+### 安装 @canyonjs/playwright 并创建 baseTest.ts
+
+安装 [`@canyonjs/playwright`](/docs/ecosystem/playwright) 包：
+
+```sh npm2yarn copy
+npm install @canyonjs/playwright -D
+```
+
+创建 `baseTest.ts` 文件，继承 Playwright 的 test 以支持覆盖率收集：
+
+```ts filename="tests/baseTest.ts" copy
+import {test as baseTest} from '@playwright/test';
+import {createCoverageContextFixture} from '@canyonjs/playwright'
+
+export const test = baseTest.extend({
+  context: createCoverageContextFixture({
+    outputDir:'.canyon_output'
+  })
+});
+
+export const expect = test.expect;
+
+```
+
+
+
+### 配置 Playwright 在运行时启动开发服务器
+
+编辑 `playwright.config.ts`，添加 `webServer` 配置，让 Playwright 在运行测试前自动启动开发服务器：
+
+```ts filename="playwright.config.ts" copy
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  // 测试目录
+  testDir: './tests',
+
+  // 在运行测试前启动开发服务器
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:5173',
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
+
+  // 使用项目中的浏览器
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+});
+```
+
+现在运行测试时，Playwright 会自动启动 `npm run dev`，等待服务器就绪后再执行测试用例。
+
+### 配置测试脚本生成覆盖率报告
+
+安装生成覆盖率报告所需的依赖：
+
+```sh npm2yarn copy
+npm install nyc @canyonjs/report-html -D
+```
+
+在 `package.json` 中添加测试和生成覆盖率报告的脚本：
+
+```json filename="package.json" copy
+{
+  "scripts": {
+    "dev": "vite",
+    "gen-coverage-report": "nyc report --reporter=@canyonjs/report-html --temp-dir=./.canyon_output",
+    "test": "playwright test && npm run gen-coverage-report"
+  }
+}
+```
+
+现在运行 `npm test` 时，会在测试用例执行完成后自动生成覆盖率报告。覆盖率数据会从 `.canyon_output` 目录中读取，并生成 HTML 格式的覆盖率报告。

@@ -1,0 +1,16 @@
+{
+  "name": "report-html-jest",
+  "version": "1.0.0",
+  "main": "index.js",
+
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@canyonjs/report-html": "catalog:",
+    "jest": "^29.7.0"
+  }
+}

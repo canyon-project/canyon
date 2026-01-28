@@ -1,0 +1,34 @@
+{
+  "name": "@canyonjs/babel-plugin",
+  "version": "1.0.5",
+  "description": "",
+  "scripts": {
+    "build": "tsgo",
+    "release": "tsgo",
+    "pretest": "tsgo",
+    "test": "babel features --config-file ./test-babel-config.js --out-dir features-dist",
+    "prepublishOnly": "npm run release"
+  },
+  "keywords": [],
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.24.1",
+    "@types/babel__core": "^7.20.5",
+    "@types/babel__generator": "^7.6.8",
+    "@types/babel__helper-plugin-utils": "^7.10.3",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "babel-plugin-istanbul": "latest"
+  },
+  "dependencies": {
+    "@babel/core": "^7.25.6",
+    "@babel/helper-plugin-utils": "^7.0.0",
+    "@babel/types": "^7.25.6",
+    "json-stable-stringify": "^1.3.0"
+  }
+}

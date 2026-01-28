@@ -1,0 +1,19 @@
+{
+  "name": "report-html-vitest",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "DEBUG=canyon:report-html vitest run --coverage",
+    "test:ui": "vitest --ui --coverage"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@canyonjs/report-html": "catalog:",
+    "@vitest/coverage-v8": "latest",
+    "@vitest/ui": "latest",
+    "vitest": "latest"
+  }
+}

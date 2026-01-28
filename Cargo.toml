@@ -1,12 +1,17 @@
 [workspace]
-members  = [
-    "plugins/swc-plugin-canyon",
-    "tools/canyon-uploader"
-]
+members = ["plugins/swc-plugin"]
+
+
+resolver = "2"
+
 
 [workspace.package]
-authors      = ["Travis Zhang <wr.zhang25@gmail.com>"]
-edition    = "2021"
-license    = "MIT"
+authors      = ["Travis Zhang<https://github.com/travzhang>"]
+edition      = "2021"
 homepage     = "https://github.com/canyon-project/canyon"
-repository = "https://github.com/canyon-project/canyon.git"
+license      = "Apache-2.0"
+repository   = "https://github.com/canyon-project/canyon.git"
+rust-version = "1.70"
+
+[workspace.dependencies]
+swc_core           = "50.1.3"

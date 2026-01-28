@@ -1,0 +1,55 @@
+{
+  "name": "@canyonjs/report-component",
+  "type": "module",
+  "version": "1.0.18",
+  "author": "Travis Zhang<https://github.com/travzhang>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/canyon-project/canyon"
+  },
+  "bugs": {
+    "url": "https://github.com/canyon-project/canyon/issues"
+  },
+  "homepage": "https://github.com/canyon-project/canyon#readme",
+  "license": "MIT",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json",
+    "./index.css": "./dist/index.css"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev-report-component": "tsdown --watch",
+    "play": "vite",
+    "typecheck": "tsgo --noEmit"
+  },
+  "devDependencies": {
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/istanbul-lib-coverage": "^2.0.6",
+    "@types/node": "^24.10.1",
+    "@types/react": "19.2.3",
+    "@types/react-dom": "19.2.3",
+    "@vitejs/plugin-react": "^5.1.1",
+    "istanbul-lib-coverage": "^3.2.2",
+    "tsdown": "^0.17.0",
+    "@typescript/native-preview": "catalog:",
+    "vite": "catalog:",
+    "@monaco-editor/react": "4.7.0"
+  },
+  "dependencies": {
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "@ant-design/icons": "6.1.0",
+    "@ibm/plex-mono": "1.1.0",
+    "antd": "6.1.0",
+    "canyon-data": "2.0.0-beta.36",
+    "monaco-editor": "0.55.1",
+    "react-highlight-words": "0.21.0"
+  }
+}

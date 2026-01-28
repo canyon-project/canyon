@@ -1,0 +1,47 @@
+import { Steps, Callout, Cards } from "nextra/components";
+
+# 快速开始
+
+与单元测试不同，端到端测试会启动浏览器。我们的目标是在浏览器内收集覆盖率数据，因此复杂度相对较高。以下是一般流程：
+
+- 暴露浏览器全局变量，在适当的时机将覆盖率数据写入本地
+- UI自动化完成后，使用[Tools CLI](/docs/ecosystem/tools-cli)读取本地`.canyon_output`目录中的覆盖率数据并聚合上报
+- 将caseID与[Report ID](/docs/core-concepts/report-id)关联，确保用例可追溯
+
+## 框架
+
+<Cards>
+  <Cards.Card
+    title="Playwright"
+    href="/docs/end-to-end-testing/playwright"
+  />
+</Cards>
+
+## 注意事项
+
+<Callout type="warning" emoji="⚠️">
+  **服务端渲染（SSR）框架的覆盖率支持范围**
+  
+  以 Next.js 为代表的服务端渲染（SSR）框架，Canyon 当前仅支持客户端代码的覆盖率统计。
+  
+  **说明：**
+  SSR 框架同时包含：
+  - 服务端代码（Node.js / Edge Runtime）
+  - 客户端代码（Browser Runtime）
+  
+  Canyon 的覆盖率采集与变更覆盖率计算：
+  - 依赖浏览器侧执行结果
+  - 依赖 window.__coverage__ 等客户端覆盖率模型
+  
+  **因此在 SSR 场景下：**
+  ✅ **支持：**
+  - Client Components
+  - 浏览器中执行的页面逻辑、事件处理、Hooks、客户端工具函数等
+  
+  ❌ **不支持（不计入覆盖率）：**
+  - getServerSideProps / getStaticProps
+  - Server Components
+  - API Routes（/api/*）
+  - Edge / Node.js 服务端逻辑
+</Callout>
+

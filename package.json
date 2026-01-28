@@ -1,55 +1,32 @@
 {
-  "name": "canyon",
+  "name": "@canyonjs/monorepo",
+  "version": "3.0.0",
+  "description": "",
   "private": true,
-  "version": "2.0.0",
-  "description": "Canyon is a JavaScript code coverage solution",
-  "author": "Travis Zhang<https://github.com/travzhang>",
-  "license": "MIT",
   "scripts": {
-    "prepare": "husky",
-    "build": "pnpm -r --stream do-build",
-    "test": "pnpm -r --stream do-test",
-    "clean": "node ./scripts/clean.mjs",
     "preinstall": "node ./scripts/check.mjs",
-    "migrate": "prisma migrate dev --schema ./packages/canyon-backend/prisma/schema.prisma"
+    "clean": "node ./scripts/clean.mjs",
+    "format": "biome format --write .",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "test": "pnpm run -r test",
+    "dev": "pnpm run -r dev",
+    "build": "pnpm run -r build",
+    "migrate:sql": "prisma migrate diff --from-empty --to-schema-datamodel ./packages/backend/prisma/schema.prisma --script > ./schema.sql",
+    "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs"
   },
-  "devDependencies": {
-    "@commitlint/cli": "19.5.0",
-    "@commitlint/config-conventional": "19.5.0",
-    "husky": "9.1.6",
-    "lint-staged": "15.2.10",
-    "prisma": "5.16.1"
+  "simple-git-hooks": {
+    "pre-commit": "npx nano-staged"
   },
-  "pnpm": {
-    "overrides": {
-      "react": "18.3.1",
-      "react-dom": "18.3.1",
-      "@types/react": "18.3.1",
-      "@types/react-dom": "18.3.1",
-      "antd": "5.23.2",
-      "vite": "6",
-      "canyon-data": "2.0.0-beta.31"
-    },
-    "ignoredBuiltDependencies": [
-      "@apollo/protobufjs",
-      "@biomejs/biome",
-      "@nestjs/core",
-      "@prisma/client",
-      "@prisma/engines",
-      "@swc/core",
-      "@tailwindcss/oxide",
-      "core-js",
-      "esbuild",
-      "prisma",
-      "protobufjs",
-      "sharp",
-      "unrs-resolver"
-    ],
-    "onlyBuiltDependencies": [
-      "sqlite3"
+  "nano-staged": {
+    "*.{js,jsx,ts,tsx,mjs,cjs,md,mdx,css}": [
+      "biome check --write"
     ]
   },
-  "pacakgeManager": {
-    "packageManager": "pnpm@9"
+  "devDependencies": {
+    "simple-git-hooks": "^2.13.1",
+    "@biomejs/biome": "2.3.9",
+    "prisma": "6",
+    "nano-staged": "^0.9.0"
   }
 }

@@ -1,0 +1,3 @@
+#!/usr/bin/env node
+// * The entry point of the CLI
+import('../dist/index.js').then((m) => m.cli(process.argv));

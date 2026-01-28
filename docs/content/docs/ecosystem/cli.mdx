@@ -1,0 +1,76 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# @canyonjs/cli
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/tools/cli'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+
+Canyon CLI 是一个用于将覆盖率数据上传到 Canyon 服务器的命令行工具。它从本地 `.canyon_output` 目录读取并聚合覆盖率数据，然后将其上传到配置的 Canyon 服务器。
+
+## 安装
+
+通过 npm 安装：
+
+```bash
+npm install -g @canyonjs/cli
+```
+
+或者从 [GitHub Release](https://github.com/canyon-project/canyon/releases) 下载最新版本。
+
+## 特性
+
+- 从本地 `.canyon_output` 目录读取并聚合覆盖率数据
+- 支持按路径过滤覆盖率文件
+- 支持基于场景的覆盖率报告
+- 自动检测 CI 环境变量（GitLab CI）
+- 将多个覆盖率文件合并为单个报告
+
+## 使用方法
+
+### 基本用法
+
+```bash
+canyon upload --dsn=http://your-canyon-server/api/coverage/client
+```
+
+
+使用 `--scene` 添加场景元数据以过滤覆盖率数据：
+
+```bash
+canyon upload --dsn=$DSN \
+  --scene='{"source":"automation","type":"e2e","env":"test"}'
+```
+
+
+## 命令选项
+
+| 选项 | 描述 | 是否必填 | 默认值 |
+|--------|-------------|----------|---------|
+| `--dsn` | Canyon 服务器端点 URL | 是 | None |
+| `--repo_id` | 仓库 ID | 否* | `CI_PROJECT_ID` |
+| `--sha` | Git 提交 SHA | 否* | `CI_COMMIT_SHA` |
+| `--provider` | 源代码提供商 (gitlab/github) | 否 | `gitlab` |
+| `--build_target` | 构建目标标识符 | 否 | 空字符串 |
+| `--instrument_cwd` | 插桩工作目录 | 否 | `process.cwd()` |
+| `--filter` | 按路径子串过滤覆盖率文件 | 否 | None |
+| `--scene` | JSON 格式的场景元数据 | 否 | None |
+| `--debug` | 启用调试模式 | 否 | `false` |
+
+\* 如果未提供，将从 CI 环境变量自动检测
+
+
+## 示例：GitLab CI 集成
+
+```yaml
+coverage:
+  stage: test
+  script:
+    - npm test
+    - canyon upload --dsn=$CANYON_DSN --scene='{"type":"unit","env":"ci"}'
+  artifacts:
+    paths:
+      - .canyon_output/
+    expire_in: 1 week
+```

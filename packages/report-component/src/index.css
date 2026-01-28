@@ -1,0 +1,231 @@
+.canyonjs-report-html .canyon-coverage-detail-spin-wrapper {
+  height: 100%;
+}
+.canyonjs-report-html
+  .canyon-coverage-detail-spin-wrapper
+  > .ant-spin-container {
+  height: 100%;
+}
+.canyonjs-report-html {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.canyonjs-report-html a {
+  color: #0071c2;
+  cursor: pointer;
+}
+.canyonjs-report-html a:hover {
+  color: #0071c2;
+  opacity: 0.8;
+  text-decoration: underline;
+}
+.canyonjs-report-html .line-number-wrapper {
+  display: flex;
+  justify-self: end;
+}
+.canyonjs-report-html .line-number-wrapper > span {
+  display: block;
+  /*width: 300px;*/
+}
+
+.canyonjs-report-html .line-number {
+  /*width: 50px;*/
+}
+
+.canyonjs-report-html .line-change {
+  width: 18px;
+  /*background-color: pink;*/
+  font-size: 16px;
+  text-align: center;
+  font-weight: bolder;
+  color: green;
+}
+
+.canyonjs-report-html .line-coverage {
+  background-color: #eaeaea;
+  width: 10px;
+  padding-right: 5px;
+  color: rgba(0, 0, 0, 0.5);
+  /*height: 10px;*/
+}
+
+/* 老的*/
+
+.canyonjs-report-html .YourHighlightClass {
+  padding: 0;
+  color: white;
+  background: rgb(244, 176, 27);
+}
+
+/*新版canyon-report*/
+
+/*额外的*/
+.canyonjs-report-html .content-class-no-found-branch {
+  background: rgba(255, 229, 100, 0.6);
+}
+
+.canyonjs-report-html .content-class-no-found {
+  background: #f3aeac;
+}
+
+.canyonjs-report-html .insert-e-decoration::before {
+  content: "E";
+  background-color: black;
+  color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+.canyonjs-report-html .insert-i-decoration::before {
+  content: "I";
+  background-color: black;
+  color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+  margin-right: 5px;
+}
+
+/* CoverageDetail 样式 */
+.canyonjs-report-html .canyon-coverage-detail-container {
+  height: 100%;
+  position: relative;
+}
+
+.canyonjs-report-html .canyon-coverage-detail-editor {
+  width: 100%;
+  height: 100%;
+}
+
+/* ChangedCodeCoverageTable 折叠表格样式 */
+.canyonjs-report-html .canyon-changed-code-coverage-table {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+}
+
+.canyonjs-report-html .canyon-changed-code-coverage-toggle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 16px;
+  background: #f5f5f5;
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  color: #333333;
+  font-size: 13px;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  z-index: 1001;
+  transition: background 0.2s ease;
+}
+
+.canyonjs-report-html .canyon-changed-code-coverage-toggle:hover {
+  background: #e8e8e8;
+}
+
+.canyonjs-report-html .canyon-changed-code-coverage-icon {
+  margin-right: 8px;
+}
+
+.canyonjs-report-html .canyon-changed-code-coverage-arrow {
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}
+
+.canyonjs-report-html .canyon-changed-code-coverage-content {
+  position: absolute;
+  top: 33px;
+  left: 0;
+  right: 0;
+  max-height: 0;
+  overflow: hidden;
+  background: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
+  opacity: 0;
+}
+
+.canyonjs-report-html
+  .canyon-changed-code-coverage-content[style*="max-height: auto"] {
+  opacity: 1;
+}
+
+.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper {
+  padding: 12px 16px;
+  background: #ffffff;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  justify-content: flex-start;
+}
+
+/* 下拉选项样式优化 */
+.canyonjs-report-html .canyon-changed-code-coverage-select-wrapper
+  .ant-select-item {
+  padding: 6px 12px !important;
+  line-height: 20px !important;
+}
+
+.canyonjs-report-html
+  .canyon-changed-code-coverage-select-wrapper
+  .ant-select-item-option-active {
+  background-color: #f5f5f5;
+}
+
+.canyonjs-report-html
+  .canyon-changed-code-coverage-select-wrapper
+  .ant-select-item-option-content {
+  display: flex;
+  align-items: center;
+}
+
+/* 跳转高亮样式 - 整行高亮 */
+.canyonjs-report-html .canyon-jump-highlight-line {
+  background-color: rgba(255, 193, 7, 0.4) !important;
+  border-left: 4px solid #ff9800;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+  animation: canyon-jump-pulse 0.6s ease-out;
+}
+
+/* 跳转高亮样式 - 行号区域高亮 */
+.canyonjs-report-html .canyon-jump-highlight-line-margin {
+  background-color: rgba(255, 193, 7, 0.3) !important;
+}
+
+/* 跳转高亮样式 - 范围高亮 */
+.canyonjs-report-html .canyon-jump-highlight-range {
+  background-color: rgba(255, 193, 7, 0.5) !important;
+  border: 2px solid #ff9800;
+  border-radius: 3px;
+  box-shadow: 0 0 6px rgba(255, 193, 7, 0.6);
+  animation: canyon-jump-pulse 0.6s ease-out;
+}
+
+/* 脉冲动画效果 - 让高亮更醒目 */
+@keyframes canyon-jump-pulse {
+  0% {
+    background-color: rgba(255, 193, 7, 0.7);
+    box-shadow: 0 0 12px rgba(255, 193, 7, 0.8);
+  }
+  50% {
+    background-color: rgba(255, 193, 7, 0.5);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.6);
+  }
+  100% {
+    background-color: rgba(255, 193, 7, 0.4);
+    box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+  }
+}

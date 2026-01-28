@@ -1,0 +1,56 @@
+# 安装与构建
+
+学习如何安装和构建 Canyon 社区版。
+
+## 配置环境
+
+开始安装前，您需要配置环境变量。
+
+```yaml
+# Prisma 配置
+DATABASE_URL=postgres://username:password@localhost:5432/dbname
+```
+
+## Node.js
+
+克隆项目
+
+```shell
+git clone https://github.com/canyon-project/canyon
+```
+
+安装依赖并构建项目
+
+```shell
+pnpm install && pnpm run build
+```
+
+修改 .env 文件并创建数据库表
+
+```shell
+pnpm run migrate
+```
+
+使用 Node.js 运行项目
+
+```shell
+node packages/canyon-backend/dist/main.js
+```
+
+
+## Docker
+
+要使用 Docker 运行 Canyon，只需指定环境变量文件路径和端口号
+
+```shell
+docker run -d -p 8080:8080 -v /your/path/.env:/app/.env zhangtao25/canyon:main
+```
+
+## 成功启动
+
+成功启动后，将有两个主要服务：
+
+- Canyon 前端
+- Canyon 后端
+
+访问 `http://localhost:8000/login` 登录 Canyon。

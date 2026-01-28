@@ -1,4 +1,47 @@
 packages:
-  - 'packages/*'
-  - 'plugins/*'
-  - 'tools/*'
+  - docs
+  - packages/*
+  - examples/*
+  - tools/*
+  - plugins/*
+
+catalog:
+  '@ant-design/icons': 6.1.0
+  '@canyonjs/report-component': 1.0.18
+  '@canyonjs/report-html': 1.0.12
+  '@types/istanbul-lib-coverage': ^2.0.6
+  '@types/istanbul-lib-report': ^3.0.3
+  '@types/istanbul-lib-source-maps': ^4.0.4
+  '@types/istanbul-reports': ^3.0.4
+  '@types/node': ^24.10.1
+  '@types/react': 19.2.3
+  '@types/react-dom': 19.2.3
+  '@typescript/native-preview': 7.0.0-dev.20260126.1
+  '@vitest/coverage-v8': ^4.0.16
+  antd: 6.1.0
+  class-validator: ^0.14.3
+  dotenv: ^17.2.3
+  express: ^5.2.1
+  globals: ^16.5.0
+  istanbul-lib-coverage: ^3.2.2
+  istanbul-lib-report: ^3.0.1
+  istanbul-lib-source-maps: ^5.0.6
+  istanbul-reports: ^3.2.0
+  react: 19.2.3
+  react-dom: 19.2.3
+  react-router-dom: ^7.12.0
+  vite: 8.0.0-beta.10
+  vitest: ^4.0.16
+
+catalogMode: prefer
+
+onlyBuiltDependencies:
+  - better-sqlite3
+  - '@prisma/client'
+  - prisma
+
+overrides:
+  '@typescript/native-preview': 7.0.0-dev.20260126.1
+  vite: 8.0.0-beta.10
+
+shellEmulator: true

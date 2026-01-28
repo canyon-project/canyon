@@ -1,0 +1,32 @@
+generator client2 {
+  provider = "prisma-client-js"
+  output   = "../generated/schema-sqlite"
+}
+
+/**
+ * 本地消息队列数据库
+ */
+datasource db_sqlite {
+  provider = "sqlite"
+  url      = "file:local.db"
+}
+
+//////////////////////
+// SQLite models   //
+//////////////////////
+
+model CoverageQueue {
+  id        Int         @id @default(autoincrement())
+  payload   String      // JSON string
+  status    QueueStatus @default(PENDING)
+  pid       Int?        // 当前进程 ID
+  createdAt DateTime    @default(now())
+
+  @@map("coverage_queue")
+}
+
+enum QueueStatus {
+  PENDING
+  PROCESSING
+  FAILED
+}

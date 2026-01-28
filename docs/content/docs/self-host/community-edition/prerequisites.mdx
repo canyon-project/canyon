@@ -1,0 +1,46 @@
+# 前置条件
+
+在自己的基础设施上安装 Canyon 的前置条件。
+
+Canyon 是一个自托管的 API 开发平台，打包为一组 Docker 容器。您可以在任何能够运行 [Docker Engine](https://docs.docker.com/engine) 的操作系统上安装和运行 Canyon。您可以在本地计算机或您选择的云提供商上使用 Canyon。
+
+## 系统要求
+
+Canyon 设计为在小型和大型部署中都能良好运行。运行 Canyon 的最低要求是支持 Docker 的操作系统，生成构建镜像需要 4 个 CPU 核心 + 4GB RAM，托管生成的输出文件至少需要 1 个 CPU 核心 + 2GB RAM。
+
+### 安装 Node.js、npm、pnpm
+
+#### Node.js + npm
+
+安装 [`Node.js`](https://nodejs.org/en) (v18+) 和 [`npm`](https://www.npmjs.com) (v9+)。
+
+- [Node.js + npm 安装指南](https://nodejs.org/en/download)
+
+
+### pnpm
+
+安装 [`pnpm`](https://pnpm.io)（推荐 v9）。
+
+- [pnpm 安装指南](https://pnpm.io/installation)
+
+### Docker
+
+安装 [`Docker`](https://www.docker.com) (v20+)。
+
+- [Docker 安装指南](https://docs.docker.com/engine/install)
+
+### Postgres 数据库
+
+Canyon 使用 Postgres 数据库存储基础数据（需要 14.x 或更高版本）。您可以使用任何您选择的 Postgres 数据库提供商 - 本地托管或云提供商。确保您有以下格式的有效 Postgres 数据库 URL：
+
+```
+postgres://username:password@localhost:5432/dbname
+```
+
+#### 创建表
+
+```shell
+pnpm run migrate
+```
+
+或直接使用表创建 [SQL](https://github.com/canyon-project/canyon/blob/main/packages/canyon-backend/prisma/create_table.sql)。

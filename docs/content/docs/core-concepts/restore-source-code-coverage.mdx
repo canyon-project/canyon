@@ -1,0 +1,62 @@
+# 还原源代码覆盖率
+
+前端应用有各种编译形式。在很多情况下，预编译的 AST 会交给 Babel 进行转换，这使得无法直接将覆盖率映射到源代码。因此，我们需要还原源代码覆盖率。
+
+## Source Map
+
+>
+> 在前端开发中，JavaScript 代码通常会被压缩、混淆或使用预处理器（如 TypeScript、Babel）进行转换，以提高性能和兼容性。这些过程使得部署到生产环境的代码与原始源代码非常不同，增加了调试难度。Source Map 通过记录编译后代码与原始代码之间的映射关系来解决这个问题，允许开发者在浏览器开发者工具中查看和调试原始代码。 -- [web.dev](https://web.dev/articles/source-maps)
+
+在大多数情况下，您不需要手动获取 sourceMap 文件，因为大多数构建工具在`将预编译的 AST 交给 Babel 进行转换`的过程中会传递 sourceMap 文件。
+
+然而，在某些情况下，您可能需要配置 sourceMap 文件。
+
+## 需要启用 sourceMap 选项的情况
+
+```js filename="webpack.config.js" {4}
+const path = require('path');
+
+module.exports = {
+  entry: './build/main.js',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: 'bundle.js'
+  },
+  module:{
+    rules: [
+      {
+        test: /\.(js|jsx)$/,
+        use:['babel-loader'],
+        exclude:'/node_modules/'
+      }
+    ]
+  }
+};
+```
+
+在这个例子中，webpack 的入口文件是 `./build/main.js`，这是 tsc 编译 TypeScript 文件的输出。我们需要在 tsconfig.json 中将 `sourceMap` 设置为 `true` __以确保传递 sourceMap 数据。__
+
+```json filename="tsconfig.json" {3}
+{
+  "compilerOptions": {
+    "sourceMap": true
+  }
+}
+```
+
+## 需要手动设置 sourceMap 的情况
+
+当您的 sourceMap 生成方式属于以下情况时，您需要手动设置 sourceMap。
+
+| 类别              | devtool                       |  描述                                    |
+|-------------------|-------------------------------|-----------------------------------------|
+| 生成 source map 文件，不显示源代码   | hidden-source-map             |  文件末尾不引用 map 文件                 |
+| 生成 source map 文件，不显示源代码   | nosources-source-map           | 文件末尾不引用 map 文件                 |
+
+### 如何手动设置 sourceMap
+
+在这种情况下，您需要使用[分离 Hit 和 Map](/docs/core-concepts/separate-hit-and-map)。通过 Tools CLI，在构建阶段检测本地 sourceMap 文件，Canyon 会将它们与初始覆盖率数据进行匹配并上传。
+
+> [!NOTE]
+>
+> 这也是 JavaScript 过于灵活的一个缺点。为了收集准确的源代码覆盖率数据，我们需要将这些 sourceMap 文件链接在一起，以便代码插桩能够正确映射到源代码。

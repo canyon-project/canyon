@@ -1,0 +1,163 @@
+# 覆盖率累积
+
+## 1. 问题背景（Why）
+
+在当前端到端测试实践中：
+
+* UI 自动化覆盖率低，测试以人工为主
+* 一个 Merge Request 往往包含 **多个 commit**
+* 不同 commit 可能分别触发不同的测试路径
+
+**问题：**
+
+> 单个 commit 的覆盖率，无法反映 *整个 MR 在测试阶段实际覆盖过哪些逻辑*。
+
+因此需要一种方式，将 **一段 commit 区间内的所有测试命中结果进行累积**，用于评估：
+
+* 回归测试是否可以减少
+* MR 范围内是否存在完全未被触达的代码
+
+---
+
+## 2. 核心概念（What）
+
+### 2.1 Commit 区间（Commit Range）
+
+一个 Accumulative 覆盖率统计基于以下集合：
+
+* **基线提交（Base Commit）**
+* **终态提交（Head Commit）**
+* Base → Head 之间的 **所有中间 commit**
+
+这些 commit **共同构成一个逻辑测试周期**。
+
+---
+
+### 2.2 Accumulative Coverage 定义
+
+> **Accumulative Coverage** 指：
+> 在一个 commit 区间内，只要某段代码在 *任意一次提交对应的测试中被执行过*，就认为它在该区间内被覆盖。
+
+⚠️ 注意：
+这是对“测试过程”的描述，而不是对“最终代码版本”的真实性断言。
+
+---
+
+## 3. 累积模型（How）
+
+Accumulative 覆盖率以 **Head Commit 的代码结构** 作为最终展示基线。
+
+合并过程分为两个阶段：
+
+---
+
+### 3.1 文件级累积（File-level Accumulation）
+
+对 **未发生变更的文件**：
+
+* 直接对所有 commit 的命中次数进行累加
+* 文件内容一致，不存在语义歧义
+
+---
+
+### 3.2 语句块级累积（Block-level Accumulation）
+
+对 **发生变更的文件**：
+
+* 以 Head Commit 的语句块结构为基准
+* 在 commit 区间内查找：
+
+  * **位置一致的语句块**
+* 若该语句块在任意 commit 中被命中：
+
+  * 则在最终结果中标记为命中
+
+约束规则：
+
+* 不进行跨位置合并
+* 不尝试语义等价判断
+* 同一位置存在多个语句块时，不进行合并
+
+---
+
+## 4. 示例（非常重要）
+
+### 场景示例
+
+```text
+commit A:
+  a.ts
+    line 10: hit
+
+commit B:
+  a.ts
+    line 10: unchanged, not hit
+
+commit C (head):
+  a.ts
+    line 10: unchanged
+```
+
+**Accumulative 结果：**
+
+```text
+a.ts line 10 => covered
+```
+
+因为：
+
+> 在 commit A 的测试中，该语句块曾被执行。
+
+---
+
+### 风险示例（必须单独列）
+
+```text
+commit A:
+  a.ts
+    line 10: hit
+
+commit B:
+  a.ts
+    line 10: deleted
+
+commit C (head):
+  a.ts
+    line 10: restored
+```
+
+**Accumulative 结果：**
+
+```text
+a.ts line 10 => covered（但不保证最终版本被执行）
+```
+
+这是 Accumulative 模型的**已知取舍**。
+
+---
+
+## 5. 适用场景（When）
+
+Accumulative Coverage 适用于：
+
+* 评估 **MR 测试阶段的整体触达范围**
+* 辅助判断 **是否需要补充回归测试**
+* 覆盖率作为“测试参考指标”，而非发布门禁
+
+**不适用于：**
+
+* 严格的发布准入判定
+* 安全 / 合规类强约束场景
+
+---
+
+## 6. 对比说明（防误用）
+
+| 维度   | 单 Commit 覆盖率 | Accumulative 覆盖率 |
+| ---- | ------------ | ---------------- |
+| 覆盖语义 | 当前提交被测情况     | 提交区间内是否曾被测       |
+| 偏向   | 精确           | 完整               |
+| 风险   | 低            | 存在语义推断           |
+| 适合用途 | 发布门禁         | 回归评估             |
+
+---

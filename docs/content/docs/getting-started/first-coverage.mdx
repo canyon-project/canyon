@@ -1,0 +1,81 @@
+import { Steps, Callout, Cards } from "nextra/components";
+import {RobotOutlined, UserOutlined} from "@ant-design/icons";
+
+# 首次获取覆盖率数据
+
+> [!NOTE]
+>
+> Canyon 提供了[常见框架的安装指南](/docs/installation/getting-started)，帮助您快速上手。
+
+按照以下步骤完成您的首次覆盖率数据报告：
+
+## 新项目开始
+
+<Steps>
+  ### 安装
+
+Babel 是前端工程化和模块化开发中不可或缺的工具。对于 Babel 项目，您只需安装两个 Babel 插件即可快速开始。
+
+```sh npm2yarn
+npm install babel-plugin-istanbul @canyonjs/babel-plugin -D
+```
+
+将 [`istanbul`](https://www.npmjs.com/package/babel-plugin-istanbul) 和 [`canyon`](https://www.npmjs.com/package/@canyonjs/babel-plugin) 插件添加到您的 [Babel 配置文件](https://babeljs.io/docs/config-files#configuration-file-types)中：
+
+  ```js filename="babel.config.js" {3,4} copy
+  module.exports = {
+    plugins: [
+      'istanbul',
+      '@canyonjs'
+      // 注意插件顺序：canyon 插件应在 istanbul 插件之后
+      ],
+  };
+  ```
+
+### 验证
+
+配置完成后，启动您的项目并在控制台中打印 **window.\_\_coverage\_\_**。如果输出与下图匹配，则代码插桩成功。
+
+![coverage-canyon-console](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/getting-started/first-coverage/coverage-canyon-console.png)
+
+
+  ### 更新 Babel 插件激活条件
+
+  __在 CI 阶段，我们需要控制插件激活条件，以防止在生产分支中进行插桩。__
+
+  ```js {2,3} copy
+  module.exports = {
+    plugins: (process.env.CI &&
+              process.env.CI_COMMIT_REF_NAME !== 'release')
+              ? [
+                'istanbul',
+                '@canyonjs'
+              ]:[],
+  };
+  ```
+
+  ### 报告覆盖率数据
+
+  等待 CI 完成后，将页面部署到测试环境。
+
+  > [!TIP]
+  >
+  > 此时，覆盖率数据存储在浏览器中。随着用户交互或 UI 自动化测试的执行，window.\_\_coverage\_\_ 数据将不断累积。您可以选择本地生成覆盖率报告或发送到Canyon服务器。
+
+
+
+  不同场景下的收集方式：
+
+  <Cards>
+  <Cards.Card
+    icon={<RobotOutlined />}
+    title="自动化测试"
+    href="/docs/end-to-end-testing/getting-started"
+  />
+  <Cards.Card
+    icon={<UserOutlined />}
+    title="手动测试"
+    href="/docs/ecosystem/canyon-extension"
+  />
+</Cards>
+</Steps>

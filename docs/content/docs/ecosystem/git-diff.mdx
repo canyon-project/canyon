@@ -1,0 +1,45 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# @canyonjs/git-diff
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/plugins/@canyonjs/babel-plugin'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+
+@canyonjs/git-diff 是一个用于在 CI/CD 流水线中检测代码变更并生成 Git Diff 内容的 NPM 包
+
+
+## 使用
+
+### 在 CI/CD 流水线中使用
+
+```bash
+npx @canyonjs/git-diff
+```
+
+## 原理
+
+@canyonjs/git-diff 通过检测当前流水线环境变量，确定 CI/CD 提供商，然后根据提供商的特定环境变量判断当前是 MR 还是普通 Commit，从而确定需要进行 Git Diff 比较的 commit 范围。
+
+以下是 @canyonjs/git-diff 支持的 CI 提供商及其用于检测 MR/PR 的环境变量列表：
+
+| 提供商 | 检测 MR/PR 的环境变量 | 源分支 | 目标分支 | 文档链接 |
+| ------ | -------------------- | ------ | -------- | -------- |
+| [GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/environment-variables) | GITHUB_EVENT_NAME | GITHUB_HEAD_REF | GITHUB_BASE_REF | [GitHub Actions 环境变量文档](https://docs.github.com/en/actions/learn-github-actions/environment-variables) |
+| [GitLab CI](https://docs.gitlab.com/ee/ci/variables/) | CI_MERGE_REQUEST_ID | CI_MERGE_REQUEST_SOURCE_BRANCH_NAME | CI_MERGE_REQUEST_TARGET_BRANCH_NAME | [GitLab CI/CD 环境变量文档](https://docs.gitlab.com/ee/ci/variables/) |
+### 检测逻辑
+
+1. **平台检测**：首先检测 CI/CD 平台特定的环境变量，确定当前运行环境
+2. **事件类型判断**：根据平台特定的环境变量判断是 MR/PR 还是普通 Commit
+3. **分支确定**：
+   - 对于 MR/PR：获取源分支和目标分支
+   - 对于普通 Commit：获取当前分支和上一个 Commit
+4. **Diff 生成**：根据确定的分支或 Commit 范围生成 Git Diff 内容
+
+### Git Diff 范围确定
+
+| 事件类型 | 比较范围 | 命令示例 |
+|---------|---------|---------|
+| MR/PR | 源分支 vs 目标分支 | `git diff origin/target..origin/source` |
+| 普通 Commit | 当前 Commit vs 上一个 Commit | `git diff HEAD~1..HEAD` |

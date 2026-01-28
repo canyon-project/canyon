@@ -1,0 +1,35 @@
+{
+  "name": "report-html-playwright",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsgo -b && vite build",
+    "preview": "vite preview",
+    "pretest": "npm run build",
+    "gen-coverage-report": "nyc report --reporter=@canyonjs/report-html --temp-dir=./.canyon_output",
+    "test": "playwright test && npm run gen-coverage-report"
+  },
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-router-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@canyonjs/report-html": "catalog:",
+    "nyc": "latest",
+    "@canyonjs/babel-plugin": "latest",
+    "@canyonjs/playwright": "latest",
+    "@playwright/test": "1.56.1",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "@vitejs/plugin-react": "latest",
+    "babel-plugin-istanbul": "latest",
+    "babel-plugin-react-compiler": "^1.0.0",
+    "globals": "catalog:",
+    "vite": "catalog:"
+  }
+}

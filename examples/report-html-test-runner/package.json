@@ -1,0 +1,16 @@
+{
+  "name": "canyon-reporter-test-runner",
+  "version": "1.0.0",
+  "main": "ride.js",
+  "type": "module",
+  "scripts": {
+    "test": "c8 --reporter=json --reporter=@canyonjs/report-html node --test"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@canyonjs/report-html": "catalog:",
+    "c8": "^10.1.3"
+  }
+}
