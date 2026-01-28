@@ -65,7 +65,75 @@ Canyon (pronounced /ˈkænjən/) is a JavaScript code coverage collection platfo
 
 ## Architecture
 
-![](./screenshots/architecture.png)
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#FFF7ED",
+    "primaryBorderColor": "#FB923C",
+    "lineColor": "#9CA3AF",
+    "fontFamily": "Inter, system-ui"
+  }
+}}%%
+
+flowchart LR
+  classDef client fill:#EEF2FF,stroke:#6366F1,color:#1E1B4B;
+  classDef test fill:#F1F5F9,stroke:#94A3B8,color:#020617;
+  classDef core fill:#FFF7ED,stroke:#FB923C,color:#7C2D12;
+  classDef storage fill:#ECFEFF,stroke:#06B6D4,color:#083344;
+  classDef infra fill:#F0FDF4,stroke:#22C55E,color:#14532D;
+  classDef external fill:#FAFAFA,stroke:#D1D5DB,color:#111827;
+
+  %% Clients
+  UI[UI Automation]
+  WebUI[Canyon Web UI]
+  API[API Client]
+
+  class UI,WebUI,API client
+
+  %% Test
+  Test[Test Environment]
+  Pipeline[CI / CD Pipeline]
+
+  class Test,Pipeline test
+
+  UI --> Test
+  Pipeline --> Test
+
+  %% Canyon Core
+  subgraph Canyon["Canyon Server"]
+    MQ[Message Queue]
+    DB[(Postgres)]
+    HTTP[HTTP / GraphQL Server]
+  end
+
+  class MQ,HTTP core
+  class DB storage
+
+  Test --> MQ
+  MQ --> DB
+  DB --> HTTP
+
+  %% Infra
+  subgraph Deploy["Service Deployment"]
+    K8s[Kubernetes]
+    Node[Node.js]
+  end
+
+  class K8s,Node infra
+
+  Canyon --> Deploy
+
+  %% External
+  GitLab[GitLab]
+  class GitLab external
+
+  Canyon -.-> GitLab
+
+  WebUI -.-> HTTP
+  API -.-> HTTP
+
+```
 
 ## WeChat Group
 
