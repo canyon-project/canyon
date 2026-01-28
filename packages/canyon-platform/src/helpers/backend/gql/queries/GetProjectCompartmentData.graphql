@@ -1,6 +1,0 @@
-query GetProjectCompartmentData($projectID: String!, $defaultCoverageDim: String!) {
-    getProjectCompartmentData(projectID: $projectID,defaultCoverageDim: $defaultCoverageDim) {
-        value
-        label
-    }
-}

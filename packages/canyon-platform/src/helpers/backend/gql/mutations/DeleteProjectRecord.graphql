@@ -1,5 +1,0 @@
-mutation DeleteProjectRecord($projectID: ID!, $sha: String!) {
-    deleteProjectRecord(projectID: $projectID, sha: $sha) {
-        count
-    }
-}
