@@ -1,28 +1,19 @@
 {
   "name": "@canyonjs/report-html",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/canyon-project/canyon"
   },
-  "bugs": {
-    "url": "https://github.com/canyon-project/canyon/issues"
-  },
   "homepage": "https://github.com/canyon-project/canyon#readme",
   "scripts": {
     "dev-report-html": "rspack dev",
-    "build": "rspack build",
-    "pretest": "npm run build",
-    "test": "rstest run --coverage",
-    "preview": "rspack preview"
+    "build": "rspack build"
   },
-  "main": "index.js",
   "files": [
-    "dist",
-    "lib",
-    "index.js"
+    "dist"
   ],
   "dependencies": {
     "@canyonjs/report-component": "catalog:",
@@ -35,13 +26,9 @@
     "parse-diff": "^0.11.1"
   },
   "devDependencies": {
-    "@rstest/core": "latest",
-    "@rstest/coverage-istanbul": "latest",
     "@rspack/cli": "^1.6.7",
     "@rspack/core": "^1.6.7",
     "@rspack/plugin-react-refresh": "^1.5.3",
-    "vitest": "latest",
-    "@vitest/coverage-istanbul": "latest",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "copy-webpack-plugin": "^13.0.1",

@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/report",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
     "type": "git",
@@ -14,17 +14,24 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsdown"
+    "build": "tsdown",
+    "pretest": "npm run build",
+    "test": "rstest run --coverage"
   },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "^24.10.1",
+    "@types/node": "catalog:",
     "tsdown": "^0.17.0",
     "@typescript/native-preview": "catalog:",
-    "@types/istanbul-lib-report": "^3.0.1"
+    "@types/istanbul-lib-report": "catalog:",
+    "@types/istanbul-lib-coverage": "catalog:",
+    "@rstest/core": "latest",
+    "@rstest/coverage-istanbul": "latest"
   },
   "dependencies": {
-    "istanbul-lib-report": "^3.0.1",
+    "istanbul-lib-report": "catalog:",
+    "istanbul-lib-coverage": "catalog:",
+    "parse-diff": "^0.11.1",
     "@canyonjs/report-html": "catalog:"
   }
 }
