@@ -12,6 +12,9 @@ FROM base AS build-backend
 WORKDIR /app
 # Copy workspace config files for catalog resolution
 COPY pnpm-workspace.yaml package.json ./
+# Copy scripts directory for preinstall hook
+COPY scripts ./scripts
+COPY .env.example ./.env.example
 COPY packages/backend ./packages/backend
 WORKDIR /app/packages/backend
 RUN pnpm install
@@ -22,6 +25,9 @@ FROM base AS build-frontend
 WORKDIR /app
 # Copy workspace config files for catalog resolution
 COPY pnpm-workspace.yaml package.json ./
+# Copy scripts directory for preinstall hook
+COPY scripts ./scripts
+COPY .env.example ./.env.example
 # Copy frontend source before install so that postinstall (codegen) has config & docs
 COPY packages/frontend ./packages/frontend
 WORKDIR /app/packages/frontend
