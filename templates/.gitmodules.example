@@ -1,7 +1,0 @@
-# Git Submodules 配置文件示例
-# 当你使用 `git submodule add` 命令添加子模块后，Git 会自动创建 .gitmodules 文件
-# 此文件仅作为参考示例
-
-[submodule "templates/report-template-playwright"]
-	path = templates/report-template-playwright
-	url = https://github.com/canyon-project/report-template-playwright.git
