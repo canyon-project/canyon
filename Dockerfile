@@ -1,5 +1,5 @@
 ARG NODE_VERSION=22.17.0
-ARG PNPM_VERSION=9
+ARG PNPM_VERSION=10.13.0
 
 # Base with pnpm enabled
 FROM node:${NODE_VERSION}-alpine AS base
