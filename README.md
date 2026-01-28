@@ -4,6 +4,9 @@
 
 English · [中文](./README-zh_CN.md)
 
+> [!WARNING]
+> The `main` branch is currently in beta testing. For the stable branch, please use [`main-0128`](https://github.com/canyon-project/canyon/tree/main-0128)
+
 👋 Canyon is a JavaScript code coverage solution
 
 Video Showcase
