@@ -1,1 +1,8 @@
-用的react版本需要跟全局保持统一
+# Canyon Docs
+
+## Built Using
+
+- [Next.js](https://nextjs.org?utm_source=swc)
+- [Nextra](https://nextra.vercel.app)
+
+https://docs.next.canyonjs.io/
