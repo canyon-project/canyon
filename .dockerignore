@@ -1,5 +1,7 @@
+/examples
+/docs
 /plugins
 /tools
-/packages/canyon-data
-/packages/canyon-map
-/examples
+/packages/report
+/packages/report-html
+/packages/report-component
