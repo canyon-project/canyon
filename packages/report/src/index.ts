@@ -1,8 +1,8 @@
-import { ReportBase } from 'istanbul-lib-report';
-import type { Tree, Context, Node } from 'istanbul-lib-report';
-import type { FileCoverage } from 'istanbul-lib-coverage';
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import type { FileCoverage } from 'istanbul-lib-coverage';
+import type { Context, Node, Tree } from 'istanbul-lib-report';
+import { ReportBase } from 'istanbul-lib-report';
 import { CoverageReport } from './coverage-report';
 import type { ReportConfig } from './types';
 

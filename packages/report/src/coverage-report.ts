@@ -1,17 +1,17 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createRequire } from 'module';
 import type { FileCoverage } from 'istanbul-lib-coverage';
+import { createRequire } from 'module';
 import parseDiff from 'parse-diff';
 import { compress } from './compress';
 import type {
+  ChangedCoverage,
   DiffMap,
   FileReportData,
-  ReportData,
   GenerateOptions,
   GenerateResult,
-  ChangedCoverage,
+  ReportData,
 } from './types';
 
 const require = createRequire(import.meta.url);

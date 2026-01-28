@@ -1,20 +1,17 @@
-import { CanyonReport } from '@canyonjs/report-component';
 import type { CanyonReportProps } from '@canyonjs/report-component';
-import { Spin } from 'antd';
+import { CanyonReport } from '@canyonjs/report-component';
 import { useRequest } from 'ahooks';
+import { Spin } from 'antd';
+import axios from 'axios';
 import { useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import axios from 'axios';
 import { getDecode } from '@/helpers/getDecode.ts';
 
 // ==================== 类型定义 ====================
 
 type FileDataResponse = Awaited<ReturnType<CanyonReportProps['onSelect']>>;
 
-type SubjectType =
-  | 'commit'
-  | 'analysis'
-  | undefined;
+type SubjectType = 'commit' | 'analysis' | undefined;
 
 interface RouteParams {
   provider: string;
@@ -136,16 +133,17 @@ const ReportIndependent = () => {
   // ==================== 从 subjectID 中提取 SHA ====================
 
   const extractSHA = useCallback(
-    (subject: SubjectType, subjectID: string | undefined): string | undefined => {
+    (
+      subject: SubjectType,
+      subjectID: string | undefined,
+    ): string | undefined => {
       if (!subjectID) return undefined;
 
       if (subject === 'commit') {
         return subjectID;
       }
 
-      if (
-        subject === 'analysis'
-      ) {
+      if (subject === 'analysis') {
         // 格式为 beforeCommitSHA...afterCommitSHA，使用 after (第二个) 作为 ref
         const parts = subjectID.split('...');
         if (parts.length === 2) {
@@ -311,7 +309,7 @@ const ReportIndependent = () => {
 
   return (
     <Spin spinning={loading}>
-      <div className="p-[6px]">
+      <div className='p-[6px]'>
         <div
           style={{
             height: 'calc(100vh - 12px)',
