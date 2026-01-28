@@ -1,0 +1,75 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# @canyonjs/report
+
+<div className={'h-10'}></div>
+
+<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/plugins/@canyonjs/babel-plugin'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+
+
+一个覆盖率报告器，适配[istanbul-reports](https://github.com/istanbuljs/istanbuljs/tree/main/packages/istanbul-reports/lib)接口
+
+## 安装
+```bash npm2yarn
+npm install --save-dev @canyonjs/report
+```
+
+## 使用
+
+该报告器适配istanbuljs报告器接口，所以支持各种常见的测试框架的覆盖率报告生成，以vitest为例
+```js {7}
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'v8',
+      reporter: ['@canyonjs/report'],
+    },
+  },
+});
+
+```
+
+## 配置
+
+> [!IMPORTANT]
+>
+> 支持传入git diff，生成变更代码覆盖率报告！默认读取diff.txt文件内容。在CI中集成请查看 [@canyonjs/git-diff](./git-diff)。
+
+```js {7}
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  test: {
+    coverage: {
+      provider: 'v8',
+      reporter: ['json', [
+        '@canyonjs/report',
+        {
+          diff:diff // 支持git diff字符串、路径
+        }
+      ]],
+    },
+  },
+});
+
+```
+
+## 输出
+
+- index.html，单个html文件，易于传输/部署或直接在任何位置打开。
+- data/report-data.js，对应压缩过的覆盖率数据及源码内容。
+- js、css等静态资源。
+
+
+## 例子
+
+| 测试框架 | 示例链接 |
+|---------|---------|
+| `Vitest` | [report-html-vitest](https://github.com/canyon-project/canyon/tree/next/examples/report-html-vitest) |
+| `Jest` | [report-html-jest](https://github.com/canyon-project/canyon/tree/next/examples/report-html-jest) |
+| `RSTest` | [report-html-rstest](https://github.com/canyon-project/canyon/tree/next/examples/report-html-rstest) |
+| `Mocha` | [report-html-mocha](https://github.com/canyon-project/canyon/tree/next/examples/report-html-mocha) |
+| `Test Runner` | [report-html-test-runner](https://github.com/canyon-project/canyon/tree/next/examples/report-html-test-runner) |

@@ -14,20 +14,41 @@ import { Button } from "antd";
 
 ### 在 CI/CD 流水线中使用
 
+
 ```bash
 npx @canyonjs/git-diff
+```
+
+### 输出
+在当前目录下生成diff.txt文件
+```text filename="diff.txt"
+diff --git a/fixtures/sum.js b/fixtures/sum.js
+index 1234567..abcdefg 100644
+--- a/fixtures/sum.js
++++ b/fixtures/sum.js
+@@ -1,3 +1,5 @@
+ export function sum(a, b) {
++  // 新增的注释
+   return a + b;
++  // 另一个新增的注释
+ }
+diff --git a/fixtures/add.js b/fixtures/add.js
+index 1234567..abcdefg 100644
+--- a/fixtures/add.js
++++ b/fixtures/add.js
+@@ -1,3 +1,6 @@
+ export function sum(a, b) {
++  // 新增的注释行
++  console.log('计算中...');
+   return a + b;
++  // 结束注释
+ }
 ```
 
 ## 原理
 
 @canyonjs/git-diff 通过检测当前流水线环境变量，确定 CI/CD 提供商，然后根据提供商的特定环境变量判断当前是 MR 还是普通 Commit，从而确定需要进行 Git Diff 比较的 commit 范围。
 
-以下是 @canyonjs/git-diff 支持的 CI 提供商及其用于检测 MR/PR 的环境变量列表：
-
-| 提供商 | 检测 MR/PR 的环境变量 | 源分支 | 目标分支 | 文档链接 |
-| ------ | -------------------- | ------ | -------- | -------- |
-| [GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/environment-variables) | GITHUB_EVENT_NAME | GITHUB_HEAD_REF | GITHUB_BASE_REF | [GitHub Actions 环境变量文档](https://docs.github.com/en/actions/learn-github-actions/environment-variables) |
-| [GitLab CI](https://docs.gitlab.com/ee/ci/variables/) | CI_MERGE_REQUEST_ID | CI_MERGE_REQUEST_SOURCE_BRANCH_NAME | CI_MERGE_REQUEST_TARGET_BRANCH_NAME | [GitLab CI/CD 环境变量文档](https://docs.gitlab.com/ee/ci/variables/) |
 ### 检测逻辑
 
 1. **平台检测**：首先检测 CI/CD 平台特定的环境变量，确定当前运行环境
