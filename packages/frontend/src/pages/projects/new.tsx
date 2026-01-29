@@ -271,12 +271,12 @@ const NewProject = () => {
                       size='large'
                       className='w-full'
                     >
-                      <Select.Option value='github'>
-                        <div className='flex items-center gap-2'>
-                          <span className='text-lg'>🐙</span>
-                          <span>GitHub</span>
-                        </div>
-                      </Select.Option>
+                      {/*<Select.Option value='github'>*/}
+                      {/*  <div className='flex items-center gap-2'>*/}
+                      {/*    <span className='text-lg'>🐙</span>*/}
+                      {/*    <span>GitHub</span>*/}
+                      {/*  </div>*/}
+                      {/*</Select.Option>*/}
                       <Select.Option value='gitlab'>
                         <div className='flex items-center gap-2'>
                           <span className='text-lg'>🦊</span>
