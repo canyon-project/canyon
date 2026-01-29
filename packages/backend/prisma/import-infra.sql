@@ -1,4 +1,4 @@
-insert into public.canyon_next_infra_config (id, name, value, createdOn, updatedOn, isEncrypted, lastSyncedEnvFileValue)
+insert into public.canyon_next_infra_config (id, name, value, "createdOn", "updatedOn", "isEncrypted", "lastSyncedEnvFileValue")
 values  ('GITLAB_BASE_URL', 'GITLAB_BASE_URL', 'http://gitlab.com', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:59.212 +00:00', false, '1'),
         ('DEBUG_LOG', 'DEBUG_LOG', '', '2025-11-12 07:47:16.920 +00:00', '2025-11-12 15:47:11.426 +00:00', false, '1'),
         ('JWT_SECRET', 'JWT_SECRET', 'JWT_SECRET', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:55.397 +00:00', false, '1'),
