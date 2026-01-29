@@ -1,3 +1,0 @@
-[submodule "templates/report-template-playwright"]
-	path = templates/report-template-playwright
-	url = https://github.com/canyon-project/report-template-playwright.git
