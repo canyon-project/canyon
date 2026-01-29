@@ -1,0 +1,16 @@
+insert into public.canyon_next_infra_config (id, name, value, createdOn, updatedOn, isEncrypted, lastSyncedEnvFileValue)
+values  ('GITLAB_BASE_URL', 'GITLAB_BASE_URL', 'http://gitlab.com', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:59.212 +00:00', false, '1'),
+        ('DEBUG_LOG', 'DEBUG_LOG', '', '2025-11-12 07:47:16.920 +00:00', '2025-11-12 15:47:11.426 +00:00', false, '1'),
+        ('JWT_SECRET', 'JWT_SECRET', 'JWT_SECRET', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:55.397 +00:00', false, '1'),
+        ('GITLAB_SCOPE', 'GITLAB_SCOPE', 'api', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:18:01.015 +00:00', false, '1'),
+        ('GITHUB_PRIVATE_TOKEN', 'GITHUB_PRIVATE_TOKEN', 'xxxxxxxx', '2025-11-08 10:24:55.576 +00:00', '2025-11-08 10:24:56.619 +00:00', false, '1'),
+        ('GITLAB_PRIVATE_TOKEN', 'GITLAB_PRIVATE_TOKEN', '-', '2025-11-08 10:24:55.576 +00:00', '2025-11-08 10:24:56.619 +00:00', false, '1'),
+        ('VITE_BASE_URL', 'VITE_BASE_URL', '-', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:52.544 +00:00', false, '1'),
+        ('GITLAB_CLIENT_SECRET', 'GITLAB_CLIENT_SECRET', '-', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:18:00.383 +00:00', false, '1'),
+        ('GITLAB_CALLBACK_URL', 'GITLAB_CALLBACK_URL', '-', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:18:01.609 +00:00', false, '1'),
+        ('GITHUB_CALLBACK_URL', 'GITHUB_CALLBACK_URL', '-', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:58.617 +00:00', false, '1'),
+        ('GITHUB_CLIENT_ID', 'GITHUB_CLIENT_ID', '-', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:56.166 +00:00', false, '1'),
+        ('GITLAB_CLIENT_ID', 'GITLAB_CLIENT_ID', '-', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:59.795 +00:00', false, '1'),
+        ('GITHUB_SCOPE', 'GITHUB_SCOPE', '-', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:58.024 +00:00', false, '1'),
+        ('GITHUB_CLIENT_SECRET', 'GITHUB_CLIENT_SECRET', '-', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:57.147 +00:00', false, '1'),
+        ('WHITELISTED_ORIGINS', 'WHITELISTED_ORIGINS', '-', '2025-11-07 07:18:12.189 +00:00', '2025-11-07 15:17:53.423 +00:00', false, '1');
