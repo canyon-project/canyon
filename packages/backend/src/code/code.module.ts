@@ -8,5 +8,6 @@ import { CodeService } from './service/code.service';
   imports: [PrismaModule],
   controllers: [CodeController],
   providers: [CodeService],
+  exports: [CodeService],
 })
 export class CodeModule {}

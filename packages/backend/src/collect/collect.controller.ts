@@ -1,4 +1,6 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
+import { CodeService } from '../code/service/code.service';
+import { PrismaService } from '../prisma/prisma.service';
 import { CoverageClientDto } from './dto/coverage-client.dto';
 import { CoverageMapInitDto } from './dto/coverage-map-init.dto';
 import { formatCoverageData } from './helpers/formatCoverageData';
@@ -11,6 +13,8 @@ export class CollectController {
   constructor(
     private coverageClientService: CoverageClientService,
     private coverageMapInitService: CoverageMapInitService,
+    private codeService: CodeService,
+    private prisma: PrismaService,
   ) {}
   @Post('client')
   async uploadCoverageFromClient(@Body() coverageClientDto: CoverageClientDto) {
@@ -68,6 +72,80 @@ export class CollectController {
           `从 coverage 的第一个值中提取的 buildTarget: ${firstEntry.buildTarget}`,
         );
       }
+
+      // 处理 diff 参数
+      if (coverageMapInitDto.diff) {
+        const { subject, subjectID } = coverageMapInitDto.diff;
+        const { repoID, provider } = coverageMapInitDto;
+
+        if (!subject || !subjectID) {
+          throw new BadRequestException(
+            'diff 参数中 subject 和 subjectID 不能为空',
+          );
+        }
+
+        if (!repoID || !provider) {
+          throw new BadRequestException(
+            '创建 diff 需要 repoID 和 provider 参数',
+          );
+        }
+
+        // 解析 subjectID 获取 from 和 to commit SHA
+        const parts = subjectID.split('...');
+        if (parts.length !== 2) {
+          throw new BadRequestException(
+            'subjectID 格式错误，应为 commit1...commit2',
+          );
+        }
+        const [fromSha, toSha] = parts.map((s) => s.trim());
+        if (!fromSha || !toSha) {
+          throw new BadRequestException(
+            'subjectID 格式错误，from 和 to 不能为空',
+          );
+        }
+
+        // 检查并插入缺失的 commit
+        await Promise.all([
+          this.codeService.insertCommitIfNotExists({
+            sha: fromSha,
+            provider,
+            repoID,
+          }),
+          this.codeService.insertCommitIfNotExists({
+            sha: toSha,
+            provider,
+            repoID,
+          }),
+        ]);
+
+        // 先删除旧数据（根据 provider、repoID、subjectID、subject 匹配）
+        await this.prisma.diff.deleteMany({
+          where: {
+            provider,
+            repo_id: repoID,
+            subject_id: subjectID,
+            subject,
+          },
+        });
+
+        // 通过 service 获取代码差异数据
+        const diffData = await this.codeService.getDiffForMultipleCommits({
+          repoID,
+          provider,
+          subjectID,
+        });
+
+        // 保存到数据库
+        await this.prisma.diff.createMany({
+          data: diffData,
+          skipDuplicates: true,
+        });
+
+        console.log(
+          `已创建 diff: provider=${provider}, repoID=${repoID}, subject=${subject}, subjectID=${subjectID}`,
+        );
+      }
+
       return this.coverageMapInitService.init(coverageMapInitDto);
     } else {
       return {

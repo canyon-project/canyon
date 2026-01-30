@@ -48,4 +48,11 @@ export class CoverageMapInitDto {
   @IsNotEmpty({ message: 'coverage不能为空' })
   @Validate(IsValidCoverage)
   coverage: any;
+
+  @IsOptional()
+  @IsObject({ message: 'diff 必须是一个对象' })
+  diff?: {
+    subject: string;
+    subjectID: string;
+  };
 }
