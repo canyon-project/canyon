@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { diffLine } from '../../helpers/diff';
+import { diffLine, computeJSDiffLines } from '../../helpers/diff';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -248,47 +248,210 @@ export class CodeService {
 
   /**
    * 获取两个 commit 之间的所有 commit SHA 列表（包含 from 和 to）
-   * 使用 GitLab API 的 compare 接口
+   * 支持 GitLab 和 GitHub API
    */
   private async getCommitsBetween({
     repoID,
     fromSha,
     toSha,
+    provider,
   }: {
     repoID: string;
     fromSha: string;
     toSha: string;
+    provider: string;
   }): Promise<string[]> {
-    const { base, token } = await this.getGitLabCfg();
-    const pid = encodeURIComponent(repoID);
-    // GitLab compare API: /projects/{id}/repository/compare?from={from}&to={to}
-    const url = `${base}/api/v4/projects/${pid}/repository/compare?from=${encodeURIComponent(fromSha)}&to=${encodeURIComponent(toSha)}`;
-    const resp = await axios.get(url, {
+    if (provider === 'github' || provider.startsWith('github')) {
+      const { base, token } = await this.getGithubCfg();
+      const { owner, repo } = await this.resolveGithubOwnerRepoByID(
+        repoID,
+        base,
+        token,
+      );
+
+      // GitHub compare API: /repos/{owner}/{repo}/compare/{base}...{head}
+      const url = `${base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/compare/${encodeURIComponent(fromSha)}...${encodeURIComponent(toSha)}`;
+      const resp = await axios.get(url, {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
+
+      if (resp.status < 200 || resp.status >= 300) {
+        throw new BadRequestException('无法获取 GitHub commit 列表');
+      }
+
+      // GitHub 返回的 commits 数组，按时间顺序从旧到新
+      const commits = resp.data.commits || [];
+      const commitShas = commits
+        .map((c: { sha?: string }) => c.sha)
+        .filter(Boolean);
+
+      // 确保 fromSha 在列表中，如果不在则添加到开头
+      if (!commitShas.includes(fromSha)) {
+        commitShas.unshift(fromSha);
+      }
+      // 确保 toSha 在列表中，如果不在则添加
+      if (!commitShas.includes(toSha)) {
+        commitShas.push(toSha);
+      }
+
+      return commitShas;
+    } else {
+      // GitLab
+      const { base, token } = await this.getGitLabCfg();
+      const pid = encodeURIComponent(repoID);
+      // GitLab compare API: /projects/{id}/repository/compare?from={from}&to={to}
+      const url = `${base}/api/v4/projects/${pid}/repository/compare?from=${encodeURIComponent(fromSha)}&to=${encodeURIComponent(toSha)}`;
+      const resp = await axios.get(url, {
+        headers: {
+          'PRIVATE-TOKEN': token,
+        },
+      });
+
+      if (resp.status < 200 || resp.status >= 300) {
+        throw new BadRequestException('无法获取 GitLab commit 列表');
+      }
+
+      // GitLab 返回的 commits 数组，按时间顺序从旧到新
+      const commits = resp.data.commits || [];
+      const commitShas = commits
+        .map((c: { id?: string }) => c.id)
+        .filter(Boolean);
+
+      // 确保 fromSha 在列表中，如果不在则添加到开头
+      if (!commitShas.includes(fromSha)) {
+        commitShas.unshift(fromSha);
+      }
+      // 确保 toSha 在列表中，如果不在则添加
+      if (!commitShas.includes(toSha)) {
+        commitShas.push(toSha);
+      }
+
+      return commitShas;
+    }
+  }
+
+  /**
+   * 获取 GitHub 仓库的代码差异
+   */
+  private async getDiffForGithub({
+    repoID,
+    baseCommitSha,
+    compareCommitSha,
+    includesFileExtensions = ['ts', 'tsx', 'jsx', 'vue', 'js'],
+  }: {
+    repoID: string;
+    baseCommitSha: string;
+    compareCommitSha: string;
+    includesFileExtensions?: string[];
+  }): Promise<
+    Array<{ path: string; additions: number[]; deletions: number[] }>
+  > {
+    const { base, token } = await this.getGithubCfg();
+    const { owner, repo } = await this.resolveGithubOwnerRepoByID(
+      repoID,
+      base,
+      token,
+    );
+
+    // GitHub compare API: /repos/{owner}/{repo}/compare/{base}...{head}
+    const compareUrl = `${base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/compare/${encodeURIComponent(baseCommitSha)}...${encodeURIComponent(compareCommitSha)}`;
+    const compareResp = await axios.get(compareUrl, {
       headers: {
-        'PRIVATE-TOKEN': token,
+        Authorization: `token ${token}`,
+        Accept: 'application/vnd.github.v3+json',
       },
     });
 
-    if (resp.status < 200 || resp.status >= 300) {
-      throw new BadRequestException('无法获取 GitLab commit 列表');
+    if (compareResp.status < 200 || compareResp.status >= 300) {
+      throw new BadRequestException('无法获取 GitHub diff 信息');
     }
 
-    // GitLab 返回的 commits 数组，按时间顺序从旧到新
-    const commits = resp.data.commits || [];
-    const commitShas = commits
-      .map((c: { id?: string }) => c.id)
-      .filter(Boolean);
+    const files = compareResp.data.files || [];
+    const isMatchingExtension = (pathname: string) =>
+      includesFileExtensions.some((ext) => pathname.endsWith('.' + ext));
 
-    // 确保 fromSha 在列表中，如果不在则添加到开头
-    if (!commitShas.includes(fromSha)) {
-      commitShas.unshift(fromSha);
-    }
-    // 确保 toSha 在列表中，如果不在则添加
-    if (!commitShas.includes(toSha)) {
-      commitShas.push(toSha);
+    const filteredFiles = files.filter((file: { filename?: string }) =>
+      isMatchingExtension(file.filename || ''),
+    );
+
+    const result: Array<{
+      path: string;
+      additions: number[];
+      deletions: number[];
+    }> = [];
+
+    for (const file of filteredFiles) {
+      const filename = file.filename || '';
+      let oldContent = '';
+      let newContent = '';
+
+      // 获取旧文件内容
+      if (file.status !== 'added' && baseCommitSha) {
+        try {
+          const oldFileUrl = `${base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${this.encodePathSegments(filename)}?ref=${encodeURIComponent(baseCommitSha)}`;
+          const oldFileResp = await axios.get(oldFileUrl, {
+            headers: {
+              Authorization: `token ${token}`,
+              Accept: 'application/vnd.github.v3+json',
+            },
+          });
+          if (
+            oldFileResp.status >= 200 &&
+            oldFileResp.status < 300 &&
+            oldFileResp.data.content
+          ) {
+            oldContent = Buffer.from(
+              oldFileResp.data.content,
+              'base64',
+            ).toString('utf-8');
+          }
+        } catch (error) {
+          // 文件可能不存在或被删除，忽略错误
+        }
+      }
+
+      // 获取新文件内容
+      if (file.status !== 'deleted' && compareCommitSha) {
+        try {
+          const newFileUrl = `${base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${this.encodePathSegments(filename)}?ref=${encodeURIComponent(compareCommitSha)}`;
+          const newFileResp = await axios.get(newFileUrl, {
+            headers: {
+              Authorization: `token ${token}`,
+              Accept: 'application/vnd.github.v3+json',
+            },
+          });
+          if (
+            newFileResp.status >= 200 &&
+            newFileResp.status < 300 &&
+            newFileResp.data.content
+          ) {
+            newContent = Buffer.from(
+              newFileResp.data.content,
+              'base64',
+            ).toString('utf-8');
+          }
+        } catch (error) {
+          // 文件可能不存在，忽略错误
+        }
+      }
+
+      // 使用 computeJSDiffLines 计算差异
+      const { additions, deletions } = computeJSDiffLines(
+        oldContent,
+        newContent,
+      );
+
+      result.push({
+        path: filename,
+        additions,
+        deletions,
+      });
     }
 
-    return commitShas;
+    return result;
   }
 
   /**
@@ -341,6 +504,7 @@ export class CodeService {
       repoID,
       fromSha: fromShaTrimmed,
       toSha: toShaTrimmed,
+      provider,
     });
     if (commitShas.length === 0) {
       throw new BadRequestException('未找到任何 commit');
@@ -349,16 +513,31 @@ export class CodeService {
     // fingerprint 是所有 commit SHA 用逗号连接
     const fingerprint = commitShas.join(',');
 
-    // 获取代码差异
-    const { base, token } = await this.getGitLabCfg();
-    const result = await diffLine({
-      repoID,
-      baseCommitSha: fromShaTrimmed,
-      compareCommitSha: toShaTrimmed,
-      includesFileExtensions: ['ts', 'tsx', 'jsx', 'vue', 'js'],
-      gitlabUrl: base,
-      token,
-    });
+    // 根据 provider 获取代码差异
+    let result: Array<{
+      path: string;
+      additions: number[];
+      deletions: number[];
+    }>;
+    if (provider === 'github' || provider.startsWith('github')) {
+      result = await this.getDiffForGithub({
+        repoID,
+        baseCommitSha: fromShaTrimmed,
+        compareCommitSha: toShaTrimmed,
+        includesFileExtensions: ['ts', 'tsx', 'jsx', 'vue', 'js'],
+      });
+    } else {
+      // GitLab
+      const { base, token } = await this.getGitLabCfg();
+      result = await diffLine({
+        repoID,
+        baseCommitSha: fromShaTrimmed,
+        compareCommitSha: toShaTrimmed,
+        includesFileExtensions: ['ts', 'tsx', 'jsx', 'vue', 'js'],
+        gitlabUrl: base,
+        token,
+      });
+    }
     // 转换为返回格式
     const data = result.map(({ path, additions, deletions }) => {
       return {

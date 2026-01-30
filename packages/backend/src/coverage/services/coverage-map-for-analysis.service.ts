@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { remapCoverageByOld } from '../../collect/helpers/canyon-data';
@@ -19,6 +19,150 @@ export class CoverageMapForAnalysisService {
     private readonly configService: ConfigService,
   ) {}
 
+  private async getGitLabCfg() {
+    const base = await this.configService.get('INFRA.GITLAB_BASE_URL');
+    const token = await this.configService.get('INFRA.GITLAB_PRIVATE_TOKEN');
+    if (!base || !token) throw new BadRequestException('GitLab 配置缺失');
+    return { base, token };
+  }
+
+  private async getGithubCfg() {
+    const base = 'https://api.github.com';
+    const token = await this.configService.get('INFRA.GITHUB_PRIVATE_TOKEN');
+    if (!token) throw new BadRequestException('GitHub 配置缺失');
+    return { base, token };
+  }
+
+  private async resolveGithubOwnerRepoByID(
+    idOrSlug: string,
+    base: string,
+    token: string,
+  ) {
+    // 如果是 owner/repo 直接返回
+    if (idOrSlug.includes('/')) {
+      const [owner, repo] = idOrSlug.split('/');
+      if (!owner || !repo) {
+        throw new BadRequestException(
+          'GitHub repoID 需为 owner/repo 或数字 ID',
+        );
+      }
+      return { owner, repo };
+    }
+    // 如果是纯数字，则通过 /repositories/{id} 解析
+    if (/^[0-9]+$/.test(idOrSlug)) {
+      const url = `${base}/repositories/${encodeURIComponent(idOrSlug)}`;
+      const resp = await axios.get(url, {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
+      if (resp.status < 200 || resp.status >= 300) {
+        throw new BadRequestException('无法解析 GitHub 仓库 ID');
+      }
+      const data = resp.data as {
+        full_name?: string;
+        owner?: { login?: string };
+        name?: string;
+      };
+      const fullName = data.full_name;
+      if (fullName && fullName.includes('/')) {
+        const [owner, repo] = fullName.split('/');
+        return { owner, repo };
+      }
+      const owner = data.owner?.login;
+      const repo = data.name;
+      if (!owner || !repo) {
+        throw new BadRequestException('GitHub 仓库信息不完整');
+      }
+      return { owner, repo };
+    }
+    throw new BadRequestException('GitHub repoID 需为 owner/repo 或数字 ID');
+  }
+
+  private async getCommitsBetween({
+    repoID,
+    fromSha,
+    toSha,
+    provider,
+  }: {
+    repoID: string;
+    fromSha: string;
+    toSha: string;
+    provider: string;
+  }): Promise<string[]> {
+    if (provider === 'github' || provider.startsWith('github')) {
+      const { base, token } = await this.getGithubCfg();
+      const { owner, repo } = await this.resolveGithubOwnerRepoByID(
+        repoID,
+        base,
+        token,
+      );
+
+      // GitHub compare API: /repos/{owner}/{repo}/compare/{base}...{head}
+      const url = `${base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/compare/${encodeURIComponent(fromSha)}...${encodeURIComponent(toSha)}`;
+      const resp = await axios.get(url, {
+        headers: {
+          Authorization: `token ${token}`,
+          Accept: 'application/vnd.github.v3+json',
+        },
+      });
+
+      if (resp.status < 200 || resp.status >= 300) {
+        throw new BadRequestException('无法获取 GitHub commit 列表');
+      }
+
+      // GitHub 返回的 commits 数组，按时间顺序从旧到新
+      const commits = resp.data.commits || [];
+      const commitShas = commits
+        .map((c: { sha?: string }) => c.sha)
+        .filter(Boolean);
+
+      // 确保 fromSha 在列表中，如果不在则添加到开头
+      if (!commitShas.includes(fromSha)) {
+        commitShas.unshift(fromSha);
+      }
+      // 确保 toSha 在列表中，如果不在则添加
+      if (!commitShas.includes(toSha)) {
+        commitShas.push(toSha);
+      }
+
+      return commitShas;
+    } else {
+      // GitLab
+      const { base, token } = await this.getGitLabCfg();
+      const pid = encodeURIComponent(repoID);
+      // GitLab compare API: /projects/{id}/repository/compare?from={from}&to={to}
+      const url = `${base}/api/v4/projects/${pid}/repository/compare?from=${encodeURIComponent(fromSha)}&to=${encodeURIComponent(toSha)}`;
+      const resp = await axios.get(url, {
+        headers: {
+          'PRIVATE-TOKEN': token,
+        },
+      });
+
+      if (resp.status < 200 || resp.status >= 300) {
+        throw new BadRequestException('无法获取 GitLab commit 列表');
+      }
+
+      // GitLab 返回的 commits 数组，按时间顺序从旧到新
+      const commits = resp.data.commits || [];
+      const commitShas = commits
+        .map((c: { id?: string }) => c.id)
+        .filter(Boolean);
+
+      // 确保 fromSha 在列表中，如果不在则添加到开头
+      if (!commitShas.includes(fromSha)) {
+        commitShas.unshift(fromSha);
+      }
+      // 确保 toSha 在列表中，如果不在则添加
+      if (!commitShas.includes(toSha)) {
+        commitShas.push(toSha);
+      }
+
+      return commitShas;
+    }
+  }
+
   async invoke({
     provider,
     repoID,
@@ -27,9 +171,6 @@ export class CoverageMapForAnalysisService {
     filePath,
     scene,
   }: CoverageAnalysisQueryParamsTypes) {
-    // 变量定义
-    const base = await this.configService.get('INFRA.GITLAB_BASE_URL');
-    const token = await this.configService.get('INFRA.GITLAB_PRIVATE_TOKEN');
     const [afterSha, nowSha] = analysisID.split('...');
     // 关键点，对于Analysis来说，必须要通过diff过滤，不然分析数据量太大
     const diffListWhereCondition: any = {
@@ -53,22 +194,13 @@ export class CoverageMapForAnalysisService {
       },
     });
 
-    // 构建GitLab Compare API URL
-    const url = `${base}/api/v4/projects/${repoID}/repository/compare?from=${afterSha}&to=${nowSha}`;
-    const resp = await axios
-      .get(url, {
-        headers: {
-          'PRIVATE-TOKEN': token,
-        },
-      })
-      .then(({ data }) => data);
-
-    const allCommits = resp.commits
-      .map((commit) => commit.id)
-      .concat([afterSha, nowSha]);
-
-    // 去重复
-    const filteredCommits = [...new Set(allCommits)];
+    // 根据 provider 获取 commits 列表
+    const filteredCommits = await this.getCommitsBetween({
+      repoID,
+      fromSha: afterSha,
+      toSha: nowSha,
+      provider,
+    });
 
     // 准备基准map - 以 nowSha 为基准
     const nowShaIndex = filteredCommits.indexOf(nowSha);
@@ -154,8 +286,6 @@ export class CoverageMapForAnalysisService {
       nowShaSourceMapIndex.set(sourceMap.hash, sourceMap);
     }
 
-    // console.log('sourceMap', sourceMap);
-
     // 构建 nowSha 的 fileCoverageMap
     // 使用去掉插桩路径前缀的相对路径作为 key，以便后续比较
     const nowShaFileCoverageMap = new Map<string, any>();
@@ -173,7 +303,6 @@ export class CoverageMapForAnalysisService {
 
       const decodedCoverageMap = decodeCompressedObject(coverageMapRecord.map);
 
-      // console.log('decodedCoverageMap', decodedCoverageMap);
 
       nowShaFileCoverageMap.set(normalizedPath, {
         path: rawFilePath, // 保留完整路径在 path 字段中

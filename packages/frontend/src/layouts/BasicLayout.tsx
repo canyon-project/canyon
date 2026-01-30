@@ -32,46 +32,6 @@ const BasicLayout: FC<{
     }
   });
 
-  useEffect(() => {
-    // 通过 Cookie 获取登录态
-    (async () => {
-      try {
-        const resp = await fetch(`${backendUrl}/api/user/me`, {
-          credentials: 'include',
-        });
-        if (resp.ok) {
-          const me = await resp.json();
-          if (me?.id) {
-            const user: AuthUser = {
-              id: me.id,
-              provider: 'oauth',
-              name: me.nickname,
-              username: me.nickname,
-            };
-            localStorage.setItem('auth:user', JSON.stringify(user));
-            setAuthUser(user);
-          }
-        }
-      } catch {}
-    })();
-
-    const sp = new URLSearchParams(location.search);
-    const provider = sp.get('provider');
-    const id = sp.get('id');
-    if (provider && id) {
-      const user: AuthUser = {
-        id,
-        provider,
-        name: sp.get('name') || undefined,
-        username: sp.get('username') || undefined,
-      };
-      localStorage.setItem('auth:user', JSON.stringify(user));
-      setAuthUser(user);
-      navigate(location.pathname, { replace: true });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.search, navigate, location.pathname]);
-
   const selected = `/${location.pathname.split('/')[1] || 'projects'}`;
 
   // 分区组件：侧边头部（Logo 与标题）
