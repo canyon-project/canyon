@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+/**
+ * 默认主库（Postgres）
+ */
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model InfraConfig {
+  id                     String   @id @default(cuid())
+  name                   String
+  value                  String
+  createdOn              DateTime @default(now()) @db.Timestamptz(3)
+  updatedOn              DateTime @updatedAt @db.Timestamptz(3)
+  isEncrypted            Boolean  @default(false)
+  lastSyncedEnvFileValue String
+
+  @@map("canyon_next_infra_config")
+}
+
+model Repo {
+  id                String   @id
+  pathWithNamespace String   @map("path_with_namespace")
+  description       String
+  config            String
+  bu                String
+  createdAt         DateTime @map("created_at")
+  updatedAt         DateTime @map("updated_at")
+  provider String
+  tags              Json
+  members           Json
+
+  @@map("canyon_next_repo")
+}
+
+model Commit {
+  // provider+repoID+sha
+  id            String   @id
+  sha           String
+  provider      String
+  repoID        String   @map("repo_id")
+  commitMessage String   @map("commit_message")
+  authorName    String?  @map("author_name")
+  authorEmail   String?  @map("author_email")
+  createdAt     DateTime @map("created_at") // commit 的创建时间
+
+  @@map("canyon_next_commit")
+}
+
+model Coverage {
+  // buildHash+sceneKey
+  id            String @id
+  // 包含buildProvider、buildID、branch等信息
+  builds        Json
+  // buildHash. instrumentCwd 不一样的话sourceMap解析也会有问题
+  buildHash     String @map("build_hash")
+  provider      String
+  repoID        String @map("repo_id")
+  sha           String
+  buildTarget   String @map("build_target")
+  instrumentCwd String @map("instrument_cwd")
+
+  // sceneKey 场景
+  sceneKey String @map("scene_key")
+  // sceneKey = hash(
+  // source +      // automation, manual, replay
+  // type +        // e2e, unit, integration
+  // env +         // test, staging, prod
+  // trigger       // pipeline, schedule, manual
+  // )
+  scene    Json
+
+  createdAt DateTime @map("created_at")
+  updatedAt DateTime @map("updated_at")
+
+  @@map("canyon_next_coverage")
+}
+
+model CoverageMapRelation {
+  id                  String @id
+  fullFilePath        String @map("full_file_path")
+  restoreFullFilePath String @map("restore_full_file_path")
+  // 唯一构建hash
+  buildHash           String @map("build_hash")
+  // 找coverageMap，减少存储
+  coverageMapHash     String @map("coverage_map_hash")
+  // 找sourceMap，减少存储
+  sourceMapHash       String @map("source_map_hash")
+  // 文件内容hash，未来多build合并提供依据
+  fileContentHash     String @map("file_content_hash")
+
+  @@map("canyon_next_coverage_map_relation")
+}
+
+model CoverageMap {
+  hash      String   @id
+  map       Bytes
+  createdAt DateTime @map("created_at")
+
+  @@map("canyon_next_coverage_map")
+}
+
+model CoverageSourceMap {
+  hash      String @id
+  sourceMap Bytes  @map("source_map")
+
+  @@map("canyon_next_coverage_source_map")
+}
+
+model CoverageHit {
+  id             String   @id
+  buildHash      String   @map("build_hash")
+  sceneKey       String   @map("scene_key")
+  rawFilePath    String   @map("raw_file_path")
+  s              Json
+  f              Json
+  b              Json
+  inputSourceMap Int?     @map("input_source_map")
+  createdAt      DateTime @map("created_at")
+
+  @@map("canyon_next_coverage_hit")
+}
+
+model CoverageLock {
+  coverageID String   @id @map("coverage_id")
+  lockedAt   DateTime @map("locked_at")
+  lockedBy   String   @map("locked_by")
+
+  @@map("canyon_next_coverage_lock")
+}
+
+model Diff {
+  id String @id @default(cuid())
+
+  provider   String
+  repo_id    String
+  from       String
+  to         String
+  path       String
+  additions  Int[]
+  deletions  Int[]
+  subject    String
+  subject_id String
+
+  @@map("canyon_next_diff")
+}

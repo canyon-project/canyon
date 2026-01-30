@@ -1,0 +1,27 @@
+{
+  "name": "report-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "postinstall": "npm run generate",
+    "generate": "prisma generate && prisma generate"
+  },
+  "dependencies": {
+    "next": "16.0.10",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "@prisma/client": "6",
+    "prisma": "6"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "babel-plugin-react-compiler": "latest",
+    "tailwindcss": "^4"
+  }
+}

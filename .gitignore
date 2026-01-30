@@ -77,3 +77,6 @@ features-dist
 old-spa
 
 diff.txt
+
+
+next-env.d.ts
