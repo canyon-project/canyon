@@ -16,8 +16,6 @@ export async function mapCommand(params: any, options: any) {
     instrument_cwd,
     filter,
     scene,
-    diff_subject: diffSubject,
-    diff_subject_id: diffSubjectID,
   } = params;
   if (!fs.existsSync(path.resolve(process.cwd(), '.canyon_output'))) {
     console.log('No .canyon_output directory found, skipping upload.');
@@ -102,13 +100,6 @@ export async function mapCommand(params: any, options: any) {
       branch: env_branch,
     },
     ...(sceneMap && { scene: sceneMap }),
-    // 如果同时有 diff_subject 和 diff_subject_id，则添加 diff 参数
-    ...(diffSubject && diffSubjectID && {
-      diff: {
-        subject: diffSubject,
-        subjectID: diffSubjectID,
-      },
-    }),
   };
   if (debug === 'true') {
     console.log(p);

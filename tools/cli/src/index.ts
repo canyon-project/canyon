@@ -56,8 +56,6 @@ program
     },
     [],
   )
-  .option('--diff-subject <diff_subject>', 'diff subject')
-  .option('--diff-subject-id <diff_subject_id>', 'diff subject id')
   .allowExcessArguments(false)
   .allowUnknownOption(false)
   .description('modify react native project code to adapt to canyon')
