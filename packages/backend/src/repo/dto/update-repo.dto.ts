@@ -24,4 +24,8 @@ export class UpdateRepoDto {
   @IsString()
   @IsOptional()
   config?: string;
+
+  @IsString()
+  @IsOptional()
+  provider?: string;
 }

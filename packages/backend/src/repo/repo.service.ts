@@ -157,6 +157,7 @@ export class RepoService {
           ? JSON.parse(createRepoDto.members)
           : undefined,
         config: createRepoDto.config,
+        provider: createRepoDto.provider,
         createdAt: new Date(),
         updatedAt: new Date(),
       },
@@ -184,6 +185,7 @@ export class RepoService {
             ? JSON.parse(updateRepoDto.members)
             : undefined,
         config: updateRepoDto.config ?? undefined,
+        provider: updateRepoDto.provider ?? undefined,
         updatedAt: new Date(),
       },
     });

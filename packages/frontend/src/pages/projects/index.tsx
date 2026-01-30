@@ -35,6 +35,7 @@ type Repo = {
   reportTimes?: number;
   maxCoverage?: number;
   lastReportTime?: string;
+  provider: string;
 };
 
 type ProjectRow = {
@@ -52,6 +53,7 @@ type ProjectRow = {
   favored?: boolean;
   reportTimes?: number;
   lastReportTime?: string;
+  provider: string;
 };
 
 const Projects = () => {
@@ -169,10 +171,16 @@ const Projects = () => {
       dataIndex: 'pathWithNamespace',
       key: 'pathWithNamespace',
       render: (text, record) => {
+        // 根据 provider 选择对应的 logo
+        const logoPath =
+          record.provider === 'github'
+            ? '/gitproviders/github.svg'
+            : '/gitproviders/gitlab.svg';
+
         return (
           <div className={'flex gap-1'}>
             <img
-              src='/gitproviders/gitlab.svg'
+              src={logoPath}
               alt=''
               className={'mt-1 w-[16px] h-[16px]'}
             />
@@ -183,8 +191,6 @@ const Projects = () => {
                 className={'max-w-[240px]'}
                 style={{ color: 'unset' }}
                 target={'_blank'}
-                // @ts-expect-error
-                // href={`${window.GITLAB_URL || ''}/${text}`}
                 rel='noreferrer'
               >
                 {text}
@@ -264,14 +270,14 @@ const Projects = () => {
     {
       title: t('common.option'),
       key: 'option',
-      render: (_, { pathWithNamespace }) => {
+      render: (_, record) => {
         // 从 pathWithNamespace 解析出 org 和 repo
         // pathWithNamespace 格式通常是 "org/repo" 或 "group/org/repo"
-        const parts = pathWithNamespace.split('/');
+        const parts = record.pathWithNamespace.split('/');
         const org = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
         const repo = parts[parts.length - 1];
-        // 默认使用 gitlab 作为 provider（可以根据实际情况调整）
-        const provider = 'gitlab';
+        // 使用 record 中的 provider
+        const provider = record.provider;
 
         return (
           <>
@@ -318,6 +324,7 @@ const Projects = () => {
     favored: r.favored,
     reportTimes: r.reportTimes,
     lastReportTime: r.lastReportTime,
+    provider: r.provider,
   }));
 
   return (

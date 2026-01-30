@@ -31,6 +31,7 @@ model Repo {
   bu                String
   createdAt         DateTime @map("created_at")
   updatedAt         DateTime @map("updated_at")
+  provider String
   tags              Json
   members           Json
 

@@ -28,4 +28,8 @@ export class CreateRepoDto {
   @IsString()
   @IsNotEmpty()
   config!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  provider!: string;
 }
