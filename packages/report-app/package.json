@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev-report-app": "next dev",
     "build": "next build",
     "start": "next start",
     "postinstall": "npm run generate",
@@ -14,7 +14,8 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "@prisma/client": "6",
-    "prisma": "6"
+    "prisma": "6",
+    "dotenv": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
