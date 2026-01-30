@@ -1,5 +1,4 @@
-import { Steps, Callout, Cards } from "nextra/components";
-import {RobotOutlined, UserOutlined} from "@ant-design/icons";
+import { Steps, Callout } from "nextra/components";
 
 # 首次获取覆盖率数据
 
@@ -54,28 +53,44 @@ npm install babel-plugin-istanbul @canyonjs/babel-plugin -D
   };
   ```
 
+  ### CI中收集初始覆盖率数据
+
+  在 CI 环境中，您可以通过运行测试用例来收集初始覆盖率数据。这有助于建立代码覆盖率的基准线。
+
+  以下是一个 GitLab CI/CD 配置示例：
+
+  ```yaml filename=".gitlab-ci.yml" copy
+  pages:
+    image: node:20
+    stage: deploy
+    script:
+      - npm i pnpm -g
+      - pnpm i
+      - pnpm run build
+      - npm i @canyonjs/cli -g
+      - canyon -h
+      - canyon upload --dsn=https://app.canyonjs.io/api/coverage/map/init
+      - mv dist/* public
+    artifacts:
+      paths:
+        - public
+    only:
+      - main
+  ```
+
   ### 报告覆盖率数据
 
-  等待 CI 完成后，将页面部署到测试环境。
+  等待 CI 完成后，将页面部署到测试环境。为了收集人工测试的覆盖率数据，您需要在 HTML 文件中引入 Canyon 收集脚本：
 
-  > [!TIP]
-  >
-  > 此时，覆盖率数据存储在浏览器中。随着用户交互或 UI 自动化测试的执行，window.\_\_coverage\_\_ 数据将不断累积。您可以选择本地生成覆盖率报告或发送到Canyon服务器。
+  ```html copy
+  <script src="https://unpkg.com/@canyonjs/collect"></script>
+  <script>
+      window.CANYON_DSN='https://app.canyonjs.io/api/coverage/client';
+      window.CANYON_SCENE = {
+          hello:'world'
+      }
+  </script>
+  ```
 
-
-
-  不同场景下的收集方式：
-
-  <Cards>
-  <Cards.Card
-    icon={<RobotOutlined />}
-    title="自动化测试"
-    href="/docs/end-to-end-testing/getting-started"
-  />
-  <Cards.Card
-    icon={<UserOutlined />}
-    title="手动测试"
-    href="/docs/ecosystem/canyon-extension"
-  />
-</Cards>
+  配置完成后，随后的测试就会不断收集上报覆盖率数据到服务端。
 </Steps>

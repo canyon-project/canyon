@@ -14,45 +14,25 @@ import { Callout } from "nextra/components";
 
 @canyonjs/babel-plugin 插件在编译过程中为编译后的文件生成初始覆盖率文件，并将其保存到 .canyon_output 文件夹中。我们提供了 Tools CLI 命令行工具，您可以在 CI 中使用它向 Canyon 服务器报告。
 
-```yml filename=".github/workflows/report-canyon-output.yml" {19,20} copy
-name: Report Canyon Output
+```yml filename=".gitlab-ci.yml" {19,20} copy
 
-jobs:
-  report:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "18" # 您可以根据项目要求修改 Node.js 版本
-      - name: Install dependencies
-        run: npm install
-      - name: Generate output
-        run: npm run build
+pages:
+  image: node:20
+  stage: deploy
+  script:
+    - npm i pnpm -g
+    - pnpm i
+    - pnpm run build
+    - npm i @canyonjs/cli -g
+    - canyon -h
+    - canyon upload --dsn=https://app.canyonjs.io/api/coverage/map/init
+    - mv dist/* public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
 
-      # Report .canyon_output file contents
-      - name: Report output
-        run: canyon-uploader map --dsn=https://canyonjs.org
-```
-
-## 更新 Babel 插件
-
-将 keepMap 选项配置为 false
-
-```js filename="babel.config.js" {7} copy
-module.exports = {
-  plugins: [
-    "istanbul",
-    [
-      "canyon",
-      {
-        keepMap: false,
-      },
-    ],
-  ],
-};
 ```
 
 ## 准备就绪
