@@ -266,59 +266,15 @@ export class CoverageReport {
       }
     }
 
+    // 生成 report-data.js 文件
+    const reportDataContent = `window.reportData = '${compress(JSON.stringify(reportData))}';`;
+    const reportDataPath = path.join(targetDir, 'data/report-data.js');
     // 确保 data 目录存在
-    const dataDir = path.join(targetDir, 'data');
+    const dataDir = path.dirname(reportDataPath);
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
-
-    // 将文件分为有 diff 和无 diff 两类
-    const filesWithDiff: FileReportData[] = [];
-    const filesWithoutDiff: FileReportData[] = [];
-
-    reportData.files.forEach((file) => {
-      const hasDiff =
-        file.diff &&
-        (file.diff.additions.length > 0 || file.diff.deletions.length > 0);
-      if (hasDiff) {
-        filesWithDiff.push(file);
-      } else {
-        filesWithoutDiff.push(file);
-      }
-    });
-
-    // 生成 report-data.js 文件（files 为空数组，不压缩）
-    const reportDataWithoutFiles = {
-      ...reportData,
-      files: [],
-    };
-    const reportDataContent = `window.reportData = ${JSON.stringify(reportDataWithoutFiles)};`;
-    const reportDataPath = path.join(dataDir, 'report-data.js');
     fs.writeFileSync(reportDataPath, reportDataContent, 'utf8');
-
-    // 生成 diff-data.js 文件（有 diff 的文件，压缩）
-    if (filesWithDiff.length > 0) {
-      const diffDataContent = `window.diffData = '${compress(JSON.stringify(filesWithDiff))}';`;
-      const diffDataPath = path.join(dataDir, 'diff-data.js');
-      fs.writeFileSync(diffDataPath, diffDataContent, 'utf8');
-    } else {
-      // 如果没有任何有 diff 的文件，创建空文件
-      const diffDataContent = `window.diffData = '';`;
-      const diffDataPath = path.join(dataDir, 'diff-data.js');
-      fs.writeFileSync(diffDataPath, diffDataContent, 'utf8');
-    }
-
-    // 生成 no-diff-data.js 文件（无 diff 的文件，压缩）
-    if (filesWithoutDiff.length > 0) {
-      const noDiffDataContent = `window.noDiffData = '${compress(JSON.stringify(filesWithoutDiff))}';`;
-      const noDiffDataPath = path.join(dataDir, 'no-diff-data.js');
-      fs.writeFileSync(noDiffDataPath, noDiffDataContent, 'utf8');
-    } else {
-      // 如果没有任何无 diff 的文件，创建空文件
-      const noDiffDataContent = `window.noDiffData = '';`;
-      const noDiffDataPath = path.join(dataDir, 'no-diff-data.js');
-      fs.writeFileSync(noDiffDataPath, noDiffDataContent, 'utf8');
-    }
 
     const result: GenerateResult = {
       reportPath: path.join(targetDir, 'index.html'),
