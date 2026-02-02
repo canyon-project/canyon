@@ -8,7 +8,7 @@
     "build": "tsgo -b && vite build",
     "preview": "vite preview",
     "pretest": "npm run build",
-    "gen-coverage-report": "nyc report --reporter=@canyonjs/report-html --temp-dir=./.canyon_output",
+    "gen-coverage-report": "nyc report --reporter=@canyonjs/report --temp-dir=./.canyon_output",
     "test": "playwright test && npm run gen-coverage-report"
   },
   "dependencies": {
@@ -17,7 +17,7 @@
     "react-router-dom": "catalog:"
   },
   "devDependencies": {
-    "@canyonjs/report-html": "catalog:",
+    "@canyonjs/report": "catalog:",
     "nyc": "latest",
     "@canyonjs/babel-plugin": "latest",
     "@canyonjs/playwright": "latest",

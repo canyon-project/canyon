@@ -1,3 +1,3 @@
 module.exports = {
-  coverageReporters: ['json', '@canyonjs/report-html'],
+  coverageReporters: ['json', '@canyonjs/report'],
 };

@@ -10,7 +10,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@canyonjs/report-html": "catalog:",
+    "@canyonjs/report": "catalog:",
     "@rstest/core": "latest",
     "@rstest/coverage-istanbul": "latest"
   }

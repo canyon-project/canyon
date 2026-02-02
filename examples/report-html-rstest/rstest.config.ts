@@ -6,7 +6,7 @@ export default defineConfig({
     reporters: [
       'json',
       [
-        '@canyonjs/report-html',
+        '@canyonjs/report',
         {
           diff: [],
         },

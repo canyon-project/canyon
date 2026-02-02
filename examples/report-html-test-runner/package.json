@@ -4,13 +4,13 @@
   "main": "ride.js",
   "type": "module",
   "scripts": {
-    "test": "c8 --reporter=json --reporter=@canyonjs/report-html node --test"
+    "test": "c8 --reporter=json --reporter=@canyonjs/report node --test"
   },
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@canyonjs/report-html": "catalog:",
+    "@canyonjs/report": "catalog:",
     "c8": "^10.1.3"
   }
 }

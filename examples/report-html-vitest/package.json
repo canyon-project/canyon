@@ -11,7 +11,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@canyonjs/report-html": "catalog:",
+    "@canyonjs/report": "catalog:",
     "@vitest/coverage-v8": "latest",
     "@vitest/ui": "latest",
     "vitest": "latest"
