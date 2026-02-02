@@ -197,7 +197,7 @@ const NewProject = () => {
         // 跳转到项目详情页
         const pathParts = finalRepoInfo.pathWithNamespace.split('/');
         if (pathParts.length >= 2) {
-          navigate(`/${provider}/${pathParts[0]}/${pathParts[1]}/analysis`);
+          navigate(`/${provider}/${pathParts[0]}/${pathParts[1]}/accumulative`);
         } else {
           navigate('/projects');
         }

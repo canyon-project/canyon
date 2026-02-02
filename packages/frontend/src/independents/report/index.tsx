@@ -11,7 +11,7 @@ import { getDecode } from '@/helpers/getDecode.ts';
 
 type FileDataResponse = Awaited<ReturnType<CanyonReportProps['onSelect']>>;
 
-type SubjectType = 'commit' | 'analysis' | undefined;
+type SubjectType = 'commit' | 'accumulative' | undefined;
 
 interface RouteParams {
   provider: string;
@@ -143,7 +143,7 @@ const ReportIndependent = () => {
         return subjectID;
       }
 
-      if (subject === 'analysis') {
+      if (subject === 'accumulative') {
         // 格式为 beforeCommitSHA...afterCommitSHA，使用 after (第二个) 作为 ref
         const parts = subjectID.split('...');
         if (parts.length === 2) {

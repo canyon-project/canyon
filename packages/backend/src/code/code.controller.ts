@@ -42,21 +42,21 @@ export class CodeController {
   async getFileContent(
     @Query('repoID') repoID: string,
     @Query('sha') sha?: string,
-    @Query('analysisNumber') analysisNumber?: string,
+    @Query('accumulativeID') accumulativeID?: string,
     @Query('filepath') filepath?: string,
     @Query('provider') provider?: string,
   ) {
     if (!repoID || !filepath) {
       return { content: null };
     }
-    if (!sha && !analysisNumber) {
+    if (!sha && !accumulativeID) {
       return { content: null };
     }
     try {
       return await this.codeService.getFileContent({
         repoID,
         sha: sha || null,
-        analysisNumber: analysisNumber || null,
+        accumulativeID: accumulativeID || null,
         filepath,
         provider: provider || null,
       });
@@ -141,11 +141,11 @@ export class CodeController {
       });
     }
 
-    const analysisRecords = Array.from(recordsMap.values());
+    const accumulativeRecords = Array.from(recordsMap.values());
 
     // 收集所有唯一的 commit SHA（from 和 to）
     const allCommits = new Set<string>();
-    for (const record of analysisRecords) {
+    for (const record of accumulativeRecords) {
       allCommits.add(record.from);
       allCommits.add(record.to);
     }
@@ -191,7 +191,7 @@ export class CodeController {
 
     // 批量查询 coverage 表，获取每个 to commit 的所有 buildTarget
     const toCommits = new Set<string>();
-    for (const record of analysisRecords) {
+    for (const record of accumulativeRecords) {
       toCommits.add(record.to);
     }
 
@@ -223,7 +223,7 @@ export class CodeController {
     }
 
     // 为每个分析记录设置 buildTargets 和 commit 信息，并映射字段名
-    const mappedRecords = analysisRecords.map((record) => {
+    const mappedRecords = accumulativeRecords.map((record) => {
       const buildTargetSet = buildTargetsMap.get(record.to);
       const buildTargets = buildTargetSet ? Array.from(buildTargetSet) : [];
 

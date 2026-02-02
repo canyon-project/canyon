@@ -5,7 +5,7 @@ import { CommitsQueryDto } from './dto/commits.dto';
 import { MapQueryDto } from './dto/map.dto';
 import { SummaryMapQueryDto } from './dto/summary-map.dto';
 import { CommitsService } from './services/commits.service';
-import { CoverageMapForAnalysisService } from './services/coverage-map-for-analysis.service';
+import { CoverageMapForAccumulativeService } from './services/coverage-map-for-accumulative.service';
 import { CoverageMapForCommitService } from './services/coverage-map-for-commit.service';
 
 // @Public()
@@ -13,7 +13,7 @@ import { CoverageMapForCommitService } from './services/coverage-map-for-commit.
 export class CoverageController {
   constructor(
     private readonly coverageMapForCommitService: CoverageMapForCommitService,
-    private readonly coverageMapForAnalysisService: CoverageMapForAnalysisService,
+    private readonly coverageMapForAccumulativeService: CoverageMapForAccumulativeService,
     private readonly commitsService: CommitsService,
   ) {}
 
@@ -33,16 +33,16 @@ export class CoverageController {
         const summary = genSummaryMapByCoverageMap(map, []);
         return summary;
       }
-      case 'analysis': {
-        const result = await this.coverageMapForAnalysisService.invoke({
+      case 'accumulative': {
+        const result = await this.coverageMapForAccumulativeService.invoke({
           provider: summaryMapQueryDto.provider,
           repoID: summaryMapQueryDto.repoID,
-          analysisID: summaryMapQueryDto.subjectID,
+          accumulativeID: summaryMapQueryDto.subjectID,
           buildTarget: summaryMapQueryDto.buildTarget || '',
           filePath: summaryMapQueryDto.filePath,
         });
 
-        // analysis service 返回的是 { success, baseCommit, comparisonResults, coverage }
+        // accumulative service 返回的是 { success, baseCommit, comparisonResults, coverage }
         // 我们需要使用 coverage 字段来生成 summary
         if (result.success && result.coverage) {
           const c = Object.values(result.coverage)
@@ -56,7 +56,7 @@ export class CoverageController {
           const summary = genSummaryMapByCoverageMap(result.coverage, c);
           return summary;
         }
-        throw new BadRequestException('Failed to get analysis coverage data');
+        throw new BadRequestException('Failed to get accumulative coverage data');
       }
       default:
         throw new BadRequestException('invalid subject');
@@ -76,12 +76,12 @@ export class CoverageController {
           filePath: q.filePath,
           scene: q.scene, // 新增字段，起筛选作用
         });
-      case 'analysis':
-        return this.coverageMapForAnalysisService
+      case 'accumulative':
+        return this.coverageMapForAccumulativeService
           .invoke({
             provider: q.provider,
             repoID: q.repoID,
-            analysisID: q.subjectID,
+            accumulativeID: q.subjectID,
             buildTarget: q.buildTarget || '',
             filePath: q.filePath,
           })
@@ -90,7 +90,7 @@ export class CoverageController {
               return result.coverage;
             }
             throw new BadRequestException(
-              'Failed to get analysis coverage data',
+              'Failed to get accumulative coverage data',
             );
           });
       default:

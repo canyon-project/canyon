@@ -67,7 +67,7 @@ const ProjectDetailPage = () => {
               },
               {
                 title: params.repo,
-                href: `/${params.provider}/${params.org}/${params.repo}/analysis`,
+                href: `/${params.provider}/${params.org}/${params.repo}/accumulative`,
               },
             ]}
           />
@@ -87,8 +87,8 @@ const ProjectDetailPage = () => {
         {!location.pathname.includes('/settings') && (
           <Tabs
             activeKey={
-              location.pathname.includes('/analysis')
-                ? 'analysis'
+              location.pathname.includes('/accumulative')
+                ? 'accumulative'
                 : location.pathname.includes('/multiple-commits')
                   ? 'multiple-commits'
                   : 'commits'
@@ -99,7 +99,7 @@ const ProjectDetailPage = () => {
               );
             }}
             items={[
-              { key: 'analysis', label: t('projects.detail.tabs.analysis') },
+              { key: 'accumulative', label: t('projects.detail.tabs.accumulative') },
               { key: 'commits', label: t('projects.detail.tabs.commits') },
             ]}
           />

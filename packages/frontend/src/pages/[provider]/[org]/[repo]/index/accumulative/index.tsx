@@ -46,7 +46,7 @@ type CommitInfo = {
   createdAt: string;
 };
 
-type AnalysisRecord = {
+type AccumulativeRecord = {
   id: string;
   provider: string;
   repoID: string;
@@ -60,7 +60,7 @@ type AnalysisRecord = {
   toCommit: CommitInfo | null;
 };
 
-const AnalysisPage = () => {
+const AccumulativePage = () => {
   const { t } = useTranslation();
   const { repo } = useOutletContext<{
     repo: Repo | null;
@@ -68,12 +68,12 @@ const AnalysisPage = () => {
   const params = useParams();
   const [loading, setLoading] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
-  const [analysisRecords, setAnalysisRecords] = useState<AnalysisRecord[]>([]);
+  const [accumulativeRecords, setAccumulativeRecords] = useState<AccumulativeRecord[]>([]);
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
 
-  const fetchAnalysisRecords = async () => {
+  const fetchAccumulativeRecords = async () => {
     if (!repo?.id || !params.provider) {
       return;
     }
@@ -89,13 +89,13 @@ const AnalysisPage = () => {
 
       if (resp.ok) {
         const data = await resp.json();
-        setAnalysisRecords(data.data || []);
+        setAccumulativeRecords(data.data || []);
         setTotal(data.total || 0);
       } else {
-        message.error(t('projects.analysis.fetch.failed'));
+        message.error(t('projects.accumulative.fetch.failed'));
       }
     } catch (error) {
-      message.error(t('projects.analysis.fetch.failed'));
+      message.error(t('projects.accumulative.fetch.failed'));
       console.error(error);
     } finally {
       setLoading(false);
@@ -103,7 +103,7 @@ const AnalysisPage = () => {
   };
 
   useEffect(() => {
-    fetchAnalysisRecords();
+    fetchAccumulativeRecords();
   }, [repo?.id, params.provider]);
 
   const handleAdd = async (values: { after: string; now: string }) => {
@@ -112,7 +112,7 @@ const AnalysisPage = () => {
     }
 
     const subjectID = `${values.after}...${values.now}`;
-    const subject = 'analysis';
+    const subject = 'accumulative';
 
     setAddLoading(true);
     try {
@@ -131,25 +131,25 @@ const AnalysisPage = () => {
       });
 
       if (resp.ok) {
-        message.success(t('projects.analysis.create.success'));
+        message.success(t('projects.accumulative.create.success'));
         setIsModalOpen(false);
         form.resetFields();
-        fetchAnalysisRecords();
+        fetchAccumulativeRecords();
       } else {
         const errorData = await resp.json();
         message.error(
-          errorData.message || t('projects.analysis.create.failed'),
+          errorData.message || t('projects.accumulative.create.failed'),
         );
       }
     } catch (error) {
-      message.error(t('projects.analysis.create.failed'));
+      message.error(t('projects.accumulative.create.failed'));
       console.error(error);
     } finally {
       setAddLoading(false);
     }
   };
 
-  const handleDelete = async (record: AnalysisRecord) => {
+  const handleDelete = async (record: AccumulativeRecord) => {
     if (!repo?.id || !params.provider) {
       return;
     }
@@ -164,13 +164,13 @@ const AnalysisPage = () => {
       );
 
       if (resp.ok) {
-        message.success(t('projects.analysis.delete.success'));
-        fetchAnalysisRecords();
+        message.success(t('projects.accumulative.delete.success'));
+        fetchAccumulativeRecords();
       } else {
-        message.error(t('projects.analysis.delete.failed'));
+        message.error(t('projects.accumulative.delete.failed'));
       }
     } catch (error) {
-      message.error(t('projects.analysis.delete.failed'));
+      message.error(t('projects.accumulative.delete.failed'));
       console.error(error);
     }
   };
@@ -197,13 +197,13 @@ const AnalysisPage = () => {
     }
   };
 
-  const columns: ColumnsType<AnalysisRecord> = [
+  const columns: ColumnsType<AccumulativeRecord> = [
     {
-      title: t('projects.analysis.columns.after'),
+      title: t('projects.accumulative.columns.after'),
       dataIndex: 'after',
       key: 'after',
       width: 250,
-      render: (text: string, record: AnalysisRecord) => {
+      render: (text: string, record: AccumulativeRecord) => {
         const commitInfo = record.fromCommit;
         const shortSha = text ? text.substring(0, 7) : '-';
         const commitMessage = commitInfo?.commitMessage
@@ -242,11 +242,11 @@ const AnalysisPage = () => {
       },
     },
     {
-      title: t('projects.analysis.columns.now'),
+      title: t('projects.accumulative.columns.now'),
       dataIndex: 'now',
       key: 'now',
       width: 250,
-      render: (text: string, record: AnalysisRecord) => {
+      render: (text: string, record: AccumulativeRecord) => {
         const commitInfo = record.toCommit;
         const shortSha = text ? text.substring(0, 7) : '-';
         const commitMessage = commitInfo?.commitMessage
@@ -285,18 +285,18 @@ const AnalysisPage = () => {
       },
     },
     {
-      title: t('projects.analysis.columns.fileCount'),
+      title: t('projects.accumulative.columns.fileCount'),
       key: 'fileCount',
       width: 100,
-      render: (_: any, record: AnalysisRecord) => (
+      render: (_: any, record: AccumulativeRecord) => (
         <Text strong>{record.files?.length || 0}</Text>
       ),
     },
     {
-      title: t('projects.analysis.columns.action'),
+      title: t('projects.accumulative.columns.action'),
       key: 'action',
       width: 200,
-      render: (_: any, record: AnalysisRecord) => {
+      render: (_: any, record: AccumulativeRecord) => {
         const buildTargets = record.buildTargets || [];
 
         // 构建菜单项：如果没有 buildTarget，添加一个"默认"选项
@@ -308,11 +308,11 @@ const AnalysisPage = () => {
             key: '__default__',
             label: (
               <a
-                href={`/report/-/${params.provider}/${params.org}/${params.repo}/analysis/${record.subjectID}/-`}
+                href={`/report/-/${params.provider}/${params.org}/${params.repo}/accumulative/${record.subjectID}/-`}
                 target='_blank'
                 rel='noreferrer'
               >
-                {t('projects.analysis.default.buildTarget')}
+                {t('projects.accumulative.default.buildTarget')}
               </a>
             ),
           });
@@ -323,11 +323,11 @@ const AnalysisPage = () => {
               key: buildTarget || '__empty__',
               label: (
                 <a
-                  href={`/report/-/${params.provider}/${params.org}/${params.repo}/analysis/${record.subjectID}/-?build_target=${encodeURIComponent(buildTarget)}`}
+                  href={`/report/-/${params.provider}/${params.org}/${params.repo}/accumulative/${record.subjectID}/-?build_target=${encodeURIComponent(buildTarget)}`}
                   target='_blank'
                   rel='noreferrer'
                 >
-                  {buildTarget || t('projects.analysis.empty.buildTarget')}
+                  {buildTarget || t('projects.accumulative.empty.buildTarget')}
                 </a>
               ),
             });
@@ -339,14 +339,14 @@ const AnalysisPage = () => {
           <Space>
             <Dropdown menu={{ items: menuItems }} placement='bottomLeft'>
               <a onClick={(e) => e.preventDefault()}>
-                {t('projects.analysis.view.report')} <DownOutlined />
+                {t('projects.accumulative.view.report')} <DownOutlined />
               </a>
             </Dropdown>
             <Popconfirm
-              title={t('projects.analysis.delete.confirm')}
+              title={t('projects.accumulative.delete.confirm')}
               onConfirm={() => handleDelete(record)}
-              okText={t('projects.analysis.modal.confirm')}
-              cancelText={t('projects.analysis.modal.cancel')}
+              okText={t('projects.accumulative.modal.confirm')}
+              cancelText={t('projects.accumulative.modal.cancel')}
             >
               <Button type='link' danger icon={<DeleteOutlined />} size='small'>
                 {t('common.delete')}
@@ -366,9 +366,9 @@ const AnalysisPage = () => {
     <div className={''}>
       <div className={'mb-4 flex items-center justify-between'}>
         <div>
-          <h2 style={{ margin: 0 }}>{t('projects.analysis.title')}</h2>
+          <h2 style={{ margin: 0 }}>{t('projects.accumulative.title')}</h2>
           <Text type='secondary' style={{ fontSize: '12px' }}>
-            {t('projects.analysis.desc')}
+            {t('projects.accumulative.desc')}
           </Text>
         </div>
         <Button
@@ -376,27 +376,27 @@ const AnalysisPage = () => {
           icon={<PlusOutlined />}
           onClick={() => setIsModalOpen(true)}
         >
-          {t('projects.analysis.add')}
+          {t('projects.accumulative.add')}
         </Button>
       </div>
 
       <CardPrimary>
-        <Table<AnalysisRecord>
+        <Table<AccumulativeRecord>
           columns={columns}
-          dataSource={analysisRecords}
+          dataSource={accumulativeRecords}
           loading={loading}
           rowKey='id'
           pagination={{
             total: total,
             showTotal: (total) =>
-              t('projects.analysis.pagination.total', { total }),
+              t('projects.accumulative.pagination.total', { total }),
             pageSize: 10,
           }}
         />
       </CardPrimary>
 
       <Modal
-        title={t('projects.analysis.modal.title')}
+        title={t('projects.accumulative.modal.title')}
         open={isModalOpen}
         onCancel={() => {
           if (!addLoading) {
@@ -407,47 +407,47 @@ const AnalysisPage = () => {
         onOk={() => {
           form.submit();
         }}
-        okText={t('projects.analysis.modal.create')}
-        cancelText={t('projects.analysis.modal.cancel')}
+        okText={t('projects.accumulative.modal.create')}
+        cancelText={t('projects.accumulative.modal.cancel')}
         confirmLoading={addLoading}
         cancelButtonProps={{ disabled: addLoading }}
       >
         <Form form={form} layout='vertical' onFinish={handleAdd}>
           <Form.Item
             name='after'
-            label={t('projects.analysis.form.after.label')}
+            label={t('projects.accumulative.form.after.label')}
             rules={[
               {
                 required: true,
-                message: t('projects.analysis.form.after.required'),
+                message: t('projects.accumulative.form.after.required'),
               },
               {
                 pattern: /^[a-f0-9]{40}$/i,
-                message: t('projects.analysis.form.after.invalid'),
+                message: t('projects.accumulative.form.after.invalid'),
               },
             ]}
           >
             <Input
-              placeholder={t('projects.analysis.form.after.placeholder')}
+              placeholder={t('projects.accumulative.form.after.placeholder')}
               disabled={addLoading}
             />
           </Form.Item>
           <Form.Item
             name='now'
-            label={t('projects.analysis.form.now.label')}
+            label={t('projects.accumulative.form.now.label')}
             rules={[
               {
                 required: true,
-                message: t('projects.analysis.form.now.required'),
+                message: t('projects.accumulative.form.now.required'),
               },
               {
                 pattern: /^[a-f0-9]{40}$/i,
-                message: t('projects.analysis.form.now.invalid'),
+                message: t('projects.accumulative.form.now.invalid'),
               },
             ]}
           >
             <Input
-              placeholder={t('projects.analysis.form.now.placeholder')}
+              placeholder={t('projects.accumulative.form.now.placeholder')}
               disabled={addLoading}
             />
           </Form.Item>
@@ -457,4 +457,4 @@ const AnalysisPage = () => {
   );
 };
 
-export default AnalysisPage;
+export default AccumulativePage;

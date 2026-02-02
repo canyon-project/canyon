@@ -10,10 +10,10 @@ import {
 } from '../../helpers/coverage-merge.util';
 import { testExclude } from '../../helpers/test-exclude';
 import { PrismaService } from '../../prisma/prisma.service';
-import { CoverageAnalysisQueryParamsTypes } from '../types/coverage-query-params.types';
+import { CoverageAccumulativeQueryParamsTypes } from '../types/coverage-query-params.types';
 
 @Injectable()
-export class CoverageMapForAnalysisService {
+export class CoverageMapForAccumulativeService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly configService: ConfigService,
@@ -166,13 +166,13 @@ export class CoverageMapForAnalysisService {
   async invoke({
     provider,
     repoID,
-    analysisID,
+    accumulativeID,
     buildTarget,
     filePath,
     scene,
-  }: CoverageAnalysisQueryParamsTypes) {
-    const [afterSha, nowSha] = analysisID.split('...');
-    // 关键点，对于Analysis来说，必须要通过diff过滤，不然分析数据量太大
+  }: CoverageAccumulativeQueryParamsTypes) {
+    const [afterSha, nowSha] = accumulativeID.split('...');
+    // 关键点，对于 accumulative 来说，必须要通过diff过滤，不然分析数据量太大
     const diffListWhereCondition: any = {
       from: afterSha,
       to: nowSha,

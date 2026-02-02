@@ -83,13 +83,13 @@ export class CodeService {
   private async getFileContentFromGithub({
     repoID,
     sha,
-    analysisNumber,
+    accumulativeID,
     filepath,
     provider,
   }: {
     repoID: string;
     sha?: string | null;
-    analysisNumber?: string | null;
+    accumulativeID?: string | null;
     filepath: string;
     provider?: string | null;
   }): Promise<{ content: string | null }> {
@@ -97,7 +97,7 @@ export class CodeService {
     // 解析 ref
     let ref: string | null | undefined = sha ?? null;
     // /repos/{owner}/{repo}/pulls/{number} -> head.sha
-    if (!ref && analysisNumber) {
+    if (!ref && accumulativeID) {
       const { owner, repo } = await this.resolveGithubOwnerRepoByID(
         repoID,
         base,
@@ -105,7 +105,7 @@ export class CodeService {
       );
       const prURL = `${base}/repos/${encodeURIComponent(
         owner,
-      )}/${encodeURIComponent(repo)}/pulls/${encodeURIComponent(analysisNumber)}`;
+      )}/${encodeURIComponent(repo)}/pulls/${encodeURIComponent(accumulativeID)}`;
       const prResp = await axios.get(prURL, {
         headers: { Authorization: `token ${token}` },
       });
@@ -143,14 +143,14 @@ export class CodeService {
   async getFileContent({
     repoID,
     sha,
-    analysisNumber,
+    accumulativeID,
     filepath,
     provider,
     gitlabConfig,
   }: {
     repoID: string;
     sha?: string | null;
-    analysisNumber?: string | null;
+    accumulativeID?: string | null;
     filepath: string;
     provider?: string | null;
     gitlabConfig?: { base: string; token: string };
@@ -158,14 +158,14 @@ export class CodeService {
     if (!repoID || !filepath) {
       throw new BadRequestException('repoID, filepath 为必填参数');
     }
-    if (!sha && !analysisNumber) {
-      throw new BadRequestException('sha 与 analysisNumber 至少提供一个');
+    if (!sha && !accumulativeID) {
+      throw new BadRequestException('sha 与 accumulativeID 至少提供一个');
     }
     if ((provider || 'gitlab').startsWith('github')) {
       return this.getFileContentFromGithub({
         repoID,
         sha,
-        analysisNumber,
+        accumulativeID,
         filepath,
         provider,
       });
@@ -174,11 +174,11 @@ export class CodeService {
       return { content: null };
     }
     const { base, token } = gitlabConfig || (await this.getGitLabCfg());
-    // 如果提供 analysisNumber 但未提供 sha，则解析 head sha
+    // 如果提供 accumulativeID 但未提供 sha，则解析 head sha
     let ref: string | null | undefined = sha;
-    if (!ref && analysisNumber) {
+    if (!ref && accumulativeID) {
       const pid = encodeURIComponent(repoID);
-      const prURL = `${base}/api/v4/projects/${pid}/merge_requests/${encodeURIComponent(analysisNumber)}`;
+      const prURL = `${base}/api/v4/projects/${pid}/merge_requests/${encodeURIComponent(accumulativeID)}`;
       const prResp = await axios.get(prURL, {
         headers: { 'PRIVATE-TOKEN': token },
       });
