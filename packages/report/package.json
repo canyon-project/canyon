@@ -32,6 +32,6 @@
     "istanbul-lib-report": "catalog:",
     "istanbul-lib-coverage": "catalog:",
     "parse-diff": "^0.11.1",
-    "@canyonjs/report-html": "catalog:"
+    "@canyonjs/report-html": "workspace:*"
   }
 }

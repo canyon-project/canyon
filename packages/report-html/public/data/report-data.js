@@ -1,2 +1,22 @@
-window.reportData =
-  'H4sIAAAAAAACE+1RwW7bMAz9FYGnDVOtxMOG1jvuPKCXnpYeaJmJ3VqUIVFpMkP/PmhJMW8tChToYYddBIqPeHyPb4aBo4TkiOXrQwcNmJtIIRoJuP/RI+/MbpA+tZX1zljko+eLKfg7smICTT6ImdDe447i+X/RixtBgxwnggb2l6DhhFyj9NCA9XsKuCMzcEeH6jy+pxAHz9BAXa3r6go0PKBQcBjuIzQztEehCM33Tyt9ubrVEAWFiu5lsw3Itv9jbpvYyuB52RsHXsxkDTE5h+EIzZw1bIfxFzpD9CnY4oIOxYB65FIxuXeoVftezRtWKpCkwArVB9V+2XDeMGiYTnbf5qBmOxwkBYoGu666i7A4wDecyoFW5YmCQUpRLEJTa7B+TI6hqbMG4u5ZjNM45lys85KM0RXzMTnQ0JEdn9mw/s2y/vz3iiV4VfhHb1/mqJ9wfHwiMz/mfNJa4jtLXhcLi7otcNb/ZpAxuf9BvirI2/wTO+HMKbAEAAA=';
+window.reportData = {
+  "instrumentCwd": "",
+  "type": "",
+  "reportPath": "",
+  "version": "",
+  "generatedAt": "",
+  "watermarks": {
+    "bytes": [0, 0],
+    "statements": [0, 0],
+    "branches": [0, 0],
+    "functions": [0, 0],
+    "lines": [0, 0]
+  },
+  "summary": {
+    "bytes": { "total": 0, "covered": 0, "pct": 0, "status": "low" },
+    "statements": { "total": 0, "covered": 0, "pct": 0, "status": "low" },
+    "branches": { "total": 0, "covered": 0, "pct": 0, "status": "low" },
+    "functions": { "total": 0, "covered": 0, "pct": 0, "status": "low" },
+    "lines": { "total": 0, "covered": 0, "pct": 0, "status": "low" }
+  },
+  "files": []
+};
