@@ -2,26 +2,6 @@ import * as core from '@actions/core';
 import * as fs from 'fs';
 import * as path from 'path';
 
-interface CoverageData {
-  [filePath: string]: {
-    buildHash?: string;
-    provider?: string;
-    repoID?: string;
-    sha?: string;
-    buildTarget?: string;
-    instrumentCwd?: string;
-    [key: string]: any;
-  };
-}
-
-interface Scene {
-  [key: string]: any;
-}
-
-interface BuildInfo {
-  [key: string]: any;
-}
-
 /**
  * 从 GitHub Actions 环境变量获取仓库信息
  */
@@ -30,132 +10,122 @@ function getGitHubInfo() {
   const [owner, repo] = repository.split('/');
   const sha = process.env.GITHUB_SHA || '';
   const ref = process.env.GITHUB_REF || '';
-  const workflow = process.env.GITHUB_WORKFLOW || '';
-  const runId = process.env.GITHUB_RUN_ID || '';
-  const runAttempt = process.env.GITHUB_RUN_ATTEMPT || '';
+  const eventName = process.env.GITHUB_EVENT_NAME || '';
+  const eventPath = process.env.GITHUB_EVENT_PATH || '';
+
+  // 尝试从 event 中获取 PR 信息
+  let prNumber: string | null = null;
+  if (eventPath && fs.existsSync(eventPath)) {
+    try {
+      const eventData = JSON.parse(fs.readFileSync(eventPath, 'utf-8'));
+      if (eventData.pull_request?.number) {
+        prNumber = String(eventData.pull_request.number);
+      }
+    } catch (error) {
+      // 忽略解析错误
+    }
+  }
+
+  // 从 ref 中提取 PR 号（格式：refs/pull/123/merge）
+  if (!prNumber && ref.startsWith('refs/pull/')) {
+    const match = ref.match(/refs\/pull\/(\d+)\//);
+    if (match) {
+      prNumber = match[1];
+    }
+  }
 
   return {
     provider: 'github',
-    repoID: repository,
     owner,
     repo,
     sha,
     ref,
-    workflow,
-    runId,
-    runAttempt,
+    eventName,
+    prNumber,
   };
 }
 
 /**
- * 读取并合并多个 coverage 文件
+ * 确定 subject 和 subjectID
  */
-function loadCoverageFiles(filePaths: string[]): CoverageData {
-  const mergedCoverage: CoverageData = {};
-
-  for (const filePath of filePaths) {
-    const fullPath = path.resolve(filePath.trim());
-
-    if (!fs.existsSync(fullPath)) {
-      core.warning(`Coverage file not found: ${fullPath}`);
-      continue;
-    }
-
-    try {
-      const content = fs.readFileSync(fullPath, 'utf-8');
-      const coverage = JSON.parse(content) as CoverageData;
-
-      // 合并 coverage 数据
-      Object.assign(mergedCoverage, coverage);
-      core.info(`Loaded coverage from: ${fullPath}`);
-    } catch (error) {
-      core.error(`Failed to parse coverage file ${fullPath}: ${error}`);
-      throw error;
-    }
+function getSubjectInfo(githubInfo: ReturnType<typeof getGitHubInfo>): {
+  subject: string;
+  subjectID: string;
+} {
+  // 如果是 PR，使用 pr 作为 subject
+  if (githubInfo.prNumber) {
+    return {
+      subject: 'pr',
+      subjectID: githubInfo.prNumber,
+    };
   }
 
-  return mergedCoverage;
-}
-
-/**
- * 准备 map/init 请求的数据
- */
-function prepareMapInitData(
-  coverage: CoverageData,
-  githubInfo: ReturnType<typeof getGitHubInfo>,
-  instrumentCwd: string,
-  buildTarget: string,
-): any {
-  // 从 coverage 的第一个值中提取信息（如果存在）
-  const firstCoverageValue = Object.values(coverage)[0];
-
-  const buildInfo: BuildInfo = {
-    workflow: githubInfo.workflow,
-    runId: githubInfo.runId,
-    runAttempt: githubInfo.runAttempt,
-    ref: githubInfo.ref,
-  };
-
+  // 否则使用 commit 作为 subject
   return {
-    sha: firstCoverageValue?.sha || githubInfo.sha,
-    provider: firstCoverageValue?.provider || githubInfo.provider,
-    repoID: firstCoverageValue?.repoID || githubInfo.repoID,
-    instrumentCwd: firstCoverageValue?.instrumentCwd || instrumentCwd,
-    buildTarget: firstCoverageValue?.buildTarget || buildTarget || '',
-    build: buildInfo,
-    coverage,
+    subject: 'commit',
+    subjectID: githubInfo.sha,
   };
 }
 
 /**
- * 准备 client 请求的数据
+ * 上传文件到服务器
  */
-function prepareClientData(coverage: CoverageData, scene: Scene): any {
-  // 清理 coverage 数据，移除不需要的字段
-  const cleanedCoverage: CoverageData = {};
-  const fieldsToRemove = [
-    'statementMap',
-    'fnMap',
-    'branchMap',
-    'inputSourceMap',
-  ];
-
-  for (const [filePath, coverageData] of Object.entries(coverage)) {
-    if (coverageData && typeof coverageData === 'object') {
-      cleanedCoverage[filePath] = { ...coverageData };
-      // 删除指定字段
-      for (const field of fieldsToRemove) {
-        delete cleanedCoverage[filePath][field];
-      }
-    }
-  }
-
-  return {
-    coverage: cleanedCoverage,
-    scene,
-  };
-}
-
-/**
- * 发送 HTTP 请求
- */
-async function sendRequest(
+async function uploadCoverageFiles(
   url: string,
-  data: any,
+  reportDataPath: string,
+  diffDataPath: string,
+  provider: string,
+  org: string,
+  repo: string,
+  subject: string,
+  subjectID: string,
   token?: string,
 ): Promise<any> {
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
+  // 检查文件是否存在
+  if (!fs.existsSync(reportDataPath)) {
+    throw new Error(`report-data.js not found: ${reportDataPath}`);
+  }
+  if (!fs.existsSync(diffDataPath)) {
+    throw new Error(`diff-data.js not found: ${diffDataPath}`);
+  }
 
+  // 读取文件内容
+  const reportDataContent = fs.readFileSync(reportDataPath, 'utf-8');
+  const diffDataContent = fs.readFileSync(diffDataPath, 'utf-8');
+
+  // 创建 FormData（Node.js 20+ 支持全局 FormData）
+  const formData = new FormData();
+  
+  // 添加文件（使用 File 或 Blob）
+  // 在 Node.js 中，可以使用 Blob 或直接使用字符串
+  const reportDataBlob = new Blob([reportDataContent], { 
+    type: 'application/javascript' 
+  });
+  const diffDataBlob = new Blob([diffDataContent], { 
+    type: 'application/javascript' 
+  });
+  
+  formData.append('report-data.js', reportDataBlob, 'report-data.js');
+  formData.append('diff-data.js', diffDataBlob, 'diff-data.js');
+  
+  // 添加参数
+  formData.append('provider', provider);
+  formData.append('org', org);
+  formData.append('repo', repo);
+  formData.append('subject', subject);
+  formData.append('subjectID', subjectID);
+
+  // 设置请求头（FormData 会自动设置 Content-Type，但我们需要添加 Authorization）
+  const headers: Record<string, string> = {};
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
 
+  // 发送请求
   const response = await fetch(url, {
     method: 'POST',
     headers,
-    body: JSON.stringify(data),
+    body: formData,
   });
 
   if (!response.ok) {
@@ -179,100 +149,60 @@ async function run() {
 
   try {
     // 获取输入参数
-    const coverageFileInput = core.getInput('coverage-file', {
-      required: true,
-    });
+    const coverageDir = core.getInput('coverage-dir') || 'coverage';
     const canyonUrl = core.getInput('canyon-url', { required: true });
     const canyonToken = core.getInput('canyon-token');
-    const instrumentCwd = core.getInput('instrument-cwd', { required: true });
-    const buildTarget = core.getInput('build-target') || '';
-    const sceneInput = core.getInput('scene') || '{}';
 
-    // 解析 coverage 文件路径（支持多个文件，逗号分隔）
-    const coverageFilePaths = coverageFileInput
-      .split(',')
-      .map((f) => f.trim())
-      .filter((f) => f.length > 0);
+    // 构建文件路径
+    const reportDataPath = path.resolve(coverageDir, 'data', 'report-data.js');
+    const diffDataPath = path.resolve(coverageDir, 'data', 'diff-data.js');
 
-    if (coverageFilePaths.length === 0) {
-      throw new Error('No coverage files specified');
-    }
+    core.info(`Looking for coverage files in: ${coverageDir}/data/`);
+    core.info(`Report data path: ${reportDataPath}`);
+    core.info(`Diff data path: ${diffDataPath}`);
 
-    // 解析 scene 信息
-    let scene: Scene = {};
-    try {
-      scene = JSON.parse(sceneInput);
-    } catch (error) {
-      core.warning(`Failed to parse scene JSON: ${error}. Using empty object.`);
-      scene = {};
-    }
-
-    // 添加 GitHub Actions 环境信息到 scene
+    // 获取 GitHub 信息
     const githubInfo = getGitHubInfo();
-    scene = {
-      ...scene,
-      source: 'automation',
-      type: 'ci',
-      env: 'test',
-      trigger: 'pipeline',
-      ...githubInfo,
-    };
+    const { subject, subjectID } = getSubjectInfo(githubInfo);
 
-    core.info(`Loading coverage files: ${coverageFilePaths.join(', ')}`);
-    const coverage = loadCoverageFiles(coverageFilePaths);
+    core.info(`Provider: ${githubInfo.provider}`);
+    core.info(`Org: ${githubInfo.owner}`);
+    core.info(`Repo: ${githubInfo.repo}`);
+    core.info(`Subject: ${subject}`);
+    core.info(`SubjectID: ${subjectID}`);
 
-    if (Object.keys(coverage).length === 0) {
-      throw new Error('No coverage data found in files');
-    }
-
-    core.info(`Loaded ${Object.keys(coverage).length} coverage entries`);
-
-    // 准备 map/init 数据
-    const mapInitData = prepareMapInitData(
-      coverage,
-      githubInfo,
-      instrumentCwd,
-      buildTarget,
-    );
-
-    // 调用 map/init 接口
-    core.info('Uploading coverage map initialization...');
-    const mapInitUrl = `${canyonUrl.replace(/\/$/, '')}/api/coverage/map/init`;
-    const mapInitResult = await sendRequest(
-      mapInitUrl,
-      mapInitData,
+    // 上传文件
+    core.info('Uploading coverage files...');
+    const uploadUrl = `${canyonUrl.replace(/\/$/, '')}/api/cov/upload`;
+    const result = await uploadCoverageFiles(
+      uploadUrl,
+      reportDataPath,
+      diffDataPath,
+      githubInfo.provider,
+      githubInfo.owner,
+      githubInfo.repo,
+      subject,
+      subjectID,
       canyonToken,
     );
 
-    if (!mapInitResult.success) {
+    if (!result.success) {
       throw new Error(
-        `Map init failed: ${mapInitResult.message || 'Unknown error'}`,
-      );
-    }
-
-    core.info(`Map init successful. BuildHash: ${mapInitResult.buildHash}`);
-
-    // 准备 client 数据
-    const clientData = prepareClientData(coverage, scene);
-
-    // 调用 client 接口
-    core.info('Uploading coverage data...');
-    const clientUrl = `${canyonUrl.replace(/\/$/, '')}/api/coverage/client`;
-    const clientResult = await sendRequest(clientUrl, clientData, canyonToken);
-
-    if (!clientResult.success) {
-      throw new Error(
-        `Client upload failed: ${clientResult.message || 'Unknown error'}`,
+        `Upload failed: ${result.message || 'Unknown error'}`,
       );
     }
 
     core.info(
-      `Coverage upload successful. BuildHash: ${clientResult.buildHash}, SceneKey: ${clientResult.sceneKey}`,
+      `Coverage upload successful. CoverageID: ${result.data?.coverageId}, Diff files count: ${result.data?.diffFilesCount}`,
     );
 
     // 设置输出
-    core.setOutput('build-hash', clientResult.buildHash);
-    core.setOutput('scene-key', clientResult.sceneKey);
+    if (result.data?.coverageId) {
+      core.setOutput('coverage-id', result.data.coverageId);
+    }
+    if (result.data?.diffFilesCount !== undefined) {
+      core.setOutput('diff-files-count', result.data.diffFilesCount);
+    }
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     core.error(errorMessage);

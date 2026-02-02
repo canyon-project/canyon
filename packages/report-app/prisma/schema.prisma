@@ -21,8 +21,8 @@ model Coverage {
   subject   String
   subjectID String @map("subject_id")
 
-  diffData   String @map("diff_data")
-  noDiffData String @map("no_diff_data")
+  diffData   Bytes @map("diff_data")
+  noDiffData Bytes @map("no_diff_data")
 
   createdAt DateTime @map("created_at")
 

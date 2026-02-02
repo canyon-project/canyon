@@ -4,26 +4,16 @@ branding:
   icon: 'upload-cloud'
   color: 'blue'
 inputs:
-  coverage-file:
-    description: 'Path to coverage JSON file(s), comma-separated for multiple files'
-    required: true
+  coverage-dir:
+    description: 'Directory containing coverage/data folder (default: coverage)'
+    required: false
+    default: 'coverage'
   canyon-url:
     description: 'Canyon server URL'
     required: true
   canyon-token:
     description: 'Canyon authentication token (optional)'
     required: false
-  instrument-cwd:
-    description: 'Instrumentation working directory (instrumentCwd)'
-    required: true
-  build-target:
-    description: 'Build target (optional)'
-    required: false
-    default: ''
-  scene:
-    description: 'Scene information as JSON string (optional)'
-    required: false
-    default: '{}'
   fail-on-error:
     description: 'Fail the action if upload fails'
     required: false
