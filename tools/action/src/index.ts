@@ -55,7 +55,7 @@ function loadCoverageFiles(filePaths: string[]): CoverageData {
 
   for (const filePath of filePaths) {
     const fullPath = path.resolve(filePath.trim());
-    
+
     if (!fs.existsSync(fullPath)) {
       core.warning(`Coverage file not found: ${fullPath}`);
       continue;
@@ -64,7 +64,7 @@ function loadCoverageFiles(filePaths: string[]): CoverageData {
     try {
       const content = fs.readFileSync(fullPath, 'utf-8');
       const coverage = JSON.parse(content) as CoverageData;
-      
+
       // 合并 coverage 数据
       Object.assign(mergedCoverage, coverage);
       core.info(`Loaded coverage from: ${fullPath}`);
@@ -88,7 +88,7 @@ function prepareMapInitData(
 ): any {
   // 从 coverage 的第一个值中提取信息（如果存在）
   const firstCoverageValue = Object.values(coverage)[0];
-  
+
   const buildInfo: BuildInfo = {
     workflow: githubInfo.workflow,
     runId: githubInfo.runId,
@@ -110,10 +110,7 @@ function prepareMapInitData(
 /**
  * 准备 client 请求的数据
  */
-function prepareClientData(
-  coverage: CoverageData,
-  scene: Scene,
-): any {
+function prepareClientData(coverage: CoverageData, scene: Scene): any {
   // 清理 coverage 数据，移除不需要的字段
   const cleanedCoverage: CoverageData = {};
   const fieldsToRemove = [
@@ -177,11 +174,14 @@ async function sendRequest(
 async function run() {
   // 获取输入参数（在 try 外获取 failOnError，以便在 catch 中使用）
   const failOnErrorInput = core.getInput('fail-on-error');
-  const failOnError = failOnErrorInput === '' ? true : core.getBooleanInput('fail-on-error');
-  
+  const failOnError =
+    failOnErrorInput === '' ? true : core.getBooleanInput('fail-on-error');
+
   try {
     // 获取输入参数
-    const coverageFileInput = core.getInput('coverage-file', { required: true });
+    const coverageFileInput = core.getInput('coverage-file', {
+      required: true,
+    });
     const canyonUrl = core.getInput('canyon-url', { required: true });
     const canyonToken = core.getInput('canyon-token');
     const instrumentCwd = core.getInput('instrument-cwd', { required: true });
@@ -238,8 +238,12 @@ async function run() {
     // 调用 map/init 接口
     core.info('Uploading coverage map initialization...');
     const mapInitUrl = `${canyonUrl.replace(/\/$/, '')}/api/coverage/map/init`;
-    const mapInitResult = await sendRequest(mapInitUrl, mapInitData, canyonToken);
-    
+    const mapInitResult = await sendRequest(
+      mapInitUrl,
+      mapInitData,
+      canyonToken,
+    );
+
     if (!mapInitResult.success) {
       throw new Error(
         `Map init failed: ${mapInitResult.message || 'Unknown error'}`,

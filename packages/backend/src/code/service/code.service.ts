@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
-import { diffLine, computeJSDiffLines } from '../../helpers/diff';
+import { computeJSDiffLines, diffLine } from '../../helpers/diff';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()

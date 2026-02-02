@@ -303,7 +303,6 @@ export class CoverageMapForAccumulativeService {
 
       const decodedCoverageMap = decodeCompressedObject(coverageMapRecord.map);
 
-
       nowShaFileCoverageMap.set(normalizedPath, {
         path: rawFilePath, // 保留完整路径在 path 字段中
         fileContentHash: relation.fileContentHash,

@@ -99,7 +99,10 @@ const ProjectDetailPage = () => {
               );
             }}
             items={[
-              { key: 'accumulative', label: t('projects.detail.tabs.accumulative') },
+              {
+                key: 'accumulative',
+                label: t('projects.detail.tabs.accumulative'),
+              },
               { key: 'commits', label: t('projects.detail.tabs.commits') },
             ]}
           />

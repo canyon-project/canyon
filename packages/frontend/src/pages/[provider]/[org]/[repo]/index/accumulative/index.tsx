@@ -68,7 +68,9 @@ const AccumulativePage = () => {
   const params = useParams();
   const [loading, setLoading] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
-  const [accumulativeRecords, setAccumulativeRecords] = useState<AccumulativeRecord[]>([]);
+  const [accumulativeRecords, setAccumulativeRecords] = useState<
+    AccumulativeRecord[]
+  >([]);
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();

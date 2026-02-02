@@ -1,6 +1,6 @@
-import type { NextConfig } from "next";
+import path from 'node:path';
 import dotenv from 'dotenv';
-import path from "node:path";
+import type { NextConfig } from 'next';
 
 dotenv.config({
   path: [path.resolve(__dirname, '../../.env')],

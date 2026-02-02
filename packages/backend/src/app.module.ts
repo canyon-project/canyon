@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -23,7 +24,9 @@ import { RepoModule } from './repo/repo.module';
     RepoModule,
     CodeModule,
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
+      rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
+        ? join(__dirname, '../../frontend', 'dist')
+        : join(__dirname, '..', 'client'),
     }),
   ],
   controllers: [],

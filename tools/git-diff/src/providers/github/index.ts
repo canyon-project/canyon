@@ -84,10 +84,7 @@ export class GitHubProvider {
     const currentSha = this.env.GITHUB_SHA || 'HEAD';
     const beforeSha = getGitHubEventBefore();
 
-    if (
-      beforeSha &&
-      beforeSha !== '0000000000000000000000000000000000000000'
-    ) {
+    if (beforeSha && beforeSha !== '0000000000000000000000000000000000000000') {
       // 先 fetch before SHA 和 current SHA
       try {
         execSync(`git fetch origin ${beforeSha}`, {

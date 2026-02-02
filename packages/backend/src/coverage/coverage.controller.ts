@@ -56,7 +56,9 @@ export class CoverageController {
           const summary = genSummaryMapByCoverageMap(result.coverage, c);
           return summary;
         }
-        throw new BadRequestException('Failed to get accumulative coverage data');
+        throw new BadRequestException(
+          'Failed to get accumulative coverage data',
+        );
       }
       default:
         throw new BadRequestException('invalid subject');

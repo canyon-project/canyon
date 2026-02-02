@@ -179,11 +179,7 @@ const Projects = () => {
 
         return (
           <div className={'flex gap-1'}>
-            <img
-              src={logoPath}
-              alt=''
-              className={'mt-1 w-[16px] h-[16px]'}
-            />
+            <img src={logoPath} alt='' className={'mt-1 w-[16px] h-[16px]'} />
 
             <span style={{ width: '4px', display: 'inline-block' }}></span>
             <div className={'flex gap-1 flex-col'}>
