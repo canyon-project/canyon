@@ -133,6 +133,18 @@ export class CoverageReport {
     };
   }
 
+  /**
+   * 将文件数组转换为对象格式
+   */
+  private genCov(f: FileReportData[]): Record<string, FileReportData> {
+    return f.reduce((p: Record<string, FileReportData>, c: FileReportData) => {
+      return {
+        ...p,
+        [c.path]: c,
+      };
+    }, {});
+  }
+
   private buildReportData(
     coverage: Record<string, FileCoverage>,
     diffMap: DiffMap = {},
@@ -177,16 +189,6 @@ export class CoverageReport {
       };
     });
 
-
-    function genCov(f) {
-      return f.reduce((p,c)=>{
-        return {
-          ...p,
-          [c.path]:c,
-        }
-      },{})
-    }
-
     const change1 = files.map(i=>{
       return {
         path:i.path,
@@ -196,9 +198,12 @@ export class CoverageReport {
 
 
 
-    console.log({
-      newlinesPercent:genSummaryTreeItem('',genSummaryMapByCoverageMap(genCov(files),change1)).summary.changestatements.pct
-    })
+    const summaryResult = genSummaryTreeItem('',genSummaryMapByCoverageMap(this.genCov(files),change1));
+    const newlinesPercent = (summaryResult.summary as any).changestatements?.pct ?? 0;
+    
+
+    // 将 newlinesPercent 添加到 summary
+    summary['newlinesPercent'] = newlinesPercent;
 
     const reportData: ReportData = {
       instrumentCwd: process.cwd(),
@@ -298,6 +303,24 @@ export class CoverageReport {
       fs.mkdirSync(dataDir, { recursive: true });
     }
     fs.writeFileSync(reportDataPath, reportDataContent, 'utf8');
+
+    // 保存 newlinesPercent 到 coverage/canyon.json
+    const canyonJsonPath = path.join(targetDir, 'canyon.json');
+    const newlinesPercent = reportData.summary['newlinesPercent'] as number | undefined;
+    
+    if (newlinesPercent !== undefined) {
+      const canyonData = {
+        newlinesPercent,
+      };
+      
+      // 确保目录存在
+      const canyonJsonDir = path.dirname(canyonJsonPath);
+      if (!fs.existsSync(canyonJsonDir)) {
+        fs.mkdirSync(canyonJsonDir, { recursive: true });
+      }
+      
+      fs.writeFileSync(canyonJsonPath, JSON.stringify(canyonData, null, 2), 'utf8');
+    }
 
     const result: GenerateResult = {
       reportPath: path.join(targetDir, 'index.html'),
