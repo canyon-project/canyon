@@ -10,12 +10,13 @@
     "generate": "prisma generate && prisma generate"
   },
   "dependencies": {
-    "next": "16.0.10",
-    "react": "catalog:",
-    "react-dom": "catalog:",
+    "@canyonjs/report-component": "catalog:",
     "@prisma/client": "6",
+    "dotenv": "catalog:",
+    "next": "16.0.10",
     "prisma": "6",
-    "dotenv": "catalog:"
+    "react": "catalog:",
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

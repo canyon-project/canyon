@@ -1,3 +1,4 @@
+import '@canyonjs/report-component/index.css';
 import type { Metadata } from 'next';
 import './globals.css';
 
