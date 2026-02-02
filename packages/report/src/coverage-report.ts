@@ -13,7 +13,7 @@ import type {
   GenerateResult,
   ReportData,
 } from './types';
-
+import {genSummaryTreeItem,genSummaryMapByCoverageMap} from 'canyon-data'
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -176,6 +176,29 @@ export class CoverageReport {
         changestatements: changedCoverage, // 变更代码的语句覆盖率统计
       };
     });
+
+
+    function genCov(f) {
+      return f.reduce((p,c)=>{
+        return {
+          ...p,
+          [c.path]:c,
+        }
+      },{})
+    }
+
+    const change1 = files.map(i=>{
+      return {
+        path:i.path,
+        additions: i.diff.additions
+      }
+    })
+
+
+
+    console.log({
+      newlinesPercent:genSummaryTreeItem('',genSummaryMapByCoverageMap(genCov(files),change1)).summary.changestatements.pct
+    })
 
     const reportData: ReportData = {
       instrumentCwd: process.cwd(),
