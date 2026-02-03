@@ -19,27 +19,19 @@ use swc_core::plugin::metadata::TransformPluginMetadataContextKind;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
-    pub dsn: Option<String>,
-    pub reporter: Option<String>,
     pub instrumentCwd: Option<String>,
-    pub branch: Option<String>,
     pub sha: Option<String>,
-    pub projectID: Option<String>,
-    pub compareTarget: Option<String>,
-    pub keepMap: Option<bool>
+    pub keepMap: Option<bool>,
+    pub ci: Option<bool>
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            dsn: None,
-            reporter: None,
             instrumentCwd: None,
-            branch: None,
             sha: None,
-            projectID: None,
-            compareTarget: None,
-            keepMap: Some(true)
+            keepMap: Some(false),
+            ci: Some(false)
         }
     }
 }
@@ -112,11 +104,10 @@ impl TransformVisitor {
     // 处理对象字面量属性的函数
     fn process_coverage_data_object(&mut self, obj: &mut ObjectLit) {
 
-        let keep_map = self.config.keepMap.unwrap_or(true); // 只有 false 时才执行过滤
+        let ci = self.config.ci.unwrap_or(false); // 只有 ci 为 true 时才生成 .canyon_output
+        let keep_map = self.config.keepMap.unwrap_or(false); // 只有 false 时才执行过滤
 
-        if keep_map == false {
-            // 过滤掉指定的属性
-            let excluded_keys = ["statementMap", "fnMap", "branchMap", "inputSourceMap"];
+        if ci {
             // 定一个map
             let mut map = std::collections::HashMap::new();
             // 遍历对象的属性
@@ -178,8 +169,14 @@ impl TransformVisitor {
             // 使用 `write` 方法进行同步写入
             write(file_path, serde_json::to_string(&final_map).expect("Unable to serialize JSON"))
                 .expect("Unable to write file");
+        }
 
-            // 过滤掉指定的属性
+
+
+
+        // 只有 keepMap 为 false 时才过滤属性
+        if !keep_map {
+            let excluded_keys = ["statementMap", "fnMap", "branchMap", "inputSourceMap"];
             obj.props.retain(|prop| {
                 match prop {
                     PropOrSpread::Prop(prop) => {
@@ -187,7 +184,6 @@ impl TransformVisitor {
                                                   key: PropName::Ident(IdentName { sym, .. }),
                                                   ..
                                               }) = &**prop {
-                            // 排除指定的属性名
                             !excluded_keys.contains(&sym.as_ref())
                         } else {
                             true
@@ -198,40 +194,16 @@ impl TransformVisitor {
             });
         }
 
-
-
-
-        let dsn = self.config.dsn.clone().unwrap_or("".to_string());
-        let reporter = self.config.reporter.clone().unwrap_or("".to_string());
         let instrumentCwd = self.config.instrumentCwd.clone().unwrap_or("".to_string());
-        let branch = self.config.branch.clone().unwrap_or("".to_string());
         let sha = self.config.sha.clone().unwrap_or("".to_string());
-        let projectID = self.config.projectID.clone().unwrap_or("".to_string());
-        let compareTarget = self.config.compareTarget.clone().unwrap_or("".to_string());
-
 
         // Add new properties from config
         let mut new_props = vec![];
-        if!dsn.is_empty() {
-            new_props.push(self.create_string_prop("dsn", dsn));
-        }
-        if!reporter.is_empty() {
-            new_props.push(self.create_string_prop("reporter", reporter));
-        }
-        if!instrumentCwd.is_empty() {
+        if !instrumentCwd.is_empty() {
             new_props.push(self.create_string_prop("instrumentCwd", instrumentCwd));
         }
-        if!branch.is_empty() {
-            new_props.push(self.create_string_prop("branch", branch));
-        }
-        if!sha.is_empty() {
+        if !sha.is_empty() {
             new_props.push(self.create_string_prop("sha", sha));
-        }
-        if!projectID.is_empty() {
-            new_props.push(self.create_string_prop("projectID", projectID));
-        }
-        if!compareTarget.is_empty() {
-            new_props.push(self.create_string_prop("compareTarget", compareTarget));
         }
 
         // Extend the object with new properties
