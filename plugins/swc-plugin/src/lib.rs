@@ -132,6 +132,13 @@ impl TransformVisitor {
                     }
                 }
             }
+            
+            // 打印当前处理的文件路径
+            if let Some((_path_key, path_val)) = map.iter().find(|(k, _)| &**k == "path") {
+                if let Some(path_str) = path_val.as_str() {
+                    println!("Processing coverage data for file: {}", path_str);
+                }
+            }
             // 目录/cwd/.canyon_output 没有就创建
             // 创建一个随机数生成器
             let mut rng = rand::thread_rng();
