@@ -154,40 +154,54 @@ export class CoverageReport {
     const summary: Record<string, unknown> = {};
 
     // 构建文件数组
-    const files: FileReportData[] = Object.keys(coverage).map((filePath) => {
-      const fileData = coverage[filePath];
+    const files: FileReportData[] = Object.keys(coverage)
+      .map((filePath) => {
+        const fileData = coverage[filePath];
 
-      // 读取源文件内容
-      const source = fileData.source || sourceFinder(filePath);
+        // 读取源文件内容，如果失败则返回 null 以过滤掉该文件
+        let source: string;
+        try {
+          source = fileData.source || sourceFinder(filePath);
+        } catch (error) {
+          console.warn(`Failed to read source file: ${filePath}`, error);
+          return null;
+        }
 
-      // 获取该文件的变更行号（尝试匹配路径）
-      const fileDiff = this.matchFileDiff(filePath, diffMap);
-      const addLines = fileDiff?.additions || [];
-      const delLines = fileDiff?.deletions || [];
-      const changedLines = [...new Set([...addLines, ...delLines])].sort(
-        (a, b) => a - b,
-      );
+        // 如果 source 为空或无效，也过滤掉
+        if (!source || source.trim().length === 0) {
+          console.warn(`Source file is empty or invalid: ${filePath}`);
+          return null;
+        }
 
-      // 计算变更覆盖率
-      const changedCoverage = this.calculateChangedCoverage(fileData, addLines);
+        // 获取该文件的变更行号（尝试匹配路径）
+        const fileDiff = this.matchFileDiff(filePath, diffMap);
+        const addLines = fileDiff?.additions || [];
+        const delLines = fileDiff?.deletions || [];
+        const changedLines = [...new Set([...addLines, ...delLines])].sort(
+          (a, b) => a - b,
+        );
 
-      return {
-        source,
-        path: filePath,
-        statementMap: fileData.statementMap || {},
-        fnMap: fileData.fnMap || {},
-        branchMap: fileData.branchMap || {},
-        s: fileData.s || {},
-        f: fileData.f || {},
-        b: fileData.b || {},
-        changedLines, // 变更行号信息（包括新增和删除），用于显示
-        diff: {
-          additions: addLines,
-          deletions: delLines,
-        }, // diff 信息，用于 CoverageDetail 组件
-        changestatements: changedCoverage, // 变更代码的语句覆盖率统计
-      };
-    });
+        // 计算变更覆盖率
+        const changedCoverage = this.calculateChangedCoverage(fileData, addLines);
+
+        return {
+          source,
+          path: filePath,
+          statementMap: fileData.statementMap || {},
+          fnMap: fileData.fnMap || {},
+          branchMap: fileData.branchMap || {},
+          s: fileData.s || {},
+          f: fileData.f || {},
+          b: fileData.b || {},
+          changedLines, // 变更行号信息（包括新增和删除），用于显示
+          diff: {
+            additions: addLines,
+            deletions: delLines,
+          }, // diff 信息，用于 CoverageDetail 组件
+          changestatements: changedCoverage, // 变更代码的语句覆盖率统计
+        };
+      })
+      .filter((file): file is FileReportData => file !== null);
 
     const change1 = files.map(i=>{
       return {
