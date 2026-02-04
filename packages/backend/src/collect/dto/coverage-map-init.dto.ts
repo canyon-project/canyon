@@ -50,6 +50,5 @@ export class CoverageMapInitDto {
   coverage: any;
 
   @IsOptional()
-  @IsObject({ message: 'diff 必须是一个对象' })
   diff?: any[]
 }
