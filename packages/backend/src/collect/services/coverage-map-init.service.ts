@@ -28,6 +28,9 @@ export class CoverageMapInitService {
     // 上报 commit 信息
     await this.insertCommit(coverageMapInitDto);
 
+    // 尝试插入 Cr 表（PR/MR 信息）
+    await this.insertCr(coverageMapInitDto);
+
     // 如果map里也没input source的话那就能直接插入hit
     await this.insertMap({
       coverage: coverage,
@@ -111,6 +114,82 @@ export class CoverageMapInitService {
    * 插入或更新 commit 信息
    * 通过调用 GitLab/GitHub API 获取 commit 详细信息
    */
+  /**
+   * 插入或更新 Cr 表（PR/MR 信息）
+   * 从 build.event 中解析 PR/MR 信息
+   */
+  async insertCr(coverageMapInitDto: CoverageMapInitDto) {
+    const { provider, repoID, build } = coverageMapInitDto;
+
+    if (!build || !provider || !repoID || !build.event) {
+      return;
+    }
+
+    try {
+      // 尝试解析 build.event 为 JSON
+      let eventData: any;
+      try {
+        eventData =
+          typeof build.event === 'string'
+            ? JSON.parse(build.event)
+            : build.event;
+      } catch (error) {
+        // 解析失败，跳过
+        return;
+      }
+
+      // 尝试从 event 中提取 PR/MR ID
+      let prOrMrId: string | null = null;
+      if (eventData.pull_request?.number) {
+        prOrMrId = String(eventData.pull_request.number);
+      } else if (eventData.merge_request?.id) {
+        prOrMrId = String(eventData.merge_request.id);
+      } else if (eventData.merge_request?.iid) {
+        prOrMrId = String(eventData.merge_request.iid);
+      }
+
+      // 如果有 PR/MR ID，则插入或更新 Cr 表
+      if (prOrMrId) {
+        const crId = `${provider}${repoID}${prOrMrId}`;
+
+        await (this.prisma as any).cr.upsert({
+          where: { id: crId },
+          create: {
+            id: crId,
+            content: eventData,
+          },
+          update: {
+            content: eventData,
+          },
+        });
+
+        logger({
+          type: 'info',
+          title: 'CrInsert',
+          message: 'Cr inserted/updated',
+          addInfo: {
+            crId,
+            provider,
+            repoID,
+            prOrMrId,
+          },
+        });
+      }
+    } catch (error) {
+      // 如果出错，记录日志但不影响主流程
+      logger({
+        type: 'warn',
+        title: 'CrInsert',
+        message: 'Failed to insert Cr',
+        addInfo: {
+          provider,
+          repoID,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+    }
+  }
+
   async insertCommit(coverageMapInitDto: CoverageMapInitDto) {
     const { sha, provider, repoID } = coverageMapInitDto;
 
