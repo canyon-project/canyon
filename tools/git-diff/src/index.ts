@@ -4,7 +4,7 @@ import parseDiff from 'parse-diff';
 import { GitHubProvider } from './providers/github/index.js';
 import { GitLabProvider } from './providers/gitlab/index.js';
 import { UnknownProvider } from './providers/unknown/index.js';
-import type { DiffMap } from './types.js';
+import type { DiffItem } from './types.js';
 import { detectCIPlatform, getCIEnv } from './utils/ci.js';
 import { printVersion } from './utils/version.js';
 
@@ -42,17 +42,17 @@ export async function generateGitDiff(outputPath?: string): Promise<void> {
 }
 
 /**
- * 解析 diff 文本为 DiffMap 格式
+ * 解析 diff 文本为数组格式
  * @param diff diff 文本内容
- * @returns DiffMap 对象
+ * @returns DiffItem 数组
  */
-function parseDiffToMap(diff: string): DiffMap {
+function parseDiffToMap(diff: string): DiffItem[] {
   if (!diff) {
-    return {};
+    return [];
   }
 
   const parsedFiles = parseDiff(diff);
-  const diffMap: DiffMap = {};
+  const diffArray: DiffItem[] = [];
 
   parsedFiles.forEach((file: any) => {
     const filePath = file.to;
@@ -73,14 +73,15 @@ function parseDiffToMap(diff: string): DiffMap {
     });
 
     if (additions.length > 0 || deletions.length > 0) {
-      diffMap[filePath] = {
+      diffArray.push({
+        path: filePath,
         additions,
         deletions,
-      };
+      });
     }
   });
 
-  return diffMap;
+  return diffArray;
 }
 
 /**

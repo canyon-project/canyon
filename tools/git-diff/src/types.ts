@@ -37,3 +37,12 @@ export interface DiffMap {
     deletions: number[];
   };
 }
+
+/**
+ * Diff 数组项，包含文件路径和变更行号信息
+ */
+export interface DiffItem {
+  path: string;
+  additions: number[];
+  deletions: number[];
+}
