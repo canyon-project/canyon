@@ -4,7 +4,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 /*
 
 覆盖率数据上报的时候用上游的变量
-
+接下来就是查cr表，根据仓库查到fork的上游repoID，然后查coverage表，查diff表，服用commit接口
 */
 
 @Injectable()
@@ -26,6 +26,18 @@ export class CoverageMapForCrService {
 
     const cr = crList[0];
 
-    return cr;
+    // p.crID
+
+    const r = await this.prisma.diff.findMany({
+      where:{
+        subject:'pr',
+        subject_id:'1'
+      }
+    })
+
+    return {
+      r,
+      cr
+    };
   }
 }
