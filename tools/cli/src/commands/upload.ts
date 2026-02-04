@@ -75,6 +75,19 @@ export async function mapCommand(params: any, options: any) {
   const env_buildID = process.env.CI_JOB_ID;
   const env_buildProvider = 'gitlab_runner';
 
+  // 尝试读取 diff.json 文件
+  let diffData: any = undefined;
+  const diffJsonPath = path.resolve(process.cwd(), 'diff.json');
+  if (fs.existsSync(diffJsonPath)) {
+    try {
+      const diffJsonContent = fs.readFileSync(diffJsonPath, 'utf-8');
+      diffData = JSON.parse(diffJsonContent);
+      console.log(`Found diff.json file: ${diffJsonPath}`);
+    } catch (error) {
+      console.warn(`Failed to read or parse diff.json: ${error}`);
+    }
+  }
+
   // 解析 scene 参数（key=value 格式，支持多个）
   let sceneMap: Record<string, string> | undefined;
   if (scene && Array.isArray(scene)) {
@@ -122,6 +135,7 @@ export async function mapCommand(params: any, options: any) {
       branch: env_branch,
     },
     ...(sceneMap && { scene: sceneMap }),
+    ...(diffData && { diff: diffData }),
   };
   if (debug === 'true') {
     console.log(p);
