@@ -1,6 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
+/*
+
+覆盖率数据上报的时候用上游的变量
+
+*/
+
 @Injectable()
 export class CoverageMapForCrService {
   constructor(private readonly prisma: PrismaService) {}

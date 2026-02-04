@@ -27,3 +27,13 @@ export interface GitDiffResult {
   content: string;
   command: string;
 }
+
+/**
+ * Diff 映射表，键为文件路径，值为变更行号信息
+ */
+export interface DiffMap {
+  [filePath: string]: {
+    additions: number[];
+    deletions: number[];
+  };
+}
