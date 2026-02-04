@@ -51,8 +51,5 @@ export class CoverageMapInitDto {
 
   @IsOptional()
   @IsObject({ message: 'diff 必须是一个对象' })
-  diff?: {
-    subject: string;
-    subjectID: string;
-  };
+  diff?: any[]
 }

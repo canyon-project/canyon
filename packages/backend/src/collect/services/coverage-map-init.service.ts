@@ -190,6 +190,134 @@ export class CoverageMapInitService {
     }
   }
 
+  /**
+   * 插入 diff 表数据
+   * 从 build.event 中提取 PR/MR 信息，填充 from、to、subject_id 等字段
+   */
+  async insertDiff(
+    coverageMapInitDto: CoverageMapInitDto,
+    diffData: Array<{ path: string; additions: number[]; deletions: number[] }>,
+  ) {
+    const { provider, repoID, build, sha } = coverageMapInitDto;
+
+    if (!build || !build.event) {
+      logger({
+        type: 'warn',
+        title: 'DiffInsert',
+        message: 'No build.event found, skipping diff insert',
+      });
+      return;
+    }
+
+    try {
+      // 尝试解析 build.event 为 JSON
+      let eventData: any;
+      try {
+        eventData =
+          typeof build.event === 'string'
+            ? JSON.parse(build.event)
+            : build.event;
+      } catch (error) {
+        logger({
+          type: 'warn',
+          title: 'DiffInsert',
+          message: 'Failed to parse build.event',
+          addInfo: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        });
+        return;
+      }
+
+      // 从 event 中提取 PR/MR 信息
+      let fromSha = '';
+      let toSha = sha || '';
+      let subjectId = '';
+      let subject = 'cr';
+
+      // GitHub PR
+      if (eventData.pull_request) {
+        const pr = eventData.pull_request;
+        fromSha = pr.base?.sha || '';
+        toSha = pr.head?.sha || sha || '';
+        subjectId = String(pr.number || '');
+        subject = 'pr';
+      }
+      // GitLab MR
+      else if (eventData.merge_request) {
+        const mr = eventData.merge_request;
+        fromSha = mr.diff_refs?.base_sha || '';
+        toSha = mr.diff_refs?.head_sha || sha || '';
+        subjectId = String(mr.iid || mr.id || '');
+        subject = 'merge_request';
+      }
+      // 如果没有找到 PR/MR 信息，使用默认值
+      else {
+        logger({
+          type: 'warn',
+          title: 'DiffInsert',
+          message: 'No PR/MR information found in build.event',
+        });
+        // 如果没有 PR/MR，可能只是普通的 commit，使用当前 sha 作为 to
+        toSha = sha || '';
+      }
+
+      // 如果没有 subjectId，跳过插入
+      if (!subjectId) {
+        logger({
+          type: 'warn',
+          title: 'DiffInsert',
+          message: 'No subject_id found, skipping diff insert',
+        });
+        return;
+      }
+
+      // 构建 diff 记录数组
+      const diffRecords = diffData.map((item) => ({
+        provider,
+        repo_id: repoID,
+        from: fromSha,
+        to: toSha,
+        path: item.path,
+        additions: item.additions,
+        deletions: item.deletions,
+        subject,
+        subject_id: subjectId,
+      }));
+
+      // 插入 diff 记录
+      await this.prisma.diff.createMany({
+        data: diffRecords,
+        skipDuplicates: true,
+      });
+
+      logger({
+        type: 'info',
+        title: 'DiffInsert',
+        message: 'Diff records inserted',
+        addInfo: {
+          provider,
+          repoID,
+          subject,
+          subjectId,
+          count: diffRecords.length,
+        },
+      });
+    } catch (error) {
+      // 如果出错，记录日志但不影响主流程
+      logger({
+        type: 'warn',
+        title: 'DiffInsert',
+        message: 'Failed to insert diff',
+        addInfo: {
+          provider,
+          repoID,
+          error: error instanceof Error ? error.message : String(error),
+        },
+      });
+    }
+  }
+
   async insertCommit(coverageMapInitDto: CoverageMapInitDto) {
     const { sha, provider, repoID } = coverageMapInitDto;
 
@@ -331,7 +459,13 @@ export class CoverageMapInitService {
       buildTarget,
       build,
       coverage,
+      diff,
     } = coverageMapInitDto;
+
+    // 如果有 diff，尝试插入 diff 表
+    if (diff && Array.isArray(diff) && diff.length > 0) {
+      await this.insertDiff(coverageMapInitDto, diff);
+    }
 
     // 计算 buildHash
     const buildHash = this.calculateBuildHash(
