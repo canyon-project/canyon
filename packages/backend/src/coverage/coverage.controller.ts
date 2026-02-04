@@ -7,6 +7,7 @@ import { SummaryMapQueryDto } from './dto/summary-map.dto';
 import { CommitsService } from './services/commits.service';
 import { CoverageMapForAccumulativeService } from './services/coverage-map-for-accumulative.service';
 import { CoverageMapForCommitService } from './services/coverage-map-for-commit.service';
+import { CoverageMapForCrService } from './services/coverage-map-for-cr.service';
 
 // @Public()
 @Controller('api/coverage')
@@ -14,6 +15,7 @@ export class CoverageController {
   constructor(
     private readonly coverageMapForCommitService: CoverageMapForCommitService,
     private readonly coverageMapForAccumulativeService: CoverageMapForAccumulativeService,
+    private readonly coverageMapForCrService: CoverageMapForCrService,
     private readonly commitsService: CommitsService,
   ) {}
 
@@ -77,6 +79,15 @@ export class CoverageController {
           buildTarget: q.buildTarget || '',
           filePath: q.filePath,
           scene: q.scene, // 新增字段，起筛选作用
+        });
+      case 'pull':
+      case 'merge_requests':
+        return this.coverageMapForCrService.invoke({
+          provider: q.provider,
+          repoID: q.repoID,
+          crID: q.subjectID,
+          buildTarget: q.buildTarget || '',
+          filePath: q.filePath,
         });
       case 'accumulative':
         return this.coverageMapForAccumulativeService

@@ -3,7 +3,7 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 export class BaseMapQueryDto {
   @IsString()
   @IsNotEmpty()
-  subject!: 'commit' | 'accumulative';
+  subject!: 'commit' | 'accumulative' | 'pull' | 'merge_requests';
 
   @IsString()
   @IsNotEmpty()

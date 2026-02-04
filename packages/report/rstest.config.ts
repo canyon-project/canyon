@@ -1,7 +1,6 @@
+import path from 'node:path';
 import { defineConfig } from '@rstest/core';
-import path from 'node:path'
 import { mockDiff } from './mock-diff';
-
 
 export default defineConfig({
   coverage: {

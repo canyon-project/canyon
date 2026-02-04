@@ -1,6 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { genSummaryMapByCoverageMap, genSummaryTreeItem } from 'canyon-data';
 import type { FileCoverage } from 'istanbul-lib-coverage';
 import { createRequire } from 'module';
 import parseDiff from 'parse-diff';
@@ -13,7 +14,7 @@ import type {
   GenerateResult,
   ReportData,
 } from './types';
-import {genSummaryTreeItem,genSummaryMapByCoverageMap} from 'canyon-data'
+
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -182,7 +183,10 @@ export class CoverageReport {
         );
 
         // 计算变更覆盖率
-        const changedCoverage = this.calculateChangedCoverage(fileData, addLines);
+        const changedCoverage = this.calculateChangedCoverage(
+          fileData,
+          addLines,
+        );
 
         return {
           source,
@@ -203,18 +207,19 @@ export class CoverageReport {
       })
       .filter((file): file is FileReportData => file !== null);
 
-    const change1 = files.map(i=>{
+    const change1 = files.map((i) => {
       return {
-        path:i.path,
-        additions: i.diff.additions
-      }
-    })
+        path: i.path,
+        additions: i.diff.additions,
+      };
+    });
 
-
-
-    const summaryResult = genSummaryTreeItem('',genSummaryMapByCoverageMap(this.genCov(files),change1));
-    const newlinesPercent = (summaryResult.summary as any).changestatements?.pct ?? 0;
-    
+    const summaryResult = genSummaryTreeItem(
+      '',
+      genSummaryMapByCoverageMap(this.genCov(files), change1),
+    );
+    const newlinesPercent =
+      (summaryResult.summary as any).changestatements?.pct ?? 0;
 
     // 将 newlinesPercent 添加到 summary
     summary['newlinesPercent'] = newlinesPercent;
@@ -320,20 +325,26 @@ export class CoverageReport {
 
     // 保存 newlinesPercent 到 coverage/canyon.json
     const canyonJsonPath = path.join(targetDir, 'canyon.json');
-    const newlinesPercent = reportData.summary['newlinesPercent'] as number | undefined;
-    
+    const newlinesPercent = reportData.summary['newlinesPercent'] as
+      | number
+      | undefined;
+
     if (newlinesPercent !== undefined) {
       const canyonData = {
         newlinesPercent,
       };
-      
+
       // 确保目录存在
       const canyonJsonDir = path.dirname(canyonJsonPath);
       if (!fs.existsSync(canyonJsonDir)) {
         fs.mkdirSync(canyonJsonDir, { recursive: true });
       }
-      
-      fs.writeFileSync(canyonJsonPath, JSON.stringify(canyonData, null, 2), 'utf8');
+
+      fs.writeFileSync(
+        canyonJsonPath,
+        JSON.stringify(canyonData, null, 2),
+        'utf8',
+      );
     }
 
     const result: GenerateResult = {

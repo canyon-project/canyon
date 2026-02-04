@@ -5,6 +5,7 @@ import { CoverageController } from './coverage.controller';
 import { CommitsService } from './services/commits.service';
 import { CoverageMapForAccumulativeService } from './services/coverage-map-for-accumulative.service';
 import { CoverageMapForCommitService } from './services/coverage-map-for-commit.service';
+import { CoverageMapForCrService } from './services/coverage-map-for-cr.service';
 
 @Module({
   imports: [ConfigModule],
@@ -14,6 +15,7 @@ import { CoverageMapForCommitService } from './services/coverage-map-for-commit.
     CommitsService,
     CodeService,
     CoverageMapForAccumulativeService,
+    CoverageMapForCrService,
   ],
 })
 export class CoverageModule {}

@@ -95,19 +95,19 @@ async function uploadCoverageFiles(
 
   // 创建 FormData（Node.js 20+ 支持全局 FormData）
   const formData = new FormData();
-  
+
   // 添加文件（使用 File 或 Blob）
   // 在 Node.js 中，可以使用 Blob 或直接使用字符串
-  const reportDataBlob = new Blob([reportDataContent], { 
-    type: 'application/javascript' 
+  const reportDataBlob = new Blob([reportDataContent], {
+    type: 'application/javascript',
   });
-  const diffDataBlob = new Blob([diffDataContent], { 
-    type: 'application/javascript' 
+  const diffDataBlob = new Blob([diffDataContent], {
+    type: 'application/javascript',
   });
-  
+
   formData.append('report-data.js', reportDataBlob, 'report-data.js');
   formData.append('diff-data.js', diffDataBlob, 'diff-data.js');
-  
+
   // 添加参数
   formData.append('provider', provider);
   formData.append('org', org);
@@ -187,9 +187,7 @@ async function run() {
     );
 
     if (!result.success) {
-      throw new Error(
-        `Upload failed: ${result.message || 'Unknown error'}`,
-      );
+      throw new Error(`Upload failed: ${result.message || 'Unknown error'}`);
     }
 
     core.info(
