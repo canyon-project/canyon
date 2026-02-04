@@ -6,6 +6,18 @@ import { mergeCoverageMaps } from '../utils/mergeCoverage';
 export async function mapCommand(params: any, options: any) {
   console.log('Current working directory:', process.cwd());
 
+  if (process.env.GITHUB_EVENT_PATH){
+    const event = JSON.parse(
+      fs.readFileSync(process.env.GITHUB_EVENT_PATH!, 'utf8')
+    )
+
+    const pr = event.pull_request
+    console.log(pr.number, pr.id)
+  } else {
+    console.log('not found GITHUB_EVENT_PATH')
+  }
+
+
   const {
     dsn,
     repo_id: repoID,

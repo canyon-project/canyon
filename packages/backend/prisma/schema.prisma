@@ -31,7 +31,7 @@ model Repo {
   bu                String
   createdAt         DateTime @map("created_at")
   updatedAt         DateTime @map("updated_at")
-  provider String
+  provider          String
   tags              Json
   members           Json
 
@@ -50,6 +50,15 @@ model Commit {
   createdAt     DateTime @map("created_at") // commit 的创建时间
 
   @@map("canyon_next_commit")
+}
+
+// github pr|gitlab merge_request
+model Cr {
+  // provider+repoID+pull_request.id
+  id      String @id
+  content Json
+
+  @@map("canyon_next_cr")
 }
 
 model Coverage {
