@@ -6,17 +6,22 @@ import { mergeCoverageMaps } from '../utils/mergeCoverage';
 export async function mapCommand(params: any, options: any) {
   console.log('Current working directory:', process.cwd());
 
-  if (process.env.GITHUB_EVENT_PATH){
-    const event = JSON.parse(
-      fs.readFileSync(process.env.GITHUB_EVENT_PATH!, 'utf8')
-    )
-
-    const pr = event.pull_request
-    console.log(pr.number, pr.id)
-  } else {
-    console.log('not found GITHUB_EVENT_PATH')
+  // 检测是否在 GitHub Actions 环境中
+  const isGitHubActions = process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_EVENT_PATH;
+  
+  // 读取 GitHub Actions event 内容
+  let githubEvent: string | undefined;
+  if (isGitHubActions && process.env.GITHUB_EVENT_PATH) {
+    try {
+      if (fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
+        githubEvent = fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8');
+      } else {
+        console.log('GITHUB_EVENT_PATH file not found:', process.env.GITHUB_EVENT_PATH);
+      }
+    } catch (error) {
+      console.warn('Failed to read GITHUB_EVENT_PATH:', error);
+    }
   }
-
 
   const {
     dsn,
@@ -107,7 +112,8 @@ export async function mapCommand(params: any, options: any) {
     buildTarget: build_target || '',
     coverage: Object.keys(data),
     build: {
-      buildProvider: env_buildProvider,
+      provider: isGitHubActions ? "github_actions" : env_buildProvider,
+      event: isGitHubActions ? githubEvent : undefined,
       buildID: env_buildID,
       branch: env_branch,
     },
