@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
+import AppFooter from "@/components/app/footer.tsx";
 
 const BasicLayout: FC<{
   children: ReactNode;
@@ -167,10 +168,14 @@ const BasicLayout: FC<{
           'flex-1 bg-[#fbfcfd] dark:bg-[#0c0d0e] h-[100vh] overflow-auto'
         }
       >
-        <div className={'m-auto max-w-[1200px] min-w-[1000px] p-[12px]'}>
-          <ErrorBoundary fallback={<p>⚠️Something went wrong</p>}>
+        <div className={'m-auto max-w-[1200px] min-w-[1000px] p-[12px] min-h-[100vh]'}>
+        <ErrorBoundary fallback={<p>⚠️Something went wrong</p>}>
             {children}
           </ErrorBoundary>
+        </div>
+        <div className='border-t border-gray-200 dark:border-gray-700'></div>
+        <div className='m-auto max-w-[1200px] min-w-[1000px]'>
+        <AppFooter/>
         </div>
       </div>
     </div>
