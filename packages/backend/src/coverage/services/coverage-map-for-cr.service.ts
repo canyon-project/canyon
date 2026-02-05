@@ -14,7 +14,9 @@ export class CoverageMapForCrService {
   async invoke(p) {
     const crList = await this.prisma.cr.findMany({
       where: {
-        id: `${p.provider}${p.repoID}`,
+        id: {
+          contains:`${p.provider}-${p.repoID}`
+        },
       },
     });
     const len = crList.length;
@@ -35,9 +37,15 @@ export class CoverageMapForCrService {
       }
     })
 
+
+    // @ts-ignore
+    const baseRepoID = String(cr?.content?.pull_request?.base?.repo?.id||'');
+    // @ts-ignore
+    const baseSha = String(cr?.content?.pull_request?.base?.sha||'');
+    console.log(baseRepoID,'baseRepoID')
     return {
-      r,
-      cr
+      baseRepoID,
+      baseSha
     };
   }
 }
