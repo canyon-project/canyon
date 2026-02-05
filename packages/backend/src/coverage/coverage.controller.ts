@@ -35,6 +35,34 @@ export class CoverageController {
         const summary = genSummaryMapByCoverageMap(map, []);
         return summary;
       }
+      case 'pull':
+      case 'merge_requests': {
+        const result = await this.coverageMapForCrService.invoke({
+          provider: summaryMapQueryDto.provider,
+          repoID: summaryMapQueryDto.repoID,
+          crID: summaryMapQueryDto.subjectID,
+          buildTarget: summaryMapQueryDto.buildTarget || '',
+          filePath: summaryMapQueryDto.filePath,
+        });
+
+        // accumulative service 返回的是 { success, baseCommit, comparisonResults, coverage }
+        // 我们需要使用 coverage 字段来生成 summary
+        if (result.success && result.coverage) {
+          const c = Object.values(result.coverage)
+            .map((m: any) => {
+              return {
+                path: m.path,
+                additions: m?.diff?.additions || [],
+              };
+            })
+            .filter((item) => item.additions.length > 0);
+          const summary = genSummaryMapByCoverageMap(result.coverage, c);
+          return summary;
+        }
+        throw new BadRequestException(
+          'Failed to get accumulative coverage data',
+        );
+      }
       case 'accumulative': {
         const result = await this.coverageMapForAccumulativeService.invoke({
           provider: summaryMapQueryDto.provider,
@@ -88,6 +116,13 @@ export class CoverageController {
           crID: q.subjectID,
           buildTarget: q.buildTarget || '',
           filePath: q.filePath,
+        }).then((result) => {
+          if (result.success && result.coverage) {
+            return result.coverage;
+          }
+          throw new BadRequestException(
+            'Failed to get accumulative coverage data',
+          );
         });
       case 'accumulative':
         return this.coverageMapForAccumulativeService

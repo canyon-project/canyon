@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import {CoverageMapForCommitService} from "./coverage-map-for-commit.service";
 
 /*
 
@@ -9,14 +10,15 @@ import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
 export class CoverageMapForCrService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly coverageMapForCommitService: CoverageMapForCommitService
+  ) {}
 
   async invoke(p) {
     const crList = await this.prisma.cr.findMany({
       where: {
-        id: {
-          contains:`${p.provider}-${p.repoID}`
-        },
+        id: `${p.provider}-${p.repoID}-${p.crID}`,
       },
     });
     const len = crList.length;
@@ -30,22 +32,62 @@ export class CoverageMapForCrService {
 
     // p.crID
 
-    const r = await this.prisma.diff.findMany({
-      where:{
-        subject:'pr',
-        subject_id:'1'
-      }
-    })
+
 
 
     // @ts-ignore
     const baseRepoID = String(cr?.content?.pull_request?.base?.repo?.id||'');
     // @ts-ignore
     const baseSha = String(cr?.content?.pull_request?.base?.sha||'');
-    console.log(baseRepoID,'baseRepoID')
-    return {
-      baseRepoID,
-      baseSha
-    };
+    // @ts-ignore
+    const headRepoID = String(cr?.content?.pull_request?.head?.repo?.id||'');
+    // @ts-ignore
+    const headSha = String(cr?.content?.pull_request?.head?.sha||'');
+
+
+    const r = await this.prisma.diff.findMany({
+      where:{
+        subject:'pr',
+        subject_id: p.crID,
+        repo_id:headRepoID,
+        provider: p.provider,
+      }
+    })
+
+
+    const coverage= await this.coverageMapForCommitService.invoke({
+      provider: p.provider,
+      repoID: headRepoID,
+      sha: headSha,
+      buildTarget: p.buildTarget || '',
+      filePath: p.filePath,
+      scene: p.scene||{}, // 新增字段，起筛选作用
+    })
+
+    const cov = {}
+
+    for (const k in coverage) {
+      const item = coverage[k];
+      // @ts-ignore
+      const diffItem = r.find(i=>{
+        // @ts-ignore
+        return i.path===item.path
+      })
+      if (diffItem){
+        cov[k]={
+          // @ts-ignore
+          ...item,
+          diff: {
+            additions: diffItem.additions || [],
+            deletions: diffItem.deletions || [],
+          },
+        }
+      }
+    }
+
+    return  {
+      success: true,
+      coverage: cov,
+    }
   }
 }
