@@ -8,7 +8,7 @@ This document outlines security procedures and general policies for the Canyon p
 
 ## Reporting a security vulnerability
 
-Report security vulnerabilities by emailing the Canyon Support team at wr_zhang25@163.com.
+Report security vulnerabilities by emailing the Canyon Support team at wr.zhang25@gmail.com.
 
 The primary security point of contact from Canyon Support team will acknowledge your email within 48 hours, and will send a more detailed response within 48 hours indicating the next steps in handling your report. After the initial reply to your report, the security team will endeavor to keep you informed of the progress towards a fix and full announcement, and may ask for additional information or guidance.
 
