@@ -150,7 +150,7 @@ export class CoverageMapInitService {
 
       // 如果有 PR/MR ID，则插入或更新 Cr 表
       // @ts-ignore
-      const baseRepoID = String(eventData?.content?.pull_request?.base?.repo?.id||'');
+      const baseRepoID = String(eventData?.pull_request?.base?.repo?.id||'');
 
       if (prOrMrId) {
         const crId = `${provider}-${baseRepoID}-${prOrMrId}`;
