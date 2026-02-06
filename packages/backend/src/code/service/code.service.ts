@@ -147,6 +147,8 @@ export class CodeService {
     filepath,
     provider,
     gitlabConfig,
+    subject,
+    subjectID,
   }: {
     repoID: string;
     sha?: string | null;
@@ -154,18 +156,70 @@ export class CodeService {
     filepath: string;
     provider?: string | null;
     gitlabConfig?: { base: string; token: string };
+    subject?: string | null;
+    subjectID?: string | null;
   }): Promise<{ content: string | null }> {
     if (!repoID || !filepath) {
       throw new BadRequestException('repoID, filepath 为必填参数');
     }
-    if (!sha && !accumulativeID) {
-      throw new BadRequestException('sha 与 accumulativeID 至少提供一个');
+    if (!sha && !accumulativeID && !(subject === 'pull' && subjectID)) {
+      throw new BadRequestException(
+        'sha、accumulativeID 或 subject/subjectID 至少提供一个',
+      );
     }
+
+    // 如果 subject 为 pull，从 cr 表查询 head repoID 和 head sha
+    let actualRepoID = repoID;
+    let actualSha = sha;
+    if (subject === 'pull' && subjectID && provider) {
+      try {
+        // cr 表的 id 格式为: provider-baseRepoID-pullRequestID
+        // 注意：这里的 repoID 可能是 base repoID，需要查询 cr 表获取 head repoID
+        const crId = `${provider}-${repoID}-${subjectID}`;
+        const cr = await this.prisma.cr.findUnique({
+          where: { id: crId },
+        });
+
+        if (!cr || !cr.content) {
+          throw new BadRequestException(
+            `未找到对应的 Pull Request (${crId})`,
+          );
+        }
+
+        // 从 cr.content 中提取 head repoID 和 head sha
+        const crContent = cr.content as any;
+        const headRepoID =
+          crContent?.pull_request?.head?.repo?.id ||
+          crContent?.merge_request?.head?.repo?.id;
+        const headSha =
+          crContent?.pull_request?.head?.sha ||
+          crContent?.merge_request?.head?.sha ||
+          crContent?.pull_request?.head?.ref ||
+          crContent?.merge_request?.head?.ref;
+
+        if (!headRepoID || !headSha) {
+          throw new BadRequestException(
+            '无法从 Pull Request 中解析 head repoID 或 head sha',
+          );
+        }
+
+        actualRepoID = String(headRepoID);
+        actualSha = String(headSha);
+      } catch (error) {
+        if (error instanceof BadRequestException) {
+          throw error;
+        }
+        throw new BadRequestException(
+          `查询 Pull Request 信息失败: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      }
+    }
+
     if ((provider || 'gitlab').startsWith('github')) {
       return this.getFileContentFromGithub({
-        repoID,
-        sha,
-        accumulativeID,
+        repoID: actualRepoID,
+        sha: actualSha,
+        accumulativeID: accumulativeID || null,
         filepath,
         provider,
       });
@@ -175,9 +229,9 @@ export class CodeService {
     }
     const { base, token } = gitlabConfig || (await this.getGitLabCfg());
     // 如果提供 accumulativeID 但未提供 sha，则解析 head sha
-    let ref: string | null | undefined = sha;
+    let ref: string | null | undefined = actualSha;
     if (!ref && accumulativeID) {
-      const pid = encodeURIComponent(repoID);
+      const pid = encodeURIComponent(actualRepoID);
       const prURL = `${base}/api/v4/projects/${pid}/merge_requests/${encodeURIComponent(accumulativeID)}`;
       const prResp = await axios.get(prURL, {
         headers: { 'PRIVATE-TOKEN': token },
@@ -193,7 +247,7 @@ export class CodeService {
       }
       if (!ref) throw new BadRequestException('无法从Pull Request解析head sha');
     }
-    const pid = encodeURIComponent(repoID);
+    const pid = encodeURIComponent(actualRepoID);
     const filePath = encodeURIComponent(filepath);
     if (!ref) throw new BadRequestException('缺少引用分支/提交（ref）');
     const url = `${base}/api/v4/projects/${pid}/repository/files/${filePath}?ref=${encodeURIComponent(ref)}`;

@@ -11,7 +11,7 @@ import { getDecode } from '@/helpers/getDecode.ts';
 
 type FileDataResponse = Awaited<ReturnType<CanyonReportProps['onSelect']>>;
 
-type SubjectType = 'commit' | 'accumulative' | undefined;
+type SubjectType = 'commit' | 'accumulative' | 'pull' | undefined;
 
 interface RouteParams {
   provider: string;
@@ -151,6 +151,11 @@ const ReportIndependent = () => {
         }
       }
 
+      // pull 类型需要从 cr 表查询，不在这里提取 SHA
+      if (subject === 'pull') {
+        return undefined;
+      }
+
       return undefined;
     },
     [],
@@ -255,6 +260,30 @@ const ReportIndependent = () => {
           });
         if (fileContentKey) {
           fileContentCacheRef.current.set(fileContentKey, fileContentPromise);
+        }
+      } else if (routeParams.subject === 'pull' && routeParams.subjectID) {
+        // pull 类型：传递 subject 和 subjectID，后端会从 cr 表查询 head repoID 和 head sha
+        const pullFileContentKey = `${repoID}-pull-${routeParams.subjectID}-${val}-${routeParams.provider}`;
+        if (fileContentCacheRef.current.has(pullFileContentKey)) {
+          fileContentPromise = fileContentCacheRef.current.get(pullFileContentKey)!;
+        } else {
+          fileContentPromise = axios
+            .get('/api/code/file', {
+              params: {
+                repoID,
+                subject: routeParams.subject,
+                subjectID: routeParams.subjectID,
+                filepath: val,
+                provider: routeParams.provider,
+              },
+            })
+            .then((resp) => {
+              if (resp.data?.content) {
+                return getDecode(resp.data.content);
+              }
+              return '';
+            });
+          fileContentCacheRef.current.set(pullFileContentKey, fileContentPromise);
         }
       } else {
         fileContentPromise = Promise.resolve('');

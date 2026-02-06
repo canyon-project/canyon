@@ -45,11 +45,13 @@ export class CodeController {
     @Query('accumulativeID') accumulativeID?: string,
     @Query('filepath') filepath?: string,
     @Query('provider') provider?: string,
+    @Query('subject') subject?: string,
+    @Query('subjectID') subjectID?: string,
   ) {
     if (!repoID || !filepath) {
       return { content: null };
     }
-    if (!sha && !accumulativeID) {
+    if (!sha && !accumulativeID && !(subject === 'pull' && subjectID)) {
       return { content: null };
     }
     try {
@@ -59,6 +61,8 @@ export class CodeController {
         accumulativeID: accumulativeID || null,
         filepath,
         provider: provider || null,
+        subject: subject || null,
+        subjectID: subjectID || null,
       });
     } catch (error) {
       console.error('Failed to get file content:', error);
