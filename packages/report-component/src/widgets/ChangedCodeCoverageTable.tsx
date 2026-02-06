@@ -221,7 +221,7 @@ const ChangedCodeCoverageTable = ({
     return { coveredCount, totalCount, coveragePercent, notCoveredCount };
   }, [relatedStatements, filteredStatements]);
 
-  if (filteredStatements.length === 0) {
+  if (relatedStatements.length === 0) {
     return null;
   }
 

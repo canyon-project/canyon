@@ -82,6 +82,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // '@canyonjs/report-component': path.resolve(__dirname, '../../packages/report-component/src'),
     },
   },
   define: {
