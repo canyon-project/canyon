@@ -8,7 +8,7 @@ packages:
 catalog:
   '@ant-design/icons': 6.1.0
   '@canyonjs/report': 1.0.8
-  '@canyonjs/report-component': 1.0.19
+  '@canyonjs/report-component': 1.0.20
   '@canyonjs/report-html': 1.0.20
   '@types/istanbul-lib-coverage': ^2.0.6
   '@types/istanbul-lib-report': ^3.0.3
