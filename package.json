@@ -12,7 +12,7 @@
     "migrate:sql": "prisma migrate diff --from-empty --to-schema-datamodel ./packages/backend/prisma/schema.prisma --script > ./schema.sql",
     "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs",
     "coverage:merge": "mkdir -p .nyc_output coverage && (test -f packages/frontend/coverage/coverage-final.json && cp packages/frontend/coverage/coverage-final.json .nyc_output/frontend.json || true) && (test -f packages/backend/coverage/coverage-final.json && cp packages/backend/coverage/coverage-final.json .nyc_output/backend.json || true) && nyc merge .nyc_output .nyc_output/coverage-final.json",
-    "coverage:report": "nyc report --reporter=@canyonjs/report --report-dir=coverage",
+    "coverage:report": "nyc report --reporter=@canyonjs/report --reporter=json --report-dir=coverage",
     "coverage": "pnpm run coverage:merge && pnpm run coverage:report"
   },
   "devDependencies": {
