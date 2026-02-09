@@ -19,6 +19,8 @@ export class CoverageController {
     private readonly commitsService: CommitsService,
   ) {}
 
+  // 注：只有 accumulative 支持累积
+
   @Get('summary/map')
   async getSummaryMap(@Query() summaryMapQueryDto: SummaryMapQueryDto) {
     const { subject } = summaryMapQueryDto;
@@ -132,6 +134,7 @@ export class CoverageController {
             accumulativeID: q.subjectID,
             buildTarget: q.buildTarget || '',
             filePath: q.filePath,
+            scene: q.scene, // 新增字段，起筛选作用
           })
           .then((result) => {
             if (result.success && result.coverage) {

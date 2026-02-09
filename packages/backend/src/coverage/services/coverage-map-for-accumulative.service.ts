@@ -19,6 +19,58 @@ export class CoverageMapForAccumulativeService {
     private readonly configService: ConfigService,
   ) {}
 
+  /**
+   * 将 key-value 格式的 scene 对象转换为 Prisma JSON 查询条件
+   * @param scene - JSON 字符串，格式为 { key1: 'value1', key2: 'value2' }
+   * @returns Prisma JSON 查询条件
+   */
+  private buildSceneQueryCondition(scene?: string) {
+    if (!scene) {
+      return undefined;
+    }
+
+    try {
+      const sceneObj = JSON.parse(scene);
+
+      // 如果解析后不是对象，返回 undefined
+      if (
+        typeof sceneObj !== 'object' ||
+        sceneObj === null ||
+        Array.isArray(sceneObj)
+      ) {
+        return undefined;
+      }
+
+      // 获取所有 key-value 对
+      const entries = Object.entries(sceneObj);
+
+      // 如果没有键值对，返回 undefined
+      if (entries.length === 0) {
+        return undefined;
+      }
+
+      // 如果只有一个键值对，直接返回单个查询条件
+      if (entries.length === 1) {
+        const [key, value] = entries[0];
+        return {
+          path: [key],
+          equals: String(value), // 确保 value 是字符串
+        };
+      }
+
+      // 如果有多个键值对，使用 AND 条件
+      return {
+        AND: entries.map(([key, value]) => ({
+          path: [key],
+          equals: String(value), // 确保 value 是字符串
+        })),
+      };
+    } catch {
+      // JSON 解析失败，返回 undefined
+      return undefined;
+    }
+  }
+
   private async getGitLabCfg() {
     const base = await this.configService.get('INFRA.GITLAB_BASE_URL');
     const token = await this.configService.get('INFRA.GITLAB_PRIVATE_TOKEN');
@@ -212,13 +264,21 @@ export class CoverageMapForAccumulativeService {
     }
 
     // 获取 nowSha 的 coverage map
+    const nowShaCoverageWhereCondition: any = {
+      provider,
+      repoID,
+      sha: nowSha,
+      buildTarget,
+    };
+
+    // 构建 scene 查询条件
+    const sceneCondition = this.buildSceneQueryCondition(scene);
+    if (sceneCondition) {
+      nowShaCoverageWhereCondition.scene = sceneCondition;
+    }
+
     const nowShaCoverageRecords = await this.prisma.coverage.findMany({
-      where: {
-        provider,
-        repoID,
-        sha: nowSha,
-        buildTarget,
-      },
+      where: nowShaCoverageWhereCondition,
     });
 
     if (nowShaCoverageRecords.length === 0) {
@@ -313,11 +373,26 @@ export class CoverageMapForAccumulativeService {
       });
     }
 
+    // 收集所有匹配记录的 sceneKey（用于筛选 hit 数据）
+    const nowShaSceneKeys = new Set<string>();
+    for (const record of nowShaCoverageRecords) {
+      nowShaSceneKeys.add(record.sceneKey);
+    }
+
     // 查询 nowSha 的 hit 数据
+    const nowShaCoverageHitWhereCondition: any = {
+      buildHash: nowShaBuildHash,
+    };
+
+    // 如果通过 scene 筛选出了 coverage 记录，使用这些记录的 sceneKey 列表来筛选 coverageHit
+    if (nowShaSceneKeys.size > 0) {
+      nowShaCoverageHitWhereCondition.sceneKey = {
+        in: Array.from(nowShaSceneKeys),
+      };
+    }
+
     const nowShaCoverageHits = await this.prisma.coverageHit.findMany({
-      where: {
-        buildHash: nowShaBuildHash,
-      },
+      where: nowShaCoverageHitWhereCondition,
     });
 
     // 聚合 nowSha 的 hit 数据（按 normalizedPath，去掉插桩路径前缀）
@@ -365,13 +440,21 @@ export class CoverageMapForAccumulativeService {
         continue;
       }
 
+      const coverageWhereCondition: any = {
+        provider,
+        repoID,
+        sha: sha as string,
+        buildTarget,
+      };
+
+      // 构建 scene 查询条件
+      const sceneCondition = this.buildSceneQueryCondition(scene);
+      if (sceneCondition) {
+        coverageWhereCondition.scene = sceneCondition;
+      }
+
       const coverageRecords = await this.prisma.coverage.findMany({
-        where: {
-          provider,
-          repoID,
-          sha: sha as string,
-          buildTarget,
-        },
+        where: coverageWhereCondition,
       });
 
       if (coverageRecords.length === 0) {
@@ -458,11 +541,26 @@ export class CoverageMapForAccumulativeService {
         });
       }
 
+      // 收集所有匹配记录的 sceneKey（用于筛选 hit 数据）
+      const commitSceneKeys = new Set<string>();
+      for (const record of coverageRecords) {
+        commitSceneKeys.add(record.sceneKey);
+      }
+
       // 查询该 commit 的 hit 数据
+      const coverageHitWhereCondition: any = {
+        buildHash,
+      };
+
+      // 如果通过 scene 筛选出了 coverage 记录，使用这些记录的 sceneKey 列表来筛选 coverageHit
+      if (commitSceneKeys.size > 0) {
+        coverageHitWhereCondition.sceneKey = {
+          in: Array.from(commitSceneKeys),
+        };
+      }
+
       const coverageHits = await this.prisma.coverageHit.findMany({
-        where: {
-          buildHash,
-        },
+        where: coverageHitWhereCondition,
       });
 
       // 聚合该 commit 的 hit 数据（按 normalizedPath，去掉插桩路径前缀）
