@@ -9,7 +9,7 @@
     "preview": "vite preview",
     "pretest": "npm run build",
     "gen-coverage-report": "nyc report --reporter=@canyonjs/report --temp-dir=./.canyon_output",
-    "test": "playwright test && npm run gen-coverage-report"
+    "test-report-html-playwright": "playwright test && npm run gen-coverage-report"
   },
   "dependencies": {
     "react": "catalog:",
