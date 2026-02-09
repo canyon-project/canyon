@@ -25,7 +25,7 @@ jobs:
         run: pnpm i
 
       - name: Test
-        run: pnpm test
+        run: pnpm test && npm run coverage
 
       - name: Upload coverage to Canyon
         uses: canyon-project/canyon-action@v1.0.18
