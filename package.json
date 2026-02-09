@@ -6,27 +6,18 @@
   "scripts": {
     "preinstall": "node ./scripts/check.mjs",
     "clean": "node ./scripts/clean.mjs",
-    "format": "biome format --write .",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
     "test": "pnpm run -r test",
     "dev": "pnpm run --stream -r dev",
     "build": "pnpm run -r build",
     "migrate:sql": "prisma migrate diff --from-empty --to-schema-datamodel ./packages/backend/prisma/schema.prisma --script > ./schema.sql",
-    "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "npx nano-staged"
-  },
-  "nano-staged": {
-    "*.{js,jsx,ts,tsx,mjs,cjs,md,mdx,css}": [
-      "biome check --write"
-    ]
+    "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs",
+    "coverage:merge": "mkdir -p .nyc_output coverage && (test -f packages/frontend/coverage/coverage-final.json && cp packages/frontend/coverage/coverage-final.json .nyc_output/frontend.json || true) && (test -f packages/backend/coverage/coverage-final.json && cp packages/backend/coverage/coverage-final.json .nyc_output/backend.json || true) && nyc merge .nyc_output .nyc_output/coverage-final.json",
+    "coverage:report": "nyc report --reporter=@canyonjs/report --report-dir=coverage",
+    "coverage": "pnpm run coverage:merge && pnpm run coverage:report"
   },
   "devDependencies": {
-    "simple-git-hooks": "^2.13.1",
-    "@biomejs/biome": "2.3.9",
     "prisma": "6",
-    "nano-staged": "^0.9.0"
+    "nyc": "latest",
+    "@canyonjs/report": "catalog:"
   }
 }

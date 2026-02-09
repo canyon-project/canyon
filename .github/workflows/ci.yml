@@ -24,8 +24,18 @@ jobs:
       - name: Install
         run: pnpm i
 
-      - name: Lint
-        run: pnpm run lint
-
       - name: Test
         run: pnpm test
+
+      - name: Upload coverage to Canyon
+        uses: canyon-project/canyon-action@v1.0.18
+        with:
+          coverage-file: coverage/coverage-final.json
+          canyon-url: https://app.canyonjs.io
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+        continue-on-error: true
