@@ -105,7 +105,7 @@ const CoverageDetail = ({
         const decorations = (() => {
           const all = [];
 
-          const annotateStatementsList = annotateStatements(coverage);
+          const annotateStatementsList = annotateStatements(coverage,source);
           all.push(...annotateStatementsList);
 
           const annotateFunctionsList = annotateFunctions(coverage, source);

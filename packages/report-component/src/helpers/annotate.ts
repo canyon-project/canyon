@@ -1,4 +1,4 @@
-export function annotateStatements(fileCoverage: any) {
+export function annotateStatements(fileCoverage: any,structuredText) {
   const annotateStatementsList: any[] = [];
   const statementStats = fileCoverage.s;
   const statementMeta = fileCoverage.statementMap;
@@ -10,11 +10,12 @@ export function annotateStatements(fileCoverage: any) {
     const startLine = meta.start.line;
     const endLine = meta.end.line;
     if (type === 'no') {
+      const realEndCol = startCol>endCol?structuredText.split('\n')[startLine - 1].length:endCol
       annotateStatementsList.push({
         startLine,
         endLine,
         startCol: startCol + 1,
-        endCol: endCol + 1,
+        endCol: realEndCol + 1,
         type: 'S',
       });
     }
