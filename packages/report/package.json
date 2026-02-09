@@ -16,7 +16,7 @@
   "scripts": {
     "build": "tsdown",
     "pretest": "npm run build",
-    "test": "rstest run --coverage"
+    "test": "vitest run --coverage"
   },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.8",
@@ -25,8 +25,8 @@
     "@typescript/native-preview": "catalog:",
     "@types/istanbul-lib-report": "catalog:",
     "@types/istanbul-lib-coverage": "catalog:",
-    "@rstest/core": "latest",
-    "@rstest/coverage-istanbul": "latest"
+    "vitest": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:"
   },
   "dependencies": {
     "istanbul-lib-report": "catalog:",

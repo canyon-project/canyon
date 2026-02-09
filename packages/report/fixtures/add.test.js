@@ -1,4 +1,4 @@
-import { expect, test } from '@rstest/core';
+import { expect, test } from 'vitest';
 import { sum } from './add.js';
 
 test('adds 1 + 2 to equal 3', () => {
