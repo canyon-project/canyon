@@ -10,7 +10,8 @@
     "start": "nest start",
     "dev": "nest start --watch",
     "postinstall": "npm run generate",
-    "generate": "prisma generate && prisma generate --schema prisma/schema-sqlite.prisma"
+    "generate": "prisma generate && prisma generate --schema prisma/schema-sqlite.prisma",
+    "test": "vitest run"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -38,6 +39,9 @@
     "canyon-data": "latest"
   },
   "devDependencies": {
+    "@canyonjs/report": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:",
+    "vitest": "catalog:",
     "@nestjs/cli": "11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@types/better-sqlite3": "^7.6.13",

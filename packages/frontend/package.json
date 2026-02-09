@@ -5,39 +5,43 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "test": "vitest run"
   },
   "dependencies": {
     "@ant-design/icons": "catalog:",
     "@canyonjs/report-component": "catalog:",
+    "@ibm/plex-mono": "^1.1.0",
     "@monaco-editor/react": "4.7.0",
+    "ahooks": "latest",
     "antd": "catalog:",
+    "axios": "latest",
+    "clsx": "latest",
+    "dayjs": "latest",
+    "i18next": "latest",
+    "i18next-browser-languagedetector": "latest",
     "monaco-editor": "0.55.1",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "latest",
-    "ahooks": "latest",
-    "axios": "latest",
-    "react-i18next": "latest",
-    "dayjs": "latest",
-    "tailwind-merge": "latest",
-    "clsx": "latest",
     "react-error-boundary": "latest",
-    "@ibm/plex-mono": "^1.1.0",
-    "i18next": "latest",
-    "i18next-browser-languagedetector": "latest"
+    "react-i18next": "latest",
+    "react-router-dom": "latest",
+    "tailwind-merge": "latest"
   },
   "devDependencies": {
-    "dotenv": "catalog:",
+    "@canyonjs/report": "catalog:",
     "@tailwindcss/vite": "latest",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@typescript/native-preview": "catalog:",
     "@vitejs/plugin-react": "latest",
+    "@vitest/coverage-istanbul": "catalog:",
+    "dotenv": "catalog:",
     "globals": "catalog:",
     "tailwindcss": "4.1.18",
     "vite": "catalog:",
-    "vite-plugin-pages": "latest"
+    "vite-plugin-pages": "latest",
+    "vitest": "catalog:"
   }
 }
