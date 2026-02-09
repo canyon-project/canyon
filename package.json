@@ -17,7 +17,6 @@
   },
   "devDependencies": {
     "prisma": "6",
-    "nyc": "latest",
-    "@canyonjs/report": "catalog:"
+    "nyc": "latest"
   }
 }
