@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/report-html",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "license": "MIT",
   "repository": {
@@ -22,8 +22,7 @@
     "istanbul-lib-report": "^3.0.1",
     "monaco-editor": "0.55.1",
     "react": "catalog:",
-    "react-dom": "catalog:",
-    "parse-diff": "^0.11.1"
+    "react-dom": "catalog:"
   },
   "devDependencies": {
     "@rspack/cli": "^1.6.7",
