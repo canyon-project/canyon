@@ -1,5 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
+import {
+  getAvatarsByUsernames,
+} from '../../helpers/avatar';
+
+/**
+ * 从 email 中提取用户名（email 前缀部分）
+ */
+export function extractUsernameFromEmail(
+  email: string | null | undefined,
+): string | null {
+  if (!email) return null;
+  const match = email.match(/^([^@]+)@/);
+  return match ? match[1] : null;
+}
+
 
 type SceneInfo = {
   scene: Record<string, unknown>;
@@ -32,6 +47,7 @@ type CommitRecord = {
   authorName?: string | null;
   authorEmail?: string | null;
   createdAt?: string;
+  avatar?: string | null;
 };
 
 @Injectable()
@@ -220,6 +236,29 @@ export class CommitsService {
         commit.authorName = commitDetail.authorName;
         commit.authorEmail = commitDetail.authorEmail;
         commit.createdAt = commitDetail.createdAt.toISOString();
+      }
+    }
+
+    // 为每个 commit 获取 avatar（批量处理，避免重复请求）
+    // 提取所有唯一的用户名
+    const uniqueUsernames = Array.from(
+      new Set(
+        commits
+          .map((c) => extractUsernameFromEmail(c.authorEmail))
+          .filter((username): username is string => !!username),
+      ),
+    );
+
+    // 批量获取所有 avatar
+    const usernameToAvatarMap = await getAvatarsByUsernames(uniqueUsernames);
+
+    // 为每个 commit 设置 avatar
+    for (const commit of commits) {
+      if (commit.authorEmail) {
+        const username = extractUsernameFromEmail(commit.authorEmail);
+        commit.avatar = username ? usernameToAvatarMap.get(username) || null : null;
+      } else {
+        commit.avatar = null;
       }
     }
 

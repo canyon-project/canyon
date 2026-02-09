@@ -36,7 +36,8 @@
     "istanbul-lib-coverage": "^3.2.2",
     "diff": "^8.0.2",
     "axios": "^1.13.2",
-    "canyon-data": "latest"
+    "canyon-data": "latest",
+    "js-md5": "^0.8.3"
   },
   "devDependencies": {
     "@canyonjs/report": "catalog:",
@@ -48,6 +49,7 @@
     "@types/express": "^5.0.0",
     "@types/node": "catalog:",
     "@types/test-exclude": "^6.0.2",
+    "@types/js-md5": "^0.4.2",
     "globals": "catalog:",
     "source-map-support": "^0.5.21",
     "ts-loader": "^9.5.2",

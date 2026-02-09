@@ -6,6 +6,7 @@ import {
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import {
+  Avatar,
   Dropdown,
   Input,
   message,
@@ -66,6 +67,7 @@ type CommitRecord = {
   authorName?: string | null;
   authorEmail?: string | null;
   createdAt?: string;
+  avatar?: string | null;
 };
 
 // 展平后的行类型：每个 buildTarget 一行
@@ -241,7 +243,11 @@ const CommitsPage = () => {
             )}
             {hasAuthor && (
               <Space size={4}>
-                <UserOutlined />
+                {record.avatar ? (
+                  <Avatar src={record.avatar} size={20} />
+                ) : (
+                  <Avatar size={20} icon={<UserOutlined />} />
+                )}
                 <Text type='secondary' style={{ fontSize: '12px' }}>
                   {record.authorName || record.authorEmail || '-'}
                   {record.authorEmail && record.authorName && (
