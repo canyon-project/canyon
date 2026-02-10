@@ -5,6 +5,7 @@ import zhCN from 'antd/es/locale/zh_CN';
 import { useRoutes } from 'react-router-dom';
 import CoverageReport from '@/independents/report/index.tsx';
 import routes from '~react-pages';
+import { AuthLayer } from '@/providers/AuthLayer';
 
 const languages = {
   cn: zhCN,
@@ -12,8 +13,7 @@ const languages = {
   ja: jaJP,
 };
 
-const lng = (localStorage.getItem('language') ||
-  'cn') as keyof typeof languages;
+const lng = (localStorage.getItem('language') || 'cn') as keyof typeof languages;
 
 const { darkAlgorithm } = theme;
 
@@ -25,9 +25,9 @@ routes.push({
 message.config({});
 
 const App = () => {
-  const isDark = localStorage.getItem('theme')
-    ? localStorage.getItem('theme') === 'dark'
-    : false;
+  const isDark =
+    localStorage.getItem('theme') === 'dark' ||
+    (!localStorage.getItem('theme') && false);
 
   return (
     <ConfigProvider
@@ -39,7 +39,7 @@ const App = () => {
         algorithm: isDark ? [darkAlgorithm] : [],
       }}
     >
-      {useRoutes(routes)}
+      <AuthLayer>{useRoutes(routes)}</AuthLayer>
     </ConfigProvider>
   );
 };
