@@ -15,23 +15,33 @@ const BasicLayout: FC<{
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  type AuthUser = {
-    id: string;
-    provider: string;
-    name?: string;
-    username?: string;
+  type UserInfo = {
+    username: string;
+    nickname: string;
+    email: string;
+    avatar: string;
   };
 
-  const backendUrl = '';
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
 
-  const [authUser, setAuthUser] = useState<AuthUser | null>(() => {
-    try {
-      const raw = localStorage.getItem('auth:user');
-      return raw ? (JSON.parse(raw) as AuthUser) : null;
-    } catch {
-      return null;
-    }
-  });
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/user')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: UserInfo | null) => {
+        if (!cancelled && data?.username) setUser(data);
+      })
+      .catch(() => {
+        if (!cancelled) setUser(null);
+      })
+      .finally(() => {
+        if (!cancelled) setUserLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const selected = `/${location.pathname.split('/')[1] || 'projects'}`;
 
@@ -78,25 +88,24 @@ const BasicLayout: FC<{
   // 分区组件：用户信息与操作
   const SidebarUser: FC = () => (
     <div className='border-t' style={{ borderColor: token.colorBorder }}>
-      <div className='h-[77px] py-4 px-4 flex items-center justify-between'>
-        {authUser ? (
+      <div className='h-[77px] py-2 px-2 flex items-center justify-between'>
+        {userLoading ? (
+          <div className='flex items-center gap-3'>
+            <Avatar size={32}>...</Avatar>
+            <Typography.Text type='secondary'>加载中</Typography.Text>
+          </div>
+        ) : user ? (
           <>
-            <div className='flex items-center gap-3'>
-              <Avatar size={32}>
-                {(authUser.name || authUser.username || 'U')
-                  .slice(0, 1)
-                  .toUpperCase()}
-              </Avatar>
-              <div className='flex flex-col'>
-                <Typography.Text ellipsis className='w-[150px]'>
-                  {authUser.name || authUser.username || 'User'}
-                </Typography.Text>
+            <div className='flex items-center gap-2'>
+              <Avatar size={32} src={user.avatar||'default-avatar.svg'} alt={user.nickname} />
+              <div className='flex flex-col min-w-0'>
+                <Typography.Text ellipsis>{user.nickname}</Typography.Text>
                 <Typography.Text
                   ellipsis
-                  className='w-[150px]'
                   type='secondary'
+                  style={{ fontSize: 12 }}
                 >
-                  {authUser.provider} · {authUser.id}
+                  {user.email}
                 </Typography.Text>
               </div>
             </div>
@@ -105,15 +114,9 @@ const BasicLayout: FC<{
                 items: [{ key: 'logout', label: t('退出登录') || '退出登录' }],
                 onClick: async ({ key }) => {
                   if (key === 'logout') {
-                    try {
-                      await fetch(`${backendUrl}/api/user/logout`, {
-                        credentials: 'include',
-                      });
-                    } catch {
-                    } finally {
-                      localStorage.removeItem('auth:user');
-                      setAuthUser(null);
-                    }
+                    const { clearToken } = await import('@/helpers/login');
+                    clearToken();
+                    setUser(null);
                   }
                 },
               }}
@@ -122,26 +125,18 @@ const BasicLayout: FC<{
             </Dropdown>
           </>
         ) : (
-          <div className='w-full flex items-center justify-between'>
-            <div className='flex items-center gap-3'>
-              <Avatar size={32}>?</Avatar>
-              <div className='flex flex-col'>
-                <Typography.Text
-                  type='secondary'
-                  className='w-[150px]'
-                  ellipsis
-                >
-                  未登录
-                </Typography.Text>
-              </div>
+          <div className='w-full flex items-center gap-3'>
+            <Avatar size={32}>?</Avatar>
+            <div className='flex flex-col'>
+              <Typography.Text type='secondary' className='w-[150px]' ellipsis>
+                未登录
+              </Typography.Text>
             </div>
-            <div className=''></div>
           </div>
         )}
       </div>
     </div>
   );
-  console.log(SidebarUser, 'SidebarUser');
   return (
     <div className='min-h-screen flex'>
       <div
@@ -161,7 +156,7 @@ const BasicLayout: FC<{
 
         <SidebarMenu />
 
-        {/*<SidebarUser />*/}
+        <SidebarUser />
       </div>
       <div
         className={

@@ -10,6 +10,7 @@ import { HealthModule } from './health/health.module';
 import { loadInfraConfiguration } from './infra-config/helper';
 import { PrismaModule } from './prisma/prisma.module';
 import { RepoModule } from './repo/repo.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RepoModule } from './repo/repo.module';
     CollectModule,
     CoverageModule,
     RepoModule,
+    UserModule,
     CodeModule,
     ServeStaticModule.forRoot({
       rootPath: existsSync(join(__dirname, '../../frontend', 'dist'))
