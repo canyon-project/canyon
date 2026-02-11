@@ -15,6 +15,8 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary.tsx';
+import { getRepoIDFromId } from '@/helpers/repo';
+import { deleteRepo } from '@/services/repo';
 import TextTypography from '@/components/typography/text.tsx';
 import BasicLayout from '@/layouts/BasicLayout.tsx';
 
@@ -125,16 +127,10 @@ const Projects = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      const resp = await fetch(`/api/repos/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (resp.ok || resp.status === 204) {
-        message.success('已删除');
-        await fetchRepos();
-      } else {
-        message.error('删除失败');
-      }
+      const repoID = getRepoIDFromId(id);
+      await deleteRepo(repoID);
+      message.success('已删除');
+      await fetchRepos();
     } catch (error) {
       message.error('删除失败');
       console.error(error);

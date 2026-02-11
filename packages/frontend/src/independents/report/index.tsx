@@ -6,6 +6,8 @@ import axios from 'axios';
 import { useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { getDecode } from '@/helpers/getDecode.ts';
+import { getRepoIDFromId } from '@/helpers/repo';
+import { getRepo } from '@/services/repo';
 
 // ==================== 类型定义 ====================
 
@@ -77,15 +79,13 @@ const ReportIndependent = () => {
   const { data: repoData } = useRequest(
     async () => {
       const repoId = `${org}/${repo}`;
-      const resp = await axios.get(`/api/repos/${encodeURIComponent(repoId)}`, {
-        withCredentials: true,
-      });
-      return resp.data;
+      const { data } = await getRepo(repoId);
+      return data;
     },
     { refreshDeps: [org, repo] },
   );
 
-  const repoID = repoData?.id || '';
+  const repoID = getRepoIDFromId(repoData?.id);
 
   // ==================== 获取覆盖率摘要映射数据 ====================
 

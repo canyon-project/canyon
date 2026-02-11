@@ -4,6 +4,8 @@ import { Button, Card, Form, Input, message, Typography, theme } from 'antd';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOutletContext, useParams } from 'react-router-dom';
+import { getRepoIDFromId } from '@/helpers/repo';
+import { updateRepo } from '@/services/repo';
 import { SolarUserIdLinear } from '@/pages/[provider]/[org]/[repo]/index/settings/helpers/icons/SolarUserIdLinear.tsx';
 
 const { Title, Text } = Typography;
@@ -34,7 +36,7 @@ const RepoSettings = () => {
   const [configLoading, setConfigLoading] = useState(false);
 
   const repoPath = repo?.pathWithNamespace || `${params.org}/${params.repo}`;
-  const repoId = repo?.id || '';
+  const repoID = getRepoIDFromId(repo?.id);
   const bu = repo?.bu || '';
 
   useEffect(() => {
@@ -44,35 +46,16 @@ const RepoSettings = () => {
   }, [repo]);
 
   const onFinish = async () => {
-    if (!repoId) {
+    if (!repoID) {
       message.error('仓库 ID 不存在');
       return;
     }
 
     setLoading(true);
     try {
-      const values = form.getFieldsValue() as {
-        bu?: string;
-        description?: string;
-      };
-
-      const resp = await fetch(`/api/repos/${encodeURIComponent(repoId)}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          bu: values.bu,
-          description: values.description,
-        }),
-      });
-
-      if (resp.ok) {
-        message.success('保存成功');
-      } else {
-        message.error('保存失败');
-      }
+      const values = form.getFieldsValue() as { bu?: string; description?: string };
+      await updateRepo(repoID, { bu: values.bu, description: values.description });
+      message.success('保存成功');
     } catch (error) {
       message.error('保存失败');
       console.error(error);
@@ -82,7 +65,7 @@ const RepoSettings = () => {
   };
 
   const onSaveConfig = async () => {
-    if (!repoId) {
+    if (!repoID) {
       message.error('仓库 ID 不存在');
       return;
     }
@@ -98,20 +81,10 @@ const RepoSettings = () => {
       }
 
       setConfigLoading(true);
-      const resp = await fetch(`/api/repos/${encodeURIComponent(repoId)}`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          config: config,
-        }),
-      });
-
-      if (resp.ok) {
+      try {
+        await updateRepo(repoID, { config });
         message.success('配置已保存');
-      } else {
+      } catch {
         message.error('保存失败');
       }
     } catch (e: unknown) {
@@ -138,7 +111,7 @@ const RepoSettings = () => {
             layout={'vertical'}
             initialValues={{
               repoPath,
-              repoId,
+              repoID,
               bu,
               description: repo?.description || '',
             }}
@@ -147,7 +120,7 @@ const RepoSettings = () => {
             <Form.Item label={'仓库'} name={'repoPath'}>
               <Input disabled />
             </Form.Item>
-            <Form.Item label={'项目 ID'} name={'repoId'}>
+            <Form.Item label={'项目 ID'} name={'repoID'}>
               <Input disabled />
             </Form.Item>
             <Form.Item label={'Bu'} name={'bu'}>

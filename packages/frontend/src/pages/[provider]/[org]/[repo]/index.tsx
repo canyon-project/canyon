@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom';
 import RIf from '@/components/RIf.tsx';
 import BasicLayout from '@/layouts/BasicLayout.tsx';
+import { getRepo } from '@/services/repo';
 
 type Repo = {
   id: string;
@@ -27,33 +28,27 @@ const ProjectDetailPage = () => {
 
   useEffect(() => {
     const fetchRepo = async () => {
+      if (!params.org || !params.repo) return;
       setLoading(true);
       try {
-        // 使用 pathWithNamespace 格式的 ID 查询
         const repoId = `${params.org}/${params.repo}`;
-        const resp = await fetch(`/api/repos/${encodeURIComponent(repoId)}`, {
-          credentials: 'include',
-        });
-        if (resp.ok) {
-          const data = await resp.json();
-          setRepo(data);
-        } else if (resp.status === 404) {
+        const { data } = await getRepo(repoId);
+        setRepo(data);
+      } catch (error: unknown) {
+        const status = (error as { response?: { status: number } })?.response?.status;
+        if (status === 404) {
           message.error(t('projects.detail.repo.not.found'));
         } else {
           message.error(t('projects.detail.repo.fetch.failed'));
         }
-      } catch (error) {
-        message.error(t('projects.detail.repo.fetch.failed'));
         console.error(error);
       } finally {
         setLoading(false);
       }
     };
 
-    if (params.org && params.repo) {
-      fetchRepo();
-    }
-  }, [params.org, params.repo]);
+    fetchRepo();
+  }, [params.org, params.repo, t]);
 
   return (
     <BasicLayout>
