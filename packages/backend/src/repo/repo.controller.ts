@@ -29,6 +29,17 @@ export class RepoController {
     return this.repoService.create(createRepoDto);
   }
 
+  @Get('check')
+  @ApiOperation({ summary: '检查仓库（拉取 repoID、pathWithNamespace、描述）' })
+  @ApiResponse({ status: 200, description: '返回仓库信息' })
+  @ApiResponse({ status: 400, description: '配置缺失或请求失败' })
+  checkRepo(
+    @Query('repoID') repoID: string,
+    @Query('provider') provider: string,
+  ) {
+    return this.repoService.checkRepo(provider, repoID ?? '');
+  }
+
   @Get('bu')
   @ApiOperation({ summary: '获取所有不同的 Bu 值' })
   @ApiResponse({ status: 200, description: '返回所有 Bu 列表' })
