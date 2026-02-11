@@ -5,7 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
+import { createScmAdapter } from '../scm';
+import type { ScmConfig } from '../scm';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateRepoDto } from './dto/create-repo.dto';
 import { QueryRepoDto } from './dto/query-repo.dto';
@@ -18,134 +19,62 @@ export class RepoService {
     private readonly config: ConfigService,
   ) {}
 
+  private getScmConfig(provider: string): ScmConfig {
+    if (provider === 'gitlab') {
+      const base = this.config.get('INFRA.GITLAB_BASE_URL');
+      const token = this.config.get('INFRA.GITLAB_PRIVATE_TOKEN');
+      if (!base || !token) throw new BadRequestException('GitLab 配置缺失');
+      return { type: 'gitlab', base, token };
+    }
+    if (provider === 'github') {
+      const token = this.config.get('INFRA.GITHUB_PRIVATE_TOKEN');
+      if (!token) throw new BadRequestException('GitHub 配置缺失');
+      return { type: 'github', token };
+    }
+    throw new BadRequestException(`不支持的 provider: ${provider}`);
+  }
+
   /**
-   * 通过 provider 与 repoID 请求对应 API 获取 pathWithNamespace（配置从 INFRA 读取）
+   * 通过 SCM 适配器获取 pathWithNamespace
    */
   private async fetchPathWithNamespace(
     provider: string,
     repoID: string,
   ): Promise<string> {
     try {
-      const repoIDEnc = encodeURIComponent(repoID);
-      if (provider === 'gitlab') {
-        const base = this.config.get('INFRA.GITLAB_BASE_URL');
-        const token = this.config.get('INFRA.GITLAB_PRIVATE_TOKEN');
-        if (!base || !token) {
-          throw new BadRequestException('GitLab 配置缺失');
-        }
-        const url = `${base}/api/v4/projects/${repoIDEnc}`;
-        const { data } = await axios.get<{ path_with_namespace?: string }>(
-          url,
-          {
-            headers: { 'PRIVATE-TOKEN': token },
-            timeout: 10000,
-          },
-        );
-        if (!data?.path_with_namespace) {
-          throw new BadRequestException('GitLab 未返回 path_with_namespace');
-        }
-        return data.path_with_namespace;
-      }
-      if (provider === 'github') {
-        const token = this.config.get('INFRA.GITHUB_PRIVATE_TOKEN');
-        if (!token) {
-          throw new BadRequestException('GitHub 配置缺失');
-        }
-        const base = 'https://api.github.com';
-        const url = `${base}/repositories/${repoIDEnc}`;
-        const { data } = await axios.get<{ full_name?: string }>(url, {
-          headers: {
-            Authorization: `token ${token}`,
-            Accept: 'application/vnd.github.v3+json',
-          },
-          timeout: 10000,
-        });
-        if (!data?.full_name) {
-          throw new BadRequestException('GitHub 未返回 full_name');
-        }
-        return data.full_name;
-      }
-      throw new BadRequestException(`不支持的 provider: ${provider}`);
+      const config = this.getScmConfig(provider);
+      const scm = createScmAdapter(config);
+      const info = await scm.getRepoInfo(repoID.trim());
+      return info.pathWithNamespace;
     } catch (err: unknown) {
       if (err instanceof BadRequestException) throw err;
       const msg =
-        axios.isAxiosError(err) && err.response?.data?.message
-          ? String(err.response.data.message)
-          : err instanceof Error
-            ? err.message
-            : '获取仓库信息失败';
+        err instanceof Error ? err.message : '获取仓库信息失败';
       throw new BadRequestException(msg);
     }
   }
 
   /**
-   * 检查仓库：用 INFRA 配置请求 GitLab/GitHub API，返回 repoID、pathWithNamespace、description
+   * 检查仓库：通过 SCM 适配器返回 repoID、pathWithNamespace、description
    */
   async checkRepo(
     provider: string,
     repoID: string,
   ): Promise<{ repoID: string; pathWithNamespace: string; description: string }> {
     const id = repoID.trim();
-    const repoIDEnc = encodeURIComponent(id);
     try {
-      if (provider === 'gitlab') {
-        const base = this.config.get('INFRA.GITLAB_BASE_URL');
-        const token = this.config.get('INFRA.GITLAB_PRIVATE_TOKEN');
-        if (!base || !token) {
-          throw new BadRequestException('GitLab 配置缺失');
-        }
-        const url = `${base}/api/v4/projects/${repoIDEnc}`;
-        const { data } = await axios.get<{
-          path_with_namespace?: string;
-          description?: string;
-        }>(url, {
-          headers: { 'PRIVATE-TOKEN': token },
-          timeout: 10000,
-        });
-        if (!data?.path_with_namespace) {
-          throw new BadRequestException('GitLab 未返回 path_with_namespace');
-        }
-        return {
-          repoID: id,
-          pathWithNamespace: data.path_with_namespace,
-          description: data.description ?? '',
-        };
-      }
-      if (provider === 'github') {
-        const token = this.config.get('INFRA.GITHUB_PRIVATE_TOKEN');
-        if (!token) {
-          throw new BadRequestException('GitHub 配置缺失');
-        }
-        const base = 'https://api.github.com';
-        const url = `${base}/repositories/${repoIDEnc}`;
-        const { data } = await axios.get<{
-          full_name?: string;
-          description?: string;
-        }>(url, {
-          headers: {
-            Authorization: `token ${token}`,
-            Accept: 'application/vnd.github.v3+json',
-          },
-          timeout: 10000,
-        });
-        if (!data?.full_name) {
-          throw new BadRequestException('GitHub 未返回 full_name');
-        }
-        return {
-          repoID: id,
-          pathWithNamespace: data.full_name,
-          description: data.description ?? '',
-        };
-      }
-      throw new BadRequestException(`不支持的 provider: ${provider}`);
+      const config = this.getScmConfig(provider);
+      const scm = createScmAdapter(config);
+      const info = await scm.getRepoInfo(id);
+      return {
+        repoID: id,
+        pathWithNamespace: info.pathWithNamespace,
+        description: info.description ?? '',
+      };
     } catch (err: unknown) {
       if (err instanceof BadRequestException) throw err;
       const msg =
-        axios.isAxiosError(err) && err.response?.data?.message
-          ? String(err.response.data.message)
-          : err instanceof Error
-            ? err.message
-            : '获取仓库信息失败';
+        err instanceof Error ? err.message : '获取仓库信息失败';
       throw new BadRequestException(msg);
     }
   }
@@ -292,7 +221,7 @@ export class RepoService {
       createRepoDto.provider,
       createRepoDto.repoID,
     );
-    const id = `${createRepoDto.provider}/${createRepoDto.repoID}`;
+    const id = `${createRepoDto.provider}-${createRepoDto.repoID}`;
     const now = new Date();
     try {
       const created = await this.prisma.repo.create({
