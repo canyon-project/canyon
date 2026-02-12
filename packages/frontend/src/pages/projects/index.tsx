@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary.tsx';
 import { getRepoIDFromId } from '@/helpers/repo';
-import { deleteRepo } from '@/services/repo';
+import { deleteRepo, getBu, getRepos } from '@/services/repo';
 import TextTypography from '@/components/typography/text.tsx';
 import BasicLayout from '@/layouts/BasicLayout.tsx';
 
@@ -68,21 +68,15 @@ const Projects = () => {
   const [selectedBu, setSelectedBu] = useState<string | undefined>(undefined);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
 
-  // 获取所有 Bu 选项
   const fetchBuOptions = async () => {
     try {
-      const resp = await fetch('/api/repos/bu', {
-        credentials: 'include',
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        setBuOptions(
-          data.map((bu: string) => ({
-            label: bu,
-            value: bu,
-          })),
-        );
-      }
+      const data = await getBu();
+      setBuOptions(
+        (data || []).map((bu: string) => ({
+          label: bu,
+          value: bu,
+        })),
+      );
     } catch (error) {
       console.error('获取 Bu 选项失败', error);
     }
@@ -91,24 +85,11 @@ const Projects = () => {
   const fetchRepos = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (selectedBu) {
-        params.append('bu', selectedBu);
-      }
-      if (searchKeyword) {
-        params.append('search', searchKeyword);
-      }
-
-      const url = `/api/repos${params.toString() ? `?${params.toString()}` : ''}`;
-      const resp = await fetch(url, {
-        credentials: 'include',
+      const data = await getRepos({
+        bu: selectedBu,
+        search: searchKeyword,
       });
-      if (resp.ok) {
-        const data = await resp.json();
-        setRepos(data || []);
-      } else {
-        message.error('获取项目列表失败');
-      }
+      setRepos(data || []);
     } catch (error) {
       message.error('获取项目列表失败');
       console.error(error);

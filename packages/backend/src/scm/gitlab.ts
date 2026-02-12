@@ -1,5 +1,10 @@
 import axios from 'axios';
-import type { ChangedFile, RepoInfo } from './types';
+import type {
+  ChangedFile,
+  CommitInfo,
+  CompareDiffItem,
+  RepoInfo,
+} from './types';
 import type { ScmAdapter } from './adapter';
 
 type GitlabScmConfig = { type: 'gitlab'; base: string; token: string };
@@ -41,12 +46,7 @@ export class GitlabAdapter implements ScmAdapter {
   }
 
   async getChangedFiles(repoID: string, base: string, head: string): Promise<ChangedFile[]> {
-    const pid = encodeURIComponent(repoID);
-    const url = `${this.base}/api/v4/projects/${pid}/repository/compare?from=${encodeURIComponent(base)}&to=${encodeURIComponent(head)}`;
-    const { data } = await axios.get<{
-      diffs?: Array<{ new_path?: string; old_path?: string; new_file?: boolean; deleted_file?: boolean }>;
-    }>(url, { headers: this.headers(), timeout: 10000 });
-    const diffs = data?.diffs ?? [];
+    const diffs = await this.getCompareDiffs(repoID, base, head);
     return diffs.map((d) => {
       const path = d.new_path || d.old_path || '';
       let status: 'added' | 'modified' | 'removed' = 'modified';
@@ -54,5 +54,55 @@ export class GitlabAdapter implements ScmAdapter {
       else if (d.deleted_file) status = 'removed';
       return { path, status };
     });
+  }
+
+  async getCommitInfo(repoID: string, sha: string): Promise<CommitInfo> {
+    const pid = encodeURIComponent(repoID);
+    const url = `${this.base}/api/v4/projects/${pid}/repository/commits/${encodeURIComponent(sha)}`;
+    const { data } = await axios.get<{
+      parent_ids?: string[];
+      stats?: { additions?: number; deletions?: number };
+    }>(url, { headers: this.headers(), timeout: 10000 });
+    return {
+      parent_ids: data?.parent_ids ?? [],
+      stats: {
+        additions: data?.stats?.additions ?? 0,
+      },
+    };
+  }
+
+  async getCompareDiffs(
+    repoID: string,
+    from: string,
+    to: string,
+  ): Promise<CompareDiffItem[]> {
+    const pid = encodeURIComponent(repoID);
+    const url = `${this.base}/api/v4/projects/${pid}/repository/compare?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+    const { data } = await axios.get<{
+      diffs?: Array<{
+        old_path?: string;
+        new_path?: string;
+        new_file?: boolean;
+        deleted_file?: boolean;
+      }>;
+    }>(url, { headers: this.headers(), timeout: 10000 });
+    return (data?.diffs ?? []).map((d) => ({
+      old_path: d.old_path,
+      new_path: d.new_path,
+      new_file: d.new_file,
+      deleted_file: d.deleted_file,
+    }));
+  }
+
+  async getFileContent(repoID: string, path: string, ref: string): Promise<string> {
+    const pid = encodeURIComponent(repoID);
+    const encodedPath = encodeURIComponent(path);
+    const url = `${this.base}/api/v4/projects/${pid}/repository/files/${encodedPath}?ref=${encodeURIComponent(ref)}`;
+    const { data } = await axios.get<{ content?: string }>(url, {
+      headers: this.headers(),
+      timeout: 10000,
+    });
+    if (!data?.content) return '';
+    return Buffer.from(data.content, 'base64').toString('utf8');
   }
 }

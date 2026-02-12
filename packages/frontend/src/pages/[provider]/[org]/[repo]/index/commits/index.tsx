@@ -23,7 +23,8 @@ import { useTranslation } from 'react-i18next';
 import { Link, useOutletContext, useParams } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary';
 import SnapshotDrawer from '@/components/snapshot/SnapshotDrawer';
-import type { SnapshotFormValues } from '@/components/snapshot/SnapshotDrawer';
+import type { SnapshotFormValues } from '@/services/snapshot';
+import { getCommits } from '@/services/coverage';
 
 const { Text } = Typography;
 
@@ -117,30 +118,14 @@ const CommitsPage = () => {
 
     setLoading(true);
     try {
-      const params = new URLSearchParams({
+      const data = await getCommits({
         repoID: repo.id,
-        page: page.toString(),
-        pageSize: pageSize.toString(),
+        page,
+        pageSize,
+        search: searchKeyword || undefined,
+        defaultBranch: onlyDefaultBranch && defaultBranch ? defaultBranch : undefined,
       });
-
-      if (searchKeyword) {
-        params.append('search', searchKeyword);
-      }
-
-      if (onlyDefaultBranch && defaultBranch) {
-        params.append('defaultBranch', defaultBranch);
-      }
-
-      const resp = await fetch(`/api/coverage/commits?${params.toString()}`, {
-        credentials: 'include',
-      });
-
-      if (resp.ok) {
-        const data = await resp.json();
-        setCommits(data.data || []);
-      } else {
-        message.error(t('projects.commits.fetch.failed'));
-      }
+      setCommits(Array.isArray(data) ? data : []);
     } catch (error) {
       message.error(t('projects.commits.fetch.failed'));
       console.error(error);

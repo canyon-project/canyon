@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { useTranslation } from 'react-i18next';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import AppFooter from "@/components/app/footer.tsx";
+import AppFooter from '@/components/app/footer.tsx';
+import { getCurrentUser } from '@/services/user';
 
 const BasicLayout: FC<{
   children: ReactNode;
@@ -27,9 +28,8 @@ const BasicLayout: FC<{
 
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/user')
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data: UserInfo | null) => {
+    getCurrentUser()
+      .then((data) => {
         if (!cancelled && data?.username) setUser(data);
       })
       .catch(() => {

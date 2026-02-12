@@ -109,8 +109,8 @@ export class RepoService {
     });
 
     // 获取所有仓库的 ID
-    const repoIds = rows.map((r) => r.id);
-
+    const repoIds = rows.map((r) => r.id.split('-')[1]);
+    console.log(repoIds);
     // 批量查询每个仓库的报告统计信息
     const coverageStats = await this.prisma.coverage.groupBy({
       by: ['repoID'],
@@ -140,7 +140,7 @@ export class RepoService {
 
     // 合并数据并添加统计信息
     const reposWithStats = rows.map((r) => {
-      const stats = statsMap.get(r.id);
+      const stats = statsMap.get(r.id.split('-')[1]);
       return {
         ...r,
         // Prisma Json -> JSON string for API response

@@ -18,6 +18,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useOutletContext, useParams } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary';
+import { createDiff, deleteDiff, getDiffList } from '@/services/code';
 
 const { Text } = Typography;
 
@@ -82,20 +83,9 @@ const AccumulativePage = () => {
 
     setLoading(true);
     try {
-      const resp = await fetch(
-        `/api/code/diff?repoID=${encodeURIComponent(repo.id)}&provider=${encodeURIComponent(params.provider)}`,
-        {
-          credentials: 'include',
-        },
-      );
-
-      if (resp.ok) {
-        const data = await resp.json();
-        setAccumulativeRecords(data.data || []);
-        setTotal(data.total || 0);
-      } else {
-        message.error(t('projects.accumulative.fetch.failed'));
-      }
+      const data = await getDiffList({ repoID: repo.id, provider: params.provider });
+      setAccumulativeRecords(data.data || []);
+      setTotal(data.total ?? 0);
     } catch (error) {
       message.error(t('projects.accumulative.fetch.failed'));
       console.error(error);
@@ -118,31 +108,16 @@ const AccumulativePage = () => {
 
     setAddLoading(true);
     try {
-      const resp = await fetch('/api/code/diff', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          repoID: repo.id,
-          provider: params.provider,
-          subject,
-          subjectID,
-        }),
+      await createDiff({
+        repoID: repo.id,
+        provider: params.provider,
+        subject,
+        subjectID,
       });
-
-      if (resp.ok) {
-        message.success(t('projects.accumulative.create.success'));
-        setIsModalOpen(false);
-        form.resetFields();
-        fetchAccumulativeRecords();
-      } else {
-        const errorData = await resp.json();
-        message.error(
-          errorData.message || t('projects.accumulative.create.failed'),
-        );
-      }
+      message.success(t('projects.accumulative.create.success'));
+      setIsModalOpen(false);
+      form.resetFields();
+      fetchAccumulativeRecords();
     } catch (error) {
       message.error(t('projects.accumulative.create.failed'));
       console.error(error);
@@ -157,20 +132,14 @@ const AccumulativePage = () => {
     }
 
     try {
-      const resp = await fetch(
-        `/api/code/diff?subjectID=${encodeURIComponent(record.subjectID)}&subject=${encodeURIComponent(record.subject)}&repoID=${encodeURIComponent(repo.id)}&provider=${encodeURIComponent(params.provider)}`,
-        {
-          method: 'DELETE',
-          credentials: 'include',
-        },
-      );
-
-      if (resp.ok) {
-        message.success(t('projects.accumulative.delete.success'));
-        fetchAccumulativeRecords();
-      } else {
-        message.error(t('projects.accumulative.delete.failed'));
-      }
+      await deleteDiff({
+        repoID: repo.id,
+        provider: params.provider,
+        subjectID: record.subjectID,
+        subject: record.subject,
+      });
+      message.success(t('projects.accumulative.delete.success'));
+      fetchAccumulativeRecords();
     } catch (error) {
       message.error(t('projects.accumulative.delete.failed'));
       console.error(error);

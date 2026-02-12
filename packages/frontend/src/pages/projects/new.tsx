@@ -2,8 +2,9 @@ import { SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Descriptions, Form, Input, message, Select, Spin } from 'antd';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getApiErrorMessage } from '@/helpers/api';
 import BasicLayout from '@/layouts/BasicLayout';
+import { checkRepo, createRepo } from '@/services/repo';
+import { getAxiosErrorMessage } from '@/helpers/api';
 
 type FormValues = {
   repoID: string;
@@ -34,23 +35,11 @@ const NewProject = () => {
     setCheckResult(null);
     setCheckLoading(true);
     try {
-      const params = new URLSearchParams({
-        repoID: values.repoID.trim(),
-        provider: values.provider,
-      });
-      const res = await fetch(`/api/repos/check?${params}`, {
-        method: 'GET',
-        credentials: 'include',
-      });
-      if (!res.ok) {
-        const msg = await getApiErrorMessage(res);
-        throw new Error(msg);
-      }
-      const result: RepoCheckResult = await res.json();
-      setCheckResult(result);
+      const result = await checkRepo(values.repoID.trim(), values.provider);
+      setCheckResult(result as RepoCheckResult);
       message.success('检查成功');
     } catch (e) {
-      const msg = e instanceof Error ? e.message : '获取仓库信息失败';
+      const msg = getAxiosErrorMessage(e) || '获取仓库信息失败';
       setCheckError(msg);
       message.error(msg);
     } finally {
@@ -61,25 +50,14 @@ const NewProject = () => {
   const onFinish = async (values: FormValues) => {
     setSubmitting(true);
     try {
-      const res = await fetch('/api/repos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          repoID: values.repoID.trim(),
-          provider: values.provider,
-        }),
+      await createRepo({
+        repoID: values.repoID.trim(),
+        provider: values.provider,
       });
-
-      if (!res.ok) {
-        const msg = await getApiErrorMessage(res);
-        message.error(msg);
-        return;
-      }
       message.success('创建成功');
       navigate('/projects');
-    } catch {
-      message.error('请求失败');
+    } catch (e) {
+      message.error(getAxiosErrorMessage(e) || '请求失败');
     } finally {
       setSubmitting(false);
     }

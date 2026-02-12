@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
 import { computeJSDiffLines, diffLine } from '../../helpers/diff';
+import { createScmAdapter } from '../../scm';
 import { PrismaService } from '../../prisma/prisma.service';
 
 @Injectable()
@@ -581,15 +582,18 @@ export class CodeService {
         includesFileExtensions: ['ts', 'tsx', 'jsx', 'vue', 'js'],
       });
     } else {
-      // GitLab
       const { base, token } = await this.getGitLabCfg();
+      const adapter = createScmAdapter({
+        type: 'gitlab',
+        base,
+        token,
+      });
       result = await diffLine({
+        adapter,
         repoID,
         baseCommitSha: fromShaTrimmed,
         compareCommitSha: toShaTrimmed,
         includesFileExtensions: ['ts', 'tsx', 'jsx', 'vue', 'js'],
-        gitlabUrl: base,
-        token,
       });
     }
     // 转换为返回格式

@@ -5,6 +5,7 @@ import type { FC } from 'react';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
+import * as snapshotService from '@/services/snapshot';
 
 export type SnapshotFormValues = {
   repoID: string;
@@ -70,19 +71,11 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
     if (!initialValues?.repoID || !initialValues?.provider) return;
     setRecordsLoading(true);
     try {
-      const params = new URLSearchParams({
-        repoID: initialValues.repoID,
-        provider: initialValues.provider,
-      });
-      const resp = await fetch(`/api/snapshot/records?${params.toString()}`, {
-        credentials: 'include',
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        setRecords(data.data ?? []);
-      } else {
-        setRecords([]);
-      }
+      const data = await snapshotService.getSnapshotRecords(
+        initialValues.repoID,
+        initialValues.provider,
+      );
+      setRecords(data ?? []);
     } catch {
       setRecords([]);
     } finally {
@@ -92,12 +85,7 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
 
   const handleDownload = async (id: string) => {
     try {
-      const resp = await fetch(`/api/snapshot/${id}/download`, { credentials: 'include' });
-      if (!resp.ok) {
-        message.error(t('projects.snapshot.download.failed'));
-        return;
-      }
-      const blob = await resp.blob();
+      const blob = await snapshotService.downloadSnapshot(id);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -112,16 +100,9 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
 
   const handleDelete = async (id: string) => {
     try {
-      const resp = await fetch(`/api/snapshot/${id}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      if (resp.ok) {
-        message.success(t('projects.snapshot.delete.success'));
-        fetchRecords();
-      } else {
-        message.error(t('projects.snapshot.delete.failed'));
-      }
+      await snapshotService.deleteSnapshot(id);
+      message.success(t('projects.snapshot.delete.success'));
+      fetchRecords();
     } catch {
       message.error(t('projects.snapshot.delete.failed'));
     }
@@ -142,20 +123,14 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
     if (values == null) return;
     setEditSaving(true);
     try {
-      const resp = await fetch(`/api/snapshot/${editingRecord.id}`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: values.title, description: values.description }),
+      await snapshotService.updateSnapshot(editingRecord.id, {
+        title: values.title,
+        description: values.description,
       });
-      if (resp.ok) {
-        message.success(t('projects.snapshot.update.success'));
-        setEditModalOpen(false);
-        setEditingRecord(null);
-        fetchRecords();
-      } else {
-        message.error(t('projects.snapshot.update.failed'));
-      }
+      message.success(t('projects.snapshot.update.success'));
+      setEditModalOpen(false);
+      setEditingRecord(null);
+      fetchRecords();
     } catch {
       message.error(t('projects.snapshot.update.failed'));
     } finally {
@@ -166,28 +141,22 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   const onFinish = async (values: SnapshotFormValues) => {
     setSubmitLoading(true);
     try {
-      const resp = await fetch('/api/snapshot/create', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          repoID: values.repoID,
-          provider: values.provider,
-          sha: values.sha,
-          title: values.title,
-          description: values.description,
-        }),
+      await snapshotService.createSnapshot({
+        repoID: values.repoID,
+        provider: values.provider,
+        sha: values.sha,
+        title: values.title,
+        description: values.description,
       });
-      if (resp.ok) {
-        message.success(t('projects.snapshot.create.success'));
-        form.resetFields();
-        onClose();
-      } else {
-        const err = await resp.json().catch(() => ({}));
-        message.error(err?.message || t('projects.snapshot.create.failed'));
-      }
-    } catch {
-      message.error(t('projects.snapshot.create.failed'));
+      message.success(t('projects.snapshot.create.success'));
+      form.resetFields();
+      onClose();
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === 'object' && 'response' in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : null;
+      message.error(msg || t('projects.snapshot.create.failed'));
     } finally {
       setSubmitLoading(false);
     }

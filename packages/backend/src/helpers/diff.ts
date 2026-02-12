@@ -1,5 +1,6 @@
 import * as Diff from 'diff';
 import { Change, diffLines } from 'diff';
+import type { ScmAdapter } from '../scm/adapter';
 
 export function computeJSDiffLines(
   oldContent: string,
@@ -93,13 +94,12 @@ export function filterChangedFilesForJsTs(
   });
 }
 
-interface DiffLine {
+export interface DiffLineParams {
+  adapter: ScmAdapter;
   repoID: string;
   baseCommitSha?: string;
   compareCommitSha: string;
   includesFileExtensions?: string[];
-  gitlabUrl?: string;
-  token?: string;
 }
 
 function calculateNewRows(
@@ -150,126 +150,54 @@ function calculateNewRows(
   };
 }
 
-function getDecode(str: string) {
-  return decodeURIComponent(
-    atob(str)
-      .split('')
-      .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
-      .join(''),
-  );
-}
-
 export async function diffLine({
+  adapter,
   repoID,
-  baseCommitSha = undefined,
+  baseCommitSha,
   compareCommitSha,
   includesFileExtensions = ['ts', 'tsx', 'jsx', 'vue', 'js'],
-  gitlabUrl = 'https://gitlab.com',
-  token = 'default_token',
-}: DiffLine): Promise<
+}: DiffLineParams): Promise<
   { path: string; additions: number[]; deletions: number[] }[]
 > {
-  const gitlabApiUrlFile = `${gitlabUrl}/api/v4/projects/${repoID}/repository/files`;
-  const gitlabApiUrlCommit = `${gitlabUrl}/api/v4/projects/${repoID}/repository/commits/${compareCommitSha}`;
+  const commitInfo = await adapter.getCommitInfo(repoID, compareCommitSha);
+  const result: { path: string; additions: number[]; deletions: number[] }[] = [];
 
-  const gitlabApiUrlCommitResponse = await fetch(gitlabApiUrlCommit, {
-    headers: {
-      // Authorization: 'Bearer ' + token, // 在请求头中使用 GitLab API token
-      'private-token': token,
-    },
-  })
-    .then((res) => res.json())
-    .then((data) => {
-      return {
-        parent_ids: data.parent_ids || [],
-        stats: data.stats,
-      };
-    });
-
-  const result = [];
-  // 只关心 50000 行以内的更改
   if (
-    gitlabApiUrlCommitResponse.parent_ids.length > 0 &&
-    gitlabApiUrlCommitResponse.stats.additions < 5000000
+    commitInfo.parent_ids.length === 0 ||
+    commitInfo.stats.additions >= 5000000
   ) {
-    // 声明realBaseCommitSha，如果baseCommitSha存在，则使用baseCommitSha，否则使用gitlabApiUrlCommitResponse.parent_ids[0]
-    const realBaseCommitSha =
-      baseCommitSha || gitlabApiUrlCommitResponse.parent_ids[0];
-    const gitDiffs = await fetch(
-      `${gitlabUrl}/api/v4/projects/${repoID}/repository/compare?from=${realBaseCommitSha}&to=${compareCommitSha}`,
-      {
-        headers: {
-          // Authorization: 'Bearer ' + token, // 在请求头中使用 GitLab API token
-          'private-token': token,
-        },
-      },
-    )
-      .then((res) => res.json())
-      .then((response) => {
-        return (response.diffs || []).map(
-          ({
-            old_path,
-            new_path,
-            a_mode,
-            b_mode,
-            new_file,
-            renamed_file,
-            deleted_file,
-          }) => {
-            return {
-              old_path,
-              new_path,
-              a_mode,
-              b_mode,
-              new_file,
-              renamed_file,
-              deleted_file,
-            };
-          },
-        );
-      });
+    return result;
+  }
 
-    // const includesFileExtensions = /\.tsx?$|\.jsx?$|\.vue$|\.js$/i;
+  const realBaseCommitSha =
+    baseCommitSha ?? commitInfo.parent_ids[0];
+  const gitDiffs = await adapter.getCompareDiffs(
+    repoID,
+    realBaseCommitSha,
+    compareCommitSha,
+  );
 
-    const isMatchingExtension = (
-      includesFileExtensions: string[],
-      pathname: string,
-    ) => includesFileExtensions.some((ext) => pathname.endsWith('.' + ext));
+  const isMatchingExtension = (
+    exts: string[],
+    pathname: string | undefined,
+  ) =>
+    !!pathname && exts.some((ext) => pathname.endsWith('.' + ext));
 
-    const gitDiffsFiltered = gitDiffs.filter((gitDiff) =>
-      isMatchingExtension(includesFileExtensions, gitDiff.new_path),
+  const gitDiffsFiltered = gitDiffs.filter((d) =>
+    isMatchingExtension(includesFileExtensions, d.new_path ?? d.old_path),
+  );
+
+  for (const gitDiff of gitDiffsFiltered) {
+    const path = gitDiff.new_path ?? gitDiff.old_path ?? '';
+    const contents = await Promise.all(
+      [realBaseCommitSha, compareCommitSha].map((ref) =>
+        adapter.getFileContent(repoID, path, ref).catch(() => ''),
+      ),
     );
-
-    for (let i = 0; i < gitDiffsFiltered.length; i++) {
-      const contents = await Promise.all(
-        [realBaseCommitSha, compareCommitSha].map((c) => {
-          return fetch(
-            `${gitlabApiUrlFile}/${encodeURIComponent(
-              gitDiffsFiltered[i].new_path,
-            )}?ref=${c}`,
-            {
-              headers: {
-                // Authorization: 'Bearer ' + token, // 在请求头中使用 GitLab API token
-                'private-token': token,
-              },
-              method: 'GET',
-            },
-          )
-            .then((res) => res.json())
-            .then((r) => {
-              return getDecode(r.content);
-            })
-            .catch(() => {
-              return '';
-            });
-        }),
-      );
-      //@ts-expect-error
-      result.push({
-        path: gitDiffsFiltered[i].new_path,
-        ...calculateNewRows(contents[0], contents[1]),
-      });
-    }
+    result.push({
+      path,
+      ...calculateNewRows(contents[0], contents[1]),
+    });
   }
   return result;
 }
