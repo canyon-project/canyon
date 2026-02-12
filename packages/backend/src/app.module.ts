@@ -10,6 +10,7 @@ import { HealthModule } from './health/health.module';
 import { loadInfraConfiguration } from './infra-config/helper';
 import { PrismaModule } from './prisma/prisma.module';
 import { RepoModule } from './repo/repo.module';
+import { SnapshotModule } from './snapshot/snapshot.module';
 import { UserModule } from './user/user.module';
 
 @Module({
@@ -23,6 +24,7 @@ import { UserModule } from './user/user.module';
     CollectModule,
     CoverageModule,
     RepoModule,
+    SnapshotModule,
     UserModule,
     CodeModule,
     ServeStaticModule.forRoot({

@@ -22,6 +22,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useOutletContext, useParams } from 'react-router-dom';
 import CardPrimary from '@/components/card/Primary';
+import SnapshotDrawer from '@/components/snapshot/SnapshotDrawer';
+import type { SnapshotFormValues } from '@/components/snapshot/SnapshotDrawer';
 
 const { Text } = Typography;
 
@@ -90,6 +92,9 @@ const CommitsPage = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [onlyDefaultBranch, setOnlyDefaultBranch] = useState(false);
   const [defaultBranch, setDefaultBranch] = useState('');
+  const [snapshotDrawerOpen, setSnapshotDrawerOpen] = useState(false);
+  const [snapshotDrawerMode, setSnapshotDrawerMode] = useState<'create' | 'records'>('create');
+  const [snapshotInitialValues, setSnapshotInitialValues] = useState<Partial<SnapshotFormValues>>({});
 
   // 从 repo config 中解析默认分支
   useEffect(() => {
@@ -291,7 +296,7 @@ const CommitsPage = () => {
     {
       title: t('common.option'),
       key: 'option',
-      width: 200,
+      width: 280,
       render: (_: any, record: FlatCommitRow) => {
         const detailPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/?build_target=${record.currentBuildTarget}`;
 
@@ -374,16 +379,43 @@ const CommitsPage = () => {
         }
 
         return (
-          <Space>
+          <Space wrap>
             <Link to={detailPath} target={'_blank'}>
               {t('projects.commits.columns.overall')}
             </Link>
             {sceneDropdown}
+            <a onClick={() => openSnapshotCreate(record)}>
+              {t('projects.snapshot.button.create')}
+            </a>
+            <a onClick={openSnapshotRecords}>
+              {t('projects.snapshot.button.records')}
+            </a>
           </Space>
         );
       },
     },
   ];
+
+  const openSnapshotCreate = (record: FlatCommitRow) => {
+    setSnapshotInitialValues({
+      repoID: repo?.id ?? '',
+      provider: params.provider ?? '',
+      sha: record.sha ?? '',
+      title: record.commitMessage ?? '',
+      description: '',
+    });
+    setSnapshotDrawerMode('create');
+    setSnapshotDrawerOpen(true);
+  };
+
+  const openSnapshotRecords = () => {
+    setSnapshotInitialValues({
+      repoID: repo?.id ?? '',
+      provider: params.provider ?? '',
+    });
+    setSnapshotDrawerMode('records');
+    setSnapshotDrawerOpen(true);
+  };
 
   if (!repo) {
     return <div>{t('projects.commits.loading')}</div>;
@@ -421,6 +453,12 @@ const CommitsPage = () => {
           </Space>
         )}
       </div>
+      <SnapshotDrawer
+        open={snapshotDrawerOpen}
+        onClose={() => setSnapshotDrawerOpen(false)}
+        mode={snapshotDrawerMode}
+        initialValues={snapshotInitialValues}
+      />
       <CardPrimary>
         <Table<FlatCommitRow>
           columns={columns}

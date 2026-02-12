@@ -165,6 +165,8 @@ model CoverageSnapshot {
   repoID       String   @map("repo_id")
   subject      String // commit | accumulative
   subjectID    String   @map("subject_id") // 40 char commit sha or base...head
+  title        String?  // 快照标题
+  description  String?  // 快照描述
   freezeTime   DateTime @map("freeze_time")
   status       String // pending | running | done | failed
   artifactZip  Bytes    @map("artifact_zip")
