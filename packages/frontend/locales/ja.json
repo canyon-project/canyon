@@ -168,6 +168,7 @@
     "snapshot.form.title.placeholder": "スナップショットのタイトル（オプション）",
     "snapshot.form.description": "説明",
     "snapshot.form.description.placeholder": "スナップショットの説明（オプション）",
+    "snapshot.columns.id": "ID",
     "snapshot.columns.sha": "Sha",
     "snapshot.columns.title": "タイトル",
     "snapshot.columns.description": "説明",

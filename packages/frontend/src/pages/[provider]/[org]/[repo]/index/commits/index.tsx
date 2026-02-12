@@ -443,6 +443,22 @@ const CommitsPage = () => {
         onClose={() => setSnapshotDrawerOpen(false)}
         mode={snapshotDrawerMode}
         initialValues={snapshotInitialValues}
+        titleContext={
+          params.org && params.repo
+            ? { org: params.org, repo: params.repo }
+            : undefined
+        }
+        onCreateSuccess={() => setSnapshotDrawerMode('records')}
+        onSwitchToCreate={() => {
+          setSnapshotDrawerMode('create');
+          setSnapshotInitialValues({
+            repoID: repo?.id ?? '',
+            provider: params.provider ?? '',
+            sha: '',
+            title: '',
+            description: '',
+          });
+        }}
       />
       <CardPrimary>
         <Table<FlatCommitRow>

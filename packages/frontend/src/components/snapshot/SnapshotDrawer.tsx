@@ -1,5 +1,5 @@
 import { CameraOutlined, DeleteOutlined, DownloadOutlined, EditOutlined } from '@ant-design/icons';
-import { Button, Drawer, Form, Input, message, Modal, Popconfirm, Space, Table } from 'antd';
+import { Button, Drawer, Form, Input, message, Modal, Popconfirm, Space, Table, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { FC } from 'react';
 import { useEffect, useState } from 'react';
@@ -31,6 +31,12 @@ export type SnapshotDrawerProps = {
   onClose: () => void;
   mode: 'create' | 'records';
   initialValues?: Partial<SnapshotFormValues>;
+  /** 创建成功后调用，不关闭抽屉并切换到快照记录视图；不传则保持原逻辑（关闭抽屉） */
+  onCreateSuccess?: () => void;
+  /** 在快照记录视图点击「生成快照」时调用，切换到创建表单 */
+  onSwitchToCreate?: () => void;
+  /** 标题上下文：org/repo，用于在标题上区分是哪个仓库 */
+  titleContext?: { org: string; repo: string };
 };
 
 const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
@@ -38,6 +44,9 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   onClose,
   mode,
   initialValues,
+  onCreateSuccess,
+  onSwitchToCreate,
+  titleContext,
 }) => {
   const { t } = useTranslation();
   const [form] = Form.useForm<SnapshotFormValues>();
@@ -150,7 +159,11 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
       });
       message.success(t('projects.snapshot.create.success'));
       form.resetFields();
-      onClose();
+      if (onCreateSuccess) {
+        onCreateSuccess();
+      } else {
+        onClose();
+      }
     } catch (err: unknown) {
       const msg =
         err && typeof err === 'object' && 'response' in err
@@ -164,12 +177,26 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
 
   const recordsColumns: ColumnsType<SnapshotRecord> = [
     {
+      title: t('projects.snapshot.columns.id'),
+      dataIndex: 'id',
+      key: 'id',
+      width: 72,
+      ellipsis: true,
+    },
+    {
       title: t('projects.snapshot.columns.sha'),
       dataIndex: 'sha',
       key: 'sha',
-      width: 100,
+      width: 120,
       ellipsis: true,
-      render: (sha: string) => (sha ? sha.substring(0, 7) : '-'),
+      render: (sha: string) =>
+        sha ? (
+          <Typography.Text copyable={{ text: sha }} title={sha}>
+            {sha.length > 12 ? `${sha.substring(0, 7)}…${sha.slice(-4)}` : sha}
+          </Typography.Text>
+        ) : (
+          '-'
+        ),
     },
     {
       title: t('projects.snapshot.columns.title'),
@@ -230,10 +257,18 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
     },
   ];
 
-  const title =
+  const baseTitle =
     mode === 'create'
       ? t('projects.snapshot.drawer.create')
       : t('projects.snapshot.drawer.records');
+  const contextStr = titleContext
+    ? ` — ${titleContext.org}/${titleContext.repo}`
+    : '';
+  const commitStr =
+    mode === 'create' && initialValues?.sha
+      ? ` · ${String(initialValues.sha).substring(0, 7)}`
+      : '';
+  const title = `${baseTitle}${contextStr}${commitStr}`;
 
   return (
     <Drawer
@@ -297,6 +332,17 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
         </Form>
       ) : (
         <>
+          {onSwitchToCreate && (
+            <div className="mb-3">
+              <Button
+                type="primary"
+                icon={<CameraOutlined />}
+                onClick={onSwitchToCreate}
+              >
+                {t('projects.snapshot.button.create')}
+              </Button>
+            </div>
+          )}
           <Table<SnapshotRecord>
             size="small"
             columns={recordsColumns}

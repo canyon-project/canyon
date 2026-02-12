@@ -168,6 +168,7 @@
     "snapshot.form.title.placeholder": "请输入快照标题（可选）",
     "snapshot.form.description": "描述",
     "snapshot.form.description.placeholder": "请输入快照描述（可选）",
+    "snapshot.columns.id": "ID",
     "snapshot.columns.sha": "Sha",
     "snapshot.columns.title": "标题",
     "snapshot.columns.description": "描述",

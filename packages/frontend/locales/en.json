@@ -169,6 +169,7 @@
     "snapshot.form.title.placeholder": "Snapshot title (optional)",
     "snapshot.form.description": "Description",
     "snapshot.form.description.placeholder": "Snapshot description (optional)",
+    "snapshot.columns.id": "ID",
     "snapshot.columns.sha": "Sha",
     "snapshot.columns.title": "Title",
     "snapshot.columns.description": "Description",
