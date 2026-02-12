@@ -17,5 +17,6 @@ import { CoverageMapForCrService } from './services/coverage-map-for-cr.service'
     CoverageMapForAccumulativeService,
     CoverageMapForCrService,
   ],
+  exports: [CoverageMapForCommitService],
 })
 export class CoverageModule {}

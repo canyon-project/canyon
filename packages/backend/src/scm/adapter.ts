@@ -31,4 +31,14 @@ export interface ScmAdapter {
 
   /** 获取文件内容（指定 ref），返回解码后的字符串 */
   getFileContent(repoID: string, path: string, ref: string): Promise<string>;
+
+  /**
+   * 批量获取指定 ref 下多个文件的源码（通过 archive 下载后解压提取，避免逐文件请求）
+   * @returns Map<相对路径, 文件内容 UTF-8 字符串>
+   */
+  getSourceFiles(
+    repoID: string,
+    sha: string,
+    filePaths: string[],
+  ): Promise<Map<string, string>>;
 }

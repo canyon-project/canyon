@@ -261,6 +261,26 @@ export class CodeService {
     return { content };
   }
 
+  /**
+   * 批量获取指定 commit 下多个文件的源码（通过 SCM archive 一次下载解压，避免逐文件请求）
+   */
+  async getSourceFiles(
+    provider: string,
+    repoID: string,
+    sha: string,
+    filePaths: string[],
+  ): Promise<Map<string, string>> {
+    if (filePaths.length === 0) return new Map();
+    if ((provider || 'gitlab').startsWith('github')) {
+      const { token } = await this.getGithubCfg();
+      const adapter = createScmAdapter({ type: 'github', token });
+      return adapter.getSourceFiles(repoID, sha, filePaths);
+    }
+    const { base, token } = await this.getGitLabCfg();
+    const adapter = createScmAdapter({ type: 'gitlab', base, token });
+    return adapter.getSourceFiles(repoID, sha, filePaths);
+  }
+
   async getProjectByPath(path: string) {
     if (!path) {
       throw new BadRequestException('项目路径不能为空');

@@ -33,6 +33,7 @@
     "rxjs": "^7.8.1",
     "test-exclude": "^7.0.1",
     "@nestjs/config": "^4.0.2",
+    "adm-zip": "^0.5.16",
     "archiver": "^7.0.1",
     "istanbul-lib-coverage": "^3.2.2",
     "istanbul-lib-report": "^3.0.1",
