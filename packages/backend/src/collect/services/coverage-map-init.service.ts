@@ -278,14 +278,14 @@ export class CoverageMapInitService {
       // 构建 diff 记录数组
       const diffRecords = diffData.map((item) => ({
         provider,
-        repo_id: repoID,
+        repoID: repoID,
         from: fromSha,
         to: toSha,
         path: item.path,
         additions: item.additions,
         deletions: item.deletions,
         subject,
-        subject_id: subjectId,
+        subjectID: subjectId,
       }));
 
       // 插入 diff 记录

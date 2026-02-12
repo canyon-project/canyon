@@ -527,10 +527,10 @@ export class CodeService {
     Array<{
       id: string;
       provider: string;
-      repo_id: string;
+      repoID: string;
       from: string;
       to: string;
-      subject_id: string;
+      subjectID: string;
       subject: string;
       path: string;
       additions: number[];
@@ -597,10 +597,10 @@ export class CodeService {
       return {
         id: `${provider}|${repoID}|multiple-commits|${subjectID}|${path}`,
         provider: provider,
-        repo_id: repoID,
+        repoID: repoID,
         from: fromShaTrimmed,
         to: toShaTrimmed,
-        subject_id: subjectID,
+        subjectID: subjectID,
         subject: 'multiple-commits',
         path,
         additions,

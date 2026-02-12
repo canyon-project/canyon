@@ -146,15 +146,34 @@ model CoverageLock {
 model Diff {
   id String @id @default(cuid())
 
-  provider   String
-  repo_id    String
-  from       String
-  to         String
-  path       String
-  additions  Int[]
-  deletions  Int[]
-  subject    String
-  subject_id String
+  provider  String
+  repoID    String @map("repo_id")
+  from      String
+  to        String
+  path      String
+  additions Int[]
+  deletions Int[]
+  subject   String
+  subjectID String @map("subject_id")
 
   @@map("canyon_next_diff")
+}
+
+model CoverageSnapshot {
+  id           Int      @id @default(autoincrement())
+  provider     String
+  repoID       String   @map("repo_id")
+  subject      String // commit | accumulative
+  subjectID    String   @map("subject_id") // 40 char commit sha or base...head
+  freezeTime   DateTime @map("freeze_time")
+  status       String // pending | running | done | failed
+  artifactZip  Bytes    @map("artifact_zip")
+  artifactSize Int      @map("artifact_size")
+  createdBy    String   @map("created_by")
+  createdAt    DateTime @map("created_at") @default(now())
+  finishedAt   DateTime @map("finished_at")
+  buildHash    String   @map("build_hash")
+  scene        Json // {}的话表示所有场景
+
+  @@map("canyon_next_coverage_snapshot")
 }

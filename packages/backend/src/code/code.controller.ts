@@ -83,16 +83,16 @@ export class CodeController {
     const diffs = await this.prisma.diff.findMany({
       where: {
         provider,
-        repo_id: repoID,
+        repoID: repoID,
       },
       select: {
         id: true,
         provider: true,
-        repo_id: true,
+        repoID: true,
         from: true,
         to: true,
         subject: true,
-        subject_id: true,
+        subjectID: true,
         path: true,
         additions: true,
         deletions: true,
@@ -123,16 +123,16 @@ export class CodeController {
     >();
 
     for (const diff of diffs) {
-      const key = `${diff.subject_id}_${diff.subject}`;
+      const key = `${diff.subjectID}_${diff.subject}`;
       if (!recordsMap.has(key)) {
         recordsMap.set(key, {
           id: diff.id,
           provider: diff.provider,
-          repoID: diff.repo_id,
+          repoID: diff.repoID,
           from: diff.from,
           to: diff.to,
           subject: diff.subject,
-          subjectID: diff.subject_id,
+          subjectID: diff.subjectID,
           files: [],
           buildTargets: [],
         });
@@ -271,8 +271,8 @@ export class CodeController {
     await this.prisma.diff.deleteMany({
       where: {
         provider,
-        repo_id: repoID,
-        subject_id: subjectID,
+        repoID: repoID,
+        subjectID: subjectID,
         subject,
       },
     });
@@ -323,8 +323,8 @@ export class CodeController {
     await this.prisma.diff.deleteMany({
       where: {
         provider,
-        repo_id: repoID,
-        subject_id: subjectID,
+        repoID: repoID,
+        subjectID: subjectID,
         subject,
       },
     });

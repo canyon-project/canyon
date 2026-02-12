@@ -48,8 +48,8 @@ export class CoverageMapForCrService {
     const r = await this.prisma.diff.findMany({
       where:{
         subject:'pr',
-        subject_id: p.crID,
-        repo_id:headRepoID,
+        subjectID: p.crID,
+        repoID:headRepoID,
         provider: p.provider,
       }
     })
