@@ -189,7 +189,14 @@
     "desc": "Set up your account information",
     "preference": "Preferences",
     "user_auth_tokens": "User Authorization Tokens",
-    "copied_to_clipboard": "Copied to clipboard"
+    "copied_to_clipboard": "Copied to clipboard",
+    "language": {
+      "option": {
+        "cn": "简体中文",
+        "en": "English",
+        "ja": "日本語"
+      }
+    }
   },
   "common": {
     "option": "Option",

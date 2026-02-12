@@ -188,7 +188,14 @@
     "desc": "アカウント情報を設定します",
     "preference": "設定",
     "user_auth_tokens": "ユーザー認証トークン",
-    "copied_to_clipboard": "クリップボードにコピーしました"
+    "copied_to_clipboard": "クリップボードにコピーしました",
+    "language": {
+      "option": {
+        "cn": "简体中文",
+        "en": "English",
+        "ja": "日本語"
+      }
+    }
   },
   "common": {
     "option": "オプション",

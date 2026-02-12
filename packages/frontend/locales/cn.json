@@ -188,7 +188,14 @@
     "desc": "设置您的账户信息",
     "preference": "偏好",
     "user_auth_tokens": "用户授权令牌",
-    "copied_to_clipboard": "已复制到剪贴板"
+    "copied_to_clipboard": "已复制到剪贴板",
+    "language": {
+      "option": {
+        "cn": "简体中文",
+        "en": "English",
+        "ja": "日本語"
+      }
+    }
   },
   "common": {
     "bu": "Bu",

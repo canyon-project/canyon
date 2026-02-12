@@ -1,4 +1,4 @@
-import { AppstoreOutlined, MoreOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, MoreOutlined, SettingOutlined } from '@ant-design/icons';
 import { Avatar, Dropdown, Menu, Typography, theme } from 'antd';
 import type { FC, ReactNode } from 'react';
 import { useEffect, useState } from 'react';
@@ -80,6 +80,12 @@ const BasicLayout: FC<{
           icon: <AppstoreOutlined />,
           label: <Link to='/projects'>{t('menus.projects')}</Link>,
           onClick: () => navigate('/projects'),
+        },
+        {
+          key: '/settings',
+          icon: <SettingOutlined />,
+          label: <Link to='/settings'>{t('menus.settings')}</Link>,
+          onClick: () => navigate('/settings'),
         },
       ]}
     />
