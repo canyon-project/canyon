@@ -67,7 +67,7 @@ export class RepoService {
       const scm = createScmAdapter(config);
       const info = await scm.getRepoInfo(id);
       return {
-        repoID: id,
+        repoID: info.id,
         pathWithNamespace: info.pathWithNamespace,
         description: info.description ?? '',
       };

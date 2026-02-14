@@ -6,6 +6,8 @@ export type ScmConfig =
   | { type: 'github'; token: string };
 
 export interface RepoInfo {
+  /** 平台返回的仓库 ID（如 GitLab project id、GitHub repo id），String(data.id) */
+  id: string;
   pathWithNamespace: string;
   description: string;
 }

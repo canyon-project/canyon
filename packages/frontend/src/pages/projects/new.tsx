@@ -48,10 +48,11 @@ const NewProject = () => {
   };
 
   const onFinish = async (values: FormValues) => {
+    const repoID = checkResult?.repoID ?? values.repoID.trim();
     setSubmitting(true);
     try {
       await createRepo({
-        repoID: values.repoID.trim(),
+        repoID,
         provider: values.provider,
       });
       message.success('创建成功');

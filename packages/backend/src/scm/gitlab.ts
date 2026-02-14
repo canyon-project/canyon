@@ -33,6 +33,7 @@ export class GitlabAdapter implements ScmAdapter {
     const id = raw.includes('/') ? encodeURIComponent(raw) : raw;
     const url = `${this.base}/api/v4/projects/${id}`;
     const { data } = await axios.get<{
+      id?: number;
       path_with_namespace?: string;
       description?: string;
     }>(url, {
@@ -43,6 +44,7 @@ export class GitlabAdapter implements ScmAdapter {
       throw new Error('GitLab 未返回 path_with_namespace');
     }
     return {
+      id: String(data.id),
       pathWithNamespace: data.path_with_namespace,
       description: data.description ?? '',
     };

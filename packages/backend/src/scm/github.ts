@@ -62,7 +62,7 @@ export class GithubAdapter implements ScmAdapter {
     } else {
       url = `${this.base}/repositories/${encodeURIComponent(raw)}`;
     }
-    const { data } = await axios.get<{ full_name?: string; description?: string }>(url, {
+    const { data } = await axios.get<{ id?: number; full_name?: string; description?: string }>(url, {
       headers: this.headers(),
       timeout: 10000,
     });
@@ -70,6 +70,7 @@ export class GithubAdapter implements ScmAdapter {
       throw new Error('GitHub 未返回 full_name');
     }
     return {
+      id: String(data.id),
       pathWithNamespace: data.full_name,
       description: data.description ?? '',
     };
