@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: plugins/swc-plugin
+        working-directory: plugins/swc-plugin-stage-output
     steps:
       - uses: actions/checkout@v2
         with:
