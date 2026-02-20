@@ -2,20 +2,20 @@ use std::fs;
 use std::fs::write;
 use std::path::Path;
 use rand::Rng;
-use swc_core::ecma::ast::{ArrayLit, IdentName, Lit, PropOrSpread, Str};
+use swc_core::ecma::ast::{
+    ArrayLit, Callee, CallExpr, IdentName, Lit, MemberExpr, MemberProp,
+    ModuleDecl, ModuleItem, ObjectLit, Program, Prop, PropName, PropOrSpread,
+    Stmt, Str,
+};
+use swc_core::ecma::ast::{Expr, ExprStmt, KeyValueProp};
 use swc_core::ecma::{
-    ast::{
-        Expr, KeyValueProp, ObjectLit, Program,
-        Prop,
-        PropName
-    },
     transforms::testing::test_inline,
     visit::{visit_mut_pass, VisitMut},
 };
 use swc_core::plugin::{plugin_transform, proxies::TransformPluginProgramMetadata};
+use swc_core::plugin::metadata::TransformPluginMetadataContextKind;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
-use swc_core::plugin::metadata::TransformPluginMetadataContextKind;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -92,6 +92,81 @@ fn object_lit_to_json(obj: &ObjectLit) -> Value {
     }
 
     Value::Object(map)
+}
+
+/// 检查 ObjectLit 是否包含 Turbopack 的 import 标记（import with { "__turbopack-helper__": "true", ... }）
+fn object_has_turbopack_import_attrs(obj: &ObjectLit) -> bool {
+    let markers = ["__turbopack-helper__", "turbopack-transition"];
+    for prop in &obj.props {
+        if let PropOrSpread::Prop(ref prop) = prop {
+            if let Prop::KeyValue(KeyValueProp { key, .. }) = &**prop {
+                let key_str = match key {
+                    PropName::Str(Str { value, .. }) => value.as_str(),
+                    PropName::Ident(IdentName { sym, .. }) => Some(sym.as_ref()),
+                    _ => continue,
+                };
+                if let Some(s) = key_str {
+                    if markers.contains(&s) {
+                        return true;
+                    }
+                }
+            }
+        }
+    }
+    false
+}
+
+/// 检查是否为 __turbopack_context__.n(...) 调用
+fn is_turbopack_context_call(expr: &Expr) -> bool {
+    let Expr::Call(CallExpr { callee, .. }) = expr else { return false };
+    let Callee::Expr(callee_expr) = callee else { return false };
+    let Expr::Member(MemberExpr { obj, prop, .. }) = &**callee_expr else { return false };
+    let MemberProp::Ident(prop_ident) = prop else { return false };
+    if prop_ident.sym.as_ref() != "n" {
+        return false;
+    }
+    let Expr::Ident(obj_ident) = &**obj else { return false };
+    obj_ident.sym.as_ref() == "__turbopack_context__"
+}
+
+/// 识别 Next.js/Turbopack 生成的“import with + __turbopack_context__.n”包装模块，这类应跳过处理
+fn is_turbopack_helper_module(program: &Program) -> bool {
+    let Program::Module(module) = program else { return false };
+    let mut has_turbopack_import = false;
+    let mut has_turbopack_context_call = false;
+    for item in &module.body {
+        match item {
+            ModuleItem::ModuleDecl(ModuleDecl::Import(import_decl)) => {
+                if let Some(with_obj) = &import_decl.with {
+                    if object_has_turbopack_import_attrs(with_obj) {
+                        has_turbopack_import = true;
+                        break;
+                    }
+                }
+            }
+            ModuleItem::Stmt(Stmt::Expr(ExprStmt { expr, .. })) => {
+                if is_turbopack_context_call(expr.as_ref()) {
+                    has_turbopack_context_call = true;
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+    has_turbopack_import || has_turbopack_context_call
+}
+
+/// 识别 React Compiler 编译产物：含有从 "react/compiler-runtime" 的 import，应跳过处理
+fn is_react_compiler_runtime_module(program: &Program) -> bool {
+    let Program::Module(module) = program else { return false };
+    for item in &module.body {
+        if let ModuleItem::ModuleDecl(ModuleDecl::Import(import_decl)) = item {
+            if import_decl.src.value == "react/compiler-runtime" {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 pub struct TransformVisitor {
@@ -290,15 +365,23 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
         .expect("invalid config for react-remove-properties")
         .unwrap_or_default(); // Use default if config is None
 
-
     // 使用TransformPluginProgramMetadata获取环境变量
     let _env = metadata.get_context(&TransformPluginMetadataContextKind::Env).unwrap_or("-".to_string());
     let filename = metadata.get_context(&TransformPluginMetadataContextKind::Filename).unwrap_or("-".to_string());
     let _cwd = metadata.get_context(&TransformPluginMetadataContextKind::Cwd).unwrap_or("-".to_string());
 
-    // Check if the file is of a specific type (e.g., .js or .ts)
+    // Skip: node_modules、Turbopack 包装模块、或 React Compiler 编译产物
     if filename.contains("node_modules") {
-        return program; // Skip transformation for non-JS/TS files
+        return program;
+    }
+    if is_turbopack_helper_module(&program) {
+        // 打印路径
+        println!("Turbopack 包装模块: {}", filename);
+        return program;
+    }
+    if is_react_compiler_runtime_module(&program) {
+        println!("React Compiler 编译产物: {}", filename);
+        return program;
     }
     program.apply(&mut visit_mut_pass(TransformVisitor { config }))
 }
