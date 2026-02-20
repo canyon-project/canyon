@@ -1,5 +1,5 @@
 [workspace]
-members = ["plugins/swc-plugin"]
+members = ["plugins/swc-plugin","plugins/swc-plugin-stage-output"]
 
 
 resolver = "2"

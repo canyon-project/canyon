@@ -1,0 +1,19 @@
+[package]
+description = "SWC plugin: write AST-as-code stage output to .swc-plugin-stage-output (dir structure, .txt, random filename)."
+authors      = { workspace = true }
+edition      = { workspace = true }
+homepage     = { workspace = true }
+license      = { workspace = true }
+name         = "swc_plugin_stage_output"
+publish      = false
+repository   = { workspace = true }
+rust-version = { workspace = true }
+version      = "0.1.0"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+swc_core = { workspace = true, features = ["ecma_plugin_transform"] }
+swc_ecma_codegen = "21"
+rand = "0.8.5"
