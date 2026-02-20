@@ -1,0 +1,17 @@
+[package]
+name = "swc-plugin-canyon"
+version = "0.1.1"
+edition = "2021"
+description = "A simple Rust library with an add function"
+license = "MIT"
+repository = "https://github.com/canyon-project/canyon"
+authors = ["Travis Zhang <wr.zhang25@gmail.com>"]
+documentation = "https://docs.rs/swc-plugin-canyon"
+
+[lib]
+name = "swc-plugin-canyon"
+path = "src/lib.rs"
+
+[dependencies]
+
+[dev-dependencies]
