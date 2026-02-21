@@ -19,6 +19,8 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
         .get_context(&TransformPluginMetadataContextKind::Cwd)
         .unwrap_or_else(|| ".".to_string());
 
+    println!("{}", filename);
+
     if filename.contains("node_modules") {
         return program;
     }

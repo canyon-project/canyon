@@ -1,6 +1,6 @@
 {
   "name": "swc-plugin-stage-output",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "SWC plugin: write AST-as-code to .swc-plugin-stage-output (same dir structure, .txt suffix, random filename)",
   "main": "swc_plugin_stage_output.wasm",
   "scripts": {
