@@ -133,7 +133,7 @@ flowchart LR
 
 ## WeChat Group
 
-<img src="./screenshots/wechat60.jpg" style="width: 200px"/>
+<img src="./screenshots/wechat61.jpg" style="width: 200px"/>
 
 ## Developing
 
