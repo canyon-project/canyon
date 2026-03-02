@@ -81,7 +81,7 @@ export class CoverageClientService {
       return {
         success: false,
         message:
-          '找不到对应的 coverage 记录，请先通过 /collect/map/init 接口上传覆盖率映射数据',
+          '找不到对应的 coverage 记录，请先通过 /api/coverage/map/init 接口上传覆盖率映射数据',
       };
     }
 
