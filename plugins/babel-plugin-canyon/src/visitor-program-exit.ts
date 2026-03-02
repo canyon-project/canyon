@@ -1,5 +1,7 @@
 import generate from '@babel/generator';
+import crypto from 'crypto';
 import fs from 'fs';
+import stringify from 'json-stable-stringify';
 import sysPath from 'path';
 import { generateInitialCoverage } from './helpers/generate-initial-coverage';
 import { computeHash } from './helpers/hash';
@@ -8,8 +10,6 @@ import {
   enrichFnMapWithHash,
   enrichStatementMapWithHash,
 } from './helpers/statement-map-hash';
-import crypto from 'crypto';
-import stringify from 'json-stable-stringify';
 
 export const visitorProgramExit = (api, path, serviceParams, cfg) => {
   const initialCoverageDataForTheCurrentFile = generateInitialCoverage(
@@ -92,9 +92,6 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
           initialCoverageDataForTheCurrentFile &&
           initialCoverageDataForTheCurrentFile.path
         ) {
-
-
-
           // next版本补丁
           // 暂时硬编码
           const buildHashFields: Record<string, string> = {
@@ -104,7 +101,8 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
             buildTarget: serviceParams.buildTarget || '',
             instrumentCwd: serviceParams.instrumentCwd || '',
           };
-          const buildHash = crypto.createHash('sha1')
+          const buildHash = crypto
+            .createHash('sha1')
             .update(stringify(buildHashFields))
             .digest('hex');
           const coverageDataWithMetadata = {
@@ -123,7 +121,7 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
             JSON.stringify(
               {
                 [initialCoverageDataForTheCurrentFile.path]:
-                coverageDataWithMetadata,
+                  coverageDataWithMetadata,
               },
               null,
               2,
@@ -132,76 +130,76 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
           );
 
           //   测试读取源码逻辑
-          if (initialCoverageDataForTheCurrentFile.inputSourceMap) {
-            remapCoverageByOld({
-              [initialCoverageDataForTheCurrentFile.path]:
-                initialCoverageDataForTheCurrentFile,
-            }).then((r) => {
-              if (Object.keys(r).length > 0) {
-                const originCodePath = Object.keys(r)[0];
-                // 检测源码文件存不存在，打印存在与否
-                if (fs.existsSync(originCodePath)) {
-                  const remappedCoverage = r[originCodePath];
-                  const originCodeContent = fs.readFileSync(
-                    originCodePath,
-                    'utf-8',
-                  );
-
-                  // 对 remap 后的覆盖率数据做 hash 处理
-                  try {
-                    if (
-                      remappedCoverage &&
-                      remappedCoverage.statementMap &&
-                      typeof remappedCoverage.statementMap === 'object'
-                    ) {
-                      enrichStatementMapWithHash(
-                        remappedCoverage.statementMap,
-                        originCodeContent,
-                      );
-                      if (
-                        remappedCoverage.fnMap &&
-                        typeof remappedCoverage.fnMap === 'object'
-                      ) {
-                        enrichFnMapWithHash(
-                          remappedCoverage.fnMap,
-                          originCodeContent,
-                        );
-                      }
-                    }
-                  } catch (e) {
-                    // 忽略提取失败，保持现有行为
-                  }
-
-                  // 计算源码文件的 contentHash
-                  const remappedContentHash = computeHash(originCodeContent);
-                  try {
-                    if (
-                      remappedCoverage &&
-                      typeof remappedCoverage === 'object'
-                    ) {
-                      remappedCoverage.contentHash = remappedContentHash;
-                    }
-                  } catch (e) {
-                    // 忽略
-                  }
-                  // 命名为 cov-final-remap 的原因是与老版本的uploader区别，待恢复
-                  fs.writeFileSync(
-                    `./.canyon_output/cov-final-remap-${String(Math.random()).replace('0.', '')}.json`,
-                    JSON.stringify(
-                      {
-                        [originCodePath]: remappedCoverage,
-                      },
-                      null,
-                      2,
-                    ),
-                    'utf-8',
-                  );
-                } else {
-                  // console.log(originCodePath, '不存在');
-                }
-              }
-            });
-          }
+          // if (initialCoverageDataForTheCurrentFile.inputSourceMap) {
+          //   remapCoverageByOld({
+          //     [initialCoverageDataForTheCurrentFile.path]:
+          //       initialCoverageDataForTheCurrentFile,
+          //   }).then((r) => {
+          //     if (Object.keys(r).length > 0) {
+          //       const originCodePath = Object.keys(r)[0];
+          //       // 检测源码文件存不存在，打印存在与否
+          //       if (fs.existsSync(originCodePath)) {
+          //         const remappedCoverage = r[originCodePath];
+          //         const originCodeContent = fs.readFileSync(
+          //           originCodePath,
+          //           'utf-8',
+          //         );
+          //
+          //         // 对 remap 后的覆盖率数据做 hash 处理
+          //         try {
+          //           if (
+          //             remappedCoverage &&
+          //             remappedCoverage.statementMap &&
+          //             typeof remappedCoverage.statementMap === 'object'
+          //           ) {
+          //             enrichStatementMapWithHash(
+          //               remappedCoverage.statementMap,
+          //               originCodeContent,
+          //             );
+          //             if (
+          //               remappedCoverage.fnMap &&
+          //               typeof remappedCoverage.fnMap === 'object'
+          //             ) {
+          //               enrichFnMapWithHash(
+          //                 remappedCoverage.fnMap,
+          //                 originCodeContent,
+          //               );
+          //             }
+          //           }
+          //         } catch (e) {
+          //           // 忽略提取失败，保持现有行为
+          //         }
+          //
+          //         // 计算源码文件的 contentHash
+          //         const remappedContentHash = computeHash(originCodeContent);
+          //         try {
+          //           if (
+          //             remappedCoverage &&
+          //             typeof remappedCoverage === 'object'
+          //           ) {
+          //             remappedCoverage.contentHash = remappedContentHash;
+          //           }
+          //         } catch (e) {
+          //           // 忽略
+          //         }
+          //         // 命名为 cov-final-remap 的原因是与老版本的uploader区别，待恢复
+          //         fs.writeFileSync(
+          //           `./.canyon_output/cov-final-remap-${String(Math.random()).replace('0.', '')}.json`,
+          //           JSON.stringify(
+          //             {
+          //               [originCodePath]: remappedCoverage,
+          //             },
+          //             null,
+          //             2,
+          //           ),
+          //           'utf-8',
+          //         );
+          //       } else {
+          //         // console.log(originCodePath, '不存在');
+          //       }
+          //     }
+          //   });
+          // }
         }
       }
     }
