@@ -2,7 +2,7 @@ name: babel-plugin-canyon NPM Publish
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "dev-old" ]
 
 jobs:
   publish-npm:
