@@ -74,6 +74,7 @@ export default async function RootLayout({ children, params }) {
           navbar={navbar}
           docsRepositoryBase='https://github.com/canyon-project/canyon/tree/dev/website'
           footer={footer}
+          sidebar={{ defaultMenuCollapseLevel: 1 }}
         >
           {children}
         </Layout>

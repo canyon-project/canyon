@@ -7,7 +7,9 @@
     "dev-docs": "next",
     "build": "next build",
     "start": "next start",
-    "postbuild": "pagefind --site .next/server/app --output-path public/_pagefind"
+    "postbuild": "npm run build-pagefind && npm run build-llm-docs",
+    "build-pagefind": "pagefind --site .next/server/app --output-path public/_pagefind",
+    "build-llm-docs": "tsx scripts/build-llm-docs.ts"
   },
   "keywords": [],
   "author": "",
@@ -27,7 +29,8 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "4.1.18",
+    "pagefind": "*",
     "tailwindcss": "4.1.18",
-    "pagefind": "*"
+    "tsx": "^4.19.0"
   }
 }
