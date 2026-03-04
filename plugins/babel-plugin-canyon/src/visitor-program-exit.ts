@@ -95,7 +95,7 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
           // next版本补丁
           // 暂时硬编码
           const buildHashFields: Record<string, string> = {
-            provider: 'gitlab',
+            provider: serviceParams.provider||'gitlab',
             repoID: serviceParams.projectID || '',
             sha: serviceParams.sha || '',
             buildTarget: serviceParams.buildTarget || '',
@@ -108,7 +108,7 @@ export const visitorProgramExit = (api, path, serviceParams, cfg) => {
           const coverageDataWithMetadata = {
             ...initialCoverageDataForTheCurrentFile,
             buildHash,
-            provider: 'gitlab',
+            provider: serviceParams.provider||'gitlab',
             repoID: buildHashFields.repoID,
             sha: buildHashFields.sha,
             buildTarget: buildHashFields.buildTarget,
