@@ -1,5 +1,6 @@
 packages:
   - docs
+  - app
   - packages/*
   - examples/*
   - tools/*
