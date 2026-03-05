@@ -1,0 +1,91 @@
+### 创建 React 项目
+
+使用 [Vite](https://vite.dev/) 创建一个 React 项目：
+
+```sh npm2yarn copy
+npm create vite@latest my-react-app -- --template react-ts
+```
+
+安装代码插桩所需的 Babel 插件：
+
+```sh npm2yarn copy
+npm install babel-plugin-istanbul @canyonjs/babel-plugin -D
+```
+
+### 初始化 Playwright Python
+
+在项目根目录下安装 Playwright Python 相关依赖：
+
+```sh copy
+pip install playwright pytest-playwright canyonjs-playwright
+```
+
+安装 Chromium 浏览器：
+
+```sh copy
+python -m playwright install chromium
+```
+
+### 编写 pytest 测试用例
+
+创建 `tests` 目录并添加测试文件：
+
+```py filename="tests/test_example.py" copy
+def test_homepage(page):
+    page.goto("http://localhost:5173")
+    assert "React" in page.title()
+```
+
+### 配置 canyonjs-playwright 并创建 conftest.py
+
+在 `tests` 目录下创建 `conftest.py`，启用覆盖率收集（类似 baseTest.ts 的用法）。pytest-playwright 无内置 webServer 配置，需添加 session 级 fixture 在测试前自动启动开发服务器：
+
+```py filename="tests/conftest.py" copy
+import os
+import subprocess
+import time
+import urllib.request
+
+import pytest
+
+os.environ["CANYON_OUTPUT_DIR"] = ".canyon_output"
+pytest_plugins = ["canyonjs_playwright.pytest_plugin"]
+
+
+@pytest.fixture(scope="session", autouse=True)
+def dev_server():
+    """在测试前自动启动 Vite 开发服务器"""
+    proc = subprocess.Popen(
+        ["npm", "run", "dev"],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    url = "http://localhost:5173"
+    for _ in range(60):
+        try:
+            urllib.request.urlopen(url, timeout=1)
+            break
+        except Exception:
+            time.sleep(1)
+    else:
+        proc.kill()
+        raise RuntimeError("开发服务器启动超时")
+    yield
+    proc.terminate()
+```
+
+测试用例无需修改，直接使用 `page` fixture 即可自动收集覆盖率。
+
+### 运行测试
+
+在项目根目录执行：
+
+```sh copy
+python -m pytest tests/
+```
+
+测试完成后，覆盖率数据会写入 `.canyon_output` 目录下的 `coverage-{timestamp}.json` 文件。
+
+> [!NOTE]
+>
+> 仅当被测页面有 Istanbul 注入的 `window.__coverage__` 时才会生成覆盖率文件。确保前端项目已正确配置 Babel 插桩。
