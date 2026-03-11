@@ -17,5 +17,8 @@
     "@typescript/native-preview": "catalog:",
     "webpack": "latest",
     "webpack-cli": "latest"
+  },
+  "nyc": {
+    "include": ["build/**"]
   }
 }
