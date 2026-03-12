@@ -13,7 +13,7 @@
 
 注意：回调地址为 `<CANYON_SERVER>/oauth`，请确保在 GitLab 中正确配置。
 
-import { Callout } from 'nextra/components';
+import { Callout } from "nextra/components";
 
 ```sql copy
 insert into public.sys_setting (id, key, value)
@@ -24,7 +24,8 @@ values  ('1', 'CANYON_SERVER', 'https://canyonjs.org'),
 ```
 
 <Callout type="info" emoji="ℹ️">
-  [将 GitLab 配置为 OAuth 2.0 认证身份提供商](https://docs.gitlab.com/ee/integration/oauth_provider.html)
+  [将 GitLab 配置为 OAuth 2.0
+  认证身份提供商](https://docs.gitlab.com/ee/integration/oauth_provider.html)
 </Callout>
 
 目前仅支持 GitLab，未来将支持更多 Git 服务提供商。
@@ -35,7 +36,8 @@ values  ('gitlab', 'https://gitlab.com', 'gitlab', 'GitLab', false, 'xxx');
 ```
 
 <Callout type="info" emoji="ℹ️">
-  [生成 GitLab 私有令牌](https://docs.gitlab.com/user/profile/personal_access_tokens/#create-a-personal-access-token)
+  [生成 GitLab
+  私有令牌](https://docs.gitlab.com/user/profile/personal_access_tokens/#create-a-personal-access-token)
 </Callout>
 
 ## 管理员登录

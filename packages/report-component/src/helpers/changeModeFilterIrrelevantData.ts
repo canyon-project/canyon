@@ -1,7 +1,7 @@
 export function changeModeFilterIrrelevantData(coverage, diff) {
   const addLines = diff.additions || [];
-  const statementMap = coverage['statementMap'] || {};
-  const s = coverage['s'] || {};
+  const statementMap = coverage["statementMap"] || {};
+  const s = coverage["s"] || {};
   const newStatementMap = {};
   const newS = {};
 
@@ -21,7 +21,7 @@ export function changeModeFilterIrrelevantData(coverage, diff) {
   });
 
   return {
-    path: coverage['path'],
+    path: coverage["path"],
     branchMap: {},
     b: {},
     fnMap: {},

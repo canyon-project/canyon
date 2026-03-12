@@ -5,15 +5,10 @@
     if (dsn && coverage) {
       // 复制 coverage 对象并删除不需要的字段
       const cleanedCoverage: Record<string, any> = {};
-      const fieldsToRemove = [
-        'statementMap',
-        'fnMap',
-        'branchMap',
-        'inputSourceMap',
-      ];
+      const fieldsToRemove = ["statementMap", "fnMap", "branchMap", "inputSourceMap"];
 
       for (const [filePath, coverageData] of Object.entries(coverage)) {
-        if (coverageData && typeof coverageData === 'object') {
+        if (coverageData && typeof coverageData === "object") {
           cleanedCoverage[filePath] = { ...coverageData };
           // 删除指定字段
           for (const field of fieldsToRemove) {
@@ -23,9 +18,9 @@
       }
 
       fetch(dsn, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           coverage: cleanedCoverage,
@@ -35,8 +30,8 @@
     }
   };
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'hidden') {
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
       sendCoverage();
     }
   });

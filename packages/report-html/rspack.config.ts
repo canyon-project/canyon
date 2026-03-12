@@ -1,45 +1,45 @@
-import { defineConfig } from '@rspack/cli';
-import { rspack, type SwcLoaderOptions } from '@rspack/core';
+import { defineConfig } from "@rspack/cli";
+import { rspack, type SwcLoaderOptions } from "@rspack/core";
 // @ts-expect-error
-import { ReactRefreshRspackPlugin } from '@rspack/plugin-react-refresh';
+import { ReactRefreshRspackPlugin } from "@rspack/plugin-react-refresh";
 // @ts-expect-error
-import MonacoWebpackPlugin from 'monaco-editor-webpack-plugin';
+import MonacoWebpackPlugin from "monaco-editor-webpack-plugin";
 
-const isDev = process.env.NODE_ENV === 'development';
+const isDev = process.env.NODE_ENV === "development";
 
 export default defineConfig({
   entry: {
-    main: './src/main.tsx',
+    main: "./src/main.tsx",
   },
   output: {
-    filename: 'js/[name].js',
-    chunkFilename: 'js/[name].js',
-    assetModuleFilename: 'assets/[name][ext]',
+    filename: "js/[name].js",
+    chunkFilename: "js/[name].js",
+    assetModuleFilename: "assets/[name][ext]",
   },
   resolve: {
-    extensions: ['...', '.ts', '.tsx', '.jsx'],
+    extensions: ["...", ".ts", ".tsx", ".jsx"],
   },
   module: {
     rules: [
       {
         test: /\.svg$/,
-        type: 'asset',
+        type: "asset",
       },
       {
         test: /\.(jsx?|tsx?)$/,
         exclude: /node_modules\/monaco-editor/,
         use: [
           {
-            loader: 'builtin:swc-loader',
+            loader: "builtin:swc-loader",
             options: {
               jsc: {
                 parser: {
-                  syntax: 'typescript',
+                  syntax: "typescript",
                   tsx: true,
                 },
                 transform: {
                   react: {
-                    runtime: 'automatic',
+                    runtime: "automatic",
                     development: isDev,
                     refresh: isDev,
                   },
@@ -53,19 +53,19 @@ export default defineConfig({
   },
   plugins: [
     new rspack.HtmlRspackPlugin({
-      template: './index.html',
+      template: "./index.html",
     }),
     isDev ? new ReactRefreshRspackPlugin() : null,
     new MonacoWebpackPlugin({
-      languages: ['javascript'],
+      languages: ["javascript"],
       globalAPI: true,
     }),
     new rspack.CopyRspackPlugin({
-      patterns: [{ from: 'public' }],
+      patterns: [{ from: "public" }],
     }),
     new rspack.CssExtractRspackPlugin({
-      filename: 'css/[name].css',
-      chunkFilename: 'css/[name].css',
+      filename: "css/[name].css",
+      chunkFilename: "css/[name].css",
     }),
   ].filter(Boolean),
 
@@ -76,9 +76,9 @@ export default defineConfig({
     splitChunks: {
       cacheGroups: {
         styles: {
-          name: 'styles',
-          type: 'css/mini-extract',
-          chunks: 'all',
+          name: "styles",
+          type: "css/mini-extract",
+          chunks: "all",
           enforce: true,
         },
       },
@@ -87,7 +87,7 @@ export default defineConfig({
       new rspack.SwcJsMinimizerRspackPlugin(),
       new rspack.LightningCssMinimizerRspackPlugin({
         minimizerOptions: {
-          targets: ['> 0.25%', 'not dead'],
+          targets: ["> 0.25%", "not dead"],
         },
       }),
     ],

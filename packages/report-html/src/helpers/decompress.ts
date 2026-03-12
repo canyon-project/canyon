@@ -8,7 +8,7 @@ export function base64ToUint8Array(base64: string) {
 }
 
 export async function decompressGzip(compressedData: Uint8Array) {
-  const stream = new DecompressionStream('gzip');
+  const stream = new DecompressionStream("gzip");
   const writer = stream.writable.getWriter();
   const reader = stream.readable.getReader();
 

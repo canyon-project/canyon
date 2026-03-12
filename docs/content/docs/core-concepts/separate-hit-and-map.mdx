@@ -15,7 +15,6 @@ import { Callout } from "nextra/components";
 @canyonjs/babel-plugin 插件在编译过程中为编译后的文件生成初始覆盖率文件，并将其保存到 .canyon_output 文件夹中。我们提供了 Tools CLI 命令行工具，您可以在 CI 中使用它向 Canyon 服务器报告。
 
 ```yml filename=".gitlab-ci.yml" {19,20} copy
-
 pages:
   image: node:20
   stage: deploy
@@ -32,7 +31,6 @@ pages:
       - public
   only:
     - main
-
 ```
 
 ## 准备就绪

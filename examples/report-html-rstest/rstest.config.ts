@@ -1,12 +1,12 @@
-import { defineConfig } from '@rstest/core';
+import { defineConfig } from "@rstest/core";
 
 export default defineConfig({
   coverage: {
-    provider: 'istanbul',
+    provider: "istanbul",
     reporters: [
-      'json',
+      "json",
       [
-        '@canyonjs/report',
+        "@canyonjs/report",
         {
           diff: [],
         },

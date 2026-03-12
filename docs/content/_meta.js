@@ -1,18 +1,18 @@
 export default {
   index: {
-    type: 'page',
-    display: 'hidden',
+    type: "page",
+    display: "hidden",
     theme: {
-      typesetting: 'article',
+      typesetting: "article",
       toc: false,
     },
   },
   docs: {
-    type: 'page',
-    title: 'Documentation',
+    type: "page",
+    title: "Documentation",
   },
   support: {
-    title: 'Support',
-    type: 'page',
+    title: "Support",
+    type: "page",
   },
 };

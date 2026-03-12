@@ -21,15 +21,15 @@ npm install babel-plugin-istanbul @canyonjs/babel-plugin -D
 
 将 [`istanbul`](https://www.npmjs.com/package/babel-plugin-istanbul) 和 [`canyon`](https://www.npmjs.com/package/@canyonjs/babel-plugin) 插件添加到您的 [Babel 配置文件](https://babeljs.io/docs/config-files#configuration-file-types)中：
 
-  ```js filename="babel.config.js" {3,4} copy
-  module.exports = {
-    plugins: [
-      'istanbul',
-      '@canyonjs'
-      // 注意插件顺序：canyon 插件应在 istanbul 插件之后
-      ],
-  };
-  ```
+```js filename="babel.config.js" {3,4} copy
+module.exports = {
+  plugins: [
+    "istanbul",
+    "@canyonjs",
+    // 注意插件顺序：canyon 插件应在 istanbul 插件之后
+  ],
+};
+```
 
 ### 验证
 
@@ -37,60 +37,56 @@ npm install babel-plugin-istanbul @canyonjs/babel-plugin -D
 
 ![coverage-canyon-console](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/getting-started/first-coverage/coverage-canyon-console.png)
 
+### 更新 Babel 插件激活条件
 
-  ### 更新 Babel 插件激活条件
+**在 CI 阶段，我们需要控制插件激活条件，以防止在生产分支中进行插桩。**
 
-  __在 CI 阶段，我们需要控制插件激活条件，以防止在生产分支中进行插桩。__
+```js {2,3} copy
+module.exports = {
+  plugins:
+    process.env.CI && process.env.CI_COMMIT_REF_NAME !== "release" ? ["istanbul", "@canyonjs"] : [],
+};
+```
 
-  ```js {2,3} copy
-  module.exports = {
-    plugins: (process.env.CI &&
-              process.env.CI_COMMIT_REF_NAME !== 'release')
-              ? [
-                'istanbul',
-                '@canyonjs'
-              ]:[],
+### CI中收集初始覆盖率数据
+
+在 CI 环境中，您可以通过运行测试用例来收集初始覆盖率数据。这有助于建立代码覆盖率的基准线。
+
+以下是一个 GitLab CI/CD 配置示例：
+
+```yaml filename=".gitlab-ci.yml" copy
+pages:
+  image: node:20
+  stage: deploy
+  script:
+    - npm i pnpm -g
+    - pnpm i
+    - pnpm run build
+    - npm i @canyonjs/cli -g
+    - canyon -h
+    - canyon upload --dsn=https://app.canyonjs.io/api/coverage/map/init
+    - mv dist/* public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+```
+
+### 报告覆盖率数据
+
+等待 CI 完成后，将页面部署到测试环境。为了收集人工测试的覆盖率数据，您需要在 HTML 文件中引入 Canyon 收集脚本：
+
+```html copy
+<script src="https://unpkg.com/@canyonjs/collect"></script>
+<script>
+  window.CANYON_DSN = "https://app.canyonjs.io/api/coverage/client";
+  window.CANYON_SCENE = {
+    hello: "world",
   };
-  ```
+</script>
+```
 
-  ### CI中收集初始覆盖率数据
+配置完成后，随后的测试就会不断收集上报覆盖率数据到服务端。
 
-  在 CI 环境中，您可以通过运行测试用例来收集初始覆盖率数据。这有助于建立代码覆盖率的基准线。
-
-  以下是一个 GitLab CI/CD 配置示例：
-
-  ```yaml filename=".gitlab-ci.yml" copy
-  pages:
-    image: node:20
-    stage: deploy
-    script:
-      - npm i pnpm -g
-      - pnpm i
-      - pnpm run build
-      - npm i @canyonjs/cli -g
-      - canyon -h
-      - canyon upload --dsn=https://app.canyonjs.io/api/coverage/map/init
-      - mv dist/* public
-    artifacts:
-      paths:
-        - public
-    only:
-      - main
-  ```
-
-  ### 报告覆盖率数据
-
-  等待 CI 完成后，将页面部署到测试环境。为了收集人工测试的覆盖率数据，您需要在 HTML 文件中引入 Canyon 收集脚本：
-
-  ```html copy
-  <script src="https://unpkg.com/@canyonjs/collect"></script>
-  <script>
-      window.CANYON_DSN='https://app.canyonjs.io/api/coverage/client';
-      window.CANYON_SCENE = {
-          hello:'world'
-      }
-  </script>
-  ```
-
-  配置完成后，随后的测试就会不断收集上报覆盖率数据到服务端。
 </Steps>

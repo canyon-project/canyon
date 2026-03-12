@@ -1,7 +1,7 @@
 window.reportData = {
-  type: 'istanbuljs',
-  reportPath: 'coverage/index.html',
-  version: '1.0.0',
+  type: "istanbuljs",
+  reportPath: "coverage/index.html",
+  version: "1.0.0",
   watermarks: {
     bytes: [50, 80],
     statements: [50, 80],
@@ -10,7 +10,7 @@ window.reportData = {
     lines: [50, 80],
   },
   summary: {},
-  instrumentCwd: '/Users/travzhang/github.com/istanbuljs/istanbuljs',
+  instrumentCwd: "/Users/travzhang/github.com/istanbuljs/istanbuljs",
   files: [
     {
       diff: {
@@ -19,7 +19,7 @@ window.reportData = {
       },
       source:
         "/*\n Copyright 2012-2015, Yahoo Inc.\n Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.\n */\n'use strict';\n\nconst { MapStore } = require('./lib/map-store');\n/**\n * @module Exports\n */\nmodule.exports = {\n    createSourceMapStore(opts) {\n        return new MapStore(opts);\n    }\n};\n",
-      path: '/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/index.js',
+      path: "/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/index.js",
       statementMap: {
         0: {
           start: {
@@ -54,7 +54,7 @@ window.reportData = {
       },
       fnMap: {
         0: {
-          name: '(anonymous_0)',
+          name: "(anonymous_0)",
           decl: {
             start: {
               line: 12,
@@ -92,7 +92,7 @@ window.reportData = {
     {
       source:
         "/*\n Copyright 2015, Yahoo Inc.\n Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.\n */\n'use strict';\n\nconst pathutils = require('./pathutils');\nconst {\n    originalPositionFor,\n    allGeneratedPositionsFor,\n    GREATEST_LOWER_BOUND,\n    LEAST_UPPER_BOUND\n} = require('@jridgewell/trace-mapping');\n\n/**\n * AST ranges are inclusive for start positions and exclusive for end positions.\n * Source maps are also logically ranges over text, though interacting with\n * them is generally achieved by working with explicit positions.\n *\n * When finding the _end_ location of an AST item, the range behavior is\n * important because what we're asking for is the _end_ of whatever range\n * corresponds to the end location we seek.\n *\n * This boils down to the following steps, conceptually, though the source-map\n * library doesn't expose primitives to do this nicely:\n *\n * 1. Find the range on the generated file that ends at, or exclusively\n *    contains the end position of the AST node.\n * 2. Find the range on the original file that corresponds to\n *    that generated range.\n * 3. Find the _end_ location of that original range.\n */\nfunction originalEndPositionFor(sourceMap, generatedEnd) {\n    // Given the generated location, find the original location of the mapping\n    // that corresponds to a range on the generated file that overlaps the\n    // generated file end location. Note however that this position on its\n    // own is not useful because it is the position of the _start_ of the range\n    // on the original file, and we want the _end_ of the range.\n    const beforeEndMapping = originalPositionTryBoth(\n        sourceMap,\n        generatedEnd.line,\n        generatedEnd.column - 1\n    );\n    if (beforeEndMapping.source === null) {\n        return null;\n    }\n\n    // Convert that original position back to a generated one, with a bump\n    // to the right, and a rightward bias. Since 'generatedPositionFor' searches\n    // for mappings in the original-order sorted list, this will find the\n    // mapping that corresponds to the one immediately after the\n    // beforeEndMapping mapping.\n    const afterEndMappings = allGeneratedPositionsFor(sourceMap, {\n        source: beforeEndMapping.source,\n        line: beforeEndMapping.line,\n        column: beforeEndMapping.column + 1,\n        bias: LEAST_UPPER_BOUND\n    });\n\n    for (let i = 0; i < afterEndMappings.length; i++) {\n        const afterEndMapping = afterEndMappings[i];\n        if (afterEndMapping.line === null) continue;\n\n        const original = originalPositionFor(sourceMap, afterEndMapping);\n        // If the lines match, it means that something comes after our mapping,\n        // so it must end where this one begins.\n        if (original.line === beforeEndMapping.line) return original;\n    }\n\n    // If a generated mapping wasn't found (or all that were found were not on\n    // the same line), then there's nothing after this range and we can\n    // consider it to extend to infinity.\n    return {\n        source: beforeEndMapping.source,\n        line: beforeEndMapping.line,\n        column: Infinity\n    };\n}\n\n/**\n * Attempts to determine the original source position, first\n * returning the closest element to the left (GREATEST_LOWER_BOUND),\n * and next returning the closest element to the right (LEAST_UPPER_BOUND).\n */\nfunction originalPositionTryBoth(sourceMap, line, column) {\n    const mapping = originalPositionFor(sourceMap, {\n        line,\n        column,\n        bias: GREATEST_LOWER_BOUND\n    });\n    if (mapping.source === null) {\n        return originalPositionFor(sourceMap, {\n            line,\n            column,\n            bias: LEAST_UPPER_BOUND\n        });\n    } else {\n        return mapping;\n    }\n}\n\nfunction isInvalidPosition(pos) {\n    return (\n        !pos ||\n        typeof pos.line !== 'number' ||\n        typeof pos.column !== 'number' ||\n        pos.line < 0 ||\n        pos.column < 0\n    );\n}\n\n/**\n * determines the original position for a given location\n * @param  {SourceMapConsumer} sourceMap the source map\n * @param  {Object} generatedLocation the original location Object\n * @returns {Object} the remapped location Object\n */\nfunction getMapping(sourceMap, generatedLocation, origFile) {\n    if (!generatedLocation) {\n        return null;\n    }\n\n    if (\n        isInvalidPosition(generatedLocation.start) ||\n        isInvalidPosition(generatedLocation.end)\n    ) {\n        return null;\n    }\n\n    const start = originalPositionTryBoth(\n        sourceMap,\n        generatedLocation.start.line,\n        generatedLocation.start.column\n    );\n    let end = originalEndPositionFor(sourceMap, generatedLocation.end);\n\n    /* istanbul ignore if: edge case too hard to test for */\n    if (!(start && end)) {\n        return null;\n    }\n\n    if (!(start.source && end.source)) {\n        return null;\n    }\n\n    if (start.source !== end.source) {\n        return null;\n    }\n\n    /* istanbul ignore if: edge case too hard to test for */\n    if (start.line === null || start.column === null) {\n        return null;\n    }\n\n    /* istanbul ignore if: edge case too hard to test for */\n    if (end.line === null || end.column === null) {\n        return null;\n    }\n\n    if (start.line === end.line && start.column === end.column) {\n        end = originalPositionFor(sourceMap, {\n            line: generatedLocation.end.line,\n            column: generatedLocation.end.column,\n            bias: LEAST_UPPER_BOUND\n        });\n        end.column -= 1;\n    }\n\n    return {\n        source: pathutils.relativeTo(start.source, origFile),\n        loc: {\n            start: {\n                line: start.line,\n                column: start.column\n            },\n            end: {\n                line: end.line,\n                column: end.column\n            }\n        }\n    };\n}\n\nmodule.exports = getMapping;\n",
-      path: '/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/get-mapping.js',
+      path: "/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/get-mapping.js",
       statementMap: {
         0: {
           start: {
@@ -477,7 +477,7 @@ window.reportData = {
       },
       fnMap: {
         0: {
-          name: 'originalEndPositionFor',
+          name: "originalEndPositionFor",
           decl: {
             start: {
               line: 33,
@@ -501,7 +501,7 @@ window.reportData = {
           line: 33,
         },
         1: {
-          name: 'originalPositionTryBoth',
+          name: "originalPositionTryBoth",
           decl: {
             start: {
               line: 85,
@@ -525,7 +525,7 @@ window.reportData = {
           line: 85,
         },
         2: {
-          name: 'isInvalidPosition',
+          name: "isInvalidPosition",
           decl: {
             start: {
               line: 102,
@@ -549,7 +549,7 @@ window.reportData = {
           line: 102,
         },
         3: {
-          name: 'getMapping',
+          name: "getMapping",
           decl: {
             start: {
               line: 118,
@@ -585,7 +585,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -621,7 +621,7 @@ window.reportData = {
               column: 52,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -657,7 +657,7 @@ window.reportData = {
               column: 69,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -693,7 +693,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -729,7 +729,7 @@ window.reportData = {
               column: 22,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -795,7 +795,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -831,7 +831,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -867,7 +867,7 @@ window.reportData = {
               column: 48,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -903,7 +903,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -929,7 +929,7 @@ window.reportData = {
               column: 22,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -965,7 +965,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -1001,7 +1001,7 @@ window.reportData = {
               column: 36,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -1037,7 +1037,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -1073,7 +1073,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -1099,7 +1099,7 @@ window.reportData = {
               column: 52,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -1135,7 +1135,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -1161,7 +1161,7 @@ window.reportData = {
               column: 48,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -1197,7 +1197,7 @@ window.reportData = {
               column: 5,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -1233,7 +1233,7 @@ window.reportData = {
               column: 62,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -1328,16 +1328,16 @@ window.reportData = {
       },
     },
     {
-      diff:{
+      diff: {
         additions: [
-          1, 10,11,12,13, 20, 30,31,32,33, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160,
-          170, 180,
+          1, 10, 11, 12, 13, 20, 30, 31, 32, 33, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150,
+          160, 170, 180,
         ],
-        deletions:[5,15,25],
+        deletions: [5, 15, 25],
       },
       source:
         "/*\n Copyright 2015, Yahoo Inc.\n Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.\n */\n'use strict';\n\nconst path = require('path');\nconst fs = require('fs');\nconst debug = require('debug')('istanbuljs');\nconst { TraceMap, sourceContentFor } = require('@jridgewell/trace-mapping');\nconst pathutils = require('./pathutils');\nconst { SourceMapTransformer } = require('./transformer');\n\n/**\n * Tracks source maps for registered files\n */\nclass MapStore {\n    /**\n     * @param {Object} opts [opts=undefined] options.\n     * @param {Boolean} opts.verbose [opts.verbose=false] verbose mode\n     * @param {String} opts.baseDir [opts.baseDir=null] alternate base directory\n     *  to resolve sourcemap files\n     * @param {Class} opts.SourceStore [opts.SourceStore=Map] class to use for\n     * SourceStore.  Must support `get`, `set` and `clear` methods.\n     * @param {Array} opts.sourceStoreOpts [opts.sourceStoreOpts=[]] arguments\n     * to use in the SourceStore constructor.\n     * @constructor\n     */\n    constructor(opts) {\n        opts = {\n            baseDir: null,\n            verbose: false,\n            SourceStore: Map,\n            sourceStoreOpts: [],\n            ...opts\n        };\n        this.baseDir = opts.baseDir;\n        this.verbose = opts.verbose;\n        this.sourceStore = new opts.SourceStore(...opts.sourceStoreOpts);\n        this.data = Object.create(null);\n        this.sourceFinder = this.sourceFinder.bind(this);\n    }\n\n    /**\n     * Registers a source map URL with this store. It makes some input sanity checks\n     * and silently fails on malformed input.\n     * @param transformedFilePath - the file path for which the source map is valid.\n     *  This must *exactly* match the path stashed for the coverage object to be\n     *  useful.\n     * @param sourceMapUrl - the source map URL, **not** a comment\n     */\n    registerURL(transformedFilePath, sourceMapUrl) {\n        const d = 'data:';\n\n        if (\n            sourceMapUrl.length > d.length &&\n            sourceMapUrl.substring(0, d.length) === d\n        ) {\n            const b64 = 'base64,';\n            const pos = sourceMapUrl.indexOf(b64);\n            if (pos > 0) {\n                this.data[transformedFilePath] = {\n                    type: 'encoded',\n                    data: sourceMapUrl.substring(pos + b64.length)\n                };\n            } else {\n                debug(`Unable to interpret source map URL: ${sourceMapUrl}`);\n            }\n\n            return;\n        }\n\n        const dir = path.dirname(path.resolve(transformedFilePath));\n        const file = path.resolve(dir, sourceMapUrl);\n        this.data[transformedFilePath] = { type: 'file', data: file };\n    }\n\n    /**\n     * Registers a source map object with this store. Makes some basic sanity checks\n     * and silently fails on malformed input.\n     * @param transformedFilePath - the file path for which the source map is valid\n     * @param sourceMap - the source map object\n     */\n    registerMap(transformedFilePath, sourceMap) {\n        if (sourceMap && sourceMap.version) {\n            this.data[transformedFilePath] = {\n                type: 'object',\n                data: sourceMap\n            };\n        } else {\n            debug(\n                'Invalid source map object: ' +\n                    JSON.stringify(sourceMap, null, 2)\n            );\n        }\n    }\n\n    /**\n     * Retrieve a source map object from this store.\n     * @param filePath - the file path for which the source map is valid\n     * @returns {Object} a parsed source map object\n     */\n    getSourceMapSync(filePath) {\n        try {\n            if (!this.data[filePath]) {\n                return;\n            }\n\n            const d = this.data[filePath];\n            if (d.type === 'file') {\n                return JSON.parse(fs.readFileSync(d.data, 'utf8'));\n            }\n\n            if (d.type === 'encoded') {\n                return JSON.parse(Buffer.from(d.data, 'base64').toString());\n            }\n\n            /* The caller might delete properties */\n            return {\n                ...d.data\n            };\n        } catch (error) {\n            debug('Error returning source map for ' + filePath);\n            debug(error.stack);\n\n            return;\n        }\n    }\n\n    /**\n     * Add inputSourceMap property to coverage data\n     * @param coverageData - the __coverage__ object\n     * @returns {Object} a parsed source map object\n     */\n    addInputSourceMapsSync(coverageData) {\n        Object.entries(coverageData).forEach(([filePath, data]) => {\n            if (data.inputSourceMap) {\n                return;\n            }\n\n            const sourceMap = this.getSourceMapSync(filePath);\n            if (sourceMap) {\n                data.inputSourceMap = sourceMap;\n                /* This huge property is not needed. */\n                delete data.inputSourceMap.sourcesContent;\n            }\n        });\n    }\n\n    sourceFinder(filePath) {\n        const content = this.sourceStore.get(filePath);\n        if (content !== undefined) {\n            return content;\n        }\n\n        if (path.isAbsolute(filePath)) {\n            return fs.readFileSync(filePath, 'utf8');\n        }\n\n        return fs.readFileSync(\n            pathutils.asAbsolute(filePath, this.baseDir),\n            'utf8'\n        );\n    }\n\n    /**\n     * Transforms the coverage map provided into one that refers to original\n     * sources when valid mappings have been registered with this store.\n     * @param {CoverageMap} coverageMap - the coverage map to transform\n     * @returns {Promise<CoverageMap>} the transformed coverage map\n     */\n    async transformCoverage(coverageMap) {\n        const hasInputSourceMaps = coverageMap\n            .files()\n            .some(\n                file => coverageMap.fileCoverageFor(file).data.inputSourceMap\n            );\n\n        if (!hasInputSourceMaps && Object.keys(this.data).length === 0) {\n            return coverageMap;\n        }\n\n        const transformer = new SourceMapTransformer(\n            async (filePath, coverage) => {\n                try {\n                    const obj =\n                        coverage.data.inputSourceMap ||\n                        this.getSourceMapSync(filePath);\n                    if (!obj) {\n                        return null;\n                    }\n\n                    const smc = new TraceMap(obj);\n                    smc.sources.forEach(s => {\n                        if (s) {\n                            const content = sourceContentFor(smc, s);\n                            if (content) {\n                                const sourceFilePath = pathutils.relativeTo(\n                                    s,\n                                    filePath\n                                );\n                                this.sourceStore.set(sourceFilePath, content);\n                            }\n                        }\n                    });\n\n                    return smc;\n                } catch (error) {\n                    debug('Error returning source map for ' + filePath);\n                    debug(error.stack);\n\n                    return null;\n                }\n            }\n        );\n\n        return await transformer.transform(coverageMap);\n    }\n\n    /**\n     * Disposes temporary resources allocated by this map store\n     */\n    dispose() {\n        this.sourceStore.clear();\n    }\n}\n\nmodule.exports = { MapStore };\n",
-      path: '/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/map-store.js',
+      path: "/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/map-store.js",
       statementMap: {
         0: {
           start: {
@@ -2082,7 +2082,7 @@ window.reportData = {
       },
       fnMap: {
         0: {
-          name: '(anonymous_0)',
+          name: "(anonymous_0)",
           decl: {
             start: {
               line: 29,
@@ -2106,7 +2106,7 @@ window.reportData = {
           line: 29,
         },
         1: {
-          name: '(anonymous_1)',
+          name: "(anonymous_1)",
           decl: {
             start: {
               line: 52,
@@ -2130,7 +2130,7 @@ window.reportData = {
           line: 52,
         },
         2: {
-          name: '(anonymous_2)',
+          name: "(anonymous_2)",
           decl: {
             start: {
               line: 84,
@@ -2154,7 +2154,7 @@ window.reportData = {
           line: 84,
         },
         3: {
-          name: '(anonymous_3)',
+          name: "(anonymous_3)",
           decl: {
             start: {
               line: 103,
@@ -2178,7 +2178,7 @@ window.reportData = {
           line: 103,
         },
         4: {
-          name: '(anonymous_4)',
+          name: "(anonymous_4)",
           decl: {
             start: {
               line: 135,
@@ -2202,7 +2202,7 @@ window.reportData = {
           line: 135,
         },
         5: {
-          name: '(anonymous_5)',
+          name: "(anonymous_5)",
           decl: {
             start: {
               line: 136,
@@ -2226,7 +2226,7 @@ window.reportData = {
           line: 136,
         },
         6: {
-          name: '(anonymous_6)',
+          name: "(anonymous_6)",
           decl: {
             start: {
               line: 150,
@@ -2250,7 +2250,7 @@ window.reportData = {
           line: 150,
         },
         7: {
-          name: '(anonymous_7)',
+          name: "(anonymous_7)",
           decl: {
             start: {
               line: 172,
@@ -2274,7 +2274,7 @@ window.reportData = {
           line: 172,
         },
         8: {
-          name: '(anonymous_8)',
+          name: "(anonymous_8)",
           decl: {
             start: {
               line: 176,
@@ -2298,7 +2298,7 @@ window.reportData = {
           line: 176,
         },
         9: {
-          name: '(anonymous_9)',
+          name: "(anonymous_9)",
           decl: {
             start: {
               line: 184,
@@ -2322,7 +2322,7 @@ window.reportData = {
           line: 184,
         },
         10: {
-          name: '(anonymous_10)',
+          name: "(anonymous_10)",
           decl: {
             start: {
               line: 194,
@@ -2346,7 +2346,7 @@ window.reportData = {
           line: 194,
         },
         11: {
-          name: '(anonymous_11)',
+          name: "(anonymous_11)",
           decl: {
             start: {
               line: 223,
@@ -2382,7 +2382,7 @@ window.reportData = {
               column: 9,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2418,7 +2418,7 @@ window.reportData = {
               column: 53,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -2454,7 +2454,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2490,7 +2490,7 @@ window.reportData = {
               column: 9,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2526,7 +2526,7 @@ window.reportData = {
               column: 42,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -2562,7 +2562,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2598,7 +2598,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2634,7 +2634,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2670,7 +2670,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2706,7 +2706,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2742,7 +2742,7 @@ window.reportData = {
               column: 9,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2778,7 +2778,7 @@ window.reportData = {
               column: 9,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2814,7 +2814,7 @@ window.reportData = {
               column: 9,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2850,7 +2850,7 @@ window.reportData = {
               column: 70,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -2886,7 +2886,7 @@ window.reportData = {
               column: 55,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -2922,7 +2922,7 @@ window.reportData = {
               column: 21,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2958,7 +2958,7 @@ window.reportData = {
               column: 25,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -2994,7 +2994,7 @@ window.reportData = {
               column: 29,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -3134,7 +3134,7 @@ window.reportData = {
     {
       source:
         "/*\n Copyright 2015, Yahoo Inc.\n Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.\n */\n'use strict';\n\nconst { FileCoverage } = require('istanbul-lib-coverage').classes;\n\nfunction locString(loc) {\n    return [\n        loc.start.line,\n        loc.start.column,\n        loc.end.line,\n        loc.end.column\n    ].join(':');\n}\n\nclass MappedCoverage extends FileCoverage {\n    constructor(pathOrObj) {\n        super(pathOrObj);\n\n        this.meta = {\n            last: {\n                s: 0,\n                f: 0,\n                b: 0\n            },\n            seen: {}\n        };\n    }\n\n    addStatement(loc, hits) {\n        const key = 's:' + locString(loc);\n        const { meta } = this;\n        let index = meta.seen[key];\n\n        if (index === undefined) {\n            index = meta.last.s;\n            meta.last.s += 1;\n            meta.seen[key] = index;\n            this.statementMap[index] = this.cloneLocation(loc);\n        }\n\n        this.s[index] = this.s[index] || 0;\n        this.s[index] += hits;\n        return index;\n    }\n\n    addFunction(name, decl, loc, hits) {\n        const key = 'f:' + locString(decl);\n        const { meta } = this;\n        let index = meta.seen[key];\n\n        if (index === undefined) {\n            index = meta.last.f;\n            meta.last.f += 1;\n            meta.seen[key] = index;\n            name = name || `(unknown_${index})`;\n            this.fnMap[index] = {\n                name,\n                decl: this.cloneLocation(decl),\n                loc: this.cloneLocation(loc)\n            };\n        }\n\n        this.f[index] = this.f[index] || 0;\n        this.f[index] += hits;\n        return index;\n    }\n\n    addBranch(type, loc, branchLocations, hits) {\n        const key = ['b', ...branchLocations.map(l => locString(l))].join(':');\n        const { meta } = this;\n        let index = meta.seen[key];\n        if (index === undefined) {\n            index = meta.last.b;\n            meta.last.b += 1;\n            meta.seen[key] = index;\n            this.branchMap[index] = {\n                loc,\n                type,\n                locations: branchLocations.map(l => this.cloneLocation(l))\n            };\n        }\n\n        if (!this.b[index]) {\n            this.b[index] = branchLocations.map(() => 0);\n        }\n\n        hits.forEach((hit, i) => {\n            this.b[index][i] += hit;\n        });\n        return index;\n    }\n\n    /* Returns a clone of the location object with only the attributes of interest */\n    cloneLocation(loc) {\n        return {\n            start: {\n                line: loc.start.line,\n                column: loc.start.column\n            },\n            end: {\n                line: loc.end.line,\n                column: loc.end.column\n            }\n        };\n    }\n}\n\nmodule.exports = {\n    MappedCoverage\n};\n",
-      path: '/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/mapped.js',
+      path: "/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/mapped.js",
       statementMap: {
         0: {
           start: {
@@ -3589,7 +3589,7 @@ window.reportData = {
       },
       fnMap: {
         0: {
-          name: 'locString',
+          name: "locString",
           decl: {
             start: {
               line: 9,
@@ -3613,7 +3613,7 @@ window.reportData = {
           line: 9,
         },
         1: {
-          name: '(anonymous_1)',
+          name: "(anonymous_1)",
           decl: {
             start: {
               line: 19,
@@ -3637,7 +3637,7 @@ window.reportData = {
           line: 19,
         },
         2: {
-          name: '(anonymous_2)',
+          name: "(anonymous_2)",
           decl: {
             start: {
               line: 32,
@@ -3661,7 +3661,7 @@ window.reportData = {
           line: 32,
         },
         3: {
-          name: '(anonymous_3)',
+          name: "(anonymous_3)",
           decl: {
             start: {
               line: 49,
@@ -3685,7 +3685,7 @@ window.reportData = {
           line: 49,
         },
         4: {
-          name: '(anonymous_4)',
+          name: "(anonymous_4)",
           decl: {
             start: {
               line: 71,
@@ -3709,7 +3709,7 @@ window.reportData = {
           line: 71,
         },
         5: {
-          name: '(anonymous_5)',
+          name: "(anonymous_5)",
           decl: {
             start: {
               line: 72,
@@ -3733,7 +3733,7 @@ window.reportData = {
           line: 72,
         },
         6: {
-          name: '(anonymous_6)',
+          name: "(anonymous_6)",
           decl: {
             start: {
               line: 82,
@@ -3757,7 +3757,7 @@ window.reportData = {
           line: 82,
         },
         7: {
-          name: '(anonymous_7)',
+          name: "(anonymous_7)",
           decl: {
             start: {
               line: 87,
@@ -3781,7 +3781,7 @@ window.reportData = {
           line: 87,
         },
         8: {
-          name: '(anonymous_8)',
+          name: "(anonymous_8)",
           decl: {
             start: {
               line: 90,
@@ -3805,7 +3805,7 @@ window.reportData = {
           line: 90,
         },
         9: {
-          name: '(anonymous_9)',
+          name: "(anonymous_9)",
           decl: {
             start: {
               line: 97,
@@ -3841,7 +3841,7 @@ window.reportData = {
               column: 9,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -3877,7 +3877,7 @@ window.reportData = {
               column: 42,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -3913,7 +3913,7 @@ window.reportData = {
               column: 9,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -3949,7 +3949,7 @@ window.reportData = {
               column: 47,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -3985,7 +3985,7 @@ window.reportData = {
               column: 42,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -4021,7 +4021,7 @@ window.reportData = {
               column: 9,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -4057,7 +4057,7 @@ window.reportData = {
               column: 9,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -4155,7 +4155,7 @@ window.reportData = {
     {
       source:
         "/*\n Copyright 2015, Yahoo Inc.\n Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.\n */\n'use strict';\n\nconst path = require('path');\n\nmodule.exports = {\n    isAbsolute: path.isAbsolute,\n    asAbsolute(file, baseDir) {\n        return path.isAbsolute(file)\n            ? file\n            : path.resolve(baseDir || process.cwd(), file);\n    },\n    relativeTo(file, origFile) {\n        return path.isAbsolute(file)\n            ? file\n            : path.resolve(path.dirname(origFile), file);\n    }\n};\n",
-      path: '/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/pathutils.js',
+      path: "/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/pathutils.js",
       statementMap: {
         0: {
           start: {
@@ -4200,7 +4200,7 @@ window.reportData = {
       },
       fnMap: {
         0: {
-          name: '(anonymous_0)',
+          name: "(anonymous_0)",
           decl: {
             start: {
               line: 11,
@@ -4224,7 +4224,7 @@ window.reportData = {
           line: 11,
         },
         1: {
-          name: '(anonymous_1)',
+          name: "(anonymous_1)",
           decl: {
             start: {
               line: 16,
@@ -4260,7 +4260,7 @@ window.reportData = {
               column: 58,
             },
           },
-          type: 'cond-expr',
+          type: "cond-expr",
           locations: [
             {
               start: {
@@ -4296,7 +4296,7 @@ window.reportData = {
               column: 51,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -4332,7 +4332,7 @@ window.reportData = {
               column: 56,
             },
           },
-          type: 'cond-expr',
+          type: "cond-expr",
           locations: [
             {
               start: {
@@ -4377,7 +4377,7 @@ window.reportData = {
     {
       source:
         "/*\n Copyright 2015, Yahoo Inc.\n Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.\n */\n'use strict';\n\nfunction getUniqueKey(pathname) {\n    return pathname.replace(/[\\\\/]/g, '_');\n}\n\nfunction getOutput(cache) {\n    return Object.values(cache).reduce(\n        (output, { file, mappedCoverage }) => ({\n            ...output,\n            [file]: mappedCoverage\n        }),\n        {}\n    );\n}\n\nmodule.exports = { getUniqueKey, getOutput };\n",
-      path: '/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/transform-utils.js',
+      path: "/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/transform-utils.js",
       statementMap: {
         0: {
           start: {
@@ -4422,7 +4422,7 @@ window.reportData = {
       },
       fnMap: {
         0: {
-          name: 'getUniqueKey',
+          name: "getUniqueKey",
           decl: {
             start: {
               line: 7,
@@ -4446,7 +4446,7 @@ window.reportData = {
           line: 7,
         },
         1: {
-          name: 'getOutput',
+          name: "getOutput",
           decl: {
             start: {
               line: 11,
@@ -4470,7 +4470,7 @@ window.reportData = {
           line: 11,
         },
         2: {
-          name: '(anonymous_2)',
+          name: "(anonymous_2)",
           decl: {
             start: {
               line: 13,
@@ -4511,7 +4511,7 @@ window.reportData = {
     {
       source:
         "/*\n Copyright 2015, Yahoo Inc.\n Copyrights licensed under the New BSD License. See the accompanying LICENSE file for terms.\n */\n'use strict';\n\nconst debug = require('debug')('istanbuljs');\nconst libCoverage = require('istanbul-lib-coverage');\nconst { MappedCoverage } = require('./mapped');\nconst getMapping = require('./get-mapping');\nconst { getUniqueKey, getOutput } = require('./transform-utils');\n\nclass SourceMapTransformer {\n    constructor(finder, opts = {}) {\n        this.finder = finder;\n        this.baseDir = opts.baseDir || process.cwd();\n        this.resolveMapping = opts.getMapping || getMapping;\n    }\n\n    processFile(fc, sourceMap, coverageMapper) {\n        let changes = 0;\n\n        Object.entries(fc.statementMap).forEach(([s, loc]) => {\n            const hits = fc.s[s];\n            const mapping = this.resolveMapping(sourceMap, loc, fc.path);\n\n            if (mapping) {\n                changes += 1;\n                const mappedCoverage = coverageMapper(mapping.source);\n                mappedCoverage.addStatement(mapping.loc, hits);\n            }\n        });\n\n        Object.entries(fc.fnMap).forEach(([f, fnMeta]) => {\n            const hits = fc.f[f];\n            const mapping = this.resolveMapping(\n                sourceMap,\n                fnMeta.decl,\n                fc.path\n            );\n\n            const spanMapping = this.resolveMapping(\n                sourceMap,\n                fnMeta.loc,\n                fc.path\n            );\n\n            if (\n                mapping &&\n                spanMapping &&\n                mapping.source === spanMapping.source\n            ) {\n                changes += 1;\n                const mappedCoverage = coverageMapper(mapping.source);\n                mappedCoverage.addFunction(\n                    fnMeta.name,\n                    mapping.loc,\n                    spanMapping.loc,\n                    hits\n                );\n            }\n        });\n\n        Object.entries(fc.branchMap).forEach(([b, branchMeta]) => {\n            const hits = fc.b[b];\n            const locs = [];\n            const mappedHits = [];\n            let source;\n            let skip;\n\n            branchMeta.locations.forEach((loc, i) => {\n                const mapping = this.resolveMapping(sourceMap, loc, fc.path);\n                if (mapping) {\n                    if (!source) {\n                        source = mapping.source;\n                    }\n\n                    if (mapping.source !== source) {\n                        skip = true;\n                    }\n\n                    locs.push(mapping.loc);\n                    mappedHits.push(hits[i]);\n                }\n                // Check if this is an implicit else\n                else if (\n                    source &&\n                    branchMeta.type === 'if' &&\n                    i > 0 &&\n                    loc.start.line === undefined &&\n                    loc.start.end === undefined &&\n                    loc.end.line === undefined &&\n                    loc.end.end === undefined\n                ) {\n                    locs.push(loc);\n                    mappedHits.push(hits[i]);\n                }\n            });\n\n            const locMapping = branchMeta.loc\n                ? this.resolveMapping(sourceMap, branchMeta.loc, fc.path)\n                : null;\n\n            if (!skip && locs.length > 0) {\n                changes += 1;\n                const mappedCoverage = coverageMapper(source);\n                mappedCoverage.addBranch(\n                    branchMeta.type,\n                    locMapping ? locMapping.loc : locs[0],\n                    locs,\n                    mappedHits\n                );\n            }\n        });\n\n        return changes > 0;\n    }\n\n    async transform(coverageMap) {\n        const uniqueFiles = {};\n        const getMappedCoverage = file => {\n            const key = getUniqueKey(file);\n            if (!uniqueFiles[key]) {\n                uniqueFiles[key] = {\n                    file,\n                    mappedCoverage: new MappedCoverage(file)\n                };\n            }\n\n            return uniqueFiles[key].mappedCoverage;\n        };\n\n        for (const file of coverageMap.files()) {\n            const fc = coverageMap.fileCoverageFor(file);\n            const sourceMap = await this.finder(file, fc);\n\n            if (sourceMap) {\n                const changed = this.processFile(\n                    fc,\n                    sourceMap,\n                    getMappedCoverage\n                );\n                if (!changed) {\n                    debug(`File [${file}] ignored, nothing could be mapped`);\n                }\n            } else {\n                uniqueFiles[getUniqueKey(file)] = {\n                    file,\n                    mappedCoverage: new MappedCoverage(fc)\n                };\n            }\n        }\n\n        return libCoverage.createCoverageMap(getOutput(uniqueFiles));\n    }\n}\n\nmodule.exports = {\n    SourceMapTransformer\n};\n",
-      path: '/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/transformer.js',
+      path: "/Users/travzhang/github.com/istanbuljs/istanbuljs/packages/istanbul-lib-source-maps/lib/transformer.js",
       statementMap: {
         0: {
           start: {
@@ -5136,7 +5136,7 @@ window.reportData = {
       },
       fnMap: {
         0: {
-          name: '(anonymous_0)',
+          name: "(anonymous_0)",
           decl: {
             start: {
               line: 14,
@@ -5160,7 +5160,7 @@ window.reportData = {
           line: 14,
         },
         1: {
-          name: '(anonymous_1)',
+          name: "(anonymous_1)",
           decl: {
             start: {
               line: 20,
@@ -5184,7 +5184,7 @@ window.reportData = {
           line: 20,
         },
         2: {
-          name: '(anonymous_2)',
+          name: "(anonymous_2)",
           decl: {
             start: {
               line: 23,
@@ -5208,7 +5208,7 @@ window.reportData = {
           line: 23,
         },
         3: {
-          name: '(anonymous_3)',
+          name: "(anonymous_3)",
           decl: {
             start: {
               line: 34,
@@ -5232,7 +5232,7 @@ window.reportData = {
           line: 34,
         },
         4: {
-          name: '(anonymous_4)',
+          name: "(anonymous_4)",
           decl: {
             start: {
               line: 64,
@@ -5256,7 +5256,7 @@ window.reportData = {
           line: 64,
         },
         5: {
-          name: '(anonymous_5)',
+          name: "(anonymous_5)",
           decl: {
             start: {
               line: 71,
@@ -5280,7 +5280,7 @@ window.reportData = {
           line: 71,
         },
         6: {
-          name: '(anonymous_6)',
+          name: "(anonymous_6)",
           decl: {
             start: {
               line: 119,
@@ -5304,7 +5304,7 @@ window.reportData = {
           line: 119,
         },
         7: {
-          name: '(anonymous_7)',
+          name: "(anonymous_7)",
           decl: {
             start: {
               line: 121,
@@ -5340,7 +5340,7 @@ window.reportData = {
               column: 33,
             },
           },
-          type: 'default-arg',
+          type: "default-arg",
           locations: [
             {
               start: {
@@ -5366,7 +5366,7 @@ window.reportData = {
               column: 52,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -5402,7 +5402,7 @@ window.reportData = {
               column: 59,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -5438,7 +5438,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -5474,7 +5474,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -5510,7 +5510,7 @@ window.reportData = {
               column: 53,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -5556,7 +5556,7 @@ window.reportData = {
               column: 17,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -5592,7 +5592,7 @@ window.reportData = {
               column: 21,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -5628,7 +5628,7 @@ window.reportData = {
               column: 21,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -5664,7 +5664,7 @@ window.reportData = {
               column: 17,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -5700,7 +5700,7 @@ window.reportData = {
               column: 45,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -5786,7 +5786,7 @@ window.reportData = {
               column: 22,
             },
           },
-          type: 'cond-expr',
+          type: "cond-expr",
           locations: [
             {
               start: {
@@ -5822,7 +5822,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -5858,7 +5858,7 @@ window.reportData = {
               column: 40,
             },
           },
-          type: 'binary-expr',
+          type: "binary-expr",
           locations: [
             {
               start: {
@@ -5894,7 +5894,7 @@ window.reportData = {
               column: 57,
             },
           },
-          type: 'cond-expr',
+          type: "cond-expr",
           locations: [
             {
               start: {
@@ -5930,7 +5930,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -5966,7 +5966,7 @@ window.reportData = {
               column: 13,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {
@@ -6002,7 +6002,7 @@ window.reportData = {
               column: 17,
             },
           },
-          type: 'if',
+          type: "if",
           locations: [
             {
               start: {

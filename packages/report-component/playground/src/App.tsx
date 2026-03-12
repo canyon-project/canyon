@@ -1,6 +1,6 @@
-import { genSummaryMapByCoverageMap } from 'canyon-data';
-import { useState } from 'react';
-import { CanyonReport } from '../../src';
+import { genSummaryMapByCoverageMap } from "canyon-data";
+import { useState } from "react";
+import { CanyonReport } from "../../src";
 
 // 扩展 Window 接口
 declare global {
@@ -20,16 +20,14 @@ declare global {
 }
 
 function App() {
-  const [value, setValue] = useState(
-    'packages/istanbul-lib-source-maps/lib/map-store.js',
-  );
+  const [value, setValue] = useState("packages/istanbul-lib-source-maps/lib/map-store.js");
 
   const { files: dataSource = [], instrumentCwd } = window.reportData;
 
   const _dataSource = dataSource.map((item) => {
     return {
       ...item,
-      path: item.path.replace(`${instrumentCwd}/`, ''),
+      path: item.path.replace(`${instrumentCwd}/`, ""),
     };
   });
 
@@ -40,10 +38,10 @@ function App() {
     }, {}),
     [
       {
-        path: 'packages/istanbul-lib-source-maps/lib/map-store.js',
+        path: "packages/istanbul-lib-source-maps/lib/map-store.js",
         additions: [
-          1, 10, 11, 12, 13, 20, 30, 31, 32, 33, 50, 60, 70, 80, 90, 100, 110,
-          120, 130, 140, 150, 160, 170, 180,
+          1, 10, 11, 12, 13, 20, 30, 31, 32, 33, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150,
+          160, 170, 180,
         ],
       },
     ],
@@ -62,7 +60,7 @@ function App() {
       } else {
         resolve({
           fileCoverage: undefined,
-          fileContent: '',
+          fileContent: "",
           fileCodeChange: [],
         });
       }
@@ -72,11 +70,11 @@ function App() {
   return (
     <div
       style={{
-        height: 'calc(100vh - 16px)',
+        height: "calc(100vh - 16px)",
       }}
     >
       <CanyonReport
-        name={'All files'}
+        name={"All files"}
         value={value}
         dataSource={Object.values(summaryMapByCoverageMap)}
         onSelect={onSelect}

@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash } from "node:crypto";
 
 /**
  * 计算字符串的 SHA1 hash
@@ -7,5 +7,5 @@ import { createHash } from 'node:crypto';
  * @returns SHA1 hash 字符串
  */
 export function computeHash(content: string): string {
-  return createHash('sha1').update(content).digest('hex');
+  return createHash("sha1").update(content).digest("hex");
 }

@@ -1,20 +1,20 @@
 {
   "name": "@canyonjs/report-html",
   "version": "1.0.22",
-  "author": "Travis Zhang<https://github.com/travzhang>",
+  "homepage": "https://github.com/canyon-project/canyon#readme",
   "license": "MIT",
+  "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
     "type": "git",
     "url": "https://github.com/canyon-project/canyon"
   },
-  "homepage": "https://github.com/canyon-project/canyon#readme",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev-report-html": "rspack dev",
     "build": "rspack build"
   },
-  "files": [
-    "dist"
-  ],
   "dependencies": {
     "@canyonjs/report-component": "catalog:",
     "@ibm/plex-mono": "1.1.0",
@@ -30,9 +30,9 @@
     "@rspack/plugin-react-refresh": "^1.5.3",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "copy-webpack-plugin": "^13.0.1",
     "monaco-editor-webpack-plugin": "^7.1.1",
-    "react-refresh": "^0.18.0",
-    "@typescript/native-preview": "catalog:"
+    "react-refresh": "^0.18.0"
   }
 }

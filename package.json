@@ -1,8 +1,8 @@
 {
   "name": "@canyonjs/monorepo",
   "version": "3.0.0",
-  "description": "",
   "private": true,
+  "description": "",
   "scripts": {
     "preinstall": "node ./scripts/check.mjs",
     "clean": "node ./scripts/clean.mjs",
@@ -13,10 +13,15 @@
     "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs",
     "coverage:merge": "node ./scripts/merge-coverage.mjs",
     "coverage:report": "nyc report --reporter=@canyonjs/report --reporter=json --report-dir=coverage",
-    "coverage": "pnpm run coverage:merge && pnpm run coverage:report"
+    "coverage": "pnpm run coverage:merge && pnpm run coverage:report",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt"
   },
   "devDependencies": {
-    "prisma": "6",
-    "nyc": "latest"
+    "nyc": "latest",
+    "oxfmt": "^0.35.0",
+    "oxlint": "^1.50.0",
+    "prisma": "6"
   }
 }

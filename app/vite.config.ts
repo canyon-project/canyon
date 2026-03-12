@@ -13,11 +13,7 @@ export default defineConfig({
   },
   plugins: [
     react({
-      plugins:[
-        ['swc-plugin-coverage-instrument',{
-
-        }]
-      ]
+      plugins: [["swc-plugin-coverage-instrument", {}]],
     }),
     Pages({
       exclude: ["**/views/**", "**/helpers/**"],

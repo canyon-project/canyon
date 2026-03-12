@@ -2,23 +2,25 @@
   "name": "webpack-babel-ts",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
   "main": "index.js",
   "scripts": {
     "build-ts": "tsgo",
     "build-webpack-babel-ts": "npm run build-ts && webpack --mode production"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "devDependencies": {
-    "babel-loader": "latest",
-    "babel-plugin-istanbul": "latest",
-    "babel-plugin-canyon": "latest",
     "@typescript/native-preview": "catalog:",
+    "babel-loader": "latest",
+    "babel-plugin-canyon": "latest",
+    "babel-plugin-istanbul": "latest",
     "webpack": "latest",
     "webpack-cli": "latest"
   },
   "nyc": {
-    "include": ["build/**"]
+    "include": [
+      "build/**"
+    ]
   }
 }

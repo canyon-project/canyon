@@ -1,16 +1,16 @@
 const e = () => {
-  const t = document.createElement('script');
-  (t.type = 'text/javascript'),
-    (t.className = 'content_scripts'),
-    (t.src = chrome.runtime.getURL('interceptor.js')),
-    (document.head || document.documentElement).appendChild(t);
+  const t = document.createElement("script");
+  ((t.type = "text/javascript"),
+    (t.className = "content_scripts"),
+    (t.src = chrome.runtime.getURL("interceptor.js")),
+    (document.head || document.documentElement).appendChild(t));
 };
 e();
 
 let casualCoverageAndCanyonData = null;
 
-window.addEventListener('message', (e) => {
-  if (e.data.type === '__canyon__event_get_coverage_and_canyon_data_response') {
+window.addEventListener("message", (e) => {
+  if (e.data.type === "__canyon__event_get_coverage_and_canyon_data_response") {
     casualCoverageAndCanyonData = e.data.payload;
   }
 });
@@ -18,14 +18,14 @@ window.addEventListener('message', (e) => {
 function getCoverageAndCanyonData(reportID, intervalTime, reporter) {
   window.postMessage(
     {
-      type: '__canyon__event_get_coverage_and_canyon_data_request',
+      type: "__canyon__event_get_coverage_and_canyon_data_request",
       payload: {
         reportID,
         intervalTime,
         reporter,
       },
     },
-    '*',
+    "*",
   );
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -35,7 +35,7 @@ function getCoverageAndCanyonData(reportID, intervalTime, reporter) {
 }
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  if (request.type === '__canyon__') {
+  if (request.type === "__canyon__") {
     getCoverageAndCanyonData(request?.payload?.reportID).then((res) => {
       casualCoverageAndCanyonData = null;
       sendResponse(res);

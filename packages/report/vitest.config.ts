@@ -1,20 +1,20 @@
-import path from 'node:path';
-import { defineConfig } from 'vitest/config';
-import { mockDiff } from './mock-diff';
+import path from "node:path";
+import { defineConfig } from "vitest/config";
+import { mockDiff } from "./mock-diff";
 
 export default defineConfig({
-  test:{
+  test: {
     coverage: {
-      provider: 'istanbul',
+      provider: "istanbul",
       reporter: [
-        'json',
+        "json",
         [
-          path.resolve(__dirname, './dist/index.cjs'),
+          path.resolve(__dirname, "./dist/index.cjs"),
           {
             diff: mockDiff,
           },
         ],
       ],
     },
-  }
+  },
 });

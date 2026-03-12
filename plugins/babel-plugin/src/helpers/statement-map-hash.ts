@@ -1,4 +1,4 @@
-import { computeHash } from './hash';
+import { computeHash } from "./hash";
 
 /**
  * Location 位置信息接口
@@ -18,8 +18,8 @@ interface Location {
  * StatementMap 条目接口
  */
 interface StatementMapEntry {
-  start: Location['start'];
-  end: Location['end'];
+  start: Location["start"];
+  end: Location["end"];
   contentHash?: string;
 }
 
@@ -33,24 +33,24 @@ interface StatementMapEntry {
  */
 function extractCodeSnippet(
   sourceCode: string,
-  start: Location['start'],
-  end: Location['end'],
+  start: Location["start"],
+  end: Location["end"],
 ): string {
-  const lines = sourceCode.split('\n');
+  const lines = sourceCode.split("\n");
 
   // 行号从 1 开始，数组索引从 0 开始
   const startLineIndex = start.line - 1;
   const endLineIndex = end.line - 1;
 
   if (startLineIndex < 0 || endLineIndex >= lines.length) {
-    return '';
+    return "";
   }
 
   // 如果是同一行
   if (startLineIndex === endLineIndex) {
     const line = lines[startLineIndex];
     if (!line) {
-      return '';
+      return "";
     }
     return line.slice(start.column, end.column);
   }
@@ -59,14 +59,14 @@ function extractCodeSnippet(
   const startLine = lines[startLineIndex];
   const endLine = lines[endLineIndex];
   if (!startLine || !endLine) {
-    return '';
+    return "";
   }
 
   const firstLinePart = startLine.slice(start.column);
   const middleLines = lines.slice(startLineIndex + 1, endLineIndex);
   const lastLinePart = endLine.slice(0, end.column);
 
-  return [firstLinePart, ...middleLines, lastLinePart].join('\n');
+  return [firstLinePart, ...middleLines, lastLinePart].join("\n");
 }
 
 /**
@@ -80,7 +80,7 @@ export function enrichStatementMapWithHash(
   statementMap: Record<string, StatementMapEntry>,
   sourceCode: string,
 ): void {
-  if (!statementMap || typeof statementMap !== 'object') {
+  if (!statementMap || typeof statementMap !== "object") {
     return;
   }
 
@@ -88,20 +88,16 @@ export function enrichStatementMapWithHash(
     const entry = statementMap[key];
     if (
       entry &&
-      typeof entry === 'object' &&
+      typeof entry === "object" &&
       entry.start &&
       entry.end &&
-      typeof entry.start.line === 'number' &&
-      typeof entry.start.column === 'number' &&
-      typeof entry.end.line === 'number' &&
-      typeof entry.end.column === 'number'
+      typeof entry.start.line === "number" &&
+      typeof entry.start.column === "number" &&
+      typeof entry.end.line === "number" &&
+      typeof entry.end.column === "number"
     ) {
       try {
-        const codeSnippet = extractCodeSnippet(
-          sourceCode,
-          entry.start,
-          entry.end,
-        );
+        const codeSnippet = extractCodeSnippet(sourceCode, entry.start, entry.end);
         if (codeSnippet) {
           entry.contentHash = computeHash(codeSnippet);
         }

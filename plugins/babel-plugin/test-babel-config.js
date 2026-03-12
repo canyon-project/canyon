@@ -1,13 +1,13 @@
 module.exports = {
   plugins: [
-    'istanbul',
+    "istanbul",
     [
-      './dist',
+      "./dist",
       {
-        repoID: '9050',
-        sha: 'xxxxx',
-        provider: 'gitlab',
-        buildTarget: '',
+        repoID: "9050",
+        sha: "xxxxx",
+        provider: "gitlab",
+        buildTarget: "",
         ci: true,
         keepMap: true,
       },

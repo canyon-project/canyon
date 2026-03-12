@@ -1,9 +1,9 @@
-import { FileOutlined, FolderFilled } from '@ant-design/icons';
-import { ConfigProvider, Progress, Table } from 'antd';
-import type { CoverageSummaryData } from 'istanbul-lib-coverage';
-import type React from 'react';
-import type { FC } from 'react';
-import { getColor } from '../helpers/color';
+import { FileOutlined, FolderFilled } from "@ant-design/icons";
+import { ConfigProvider, Progress, Table } from "antd";
+import type { CoverageSummaryData } from "istanbul-lib-coverage";
+import type React from "react";
+import type { FC } from "react";
+import { getColor } from "../helpers/color";
 
 // import { getColor } from "../helpers";
 
@@ -21,52 +21,52 @@ const SummaryTree: FC<{
 
   const columns = [
     {
-      title: t('Files'),
-      key: 'path',
-      dataIndex: 'path',
+      title: t("Files"),
+      key: "path",
+      dataIndex: "path",
       render(text) {
         return (
           <a
             style={{
-              display: 'flex',
-              gap: '2px',
-              alignItems: 'center',
+              display: "flex",
+              gap: "2px",
+              alignItems: "center",
             }}
             onClick={() => {
               onSelect(text);
             }}
           >
             {/\.(js|jsx|ts|tsx|vue)$/.test(text) && checkSuffix(text) ? (
-              <FileOutlined style={{ fontSize: '16px' }} />
+              <FileOutlined style={{ fontSize: "16px" }} />
             ) : (
-              <FolderFilled style={{ fontSize: '16px' }} />
+              <FolderFilled style={{ fontSize: "16px" }} />
             )}
-            {text.split('/').at(-1)}
+            {text.split("/").at(-1)}
           </a>
         );
       },
     },
     {
-      title: t('Total'),
-      key: 'total',
-      dataIndex: ['statements', 'total'],
+      title: t("Total"),
+      key: "total",
+      dataIndex: ["statements", "total"],
       sorter(a, b) {
         return a.statements.total - b.statements.total;
       },
     },
     {
-      title: t('Covered'),
-      key: 'covered',
-      dataIndex: ['statements', 'covered'],
+      title: t("Covered"),
+      key: "covered",
+      dataIndex: ["statements", "covered"],
       sorter(a, b) {
         return a.statements.covered - b.statements.covered;
       },
     },
     {
-      title: t('Change Statements'),
-      key: 'changestatements',
-      dataIndex: ['changestatements'],
-      width: '220px',
+      title: t("Change Statements"),
+      key: "changestatements",
+      dataIndex: ["changestatements"],
+      width: "220px",
       render(_) {
         _ = _ || {
           pct: 100,
@@ -76,25 +76,25 @@ const SummaryTree: FC<{
         return (
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
+              display: "flex",
+              alignItems: "center",
             }}
           >
             <Progress
               percent={_.pct}
-              strokeLinecap='butt'
-              size={'small'}
+              strokeLinecap="butt"
+              size={"small"}
               strokeColor={getColor(_.pct)}
               style={{
-                width: '100px',
-                paddingRight: '5px',
-                fontSize: '10px',
+                width: "100px",
+                paddingRight: "5px",
+                fontSize: "10px",
               }}
-              status={'normal'}
+              status={"normal"}
             />
             <span
               style={{
-                fontSize: '10px',
+                fontSize: "10px",
               }}
             >
               ({`${_.covered}/${_.total}`})
@@ -104,10 +104,10 @@ const SummaryTree: FC<{
       },
     },
     {
-      title: `${t('Coverage')} %`,
-      width: '240px',
-      key: 'c',
-      dataIndex: ['statements', 'pct'],
+      title: `${t("Coverage")} %`,
+      width: "240px",
+      key: "c",
+      dataIndex: ["statements", "pct"],
       sorter(a, b) {
         return a.statements.pct - b.statements.pct;
       },
@@ -115,28 +115,28 @@ const SummaryTree: FC<{
         return (
           <Progress
             percent={text}
-            strokeLinecap='butt'
-            size={'small'}
+            strokeLinecap="butt"
+            size={"small"}
             strokeColor={getColor(text)}
             style={{
-              paddingRight: '5px',
+              paddingRight: "5px",
             }}
-            status={'normal'}
+            status={"normal"}
           />
         );
       },
     },
   ].filter((c) => {
     // Files 列始终显示
-    if (c.key === 'path') {
+    if (c.key === "path") {
       return true;
     }
     // 变更模式：只显示 changestatements 列
     if (onlyChange) {
-      return c.key === 'changestatements';
+      return c.key === "changestatements";
     }
     // 非变更模式：显示其他列，不显示 changestatements
-    return c.key !== 'changestatements';
+    return c.key !== "changestatements";
   });
   return (
     <div style={style}>
@@ -148,10 +148,10 @@ const SummaryTree: FC<{
         }}
       >
         <Table
-          rowKey={'path'}
+          rowKey={"path"}
           bordered={true}
           pagination={false}
-          size={'small'}
+          size={"small"}
           dataSource={dataSource}
           columns={columns}
         />

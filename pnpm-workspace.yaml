@@ -7,20 +7,20 @@ packages:
   - app
 
 catalog:
-  '@ant-design/icons': 6.1.0
-  '@canyonjs/report': 1.0.20
-  '@canyonjs/report-component': 1.0.20
-  '@canyonjs/report-html': 1.0.22
-  '@types/istanbul-lib-coverage': ^2.0.6
-  '@types/istanbul-lib-report': ^3.0.3
-  '@types/istanbul-lib-source-maps': ^4.0.4
-  '@types/istanbul-reports': ^3.0.4
-  '@types/node': ^24.10.1
-  '@types/react': 19.2.3
-  '@types/react-dom': 19.2.3
-  '@typescript/native-preview': 7.0.0-dev.20260223.1
-  '@vitest/coverage-istanbul': 4.0.18
-  '@vitest/coverage-v8': ^4.0.16
+  "@ant-design/icons": 6.1.0
+  "@canyonjs/report": 1.0.20
+  "@canyonjs/report-component": 1.0.20
+  "@canyonjs/report-html": 1.0.22
+  "@types/istanbul-lib-coverage": ^2.0.6
+  "@types/istanbul-lib-report": ^3.0.3
+  "@types/istanbul-lib-source-maps": ^4.0.4
+  "@types/istanbul-reports": ^3.0.4
+  "@types/node": ^24.10.1
+  "@types/react": 19.2.3
+  "@types/react-dom": 19.2.3
+  "@typescript/native-preview": 7.0.0-dev.20260223.1
+  "@vitest/coverage-istanbul": 4.0.18
+  "@vitest/coverage-v8": ^4.0.16
   antd: 6.1.0
   class-validator: ^0.14.3
   dotenv: ^17.2.3
@@ -40,11 +40,11 @@ catalogMode: prefer
 
 onlyBuiltDependencies:
   - better-sqlite3
-  - '@prisma/client'
+  - "@prisma/client"
   - prisma
 
 overrides:
-  '@typescript/native-preview': 7.0.0-dev.20260223.1
+  "@typescript/native-preview": 7.0.0-dev.20260223.1
   vite: 8.0.0-beta.15
 
 shellEmulator: true

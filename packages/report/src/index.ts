@@ -1,10 +1,10 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import type { FileCoverage } from 'istanbul-lib-coverage';
-import type { Context, Node, Tree } from 'istanbul-lib-report';
-import { ReportBase } from 'istanbul-lib-report';
-import { CoverageReport } from './coverage-report';
-import type { ReportConfig } from './types';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import type { FileCoverage } from "istanbul-lib-coverage";
+import type { Context, Node, Tree } from "istanbul-lib-report";
+import { ReportBase } from "istanbul-lib-report";
+import { CoverageReport } from "./coverage-report";
+import type { ReportConfig } from "./types";
 
 export default class CustomReporter extends ReportBase {
   private coverage: Record<string, FileCoverage> = {};
@@ -27,16 +27,16 @@ export default class CustomReporter extends ReportBase {
   async onEnd(_rootNode: Tree, context: Context): Promise<void> {
     // 如果 reportConfig.diff 不存在，尝试从当前工作目录读取 diff.txt
     if (!this.reportConfig.diff) {
-      const diffFilePath = path.resolve(process.cwd(), 'diff.txt');
+      const diffFilePath = path.resolve(process.cwd(), "diff.txt");
       if (fs.existsSync(diffFilePath)) {
         try {
-          const diffContent = fs.readFileSync(diffFilePath, 'utf-8');
+          const diffContent = fs.readFileSync(diffFilePath, "utf-8");
           this.reportConfig.diff = diffContent;
         } catch (error) {
           // 忽略读取错误
         }
       } else {
-        console.log('diff.txt file not found at: %s', diffFilePath);
+        console.log("diff.txt file not found at: %s", diffFilePath);
       }
     }
 
@@ -48,9 +48,6 @@ export default class CustomReporter extends ReportBase {
       reportConfig: this.reportConfig,
     });
 
-    console.log(
-      'Report generation completed successfully. Report path: %s',
-      result.reportPath,
-    );
+    console.log("Report generation completed successfully. Report path: %s", result.reportPath);
   }
 }

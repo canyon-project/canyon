@@ -1,4 +1,4 @@
-export type CoverageStatus = 'high' | 'medium' | 'low';
+export type CoverageStatus = "high" | "medium" | "low";
 
 export interface Watermarks {
   bytes: [number, number];

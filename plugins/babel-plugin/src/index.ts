@@ -1,18 +1,18 @@
-import type { ConfigAPI, NodePath } from '@babel/core';
-import { declare } from '@babel/helper-plugin-utils';
-import type * as t from '@babel/types';
-import { detectCIConfig } from './helpers/detect-ci-config';
-import type { CanyonBabelPluginConfig } from './types';
-import { visitorProgramExit } from './visitor-program-exit';
+import type { ConfigAPI, NodePath } from "@babel/core";
+import { declare } from "@babel/helper-plugin-utils";
+import type * as t from "@babel/types";
+import { detectCIConfig } from "./helpers/detect-ci-config";
+import type { CanyonBabelPluginConfig } from "./types";
+import { visitorProgramExit } from "./visitor-program-exit";
 
 /**
  * 默认配置对象
  */
 const defaultConfig: Required<CanyonBabelPluginConfig> = {
-  repoID: '',
-  sha: '',
-  provider: '',
-  buildTarget: '',
+  repoID: "",
+  sha: "",
+  provider: "",
+  buildTarget: "",
   ci: false,
   instrumentCwd: process.cwd(),
   keepMap: false,
@@ -36,8 +36,7 @@ function mergeConfig(
     sha: config?.sha ?? ciConfig.sha ?? defaultConfig.sha,
     // branch: config?.branch ?? ciConfig.branch ?? defaultConfig.branch,
     provider: config?.provider ?? ciConfig.provider ?? defaultConfig.provider,
-    buildTarget:
-      config?.buildTarget ?? ciConfig.buildTarget ?? defaultConfig.buildTarget,
+    buildTarget: config?.buildTarget ?? ciConfig.buildTarget ?? defaultConfig.buildTarget,
     ci: config?.ci ?? ciConfig.ci ?? defaultConfig.ci,
     instrumentCwd: config?.instrumentCwd ?? defaultConfig.instrumentCwd,
     keepMap: config?.keepMap ?? defaultConfig.keepMap,

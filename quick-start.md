@@ -12,7 +12,6 @@ git clone https://github.com/canyon-project/canyon
 
 npm run migrate:sql => schema.sql
 
-
 插入 canyon_next_infra_config 数据，注意自己的GITLAB_PRIVATE_TOKEN
 
 packages/backend/prisma/import-infra.sql

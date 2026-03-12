@@ -1,8 +1,8 @@
-import { TestEnum } from './enums';
+import { TestEnum } from "./enums";
 
 class Main {
   sayHello() {
-    console.log('Hello World!');
+    console.log("Hello World!");
     console.log(TestEnum.A);
   }
 }
