@@ -4,6 +4,7 @@ packages:
   - examples/*
   - tools/*
   - plugins/*
+  - app
 
 catalog:
   '@ant-design/icons': 6.1.0
