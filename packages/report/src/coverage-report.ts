@@ -1,11 +1,11 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { genSummaryMapByCoverageMap, genSummaryTreeItem } from 'canyon-data';
-import type { FileCoverage } from 'istanbul-lib-coverage';
-import { createRequire } from 'module';
-import parseDiff from 'parse-diff';
-import { compress } from './compress';
+import * as fs from "node:fs";
+import * as path from "node:path";
+import { fileURLToPath } from "node:url";
+import { genSummaryMapByCoverageMap, genSummaryTreeItem } from "canyon-data";
+import type { FileCoverage } from "istanbul-lib-coverage";
+import { createRequire } from "module";
+import parseDiff from "parse-diff";
+import { compress } from "./compress";
 import type {
   ChangedCoverage,
   DiffMap,
@@ -13,7 +13,7 @@ import type {
   GenerateOptions,
   GenerateResult,
   ReportData,
-} from './types';
+} from "./types";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -76,10 +76,7 @@ export class CoverageReport {
    * @param addLines - 新增的行号数组
    * @returns 变更覆盖率统计信息
    */
-  private calculateChangedCoverage(
-    fileData: FileCoverage,
-    addLines: number[],
-  ): ChangedCoverage {
+  private calculateChangedCoverage(fileData: FileCoverage, addLines: number[]): ChangedCoverage {
     if (!addLines || addLines.length === 0) {
       return {
         total: 0,
@@ -178,15 +175,10 @@ export class CoverageReport {
         const fileDiff = this.matchFileDiff(filePath, diffMap);
         const addLines = fileDiff?.additions || [];
         const delLines = fileDiff?.deletions || [];
-        const changedLines = [...new Set([...addLines, ...delLines])].sort(
-          (a, b) => a - b,
-        );
+        const changedLines = [...new Set([...addLines, ...delLines])].sort((a, b) => a - b);
 
         // 计算变更覆盖率
-        const changedCoverage = this.calculateChangedCoverage(
-          fileData,
-          addLines,
-        );
+        const changedCoverage = this.calculateChangedCoverage(fileData, addLines);
 
         return {
           source,
@@ -215,20 +207,19 @@ export class CoverageReport {
     });
 
     const summaryResult = genSummaryTreeItem(
-      '',
+      "",
       genSummaryMapByCoverageMap(this.genCov(files), change1),
     );
-    const newlinesPercent =
-      (summaryResult.summary as any).changestatements?.pct ?? 0;
+    const newlinesPercent = (summaryResult.summary as any).changestatements?.pct ?? 0;
 
     // 将 newlinesPercent 添加到 summary
-    summary['newlinesPercent'] = newlinesPercent;
+    summary["newlinesPercent"] = newlinesPercent;
 
     const reportData: ReportData = {
       instrumentCwd: process.cwd(),
-      type: 'v8',
-      reportPath: 'coverage/index.html',
-      version: '2.12.9',
+      type: "v8",
+      reportPath: "coverage/index.html",
+      version: "2.12.9",
       generatedAt: new Date().toISOString(),
       watermarks: {
         bytes: [50, 80],
@@ -244,7 +235,7 @@ export class CoverageReport {
     return reportData;
   }
 
-  private diffFn(diff = ''): DiffMap {
+  private diffFn(diff = ""): DiffMap {
     if (!diff) {
       return {};
     }
@@ -262,10 +253,10 @@ export class CoverageReport {
 
       file.chunks.forEach((chunk) => {
         chunk.changes.forEach((change) => {
-          if (change.type === 'add' && change.ln) {
+          if (change.type === "add" && change.ln) {
             additions.push(change.ln);
           }
-          if (change.type === 'del' && change.ln) {
+          if (change.type === "del" && change.ln) {
             deletions.push(change.ln);
           }
         });
@@ -289,7 +280,7 @@ export class CoverageReport {
     reportConfig,
   }: GenerateOptions): Promise<GenerateResult> {
     // 解析 diff 数据
-    const diffMap = this.diffFn(reportConfig?.diff || '');
+    const diffMap = this.diffFn(reportConfig?.diff || "");
 
     this.initOptions();
 
@@ -299,15 +290,15 @@ export class CoverageReport {
     // 复制dist文件夹内容到targetDir
     // 从 @canyonjs/report-html 包中复制 dist 目录
     try {
-      const reportHtmlPath = require.resolve('@canyonjs/report-html');
+      const reportHtmlPath = require.resolve("@canyonjs/report-html");
       const reportHtmlDir = path.dirname(reportHtmlPath);
-      const sourceDir = path.join(reportHtmlDir, 'dist');
+      const sourceDir = path.join(reportHtmlDir, "dist");
       if (fs.existsSync(sourceDir)) {
         this.copyDistToTarget(sourceDir, targetDir);
       }
     } catch (error) {
       // 如果找不到 @canyonjs/report-html，尝试使用相对路径
-      const sourceDir = path.resolve(__dirname, '../../report-html/dist');
+      const sourceDir = path.resolve(__dirname, "../../report-html/dist");
       if (fs.existsSync(sourceDir)) {
         this.copyDistToTarget(sourceDir, targetDir);
       }
@@ -315,19 +306,17 @@ export class CoverageReport {
 
     // 生成 report-data.js 文件
     const reportDataContent = `window.reportData = '${compress(JSON.stringify(reportData))}';`;
-    const reportDataPath = path.join(targetDir, 'data/report-data.js');
+    const reportDataPath = path.join(targetDir, "data/report-data.js");
     // 确保 data 目录存在
     const dataDir = path.dirname(reportDataPath);
     if (!fs.existsSync(dataDir)) {
       fs.mkdirSync(dataDir, { recursive: true });
     }
-    fs.writeFileSync(reportDataPath, reportDataContent, 'utf8');
+    fs.writeFileSync(reportDataPath, reportDataContent, "utf8");
 
     // 保存 newlinesPercent 到 coverage/canyon.json
-    const canyonJsonPath = path.join(targetDir, 'canyon.json');
-    const newlinesPercent = reportData.summary['newlinesPercent'] as
-      | number
-      | undefined;
+    const canyonJsonPath = path.join(targetDir, "canyon.json");
+    const newlinesPercent = reportData.summary["newlinesPercent"] as number | undefined;
 
     if (newlinesPercent !== undefined) {
       const canyonData = {
@@ -340,15 +329,11 @@ export class CoverageReport {
         fs.mkdirSync(canyonJsonDir, { recursive: true });
       }
 
-      fs.writeFileSync(
-        canyonJsonPath,
-        JSON.stringify(canyonData, null, 2),
-        'utf8',
-      );
+      fs.writeFileSync(canyonJsonPath, JSON.stringify(canyonData, null, 2), "utf8");
     }
 
     const result: GenerateResult = {
-      reportPath: path.join(targetDir, 'index.html'),
+      reportPath: path.join(targetDir, "index.html"),
       reportData,
     };
     return result;

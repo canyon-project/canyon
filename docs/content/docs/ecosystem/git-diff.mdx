@@ -3,24 +3,31 @@ import { Button } from "antd";
 
 # @canyonjs/git-diff
 
-<div className={'h-10'}></div>
+<div className={"h-10"}></div>
 
-<Button target={'_blank'} href={'https://github.com/canyon-project/canyon/tree/main/plugins/@canyonjs/babel-plugin'} icon={<GithubOutlined />} size={'small'}>Source</Button>
+<Button
+  target={"_blank"}
+  href={"https://github.com/canyon-project/canyon/tree/main/plugins/@canyonjs/babel-plugin"}
+  icon={<GithubOutlined />}
+  size={"small"}
+>
+  Source
+</Button>
 
 @canyonjs/git-diff 是一个用于在 CI/CD 流水线中检测代码变更并生成 Git Diff 内容的 NPM 包
-
 
 ## 使用
 
 ### 在 CI/CD 流水线中使用
-
 
 ```bash
 npx @canyonjs/git-diff
 ```
 
 ### 输出
+
 在当前目录下生成diff.txt文件
+
 ```text filename="diff.txt"
 diff --git a/fixtures/sum.js b/fixtures/sum.js
 index 1234567..abcdefg 100644
@@ -60,7 +67,7 @@ index 1234567..abcdefg 100644
 
 ### Git Diff 范围确定
 
-| 事件类型 | 比较范围 | 命令示例 |
-|---------|---------|---------|
-| MR/PR | 源分支 vs 目标分支 | `git diff origin/target..origin/source` |
-| 普通 Commit | 当前 Commit vs 上一个 Commit | `git diff HEAD~1..HEAD` |
+| 事件类型    | 比较范围                     | 命令示例                                |
+| ----------- | ---------------------------- | --------------------------------------- |
+| MR/PR       | 源分支 vs 目标分支           | `git diff origin/target..origin/source` |
+| 普通 Commit | 当前 Commit vs 上一个 Commit | `git diff HEAD~1..HEAD`                 |

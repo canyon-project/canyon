@@ -1,4 +1,4 @@
-import type { FileCoverageData } from 'istanbul-lib-coverage';
+import type { FileCoverageData } from "istanbul-lib-coverage";
 
 /**
  * 文件数据响应接口

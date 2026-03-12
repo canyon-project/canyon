@@ -1,38 +1,38 @@
 {
   "name": "@canyonjs/report",
   "version": "1.0.20",
+  "homepage": "https://github.com/canyon-project/canyon#readme",
+  "license": "MIT",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
     "type": "git",
     "url": "https://github.com/canyon-project/canyon"
   },
-  "homepage": "https://github.com/canyon-project/canyon#readme",
-  "license": "MIT",
-  "main": "dist/index.cjs",
-  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsdown",
     "pretest": "npm run build",
     "test": "vitest run --coverage"
   },
+  "dependencies": {
+    "@canyonjs/report-html": "catalog:",
+    "canyon-data": "latest",
+    "istanbul-lib-coverage": "catalog:",
+    "istanbul-lib-report": "catalog:",
+    "parse-diff": "^0.11.1"
+  },
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.8",
-    "@types/node": "catalog:",
-    "tsdown": "^0.17.0",
-    "@typescript/native-preview": "catalog:",
-    "@types/istanbul-lib-report": "catalog:",
     "@types/istanbul-lib-coverage": "catalog:",
-    "vitest": "catalog:",
-    "@vitest/coverage-istanbul": "catalog:"
-  },
-  "dependencies": {
-    "istanbul-lib-report": "catalog:",
-    "istanbul-lib-coverage": "catalog:",
-    "parse-diff": "^0.11.1",
-    "@canyonjs/report-html": "catalog:",
-    "canyon-data": "latest"
+    "@types/istanbul-lib-report": "catalog:",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "@vitest/coverage-istanbul": "catalog:",
+    "tsdown": "^0.17.0",
+    "vitest": "catalog:"
   }
 }

@@ -30,10 +30,10 @@ npm init playwright@latest
 创建一个测试文件来测试你的 React 应用：
 
 ```ts filename="tests/example.spec.ts" copy
-import { test, expect } from './baseTest';
+import { test, expect } from "./baseTest";
 
-test('首页加载测试', async ({ page }) => {
-  await page.goto('http://localhost:5173');
+test("首页加载测试", async ({ page }) => {
+  await page.goto("http://localhost:5173");
 
   await expect(page).toHaveTitle(/React/);
 });
@@ -50,36 +50,33 @@ npm install @canyonjs/playwright -D
 创建 `baseTest.ts` 文件，继承 Playwright 的 test 以支持覆盖率收集：
 
 ```ts filename="tests/baseTest.ts" copy
-import {test as baseTest} from '@playwright/test';
-import {createCoverageContextFixture} from '@canyonjs/playwright'
+import { test as baseTest } from "@playwright/test";
+import { createCoverageContextFixture } from "@canyonjs/playwright";
 
 export const test = baseTest.extend({
   context: createCoverageContextFixture({
-    outputDir:'.canyon_output'
-  })
+    outputDir: ".canyon_output",
+  }),
 });
 
 export const expect = test.expect;
-
 ```
-
-
 
 ### 配置 Playwright 在运行时启动开发服务器
 
 编辑 `playwright.config.ts`，添加 `webServer` 配置，让 Playwright 在运行测试前自动启动开发服务器：
 
 ```ts filename="playwright.config.ts" copy
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   // 测试目录
-  testDir: './tests',
+  testDir: "./tests",
 
   // 在运行测试前启动开发服务器
   webServer: {
-    command: 'npm run dev',
-    url: 'http://localhost:5173',
+    command: "npm run dev",
+    url: "http://localhost:5173",
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },
@@ -87,8 +84,8 @@ export default defineConfig({
   // 使用项目中的浏览器
   projects: [
     {
-      name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
     },
   ],
 });

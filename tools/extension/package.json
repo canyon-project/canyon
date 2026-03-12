@@ -1,7 +1,7 @@
 {
   "name": "extension",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev-extension": "vite",
@@ -12,10 +12,10 @@
   "dependencies": {
     "@ant-design/icons": "catalog:",
     "antd": "catalog:",
+    "clsx": "latest",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "tailwind-merge": "latest",
-    "clsx": "latest"
+    "tailwind-merge": "latest"
   },
   "devDependencies": {
     "@tailwindcss/vite": "latest",
@@ -24,9 +24,9 @@
     "@types/react-dom": "catalog:",
     "@typescript/native-preview": "catalog:",
     "@vitejs/plugin-react": "latest",
+    "babel-plugin-react-compiler": "latest",
     "globals": "catalog:",
     "tailwindcss": "4.1.18",
-    "vite": "catalog:",
-    "babel-plugin-react-compiler": "latest"
+    "vite": "catalog:"
   }
 }

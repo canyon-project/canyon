@@ -1,5 +1,5 @@
-import type { CanyonBabelPluginConfig } from '../types';
-import { extractCoverageData } from './extract-coverage-data';
+import type { CanyonBabelPluginConfig } from "../types";
+import { extractCoverageData } from "./extract-coverage-data";
 
 /**
  * 覆盖率数据接口

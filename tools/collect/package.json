@@ -1,28 +1,28 @@
 {
   "name": "@canyonjs/collect",
-  "type": "module",
   "version": "0.0.7",
+  "homepage": "https://github.com/canyon-project/canyon#readme",
+  "bugs": {
+    "url": "https://github.com/canyon-project/canyon/issues"
+  },
+  "license": "MIT",
   "author": "Travis Zhang<https://github.com/travzhang>",
   "repository": {
     "type": "git",
     "url": "https://github.com/canyon-project/canyon"
   },
-  "bugs": {
-    "url": "https://github.com/canyon-project/canyon/issues"
-  },
-  "homepage": "https://github.com/canyon-project/canyon#readme",
-  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": "./dist/index.js",
     "./package.json": "./package.json",
     "./index.css": "./dist/index.css"
   },
-  "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "files": [
-    "dist"
-  ],
   "scripts": {
     "build": "tsdown",
     "dev-report-component": "tsdown --watch",
@@ -31,7 +31,7 @@
   "devDependencies": {
     "@tsconfig/strictest": "^2.0.8",
     "@types/node": "^24.10.1",
-    "tsdown": "^0.17.0",
-    "@typescript/native-preview": "catalog:"
+    "@typescript/native-preview": "catalog:",
+    "tsdown": "^0.17.0"
   }
 }

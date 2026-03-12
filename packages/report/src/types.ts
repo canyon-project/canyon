@@ -1,4 +1,4 @@
-import type { FileCoverage } from 'istanbul-lib-coverage';
+import type { FileCoverage } from "istanbul-lib-coverage";
 
 export interface ReportConfig {
   diff?: string;
@@ -20,12 +20,12 @@ export interface ChangedCoverage {
 export interface FileReportData {
   source: string;
   path: string;
-  statementMap: FileCoverage['statementMap'];
-  fnMap: FileCoverage['fnMap'];
-  branchMap: FileCoverage['branchMap'];
-  s: FileCoverage['s'];
-  f: FileCoverage['f'];
-  b: FileCoverage['b'];
+  statementMap: FileCoverage["statementMap"];
+  fnMap: FileCoverage["fnMap"];
+  branchMap: FileCoverage["branchMap"];
+  s: FileCoverage["s"];
+  f: FileCoverage["f"];
+  b: FileCoverage["b"];
   changedLines: number[];
   diff: {
     additions: number[];

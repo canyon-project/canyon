@@ -1,16 +1,12 @@
-import type * as Monaco from 'monaco-editor';
-import { useEffect, useRef } from 'react';
-import {
-  annotateBranches,
-  annotateFunctions,
-  annotateStatements,
-} from '../helpers/annotate';
-import { changeModeFilterIrrelevantData } from '../helpers/changeModeFilterIrrelevantData';
-import { coreFn } from '../helpers/coreFn';
+import type * as Monaco from "monaco-editor";
+import { useEffect, useRef } from "react";
+import { annotateBranches, annotateFunctions, annotateStatements } from "../helpers/annotate";
+import { changeModeFilterIrrelevantData } from "../helpers/changeModeFilterIrrelevantData";
+import { coreFn } from "../helpers/coreFn";
 import ChangedCodeCoverageTable, {
   type ChangedCodeCoverageTableProps,
-} from './ChangedCodeCoverageTable';
-import lineNumbers from './lineNumbers';
+} from "./ChangedCodeCoverageTable";
+import lineNumbers from "./lineNumbers";
 
 // 扩展 Window 接口以包含 monaco
 declare global {
@@ -43,22 +39,17 @@ const CoverageDetail = ({
   diff: Diff;
 }) => {
   const addLines = diff.additions || [];
-  coverage =
-    addLines.length > 0
-      ? changeModeFilterIrrelevantData(coverage, diff)
-      : coverage;
+  coverage = addLines.length > 0 ? changeModeFilterIrrelevantData(coverage, diff) : coverage;
 
   const { lines } = coreFn(coverage, source);
 
   const ref = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null);
-  const highlightDecorationsRef =
-    useRef<Monaco.editor.IEditorDecorationsCollection | null>(null);
+  const highlightDecorationsRef = useRef<Monaco.editor.IEditorDecorationsCollection | null>(null);
   const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // 检查是否有变更行数据
-  const hasChangedLines =
-    addLines.length > 0 && coverage['s'] && coverage['statementMap'];
+  const hasChangedLines = addLines.length > 0 && coverage["s"] && coverage["statementMap"];
 
   const linesState = (() => {
     return lines.map((line, index) => {
@@ -76,12 +67,12 @@ const CoverageDetail = ({
   })();
 
   useEffect(() => {
-    if (ref.current && ref.current.innerHTML === '') {
+    if (ref.current && ref.current.innerHTML === "") {
       const dom = ref.current;
       const options = {
         value: source,
-        language: 'javascript',
-        fontFamily: 'IBMPlexMono',
+        language: "javascript",
+        fontFamily: "IBMPlexMono",
         lineHeight: 18,
         lineNumbers: (lineNumber: number) => {
           return lineNumbers(lineNumber, linesState);
@@ -105,7 +96,7 @@ const CoverageDetail = ({
         const decorations = (() => {
           const all = [];
 
-          const annotateStatementsList = annotateStatements(coverage,source);
+          const annotateStatementsList = annotateStatements(coverage, source);
           all.push(...annotateStatementsList);
 
           const annotateFunctionsList = annotateFunctions(coverage, source);
@@ -125,60 +116,38 @@ const CoverageDetail = ({
               // type,
             } = all[i];
 
-            if (all[i].type === 'S' || all[i].type === 'F') {
+            if (all[i].type === "S" || all[i].type === "F") {
               arr.push({
-                range: new window.monaco.Range(
-                  startLine,
-                  startCol,
-                  endLine,
-                  endCol,
-                ), // 第3行第5列前插入
+                range: new window.monaco.Range(startLine, startCol, endLine, endCol), // 第3行第5列前插入
                 options: {
                   isWholeLine: false,
-                  inlineClassName: 'content-class-no-found',
+                  inlineClassName: "content-class-no-found",
                 },
               });
-            } else if (all[i].type === 'B') {
+            } else if (all[i].type === "B") {
               arr.push({
-                range: new window.monaco.Range(
-                  startLine,
-                  startCol,
-                  endLine,
-                  endCol,
-                ), // 第3行第5列前插入
+                range: new window.monaco.Range(startLine, startCol, endLine, endCol), // 第3行第5列前插入
                 options: {
                   isWholeLine: false,
-                  inlineClassName: 'content-class-no-found-branch',
+                  inlineClassName: "content-class-no-found-branch",
                 },
               });
-            } else if (all[i].type === 'I') {
+            } else if (all[i].type === "I") {
               arr.push({
-                range: new window.monaco.Range(
-                  startLine,
-                  startCol,
-                  startLine,
-                  startCol,
-                ), // 第3行第5列前插入
+                range: new window.monaco.Range(startLine, startCol, startLine, startCol), // 第3行第5列前插入
                 options: {
-                  beforeContentClassName: 'insert-i-decoration',
+                  beforeContentClassName: "insert-i-decoration",
                   stickiness:
-                    window.monaco.editor.TrackedRangeStickiness
-                      .NeverGrowsWhenTypingAtEdges,
+                    window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
                 },
               });
-            } else if (all[i].type === 'E') {
+            } else if (all[i].type === "E") {
               arr.push({
-                range: new window.monaco.Range(
-                  startLine,
-                  startCol,
-                  startLine,
-                  startCol,
-                ), // 第3行第5列前插入
+                range: new window.monaco.Range(startLine, startCol, startLine, startCol), // 第3行第5列前插入
                 options: {
-                  beforeContentClassName: 'insert-e-decoration',
+                  beforeContentClassName: "insert-e-decoration",
                   stickiness:
-                    window.monaco.editor.TrackedRangeStickiness
-                      .NeverGrowsWhenTypingAtEdges,
+                    window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
                 },
               });
             }
@@ -190,9 +159,7 @@ const CoverageDetail = ({
         if (editor) {
           editor?.createDecorationsCollection?.(decorations);
           // 创建用于跳转高亮的装饰集合
-          highlightDecorationsRef.current = editor.createDecorationsCollection(
-            [],
-          );
+          highlightDecorationsRef.current = editor.createDecorationsCollection([]);
         }
       }
     }
@@ -212,19 +179,14 @@ const CoverageDetail = ({
 
   return (
     <div
-      className='canyon-coverage-detail-container'
-      style={{ height: '100%', position: 'relative' }}
+      className="canyon-coverage-detail-container"
+      style={{ height: "100%", position: "relative" }}
     >
       {hasChangedLines ? (
         <ChangedCodeCoverageTable
-          coverage={coverage as ChangedCodeCoverageTableProps['coverage']}
+          coverage={coverage as ChangedCodeCoverageTableProps["coverage"]}
           addLines={addLines}
-          onJumpToRange={(
-            startLine: number,
-            startCol: number,
-            endLine: number,
-            endCol: number,
-          ) => {
+          onJumpToRange={(startLine: number, startCol: number, endLine: number, endCol: number) => {
             if (editorRef.current && window.monaco) {
               const editor = editorRef.current;
 
@@ -236,12 +198,7 @@ const CoverageDetail = ({
                 highlightDecorationsRef.current.clear();
               }
 
-              const range = new window.monaco.Range(
-                startLine,
-                startCol,
-                endLine,
-                endCol,
-              );
+              const range = new window.monaco.Range(startLine, startCol, endLine, endCol);
 
               // 创建高亮装饰
               if (highlightDecorationsRef.current) {
@@ -250,10 +207,9 @@ const CoverageDetail = ({
                     range: range,
                     options: {
                       isWholeLine: false,
-                      inlineClassName: 'canyon-jump-highlight-range',
+                      inlineClassName: "canyon-jump-highlight-range",
                       stickiness:
-                        window.monaco.editor.TrackedRangeStickiness
-                          .NeverGrowsWhenTypingAtEdges,
+                        window.monaco.editor.TrackedRangeStickiness.NeverGrowsWhenTypingAtEdges,
                     },
                   },
                 ]);
@@ -274,11 +230,11 @@ const CoverageDetail = ({
       ) : null}
       <div
         ref={ref}
-        className='canyon-coverage-detail-editor'
+        className="canyon-coverage-detail-editor"
         style={{
-          height: hasChangedLines ? 'calc(100% - 33px)' : '100%',
-          top: hasChangedLines ? '33px' : '0',
-          position: 'absolute',
+          height: hasChangedLines ? "calc(100% - 33px)" : "100%",
+          top: hasChangedLines ? "33px" : "0",
+          position: "absolute",
           left: 0,
           right: 0,
         }}

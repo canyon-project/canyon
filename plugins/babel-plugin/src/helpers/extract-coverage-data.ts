@@ -7,24 +7,18 @@
  * @param scriptContent - 包含覆盖率数据的脚本内容
  * @returns 提取的覆盖率数据对象，如果提取失败则返回 null
  */
-export function extractCoverageData(
-  scriptContent: string,
-): Record<string, unknown> | null {
+export function extractCoverageData(scriptContent: string): Record<string, unknown> | null {
   // 匹配格式：var coverageData = {...};
   const coverageDataPattern = /var\s+coverageData\s*=\s*({[\s\S]*?});/;
   // 匹配格式：var xxx = function() {...}();
-  const functionPattern =
-    /var\s+(\w+)\s*=\s*function\s*\(\)\s*\{([\s\S]*?)\}\(\);/;
+  const functionPattern = /var\s+(\w+)\s*=\s*function\s*\(\)\s*\{([\s\S]*?)\}\(\);/;
 
   try {
     // 尝试匹配第一种格式
     const coverageDataMatch = coverageDataPattern.exec(scriptContent);
     if (coverageDataMatch) {
       const objectString = coverageDataMatch[1];
-      return new Function(`return ${objectString}`)() as Record<
-        string,
-        unknown
-      >;
+      return new Function(`return ${objectString}`)() as Record<string, unknown>;
     }
 
     // 尝试匹配第二种格式

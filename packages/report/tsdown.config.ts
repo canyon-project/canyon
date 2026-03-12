@@ -1,6 +1,6 @@
-import { defineConfig } from 'tsdown';
+import { defineConfig } from "tsdown";
 
 export default defineConfig({
-  platform: 'node',
-  format: 'commonjs',
+  platform: "node",
+  format: "commonjs",
 });

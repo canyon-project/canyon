@@ -1,7 +1,7 @@
-import { Tag, Typography, theme } from 'antd';
-import type { CoverageSummaryData } from 'istanbul-lib-coverage';
-import type { FC } from 'react';
-import { getColor } from '../helpers/color';
+import { Tag, Typography, theme } from "antd";
+import type { CoverageSummaryData } from "istanbul-lib-coverage";
+import type { FC } from "react";
+import { getColor } from "../helpers/color";
 
 const { Text } = Typography;
 
@@ -17,33 +17,31 @@ const SummaryNav: FC<{
   return (
     <div
       style={{
-        display: 'flex',
-        gap: '3px',
-        marginBottom: '6px',
-        fontSize: '16px',
-        fontWeight: 'bold',
+        display: "flex",
+        gap: "3px",
+        marginBottom: "6px",
+        fontSize: "16px",
+        fontWeight: "bold",
       }}
     >
-      {`${reportName}/${value}`.split('/').map((item, index, array) => {
-        const pathKey = `${reportName}-${array.slice(0, index + 1).join('/')}`;
+      {`${reportName}/${value}`.split("/").map((item, index, array) => {
+        const pathKey = `${reportName}-${array.slice(0, index + 1).join("/")}`;
         return (
           <div
             key={pathKey}
             style={{
-              display: 'flex',
-              gap: '3px',
+              display: "flex",
+              gap: "3px",
             }}
           >
             <a
               onClick={() => {
-                onClick(value.split('/').slice(0, index).join('/'));
+                onClick(value.split("/").slice(0, index).join("/"));
               }}
             >
               {item}
             </a>
-            {index === value.split('/').length || !value ? null : (
-              <span>/</span>
-            )}
+            {index === value.split("/").length || !value ? null : <span>/</span>}
           </div>
         );
       })}
@@ -64,21 +62,21 @@ const SummaryMetric: FC<{
     <div>
       <div
         style={{
-          display: 'flex',
-          gap: '6px',
-          marginBottom: '6px',
-          maxWidth: '1000px',
-          flexWrap: 'wrap',
+          display: "flex",
+          gap: "6px",
+          marginBottom: "6px",
+          maxWidth: "1000px",
+          flexWrap: "wrap",
         }}
       >
         {Object.entries(summaryTreeItem.summary)
           .sort(([key1], [key2]) => {
             const order = [
-              'statements',
-              'branches',
-              'functions',
-              'lines',
-              'changestatements',
+              "statements",
+              "branches",
+              "functions",
+              "lines",
+              "changestatements",
               // "changebranches",
               // "changefunctions"
             ];
@@ -87,13 +85,13 @@ const SummaryMetric: FC<{
           })
           .filter(([key]) =>
             (onlyChange
-              ? ['changestatements']
+              ? ["changestatements"]
               : [
-                  'statements',
-                  'branches',
-                  'functions',
-                  'lines',
-                  'changestatements',
+                  "statements",
+                  "branches",
+                  "functions",
+                  "lines",
+                  "changestatements",
                   // "changebranches",
                   // "changefunctions"
                 ]
@@ -103,16 +101,14 @@ const SummaryMetric: FC<{
             return (
               <div
                 style={{
-                  display: 'flex',
-                  gap: '3px',
-                  alignItems: 'center',
+                  display: "flex",
+                  gap: "3px",
+                  alignItems: "center",
                 }}
                 key={key}
               >
-                <span style={{ fontWeight: '600', fontSize: '14px' }}>
-                  {value.pct}%
-                </span>
-                <Text style={{ fontSize: '14px' }} type={'secondary'}>
+                <span style={{ fontWeight: "600", fontSize: "14px" }}>{value.pct}%</span>
+                <Text style={{ fontSize: "14px" }} type={"secondary"}>
                   {t(`${key}`)}:
                 </Text>
                 <Tag bordered={false}>
@@ -130,9 +126,9 @@ const SummaryBar: FC<{ pct: number }> = ({ pct }) => {
   return (
     <div
       style={{
-        height: '8px',
-        width: '100%',
-        marginBottom: '6px',
+        height: "8px",
+        width: "100%",
+        marginBottom: "6px",
         backgroundColor: getColor(pct),
       }}
     />

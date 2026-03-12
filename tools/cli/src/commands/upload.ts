@@ -1,29 +1,25 @@
-import fs from 'node:fs';
-import path from 'node:path';
-import axios from 'axios';
-import { mergeCoverageMaps } from '../utils/mergeCoverage';
+import fs from "node:fs";
+import path from "node:path";
+import axios from "axios";
+import { mergeCoverageMaps } from "../utils/mergeCoverage";
 
 export async function mapCommand(params: any, options: any) {
-  console.log('Current working directory:', process.cwd());
+  console.log("Current working directory:", process.cwd());
 
   // 检测是否在 GitHub Actions 环境中
-  const isGitHubActions =
-    process.env.GITHUB_ACTIONS === 'true' || !!process.env.GITHUB_EVENT_PATH;
+  const isGitHubActions = process.env.GITHUB_ACTIONS === "true" || !!process.env.GITHUB_EVENT_PATH;
 
   // 读取 GitHub Actions event 内容
   let githubEvent: string | undefined;
   if (isGitHubActions && process.env.GITHUB_EVENT_PATH) {
     try {
       if (fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
-        githubEvent = fs.readFileSync(process.env.GITHUB_EVENT_PATH, 'utf8');
+        githubEvent = fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8");
       } else {
-        console.log(
-          'GITHUB_EVENT_PATH file not found:',
-          process.env.GITHUB_EVENT_PATH,
-        );
+        console.log("GITHUB_EVENT_PATH file not found:", process.env.GITHUB_EVENT_PATH);
       }
     } catch (error) {
-      console.warn('Failed to read GITHUB_EVENT_PATH:', error);
+      console.warn("Failed to read GITHUB_EVENT_PATH:", error);
     }
   }
 
@@ -38,11 +34,11 @@ export async function mapCommand(params: any, options: any) {
     filter,
     scene,
   } = params;
-  if (!fs.existsSync(path.resolve(process.cwd(), '.canyon_output'))) {
-    console.log('No .canyon_output directory found, skipping upload.');
+  if (!fs.existsSync(path.resolve(process.cwd(), ".canyon_output"))) {
+    console.log("No .canyon_output directory found, skipping upload.");
     return;
   }
-  const files = fs.readdirSync(path.resolve(process.cwd(), '.canyon_output'));
+  const files = fs.readdirSync(path.resolve(process.cwd(), ".canyon_output"));
   let data: Record<string, any> = {};
   for (let i = 0; i < files.length; i++) {
     const fileName = files[i];
@@ -50,17 +46,17 @@ export async function mapCommand(params: any, options: any) {
     const isCoverageFinalFile = /^coverage-final-.*\.json$/.test(fileName);
 
     const fileCoverageString = fs.readFileSync(
-      path.resolve(process.cwd(), '.canyon_output', fileName),
-      'utf-8',
+      path.resolve(process.cwd(), ".canyon_output", fileName),
+      "utf-8",
     );
     const fileCoverage = JSON.parse(fileCoverageString);
 
     // 如果传入了 filter，且文件名匹配 coverage-final-xxx.json 模式，则仅合并键（文件路径）包含该子串的覆盖数据
     // 这里为了filter，要注意！！！
     let toMerge = fileCoverage;
-    if (filter && typeof filter === 'string' && isCoverageFinalFile) {
-      const filteredEntries = Object.entries(fileCoverage).filter(
-        ([filePath]) => filePath.includes(filter),
+    if (filter && typeof filter === "string" && isCoverageFinalFile) {
+      const filteredEntries = Object.entries(fileCoverage).filter(([filePath]) =>
+        filePath.includes(filter),
       );
       if (filteredEntries.length === 0) {
         continue;
@@ -73,14 +69,14 @@ export async function mapCommand(params: any, options: any) {
 
   const env_branch = process.env.CI_COMMIT_BRANCH;
   const env_buildID = process.env.CI_JOB_ID;
-  const env_buildProvider = 'gitlab_runner';
+  const env_buildProvider = "gitlab_runner";
 
   // 尝试读取 diff.json 文件
   let diffData: any = undefined;
-  const diffJsonPath = path.resolve(process.cwd(), 'diff.json');
+  const diffJsonPath = path.resolve(process.cwd(), "diff.json");
   if (fs.existsSync(diffJsonPath)) {
     try {
-      const diffJsonContent = fs.readFileSync(diffJsonPath, 'utf-8');
+      const diffJsonContent = fs.readFileSync(diffJsonPath, "utf-8");
       diffData = JSON.parse(diffJsonContent);
       console.log(`Found diff.json file: ${diffJsonPath}`);
     } catch (error) {
@@ -93,25 +89,19 @@ export async function mapCommand(params: any, options: any) {
   if (scene && Array.isArray(scene)) {
     sceneMap = {};
     for (const pair of scene) {
-      if (typeof pair !== 'string') {
-        console.error(
-          `Invalid scene parameter: ${pair}. Expected format: key=value`,
-        );
+      if (typeof pair !== "string") {
+        console.error(`Invalid scene parameter: ${pair}. Expected format: key=value`);
         return;
       }
-      const equalIndex = pair.indexOf('=');
+      const equalIndex = pair.indexOf("=");
       if (equalIndex === -1 || equalIndex === 0) {
-        console.error(
-          `Invalid scene parameter format: ${pair}. Expected format: key=value`,
-        );
+        console.error(`Invalid scene parameter format: ${pair}. Expected format: key=value`);
         return;
       }
       const key = pair.substring(0, equalIndex);
       const value = pair.substring(equalIndex + 1);
       if (!key || !value) {
-        console.error(
-          `Invalid scene parameter format: ${pair}. Key and value cannot be empty`,
-        );
+        console.error(`Invalid scene parameter format: ${pair}. Key and value cannot be empty`);
         return;
       }
       sceneMap[key] = value;
@@ -120,16 +110,16 @@ export async function mapCommand(params: any, options: any) {
 
   const p = {
     dsn,
-    provider: provider || 'gitlab',
+    provider: provider || "gitlab",
     repoID: repoID || process.env.CI_PROJECT_ID,
     sha: sha || process.env.CI_COMMIT_SHA,
     instrumentCwd: instrument_cwd || process.cwd(),
-    reportID: 'initial_coverage_data',
-    reportProvider: 'ci',
-    buildTarget: build_target || '',
+    reportID: "initial_coverage_data",
+    reportProvider: "ci",
+    buildTarget: build_target || "",
     coverage: Object.keys(data),
     build: {
-      provider: isGitHubActions ? 'github_actions' : env_buildProvider,
+      provider: isGitHubActions ? "github_actions" : env_buildProvider,
       event: isGitHubActions ? githubEvent : undefined,
       buildID: env_buildID,
       branch: env_branch,
@@ -137,7 +127,7 @@ export async function mapCommand(params: any, options: any) {
     ...(sceneMap && { scene: sceneMap }),
     ...(diffData && { diff: diffData }),
   };
-  if (debug === 'true') {
+  if (debug === "true") {
     console.log(p);
   }
   await axios

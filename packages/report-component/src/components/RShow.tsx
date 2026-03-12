@@ -1,4 +1,4 @@
-import type { FC, ReactNode } from 'react';
+import type { FC, ReactNode } from "react";
 
 const RShow: FC<{
   condition: boolean;
@@ -7,9 +7,9 @@ const RShow: FC<{
   return (
     <div
       style={{
-        display: condition ? 'block' : 'none',
-        width: '100%',
-        height: '100%',
+        display: condition ? "block" : "none",
+        width: "100%",
+        height: "100%",
       }}
     >
       {children}

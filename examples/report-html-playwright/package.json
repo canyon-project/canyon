@@ -1,7 +1,7 @@
 {
   "name": "report-html-playwright",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
     "dev-report-html-playwright": "vite",
@@ -17,10 +17,9 @@
     "react-router-dom": "catalog:"
   },
   "devDependencies": {
-    "@canyonjs/report": "catalog:",
-    "nyc": "latest",
     "@canyonjs/babel-plugin": "latest",
     "@canyonjs/playwright": "latest",
+    "@canyonjs/report": "catalog:",
     "@playwright/test": "1.56.1",
     "@types/node": "catalog:",
     "@types/react": "catalog:",
@@ -30,6 +29,7 @@
     "babel-plugin-istanbul": "latest",
     "babel-plugin-react-compiler": "^1.0.0",
     "globals": "catalog:",
+    "nyc": "latest",
     "vite": "catalog:"
   }
 }

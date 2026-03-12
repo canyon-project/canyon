@@ -1,4 +1,4 @@
-import { renderToStaticMarkup } from 'react-dom/server';
+import { renderToStaticMarkup } from "react-dom/server";
 
 interface LineState {
   lineNumber: number;
@@ -8,35 +8,35 @@ interface LineState {
 
 function genBgColor(hit: number): string {
   if (hit > 0) {
-    return 'rgb(230, 245, 208)';
+    return "rgb(230, 245, 208)";
   } else if (hit === 0) {
-    return '#f3aeac';
+    return "#f3aeac";
   } else {
-    return 'rgb(234, 234, 234)';
+    return "rgb(234, 234, 234)";
   }
 }
 
 // React 组件：行号
 const LineNumber = ({ lineNumber }: { lineNumber: number }) => {
-  return <span className='line-number'>{lineNumber}</span>;
+  return <span className="line-number">{lineNumber}</span>;
 };
 
 // React 组件：变更标识
 const LineChange = ({ hasChange }: { hasChange: boolean }) => {
-  return <span className='line-change'>{hasChange ? '+' : ''}</span>;
+  return <span className="line-change">{hasChange ? "+" : ""}</span>;
 };
 
 // React 组件：覆盖率信息
 const LineCoverage = ({ hit, width }: { hit: number; width: number }) => {
   return (
     <span
-      className='line-coverage'
+      className="line-coverage"
       style={{
         background: genBgColor(hit),
         width: `${width}px`,
       }}
     >
-      {hit > 0 ? `${hit}x` : ''}
+      {hit > 0 ? `${hit}x` : ""}
     </span>
   );
 };
@@ -52,7 +52,7 @@ const LineNumberWrapper = ({
   maxHitWidth: number;
 }) => {
   return (
-    <div className='line-number-wrapper'>
+    <div className="line-number-wrapper">
       <LineNumber lineNumber={lineNumber} />
       <LineChange hasChange={line.change} />
       <LineCoverage hit={line.hit} width={maxHitWidth} />
@@ -77,10 +77,6 @@ export default function lineNumbers(
 
   // 使用 React 组件渲染整个行号包装器
   return renderToStaticMarkup(
-    <LineNumberWrapper
-      lineNumber={lineNumber}
-      line={line}
-      maxHitWidth={maxHitWidth}
-    />,
+    <LineNumberWrapper lineNumber={lineNumber} line={line} maxHitWidth={maxHitWidth} />,
   );
 }

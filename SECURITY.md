@@ -20,7 +20,7 @@ Report security bugs in third-party modules to the person or team maintaining th
 
 ## Incident response process
 
-In case an incident is discovered or reported, we will follow the following  process to contain, respond, and remediate:
+In case an incident is discovered or reported, we will follow the following process to contain, respond, and remediate:
 
 1. Confirm the problem and determine the affected versions.
 2. Audit code to find any potential similar problems.

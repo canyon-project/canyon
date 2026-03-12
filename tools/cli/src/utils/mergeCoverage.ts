@@ -13,10 +13,7 @@ export interface FileCoverageCounters {
 
 export type CoverageMap = Record<string, FileCoverageCounters>;
 
-function mergeNumberMaps(
-  a: StatementCounts = {},
-  b: StatementCounts = {},
-): StatementCounts {
+function mergeNumberMaps(a: StatementCounts = {}, b: StatementCounts = {}): StatementCounts {
   const result: StatementCounts = { ...a };
   for (const key of Object.keys(b)) {
     const aVal = result[key] ?? 0;
@@ -37,10 +34,7 @@ function mergeBranchArrays(aArr: number[] = [], bArr: number[] = []): number[] {
   return out;
 }
 
-function mergeBranchMaps(
-  a: BranchCounts = {},
-  b: BranchCounts = {},
-): BranchCounts {
+function mergeBranchMaps(a: BranchCounts = {}, b: BranchCounts = {}): BranchCounts {
   const result: BranchCounts = { ...a };
   for (const key of Object.keys(b)) {
     const aArr = result[key] ?? [];
@@ -65,10 +59,7 @@ export function mergeFileCoverage(
   };
 }
 
-export function mergeCoverageMaps(
-  target: CoverageMap = {},
-  source: CoverageMap = {},
-): CoverageMap {
+export function mergeCoverageMaps(target: CoverageMap = {}, source: CoverageMap = {}): CoverageMap {
   const out: CoverageMap = { ...target };
   for (const filePath of Object.keys(source)) {
     const existing = out[filePath];

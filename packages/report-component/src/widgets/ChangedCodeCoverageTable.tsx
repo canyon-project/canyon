@@ -1,5 +1,5 @@
-import { Select } from 'antd';
-import { useMemo, useState } from 'react';
+import { Select } from "antd";
+import { useMemo, useState } from "react";
 
 interface Coverage {
   s?: Record<string, number>;
@@ -16,8 +16,8 @@ interface RelatedStatement {
   key: string;
   Status: string;
   Location: string;
-  'Changed Lines': string;
-  'Hit Count': string;
+  "Changed Lines": string;
+  "Hit Count": string;
   // 原始位置信息，用于跳转
   startLine: number;
   startCol: number;
@@ -30,26 +30,21 @@ interface RelatedStatement {
 export interface ChangedCodeCoverageTableProps {
   coverage: Coverage;
   addLines: number[];
-  onJumpToRange?: (
-    startLine: number,
-    startCol: number,
-    endLine: number,
-    endCol: number,
-  ) => void;
+  onJumpToRange?: (startLine: number, startCol: number, endLine: number, endCol: number) => void;
 }
 
 // 将行号数组转换为区间格式，如 [19,20,21,22,23,24,56,57,58,59] -> "19-24, 56-59"
 const formatLineRanges = (lines: number[]): string => {
-  if (lines.length === 0) return '';
+  if (lines.length === 0) return "";
   if (lines.length === 1) {
     const first = lines[0];
-    return first !== undefined ? first.toString() : '';
+    return first !== undefined ? first.toString() : "";
   }
 
   const sorted = [...lines].sort((a, b) => a - b);
   const ranges: string[] = [];
   const first = sorted[0];
-  if (first === undefined) return '';
+  if (first === undefined) return "";
 
   let start: number = first;
   let end: number = first;
@@ -77,7 +72,7 @@ const formatLineRanges = (lines: number[]): string => {
     ranges.push(`${start}-${end}`);
   }
 
-  return ranges.join(', ');
+  return ranges.join(", ");
 };
 
 const ChangedCodeCoverageTable = ({
@@ -126,10 +121,10 @@ const ChangedCodeCoverageTable = ({
 
         statements.push({
           key: stId,
-          Status: covered ? '✓ Covered' : '✗ Not Covered',
+          Status: covered ? "✓ Covered" : "✗ Not Covered",
           Location: locationDisplay,
-          'Changed Lines': relatedLinesDisplay,
-          'Hit Count': covered ? `${count}x` : '0x',
+          "Changed Lines": relatedLinesDisplay,
+          "Hit Count": covered ? `${count}x` : "0x",
           startLine,
           startCol: startCol + 1, // Monaco Editor 的列号从 1 开始
           endLine,
@@ -143,8 +138,8 @@ const ChangedCodeCoverageTable = ({
     statements.sort((a, b) => {
       const aMatch = a.Location.match(/L(\d+)/);
       const bMatch = b.Location.match(/L(\d+)/);
-      const aLine = aMatch ? parseInt(aMatch[1] || '0') : 0;
-      const bLine = bMatch ? parseInt(bMatch[1] || '0') : 0;
+      const aLine = aMatch ? parseInt(aMatch[1] || "0") : 0;
+      const bLine = bMatch ? parseInt(bMatch[1] || "0") : 0;
       return aLine - bLine;
     });
 
@@ -153,7 +148,7 @@ const ChangedCodeCoverageTable = ({
 
   // 默认只显示未覆盖的语句，但选项列表包含所有语句以便切换
   const filteredStatements = useMemo(() => {
-    return relatedStatements.filter((s) => s.Status.includes('✗'));
+    return relatedStatements.filter((s) => s.Status.includes("✗"));
   }, [relatedStatements]);
 
   // 用于下拉框的所有选项（包含已覆盖和未覆盖）
@@ -163,22 +158,22 @@ const ChangedCodeCoverageTable = ({
 
   // 按覆盖状态分组的选项
   const groupedOptions = useMemo(() => {
-    const covered = relatedStatements.filter((s) => s.Status.includes('✓'));
-    const notCovered = relatedStatements.filter((s) => s.Status.includes('✗'));
+    const covered = relatedStatements.filter((s) => s.Status.includes("✓"));
+    const notCovered = relatedStatements.filter((s) => s.Status.includes("✗"));
 
     const groups = [];
 
     if (notCovered.length > 0) {
       groups.push({
         label: (
-          <span style={{ fontWeight: 500, color: '#f44336' }}>
+          <span style={{ fontWeight: 500, color: "#f44336" }}>
             ✗ Not Covered ({notCovered.length})
           </span>
         ),
-        title: 'Not Covered',
+        title: "Not Covered",
         options: notCovered.map((stmt) => ({
           value: stmt.key,
-          label: `${stmt.Location} Lines: ${stmt['Changed Lines']} ${stmt['Hit Count']}`,
+          label: `${stmt.Location} Lines: ${stmt["Changed Lines"]} ${stmt["Hit Count"]}`,
         })),
       });
     }
@@ -186,14 +181,12 @@ const ChangedCodeCoverageTable = ({
     if (covered.length > 0) {
       groups.push({
         label: (
-          <span style={{ fontWeight: 500, color: '#4caf50' }}>
-            ✓ Covered ({covered.length})
-          </span>
+          <span style={{ fontWeight: 500, color: "#4caf50" }}>✓ Covered ({covered.length})</span>
         ),
-        title: 'Covered',
+        title: "Covered",
         options: covered.map((stmt) => ({
           value: stmt.key,
-          label: `${stmt.Location} Lines: ${stmt['Changed Lines']} ${stmt['Hit Count']}`,
+          label: `${stmt.Location} Lines: ${stmt["Changed Lines"]} ${stmt["Hit Count"]}`,
         })),
       });
     }
@@ -211,13 +204,10 @@ const ChangedCodeCoverageTable = ({
         notCoveredCount: 0,
       };
     }
-    const coveredCount = relatedStatements.filter((s) =>
-      s.Status.includes('✓'),
-    ).length;
+    const coveredCount = relatedStatements.filter((s) => s.Status.includes("✓")).length;
     const totalCount = relatedStatements.length;
     const notCoveredCount = filteredStatements.length;
-    const coveragePercent =
-      totalCount > 0 ? Math.round((coveredCount / totalCount) * 100) : 0;
+    const coveragePercent = totalCount > 0 ? Math.round((coveredCount / totalCount) * 100) : 0;
     return { coveredCount, totalCount, coveragePercent, notCoveredCount };
   }, [relatedStatements, filteredStatements]);
 
@@ -231,87 +221,77 @@ const ChangedCodeCoverageTable = ({
     const statement = allStatementsForSelect.find((s) => s.key === value);
     if (statement && onJumpToRange) {
       // 跳转到对应的代码范围
-      onJumpToRange(
-        statement.startLine,
-        statement.startCol,
-        statement.endLine,
-        statement.endCol,
-      );
+      onJumpToRange(statement.startLine, statement.startCol, statement.endLine, statement.endCol);
     }
   };
 
   return (
-    <div className='canyon-changed-code-coverage-table'>
+    <div className="canyon-changed-code-coverage-table">
       <button
-        className='canyon-changed-code-coverage-toggle'
+        className="canyon-changed-code-coverage-toggle"
         onClick={() => setIsOpen(!isOpen)}
-        type='button'
+        type="button"
       >
-        <span className='canyon-changed-code-coverage-icon'>📊</span>
+        <span className="canyon-changed-code-coverage-icon">📊</span>
         <span>
-          Changed Code Coverage: {coverageStats.coveragePercent}% (
-          {coverageStats.coveredCount}/{coverageStats.totalCount}) -{' '}
-          {coverageStats.notCoveredCount} Not Covered
+          Changed Code Coverage: {coverageStats.coveragePercent}% ({coverageStats.coveredCount}/
+          {coverageStats.totalCount}) - {coverageStats.notCoveredCount} Not Covered
         </span>
-        <span className='canyon-changed-code-coverage-arrow'>
-          {isOpen ? '▲' : '▼'}
-        </span>
+        <span className="canyon-changed-code-coverage-arrow">{isOpen ? "▲" : "▼"}</span>
       </button>
       <div
-        className='canyon-changed-code-coverage-content'
+        className="canyon-changed-code-coverage-content"
         style={{
-          maxHeight: isOpen ? '100px' : '0',
-          overflow: isOpen ? 'visible' : 'hidden',
+          maxHeight: isOpen ? "100px" : "0",
+          overflow: isOpen ? "visible" : "hidden",
           opacity: isOpen ? 1 : 0,
         }}
       >
-        <div className='canyon-changed-code-coverage-select-wrapper'>
+        <div className="canyon-changed-code-coverage-select-wrapper">
           <Select
             value={selectedValue}
             onChange={handleSelectChange}
-            placeholder='Select code location (use arrow keys)'
-            style={{ width: '480px', maxWidth: '100%' }}
-            size='small'
+            placeholder="Select code location (use arrow keys)"
+            style={{ width: "480px", maxWidth: "100%" }}
+            size="small"
             showSearch
-            optionFilterProp='label'
+            optionFilterProp="label"
             tagRender={(props) => {
               const { value } = props;
               const stmt = allStatementsForSelect.find((s) => s.key === value);
               if (!stmt) return <span>{value}</span>;
 
-              const isCovered = stmt.Status.includes('✓');
+              const isCovered = stmt.Status.includes("✓");
               return (
                 <span
                   style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '13px',
-                    lineHeight: '20px',
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    fontSize: "13px",
+                    lineHeight: "20px",
                   }}
                 >
                   <span
                     style={{
-                      color: isCovered ? '#4caf50' : '#f44336',
-                      fontWeight: 'bold',
-                      fontSize: '14px',
+                      color: isCovered ? "#4caf50" : "#f44336",
+                      fontWeight: "bold",
+                      fontSize: "14px",
                     }}
                   >
-                    {isCovered ? '✓' : '✗'}
+                    {isCovered ? "✓" : "✗"}
                   </span>
-                  <span style={{ fontFamily: 'monospace' }}>
-                    {stmt.Location}
-                  </span>
-                  <span style={{ color: '#666', fontSize: '12px' }}>
-                    Lines: {stmt['Changed Lines']}
+                  <span style={{ fontFamily: "monospace" }}>{stmt.Location}</span>
+                  <span style={{ color: "#666", fontSize: "12px" }}>
+                    Lines: {stmt["Changed Lines"]}
                   </span>
                   <span
                     style={{
-                      color: isCovered ? '#4caf50' : '#f44336',
-                      fontSize: '12px',
+                      color: isCovered ? "#4caf50" : "#f44336",
+                      fontSize: "12px",
                     }}
                   >
-                    {stmt['Hit Count']}
+                    {stmt["Hit Count"]}
                   </span>
                 </span>
               );
@@ -323,7 +303,7 @@ const ChangedCodeCoverageTable = ({
               if (optionAny.options) {
                 return true; // 分组标题始终显示
               }
-              const label = option?.label?.toString() || '';
+              const label = option?.label?.toString() || "";
               return label.toLowerCase().includes(input.toLowerCase());
             }}
             optionRender={(option) => {
@@ -334,70 +314,68 @@ const ChangedCodeCoverageTable = ({
                 return option.label; // 分组标题直接返回
               }
 
-              const stmt = allStatementsForSelect.find(
-                (s) => s.key === option.value,
-              );
+              const stmt = allStatementsForSelect.find((s) => s.key === option.value);
               if (!stmt) return option.label;
 
-              const isCovered = stmt.Status.includes('✓');
+              const isCovered = stmt.Status.includes("✓");
               return (
                 <div
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '2px 0',
-                    fontSize: '13px',
-                    lineHeight: '20px',
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "6px",
+                    padding: "2px 0",
+                    fontSize: "13px",
+                    lineHeight: "20px",
                   }}
                 >
                   <span
                     style={{
-                      color: isCovered ? '#4caf50' : '#f44336',
-                      fontWeight: 'bold',
-                      width: '16px',
-                      fontSize: '14px',
-                      textAlign: 'center',
+                      color: isCovered ? "#4caf50" : "#f44336",
+                      fontWeight: "bold",
+                      width: "16px",
+                      fontSize: "14px",
+                      textAlign: "center",
                       flexShrink: 0,
                     }}
-                    title={isCovered ? 'Covered' : 'Not Covered'}
+                    title={isCovered ? "Covered" : "Not Covered"}
                   >
-                    {isCovered ? '✓' : '✗'}
+                    {isCovered ? "✓" : "✗"}
                   </span>
                   <span
                     style={{
-                      fontFamily: 'monospace',
-                      width: '180px',
+                      fontFamily: "monospace",
+                      width: "180px",
                       flexShrink: 0,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
                     }}
                   >
                     {stmt.Location}
                   </span>
                   <span
                     style={{
-                      color: '#666',
-                      fontSize: '12px',
-                      width: '100px',
+                      color: "#666",
+                      fontSize: "12px",
+                      width: "100px",
                       flexShrink: 0,
-                      textAlign: 'left',
+                      textAlign: "left",
                     }}
                   >
-                    Lines: {stmt['Changed Lines']}
+                    Lines: {stmt["Changed Lines"]}
                   </span>
                   <span
                     style={{
-                      color: isCovered ? '#4caf50' : '#f44336',
-                      fontSize: '12px',
-                      width: '80px',
+                      color: isCovered ? "#4caf50" : "#f44336",
+                      fontSize: "12px",
+                      width: "80px",
                       flexShrink: 0,
-                      textAlign: 'right',
-                      fontWeight: isCovered ? '500' : 'normal',
+                      textAlign: "right",
+                      fontWeight: isCovered ? "500" : "normal",
                     }}
                   >
-                    {stmt['Hit Count']}
+                    {stmt["Hit Count"]}
                   </span>
                 </div>
               );

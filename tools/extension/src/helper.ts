@@ -1,4 +1,4 @@
-import { mockCoverage } from './mockCoverage.ts';
+import { mockCoverage } from "./mockCoverage.ts";
 
 export function getCoverageAndCanyonData(reportID: any): Promise<any> {
   return new Promise((resolve, reject) => {
@@ -6,7 +6,7 @@ export function getCoverageAndCanyonData(reportID: any): Promise<any> {
       if (chrome?.tabs?.query) {
         chrome.tabs.query({ active: true, currentWindow: true }, ([tab]) => {
           const message = {
-            type: '__canyon__',
+            type: "__canyon__",
             payload: {
               reportID: reportID,
             },
@@ -14,10 +14,10 @@ export function getCoverageAndCanyonData(reportID: any): Promise<any> {
           if (tab.id) {
             chrome.tabs.sendMessage(tab.id, message, (res) => {
               if (res.coverage === undefined) {
-                reject('No coverage data detected.');
+                reject("No coverage data detected.");
               }
               if (res.canyon === undefined) {
-                reject('No canyon data detected.');
+                reject("No canyon data detected.");
               }
               resolve(res);
               return true;
@@ -27,11 +27,11 @@ export function getCoverageAndCanyonData(reportID: any): Promise<any> {
       } else {
         resolve({
           canyon: {
-            projectID: '86927',
-            sha: '8eedc8908c96ae994f4643a512ad723179a271a8',
-            branch: 'main',
-            dsn: 'http://canyon.com/coverage/client',
-            instrumentCwd: '/builds/canyon/canyon-demo',
+            projectID: "86927",
+            sha: "8eedc8908c96ae994f4643a512ad723179a271a8",
+            branch: "main",
+            dsn: "http://canyon.com/coverage/client",
+            instrumentCwd: "/builds/canyon/canyon-demo",
           },
           coverage: mockCoverage,
         });
@@ -45,13 +45,13 @@ export function upload({ canyon, coverage }: any) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       fetch(canyon.dsn, {
-        method: 'POST',
+        method: "POST",
         body: JSON.stringify({
           ...canyon,
           coverage,
         }),
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${canyon.reporter}`,
         },
       })

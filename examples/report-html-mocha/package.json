@@ -1,14 +1,13 @@
 {
   "name": "report-html-mocha",
   "version": "1.0.0",
+  "description": "",
+  "license": "ISC",
+  "author": "",
   "main": "index.js",
-
   "scripts": {
     "test": "nyc --reporter=@canyonjs/report --reporter=json mocha '*.test.js'"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
     "@canyonjs/report": "catalog:",
     "mocha": "^11.1.0",

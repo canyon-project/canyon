@@ -2,6 +2,9 @@
   "name": "docs",
   "version": "1.0.0",
   "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
   "main": "index.js",
   "scripts": {
     "dev-docs": "next",
@@ -11,16 +14,10 @@
     "build-pagefind": "pagefind --site .next/server/app --output-path public/_pagefind",
     "build-llm-docs": "tsx scripts/build-llm-docs.ts"
   },
-  "keywords": [],
-  "author": "",
-  "engines": {
-    "node": "22"
-  },
-  "license": "ISC",
   "dependencies": {
-    "katex": "^0.16.27",
     "@ant-design/icons": "6.1.0",
     "antd": "6.1.0",
+    "katex": "^0.16.27",
     "next": "^16.0.10",
     "nextra": "^4.6.1",
     "nextra-theme-docs": "^4.6.1",
@@ -32,5 +29,8 @@
     "pagefind": "*",
     "tailwindcss": "4.1.18",
     "tsx": "^4.19.0"
+  },
+  "engines": {
+    "node": "22"
   }
 }

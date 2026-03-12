@@ -1,14 +1,14 @@
 {
   "name": "report-html-rstest",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "",
+  "license": "ISC",
+  "author": "",
   "type": "module",
+  "main": "index.js",
   "scripts": {
     "test": "rstest run --coverage"
   },
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "devDependencies": {
     "@canyonjs/report": "catalog:",
     "@rstest/core": "latest",

@@ -1,17 +1,17 @@
 [workspace]
-members = ["plugins/swc-plugin","plugins/swc-plugin-stage-output"]
+members = ["plugins/swc-plugin", "plugins/swc-plugin-stage-output"]
 
 
 resolver = "2"
 
 
 [workspace.package]
-authors      = ["Travis Zhang<https://github.com/travzhang>"]
-edition      = "2021"
-homepage     = "https://github.com/canyon-project/canyon"
-license      = "Apache-2.0"
-repository   = "https://github.com/canyon-project/canyon.git"
+authors = ["Travis Zhang<https://github.com/travzhang>"]
+edition = "2021"
+homepage = "https://github.com/canyon-project/canyon"
+license = "Apache-2.0"
+repository = "https://github.com/canyon-project/canyon.git"
 rust-version = "1.70"
 
 [workspace.dependencies]
-swc_core           = "50.1.3"
+swc_core = "50.1.3"
