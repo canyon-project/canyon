@@ -33,8 +33,8 @@ catalog:
   react: 19.2.3
   react-dom: 19.2.3
   react-router-dom: ^7.12.0
-  vite: 8.0.0-beta.15
-  vitest: ^4.0.18
+  vite: 8.0.0
+  vitest: 4.0.18
 
 catalogMode: prefer
 
@@ -42,9 +42,5 @@ onlyBuiltDependencies:
   - better-sqlite3
   - "@prisma/client"
   - prisma
-
-overrides:
-  "@typescript/native-preview": 7.0.0-dev.20260223.1
-  vite: 8.0.0-beta.15
 
 shellEmulator: true
