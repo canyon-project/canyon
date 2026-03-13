@@ -4,24 +4,17 @@
   "private": true,
   "description": "",
   "scripts": {
-    "preinstall": "node ./scripts/check.mjs",
     "clean": "node ./scripts/clean.mjs",
     "test": "pnpm run -r test",
     "dev": "pnpm run --stream -r dev",
     "build": "pnpm run -r build",
-    "migrate:sql": "prisma migrate diff --from-empty --to-schema-datamodel ./packages/backend/prisma/schema.prisma --script > ./schema.sql",
     "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs",
-    "coverage:merge": "node ./scripts/merge-coverage.mjs",
-    "coverage:report": "nyc report --reporter=@canyonjs/report --reporter=json --report-dir=coverage",
-    "coverage": "pnpm run coverage:merge && pnpm run coverage:report",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt"
   },
   "devDependencies": {
-    "nyc": "latest",
     "oxfmt": "^0.35.0",
-    "oxlint": "^1.50.0",
-    "prisma": "6"
+    "oxlint": "^1.50.0"
   }
 }
