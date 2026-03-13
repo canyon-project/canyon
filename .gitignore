@@ -7,7 +7,6 @@ yarn-error.log*
 *.heapprofile
 lib-cov
 coverage
-!**/integrations/coverage
 node_modules
 .env
 .cache
@@ -51,7 +50,7 @@ data.db
 
 generated
 
-!/packages/backend/src/coverage
+
 
 local.db
 
@@ -82,3 +81,5 @@ diff.txt
 next-env.d.ts
 
 .swc
+
+!/app/src/api/**/coverage

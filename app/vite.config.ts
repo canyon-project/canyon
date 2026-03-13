@@ -4,7 +4,6 @@ import build from "@hono/vite-build/node";
 import react from "@vitejs/plugin-react-swc";
 import Pages from "vite-plugin-pages";
 import tailwindcss from "@tailwindcss/vite";
-import path from "path";
 import { copyPrismaEngines } from "./copyPrismaEngines.ts";
 
 export default defineConfig({
@@ -31,9 +30,7 @@ export default defineConfig({
     copyPrismaEngines(),
   ],
   resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src"),
-    },
+    tsconfigPaths: true,
   },
   server: {
     port: 3000,

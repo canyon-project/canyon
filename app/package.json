@@ -57,7 +57,7 @@
   "devDependencies": {
     "@canyonjs/playwright": "^0.0.2",
     "@canyonjs/report": "1.0.20",
-    "@hono/vite-build": "^1.9.3",
+    "@hono/vite-build": "^1.10.0",
     "@hono/vite-dev-server": "^0.25.0",
     "@playwright/test": "1.56.1",
     "@tailwindcss/vite": "0.0.0-insiders.a4be983",
@@ -77,11 +77,5 @@
     "vite": "8",
     "vite-plugin-pages": "^0.33.3",
     "vitest": "^4.0.18"
-  },
-  "simple-git-hooks": {
-    "pre-commit": "npx nano-staged"
-  },
-  "nano-staged": {
-    "*.{js,jsx,ts,tsx,mjs,cjs}": "npm run lint:fix && npm run fmt"
   }
 }
