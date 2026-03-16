@@ -9,7 +9,12 @@ import {
   generateObjectSignature,
   encodeObjectToCompressedBuffer,
 } from "@/api/lib/collect/helpers.ts";
-import { CoverageClientSchema, CoverageMapInitSchema } from "@/shared/schemas/coverage.ts";
+import {
+  CoverageClientSchema,
+  CoverageMapInitSchema,
+  CoverageClientResponseSchema,
+  CoverageMapInitResponseSchema,
+} from "@/shared/schemas/coverage.ts";
 
 const coverageClientRoute = createRoute({
   method: "post",
@@ -26,7 +31,14 @@ const coverageClientRoute = createRoute({
     },
   },
   responses: {
-    200: { description: "成功" },
+    200: {
+      description: "成功",
+      content: {
+        "application/json": {
+          schema: CoverageClientResponseSchema,
+        },
+      },
+    },
     400: { description: "参数错误" },
     502: { description: "未找到 coverage 记录，请先调用 map/init" },
   },
@@ -47,7 +59,14 @@ const coverageMapInitRoute = createRoute({
     },
   },
   responses: {
-    200: { description: "成功" },
+    200: {
+      description: "成功",
+      content: {
+        "application/json": {
+          schema: CoverageMapInitResponseSchema,
+        },
+      },
+    },
     400: { description: "Coverage 数据为空" },
   },
 });
@@ -122,6 +141,11 @@ collectApi.openapi(coverageClientRoute, async (c) => {
     buildHash,
     sceneKey,
     coverageLength: Object.keys(coverage).length,
+    provider: prismacoverage.provider,
+    repoID: prismacoverage.repoID,
+    sha: prismacoverage.sha,
+    buildTarget: prismacoverage.buildTarget,
+    instrumentCwd: prismacoverage.instrumentCwd,
   });
 });
 

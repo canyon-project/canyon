@@ -79,5 +79,31 @@ export const CoverageCommitsQuerySchema = z
   })
   .openapi("CoverageCommitsQuery");
 
+/** POST /api/coverage/client 响应 */
+export const CoverageClientResponseSchema = z
+  .object({
+    success: z.boolean(),
+    buildHash: z.string(),
+    sceneKey: z.string(),
+    coverageLength: z.number(),
+    provider: z.string(),
+    repoID: z.string(),
+    sha: z.string(),
+    buildTarget: z.string().optional(),
+    instrumentCwd: z.string(),
+  })
+  .openapi("CoverageClientResponse");
+
+/** POST /api/coverage/map/init 响应 */
+export const CoverageMapInitResponseSchema = z
+  .object({
+    success: z.boolean(),
+    message: z.string(),
+    data: z.any().optional(),
+  })
+  .openapi("CoverageMapInitResponse");
+
 export type CoverageClientInput = z.infer<typeof CoverageClientSchema>;
 export type CoverageMapInitInput = z.infer<typeof CoverageMapInitSchema>;
+export type CoverageClientResponse = z.infer<typeof CoverageClientResponseSchema>;
+export type CoverageMapInitResponse = z.infer<typeof CoverageMapInitResponseSchema>;
