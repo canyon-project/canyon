@@ -37,6 +37,9 @@ const ReportIndependent = () => {
   const [searchParams] = useSearchParams();
   const params = useParams();
 
+  // 从 URL 参数中读取 only_show_change
+  const onlyShowChange = searchParams.get("only_show_change") === "true";
+
   // ==================== 路由和查询参数处理 ====================
 
   const subjectID = params.subjectID;
@@ -325,6 +328,7 @@ const ReportIndependent = () => {
             value={activatedPath}
             onSelect={onSelect}
             dataSource={data}
+            defaultOnlyChange={onlyShowChange}
           />
         </div>
       </div>
