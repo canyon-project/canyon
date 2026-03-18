@@ -113,7 +113,8 @@ export async function mapCommand(params: any, options: any) {
     provider: provider || "gitlab",
     repoID: repoID || process.env.CI_PROJECT_ID,
     sha: sha || process.env.CI_COMMIT_SHA,
-    instrumentCwd: instrument_cwd || process.cwd(),
+    // instrumentCwd 需要改用init时生成的覆盖率文件中的路径，不能直接用当前工作目录，因为可能存在多层嵌套或者 monorepo 的情况
+    instrumentCwd: instrument_cwd || '',
     reportID: "initial_coverage_data",
     reportProvider: "ci",
     buildTarget: build_target || "",
