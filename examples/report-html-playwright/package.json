@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev-report-html-playwright": "vite",
-    "build1": "tsgo -b && vite build",
+    "build2": "tsgo -b && vite build",
     "preview": "vite preview",
     "pretest": "npm run build",
     "gen-coverage-report": "nyc report --reporter=@canyonjs/report --temp-dir=./.canyon_output",
