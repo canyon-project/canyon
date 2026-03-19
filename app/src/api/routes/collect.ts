@@ -15,6 +15,7 @@ import {
   CoverageClientResponseSchema,
   CoverageMapInitResponseSchema,
 } from "@/shared/schemas/coverage.ts";
+import { logger } from "@/api/logger";
 
 const coverageClientRoute = createRoute({
   method: "post",
@@ -181,6 +182,18 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
 
   const coverageValues = Object.values(coverage);
   if (coverageValues.length === 0) {
+    logger({
+      type: "error",
+      title: "Coverage data is empty",
+      message: "Coverage data is empty, cannot extract parameters.",
+      addInfo: {
+        sha,
+        provider,
+        repoID,
+        instrumentCwd,
+        buildTarget,
+      },
+    });
     return c.json(
       {
         success: false,
@@ -199,6 +212,18 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
   if (firstEntry.buildTarget !== undefined) buildTarget = firstEntry.buildTarget as string;
 
   if (!sha || !provider || !repoID || !instrumentCwd) {
+    logger({
+      type: "error",
+      title: "Missing required parameters",
+      message: "Missing required parameters: sha, provider, repoID, instrumentCwd.",
+      addInfo: {
+        sha,
+        provider,
+        repoID,
+        instrumentCwd,
+        buildTarget,
+      },
+    });
     return c.json(
       {
         success: false,
@@ -360,7 +385,21 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
     data: hitEntities,
     skipDuplicates: true,
   });
-
+  logger({
+    type: "info",
+    title: "Coverage map initialized",
+    message: "Coverage map initialized successfully.",
+    addInfo: {
+      sha,
+      provider,
+      repoID,
+      instrumentCwd,
+      buildTarget,
+      buildHash,
+      fileCount: mapItems.length,
+      sourceMapCount: sourceMapItems.length,
+    },
+  });
   return c.json({
     success: true,
     message: "Coverage map initialized",

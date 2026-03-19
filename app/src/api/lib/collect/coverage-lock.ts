@@ -26,8 +26,7 @@ export async function releaseLock(coverageID: string): Promise<void> {
     await prisma.coverageLock.delete({
       where: { coverageID },
     });
-  } catch (e) {
-  }
+  } catch (e) {}
 }
 
 async function cleanExpiredLocks(): Promise<void> {
@@ -36,6 +35,5 @@ async function cleanExpiredLocks(): Promise<void> {
     await prisma.coverageLock.deleteMany({
       where: { lockedAt: { lt: expiredAt } },
     });
-  } catch (e) {
-  }
+  } catch (e) {}
 }
