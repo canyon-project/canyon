@@ -86,6 +86,18 @@ python -m pytest tests/
 
 测试完成后，覆盖率数据会写入 `.canyon_output` 目录下的 `coverage-{timestamp}.json` 文件。
 
+### 上传覆盖率数据
+
+收集完成后，可使用 Canyon CLI 将覆盖率数据上传到服务端：
+
+```sh copy
+npx @canyonjs/cli upload --dsn=http://xxx.com/coverage/client --scene k1=v2 --scene k2=v3 --debug=true
+```
+
+- `--dsn`：Canyon 服务端接收覆盖率数据的地址。
+- `--scene`：用于附加场景维度信息，可重复传入多个键值对。
+- `--debug=true`：开启调试日志，便于排查上传过程中的问题。
+
 > [!NOTE]
 >
 > 仅当被测页面有 Istanbul 注入的 `window.__coverage__` 时才会生成覆盖率文件。确保前端项目已正确配置 Babel 插桩。
