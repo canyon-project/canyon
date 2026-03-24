@@ -16,3 +16,7 @@ body {
     fixed 0 0 / 20px 20px radial-gradient(var(--bg-dot-color) 1px, transparent 0),
     fixed 10px 10px / 20px 20px radial-gradient(var(--bg-dot-color) 1px, transparent 0);
 }
+
+[class^="ant"] p {
+  margin-top: 0!important;
+}
