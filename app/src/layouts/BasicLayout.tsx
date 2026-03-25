@@ -43,6 +43,21 @@ const BasicLayout: FC<{
     };
   }, []);
 
+  useEffect(() => {
+    const storageKey = "canyon_user_info";
+    if (!user) {
+      localStorage.removeItem(storageKey);
+      return;
+    }
+
+    const userInfo = {
+      username: user.username,
+      nickname: user.nickname,
+      email: user.email,
+    };
+    localStorage.setItem(storageKey, JSON.stringify(userInfo));
+  }, [user]);
+
   const selected = `/${location.pathname.split("/")[1] || "projects"}`;
 
   // 分区组件：侧边头部（Logo 与标题）
