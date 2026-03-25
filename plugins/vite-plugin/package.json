@@ -1,0 +1,42 @@
+{
+  "name": "@canyonjs/vite-plugin",
+  "version": "0.0.1",
+  "description": "Vite plugin that instruments code via @canyonjs/babel-plugin",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "dist/index.mjs",
+  "types": "dist/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "release": "tsdown",
+    "pretest": "npm run build",
+    "test": "vite build --config ./test-vite.config.mjs",
+    "prepublishOnly": "npm run release"
+  },
+  "dependencies": {
+    "@babel/core": "^7.25.6",
+    "@canyonjs/babel-plugin": "workspace:*"
+  },
+  "peerDependencies": {
+    "vite": ">=5.0.0"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.5",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "tsdown": "^0.17.0",
+    "vite": "catalog:",
+    "vite-plugin-istanbul": "latest"
+  }
+}
