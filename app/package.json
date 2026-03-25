@@ -55,6 +55,7 @@
     "tmp": "^0.2.5"
   },
   "devDependencies": {
+    "@canyonjs/swc-plugin": "0.0.5",
     "@canyonjs/playwright": "^0.0.2",
     "@canyonjs/report": "1.0.20",
     "@hono/vite-build": "^1.10.0",

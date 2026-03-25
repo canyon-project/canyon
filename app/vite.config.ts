@@ -6,13 +6,22 @@ import Pages from "vite-plugin-pages";
 import tailwindcss from "@tailwindcss/vite";
 import { copyPrismaEngines } from "./copyPrismaEngines.ts";
 
+const isProduction = process.env.NODE_ENV === 'production';
+
+if (isProduction) {
+  console.log('当前是【生产环境】');
+} else {
+  console.log('当前是【开发/测试环境】');
+}
+
 export default defineConfig({
   build: {
     target: "es2022",
   },
   plugins: [
     react({
-      plugins: [["swc-plugin-coverage-instrument", {}]],
+      plugins: isProduction ? [["swc-plugin-coverage-instrument", {}],["@canyonjs/swc-plugin",{
+      }]] : [],
     }),
     Pages({
       exclude: ["**/views/**", "**/helpers/**"],
