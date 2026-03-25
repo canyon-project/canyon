@@ -12,7 +12,7 @@ import { assemblyData } from "./assemblyData";
     const blob = await compressDataWithStream(JSON.stringify(coverage));
 
     fd.append('coverage', blob);
-    fd.append('projectID', `tripgl-${projectID}-auto`);
+    fd.append('projectID', `gitlab-${projectID}-auto`);
     fd.append('sha', sha);
     fd.append('instrumentCwd', instrumentCwd);
     fd.append('compareTarget', compareTarget);
