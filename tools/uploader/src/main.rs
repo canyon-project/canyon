@@ -113,12 +113,12 @@ async fn main() {
 
     match args.command {
         Some(Commands::Version) => {
-            println!("canyon-uploader 版本 1.3.0");
+            println!("canyon-uploader 版本 1.3.1");
         }
         Some(Commands::Map { coverage_dir,dsn,provider,report_id }) => {
 
 
-            let version = "1.3.0";
+            let version = "1.3.1";
             let result = generate_header(version);
 
             log("info", &result);
@@ -188,16 +188,39 @@ async fn main() {
                         let coverage = serde_json::to_value(data.clone()).unwrap();
                         let data = CoverageData {
                             coverage,
-                            sha: first_value.sha.clone().or(std::env::var("CI_COMMIT_SHA").ok()).unwrap(),
-                            instrumentCwd: first_value.instrumentCwd.clone().or(std::env::current_dir().ok().and_then(|p| p.to_str().map(|s| s.to_string()))),
-                            dsn: dsn.clone().or(first_value.dsn.clone()).or(std::env::var("DSN").ok()),
+                            sha: first_value
+                                .sha
+                                .clone()
+                                .or(std::env::var("CI_COMMIT_SHA").ok())
+                                .unwrap_or_default(),
+                            instrumentCwd: first_value
+                                .instrumentCwd
+                                .clone()
+                                .or(std::env::current_dir().ok().and_then(|p| p.to_str().map(|s| s.to_string())))
+                                .or(Some(String::new())),
+                            dsn: dsn
+                                .clone()
+                                .or(first_value.dsn.clone())
+                                .or(std::env::var("DSN").ok())
+                                .or(Some(String::new())),
                             reporter: first_value.reporter.clone().or(std::env::var("REPORTER").ok()).or(Option::from(default_report.to_string())),
-                            branch: first_value.branch.clone().or(std::env::var("CI_COMMIT_BRANCH").ok()),
-                            compareTarget: first_value.compareTarget.clone(),
+                            branch: first_value
+                                .branch
+                                .clone()
+                                .or(std::env::var("CI_COMMIT_BRANCH").ok())
+                                .or(Some(String::new())),
+                            compareTarget: first_value.compareTarget.clone().or(Some(String::new())),
                             // projectID是拼接一个auto和provider、repoID
-                            provider: provider.clone().or(first_value.provider.clone()).unwrap(),
-                            repoID: first_value.sha.clone().or(std::env::var("CI_PROJECT_ID").ok()).unwrap(),
-                            reportID: report_id.clone(),
+                            provider: provider
+                                .clone()
+                                .or(first_value.provider.clone())
+                                .unwrap_or_default(),
+                            repoID: first_value
+                                .sha
+                                .clone()
+                                .or(std::env::var("CI_PROJECT_ID").ok())
+                                .unwrap_or_default(),
+                            reportID: report_id.clone().or(Some(String::new())),
                         };
 
                         if let Some(existing_data) = map.get(&data.repoID) {
