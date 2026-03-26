@@ -182,23 +182,6 @@ export function visitorProgramExit(
               types.stringLiteral(buildHash),
             );
             objectProperties.push(buildHashProperty);
-
-            const emptyStringMetadataKeys = [
-              "sha",
-              "instrumentCwd",
-              "dsn",
-              "reporter",
-              "branch",
-              "compareTarget",
-              "provider",
-              "repoID",
-            ] as const;
-
-            emptyStringMetadataKeys.forEach((key) => {
-              objectProperties.push(
-                types.objectProperty(types.identifier(key), types.stringLiteral("")),
-              );
-            });
           }
         }
       },

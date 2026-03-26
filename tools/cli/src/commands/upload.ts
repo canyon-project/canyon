@@ -2,9 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 import axios from "axios";
 import { mergeCoverageMaps } from "../utils/mergeCoverage";
+import { logger } from "../utils/logger";
 
 export async function mapCommand(params: any, options: any) {
-  console.log("Current working directory:", process.cwd());
+  logger.info("Current working directory:", process.cwd());
 
   // 检测是否在 GitHub Actions 环境中
   const isGitHubActions = process.env.GITHUB_ACTIONS === "true" || !!process.env.GITHUB_EVENT_PATH;
@@ -16,10 +17,10 @@ export async function mapCommand(params: any, options: any) {
       if (fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
         githubEvent = fs.readFileSync(process.env.GITHUB_EVENT_PATH, "utf8");
       } else {
-        console.log("GITHUB_EVENT_PATH file not found:", process.env.GITHUB_EVENT_PATH);
+        logger.info("GITHUB_EVENT_PATH file not found:", process.env.GITHUB_EVENT_PATH);
       }
     } catch (error) {
-      console.warn("Failed to read GITHUB_EVENT_PATH:", error);
+      logger.warn("Failed to read GITHUB_EVENT_PATH:", error);
     }
   }
 
@@ -35,7 +36,7 @@ export async function mapCommand(params: any, options: any) {
     scene,
   } = params;
   if (!fs.existsSync(path.resolve(process.cwd(), ".canyon_output"))) {
-    console.log("No .canyon_output directory found, skipping upload.");
+    logger.info("No .canyon_output directory found, skipping upload.");
     return;
   }
   const files = fs.readdirSync(path.resolve(process.cwd(), ".canyon_output"));
@@ -78,9 +79,9 @@ export async function mapCommand(params: any, options: any) {
     try {
       const diffJsonContent = fs.readFileSync(diffJsonPath, "utf-8");
       diffData = JSON.parse(diffJsonContent);
-      console.log(`Found diff.json file: ${diffJsonPath}`);
+      logger.info(`Found diff.json file: ${diffJsonPath}`);
     } catch (error) {
-      console.warn(`Failed to read or parse diff.json: ${error}`);
+      logger.warn(`Failed to read or parse diff.json: ${error}`);
     }
   }
 
@@ -90,18 +91,18 @@ export async function mapCommand(params: any, options: any) {
     sceneMap = {};
     for (const pair of scene) {
       if (typeof pair !== "string") {
-        console.error(`Invalid scene parameter: ${pair}. Expected format: key=value`);
+        logger.error(`Invalid scene parameter: ${pair}. Expected format: key=value`);
         return;
       }
       const equalIndex = pair.indexOf("=");
       if (equalIndex === -1 || equalIndex === 0) {
-        console.error(`Invalid scene parameter format: ${pair}. Expected format: key=value`);
+        logger.error(`Invalid scene parameter format: ${pair}. Expected format: key=value`);
         return;
       }
       const key = pair.substring(0, equalIndex);
       const value = pair.substring(equalIndex + 1);
       if (!key || !value) {
-        console.error(`Invalid scene parameter format: ${pair}. Key and value cannot be empty`);
+        logger.error(`Invalid scene parameter format: ${pair}. Key and value cannot be empty`);
         return;
       }
       sceneMap[key] = value;
@@ -129,7 +130,7 @@ export async function mapCommand(params: any, options: any) {
     ...(diffData && { diff: diffData }),
   };
   if (debug === "true") {
-    console.log(p);
+    logger.info(p);
   }
   await axios
     .post(dsn, {
@@ -138,14 +139,14 @@ export async function mapCommand(params: any, options: any) {
       coverage: data,
     })
     .then((r) => {
-      console.log(JSON.stringify(r.data, null, 2));
+      logger.info(JSON.stringify(r.data, null, 2));
       return r;
     })
     .catch((err) => {
       if (err?.response?.data) {
-        console.log(err?.response?.data);
+        logger.error(err?.response?.data);
       } else {
-        String(err);
+        logger.error(err);
       }
       return err;
     });

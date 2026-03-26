@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/cli",
-  "version": "1.0.33",
+  "version": "1.0.34",
   "bin": {
     "canyon": "bin/canyon.js"
   },

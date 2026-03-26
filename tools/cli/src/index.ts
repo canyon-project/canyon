@@ -2,8 +2,29 @@ import chalk from "chalk";
 import { program } from "commander";
 import { version } from "../package.json";
 import { mapCommand } from "./commands/upload.ts";
+import { logger } from "./utils/logger";
 
 const accent = chalk.greenBright;
+
+/**
+ *
+ * @param {string} version
+ * @returns {string}
+ */
+export function generateHeader(version: string): string {
+  return `
+   _____
+  / ____|
+ | |      __ _ _ __  _   _  ___  _ __
+ | |     / _\` | '_ \\| | | |/ _ \\| '_ \\
+ | |____| (_| | | | | |_| | (_) | | | |
+  \\_____|\\__,_|_| |_|\\__, |\\___/|_| |_|
+                      __/ |
+                     |___/
+
+  Canyon CLI ${version}
+`;
+}
 
 const CLI_BEFORE_ALL_TXT = `canyon: The ${accent("Canyon")} CLI - Version ${version} (${accent(
   "https://github.com/canyon-project/canyon",
@@ -25,6 +46,10 @@ program
     argumentTerm: (arg) => accent(arg.name()),
   })
   .showHelpAfterError(true);
+
+program.hook("preAction", () => {
+  logger.info(generateHeader(version).trim());
+});
 
 program
   .command("upload")
@@ -60,6 +85,6 @@ export const cli = async (args: string[]) => {
   try {
     await program.parseAsync(args);
   } catch (e) {
-    console.error(e);
+    logger.error(e);
   }
 };
