@@ -36,8 +36,14 @@ export default defineConfig({
       exclude: [/^(?!\/api(\/|$|\?))/],
     }),
     copyPrismaEngines(),
-    istanbulPlugin(),
-    canyonVitePlugin(),
+    ...(isProduction
+      ? [
+          istanbulPlugin({
+            forceBuildInstrument: true,
+          }),
+          canyonVitePlugin(),
+        ]
+      : []),
   ],
   resolve: {
     tsconfigPaths: true,
