@@ -28,9 +28,6 @@
     "@babel/core": "^7.25.6",
     "@canyonjs/babel-plugin": "workspace:*"
   },
-  "peerDependencies": {
-    "vite": ">=5.0.0"
-  },
   "devDependencies": {
     "@types/babel__core": "^7.20.5",
     "@types/node": "catalog:",
@@ -38,5 +35,8 @@
     "tsdown": "^0.17.0",
     "vite": "catalog:",
     "vite-plugin-istanbul": "latest"
+  },
+  "peerDependencies": {
+    "vite": ">=5.0.0"
   }
 }

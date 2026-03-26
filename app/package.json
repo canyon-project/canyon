@@ -55,9 +55,9 @@
     "tmp": "^0.2.5"
   },
   "devDependencies": {
-    "@canyonjs/swc-plugin": "0.0.5",
     "@canyonjs/playwright": "^0.0.2",
     "@canyonjs/report": "1.0.20",
+    "@canyonjs/vite-plugin": "latest",
     "@hono/vite-build": "^1.10.0",
     "@hono/vite-dev-server": "^0.25.0",
     "@playwright/test": "1.56.1",
@@ -67,15 +67,15 @@
     "@types/react": "19.2.3",
     "@types/react-dom": "19.2.3",
     "@types/test-exclude": "^6.0.2",
-    "@vitejs/plugin-react-swc": "^4.2.2",
+    "@vitejs/plugin-react": "^6.0.1",
     "@vitest/coverage-istanbul": "4.0.18",
     "globals": "^16.5.0",
     "nyc": "^18.0.0",
     "simple-git-hooks": "^2.13.1",
-    "swc-plugin-coverage-instrument": "^0.0.32",
     "tailwindcss": "^4.2.1",
     "typescript": "~5.9.3",
     "vite": "8",
+    "vite-plugin-istanbul": "latest",
     "vite-plugin-pages": "^0.33.3",
     "vitest": "^4.0.18"
   }

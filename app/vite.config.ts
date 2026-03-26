@@ -1,17 +1,19 @@
 import { defineConfig } from "vite";
 import devServer from "@hono/vite-dev-server";
 import build from "@hono/vite-build/node";
-import react from "@vitejs/plugin-react-swc";
+import react from "@vitejs/plugin-react";
 import Pages from "vite-plugin-pages";
 import tailwindcss from "@tailwindcss/vite";
 import { copyPrismaEngines } from "./copyPrismaEngines.ts";
+import istanbulPlugin from "vite-plugin-istanbul";
+import canyonVitePlugin from "@canyonjs/vite-plugin";
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 
 if (isProduction) {
-  console.log('当前是【生产环境】');
+  console.log("当前是【生产环境】");
 } else {
-  console.log('当前是【开发/测试环境】');
+  console.log("当前是【开发/测试环境】");
 }
 
 export default defineConfig({
@@ -19,10 +21,7 @@ export default defineConfig({
     target: "es2022",
   },
   plugins: [
-    react({
-      plugins: isProduction ? [["swc-plugin-coverage-instrument", {}],["@canyonjs/swc-plugin",{
-      }]] : [],
-    }),
+    react(),
     Pages({
       exclude: ["**/views/**", "**/helpers/**"],
     }),
@@ -37,6 +36,8 @@ export default defineConfig({
       exclude: [/^(?!\/api(\/|$|\?))/],
     }),
     copyPrismaEngines(),
+    istanbulPlugin(),
+    canyonVitePlugin(),
   ],
   resolve: {
     tsconfigPaths: true,
