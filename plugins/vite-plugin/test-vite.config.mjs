@@ -7,14 +7,11 @@ export default defineConfig({
       forceBuildInstrument: true,
     }),
     canyonVitePlugin({
-      babelPluginOptions: {
-        repoID: "9050",
-        sha: "xxxxx",
-        provider: "gitlab",
-        buildTarget: "",
-        ci: true,
-        keepMap: true,
-      },
+      repoID: "9050",
+      sha: "xxxxx",
+      provider: "gitlab",
+      ci: true,
+      keepMap: true,
     }),
   ],
   build: {

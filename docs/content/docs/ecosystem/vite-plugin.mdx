@@ -1,0 +1,69 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# @canyonjs/vite-plugin
+
+<div className={"h-10"}></div>
+
+<Button
+  target={"_blank"}
+  href={"https://github.com/canyon-project/canyon/tree/main/plugins/vite-plugin"}
+  icon={<GithubOutlined />}
+  size={"small"}
+>
+  Source
+</Button>
+
+`@canyonjs/vite-plugin` 是 Vite 场景下的 Canyon 插桩插件，内部直接调用 `@canyonjs/babel-plugin` 完成核心处理逻辑。
+
+因此你只需要关注 Vite 接入方式；参数语义、CI 自动检测等能力与 `@canyonjs/babel-plugin` 一致。
+
+## 安装
+
+```sh
+npm install -D @canyonjs/vite-plugin vite-plugin-istanbul
+```
+
+## 使用方法
+
+建议仅在生产构建中启用：
+
+```ts
+import { defineConfig } from "vite";
+import istanbulPlugin from "vite-plugin-istanbul";
+import canyonVitePlugin from "@canyonjs/vite-plugin";
+
+const isProduction = process.env.NODE_ENV === "production";
+
+export default defineConfig({
+  plugins: [
+    ...(isProduction
+      ? [
+          istanbulPlugin({
+            forceBuildInstrument: true,
+          }),
+          canyonVitePlugin({
+            repoID: "9050",
+            sha: "xxxxx",
+            provider: "gitlab",
+            ci: true,
+            keepMap: true,
+          }),
+        ]
+      : []),
+  ],
+});
+```
+
+## 配置项
+
+`@canyonjs/vite-plugin` 直接透传以下配置给 `@canyonjs/babel-plugin`：
+
+- `repoID`
+- `sha`
+- `provider`
+- `ci`
+- `instrumentCwd`
+- `keepMap`
+
+不重复展开参数说明，详情请直接查看 [@canyonjs/babel-plugin](./babel-plugin) 文档。
