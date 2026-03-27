@@ -76,6 +76,30 @@ const coverageCleanupExpiredRoute = createRoute({
   },
 });
 
+const coverageCleanupOrphanMapsRoute = createRoute({
+  method: "post",
+  path: "/cleanup/orphan-maps",
+  summary: "清理无引用的 Map 数据",
+  description:
+    "清理未被 CoverageMapRelation 引用的 CoverageMap 与 CoverageSourceMap。该接口与过期数据删除解耦，单次各最多删除 100 条。",
+  tags: ["覆盖率"],
+  responses: {
+    200: {
+      description: "清理结果",
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            batchSize: z.number(),
+            deletedCoverageMapCount: z.number(),
+            deletedCoverageSourceMapCount: z.number(),
+          }),
+        },
+      },
+    },
+  },
+});
+
 const coverageApi = new OpenAPIHono();
 
 /** 解析 repoID：支持数字 ID、pathWithNamespace、provider:pathWithNamespace */
@@ -298,6 +322,7 @@ coverageApi.openapi(coverageCleanupExpiredRoute, async (c) => {
     });
   }
 
+  // 删除 hit + relation
   const [deletedCoverageHit, deletedCoverageMapRelation] = await prisma.$transaction([
     prisma.coverageHit.deleteMany({
       where: { buildHash: { in: deletableBuildHashes } },
@@ -316,6 +341,51 @@ coverageApi.openapi(coverageCleanupExpiredRoute, async (c) => {
     deletedBuildHashCount: deletableBuildHashes.length,
     deletedCoverageHitCount: deletedCoverageHit.count,
     deletedCoverageMapRelationCount: deletedCoverageMapRelation.count,
+  });
+});
+
+coverageApi.openapi(coverageCleanupOrphanMapsRoute, async (c) => {
+  const BATCH_SIZE = 100;
+
+  const orphanCoverageMapRows = (await prisma.$queryRaw<
+    Array<{ hash: string }>
+  >`WITH to_delete AS (
+      SELECT cm.hash
+      FROM canyon_next_coverage_map cm
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM canyon_next_coverage_map_relation r
+        WHERE (r.coverage_map_hash || '|' || r.file_content_hash) = cm.hash
+      )
+      LIMIT ${BATCH_SIZE}
+    )
+    DELETE FROM canyon_next_coverage_map cm
+    USING to_delete td
+    WHERE cm.hash = td.hash
+    RETURNING cm.hash;`) as Array<{ hash: string }>;
+
+  const orphanSourceMapRows = (await prisma.$queryRaw<
+    Array<{ hash: string }>
+  >`WITH to_delete AS (
+      SELECT sm.hash
+      FROM canyon_next_coverage_source_map sm
+      WHERE NOT EXISTS (
+        SELECT 1
+        FROM canyon_next_coverage_map_relation r
+        WHERE r.source_map_hash = sm.hash
+      )
+      LIMIT ${BATCH_SIZE}
+    )
+    DELETE FROM canyon_next_coverage_source_map sm
+    USING to_delete td
+    WHERE sm.hash = td.hash
+    RETURNING sm.hash;`) as Array<{ hash: string }>;
+
+  return c.json({
+    success: true,
+    batchSize: BATCH_SIZE,
+    deletedCoverageMapCount: orphanCoverageMapRows.length,
+    deletedCoverageSourceMapCount: orphanSourceMapRows.length,
   });
 });
 
