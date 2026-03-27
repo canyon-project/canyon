@@ -1,4 +1,4 @@
-import { createRoute } from "@hono/zod-openapi";
+import { createRoute, z } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { prisma } from "@/api/lib/prisma.ts";
 import { getCoverageMapForCommit } from "@/api/lib/coverage/coverage-map-for-commit.ts";
@@ -45,6 +45,34 @@ const coverageCommitsRoute = createRoute({
   request: { query: CoverageCommitsQuerySchema },
   responses: {
     200: { description: "commits 列表" },
+  },
+});
+
+const coverageCleanupExpiredRoute = createRoute({
+  method: "post",
+  path: "/cleanup/expired",
+  summary: "清理过期覆盖率数据",
+  description:
+    "以 Coverage 表为入口，按 createdAt 清理超过 30 天的数据。单次最多清理 100 条 Coverage，并按 buildHash 清理 CoverageHit 与 CoverageMapRelation。",
+  tags: ["覆盖率"],
+  responses: {
+    200: {
+      description: "清理结果",
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            expiredBefore: z.string(),
+            batchSize: z.number(),
+            selectedCoverageCount: z.number(),
+            deletedCoverageCount: z.number(),
+            deletedBuildHashCount: z.number(),
+            deletedCoverageHitCount: z.number(),
+            deletedCoverageMapRelationCount: z.number(),
+          }),
+        },
+      },
+    },
   },
 });
 
@@ -161,7 +189,7 @@ coverageApi.openapi(coverageSummaryMapRoute, async (c) => {
       400,
     );
   }
-  const coverage = map as Record<string, unknown>;
+  const coverage = map as unknown as Record<string, any>;
   const diffAdditions =
     q.subject === "pull" || q.subject === "merge_requests" || q.subject === "compare"
       ? Object.values(coverage)
@@ -169,7 +197,9 @@ coverageApi.openapi(coverageSummaryMapRoute, async (c) => {
             const o = m as { path?: string; diff?: { additions?: number[] } };
             return { path: o?.path, additions: o?.diff?.additions || [] };
           })
-          .filter((item) => item.additions.length > 0)
+          .filter((item): item is { path: string; additions: number[] } =>
+            Boolean(item.path) && item.additions.length > 0,
+          )
       : [];
   const summary = genSummaryMapByCoverageMap(coverage, diffAdditions);
   return c.json(summary);
@@ -205,6 +235,88 @@ coverageApi.openapi(coverageCommitsRoute, async (c) => {
   }
 
   return c.json({ data, total });
+});
+
+coverageApi.openapi(coverageCleanupExpiredRoute, async (c) => {
+  const EXPIRE_DAYS = 30;
+  const BATCH_SIZE = 100;
+  const expiredBefore = new Date(Date.now() - EXPIRE_DAYS * 24 * 60 * 60 * 1000);
+
+  const expiredCoverages = await prisma.coverage.findMany({
+    where: { createdAt: { lt: expiredBefore } },
+    orderBy: { createdAt: "asc" },
+    take: BATCH_SIZE,
+    select: { id: true, buildHash: true },
+  });
+
+  if (expiredCoverages.length === 0) {
+    return c.json({
+      success: true,
+      expiredBefore: expiredBefore.toISOString(),
+      batchSize: BATCH_SIZE,
+      selectedCoverageCount: 0,
+      deletedCoverageCount: 0,
+      deletedBuildHashCount: 0,
+      deletedCoverageHitCount: 0,
+      deletedCoverageMapRelationCount: 0,
+    });
+  }
+
+  const coverageIDs = expiredCoverages.map((item: { id: string }) => item.id);
+  const candidateBuildHashes = [
+    ...new Set(expiredCoverages.map((item: { buildHash: string }) => item.buildHash)),
+  ];
+
+  // 仅清理“同 buildHash 全部超过 30 天”的关联数据，避免误删仍有新数据的 buildHash
+  const stillActiveRows = await prisma.coverage.findMany({
+    where: {
+      buildHash: { in: candidateBuildHashes },
+      createdAt: { gte: expiredBefore },
+    },
+    select: { buildHash: true },
+    distinct: ["buildHash"],
+  });
+  const stillReferencedBuildHashes = new Set(stillActiveRows.map((row: { buildHash: string }) => row.buildHash));
+  const deletableBuildHashes = candidateBuildHashes.filter(
+    (buildHash) => !stillReferencedBuildHashes.has(buildHash),
+  );
+
+  const deletedCoverage = await prisma.coverage.deleteMany({
+    where: { id: { in: coverageIDs } },
+  });
+
+  if (deletableBuildHashes.length === 0) {
+    return c.json({
+      success: true,
+      expiredBefore: expiredBefore.toISOString(),
+      batchSize: BATCH_SIZE,
+      selectedCoverageCount: expiredCoverages.length,
+      deletedCoverageCount: deletedCoverage.count,
+      deletedBuildHashCount: 0,
+      deletedCoverageHitCount: 0,
+      deletedCoverageMapRelationCount: 0,
+    });
+  }
+
+  const [deletedCoverageHit, deletedCoverageMapRelation] = await prisma.$transaction([
+    prisma.coverageHit.deleteMany({
+      where: { buildHash: { in: deletableBuildHashes } },
+    }),
+    prisma.coverageMapRelation.deleteMany({
+      where: { buildHash: { in: deletableBuildHashes } },
+    }),
+  ]);
+
+  return c.json({
+    success: true,
+    expiredBefore: expiredBefore.toISOString(),
+    batchSize: BATCH_SIZE,
+    selectedCoverageCount: expiredCoverages.length,
+    deletedCoverageCount: deletedCoverage.count,
+    deletedBuildHashCount: deletableBuildHashes.length,
+    deletedCoverageHitCount: deletedCoverageHit.count,
+    deletedCoverageMapRelationCount: deletedCoverageMapRelation.count,
+  });
 });
 
 export default coverageApi;
