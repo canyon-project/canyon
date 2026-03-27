@@ -1,10 +1,15 @@
-import chalk from "chalk";
 import { program } from "commander";
 import { version } from "../package.json";
 import { mapCommand } from "./commands/upload.ts";
 import { logger } from "./utils/logger";
 
-const accent = chalk.greenBright;
+function accent(text: string): string {
+  return `\x1b[92m${text}\x1b[0m`;
+}
+
+function alphaBadge(text: string): string {
+  return `\x1b[30;103;1m ${text} \x1b[0m`;
+}
 
 /**
  *
@@ -28,7 +33,7 @@ export function generateHeader(version: string): string {
 
 const CLI_BEFORE_ALL_TXT = `canyon: The ${accent("Canyon")} CLI - Version ${version} (${accent(
   "https://github.com/canyon-project/canyon",
-)}) ${chalk.black.bold.bgYellowBright(" ALPHA ")} \n`;
+)}) ${alphaBadge("ALPHA")} \n`;
 
 const CLI_AFTER_ALL_TXT = `\nFor more help, head on to ${accent(
   "https://github.com/canyon-project/canyon",
@@ -42,7 +47,7 @@ program
   .addHelpText("after", CLI_AFTER_ALL_TXT)
   .configureHelp({
     optionTerm: (option) => accent(option.flags),
-    subcommandTerm: (cmd) => accent(cmd.name(), cmd.usage()),
+    subcommandTerm: (cmd) => accent(`${cmd.name()} ${cmd.usage()}`.trim()),
     argumentTerm: (arg) => accent(arg.name()),
   })
   .showHelpAfterError(true);
