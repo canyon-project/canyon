@@ -1,6 +1,14 @@
-import { DeleteOutlined, DownOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  CopyOutlined,
+  DeleteOutlined,
+  DownOutlined,
+  GitlabFilled,
+  PlusOutlined,
+  UserOutlined,
+} from "@ant-design/icons";
 import type { MenuProps } from "antd";
 import {
+  Avatar,
   Button,
   Dropdown,
   Form,
@@ -44,6 +52,7 @@ type CommitInfo = {
   commitMessage: string;
   authorName: string | null;
   authorEmail: string | null;
+  avatar?: string | null;
   createdAt: string;
 };
 
@@ -57,6 +66,7 @@ type CompareRecord = {
   subjectID: string;
   files: DiffFile[];
   buildTargets: string[];
+  compareUrl?: string | null;
   baseCommit: CommitInfo | null;
   headCommit: CommitInfo | null;
 };
@@ -178,7 +188,8 @@ const ComparePage = () => {
         const commitMessage = commitInfo?.commitMessage
           ? commitInfo.commitMessage.split("\n")[0].substring(0, 60)
           : null;
-        const author = commitInfo?.authorName || null;
+        const author = commitInfo?.authorName || commitInfo?.authorEmail || null;
+        const email = commitInfo?.authorEmail || null;
         const createdAt = commitInfo?.createdAt ? formatDate(commitInfo.createdAt) : null;
 
         return (
@@ -186,6 +197,21 @@ const ComparePage = () => {
             <Text code style={{ fontSize: "12px" }}>
               {shortSha}
             </Text>
+            {text && (
+              <Tooltip title={t("common.copy")}>
+                <CopyOutlined
+                  style={{ marginLeft: 6, color: "#999", cursor: "pointer" }}
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(text);
+                      message.success(t("common.copied"));
+                    } catch {
+                      message.error(t("common.copy_failed"));
+                    }
+                  }}
+                />
+              </Tooltip>
+            )}
             {commitMessage && commitInfo && (
               <div style={{ fontSize: "12px", marginTop: "4px", color: "#666" }}>
                 <Tooltip title={commitInfo.commitMessage}>
@@ -196,8 +222,18 @@ const ComparePage = () => {
             )}
             {author && (
               <div style={{ fontSize: "11px", marginTop: "2px", color: "#999" }}>
-                {author}
-                {createdAt && ` · ${createdAt}`}
+                <Space size={4}>
+                  {commitInfo?.avatar ? (
+                    <Avatar src={commitInfo.avatar} size={18} />
+                  ) : (
+                    <Avatar size={18} icon={<UserOutlined />} />
+                  )}
+                  <span>
+                    {author}
+                    {email && author !== email && ` (${email})`}
+                    {createdAt && ` · ${createdAt}`}
+                  </span>
+                </Space>
               </div>
             )}
           </div>
@@ -215,7 +251,8 @@ const ComparePage = () => {
         const commitMessage = commitInfo?.commitMessage
           ? commitInfo.commitMessage.split("\n")[0].substring(0, 60)
           : null;
-        const author = commitInfo?.authorName || null;
+        const author = commitInfo?.authorName || commitInfo?.authorEmail || null;
+        const email = commitInfo?.authorEmail || null;
         const createdAt = commitInfo?.createdAt ? formatDate(commitInfo.createdAt) : null;
 
         return (
@@ -223,6 +260,21 @@ const ComparePage = () => {
             <Text code style={{ fontSize: "12px" }}>
               {shortSha}
             </Text>
+            {text && (
+              <Tooltip title={t("common.copy")}>
+                <CopyOutlined
+                  style={{ marginLeft: 6, color: "#999", cursor: "pointer" }}
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(text);
+                      message.success(t("common.copied"));
+                    } catch {
+                      message.error(t("common.copy_failed"));
+                    }
+                  }}
+                />
+              </Tooltip>
+            )}
             {commitMessage && commitInfo && (
               <div style={{ fontSize: "12px", marginTop: "4px", color: "#666" }}>
                 <Tooltip title={commitInfo.commitMessage}>
@@ -233,8 +285,18 @@ const ComparePage = () => {
             )}
             {author && (
               <div style={{ fontSize: "11px", marginTop: "2px", color: "#999" }}>
-                {author}
-                {createdAt && ` · ${createdAt}`}
+                <Space size={4}>
+                  {commitInfo?.avatar ? (
+                    <Avatar src={commitInfo.avatar} size={18} />
+                  ) : (
+                    <Avatar size={18} icon={<UserOutlined />} />
+                  )}
+                  <span>
+                    {author}
+                    {email && author !== email && ` (${email})`}
+                    {createdAt && ` · ${createdAt}`}
+                  </span>
+                </Space>
               </div>
             )}
           </div>
@@ -289,6 +351,12 @@ const ComparePage = () => {
 
         return (
           <Space>
+            {record.compareUrl ? (
+              <a href={record.compareUrl} target="_blank" rel="noreferrer">
+                <GitlabFilled style={{ marginRight: 4 }} />
+                源码对比
+              </a>
+            ) : null}
             <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
               <a onClick={(e) => e.preventDefault()}>
                 {t("projects.comparison.view.report")} <DownOutlined />

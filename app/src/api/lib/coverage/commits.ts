@@ -1,4 +1,8 @@
 import { prisma } from "@/api/lib/prisma.ts";
+import {
+  fetchExternalUserProfilesByEmails,
+  normalizeEmail,
+} from "@/api/lib/external-user-profile.ts";
 
 type SceneInfo = {
   scene: Record<string, unknown>;
@@ -143,11 +147,6 @@ export async function getCommitsByRepoID(repoID: string): Promise<CommitRecord[]
   }
 
   const commits = Array.from(commitsMap.values());
-  const commitShas = commits.map((c) => c.sha);
-  const providers = Array.from(
-    new Set(commits.map((c) => commitProviderMap.get(c.sha) || c.provider)),
-  );
-
   const commitDetails = await prisma.commit.findMany({
     where: {
       content: { path: ["repoID"], equals: repoID },
@@ -169,6 +168,25 @@ export async function getCommitsByRepoID(repoID: string): Promise<CommitRecord[]
       commit.authorEmail = (c.authorEmail as string) ?? null;
       commit.createdAt = (c.createdAt as string) ?? undefined;
     }
+  }
+
+  const uniqueEmails = Array.from(
+    new Set(
+      commits
+        .map((c) => normalizeEmail(c.authorEmail || ""))
+        .filter((email) => email.length > 0),
+    ),
+  );
+  const profileMap = await fetchExternalUserProfilesByEmails(uniqueEmails);
+
+  for (const commit of commits) {
+    const email = normalizeEmail(commit.authorEmail || "");
+    if (!email) continue;
+    const profile = profileMap.get(email);
+    if (!profile) continue;
+    commit.authorName = profile.nickname;
+    commit.avatar = profile.avatar;
+    commit.authorEmail = profile.email;
   }
 
   return commits.sort(

@@ -3,6 +3,11 @@ import { ProviderQueryParam, ProviderSchema } from "@/shared/schemas/provider.ts
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { prisma } from "@/api/lib/prisma.ts";
 import { ensureCommitFromScm, toCommitId } from "@/api/lib/commit.ts";
+import { buildCompareUrl } from "@/api/lib/commit-url.ts";
+import {
+  fetchExternalUserProfilesByEmails,
+  normalizeEmail,
+} from "@/api/lib/external-user-profile.ts";
 import { getScm } from "@/api/lib/scm.ts";
 import { resolveRepoAndRef } from "@/api/lib/source/get-file-content.ts";
 import { diffLine } from "@/api/lib/source/diff-line.ts";
@@ -301,7 +306,13 @@ sourceApi.openapi(diffGetRoute, async (c) => {
 
   const commitInfoMap = new Map<
     string,
-    { commitMessage?: string; authorName?: string; authorEmail?: string; createdAt?: string }
+    {
+      commitMessage?: string;
+      authorName?: string;
+      authorEmail?: string;
+      createdAt?: string;
+      avatar?: string;
+    }
   >();
   for (const c of commits) {
     const content = c.content as Record<string, unknown> | null;
@@ -311,6 +322,28 @@ sourceApi.openapi(diffGetRoute, async (c) => {
       authorName: content?.authorName as string,
       authorEmail: content?.authorEmail as string,
       createdAt: content?.createdAt as string,
+    });
+  }
+
+  const uniqueEmails = Array.from(
+    new Set(
+      Array.from(commitInfoMap.values())
+        .map((item) => normalizeEmail(item.authorEmail || ""))
+        .filter((email) => email.length > 0),
+    ),
+  );
+  const profileMap = await fetchExternalUserProfilesByEmails(uniqueEmails);
+
+  for (const [sha, info] of commitInfoMap.entries()) {
+    const email = normalizeEmail(info.authorEmail || "");
+    if (!email) continue;
+    const profile = profileMap.get(email);
+    if (!profile) continue;
+    commitInfoMap.set(sha, {
+      ...info,
+      authorName: profile.nickname,
+      authorEmail: profile.email,
+      avatar: profile.avatar,
     });
   }
 
@@ -324,6 +357,14 @@ sourceApi.openapi(diffGetRoute, async (c) => {
     if (!buildTargetsMap.has(cov.sha)) buildTargetsMap.set(cov.sha, new Set());
     if (cov.buildTarget?.trim()) buildTargetsMap.get(cov.sha)!.add(cov.buildTarget);
   }
+
+  const repoRow = await prisma.repo.findFirst({
+    where: {
+      OR: [{ id: repoID }, { id: { contains: repoID } }, { pathWithNamespace: repoID }],
+    },
+    select: { pathWithNamespace: true },
+  });
+  const pathWithNamespaceForCompare = repoRow?.pathWithNamespace ?? null;
 
   const data = Array.from(recordsMap.values()).map((r) => {
     const buildTargets = Array.from(buildTargetsMap.get(r.to) || []);
@@ -339,6 +380,9 @@ sourceApi.openapi(diffGetRoute, async (c) => {
       subjectID: r.subjectID,
       files: r.files,
       buildTargets,
+      compareUrl: pathWithNamespaceForCompare
+        ? buildCompareUrl(r.provider, pathWithNamespaceForCompare, r.from, r.to)
+        : null,
       baseCommit: fromCommit || null,
       headCommit: toCommit || null,
     };

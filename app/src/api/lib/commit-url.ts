@@ -59,3 +59,34 @@ export function buildRepoUrl(provider: string, pathWithNamespace: string): strin
 
   return null;
 }
+
+/**
+ * 根据 provider、pathWithNamespace、fromSha、toSha 构建 SCM 的 compare 页面 URL
+ */
+export function buildCompareUrl(
+  provider: string,
+  pathWithNamespace: string,
+  fromSha: string,
+  toSha: string,
+): string | null {
+  if (!pathWithNamespace || !fromSha || !toSha) return null;
+
+  const p = provider?.toLowerCase() ?? "";
+  const path = pathWithNamespace.trim();
+  if (!path) return null;
+
+  if (p === "gitlab" || p.startsWith("gitlab_")) {
+    const { base } = getProviderInfra(provider);
+    const urlBase = base?.replace(/\/$/, "") || "";
+    if (!urlBase) return null;
+    return `${urlBase}/${path}/-/compare/${fromSha}...${toSha}`;
+  }
+
+  if (p === "github" || p.startsWith("github_")) {
+    const { base } = getProviderInfra(provider);
+    const urlBase = base?.replace(/\/$/, "") || GITHUB_BASE;
+    return `${urlBase}/${path}/compare/${fromSha}...${toSha}`;
+  }
+
+  return null;
+}
