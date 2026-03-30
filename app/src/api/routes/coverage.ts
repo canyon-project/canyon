@@ -53,8 +53,20 @@ const coverageCleanupExpiredRoute = createRoute({
   path: "/cleanup/expired",
   summary: "清理过期覆盖率数据",
   description:
-    "以 Coverage 表为入口，按 createdAt 清理超过 30 天的数据。单次最多清理 100 条 Coverage，并按 buildHash 清理 CoverageHit 与 CoverageMapRelation。",
+    "以 Coverage 表为入口清理数据。可选传 buildHash（支持 string 或 string[]）按指定构建删除；未传时按 createdAt 清理超过 30 天的数据（单次最多 100 条）。并按 buildHash 清理 CoverageHit 与 CoverageMapRelation。",
   tags: ["覆盖率"],
+  request: {
+    body: {
+      required: false,
+      content: {
+        "application/json": {
+          schema: z.object({
+            buildHash: z.union([z.string(), z.array(z.string())]).optional(),
+          }),
+        },
+      },
+    },
+  },
   responses: {
     200: {
       description: "清理结果",
@@ -265,15 +277,30 @@ coverageApi.openapi(coverageCleanupExpiredRoute, async (c) => {
   const EXPIRE_DAYS = 30;
   const BATCH_SIZE = 100;
   const expiredBefore = new Date(Date.now() - EXPIRE_DAYS * 24 * 60 * 60 * 1000);
+  const body = c.req.valid("json") as { buildHash?: string | string[] };
+  const requestedBuildHashes = Array.from(
+    new Set(
+      (Array.isArray(body?.buildHash) ? body.buildHash : body?.buildHash ? [body.buildHash] : [])
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0),
+    ),
+  );
 
-  const expiredCoverages = await prisma.coverage.findMany({
-    where: { createdAt: { lt: expiredBefore } },
-    orderBy: { createdAt: "asc" },
-    take: BATCH_SIZE,
-    select: { id: true, buildHash: true },
-  });
+  const selectedCoverages =
+    requestedBuildHashes.length > 0
+      ? await prisma.coverage.findMany({
+          where: { buildHash: { in: requestedBuildHashes } },
+          orderBy: { createdAt: "asc" },
+          select: { id: true, buildHash: true },
+        })
+      : await prisma.coverage.findMany({
+          where: { createdAt: { lt: expiredBefore } },
+          orderBy: { createdAt: "asc" },
+          take: BATCH_SIZE,
+          select: { id: true, buildHash: true },
+        });
 
-  if (expiredCoverages.length === 0) {
+  if (selectedCoverages.length === 0) {
     return c.json({
       success: true,
       expiredBefore: expiredBefore.toISOString(),
@@ -286,24 +313,29 @@ coverageApi.openapi(coverageCleanupExpiredRoute, async (c) => {
     });
   }
 
-  const coverageIDs = expiredCoverages.map((item: { id: string }) => item.id);
+  const coverageIDs = selectedCoverages.map((item: { id: string }) => item.id);
   const candidateBuildHashes = [
-    ...new Set(expiredCoverages.map((item: { buildHash: string }) => item.buildHash)),
+    ...new Set(selectedCoverages.map((item: { buildHash: string }) => item.buildHash)),
   ];
 
-  // 仅清理“同 buildHash 全部超过 30 天”的关联数据，避免误删仍有新数据的 buildHash
-  const stillActiveRows = await prisma.coverage.findMany({
-    where: {
-      buildHash: { in: candidateBuildHashes },
-      createdAt: { gte: expiredBefore },
-    },
-    select: { buildHash: true },
-    distinct: ["buildHash"],
-  });
-  const stillReferencedBuildHashes = new Set(stillActiveRows.map((row: { buildHash: string }) => row.buildHash));
-  const deletableBuildHashes = candidateBuildHashes.filter(
-    (buildHash) => !stillReferencedBuildHashes.has(buildHash),
-  );
+  let deletableBuildHashes = candidateBuildHashes;
+  if (requestedBuildHashes.length === 0) {
+    // 仅清理“同 buildHash 全部超过 30 天”的关联数据，避免误删仍有新数据的 buildHash
+    const stillActiveRows = await prisma.coverage.findMany({
+      where: {
+        buildHash: { in: candidateBuildHashes },
+        createdAt: { gte: expiredBefore },
+      },
+      select: { buildHash: true },
+      distinct: ["buildHash"],
+    });
+    const stillReferencedBuildHashes = new Set(
+      stillActiveRows.map((row: { buildHash: string }) => row.buildHash),
+    );
+    deletableBuildHashes = candidateBuildHashes.filter(
+      (buildHash) => !stillReferencedBuildHashes.has(buildHash),
+    );
+  }
 
   const deletedCoverage = await prisma.coverage.deleteMany({
     where: { id: { in: coverageIDs } },
@@ -314,7 +346,7 @@ coverageApi.openapi(coverageCleanupExpiredRoute, async (c) => {
       success: true,
       expiredBefore: expiredBefore.toISOString(),
       batchSize: BATCH_SIZE,
-      selectedCoverageCount: expiredCoverages.length,
+      selectedCoverageCount: selectedCoverages.length,
       deletedCoverageCount: deletedCoverage.count,
       deletedBuildHashCount: 0,
       deletedCoverageHitCount: 0,
@@ -336,7 +368,7 @@ coverageApi.openapi(coverageCleanupExpiredRoute, async (c) => {
     success: true,
     expiredBefore: expiredBefore.toISOString(),
     batchSize: BATCH_SIZE,
-    selectedCoverageCount: expiredCoverages.length,
+    selectedCoverageCount: selectedCoverages.length,
     deletedCoverageCount: deletedCoverage.count,
     deletedBuildHashCount: deletableBuildHashes.length,
     deletedCoverageHitCount: deletedCoverageHit.count,
