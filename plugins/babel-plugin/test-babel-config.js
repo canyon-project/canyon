@@ -10,6 +10,7 @@ module.exports = {
         buildTarget: "",
         ci: true,
         keepMap: true,
+        include: ["features/add.js"],
       },
     ],
   ],

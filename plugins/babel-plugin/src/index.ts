@@ -1,6 +1,7 @@
 import type { ConfigAPI, NodePath } from "@babel/core";
 import { declare } from "@babel/helper-plugin-utils";
 import type * as t from "@babel/types";
+import TestExclude from "test-exclude";
 import { detectCIConfig } from "./helpers/detect-ci-config";
 import type { CanyonBabelPluginConfig } from "./types";
 import { visitorProgramExit } from "./visitor-program-exit";
@@ -15,8 +16,15 @@ const defaultConfig: Required<CanyonBabelPluginConfig> = {
   buildTarget: "",
   ci: false,
   instrumentCwd: process.cwd(),
+  include: [],
+  exclude: [],
+  extensions: [".js", ".cjs", ".mjs", ".ts", ".tsx", ".jsx", ".vue"],
   keepMap: false,
 };
+
+function normalizeExtensions(extensions: string[]): string[] {
+  return extensions.map((ext) => (ext.startsWith(".") ? ext : `.${ext}`));
+}
 
 /**
  * 合并用户配置、CI 自动检测配置和默认配置
@@ -39,6 +47,9 @@ function mergeConfig(
     buildTarget: config?.buildTarget ?? ciConfig.buildTarget ?? defaultConfig.buildTarget,
     ci: config?.ci ?? ciConfig.ci ?? defaultConfig.ci,
     instrumentCwd: config?.instrumentCwd ?? defaultConfig.instrumentCwd,
+    include: config?.include ?? defaultConfig.include,
+    exclude: config?.exclude ?? defaultConfig.exclude,
+    extensions: normalizeExtensions(config?.extensions ?? defaultConfig.extensions),
     keepMap: config?.keepMap ?? defaultConfig.keepMap,
     // buildProvider:
     //   config?.buildProvider ??
@@ -62,10 +73,22 @@ export default declare(
     api.assertVersion(7);
     const userConfig = config as CanyonBabelPluginConfig | undefined;
     const validatedConfig = mergeConfig(userConfig);
+    const testExclude = new TestExclude({
+      cwd: validatedConfig.instrumentCwd,
+      include: validatedConfig.include,
+      exclude: validatedConfig.exclude,
+      extension: validatedConfig.extensions,
+    });
     return {
       visitor: {
         Program: {
           exit: (programPath: NodePath<t.Program>) => {
+            const filename = (
+              programPath.hub as { file?: { opts?: { filename?: string } } }
+            )?.file?.opts?.filename;
+            if (filename && !testExclude.shouldInstrument(filename)) {
+              return;
+            }
             visitorProgramExit(api, programPath, validatedConfig);
           },
         },

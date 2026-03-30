@@ -14,5 +14,11 @@ export interface CanyonBabelPluginConfig {
   ci?: boolean;
   /** 插桩工作目录，默认为当前路径 */
   instrumentCwd?: string;
+  /** 包含的文件 glob 规则，语义参考 babel-plugin-istanbul */
+  include?: string[];
+  /** 排除的文件 glob 规则，语义参考 babel-plugin-istanbul */
+  exclude?: string[];
+  /** 参与匹配的文件扩展名 */
+  extensions?: string[];
   keepMap?: boolean;
 }

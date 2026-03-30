@@ -59,6 +59,9 @@ module.exports = {
         // #region == Step 5: Other configuration (optional)
         instrumentCwd: "/path/to", // Instrumentation working directory, may need manual configuration in multi-repo mode
         provider: "gitlab", // Source code provider (optional), default is gitlab
+        include: ["src/**/*.ts", "src/**/*.tsx"], // Include glob patterns (optional)
+        exclude: ["**/*.test.ts", "**/*.spec.ts"], // Exclude glob patterns (optional)
+        extensions: [".ts", ".tsx", ".js"], // Extensions participating in include/exclude matching (optional)
         // #endregion
       },
     ],
@@ -74,3 +77,6 @@ module.exports = {
 | keepMap       | 保留覆盖率地图，可选，默认为 true，当为 false 时，将生成 .canyon_output 文件                                             | 可选                                             | true          |
 | instrumentCwd | 插桩工作目录，在多仓库模式下可能需要手动配置                                                                             | 可选                                             | process.cwd() |
 | provider      | 源代码提供商（可选），默认为 gitlab                                                                                      | 可选                                             | gitlab        |
+| include       | 需要插桩的文件匹配规则（glob），语义与 babel-plugin-istanbul 一致                                                        | 可选                                             | []            |
+| exclude       | 不需要插桩的文件匹配规则（glob），语义与 babel-plugin-istanbul 一致                                                      | 可选                                             | []            |
+| extensions    | include/exclude 匹配时使用的扩展名列表                                                                                   | 可选                                             | .js/.ts/...   |
