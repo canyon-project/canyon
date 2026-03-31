@@ -59,16 +59,8 @@ pages:
   image: node:20
   stage: deploy
   script:
-    - npm i pnpm -g
-    - pnpm i
-    - pnpm run build
-    - npm i @canyonjs/cli -g
-    - canyon -h
-    - canyon upload --dsn=https://app.canyonjs.io/api/coverage/map/init
-    - mv dist/* public
-  artifacts:
-    paths:
-      - public
+    - npm run build
+    - npx @canyonjs/cli upload --dsn=https://app.canyonjs.io/api/coverage/map/init
   only:
     - main
 ```

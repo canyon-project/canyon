@@ -21,24 +21,34 @@ npm create vite@latest
 ### 添加 Canyon 和配置
 
 ```sh npm2yarn copy
-npm install babel-plugin-istanbul @canyonjs/babel-plugin -D
+npm install -D @canyonjs/vite-plugin vite-plugin-istanbul
 ```
 
-### 配置 Babel 插件
+### 配置 Vite 插件
 
-```ts filename="vite.config.ts" copy {7,8,9}
+```ts filename="vite.config.ts" copy
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
+import istanbulPlugin from "vite-plugin-istanbul";
+import canyonVitePlugin from "@canyonjs/vite-plugin";
+
+const isProduction = process.env.NODE_ENV === "production";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [
-    react({
-      babel: {
-        plugins: ["istanbul", "@canyonjs"],
-      },
-    }),
-  ],
+  plugins: isProduction
+    ? [
+        istanbulPlugin({
+          forceBuildInstrument: true,
+        }),
+        canyonVitePlugin({
+          repoID: "your-repo-id",
+          sha: "your-commit-sha",
+          provider: "gitlab",
+          ci: true,
+          keepMap: true,
+        }),
+      ]
+    : [],
 });
 ```
 

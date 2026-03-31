@@ -2,53 +2,40 @@
 
 学习如何配置和访问 Canyon 社区版。
 
-## 系统设置
+## 1. 初始化 Git 提供商配置（GitLab）
 
-要使用 Canyon 的所有功能，您必须配置以下数据表：
+如果你使用 GitLab，请先导入 `app/prisma/import-infra.sql` 中的配置到数据库。
 
-1. `CANYON_SERVER`: Canyon 服务器地址
-2. `GITLAB_SERVER`: GitLab 服务器地址
-3. `GITLAB_CLIENT_ID`: GitLab 客户端 ID
-4. `GITLAB_CLIENT_SECRET`: GitLab 客户端密钥
+该文件默认包含两项：
 
-注意：回调地址为 `<CANYON_SERVER>/oauth`，请确保在 GitLab 中正确配置。
+- `GITLAB_BASE_URL`
+- `GITLAB_PRIVATE_TOKEN`
 
-import { Callout } from "nextra/components";
+执行前请先将 `GITLAB_PRIVATE_TOKEN` 修改为你自己的 Token。
 
-```sql copy
-insert into public.sys_setting (id, key, value)
-values  ('1', 'CANYON_SERVER', 'https://canyonjs.org'),
-        ('2', 'GITLAB_SERVER', 'https://gitlab.com'),
-        ('3', 'GITLAB_CLIENT_ID', 'xxx'),
-        ('4', 'GITLAB_CLIENT_SECRET', 'xxx');
+示例：
+
+```bash
+cd app
+psql "postgres://username:password@host:5432/dbname" -f prisma/import-infra.sql
 ```
 
-<Callout type="info" emoji="ℹ️">
-  [将 GitLab 配置为 OAuth 2.0
-  认证身份提供商](https://docs.gitlab.com/ee/integration/oauth_provider.html)
-</Callout>
+## 2. 启动并访问系统
 
-目前仅支持 GitLab，未来将支持更多 Git 服务提供商。
+启动服务后，打开：
 
-```sql copy
-insert into public.git_provider (id, url, type, name, disabled, private_token)
-values  ('gitlab', 'https://gitlab.com', 'gitlab', 'GitLab', false, 'xxx');
-```
+- 开发模式：`http://localhost:3000`
+- 生产模式：`http://localhost:8080`
 
-<Callout type="info" emoji="ℹ️">
-  [生成 GitLab
-  私有令牌](https://docs.gitlab.com/user/profile/personal_access_tokens/#create-a-personal-access-token)
-</Callout>
+API 文档入口：
 
-## 管理员登录
+- Swagger UI：`/api/ui`
+- OpenAPI JSON：`/api/doc`
 
-创建以下用户。您可以使用以下凭据登录：邮箱：canyon，密码：123456
+可在页面中查看仓库、commit、compare 及覆盖率报告能力。
 
-```sql copy
-INSERT INTO "user" (id, email, password, nickname, avatar, favor)
-VALUES ('canyon', 'canyon@canyon.com', '123456', 'Canyon', '/avatar.jpg', '');
-```
+## 3. 重要说明
 
-## GitLab OAuth2 登录
-
-![](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/self-host/community-edition/login.png)
+- 当前社区版文档优先覆盖 GitLab 场景。
+- 如果你使用自建 GitLab，请将 `GITLAB_BASE_URL` 改为你的实例地址。
+- 如果 Token 权限不足，会影响 compare、源码拉取、快照生成等能力。

@@ -6,7 +6,7 @@ import { Cards } from "nextra/components";
 
 > [!NOTE]
 >
-> 目前仅支持 Babel 插件。SWC、Vite 和其他插件仍在开发中。[插件](https://github.com/canyon-project/canyon/tree/main/plugins)。
+> 当前推荐使用 `@canyonjs/babel-plugin` 与 `@canyonjs/vite-plugin`。更多插件请查看[插件目录](https://github.com/canyon-project/canyon/tree/main/plugins)。
 
 ## 框架
 
@@ -14,3 +14,26 @@ import { Cards } from "nextra/components";
   <Cards.Card title="Next.js" href="/docs/installation/next" />
   <Cards.Card title="Vite" href="/docs/installation/vite" />
 </Cards>
+
+## babel.config.js 项目快速配置
+
+如果你的项目使用 `babel.config.js`（例如 React Native、部分 Babel 工程化项目），可以直接按下面最小配置接入 `@canyonjs/babel-plugin`。
+
+### 1) 安装依赖
+
+```sh npm2yarn copy
+npm install -D babel-plugin-istanbul @canyonjs/babel-plugin
+```
+
+### 2) 配置 Babel
+
+```js filename="babel.config.js" copy
+module.exports = {
+  presets: [
+    // 按你的项目保留原有 preset
+  ],
+  plugins: ["istanbul", "@canyonjs/babel-plugin"],
+};
+```
+
+完成后，继续查看[首次获取覆盖率数据 - 验证](/docs/getting-started/first-coverage#%E6%A3%80%E6%9F%A5)。
