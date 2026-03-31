@@ -20,6 +20,7 @@
     "sync-catalog": "node scripts/sync-catalog.mjs"
   },
   "dependencies": {
+    "@canyonjs/report-html": "latest",
     "@ant-design/icons": "6.1.0",
     "@canyonjs/report-component": "1.0.20",
     "@hono/node-server": "^1.19.11",
