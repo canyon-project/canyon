@@ -1,7 +1,9 @@
 import {
   BranchesOutlined,
+  CameraOutlined,
   CopyOutlined,
   DownOutlined,
+  UnorderedListOutlined,
   SearchOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -103,7 +105,7 @@ const CommitsPage = () => {
         page: 1,
         pageSize: 10000,
       });
-      setCommits(Array.isArray(data) ? data : []);
+      setCommits(Array.isArray(data) ? (data as CommitRecord[]) : []);
     } catch (error) {
       message.error(t("projects.commits.fetch.failed"));
       console.error(error);
@@ -377,8 +379,18 @@ const CommitsPage = () => {
               {t("projects.commits.columns.overall")}
             </Link>
             {sceneDropdown}
-            {/* <a onClick={() => openSnapshotCreate(record)}>{t("projects.snapshot.button.create")}</a>
-            <a onClick={openSnapshotRecords}>{t("projects.snapshot.button.records")}</a> */}
+            <a onClick={() => openSnapshotCreate(record)}>
+              <Space size={4}>
+                <CameraOutlined />
+                {t("projects.snapshot.button.create")}
+              </Space>
+            </a>
+            <a onClick={openSnapshotRecords}>
+              <Space size={4}>
+                <UnorderedListOutlined />
+                {t("projects.snapshot.button.records")}
+              </Space>
+            </a>
           </Space>
         );
       },
@@ -389,7 +401,9 @@ const CommitsPage = () => {
     setSnapshotInitialValues({
       repoID: repo?.id ?? "",
       provider: params.provider ?? "",
-      sha: record.sha ?? "",
+      subject: "commit",
+      subjectID: record.sha ?? "",
+      buildTarget: record.currentBuildTarget ?? "",
       title: record.commitMessage ?? "",
       description: "",
     });
@@ -443,7 +457,9 @@ const CommitsPage = () => {
           setSnapshotInitialValues({
             repoID: repo?.id ?? "",
             provider: params.provider ?? "",
-            sha: "",
+            subject: "commit",
+            subjectID: "",
+            buildTarget: "",
             title: "",
             description: "",
           });

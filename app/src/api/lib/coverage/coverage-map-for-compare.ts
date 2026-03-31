@@ -47,6 +47,8 @@ export async function getCoverageMapForCompare(params: CoverageMapForComparePara
 > {
   const { provider, repoID, compareID, buildTarget = "", filePath, scene } = params;
 
+  console.log("getCoverageMapForCompare", params);
+
   const [baseSha, headSha] = compareID.split("...");
   if (!baseSha || !headSha) {
     return { success: false, message: "compareID 格式错误，应为 baseSha...headSha" };

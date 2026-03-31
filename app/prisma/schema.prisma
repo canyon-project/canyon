@@ -159,3 +159,24 @@ model CoverageLock {
 
   @@map("canyon_next_coverage_lock")
 }
+
+model CoverageSnapshot {
+  id           Int      @id @default(autoincrement())
+  provider     String
+  repoID       String   @map("repo_id")
+  subject      String
+  subjectID    String   @map("subject_id")
+  title        String?
+  description  String?
+  freezeTime   DateTime @map("freeze_time") @db.Timestamp(3)
+  status       String
+  artifactZip  Bytes    @map("artifact_zip")
+  artifactSize Int      @map("artifact_size")
+  createdBy    String   @map("created_by")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  finishedAt   DateTime @map("finished_at") @db.Timestamp(3)
+  buildHash    String   @map("build_hash")
+  scene        Json
+
+  @@map("canyon_next_coverage_snapshot")
+}

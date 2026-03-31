@@ -1,13 +1,22 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { prisma } from "@/api/lib/prisma.ts";
+import { createHash } from "node:crypto";
+import { gzipSync } from "node:zlib";
+import { access, cp, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { join, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { createRequire } from "node:module";
 import { getCoverageMapForCommit } from "@/api/lib/coverage/coverage-map-for-commit.ts";
 import { getCoverageMapForCr } from "@/api/lib/coverage/coverage-map-for-cr.ts";
 import { getCoverageMapForCompare } from "@/api/lib/coverage/coverage-map-for-compare.ts";
 import { buildCommitUrl } from "@/api/lib/commit-url.ts";
 import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
+import { getScm } from "@/api/lib/scm.ts";
 import { CoverageMapQuerySchema, CoverageCommitsQuerySchema } from "@/shared/schemas/coverage.ts";
 import { genSummaryMapByCoverageMap } from "canyon-data";
+
+const require = createRequire(import.meta.url);
 
 const coverageMapGetRoute = createRoute({
   method: "get",
@@ -112,7 +121,499 @@ const coverageCleanupOrphanMapsRoute = createRoute({
   },
 });
 
+const snapshotCreateRoute = createRoute({
+  method: "post",
+  path: "/snapshot",
+  summary: "创建覆盖率快照",
+  description:
+    "基于 /coverage/map 全量数据创建快照。创建后状态先为 generating，完成后为 completed，超过 120 秒置为 timeout。",
+  tags: ["覆盖率"],
+  request: {
+    body: {
+      required: true,
+      content: {
+        "application/json": {
+          schema: z.object({
+            provider: z.string(),
+            repoID: z.string(),
+            subject: z.enum(["commit", "compare"]).optional().default("commit"),
+            subjectID: z.string().optional(),
+            sha: z.string().optional(),
+            buildTarget: z.string().optional(),
+            title: z.string().optional(),
+            description: z.string().optional(),
+            createdBy: z.string().optional(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      description: "创建结果",
+      content: {
+        "application/json": {
+          schema: z.object({
+            success: z.boolean(),
+            data: z.object({
+              id: z.number(),
+              status: z.string(),
+              provider: z.string(),
+              repoID: z.string(),
+              subject: z.string(),
+              subjectID: z.string(),
+              createdAt: z.string(),
+            }),
+          }),
+        },
+      },
+    },
+    400: {
+      description: "参数错误",
+    },
+  },
+});
+
+const snapshotListRoute = createRoute({
+  method: "get",
+  path: "/snapshot",
+  summary: "查询覆盖率快照列表",
+  tags: ["覆盖率"],
+  request: {
+    query: z.object({
+      provider: z.string().openapi({ param: { name: "provider", in: "query" } }),
+      repoID: z.string().openapi({ param: { name: "repoID", in: "query" } }),
+      subject: z
+        .enum(["commit", "compare"])
+        .optional()
+        .openapi({ param: { name: "subject", in: "query" } }),
+      page: z.coerce
+        .number()
+        .optional()
+        .default(1)
+        .openapi({ param: { name: "page", in: "query" } }),
+      pageSize: z.coerce
+        .number()
+        .optional()
+        .default(20)
+        .openapi({ param: { name: "pageSize", in: "query" } }),
+    }),
+  },
+  responses: {
+    200: {
+      description: "快照列表",
+      content: {
+        "application/json": {
+          schema: z.object({
+            data: z.array(
+              z.object({
+                id: z.number(),
+                provider: z.string(),
+                repoID: z.string(),
+                subject: z.string(),
+                subjectID: z.string(),
+                sha: z.string(),
+                title: z.string().nullable(),
+                description: z.string().nullable(),
+                status: z.string(),
+                artifactSize: z.number(),
+                createdBy: z.string(),
+                createdAt: z.string(),
+                freezeTime: z.string(),
+                finishedAt: z.string(),
+                buildHash: z.string(),
+              }),
+            ),
+            total: z.number(),
+          }),
+        },
+      },
+    },
+  },
+});
+
+const snapshotGetRoute = createRoute({
+  method: "get",
+  path: "/snapshot/{id}",
+  summary: "获取单个覆盖率快照",
+  tags: ["覆盖率"],
+  request: {
+    params: z.object({
+      id: z.coerce.number().openapi({ param: { name: "id", in: "path" } }),
+    }),
+  },
+  responses: {
+    200: {
+      description: "快照详情",
+      content: {
+        "application/json": {
+          schema: z.object({
+            id: z.number(),
+            provider: z.string(),
+            repoID: z.string(),
+            subject: z.string(),
+            subjectID: z.string(),
+            sha: z.string(),
+            title: z.string().nullable(),
+            description: z.string().nullable(),
+            status: z.string(),
+            artifactSize: z.number(),
+            createdBy: z.string(),
+            createdAt: z.string(),
+            freezeTime: z.string(),
+            finishedAt: z.string(),
+            buildHash: z.string(),
+          }),
+        },
+      },
+    },
+    404: { description: "快照不存在" },
+  },
+});
+
+const snapshotUpdateRoute = createRoute({
+  method: "patch",
+  path: "/snapshot/{id}",
+  summary: "更新覆盖率快照元数据",
+  tags: ["覆盖率"],
+  request: {
+    params: z.object({
+      id: z.coerce.number().openapi({ param: { name: "id", in: "path" } }),
+    }),
+    body: {
+      required: true,
+      content: {
+        "application/json": {
+          schema: z.object({
+            title: z.string().optional(),
+            description: z.string().optional(),
+          }),
+        },
+      },
+    },
+  },
+  responses: {
+    200: { description: "更新结果" },
+    404: { description: "快照不存在" },
+  },
+});
+
+const snapshotDeleteRoute = createRoute({
+  method: "delete",
+  path: "/snapshot/{id}",
+  summary: "删除覆盖率快照",
+  tags: ["覆盖率"],
+  request: {
+    params: z.object({
+      id: z.coerce.number().openapi({ param: { name: "id", in: "path" } }),
+    }),
+  },
+  responses: {
+    200: { description: "删除结果" },
+    404: { description: "快照不存在" },
+  },
+});
+
+const snapshotDownloadRoute = createRoute({
+  method: "get",
+  path: "/snapshot/{id}/download",
+  summary: "下载覆盖率快照产物",
+  tags: ["覆盖率"],
+  request: {
+    params: z.object({
+      id: z.coerce.number().openapi({ param: { name: "id", in: "path" } }),
+    }),
+  },
+  responses: {
+    200: { description: "快照压缩产物" },
+    404: { description: "快照不存在" },
+  },
+});
+
 const coverageApi = new OpenAPIHono();
+const SNAPSHOT_TIMEOUT_MS = 120 * 1000;
+const SNAPSHOT_TIMEOUT_MESSAGE = "snapshot generation timeout";
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function stringifyUnknownError(error: unknown) {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+function isSnapshotTimeoutError(error: unknown) {
+  if (!(error instanceof Error)) return false;
+  return error.message === SNAPSHOT_TIMEOUT_MESSAGE;
+}
+
+async function markExpiredGeneratingSnapshots() {
+  const expiredBefore = new Date(Date.now() - SNAPSHOT_TIMEOUT_MS);
+  await prisma.coverageSnapshot.updateMany({
+    where: {
+      status: "generating",
+      createdAt: { lt: expiredBefore },
+    },
+    data: {
+      status: "timeout",
+      description: `snapshot failed: ${SNAPSHOT_TIMEOUT_MESSAGE}`,
+      finishedAt: new Date(),
+    },
+  });
+}
+
+function normalizeSnapshotRow(row: {
+  id: number;
+  provider: string;
+  repoID: string;
+  subject: string;
+  subjectID: string;
+  title: string | null;
+  description: string | null;
+  status: string;
+  artifactSize: number;
+  createdBy: string;
+  createdAt: Date;
+  freezeTime: Date;
+  finishedAt: Date;
+  buildHash: string;
+}) {
+  return {
+    id: row.id,
+    provider: row.provider,
+    repoID: row.repoID,
+    subject: row.subject,
+    subjectID: row.subjectID,
+    sha: row.subjectID,
+    title: row.title,
+    description: row.description,
+    status: row.status,
+    artifactSize: row.artifactSize,
+    createdBy: row.createdBy,
+    createdAt: row.createdAt.toISOString(),
+    freezeTime: row.freezeTime.toISOString(),
+    finishedAt: row.finishedAt.toISOString(),
+    buildHash: row.buildHash,
+  };
+}
+
+async function resolveReportHtmlDistDir() {
+  const candidates = [
+    process.env.CANYON_REPORT_HTML_DIST,
+    resolve(process.cwd(), "node_modules/@canyonjs/report-html/dist"),
+    resolve(process.cwd(), "../node_modules/@canyonjs/report-html/dist"),
+    resolve(process.cwd(), "packages/report-html/dist"),
+    resolve(process.cwd(), "../packages/report-html/dist"),
+  ].filter((item): item is string => Boolean(item));
+
+  for (const candidate of candidates) {
+    try {
+      await access(candidate);
+      return candidate;
+    } catch {
+      // try next candidate
+    }
+  }
+
+  throw new Error(
+    "report-html dist not found, please install @canyonjs/report-html or build packages/report-html",
+  );
+}
+
+function getRefShaBySubject(subject: "commit" | "compare", subjectID: string) {
+  if (subject === "commit") return subjectID;
+  const headSha = subjectID.split("...")[1];
+  if (!headSha) {
+    throw new Error("invalid compare subjectID, expected baseSha...headSha");
+  }
+  return headSha;
+}
+
+function toCoverageMapRecord(mapResult: unknown): Record<string, Record<string, unknown>> {
+  if (!mapResult || typeof mapResult !== "object" || Array.isArray(mapResult)) {
+    throw new Error("invalid coverage map result");
+  }
+  return mapResult as Record<string, Record<string, unknown>>;
+}
+
+function normalizeReportFilePath(inputPath: string) {
+  const withForwardSlash = inputPath.replace(/\\/g, "/");
+  const withoutLeading = withForwardSlash.replace(/^\.?\//, "");
+  return withoutLeading;
+}
+
+async function buildSnapshotReportDataScript(args: {
+  provider: string;
+  repoID: string;
+  subject: "commit" | "compare";
+  subjectID: string;
+  buildTarget?: string;
+  freezeTime: Date;
+  coverageMap: Record<string, Record<string, unknown>>;
+}) {
+  const scm = getScm(args.provider);
+  if (!scm) {
+    throw new Error(`scm adapter not configured for provider: ${args.provider}`);
+  }
+
+  const refSha = getRefShaBySubject(args.subject, args.subjectID);
+  const filePaths = Object.keys(args.coverageMap);
+  const sourceMap = await scm.getSourceFiles(args.repoID, refSha, filePaths);
+
+  const files = filePaths.map((filePath) => {
+    const fileCoverage = args.coverageMap[filePath] || {};
+    const sourceFromMap = typeof fileCoverage.source === "string" ? fileCoverage.source : undefined;
+    const source = sourceFromMap ?? sourceMap.get(filePath) ?? "";
+    const normalizedPath = normalizeReportFilePath(
+      typeof fileCoverage.path === "string" ? fileCoverage.path : filePath,
+    );
+    return {
+      ...fileCoverage,
+      path: normalizedPath,
+      source,
+      statementMap:
+        fileCoverage.statementMap &&
+        typeof fileCoverage.statementMap === "object" &&
+        !Array.isArray(fileCoverage.statementMap)
+          ? fileCoverage.statementMap
+          : {},
+      fnMap:
+        fileCoverage.fnMap && typeof fileCoverage.fnMap === "object" && !Array.isArray(fileCoverage.fnMap)
+          ? fileCoverage.fnMap
+          : {},
+      branchMap:
+        fileCoverage.branchMap &&
+        typeof fileCoverage.branchMap === "object" &&
+        !Array.isArray(fileCoverage.branchMap)
+          ? fileCoverage.branchMap
+          : {},
+      s: fileCoverage.s && typeof fileCoverage.s === "object" && !Array.isArray(fileCoverage.s)
+        ? fileCoverage.s
+        : {},
+      f: fileCoverage.f && typeof fileCoverage.f === "object" && !Array.isArray(fileCoverage.f)
+        ? fileCoverage.f
+        : {},
+      b: fileCoverage.b && typeof fileCoverage.b === "object" && !Array.isArray(fileCoverage.b)
+        ? fileCoverage.b
+        : {},
+      diff:
+        fileCoverage.diff && typeof fileCoverage.diff === "object" && !Array.isArray(fileCoverage.diff)
+          ? fileCoverage.diff
+          : { additions: [], deletions: [] },
+    };
+  });
+
+  const coverageByPath = files.reduce(
+    (acc, item) => {
+      acc[item.path] = item;
+      return acc;
+    },
+    {} as Record<string, Record<string, unknown>>,
+  );
+
+  const diffAdditions = files
+    .map((item) => {
+      const diffObj =
+        item.diff && typeof item.diff === "object" && !Array.isArray(item.diff) ? item.diff : {};
+      const additionsRaw = (diffObj as { additions?: unknown }).additions;
+      const additions = Array.isArray(additionsRaw)
+        ? additionsRaw.filter((line): line is number => typeof line === "number")
+        : [];
+      return { path: item.path, additions };
+    })
+    .filter((item) => item.additions.length > 0);
+
+  const summary = genSummaryMapByCoverageMap(
+    coverageByPath as unknown as Record<string, any>,
+    diffAdditions,
+  );
+  const reportData = {
+    type: "istanbuljs",
+    reportPath: "coverage/index.html",
+    version: "1.0.0",
+    generatedAt: new Date().toISOString(),
+    freezeTime: args.freezeTime.toISOString(),
+    watermarks: {
+      bytes: [50, 80],
+      statements: [50, 80],
+      branches: [50, 80],
+      functions: [50, 80],
+      lines: [50, 80],
+    },
+    summary,
+    // report-html dist 会做 path.replace(`${instrumentCwd}/`, "")；不能给空字符串。
+    instrumentCwd: "__canyon_snapshot__",
+    subject: args.subject,
+    subjectID: args.subjectID,
+    buildTarget: args.buildTarget ?? "",
+    files,
+  };
+
+  const compressed = gzipSync(Buffer.from(JSON.stringify(reportData), "utf8")).toString("base64");
+  return `window.reportData = '${compressed}';`;
+}
+
+async function buildReportHtmlArtifactZip(reportDataScript: string) {
+  const distDir = await resolveReportHtmlDistDir();
+  const tempRoot = await mkdtemp(join(tmpdir(), "canyon-snapshot-"));
+  const tempDist = join(tempRoot, "dist");
+  try {
+    await cp(distDir, tempDist, { recursive: true });
+    await writeFile(join(tempDist, "data", "report-data.js"), reportDataScript, "utf8");
+    const AdmZip = require("adm-zip");
+    const zip = new AdmZip();
+    zip.addLocalFolder(tempDist);
+    return zip.toBuffer();
+  } finally {
+    await rm(tempRoot, { recursive: true, force: true });
+  }
+}
+
+async function buildSnapshotArtifact(args: {
+  id: number;
+  provider: string;
+  repoID: string;
+  subject: "commit" | "compare";
+  subjectID: string;
+  buildTarget?: string;
+  freezeTime: Date;
+}) {
+  const mapResult = await Promise.race([
+    getMapBySubject({
+      provider: args.provider,
+      repoID: args.repoID,
+      subject: args.subject,
+      subjectID: args.subjectID,
+      buildTarget: args.buildTarget ?? "",
+    }),
+    (async () => {
+      await sleep(SNAPSHOT_TIMEOUT_MS);
+      throw new Error(SNAPSHOT_TIMEOUT_MESSAGE);
+    })(),
+  ]);
+
+  if (typeof mapResult === "object" && "success" in mapResult && mapResult.success === false) {
+    throw new Error((mapResult as { message?: string }).message ?? "failed to build coverage map");
+  }
+
+  const coverageMap = toCoverageMapRecord(mapResult);
+  const reportDataScript = await buildSnapshotReportDataScript({
+    provider: args.provider,
+    repoID: args.repoID,
+    subject: args.subject,
+    subjectID: args.subjectID,
+    buildTarget: args.buildTarget,
+    freezeTime: args.freezeTime,
+    coverageMap,
+  });
+  const artifactZip = await buildReportHtmlArtifactZip(reportDataScript);
+  const buildHash = createHash("sha256").update(reportDataScript).digest("hex");
+
+  return {
+    artifactZip,
+    artifactSize: artifactZip.byteLength,
+    buildHash,
+  };
+}
 
 /** 解析 repoID：支持数字 ID、pathWithNamespace、provider:pathWithNamespace */
 async function resolveRepoIDForCoverage(repoID: string): Promise<string> {
@@ -419,6 +920,228 @@ coverageApi.openapi(coverageCleanupOrphanMapsRoute, async (c) => {
     deletedCoverageMapCount: orphanCoverageMapRows.length,
     deletedCoverageSourceMapCount: orphanSourceMapRows.length,
   });
+});
+
+coverageApi.openapi(snapshotCreateRoute, async (c) => {
+  const body = c.req.valid("json");
+  const subject = body.subject ?? "commit";
+  const subjectID = body.subjectID ?? body.sha;
+  if (!subjectID) {
+    return c.json({ success: false, message: "subjectID is required" }, 400);
+  }
+  const resolvedRepoID = await resolveRepoIDForCoverage(body.repoID);
+
+  const freezeTime = new Date();
+  const createdBy = body.createdBy ?? c.req.header("x-user-id") ?? "system";
+  const created = await prisma.coverageSnapshot.create({
+    data: {
+      provider: body.provider,
+      repoID: resolvedRepoID,
+      subject,
+      subjectID,
+      title: body.title,
+      description: body.description,
+      freezeTime,
+      status: "generating",
+      artifactZip: Buffer.alloc(0),
+      artifactSize: 0,
+      createdBy,
+      finishedAt: freezeTime,
+      buildHash: "pending",
+      scene: body.buildTarget ? { buildTarget: body.buildTarget } : {},
+    },
+    select: {
+      id: true,
+      status: true,
+      provider: true,
+      repoID: true,
+      subject: true,
+      subjectID: true,
+      createdAt: true,
+    },
+  });
+
+  void (async () => {
+    try {
+      const artifact = await buildSnapshotArtifact({
+        id: created.id,
+        provider: created.provider,
+        repoID: created.repoID,
+        subject: created.subject as "commit" | "compare",
+        subjectID: created.subjectID,
+        buildTarget: body.buildTarget,
+        freezeTime,
+      });
+      await prisma.coverageSnapshot.update({
+        where: { id: created.id },
+        data: {
+          status: "completed",
+          artifactZip: artifact.artifactZip,
+          artifactSize: artifact.artifactSize,
+          buildHash: artifact.buildHash,
+          finishedAt: new Date(),
+        },
+      });
+    } catch (error: unknown) {
+      const status = isSnapshotTimeoutError(error) ? "timeout" : "failed";
+      const errorMessage = stringifyUnknownError(error);
+      console.error("[snapshot:create] generation failed", {
+        snapshotID: created.id,
+        provider: created.provider,
+        repoID: created.repoID,
+        subject: created.subject,
+        subjectID: created.subjectID,
+        status,
+        error: errorMessage,
+      });
+      await prisma.coverageSnapshot.update({
+        where: { id: created.id },
+        data: {
+          status,
+          description: [body.description, `snapshot failed: ${errorMessage}`].filter(Boolean).join("\n"),
+          finishedAt: new Date(),
+        },
+      });
+    }
+  })();
+
+  return c.json({
+    success: true,
+    data: {
+      id: created.id,
+      status: created.status,
+      provider: created.provider,
+      repoID: created.repoID,
+      subject: created.subject,
+      subjectID: created.subjectID,
+      createdAt: created.createdAt.toISOString(),
+    },
+  });
+});
+
+coverageApi.openapi(snapshotListRoute, async (c) => {
+  await markExpiredGeneratingSnapshots();
+  const { provider, repoID, subject, page, pageSize } = c.req.valid("query");
+  const where = {
+    provider,
+    repoID,
+    ...(subject ? { subject } : {}),
+  };
+
+  const [total, rows] = await prisma.$transaction([
+    prisma.coverageSnapshot.count({ where }),
+    prisma.coverageSnapshot.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip: (page - 1) * pageSize,
+      take: pageSize,
+      select: {
+        id: true,
+        provider: true,
+        repoID: true,
+        subject: true,
+        subjectID: true,
+        title: true,
+        description: true,
+        status: true,
+        artifactSize: true,
+        createdBy: true,
+        createdAt: true,
+        freezeTime: true,
+        finishedAt: true,
+        buildHash: true,
+      },
+    }),
+  ]);
+
+  return c.json({
+    data: rows.map(normalizeSnapshotRow),
+    total,
+  });
+});
+
+coverageApi.openapi(snapshotGetRoute, async (c) => {
+  await markExpiredGeneratingSnapshots();
+  const { id } = c.req.valid("param");
+  const row = await prisma.coverageSnapshot.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      provider: true,
+      repoID: true,
+      subject: true,
+      subjectID: true,
+      title: true,
+      description: true,
+      status: true,
+      artifactSize: true,
+      createdBy: true,
+      createdAt: true,
+      freezeTime: true,
+      finishedAt: true,
+      buildHash: true,
+    },
+  });
+  if (!row) return c.json({ success: false, message: "snapshot not found" }, 404);
+  return c.json(normalizeSnapshotRow(row));
+});
+
+coverageApi.openapi(snapshotUpdateRoute, async (c) => {
+  const { id } = c.req.valid("param");
+  const body = c.req.valid("json");
+  const row = await prisma.coverageSnapshot.findUnique({ where: { id }, select: { id: true } });
+  if (!row) return c.json({ success: false, message: "snapshot not found" }, 404);
+
+  const updated = await prisma.coverageSnapshot.update({
+    where: { id },
+    data: {
+      title: body.title,
+      description: body.description,
+    },
+    select: {
+      id: true,
+      provider: true,
+      repoID: true,
+      subject: true,
+      subjectID: true,
+      title: true,
+      description: true,
+      status: true,
+      artifactSize: true,
+      createdBy: true,
+      createdAt: true,
+      freezeTime: true,
+      finishedAt: true,
+      buildHash: true,
+    },
+  });
+
+  return c.json({ success: true, data: normalizeSnapshotRow(updated) });
+});
+
+coverageApi.openapi(snapshotDeleteRoute, async (c) => {
+  const { id } = c.req.valid("param");
+  const row = await prisma.coverageSnapshot.findUnique({ where: { id }, select: { id: true } });
+  if (!row) return c.json({ success: false, message: "snapshot not found" }, 404);
+  await prisma.coverageSnapshot.delete({ where: { id } });
+  return c.json({ success: true });
+});
+
+coverageApi.openapi(snapshotDownloadRoute, async (c) => {
+  await markExpiredGeneratingSnapshots();
+  const { id } = c.req.valid("param");
+  const row = await prisma.coverageSnapshot.findUnique({
+    where: { id },
+    select: { id: true, artifactZip: true, status: true },
+  });
+  if (!row) return c.json({ success: false, message: "snapshot not found" }, 404);
+  if (row.status !== "completed") {
+    return c.json({ success: false, message: `snapshot status is ${row.status}` }, 409);
+  }
+
+  c.header("Content-Type", "application/octet-stream");
+  c.header("Content-Disposition", `attachment; filename="snapshot-${row.id}.zip"`);
+  return c.body(row.artifactZip);
 });
 
 export default coverageApi;

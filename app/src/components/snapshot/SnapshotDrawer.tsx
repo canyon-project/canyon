@@ -1,5 +1,12 @@
-import { CameraOutlined, DeleteOutlined, DownloadOutlined, EditOutlined } from "@ant-design/icons";
 import {
+  CameraOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
+import {
+  Badge,
   Button,
   Drawer,
   Form,
@@ -7,13 +14,14 @@ import {
   message,
   Modal,
   Popconfirm,
+  Select,
   Space,
   Table,
   Typography,
 } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { FC } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
 import * as snapshotService from "@/services/snapshot";
@@ -21,15 +29,19 @@ import * as snapshotService from "@/services/snapshot";
 export type SnapshotFormValues = {
   repoID: string;
   provider: string;
-  sha: string;
+  subject: "commit" | "compare";
+  subjectID: string;
+  buildTarget?: string;
   title: string;
   description: string;
 };
 
 export type SnapshotRecord = {
-  id: string;
+  id: number;
   repoID: string;
   provider: string;
+  subject: "commit" | "compare";
+  subjectID: string;
   sha: string;
   title?: string;
   description?: string;
@@ -68,13 +80,26 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   const [editingRecord, setEditingRecord] = useState<SnapshotRecord | null>(null);
   const [editForm] = Form.useForm<{ title: string; description: string }>();
   const [editSaving, setEditSaving] = useState(false);
+  const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearPolling = () => {
+    if (pollingTimerRef.current) {
+      clearInterval(pollingTimerRef.current);
+      pollingTimerRef.current = null;
+    }
+  };
+
+  const hasGeneratingSnapshot = (list: SnapshotRecord[]) =>
+    list.some((item) => (item.status || "").toLowerCase() === "generating");
 
   useEffect(() => {
     if (open && mode === "create" && initialValues) {
       form.setFieldsValue({
         repoID: initialValues.repoID ?? "",
         provider: initialValues.provider ?? "",
-        sha: initialValues.sha ?? "",
+        subject: initialValues.subject ?? "commit",
+        subjectID: initialValues.subjectID ?? "",
+        buildTarget: initialValues.buildTarget ?? "",
         title: initialValues.title ?? "",
         description: initialValues.description ?? "",
       });
@@ -85,21 +110,36 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
     if (open && mode === "records" && initialValues?.repoID && initialValues?.provider) {
       fetchRecords();
     }
+    return () => {
+      clearPolling();
+    };
   }, [open, mode, initialValues?.repoID, initialValues?.provider]);
 
-  const fetchRecords = async () => {
+  const fetchRecords = async (silent = false) => {
     if (!initialValues?.repoID || !initialValues?.provider) return;
-    setRecordsLoading(true);
+    if (!silent) setRecordsLoading(true);
     try {
       const data = await snapshotService.getSnapshotRecords(
         initialValues.repoID,
         initialValues.provider,
+        initialValues.subject,
       );
-      setRecords(data ?? []);
+      const list = data ?? [];
+      setRecords(list);
+      if (hasGeneratingSnapshot(list)) {
+        if (!pollingTimerRef.current) {
+          pollingTimerRef.current = setInterval(() => {
+            void fetchRecords(true);
+          }, 3000);
+        }
+      } else {
+        clearPolling();
+      }
     } catch {
       setRecords([]);
+      clearPolling();
     } finally {
-      setRecordsLoading(false);
+      if (!silent) setRecordsLoading(false);
     }
   };
 
@@ -164,7 +204,9 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
       await snapshotService.createSnapshot({
         repoID: values.repoID,
         provider: values.provider,
-        sha: values.sha,
+        subject: values.subject,
+        subjectID: values.subjectID,
+        buildTarget: values.buildTarget,
         title: values.title,
         description: values.description,
       });
@@ -225,7 +267,25 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
       title: t("projects.snapshot.columns.status"),
       dataIndex: "status",
       key: "status",
-      width: 90,
+      width: 130,
+      render: (status?: string) => {
+        const s = (status || "").toLowerCase();
+        const badgeStatus =
+          s === "generating"
+            ? "processing"
+            : s === "completed"
+              ? "success"
+              : s === "failed" || s === "timeout"
+                ? "error"
+                : "default";
+        const text = status ? `${status.charAt(0).toUpperCase()}${status.slice(1)}` : "-";
+        return (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 6, whiteSpace: "nowrap" }}>
+            <Badge status={badgeStatus} />
+            <span>{text}</span>
+          </span>
+        );
+      },
     },
     {
       title: t("common.created_at"),
@@ -269,8 +329,8 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
       : t("projects.snapshot.drawer.records");
   const contextStr = titleContext ? ` — ${titleContext.org}/${titleContext.repo}` : "";
   const commitStr =
-    mode === "create" && initialValues?.sha
-      ? ` · ${String(initialValues.sha).substring(0, 7)}`
+    mode === "create" && initialValues?.subjectID
+      ? ` · ${String(initialValues.subjectID).substring(0, 7)}`
       : "";
   const title = `${baseTitle}${contextStr}${commitStr}`;
 
@@ -299,12 +359,23 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
           >
             <Input placeholder={t("projects.snapshot.form.provider.placeholder")} />
           </Form.Item>
+          <Form.Item name="subject" label="Subject" initialValue="commit">
+            <Select
+              options={[
+                { label: "commit", value: "commit" },
+                { label: "compare", value: "compare" },
+              ]}
+            />
+          </Form.Item>
           <Form.Item
-            name="sha"
+            name="subjectID"
             label={t("projects.snapshot.form.sha")}
             rules={[{ required: true, message: t("projects.snapshot.form.sha.required") }]}
           >
             <Input placeholder={t("projects.snapshot.form.sha.placeholder")} />
+          </Form.Item>
+          <Form.Item name="buildTarget" label={t("projects.commits.columns.buildTarget")}>
+            <Input placeholder="build target" />
           </Form.Item>
           <Form.Item name="title" label={t("projects.snapshot.form.title")}>
             <Input placeholder={t("projects.snapshot.form.title.placeholder")} />
@@ -332,9 +403,12 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
       ) : (
         <>
           {onSwitchToCreate && (
-            <div className="mb-3">
+            <div className="mb-3 flex items-center justify-between">
               <Button type="primary" icon={<CameraOutlined />} onClick={onSwitchToCreate}>
                 {t("projects.snapshot.button.create")}
+              </Button>
+              <Button icon={<ReloadOutlined />} onClick={() => fetchRecords()}>
+                刷新状态
               </Button>
             </div>
           )}

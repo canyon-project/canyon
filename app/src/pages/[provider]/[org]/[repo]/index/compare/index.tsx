@@ -1,9 +1,11 @@
 import {
+  CameraOutlined,
   CopyOutlined,
   DeleteOutlined,
   DownOutlined,
   GitlabFilled,
   PlusOutlined,
+  UnorderedListOutlined,
   UserOutlined,
 } from "@ant-design/icons";
 import type { MenuProps } from "antd";
@@ -26,6 +28,8 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useOutletContext, useParams } from "react-router-dom";
 import CardPrimary from "@/components/card/Primary";
+import SnapshotDrawer from "@/components/snapshot/SnapshotDrawer";
+import type { SnapshotFormValues } from "@/services/snapshot";
 import { createDiff, deleteDiff, getDiffList } from "@/services/code";
 
 const { Text } = Typography;
@@ -83,6 +87,11 @@ const ComparePage = () => {
   const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
+  const [snapshotDrawerOpen, setSnapshotDrawerOpen] = useState(false);
+  const [snapshotDrawerMode, setSnapshotDrawerMode] = useState<"create" | "records">("create");
+  const [snapshotInitialValues, setSnapshotInitialValues] = useState<Partial<SnapshotFormValues>>(
+    {},
+  );
 
   const fetchCompareRecords = async () => {
     if (!repo?.id || !params.provider) {
@@ -92,7 +101,7 @@ const ComparePage = () => {
     setLoading(true);
     try {
       const data = await getDiffList({ repoID: repo.id, provider: params.provider });
-      setCompareRecords(data.data || []);
+      setCompareRecords(Array.isArray(data.data) ? (data.data as CompareRecord[]) : []);
       setTotal(data.total ?? 0);
     } catch (error) {
       message.error(t("projects.comparison.fetch.failed"));
@@ -181,7 +190,7 @@ const ComparePage = () => {
       title: t("projects.comparison.columns.base"),
       dataIndex: "base",
       key: "base",
-      width: 250,
+      width: 180,
       render: (text: string, record: CompareRecord) => {
         const commitInfo = record.baseCommit;
         const shortSha = text ? text.substring(0, 7) : "-";
@@ -244,7 +253,7 @@ const ComparePage = () => {
       title: t("projects.comparison.columns.head"),
       dataIndex: "head",
       key: "head",
-      width: 250,
+      width: 180,
       render: (text: string, record: CompareRecord) => {
         const commitInfo = record.headCommit;
         const shortSha = text ? text.substring(0, 7) : "-";
@@ -306,7 +315,7 @@ const ComparePage = () => {
     {
       title: t("projects.comparison.columns.fileCount"),
       key: "fileCount",
-      width: 100,
+      width: 50,
       render: (_: unknown, record: CompareRecord) => (
         <Text strong>{record.files?.length || 0}</Text>
       ),
@@ -350,33 +359,96 @@ const ComparePage = () => {
         }
 
         return (
-          <Space>
-            {record.compareUrl ? (
-              <a href={record.compareUrl} target="_blank" rel="noreferrer">
-                <GitlabFilled style={{ marginRight: 4 }} />
-                源码对比
-              </a>
-            ) : null}
-            <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
-              <a onClick={(e) => e.preventDefault()}>
-                {t("projects.comparison.view.report")} <DownOutlined />
-              </a>
-            </Dropdown>
-            <Popconfirm
-              title={t("projects.comparison.delete.confirm")}
-              onConfirm={() => handleDelete(record)}
-              okText={t("projects.comparison.modal.confirm")}
-              cancelText={t("projects.comparison.modal.cancel")}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              gap: 6,
+              width: "100%",
+            }}
+          >
+            <Space size={12}>
+              {record.compareUrl ? (
+                <a href={record.compareUrl} target="_blank" rel="noreferrer">
+                  <GitlabFilled style={{ marginRight: 4 }} />
+                  源码对比
+                </a>
+              ) : null}
+              <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
+                <a onClick={(e) => e.preventDefault()}>
+                  {t("projects.comparison.view.report")} <DownOutlined />
+                </a>
+              </Dropdown>
+              <Popconfirm
+                title={t("projects.comparison.delete.confirm")}
+                onConfirm={() => handleDelete(record)}
+                okText={t("projects.comparison.modal.confirm")}
+                cancelText={t("projects.comparison.modal.cancel")}
+              >
+                <Button type="link" danger icon={<DeleteOutlined />} size="small">
+                  {t("common.delete")}
+                </Button>
+              </Popconfirm>
+            </Space>
+            <div
+              style={{
+                width: "100%",
+                borderTop: "1px solid #f0f0f0",
+              }}
+            />
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                width: "100%",
+              }}
             >
-              <Button type="link" danger icon={<DeleteOutlined />} size="small">
-                {t("common.delete")}
-              </Button>
-            </Popconfirm>
-          </Space>
+              <Space size={12}>
+                <a onClick={() => openSnapshotCreate(record)}>
+                  <Space size={4}>
+                    <CameraOutlined />
+                    {t("projects.snapshot.button.create")}
+                  </Space>
+                </a>
+                <a onClick={openSnapshotRecords}>
+                  <Space size={4}>
+                    <UnorderedListOutlined />
+                    {t("projects.snapshot.button.records")}
+                  </Space>
+                </a>
+              </Space>
+            </div>
+          </div>
         );
       },
     },
   ];
+
+  const openSnapshotCreate = (record: CompareRecord) => {
+    setSnapshotInitialValues({
+      repoID: repo?.id ?? "",
+      provider: params.provider ?? "",
+      subject: "compare",
+      subjectID: record.subjectID,
+      buildTarget: record.buildTargets?.[0] ?? "",
+      title: `${record.base.substring(0, 7)}...${record.head.substring(0, 7)}`,
+      description: "",
+    });
+    setSnapshotDrawerMode("create");
+    setSnapshotDrawerOpen(true);
+  };
+
+  const openSnapshotRecords = () => {
+    setSnapshotInitialValues({
+      repoID: repo?.id ?? "",
+      provider: params.provider ?? "",
+      subject: "compare",
+    });
+    setSnapshotDrawerMode("records");
+    setSnapshotDrawerOpen(true);
+  };
 
   if (!repo) {
     return <div>{t("projects.commits.loading")}</div>;
@@ -397,6 +469,28 @@ const ComparePage = () => {
       </div>
 
       <CardPrimary>
+        <SnapshotDrawer
+          open={snapshotDrawerOpen}
+          onClose={() => setSnapshotDrawerOpen(false)}
+          mode={snapshotDrawerMode}
+          initialValues={snapshotInitialValues}
+          titleContext={
+            params.org && params.repo ? { org: params.org, repo: params.repo } : undefined
+          }
+          onCreateSuccess={() => setSnapshotDrawerMode("records")}
+          onSwitchToCreate={() => {
+            setSnapshotDrawerMode("create");
+            setSnapshotInitialValues({
+              repoID: repo?.id ?? "",
+              provider: params.provider ?? "",
+              subject: "compare",
+              subjectID: "",
+              buildTarget: "",
+              title: "",
+              description: "",
+            });
+          }}
+        />
         <Table<CompareRecord>
           columns={columns}
           dataSource={compareRecords}
