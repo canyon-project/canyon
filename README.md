@@ -95,7 +95,7 @@ flowchart LR
   subgraph Canyon["Canyon Server"]
     MQ[Message Queue]
     DB[(Postgres)]
-    HTTP[HTTP / GraphQL Server]
+    HTTP[HTTP Server]
   end
 
   class MQ,HTTP core

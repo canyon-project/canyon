@@ -1,0 +1,38 @@
+import { GithubOutlined } from "@ant-design/icons";
+import { Button } from "antd";
+
+# @canyonjs/collect
+
+<div className={"h-10"}></div>
+
+<Button
+  target={"_blank"}
+  href={"https://github.com/canyon-project/canyon/tree/main/tools/collect"}
+  icon={<GithubOutlined />}
+  size={"small"}
+>
+  Source
+</Button>
+
+`@canyonjs/collect` 是一个用于 Web 站点的覆盖率收集脚本包。它通常以脚本形式注入页面，在浏览器运行阶段按需采集覆盖率并上报到 Canyon 服务端。
+
+## 安装
+
+```bash
+npm install @canyonjs/collect
+```
+
+## 适用场景
+
+- 需要在真实浏览器环境采集覆盖率
+- 通过页面脚本方式接入，而不是 CLI 上传
+- 与 E2E 自动化流程联动，按场景上报覆盖率
+
+## 代码位置
+
+- 包目录：`tools/collect`
+- 入口：`tools/collect/src/index.ts`
+
+## 说明
+
+当前该包以脚本采集场景为主，具体接入方式可结合业务页面注入方案和测试框架流程实现。
