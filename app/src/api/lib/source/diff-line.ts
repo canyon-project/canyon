@@ -2,6 +2,7 @@ import { diffLines } from "diff";
 import type { ScmAdapter } from "@/api/scm/adapter.ts";
 
 const JS_EXTENSIONS = ["ts", "tsx", "jsx", "vue", "js"];
+const MAX_DIFF_FILES = 500;
 
 function calculateNewRows(a: string, b: string): { additions: number[]; deletions: number[] } {
   const changes = diffLines(a || "", b || "");
@@ -45,9 +46,27 @@ export async function diffLine(
   const realBase = baseCommitSha || commitInfo.parent_ids[0];
   const gitDiffs = await adapter.getCompareDiffs(repoID, realBase, compareCommitSha);
 
-  const isMatch = (p?: string) =>
-    !!p && includesFileExtensions.some((ext) => p.endsWith("." + ext));
+  const isMatch = (p?: string) => {
+    if (!p) return false;
+    const normalizedPath = p.replace(/\\/g, "/");
+    const segments = normalizedPath.split("/").filter(Boolean);
+    if (segments.length === 0) return false;
+
+    const last = segments[segments.length - 1];
+    if (!includesFileExtensions.some((ext) => last.endsWith("." + ext))) return false;
+
+    for (const segment of segments) {
+      const lower = segment.toLowerCase();
+      if (segment.startsWith(".")) return false;
+      if (lower.includes("__test__") || lower.includes("test")) return false;
+    }
+
+    return true;
+  };
   const filtered = gitDiffs.filter((d) => isMatch(d.new_path ?? d.old_path));
+  if (filtered.length > MAX_DIFF_FILES) {
+    return [];
+  }
 
   const result: { path: string; additions: number[]; deletions: number[] }[] = [];
   for (const d of filtered) {
