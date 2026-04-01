@@ -10,9 +10,11 @@ import { createRequire } from "node:module";
 import { getCoverageMapForCommit } from "@/api/lib/coverage/coverage-map-for-commit.ts";
 import { getCoverageMapForCr } from "@/api/lib/coverage/coverage-map-for-cr.ts";
 import { getCoverageMapForCompare } from "@/api/lib/coverage/coverage-map-for-compare.ts";
+import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { buildCommitUrl } from "@/api/lib/commit-url.ts";
 import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
 import { getScm } from "@/api/lib/scm.ts";
+import { diffLine } from "@/api/lib/source/diff-line.ts";
 import { CoverageMapQuerySchema, CoverageCommitsQuerySchema } from "@/shared/schemas/coverage.ts";
 import { genSummaryMapByCoverageMap } from "canyon-data";
 
@@ -651,6 +653,66 @@ async function buildReportHtmlArtifactZip(reportDataScript: string) {
   }
 }
 
+async function ensureCompareDiffIfMissing(args: {
+  provider: string;
+  repoID: string;
+  subjectID: string;
+}) {
+  const subject = "compare";
+  const existingCount = await prisma.diff.count({
+    where: {
+      provider: args.provider,
+      repoID: args.repoID,
+      subject,
+      subjectID: args.subjectID,
+    },
+  });
+  if (existingCount > 0) return;
+
+  const [fromSha, toSha] = args.subjectID.split("...");
+  if (!fromSha || !toSha) {
+    throw new Error("subjectID format invalid, expected baseSha...headSha");
+  }
+
+  const scm = getScm(args.provider);
+  if (!scm) {
+    throw new Error(`scm adapter not configured for provider: ${args.provider}`);
+  }
+
+  for (const sha of [fromSha, toSha]) {
+    await ensureCommitFromScm(prisma, scm, args.provider, args.repoID, sha);
+  }
+
+  const diffResult = await diffLine(scm, args.repoID, fromSha, toSha);
+
+  await prisma.diff.deleteMany({
+    where: {
+      provider: args.provider,
+      repoID: args.repoID,
+      subject,
+      subjectID: args.subjectID,
+    },
+  });
+
+  if (diffResult.length === 0) return;
+
+  await prisma.diff.createMany({
+    data: diffResult.map((item) => ({
+      id: `${args.provider}|${args.repoID}|${subject}|${args.subjectID}|${item.path}`,
+      provider: args.provider,
+      repoID: args.repoID,
+      from: fromSha,
+      to: toSha,
+      subjectID: args.subjectID,
+      subject,
+      path: item.path,
+      additions: item.additions,
+      deletions: item.deletions,
+    })),
+    skipDuplicates: true,
+  });
+}
+
 async function buildSnapshotArtifact(args: {
   id: number;
   provider: string;
@@ -660,6 +722,14 @@ async function buildSnapshotArtifact(args: {
   buildTarget?: string;
   freezeTime: Date;
 }) {
+  if (args.subject === "compare") {
+    await ensureCompareDiffIfMissing({
+      provider: args.provider,
+      repoID: args.repoID,
+      subjectID: args.subjectID,
+    });
+  }
+
   const mapResult = await Promise.race([
     getMapBySubject({
       provider: args.provider,
