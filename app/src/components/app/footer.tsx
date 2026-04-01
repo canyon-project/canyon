@@ -2,7 +2,7 @@ import { Typography } from "antd";
 
 const AppFooter = () => {
   return (
-    <div className="mt-8 pt-6 pb-10 dark:border-gray-700 ">
+    <div className="mx-[14px] mt-8 pt-6 pb-10 dark:border-gray-700 ">
       <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
         <div className="flex flex-col gap-1">
           <Typography.Text type="secondary" className="text-sm">
