@@ -183,8 +183,8 @@ const snapshotListRoute = createRoute({
   tags: ["覆盖率"],
   request: {
     query: z.object({
-      provider: z.string().openapi({ param: { name: "provider", in: "query" } }),
-      repoID: z.string().openapi({ param: { name: "repoID", in: "query" } }),
+      provider: z.string().optional().openapi({ param: { name: "provider", in: "query" } }),
+      repoID: z.string().optional().openapi({ param: { name: "repoID", in: "query" } }),
       subject: z
         .enum(["commit", "compare"])
         .optional()
@@ -1190,8 +1190,8 @@ coverageApi.openapi(snapshotListRoute, async (c) => {
   await markExpiredGeneratingSnapshots();
   const { provider, repoID, subject, page, pageSize } = c.req.valid("query");
   const where = {
-    provider,
-    repoID,
+    ...(provider ? { provider } : {}),
+    ...(repoID ? { repoID } : {}),
     ...(subject ? { subject } : {}),
   };
 
