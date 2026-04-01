@@ -6,6 +6,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppFooter from "@/components/app/footer.tsx";
+import LayoutPlaceholder from "@/layouts/LayoutPlaceholder";
 import { getCurrentUser } from "@/services/user";
 
 const BasicLayout: FC<{
@@ -76,7 +77,7 @@ const BasicLayout: FC<{
         </span>
       </div>
 
-      <div>{""}</div>
+      <LayoutPlaceholder />
     </div>
   );
 
