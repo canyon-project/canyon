@@ -1,0 +1,70 @@
+# 快照（Snapshot）
+
+Snapshot 是 Canyon 对某个覆盖率视图的“冻结产物”。它会把当时的覆盖率数据与可直接打开的报告页面一起打包保存，便于后续对比、归档和共享。
+
+---
+
+## 一、核心价值
+
+- **可追溯**：把某一时刻的覆盖率结果固化，不受后续分支变化影响。
+- **可下载**：直接下载报告包（`artifact_zip`），本地解压即可查看 `index.html`。
+- **可对比**：同一仓库可按 `commit` 或 `compare` 维度留存多份快照。
+
+---
+
+## 二、支持的 subject
+
+Snapshot 支持两类 subject：
+
+- `commit`：某个 commit 的全量覆盖率快照
+- `compare`：`base...head` 对比视图的覆盖率快照
+
+这也是前端列表中“总体覆盖率”和“变更代码覆盖率”互斥显示的原因：
+
+- `commit`：重点看总体覆盖率
+- `compare`：重点看变更代码覆盖率
+
+---
+
+## 三、状态流转
+
+创建快照后，状态会按以下流程变化：
+
+- `generating`：生成中
+- `completed`：生成完成，可下载
+- `failed`：生成失败
+- `timeout`：超时（默认 120 秒）
+
+系统会在查询列表/详情时对超时任务做状态修正，避免长期停留在 `generating`。
+
+---
+
+## 四、生成产物内容
+
+Snapshot 不是只存一份原始 JSON，而是生成可视化报告包：
+
+1. 拉取覆盖率 map（按 `subject/subjectID/buildTarget`）
+2. 通过 Git Provider 拉取对应 commit 的源码内容
+3. 生成 `report-data.js`
+4. 用 `@canyonjs/report-html` 的 `dist` 产物替换 `data/report-data.js`
+5. 打包为 zip，写入 `artifact_zip`
+
+最终下载后可直接打开 `index.html` 浏览报告。
+
+---
+
+## 五、落库指标（用于统计/看板）
+
+生成完成时，Snapshot 会写入以下关键指标：
+
+- `statements_covered`
+- `statements_total`
+- `changestatements_covered`
+- `changestatements_total`
+- `duration_ms`（报告生成耗时，毫秒）
+
+百分比可以按需自行计算：
+
+- 总体覆盖率：`statements_covered / statements_total`
+- 变更覆盖率：`changestatements_covered / changestatements_total`
+
