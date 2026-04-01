@@ -177,6 +177,11 @@ model CoverageSnapshot {
   finishedAt   DateTime @map("finished_at") @db.Timestamp(3)
   buildHash    String   @map("build_hash")
   scene        Json
+  statementsCovered      Int? @map("statements_covered")
+  statementsTotal        Int? @map("statements_total")
+  changestatementsCovered Int? @map("changestatements_covered")
+  changestatementsTotal   Int? @map("changestatements_total")
+  durationMs              Int? @map("duration_ms")
 
   @@map("canyon_next_coverage_snapshot")
 }

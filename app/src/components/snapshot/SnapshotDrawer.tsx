@@ -47,6 +47,11 @@ export type SnapshotRecord = {
   description?: string;
   status?: string;
   createdAt?: string;
+  statementsCovered?: number | null;
+  statementsTotal?: number | null;
+  changestatementsCovered?: number | null;
+  changestatementsTotal?: number | null;
+  durationMs?: number | null;
 };
 
 export type SnapshotDrawerProps = {
@@ -81,6 +86,11 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   const [editForm] = Form.useForm<{ title: string; description: string }>();
   const [editSaving, setEditSaving] = useState(false);
   const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const formatCoveragePercent = (covered: number, total: number) => {
+    if (!Number.isFinite(covered) || !Number.isFinite(total) || total <= 0) return "-";
+    return `${((covered / total) * 100).toFixed(2)}%`;
+  };
 
   const clearPolling = () => {
     if (pollingTimerRef.current) {
@@ -252,6 +262,13 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
         ),
     },
     {
+      title: "Subject",
+      dataIndex: "subject",
+      key: "subject",
+      width: 100,
+      render: (text?: string) => text || "-",
+    },
+    {
       title: t("projects.snapshot.columns.title"),
       dataIndex: "title",
       key: "title",
@@ -285,6 +302,46 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
             <span>{text}</span>
           </span>
         );
+      },
+    },
+    {
+      title: "总体覆盖率",
+      key: "overallCoverage",
+      width: 120,
+      render: (_: unknown, record: SnapshotRecord) => {
+        if (record.subject !== "commit") return "-";
+        if (
+          typeof record.statementsCovered !== "number" ||
+          typeof record.statementsTotal !== "number"
+        ) {
+          return "-";
+        }
+        return formatCoveragePercent(record.statementsCovered, record.statementsTotal);
+      },
+    },
+    {
+      title: "变更代码覆盖率",
+      key: "changeCoverage",
+      width: 140,
+      render: (_: unknown, record: SnapshotRecord) => {
+        if (record.subject !== "compare") return "-";
+        if (
+          typeof record.changestatementsCovered !== "number" ||
+          typeof record.changestatementsTotal !== "number"
+        ) {
+          return "-";
+        }
+        return formatCoveragePercent(record.changestatementsCovered, record.changestatementsTotal);
+      },
+    },
+    {
+      title: "报告生成耗时",
+      key: "durationMs",
+      width: 140,
+      render: (_: unknown, record: SnapshotRecord) => {
+        if (typeof record.durationMs !== "number") return "-";
+        if (record.durationMs < 1000) return `${record.durationMs} ms`;
+        return `${(record.durationMs / 1000).toFixed(2)} s`;
       },
     },
     {
@@ -338,7 +395,7 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
     <Drawer
       title={title}
       placement="right"
-      width={"65%"}
+      width={"90%"}
       onClose={onClose}
       open={open}
       destroyOnClose

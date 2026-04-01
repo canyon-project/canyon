@@ -21,6 +21,11 @@ export type SnapshotRecord = {
   description?: string;
   status?: string;
   createdAt?: string;
+  statementsCovered?: number | null;
+  statementsTotal?: number | null;
+  changestatementsCovered?: number | null;
+  changestatementsTotal?: number | null;
+  durationMs?: number | null;
 };
 
 /**

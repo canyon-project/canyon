@@ -222,6 +222,11 @@ const snapshotListRoute = createRoute({
                 freezeTime: z.string(),
                 finishedAt: z.string(),
                 buildHash: z.string(),
+                statementsCovered: z.number().nullable(),
+                statementsTotal: z.number().nullable(),
+                changestatementsCovered: z.number().nullable(),
+                changestatementsTotal: z.number().nullable(),
+                durationMs: z.number().nullable(),
               }),
             ),
             total: z.number(),
@@ -263,6 +268,11 @@ const snapshotGetRoute = createRoute({
             freezeTime: z.string(),
             finishedAt: z.string(),
             buildHash: z.string(),
+            statementsCovered: z.number().nullable(),
+            statementsTotal: z.number().nullable(),
+            changestatementsCovered: z.number().nullable(),
+            changestatementsTotal: z.number().nullable(),
+            durationMs: z.number().nullable(),
           }),
         },
       },
@@ -376,6 +386,11 @@ function normalizeSnapshotRow(row: {
   freezeTime: Date;
   finishedAt: Date;
   buildHash: string;
+  statementsCovered: number | null;
+  statementsTotal: number | null;
+  changestatementsCovered: number | null;
+  changestatementsTotal: number | null;
+  durationMs: number | null;
 }) {
   return {
     id: row.id,
@@ -393,6 +408,11 @@ function normalizeSnapshotRow(row: {
     freezeTime: row.freezeTime.toISOString(),
     finishedAt: row.finishedAt.toISOString(),
     buildHash: row.buildHash,
+    statementsCovered: row.statementsCovered,
+    statementsTotal: row.statementsTotal,
+    changestatementsCovered: row.changestatementsCovered,
+    changestatementsTotal: row.changestatementsTotal,
+    durationMs: row.durationMs,
   };
 }
 
@@ -549,7 +569,70 @@ async function buildSnapshotReportDataScript(args: {
   };
 
   const compressed = gzipSync(Buffer.from(JSON.stringify(reportData), "utf8")).toString("base64");
-  return `window.reportData = '${compressed}';`;
+  const metrics = calcSnapshotMetricsFromFiles(files);
+  return {
+    reportDataScript: `window.reportData = '${compressed}';`,
+    metrics,
+  };
+}
+
+function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
+  let statementsTotal = 0;
+  let statementsCovered = 0;
+  let changestatementsTotal = 0;
+  let changestatementsCovered = 0;
+
+  for (const file of files) {
+    const statementMap =
+      file.statementMap && typeof file.statementMap === "object" && !Array.isArray(file.statementMap)
+        ? (file.statementMap as Record<string, unknown>)
+        : {};
+    const s =
+      file.s && typeof file.s === "object" && !Array.isArray(file.s)
+        ? (file.s as Record<string, unknown>)
+        : {};
+    const diff =
+      file.diff && typeof file.diff === "object" && !Array.isArray(file.diff)
+        ? (file.diff as Record<string, unknown>)
+        : {};
+    const additionsRaw = diff.additions;
+    const additions = Array.isArray(additionsRaw)
+      ? additionsRaw.filter((line): line is number => typeof line === "number")
+      : [];
+    const additionsSet = new Set(additions);
+    const impactedStatementIDs = new Set<string>();
+
+    for (const [statementID, statementNode] of Object.entries(statementMap)) {
+      statementsTotal += 1;
+      const count = Number(s[statementID] ?? 0);
+      if (Number.isFinite(count) && count > 0) statementsCovered += 1;
+
+      if (additionsSet.size === 0) continue;
+      if (!statementNode || typeof statementNode !== "object") continue;
+      const startLine = Number((statementNode as { start?: { line?: number } }).start?.line);
+      const endLine = Number((statementNode as { end?: { line?: number } }).end?.line);
+      if (!Number.isFinite(startLine) || !Number.isFinite(endLine)) continue;
+      for (const line of additionsSet) {
+        if (line >= startLine && line <= endLine) {
+          impactedStatementIDs.add(statementID);
+          break;
+        }
+      }
+    }
+
+    changestatementsTotal += impactedStatementIDs.size;
+    for (const statementID of impactedStatementIDs) {
+      const count = Number(s[statementID] ?? 0);
+      if (Number.isFinite(count) && count > 0) changestatementsCovered += 1;
+    }
+  }
+
+  return {
+    statementsCovered,
+    statementsTotal,
+    changestatementsCovered,
+    changestatementsTotal,
+  };
 }
 
 async function buildReportHtmlArtifactZip(reportDataScript: string) {
@@ -596,7 +679,7 @@ async function buildSnapshotArtifact(args: {
   }
 
   const coverageMap = toCoverageMapRecord(mapResult);
-  const reportDataScript = await buildSnapshotReportDataScript({
+  const reportDataResult = await buildSnapshotReportDataScript({
     provider: args.provider,
     repoID: args.repoID,
     subject: args.subject,
@@ -605,13 +688,14 @@ async function buildSnapshotArtifact(args: {
     freezeTime: args.freezeTime,
     coverageMap,
   });
-  const artifactZip = await buildReportHtmlArtifactZip(reportDataScript);
-  const buildHash = createHash("sha256").update(reportDataScript).digest("hex");
+  const artifactZip = await buildReportHtmlArtifactZip(reportDataResult.reportDataScript);
+  const buildHash = createHash("sha256").update(reportDataResult.reportDataScript).digest("hex");
 
   return {
     artifactZip,
     artifactSize: artifactZip.byteLength,
     buildHash,
+    metrics: reportDataResult.metrics,
   };
 }
 
@@ -949,6 +1033,11 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
       finishedAt: freezeTime,
       buildHash: "pending",
       scene: body.buildTarget ? { buildTarget: body.buildTarget } : {},
+      statementsCovered: null,
+      statementsTotal: null,
+      changestatementsCovered: null,
+      changestatementsTotal: null,
+      durationMs: null,
     },
     select: {
       id: true,
@@ -963,6 +1052,7 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
 
   void (async () => {
     try {
+      const startedAt = Date.now();
       const artifact = await buildSnapshotArtifact({
         id: created.id,
         provider: created.provider,
@@ -979,12 +1069,18 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
           artifactZip: artifact.artifactZip,
           artifactSize: artifact.artifactSize,
           buildHash: artifact.buildHash,
+          statementsCovered: artifact.metrics.statementsCovered,
+          statementsTotal: artifact.metrics.statementsTotal,
+          changestatementsCovered: artifact.metrics.changestatementsCovered,
+          changestatementsTotal: artifact.metrics.changestatementsTotal,
+          durationMs: Date.now() - startedAt,
           finishedAt: new Date(),
         },
       });
     } catch (error: unknown) {
       const status = isSnapshotTimeoutError(error) ? "timeout" : "failed";
       const errorMessage = stringifyUnknownError(error);
+      const durationMs = Date.now() - freezeTime.getTime();
       console.error("[snapshot:create] generation failed", {
         snapshotID: created.id,
         provider: created.provider,
@@ -999,6 +1095,7 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
         data: {
           status,
           description: [body.description, `snapshot failed: ${errorMessage}`].filter(Boolean).join("\n"),
+          durationMs,
           finishedAt: new Date(),
         },
       });
@@ -1050,6 +1147,11 @@ coverageApi.openapi(snapshotListRoute, async (c) => {
         freezeTime: true,
         finishedAt: true,
         buildHash: true,
+        statementsCovered: true,
+        statementsTotal: true,
+        changestatementsCovered: true,
+        changestatementsTotal: true,
+        durationMs: true,
       },
     }),
   ]);
@@ -1080,6 +1182,11 @@ coverageApi.openapi(snapshotGetRoute, async (c) => {
       freezeTime: true,
       finishedAt: true,
       buildHash: true,
+      statementsCovered: true,
+      statementsTotal: true,
+      changestatementsCovered: true,
+      changestatementsTotal: true,
+      durationMs: true,
     },
   });
   if (!row) return c.json({ success: false, message: "snapshot not found" }, 404);
@@ -1113,6 +1220,11 @@ coverageApi.openapi(snapshotUpdateRoute, async (c) => {
       freezeTime: true,
       finishedAt: true,
       buildHash: true,
+      statementsCovered: true,
+      statementsTotal: true,
+      changestatementsCovered: true,
+      changestatementsTotal: true,
+      durationMs: true,
     },
   });
 
