@@ -2,7 +2,8 @@ import { diffLines } from "diff";
 import type { ScmAdapter } from "@/api/scm/adapter.ts";
 
 const JS_EXTENSIONS = ["ts", "tsx", "jsx", "vue", "js"];
-const MAX_DIFF_FILES = 500;
+const MAX_DIFF_FILES = 1000;
+const MAX_CONCURRENT_FILES = 100;
 
 function calculateNewRows(a: string, b: string): { additions: number[]; deletions: number[] } {
   const changes = diffLines(a || "", b || "");
@@ -42,10 +43,8 @@ export async function diffLine(
   if (commitInfo.parent_ids.length === 0 || (commitInfo.stats?.additions ?? 0) >= 5000000) {
     return [];
   }
-
   const realBase = baseCommitSha || commitInfo.parent_ids[0];
   const gitDiffs = await adapter.getCompareDiffs(repoID, realBase, compareCommitSha);
-
   const isMatch = (p?: string) => {
     if (!p) return false;
     const normalizedPath = p.replace(/\\/g, "/");
@@ -69,14 +68,20 @@ export async function diffLine(
   }
 
   const result: { path: string; additions: number[]; deletions: number[] }[] = [];
-  for (const d of filtered) {
-    const path = d.new_path ?? d.old_path ?? "";
-    const [oldContent, newContent] = await Promise.all(
-      [realBase, compareCommitSha].map((ref) =>
-        adapter.getFileContent(repoID, path, ref).catch(() => ""),
-      ),
+  for (let i = 0; i < filtered.length; i += MAX_CONCURRENT_FILES) {
+    const batch = filtered.slice(i, i + MAX_CONCURRENT_FILES);
+    const batchResults = await Promise.all(
+      batch.map(async (d) => {
+        const path = d.new_path ?? d.old_path ?? "";
+        const [oldContent, newContent] = await Promise.all(
+          [realBase, compareCommitSha].map((ref) =>
+            adapter.getFileContent(repoID, path, ref).catch(() => ""),
+          ),
+        );
+        return { path, ...calculateNewRows(oldContent, newContent) };
+      }),
     );
-    result.push({ path, ...calculateNewRows(oldContent, newContent) });
+    result.push(...batchResults);
   }
   return result;
 }
