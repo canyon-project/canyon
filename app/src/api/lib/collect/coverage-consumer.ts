@@ -1,7 +1,7 @@
 import { prisma } from "@/api/lib/prisma.ts";
 import { prisma as prismaSqlite } from "@/api/lib/prisma-sqlite.ts";
 import { acquireLock, releaseLock } from "./coverage-lock.ts";
-import { addMaps, ensureNumMap } from "./coverage-merge.util.ts";
+import { addBranchHitMaps, addMaps, ensureBranchHitMap, ensureNumMap } from "./coverage-merge.util.ts";
 
 interface CoverageQueuePayload {
   coverage: Record<
@@ -77,8 +77,10 @@ async function mergeLocalCoverageData(): Promise<void> {
           const merged = mergedCoverage[filePath];
           const sMap = ensureNumMap(entry?.s || {});
           const fMap = ensureNumMap(entry?.f || {});
+          const bMap = ensureBranchHitMap(entry?.b || {});
           merged.s = addMaps(ensureNumMap(merged.s), sMap);
           merged.f = addMaps(ensureNumMap(merged.f), fMap);
+          merged.b = addBranchHitMaps(ensureBranchHitMap(merged.b), bMap);
           if (entry?.inputSourceMap) merged.inputSourceMap = entry.inputSourceMap;
         }
       }
@@ -120,14 +122,16 @@ async function mergeCoverageData(
 
       const existing = await prisma.coverageHit.findUnique({
         where: { id },
-        select: { s: true, f: true },
+        select: { s: true, f: true, b: true },
       });
 
       let mergedS = s;
       let mergedF = f;
+      let mergedB = ensureBranchHitMap(entry?.b || {});
       if (existing) {
         mergedS = addMaps(ensureNumMap(existing.s), s);
         mergedF = addMaps(ensureNumMap(existing.f), f);
+        mergedB = addBranchHitMaps(ensureBranchHitMap(existing.b), mergedB);
       }
 
       await prisma.coverageHit.upsert({
@@ -139,11 +143,11 @@ async function mergeCoverageData(
           rawFilePath: filePath,
           s: mergedS,
           f: mergedF,
-          b: (entry?.b || {}) as object,
+          b: mergedB as object,
           inputSourceMap: entry?.inputSourceMap ? 1 : null,
           createdAt: now,
         },
-        update: { s: mergedS, f: mergedF },
+        update: { s: mergedS, f: mergedF, b: mergedB as object },
       });
     } catch {
       // 继续处理其他文件

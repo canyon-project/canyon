@@ -226,8 +226,16 @@ const snapshotListRoute = createRoute({
                 buildHash: z.string(),
                 statementsCovered: z.number().nullable(),
                 statementsTotal: z.number().nullable(),
+                functionsCovered: z.number().nullable(),
+                functionsTotal: z.number().nullable(),
+                branchesCovered: z.number().nullable(),
+                branchesTotal: z.number().nullable(),
                 changestatementsCovered: z.number().nullable(),
                 changestatementsTotal: z.number().nullable(),
+                changefunctionsCovered: z.number().nullable(),
+                changefunctionsTotal: z.number().nullable(),
+                changebranchesCovered: z.number().nullable(),
+                changebranchesTotal: z.number().nullable(),
                 durationMs: z.number().nullable(),
               }),
             ),
@@ -272,8 +280,16 @@ const snapshotGetRoute = createRoute({
             buildHash: z.string(),
             statementsCovered: z.number().nullable(),
             statementsTotal: z.number().nullable(),
+            functionsCovered: z.number().nullable(),
+            functionsTotal: z.number().nullable(),
+            branchesCovered: z.number().nullable(),
+            branchesTotal: z.number().nullable(),
             changestatementsCovered: z.number().nullable(),
             changestatementsTotal: z.number().nullable(),
+            changefunctionsCovered: z.number().nullable(),
+            changefunctionsTotal: z.number().nullable(),
+            changebranchesCovered: z.number().nullable(),
+            changebranchesTotal: z.number().nullable(),
             durationMs: z.number().nullable(),
           }),
         },
@@ -390,8 +406,16 @@ function normalizeSnapshotRow(row: {
   buildHash: string;
   statementsCovered: number | null;
   statementsTotal: number | null;
+  functionsCovered: number | null;
+  functionsTotal: number | null;
+  branchesCovered: number | null;
+  branchesTotal: number | null;
   changestatementsCovered: number | null;
   changestatementsTotal: number | null;
+  changefunctionsCovered: number | null;
+  changefunctionsTotal: number | null;
+  changebranchesCovered: number | null;
+  changebranchesTotal: number | null;
   durationMs: number | null;
 }) {
   return {
@@ -412,8 +436,16 @@ function normalizeSnapshotRow(row: {
     buildHash: row.buildHash,
     statementsCovered: row.statementsCovered,
     statementsTotal: row.statementsTotal,
+    functionsCovered: row.functionsCovered,
+    functionsTotal: row.functionsTotal,
+    branchesCovered: row.branchesCovered,
+    branchesTotal: row.branchesTotal,
     changestatementsCovered: row.changestatementsCovered,
     changestatementsTotal: row.changestatementsTotal,
+    changefunctionsCovered: row.changefunctionsCovered,
+    changefunctionsTotal: row.changefunctionsTotal,
+    changebranchesCovered: row.changebranchesCovered,
+    changebranchesTotal: row.changebranchesTotal,
     durationMs: row.durationMs,
   };
 }
@@ -581,8 +613,34 @@ async function buildSnapshotReportDataScript(args: {
 function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
   let statementsTotal = 0;
   let statementsCovered = 0;
+  let functionsTotal = 0;
+  let functionsCovered = 0;
+  let branchesTotal = 0;
+  let branchesCovered = 0;
   let changestatementsTotal = 0;
   let changestatementsCovered = 0;
+  let changefunctionsTotal = 0;
+  let changefunctionsCovered = 0;
+  let changebranchesTotal = 0;
+  let changebranchesCovered = 0;
+
+  const getLineRange = (node: unknown) => {
+    if (!node || typeof node !== "object") return null;
+    const startLine = Number((node as { start?: { line?: number } }).start?.line);
+    const endLine = Number((node as { end?: { line?: number } }).end?.line);
+    if (!Number.isFinite(startLine) || !Number.isFinite(endLine)) return null;
+    return { startLine, endLine };
+  };
+
+  const isImpactedByAdditions = (
+    range: { startLine: number; endLine: number },
+    additionsSet: Set<number>,
+  ) => {
+    for (const line of additionsSet) {
+      if (line >= range.startLine && line <= range.endLine) return true;
+    }
+    return false;
+  };
 
   for (const file of files) {
     const statementMap =
@@ -592,6 +650,22 @@ function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
     const s =
       file.s && typeof file.s === "object" && !Array.isArray(file.s)
         ? (file.s as Record<string, unknown>)
+        : {};
+    const fnMap =
+      file.fnMap && typeof file.fnMap === "object" && !Array.isArray(file.fnMap)
+        ? (file.fnMap as Record<string, unknown>)
+        : {};
+    const f =
+      file.f && typeof file.f === "object" && !Array.isArray(file.f)
+        ? (file.f as Record<string, unknown>)
+        : {};
+    const branchMap =
+      file.branchMap && typeof file.branchMap === "object" && !Array.isArray(file.branchMap)
+        ? (file.branchMap as Record<string, unknown>)
+        : {};
+    const b =
+      file.b && typeof file.b === "object" && !Array.isArray(file.b)
+        ? (file.b as Record<string, unknown>)
         : {};
     const diff =
       file.diff && typeof file.diff === "object" && !Array.isArray(file.diff)
@@ -603,6 +677,8 @@ function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
       : [];
     const additionsSet = new Set(additions);
     const impactedStatementIDs = new Set<string>();
+    const impactedFunctionIDs = new Set<string>();
+    const impactedBranchKeys = new Set<string>();
 
     for (const [statementID, statementNode] of Object.entries(statementMap)) {
       statementsTotal += 1;
@@ -611,13 +687,46 @@ function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
 
       if (additionsSet.size === 0) continue;
       if (!statementNode || typeof statementNode !== "object") continue;
-      const startLine = Number((statementNode as { start?: { line?: number } }).start?.line);
-      const endLine = Number((statementNode as { end?: { line?: number } }).end?.line);
-      if (!Number.isFinite(startLine) || !Number.isFinite(endLine)) continue;
-      for (const line of additionsSet) {
-        if (line >= startLine && line <= endLine) {
-          impactedStatementIDs.add(statementID);
-          break;
+      const range = getLineRange(statementNode);
+      if (!range) continue;
+      if (isImpactedByAdditions(range, additionsSet)) impactedStatementIDs.add(statementID);
+    }
+
+    for (const [fnID, fnNode] of Object.entries(fnMap)) {
+      functionsTotal += 1;
+      const count = Number(f[fnID] ?? 0);
+      if (Number.isFinite(count) && count > 0) functionsCovered += 1;
+
+      if (additionsSet.size === 0) continue;
+      if (!fnNode || typeof fnNode !== "object") continue;
+      const locCandidate = (fnNode as { loc?: unknown; decl?: unknown }).loc
+        ?? (fnNode as { loc?: unknown; decl?: unknown }).decl
+        ?? fnNode;
+      const range = getLineRange(locCandidate);
+      if (!range) continue;
+      if (isImpactedByAdditions(range, additionsSet)) impactedFunctionIDs.add(fnID);
+    }
+
+    for (const [branchID, branchNode] of Object.entries(branchMap)) {
+      const branchNodeObj =
+        branchNode && typeof branchNode === "object" ? (branchNode as Record<string, unknown>) : {};
+      const locationsRaw = Array.isArray(branchNodeObj.locations)
+        ? (branchNodeObj.locations as unknown[])
+        : [];
+      const branchHitsRaw = Array.isArray(b[branchID]) ? (b[branchID] as unknown[]) : [];
+      const branchPathsTotal = Math.max(locationsRaw.length, branchHitsRaw.length);
+
+      for (let index = 0; index < branchPathsTotal; index += 1) {
+        branchesTotal += 1;
+        const count = Number(branchHitsRaw[index] ?? 0);
+        if (Number.isFinite(count) && count > 0) branchesCovered += 1;
+
+        if (additionsSet.size === 0) continue;
+        const locationNode = locationsRaw[index];
+        const range = getLineRange(locationNode);
+        if (!range) continue;
+        if (isImpactedByAdditions(range, additionsSet)) {
+          impactedBranchKeys.add(`${branchID}:${index}`);
         }
       }
     }
@@ -627,13 +736,35 @@ function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
       const count = Number(s[statementID] ?? 0);
       if (Number.isFinite(count) && count > 0) changestatementsCovered += 1;
     }
+
+    changefunctionsTotal += impactedFunctionIDs.size;
+    for (const fnID of impactedFunctionIDs) {
+      const count = Number(f[fnID] ?? 0);
+      if (Number.isFinite(count) && count > 0) changefunctionsCovered += 1;
+    }
+
+    changebranchesTotal += impactedBranchKeys.size;
+    for (const branchKey of impactedBranchKeys) {
+      const [branchID, indexRaw] = branchKey.split(":");
+      const branchHitsRaw = Array.isArray(b[branchID]) ? (b[branchID] as unknown[]) : [];
+      const count = Number(branchHitsRaw[Number(indexRaw)] ?? 0);
+      if (Number.isFinite(count) && count > 0) changebranchesCovered += 1;
+    }
   }
 
   return {
     statementsCovered,
     statementsTotal,
+    functionsCovered,
+    functionsTotal,
+    branchesCovered,
+    branchesTotal,
     changestatementsCovered,
     changestatementsTotal,
+    changefunctionsCovered,
+    changefunctionsTotal,
+    changebranchesCovered,
+    changebranchesTotal,
   };
 }
 
@@ -1105,8 +1236,16 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
       scene: body.buildTarget ? { buildTarget: body.buildTarget } : {},
       statementsCovered: null,
       statementsTotal: null,
+      functionsCovered: null,
+      functionsTotal: null,
+      branchesCovered: null,
+      branchesTotal: null,
       changestatementsCovered: null,
       changestatementsTotal: null,
+      changefunctionsCovered: null,
+      changefunctionsTotal: null,
+      changebranchesCovered: null,
+      changebranchesTotal: null,
       durationMs: null,
     },
     select: {
@@ -1141,8 +1280,16 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
           buildHash: artifact.buildHash,
           statementsCovered: artifact.metrics.statementsCovered,
           statementsTotal: artifact.metrics.statementsTotal,
+          functionsCovered: artifact.metrics.functionsCovered,
+          functionsTotal: artifact.metrics.functionsTotal,
+          branchesCovered: artifact.metrics.branchesCovered,
+          branchesTotal: artifact.metrics.branchesTotal,
           changestatementsCovered: artifact.metrics.changestatementsCovered,
           changestatementsTotal: artifact.metrics.changestatementsTotal,
+          changefunctionsCovered: artifact.metrics.changefunctionsCovered,
+          changefunctionsTotal: artifact.metrics.changefunctionsTotal,
+          changebranchesCovered: artifact.metrics.changebranchesCovered,
+          changebranchesTotal: artifact.metrics.changebranchesTotal,
           durationMs: Date.now() - startedAt,
           finishedAt: new Date(),
         },
@@ -1219,8 +1366,16 @@ coverageApi.openapi(snapshotListRoute, async (c) => {
         buildHash: true,
         statementsCovered: true,
         statementsTotal: true,
+        functionsCovered: true,
+        functionsTotal: true,
+        branchesCovered: true,
+        branchesTotal: true,
         changestatementsCovered: true,
         changestatementsTotal: true,
+        changefunctionsCovered: true,
+        changefunctionsTotal: true,
+        changebranchesCovered: true,
+        changebranchesTotal: true,
         durationMs: true,
       },
     }),
@@ -1254,8 +1409,16 @@ coverageApi.openapi(snapshotGetRoute, async (c) => {
       buildHash: true,
       statementsCovered: true,
       statementsTotal: true,
+      functionsCovered: true,
+      functionsTotal: true,
+      branchesCovered: true,
+      branchesTotal: true,
       changestatementsCovered: true,
       changestatementsTotal: true,
+      changefunctionsCovered: true,
+      changefunctionsTotal: true,
+      changebranchesCovered: true,
+      changebranchesTotal: true,
       durationMs: true,
     },
   });
@@ -1292,8 +1455,16 @@ coverageApi.openapi(snapshotUpdateRoute, async (c) => {
       buildHash: true,
       statementsCovered: true,
       statementsTotal: true,
+      functionsCovered: true,
+      functionsTotal: true,
+      branchesCovered: true,
+      branchesTotal: true,
       changestatementsCovered: true,
       changestatementsTotal: true,
+      changefunctionsCovered: true,
+      changefunctionsTotal: true,
+      changebranchesCovered: true,
+      changebranchesTotal: true,
       durationMs: true,
     },
   });
