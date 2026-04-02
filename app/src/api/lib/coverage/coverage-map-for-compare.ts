@@ -39,6 +39,33 @@ function buildSceneQueryCondition(scene?: string) {
   }
 }
 
+function normalizeBranchHitsForRemap(
+  fileCoverage: Record<string, unknown>,
+): Record<string, unknown> {
+  const branchMap =
+    fileCoverage.branchMap &&
+    typeof fileCoverage.branchMap === "object" &&
+    !Array.isArray(fileCoverage.branchMap)
+      ? (fileCoverage.branchMap as Record<string, unknown>)
+      : {};
+  const rawB =
+    fileCoverage.b && typeof fileCoverage.b === "object" && !Array.isArray(fileCoverage.b)
+      ? (fileCoverage.b as Record<string, unknown>)
+      : {};
+  const normalizedB = ensureBranchHitMap(rawB);
+
+  for (const [branchID, branchNode] of Object.entries(branchMap)) {
+    const existing = normalizedB[branchID] || [];
+    const locationLen = Array.isArray((branchNode as { locations?: unknown[] })?.locations)
+      ? ((branchNode as { locations?: unknown[] }).locations?.length ?? 0)
+      : 0;
+    const targetLen = Math.max(existing.length, locationLen);
+    normalizedB[branchID] = Array.from({ length: targetLen }, (_, idx) => Number(existing[idx] || 0));
+  }
+
+  return { ...fileCoverage, b: normalizedB };
+}
+
 /**
  * 按 compare（commit1...commit2）查询对比覆盖率 map
  * 合并 from..to 之间所有 commit 的 hit 数据到 headSha 的 map 上
@@ -393,7 +420,13 @@ export async function getCoverageMapForCompare(params: CoverageMapForComparePara
     }
   }
 
-  const remapped = await remapCoverageByOld(mergedCoverageData);
+  const normalizedForRemap = Object.fromEntries(
+    Object.entries(mergedCoverageData).map(([fp, item]) => [
+      fp,
+      normalizeBranchHitsForRemap(item),
+    ]),
+  );
+  const remapped = await remapCoverageByOld(normalizedForRemap);
   const diffListMap = new Map(diffList.map((d) => [d.path, (d.additions as number[]) || []]));
 
   const normalizedCoverage: Record<string, Record<string, unknown>> = {};
