@@ -1,7 +1,14 @@
 import { prisma } from "@/api/lib/prisma.ts";
 import { getScm } from "@/api/lib/scm.ts";
 import { decodeCompressedObject } from "@/api/lib/collect/helpers.ts";
-import { addMaps, ensureNumMap, type NumMap } from "@/api/lib/collect/coverage-merge.util.ts";
+import {
+  addBranchHitMaps,
+  addMaps,
+  ensureBranchHitMap,
+  ensureNumMap,
+  type BranchHitMap,
+  type NumMap,
+} from "@/api/lib/collect/coverage-merge.util.ts";
 import { testExclude } from "@/api/lib/coverage/test-exclude.ts";
 import { remapCoverageByOld } from "canyon-map";
 
@@ -149,19 +156,20 @@ export async function getCoverageMapForCompare(params: CoverageMapForComparePara
     },
   });
 
-  const headShaHitDataByFile = new Map<string, { s: NumMap; f: NumMap }>();
+  const headShaHitDataByFile = new Map<string, { s: NumMap; f: NumMap; b: BranchHitMap }>();
   for (const h of headShaCoverageHits) {
     const np = h.rawFilePath.startsWith(headShaInstrumentCwdPrefix)
       ? h.rawFilePath.slice(headShaInstrumentCwdPrefix.length)
       : h.rawFilePath;
-    if (!headShaHitDataByFile.has(np)) headShaHitDataByFile.set(np, { s: {}, f: {} });
+    if (!headShaHitDataByFile.has(np)) headShaHitDataByFile.set(np, { s: {}, f: {}, b: {} });
     const fd = headShaHitDataByFile.get(np)!;
     fd.s = addMaps(fd.s, ensureNumMap(h.s as Record<string, unknown>));
     fd.f = addMaps(fd.f, ensureNumMap(h.f as Record<string, unknown>));
+    fd.b = addBranchHitMaps(fd.b, ensureBranchHitMap(h.b as Record<string, unknown>));
   }
 
   type CommitData = {
-    hitDataByFile: Map<string, { s: NumMap; f: NumMap }>;
+    hitDataByFile: Map<string, { s: NumMap; f: NumMap; b: BranchHitMap }>;
     fileCoverageMap: Map<string, Record<string, unknown>>;
   };
   const commitDataMap = new Map<string, CommitData>();
@@ -225,15 +233,16 @@ export async function getCoverageMapForCompare(params: CoverageMapForComparePara
       },
     });
 
-    const hitDataByFile = new Map<string, { s: NumMap; f: NumMap }>();
+    const hitDataByFile = new Map<string, { s: NumMap; f: NumMap; b: BranchHitMap }>();
     for (const h of hits) {
       const np = h.rawFilePath.startsWith(prefix)
         ? h.rawFilePath.slice(prefix.length)
         : h.rawFilePath;
-      if (!hitDataByFile.has(np)) hitDataByFile.set(np, { s: {}, f: {} });
+      if (!hitDataByFile.has(np)) hitDataByFile.set(np, { s: {}, f: {}, b: {} });
       const fd = hitDataByFile.get(np)!;
       fd.s = addMaps(fd.s, ensureNumMap(h.s as Record<string, unknown>));
       fd.f = addMaps(fd.f, ensureNumMap(h.f as Record<string, unknown>));
+      fd.b = addBranchHitMaps(fd.b, ensureBranchHitMap(h.b as Record<string, unknown>));
     }
 
     commitDataMap.set(sha, { hitDataByFile, fileCoverageMap });
@@ -299,8 +308,7 @@ export async function getCoverageMapForCompare(params: CoverageMapForComparePara
       ...headShaFile,
       s: { ...hitData.s },
       f: { ...hitData.f },
-      b: {},
-      branchMap: {},
+      b: { ...hitData.b },
     };
   }
 
@@ -334,6 +342,10 @@ export async function getCoverageMapForCompare(params: CoverageMapForComparePara
       if (status === "fileContentHashEqual") {
         merged.s = addMaps(merged.s as NumMap, commitHit.s);
         merged.f = addMaps(merged.f as NumMap, commitHit.f);
+        merged.b = addBranchHitMaps(
+          ensureBranchHitMap(merged.b as Record<string, unknown>),
+          commitHit.b,
+        );
       } else if (status === "fileContentHashDifferent" && canMerge && mergeable?.length) {
         const otherFile = commitData.fileCoverageMap.get(fp);
         if (!otherFile) continue;

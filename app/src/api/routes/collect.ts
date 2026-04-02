@@ -367,6 +367,7 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
     const e = entry as Record<string, unknown>;
     const s = (e?.s as object) || {};
     const f = (e?.f as object) || {};
+    const b = (e?.b as object) || {};
     const sceneKeyHit = calculateSceneKey({});
     return {
       id: `${buildHash}|${sceneKeyHit}|${filePath}`,
@@ -375,7 +376,7 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
       rawFilePath: filePath,
       s,
       f,
-      b: {},
+      b,
       inputSourceMap: e.inputSourceMap ? 1 : 0,
       createdAt: now,
     };

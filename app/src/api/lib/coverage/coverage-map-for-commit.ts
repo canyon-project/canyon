@@ -1,6 +1,13 @@
 import { prisma } from "@/api/lib/prisma.ts";
 import { decodeCompressedObject } from "@/api/lib/collect/helpers.ts";
-import { addMaps, ensureNumMap, type NumMap } from "@/api/lib/collect/coverage-merge.util.ts";
+import {
+  addBranchHitMaps,
+  addMaps,
+  ensureBranchHitMap,
+  ensureNumMap,
+  type BranchHitMap,
+  type NumMap,
+} from "@/api/lib/collect/coverage-merge.util.ts";
 import { testExclude } from "@/api/lib/coverage/test-exclude.ts";
 import { remapCoverageByOld } from "canyon-map";
 
@@ -148,14 +155,15 @@ export async function getCoverageMapForCommit(
     where: coverageHitWhereCondition as never,
   });
 
-  const aggregatedHitDataByFile = new Map<string, { s: NumMap; f: NumMap }>();
+  const aggregatedHitDataByFile = new Map<string, { s: NumMap; f: NumMap; b: BranchHitMap }>();
   for (const hit of coverageHits) {
     if (!aggregatedHitDataByFile.has(hit.rawFilePath)) {
-      aggregatedHitDataByFile.set(hit.rawFilePath, { s: {}, f: {} });
+      aggregatedHitDataByFile.set(hit.rawFilePath, { s: {}, f: {}, b: {} });
     }
     const fileHitData = aggregatedHitDataByFile.get(hit.rawFilePath)!;
     fileHitData.s = addMaps(fileHitData.s, ensureNumMap(hit.s as Record<string, unknown>));
     fileHitData.f = addMaps(fileHitData.f, ensureNumMap(hit.f as Record<string, unknown>));
+    fileHitData.b = addBranchHitMaps(fileHitData.b, ensureBranchHitMap(hit.b as Record<string, unknown>));
   }
 
   const mergedCoverageData: Record<string, Record<string, unknown>> = {};
@@ -166,8 +174,7 @@ export async function getCoverageMapForCommit(
         ...fileCoverageMapData,
         s: fileHitData.s,
         f: fileHitData.f,
-        b: {},
-        branchMap: {},
+        b: fileHitData.b,
       };
     }
   }
