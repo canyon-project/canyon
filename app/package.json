@@ -22,7 +22,7 @@
   "dependencies": {
     "@canyonjs/report-html": "latest",
     "@ant-design/icons": "6.1.0",
-    "@canyonjs/report-component": "1.0.20",
+    "@canyonjs/report-component": "latest",
     "@hono/node-server": "^1.19.11",
     "@hono/swagger-ui": "^0.6.1",
     "@hono/zod-openapi": "^1.2.2",
@@ -56,8 +56,8 @@
     "tmp": "^0.2.5"
   },
   "devDependencies": {
-    "@canyonjs/playwright": "^0.0.2",
-    "@canyonjs/report": "1.0.20",
+    "@canyonjs/playwright": "latest",
+    "@canyonjs/report": "latest",
     "@canyonjs/vite-plugin": "latest",
     "@hono/vite-build": "^1.10.0",
     "@hono/vite-dev-server": "^0.25.0",
