@@ -1,14 +1,6 @@
 # Canyon [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/canyon-project/canyon/blob/main/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/canyon-project/canyon) [![docker image size](https://img.shields.io/docker/image-size/zhangtao25/canyon/next)](https://hub.docker.com/r/zhangtao25/canyon) [![Made with Prisma](https://made-with.prisma.io/dark.svg)](https://prisma.io) [![Wappalyzer](https://img.shields.io/badge/Detected%20by-Wappalyzer-blue?logo=wappalyzer)](https://www.wappalyzer.com/technologies/development/canyon/)
 
-> [!WARNING]
-> The `main` branch is currently in beta testing. For the stable branch, please use [`main-0128`](https://github.com/canyon-project/canyon/tree/main-0128)
-
-👋 Canyon is a JavaScript code coverage solution
-
-Video Showcase
-
-[Bilibili](https://www.bilibili.com/video/BV13sXHYDEn6)
-[YouTube](https://www.youtube.com/watch?v=-2IRQ_pmEjI)
+Canyon is a JavaScript code coverage solution
 
 ![](./screenshots/coverage-report.jpg)
 

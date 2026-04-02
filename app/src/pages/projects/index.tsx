@@ -172,7 +172,6 @@ const Projects = () => {
     {
       title: "Bu",
       dataIndex: "bu",
-      sorter: true,
     },
     {
       title: t("projects.report_times"),
