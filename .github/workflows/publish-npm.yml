@@ -1,56 +1,65 @@
 name: publish-npm
 
 on:
+  workflow_dispatch:
   push:
-    branches: ["*"]
+    branches: ["main"]
+    paths:
+      - "packages/**"
+      - "plugins/**"
+      - "tools/**"
+      - "pnpm-lock.yaml"
+      - ".github/workflows/publish-npm.yml"
+
+concurrency:
+  group: publish-npm-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
   publish-npm:
     runs-on: ubuntu-latest
+    env:
+      PUBLISH_PACKAGES: >-
+        @canyonjs/report-component
+        @canyonjs/report-html
+        @canyonjs/collect
+        @canyonjs/babel-plugin
+        @canyonjs/cli
+        @canyonjs/git-diff
+        @canyonjs/playwright
+        @canyonjs/report
+        @canyonjs/vite-plugin
     steps:
+      - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-      - run: pnpm install
-      - run: pnpm run build
-      - run: pnpm --filter=@canyonjs/report-component publish --access public -f --no-git-checks
-        continue-on-error: true
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build publish packages only
+        run: |
+          filters=()
+          for pkg in $PUBLISH_PACKAGES; do
+            filters+=(--filter "${pkg}...")
+          done
+          pnpm -r "${filters[@]}" run build
+      - name: Publish packages
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - run: pnpm --filter=@canyonjs/report-html publish --access public -f --no-git-checks
-        continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - run: pnpm --filter=@canyonjs/collect publish --access public -f --no-git-checks
-        continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - run: pnpm --filter=@canyonjs/babel-plugin publish --access public -f --no-git-checks
-        continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - run: pnpm --filter=@canyonjs/cli publish --access public -f --no-git-checks
-        continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - run: pnpm --filter=@canyonjs/git-diff publish --access public -f --no-git-checks
-        continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - run: pnpm --filter=@canyonjs/playwright publish --access public -f --no-git-checks
-        continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - run: pnpm --filter=@canyonjs/report publish --access public -f --no-git-checks
-        continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
-      - run: pnpm --filter=@canyonjs/vite-plugin publish --access public -f --no-git-checks
-        continue-on-error: true
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
+        run: |
+          failed=()
+          for pkg in $PUBLISH_PACKAGES; do
+            echo "Publishing ${pkg}"
+            if ! pnpm --filter="${pkg}" publish --access public -f --no-git-checks; then
+              failed+=("${pkg}")
+            fi
+          done
+
+          if [ ${#failed[@]} -gt 0 ]; then
+            echo "Some packages failed to publish:"
+            printf ' - %s\n' "${failed[@]}"
+          fi
