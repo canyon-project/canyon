@@ -1,19 +1,23 @@
-import { Tag, Typography, theme } from "antd";
+import { Tag, Typography } from "antd";
 import type { CoverageSummaryData } from "istanbul-lib-coverage";
 import type { FC } from "react";
 import { getColor } from "../helpers/color";
 
 const { Text } = Typography;
 
-const { useToken } = theme;
+const SUMMARY_LABELS: Record<string, string> = {
+  statements: "Statements",
+  branches: "Branches",
+  functions: "Functions",
+  lines: "Lines",
+  changestatements: "Change Statements",
+};
 
 const SummaryNav: FC<{
   reportName: string;
   value: string;
   onClick: (value: string) => void;
 }> = ({ value, onClick, reportName }) => {
-  const { token } = useToken();
-
   return (
     <div
       style={{
@@ -53,7 +57,7 @@ const SummaryMetric: FC<{
   data: CoverageSummaryData & { path: string };
   onlyChange: boolean;
 }> = ({ data, onlyChange }) => {
-  const t = (v) => v;
+  const t = (v: string) => v;
   const summaryTreeItem = {
     summary: data,
   };
@@ -109,7 +113,7 @@ const SummaryMetric: FC<{
               >
                 <span style={{ fontWeight: "600", fontSize: "14px" }}>{value.pct}%</span>
                 <Text style={{ fontSize: "14px" }} type={"secondary"}>
-                  {t(`${key}`)}:
+                  {t(SUMMARY_LABELS[key] || key)}:
                 </Text>
                 <Tag bordered={false}>
                   {value.covered}/{value.total}
