@@ -32,7 +32,6 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-          cache: pnpm
       - run: pnpm install
       - name: Build publish packages only
         run: |
