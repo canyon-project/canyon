@@ -4,12 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: ["main"]
-    paths:
-      - "packages/**"
-      - "plugins/**"
-      - "tools/**"
-      - "pnpm-lock.yaml"
-      - ".github/workflows/publish-npm.yml"
 
 concurrency:
   group: publish-npm-${{ github.ref }}
@@ -39,7 +33,7 @@ jobs:
           node-version: 20
           registry-url: https://registry.npmjs.org/
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install
       - name: Build publish packages only
         run: |
           filters=()
