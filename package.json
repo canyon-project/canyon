@@ -6,7 +6,6 @@
   "scripts": {
     "clean": "node ./scripts/clean.mjs",
     "test": "pnpm run -r test",
-    "dev": "pnpm run --stream -r dev",
     "build": "pnpm run -r build",
     "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs",
     "lint": "oxlint",
