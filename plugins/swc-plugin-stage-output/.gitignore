@@ -1,5 +1,0 @@
-/target
-node_modules
-*.wasm
-.swc-plugin-stage-output
-dist

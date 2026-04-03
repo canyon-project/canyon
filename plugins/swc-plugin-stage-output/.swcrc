@@ -1,8 +1,0 @@
-{
-  "$schema": "https://swc.rs/schema.json",
-  "jsc": {
-    "experimental": {
-      "plugins": [["./swc_plugin_stage_output.wasm", {}]]
-    }
-  }
-}

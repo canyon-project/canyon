@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/collect",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "homepage": "https://github.com/canyon-project/canyon#readme",
   "bugs": {
     "url": "https://github.com/canyon-project/canyon/issues"
@@ -19,9 +19,11 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./dist/index.js",
-    "./package.json": "./package.json",
-    "./index.css": "./dist/index.css"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./iife": "./dist/index.iife.js"
   },
   "scripts": {
     "build": "tsdown",
