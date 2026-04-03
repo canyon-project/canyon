@@ -1,6 +1,9 @@
+import { getGlobal } from "./global.js";
+
 export const sendCoverage = () => {
-  const dsn = (window as unknown as { CANYON_DSN?: string }).CANYON_DSN;
-  const coverage = (window as unknown as { __coverage__?: Record<string, unknown> }).__coverage__;
+  const g = getGlobal();
+  const dsn = g.CANYON_DSN;
+  const coverage = g.__coverage__;
   if (dsn && coverage) {
     const groupedCoverage: Record<string, Record<string, unknown>> = {};
     const fieldsToRemove = ["statementMap", "fnMap", "branchMap", "inputSourceMap"];
@@ -24,8 +27,7 @@ export const sendCoverage = () => {
       }
     }
 
-    const scene =
-      (window as unknown as { CANYON_SCENE?: Record<string, unknown> }).CANYON_SCENE || {};
+    const scene = g.CANYON_SCENE || {};
 
     for (const [buildHash, coverageByBuildHash] of Object.entries(groupedCoverage)) {
       void fetch(dsn, {

@@ -1,4 +1,5 @@
 import { installCollect, sendCoverage } from "./core.js";
+import { getGlobal } from "./global.js";
 
 export { installCollect, sendCoverage };
 
@@ -8,19 +9,15 @@ export interface CollectInitOptions {
 }
 
 /**
- * 写入 `window` 后调用 `installCollect()`，便于在打包场景里像 SDK 一样配置。
- * 只依赖 `core` 的 window 读取逻辑，无第二套合并分支。
+ * 写入全局对象（与 `core` 读取方式一致）后调用 `installCollect()`。
  */
 export function init(options?: CollectInitOptions): void {
-  const w = window as unknown as {
-    CANYON_DSN?: string;
-    CANYON_SCENE?: Record<string, unknown>;
-  };
+  const g = getGlobal();
   if (options?.dsn !== undefined) {
-    w.CANYON_DSN = options.dsn;
+    g.CANYON_DSN = options.dsn;
   }
   if (options?.scene !== undefined) {
-    w.CANYON_SCENE = { ...(w.CANYON_SCENE || {}), ...options.scene };
+    g.CANYON_SCENE = { ...(g.CANYON_SCENE || {}), ...options.scene };
   }
   installCollect();
 }
