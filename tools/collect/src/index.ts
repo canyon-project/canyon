@@ -1,7 +1,8 @@
 import { installCollect, sendCoverage } from "./core.js";
 import { getGlobal } from "./global.js";
+import { applyCollectParamsFromCurrentScript } from "./script-params.js";
 
-export { installCollect, sendCoverage };
+export { applyCollectParamsFromCurrentScript, installCollect, sendCoverage };
 
 export interface CollectInitOptions {
   dsn?: string;
