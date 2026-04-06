@@ -64,7 +64,9 @@ const BasicLayout: FC<{
   // 分区组件：侧边头部（Logo 与标题）
   const SidebarHeader: FC = () => (
     <div className={"px-3 py-[16px] flex items-center justify-between"}>
-      <div className={"cursor-pointer flex items-center"} style={{ marginBottom: 0 }}>
+      <div className={"cursor-pointer flex items-center"} style={{ marginBottom: 0 }} onClick={()=>{
+        window.location.href = "/";
+      }}>
         <img src="/logo.svg" className={"w-[36px]"} alt="" />
         <span
           className={"ml-[6px]"}

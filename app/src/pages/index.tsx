@@ -9,7 +9,7 @@ const IndexPage = () => {
   });
   return (
     <BasicLayout>
-      <span className={"bg-amber-500"}>IndexPage</span>
+      <span></span>
     </BasicLayout>
   );
 };
