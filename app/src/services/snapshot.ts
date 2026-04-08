@@ -83,3 +83,10 @@ export function downloadSnapshot(id: string | number): Promise<Blob> {
     .get(`/api/coverage/snapshot/${id}/download`, { responseType: "blob" })
     .then((res) => res.data as Blob);
 }
+
+/**
+ * 获取快照 HTML 报告对应的 report-data JSON（与 data/report-data.js 内 window.reportData 解析后一致）
+ */
+export function getSnapshotReportData(id: string | number): Promise<unknown> {
+  return request.get(`/api/coverage/snapshot/${id}/report-data`).then((res) => res.data);
+}

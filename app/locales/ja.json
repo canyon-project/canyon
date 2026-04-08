@@ -184,7 +184,14 @@
     "snapshot.delete.confirm": "このスナップショットを削除しますか？",
     "snapshot.update.success": "更新しました",
     "snapshot.update.failed": "更新に失敗しました",
-    "snapshot.edit.title": "スナップショットを編集"
+    "snapshot.edit.title": "スナップショットを編集",
+    "snapshot.view_detail": "詳細を見る",
+    "snapshot.detail.title": "スナップショット詳細",
+    "snapshot.detail.fetch_failed": "スナップショット詳細の取得に失敗しました",
+    "snapshot.detail.report_json": "Report data（JSON）",
+    "snapshot.detail.load_report_data": "report-data を読み込む",
+    "snapshot.detail.report_not_available": "report-data がありません（旧データまたは未保存）",
+    "snapshot.detail.report_load_failed": "report-data の読み込みに失敗しました"
   },
   "settings": {
     "desc": "アカウント情報を設定します",

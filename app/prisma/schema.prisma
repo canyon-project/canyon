@@ -191,6 +191,8 @@ model CoverageSnapshot {
   changebranchesCovered   Int? @map("changebranches_covered")
   changebranchesTotal     Int? @map("changebranches_total")
   durationMs              Int? @map("duration_ms")
+  /// 与 report-data.js 中 window.reportData（base64 gzip）对应的原始 gzip 字节，解压后为 JSON
+  reportDataGzip          Bytes? @map("report_data_gzip")
 
   @@map("canyon_next_coverage_snapshot")
 }

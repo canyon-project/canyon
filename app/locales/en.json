@@ -185,7 +185,14 @@
     "snapshot.delete.confirm": "Delete this snapshot?",
     "snapshot.update.success": "Updated",
     "snapshot.update.failed": "Update failed",
-    "snapshot.edit.title": "Edit Snapshot"
+    "snapshot.edit.title": "Edit Snapshot",
+    "snapshot.view_detail": "View details",
+    "snapshot.detail.title": "Snapshot details",
+    "snapshot.detail.fetch_failed": "Failed to load snapshot details",
+    "snapshot.detail.report_json": "Report data (JSON)",
+    "snapshot.detail.load_report_data": "Load report-data",
+    "snapshot.detail.report_not_available": "No report-data (legacy snapshot or not stored)",
+    "snapshot.detail.report_load_failed": "Failed to load report-data"
   },
   "settings": {
     "desc": "Set up your account information",

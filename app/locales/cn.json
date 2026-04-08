@@ -184,7 +184,14 @@
     "snapshot.delete.confirm": "确定要删除这条快照吗？",
     "snapshot.update.success": "更新成功",
     "snapshot.update.failed": "更新失败",
-    "snapshot.edit.title": "编辑快照"
+    "snapshot.edit.title": "编辑快照",
+    "snapshot.view_detail": "查看详情",
+    "snapshot.detail.title": "快照详情",
+    "snapshot.detail.fetch_failed": "加载快照详情失败",
+    "snapshot.detail.report_json": "Report data（JSON）",
+    "snapshot.detail.load_report_data": "加载 report-data",
+    "snapshot.detail.report_not_available": "暂无 report-data（旧快照或未入库）",
+    "snapshot.detail.report_load_failed": "加载 report-data 失败"
   },
   "settings": {
     "desc": "设置您的账户信息",

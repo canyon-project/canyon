@@ -2,7 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { prisma } from "@/api/lib/prisma.ts";
 import { createHash } from "node:crypto";
-import { gzipSync } from "node:zlib";
+import { gzipSync, gunzipSync } from "node:zlib";
 import { access, cp, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { tmpdir } from "node:os";
@@ -361,6 +361,25 @@ const snapshotDownloadRoute = createRoute({
   },
 });
 
+const snapshotReportDataRoute = createRoute({
+  method: "get",
+  path: "/snapshot/{id}/report-data",
+  summary: "获取快照 report-data JSON",
+  description:
+    "返回与快照 HTML 内 data/report-data.js 中 window.reportData 解压后一致的 JSON。数据在库内以 gzip 存储。仅 status=completed 且已写入时可用。",
+  tags: ["覆盖率"],
+  request: {
+    params: z.object({
+      id: z.coerce.number().openapi({ param: { name: "id", in: "path" } }),
+    }),
+  },
+  responses: {
+    200: { description: "report-data JSON（与前端 window.reportData 解析后结构一致）" },
+    404: { description: "快照不存在或未存储 report 数据" },
+    409: { description: "快照未完成" },
+  },
+});
+
 const coverageApi = new OpenAPIHono();
 const SNAPSHOT_TIMEOUT_MS = 120 * 1000;
 const SNAPSHOT_TIMEOUT_MESSAGE = "snapshot generation timeout";
@@ -619,10 +638,13 @@ async function buildSnapshotReportDataScript(args: {
     files,
   };
 
-  const compressed = gzipSync(Buffer.from(JSON.stringify(reportData), "utf8")).toString("base64");
+  const jsonUtf8 = Buffer.from(JSON.stringify(reportData), "utf8");
+  const reportDataGzip = gzipSync(jsonUtf8);
+  const compressed = reportDataGzip.toString("base64");
   const metrics = calcSnapshotMetricsFromFiles(files);
   return {
     reportDataScript: `window.reportData = '${compressed}';`,
+    reportDataGzip,
     metrics,
   };
 }
@@ -914,6 +936,7 @@ async function buildSnapshotArtifact(args: {
     artifactSize: artifactZip.byteLength,
     buildHash,
     metrics: reportDataResult.metrics,
+    reportDataGzip: reportDataResult.reportDataGzip,
   };
 }
 
@@ -1310,6 +1333,7 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
           changebranchesTotal: artifact.metrics.changebranchesTotal,
           durationMs: Date.now() - startedAt,
           finishedAt: new Date(),
+          reportDataGzip: artifact.reportDataGzip,
         },
       });
     } catch (error: unknown) {
@@ -1520,6 +1544,31 @@ coverageApi.openapi(snapshotDownloadRoute, async (c) => {
   c.header("Content-Type", "application/octet-stream");
   c.header("Content-Disposition", `attachment; filename="snapshot-${row.id}.zip"`);
   return c.body(row.artifactZip);
+});
+
+coverageApi.openapi(snapshotReportDataRoute, async (c) => {
+  await markExpiredGeneratingSnapshots();
+  const { id } = c.req.valid("param");
+  const row = await prisma.coverageSnapshot.findUnique({
+    where: { id },
+    select: { status: true, reportDataGzip: true },
+  });
+  if (!row) return c.json({ success: false, message: "snapshot not found" }, 404);
+  if (row.status !== "completed") {
+    return c.json({ success: false, message: `snapshot status is ${row.status}` }, 409);
+  }
+  const gz = row.reportDataGzip;
+  if (!gz || gz.length === 0) {
+    return c.json({ success: false, message: "report data not stored for this snapshot" }, 404);
+  }
+  let parsed: unknown;
+  try {
+    const text = gunzipSync(gz).toString("utf8");
+    parsed = JSON.parse(text) as unknown;
+  } catch {
+    return c.json({ success: false, message: "failed to decode stored report data" }, 500);
+  }
+  return c.json(parsed);
 });
 
 export default coverageApi;

@@ -3,11 +3,14 @@ import {
   DeleteOutlined,
   DownloadOutlined,
   EditOutlined,
+  EyeOutlined,
   ReloadOutlined,
 } from "@ant-design/icons";
 import {
   Badge,
   Button,
+  Descriptions,
+  Divider,
   Drawer,
   Form,
   Input,
@@ -16,6 +19,7 @@ import {
   Popconfirm,
   Select,
   Space,
+  Spin,
   Table,
   Typography,
 } from "antd";
@@ -55,6 +59,39 @@ export type SnapshotRecord = {
   durationMs?: number | null;
 };
 
+/** GET /api/coverage/snapshot/:id 返回结构（与 normalizeSnapshotRow 一致） */
+type SnapshotDetail = {
+  id: number;
+  provider: string;
+  repoID: string;
+  subject: string;
+  subjectID: string;
+  sha: string;
+  buildTarget?: string;
+  title: string | null;
+  description: string | null;
+  status: string;
+  artifactSize: number;
+  createdBy: string;
+  createdAt: string;
+  freezeTime: string;
+  finishedAt: string;
+  buildHash: string;
+  statementsCovered: number | null;
+  statementsTotal: number | null;
+  functionsCovered: number | null;
+  functionsTotal: number | null;
+  branchesCovered: number | null;
+  branchesTotal: number | null;
+  changestatementsCovered: number | null;
+  changestatementsTotal: number | null;
+  changefunctionsCovered: number | null;
+  changefunctionsTotal: number | null;
+  changebranchesCovered: number | null;
+  changebranchesTotal: number | null;
+  durationMs: number | null;
+};
+
 export type SnapshotDrawerProps = {
   open: boolean;
   onClose: () => void;
@@ -86,11 +123,85 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   const [editingRecord, setEditingRecord] = useState<SnapshotRecord | null>(null);
   const [editForm] = Form.useForm<{ title: string; description: string }>();
   const [editSaving, setEditSaving] = useState(false);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailData, setDetailData] = useState<SnapshotDetail | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
+  const [reportText, setReportText] = useState("");
+  const [reportError, setReportError] = useState("");
   const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const formatCoveragePercent = (covered: number, total: number) => {
     if (!Number.isFinite(covered) || !Number.isFinite(total) || total <= 0) return "-";
     return `${((covered / total) * 100).toFixed(2)}%`;
+  };
+
+  const formatIso = (iso: string) => (iso ? dayjs(iso).format("YYYY-MM-DD HH:mm:ss") : "-");
+
+  const openDetail = (record: SnapshotRecord) => {
+    setDetailOpen(true);
+    setDetailLoading(true);
+    setDetailData(null);
+    setReportText("");
+    setReportError("");
+    void snapshotService
+      .getSnapshot(record.id)
+      .then((data) => {
+        setDetailData(data as SnapshotDetail);
+      })
+      .catch(() => {
+        message.error(t("projects.snapshot.detail.fetch_failed"));
+      })
+      .finally(() => {
+        setDetailLoading(false);
+      });
+  };
+
+  const closeDetail = () => {
+    setDetailOpen(false);
+    setDetailData(null);
+    setReportText("");
+    setReportError("");
+  };
+
+  const loadReportDataJson = () => {
+    if (!detailData) return;
+    setReportLoading(true);
+    setReportError("");
+    setReportText("");
+    void fetch(`/api/coverage/snapshot/${detailData.id}/report-data`, { credentials: "include" })
+      .then(async (res) => {
+        const data = (await res.json().catch(() => null)) as
+          | Record<string, unknown>
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        if (!res.ok) {
+          const msg =
+            data &&
+            typeof data === "object" &&
+            data !== null &&
+            "message" in data &&
+            typeof (data as { message: unknown }).message === "string"
+              ? (data as { message: string }).message
+              : t("projects.snapshot.detail.report_load_failed");
+          setReportError(
+            res.status === 404 || res.status === 409
+              ? msg || t("projects.snapshot.detail.report_not_available")
+              : msg,
+          );
+          return;
+        }
+        setReportText(JSON.stringify(data, null, 2));
+      })
+      .catch(() => {
+        setReportError(t("projects.snapshot.detail.report_load_failed"));
+      })
+      .finally(() => {
+        setReportLoading(false);
+      });
   };
 
   const clearPolling = () => {
@@ -364,7 +475,15 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
       title: t("common.option"),
       key: "action",
       render: (_: unknown, record: SnapshotRecord) => (
-        <Space size="small">
+        <Space size="small" wrap>
+          <Button
+            type="link"
+            size="small"
+            icon={<EyeOutlined />}
+            onClick={() => openDetail(record)}
+          >
+            {t("projects.snapshot.view_detail")}
+          </Button>
           <Button
             type="link"
             size="small"
@@ -491,6 +610,124 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
               showTotal: (total) => t("common.total_items", { total }),
             }}
           />
+          <Modal
+            title={t("projects.snapshot.detail.title")}
+            open={detailOpen}
+            onCancel={closeDetail}
+            footer={null}
+            width={960}
+            destroyOnClose
+            styles={{ body: { maxHeight: "min(80vh, 720px)", overflowY: "auto" } }}
+          >
+            {detailLoading ? (
+              <div className="flex justify-center py-12">
+                <Spin />
+              </div>
+            ) : detailData ? (
+              <>
+                <Descriptions bordered size="small" column={{ xs: 1, sm: 1, md: 2 }} labelStyle={{ width: 140 }}>
+                  <Descriptions.Item label="ID">{detailData.id}</Descriptions.Item>
+                  <Descriptions.Item label="Provider">{detailData.provider}</Descriptions.Item>
+                  <Descriptions.Item label="Repo ID">{detailData.repoID}</Descriptions.Item>
+                  <Descriptions.Item label="Subject">{detailData.subject}</Descriptions.Item>
+                  <Descriptions.Item label="Subject ID" span={2}>
+                    <Typography.Text copyable={{ text: detailData.subjectID }}>{detailData.subjectID}</Typography.Text>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Build Target">{detailData.buildTarget?.trim() || "-"}</Descriptions.Item>
+                  <Descriptions.Item label={t("projects.snapshot.columns.status")}>{detailData.status}</Descriptions.Item>
+                  <Descriptions.Item label={t("projects.snapshot.form.title")} span={2}>
+                    {detailData.title ?? "-"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label={t("projects.snapshot.form.description")} span={2}>
+                    {detailData.description ?? "-"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Artifact size">{detailData.artifactSize}</Descriptions.Item>
+                  <Descriptions.Item label="Build hash">
+                    <Typography.Text copyable={{ text: detailData.buildHash }} ellipsis>
+                      {detailData.buildHash}
+                    </Typography.Text>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Created by">{detailData.createdBy}</Descriptions.Item>
+                  <Descriptions.Item label={t("common.created_at")}>{formatIso(detailData.createdAt)}</Descriptions.Item>
+                  <Descriptions.Item label="Freeze time">{formatIso(detailData.freezeTime)}</Descriptions.Item>
+                  <Descriptions.Item label="Finished at">{formatIso(detailData.finishedAt)}</Descriptions.Item>
+                  <Descriptions.Item label="Duration">
+                    {typeof detailData.durationMs === "number"
+                      ? detailData.durationMs < 1000
+                        ? `${detailData.durationMs} ms`
+                        : `${(detailData.durationMs / 1000).toFixed(2)} s`
+                      : "-"}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Statements" span={2}>
+                    {formatCoveragePercent(
+                      detailData.statementsCovered ?? 0,
+                      detailData.statementsTotal ?? 0,
+                    )}{" "}
+                    ({detailData.statementsCovered ?? "-"} / {detailData.statementsTotal ?? "-"})
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Functions" span={2}>
+                    {formatCoveragePercent(
+                      detailData.functionsCovered ?? 0,
+                      detailData.functionsTotal ?? 0,
+                    )}{" "}
+                    ({detailData.functionsCovered ?? "-"} / {detailData.functionsTotal ?? "-"})
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Branches" span={2}>
+                    {formatCoveragePercent(
+                      detailData.branchesCovered ?? 0,
+                      detailData.branchesTotal ?? 0,
+                    )}{" "}
+                    ({detailData.branchesCovered ?? "-"} / {detailData.branchesTotal ?? "-"})
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Change statements" span={2}>
+                    {formatCoveragePercent(
+                      detailData.changestatementsCovered ?? 0,
+                      detailData.changestatementsTotal ?? 0,
+                    )}{" "}
+                    ({detailData.changestatementsCovered ?? "-"} / {detailData.changestatementsTotal ?? "-"})
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Change functions" span={2}>
+                    {formatCoveragePercent(
+                      detailData.changefunctionsCovered ?? 0,
+                      detailData.changefunctionsTotal ?? 0,
+                    )}{" "}
+                    ({detailData.changefunctionsCovered ?? "-"} / {detailData.changefunctionsTotal ?? "-"})
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Change branches" span={2}>
+                    {formatCoveragePercent(
+                      detailData.changebranchesCovered ?? 0,
+                      detailData.changebranchesTotal ?? 0,
+                    )}{" "}
+                    ({detailData.changebranchesCovered ?? "-"} / {detailData.changebranchesTotal ?? "-"})
+                  </Descriptions.Item>
+                </Descriptions>
+                {(detailData.status || "").toLowerCase() === "completed" ? (
+                  <>
+                    <Divider />
+                    <Typography.Title level={5} style={{ marginTop: 0 }}>
+                      {t("projects.snapshot.detail.report_json")}
+                    </Typography.Title>
+                    <Space direction="vertical" style={{ width: "100%" }} size="middle">
+                      <Button loading={reportLoading} onClick={loadReportDataJson}>
+                        {t("projects.snapshot.detail.load_report_data")}
+                      </Button>
+                      {reportError ? (
+                        <Typography.Text type="danger">{reportError}</Typography.Text>
+                      ) : null}
+                      {reportText ? (
+                        <Input.TextArea
+                          readOnly
+                          value={reportText}
+                          rows={14}
+                          style={{ fontFamily: "monospace", fontSize: 12 }}
+                        />
+                      ) : null}
+                    </Space>
+                  </>
+                ) : null}
+              </>
+            ) : null}
+          </Modal>
           <Modal
             title={t("projects.snapshot.edit.title")}
             open={editModalOpen}
