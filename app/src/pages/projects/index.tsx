@@ -1,4 +1,4 @@
-import { FolderOutlined, PlusOutlined } from "@ant-design/icons";
+import { FolderOutlined, HeartFilled, HeartOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Divider, Input, message, Select, Space, Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
@@ -6,12 +6,12 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import CardPrimary from "@/components/card/Primary.tsx";
-import { getRepoIDFromId } from "@/helpers/repo";
-import { deleteRepo, getBu, getRepos } from "@/services/repo";
+import { getBu, getRepos } from "@/services/repo";
 import TextTypography from "@/components/typography/text.tsx";
 import BasicLayout from "@/layouts/BasicLayout.tsx";
 
 const { Text } = Typography;
+const REPO_FAVORITES_STORAGE_KEY = "repoFavorites";
 
 type Repo = {
   id: string;
@@ -58,6 +58,21 @@ const Projects = () => {
   const [buOptions, setBuOptions] = useState<{ label: string; value: string }[]>([]);
   const [selectedBu, setSelectedBu] = useState<string | undefined>(undefined);
   const [searchKeyword, setSearchKeyword] = useState<string>("");
+  const [favoriteOnly, setFavoriteOnly] = useState(false);
+
+  const getFavoriteRepoIds = (): string[] => {
+    try {
+      const raw = localStorage.getItem(REPO_FAVORITES_STORAGE_KEY) || "[]";
+      const ids = JSON.parse(raw);
+      return Array.isArray(ids) ? ids : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const saveFavoriteRepoIds = (ids: string[]) => {
+    localStorage.setItem(REPO_FAVORITES_STORAGE_KEY, JSON.stringify(ids));
+  };
 
   const fetchBuOptions = async () => {
     try {
@@ -80,7 +95,12 @@ const Projects = () => {
         bu: selectedBu,
         search: searchKeyword,
       });
-      setRepos(data || []);
+      const favoriteIdSet = new Set(getFavoriteRepoIds());
+      const reposWithFavorite = (data || []).map((repo: Repo) => ({
+        ...repo,
+        favored: favoriteIdSet.has(repo.id),
+      }));
+      setRepos(reposWithFavorite);
     } catch (error) {
       message.error("获取项目列表失败");
       console.error(error);
@@ -97,16 +117,15 @@ const Projects = () => {
     fetchRepos();
   }, [selectedBu]);
 
-  const handleDelete = async (id: string) => {
-    try {
-      const repoID = getRepoIDFromId(id);
-      await deleteRepo(repoID);
-      message.success("已删除");
-      await fetchRepos();
-    } catch (error) {
-      message.error("删除失败");
-      console.error(error);
-    }
+  const toggleFavorite = (record: ProjectRow) => {
+    setRepos((prev) => {
+      const next = prev.map((repo) =>
+        repo.id === record.id ? { ...repo, favored: !repo.favored } : repo,
+      );
+      const ids = next.filter((repo) => repo.favored).map((repo) => repo.id);
+      saveFavoriteRepoIds(ids);
+      return next;
+    });
   };
 
   const columns: ColumnsType<ProjectRow> = [
@@ -117,18 +136,18 @@ const Projects = () => {
       render(text, record) {
         return (
           <Space>
-            {/*<div*/}
-            {/*  className={'favor-heart'}*/}
-            {/*  style={{*/}
-            {/*    visibility: record.favored ? 'unset' : undefined,*/}
-            {/*  }}*/}
-            {/*>*/}
-            {/*  {record.favored ? (*/}
-            {/*    <HeartFilled style={{ color: 'red' }} />*/}
-            {/*  ) : (*/}
-            {/*    <HeartOutlined />*/}
-            {/*  )}*/}
-            {/*</div>*/}
+            <div
+              className={"favor-heart"}
+              style={{
+                cursor: "pointer",
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                void toggleFavorite(record);
+              }}
+            >
+              {record.favored ? <HeartFilled style={{ color: "red" }} /> : <HeartOutlined />}
+            </div>
             {text}
           </Space>
         );
@@ -260,7 +279,8 @@ const Projects = () => {
     },
   ];
 
-  const data: ProjectRow[] = repos.map((r) => ({
+  const rowsToRender = favoriteOnly ? repos.filter((r) => r.favored) : repos;
+  const data: ProjectRow[] = rowsToRender.map((r) => ({
     key: r.id,
     id: r.id,
     pathWithNamespace: r.pathWithNamespace,
@@ -324,20 +344,13 @@ const Projects = () => {
             }}
           />
         </div>
-        {/*<Space className={'ml-5'}>*/}
-        {/*  <Text type={'secondary'}>{t('common.favor.only')}: </Text>*/}
-        {/*  <Switch*/}
-        {/*    checkedChildren={<HeartFilled />}*/}
-        {/*    defaultChecked={Boolean(localStorage.getItem('favorOnlyFilter'))}*/}
-        {/*    onChange={(v) => {*/}
-        {/*      if (v) {*/}
-        {/*        localStorage.setItem('favorOnlyFilter', 'true');*/}
-        {/*      } else {*/}
-        {/*        localStorage.removeItem('favorOnlyFilter');*/}
-        {/*      }*/}
-        {/*    }}*/}
-        {/*  />*/}
-        {/*</Space>*/}
+        <Button
+          icon={favoriteOnly ? <HeartFilled /> : <HeartOutlined />}
+          type={favoriteOnly ? "primary" : "default"}
+          onClick={() => setFavoriteOnly((v) => !v)}
+        >
+          我的收藏
+        </Button>
       </div>
       <CardPrimary>
         <Table<ProjectRow>
