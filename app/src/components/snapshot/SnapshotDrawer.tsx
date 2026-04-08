@@ -43,6 +43,7 @@ export type SnapshotRecord = {
   subject: "commit" | "compare";
   subjectID: string;
   sha: string;
+  buildTarget?: string;
   title?: string;
   description?: string;
   status?: string;
@@ -260,6 +261,14 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
         ) : (
           "-"
         ),
+    },
+    {
+      title: "Build Target",
+      dataIndex: "buildTarget",
+      key: "buildTarget",
+      width: 120,
+      ellipsis: true,
+      render: (v?: string) => (v?.trim() ? v : "-"),
     },
     {
       title: "Subject",

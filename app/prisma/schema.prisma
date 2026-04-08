@@ -176,6 +176,7 @@ model CoverageSnapshot {
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
   finishedAt   DateTime @map("finished_at") @db.Timestamp(3)
   buildHash    String   @map("build_hash")
+  buildTarget  String   @default("") @map("build_target")
   scene        Json
   statementsCovered      Int? @map("statements_covered")
   statementsTotal        Int? @map("statements_total")

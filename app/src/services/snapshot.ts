@@ -17,6 +17,7 @@ export type SnapshotRecord = {
   subject: "commit" | "compare";
   subjectID: string;
   sha: string;
+  buildTarget?: string;
   title?: string;
   description?: string;
   status?: string;

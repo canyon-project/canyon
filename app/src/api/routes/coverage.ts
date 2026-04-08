@@ -164,6 +164,7 @@ const snapshotCreateRoute = createRoute({
               repoID: z.string(),
               subject: z.string(),
               subjectID: z.string(),
+              buildTarget: z.string(),
               createdAt: z.string(),
             }),
           }),
@@ -237,6 +238,7 @@ const snapshotListRoute = createRoute({
                 changebranchesCovered: z.number().nullable(),
                 changebranchesTotal: z.number().nullable(),
                 durationMs: z.number().nullable(),
+                buildTarget: z.string(),
               }),
             ),
             total: z.number(),
@@ -291,6 +293,7 @@ const snapshotGetRoute = createRoute({
             changebranchesCovered: z.number().nullable(),
             changebranchesTotal: z.number().nullable(),
             durationMs: z.number().nullable(),
+            buildTarget: z.string(),
           }),
         },
       },
@@ -389,6 +392,17 @@ async function markExpiredGeneratingSnapshots() {
   });
 }
 
+function buildTargetFromSnapshotScene(scene: unknown): string {
+  if (!scene || typeof scene !== "object" || Array.isArray(scene)) return "";
+  const bt = (scene as { buildTarget?: unknown }).buildTarget;
+  return typeof bt === "string" ? bt : "";
+}
+
+function resolveSnapshotBuildTarget(buildTarget: string, scene: unknown): string {
+  if (buildTarget.trim() !== "") return buildTarget;
+  return buildTargetFromSnapshotScene(scene);
+}
+
 function normalizeSnapshotRow(row: {
   id: number;
   provider: string;
@@ -404,6 +418,8 @@ function normalizeSnapshotRow(row: {
   freezeTime: Date;
   finishedAt: Date;
   buildHash: string;
+  buildTarget: string;
+  scene: unknown;
   statementsCovered: number | null;
   statementsTotal: number | null;
   functionsCovered: number | null;
@@ -425,6 +441,7 @@ function normalizeSnapshotRow(row: {
     subject: row.subject,
     subjectID: row.subjectID,
     sha: row.subjectID,
+    buildTarget: resolveSnapshotBuildTarget(row.buildTarget, row.scene),
     title: row.title,
     description: row.description,
     status: row.status,
@@ -1233,7 +1250,8 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
       createdBy,
       finishedAt: freezeTime,
       buildHash: "pending",
-      scene: body.buildTarget ? { buildTarget: body.buildTarget } : {},
+      buildTarget: body.buildTarget ?? "",
+      scene: {},
       statementsCovered: null,
       statementsTotal: null,
       functionsCovered: null,
@@ -1328,6 +1346,7 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
       repoID: created.repoID,
       subject: created.subject,
       subjectID: created.subjectID,
+      buildTarget: body.buildTarget ?? "",
       createdAt: created.createdAt.toISOString(),
     },
   });
@@ -1364,6 +1383,8 @@ coverageApi.openapi(snapshotListRoute, async (c) => {
         freezeTime: true,
         finishedAt: true,
         buildHash: true,
+        buildTarget: true,
+        scene: true,
         statementsCovered: true,
         statementsTotal: true,
         functionsCovered: true,
@@ -1407,6 +1428,8 @@ coverageApi.openapi(snapshotGetRoute, async (c) => {
       freezeTime: true,
       finishedAt: true,
       buildHash: true,
+      buildTarget: true,
+      scene: true,
       statementsCovered: true,
       statementsTotal: true,
       functionsCovered: true,
@@ -1453,6 +1476,8 @@ coverageApi.openapi(snapshotUpdateRoute, async (c) => {
       freezeTime: true,
       finishedAt: true,
       buildHash: true,
+      buildTarget: true,
+      scene: true,
       statementsCovered: true,
       statementsTotal: true,
       functionsCovered: true,
