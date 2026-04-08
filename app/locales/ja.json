@@ -131,6 +131,7 @@
     "comparison.columns.base": "Base",
     "comparison.columns.head": "Head",
     "comparison.columns.fileCount": "ファイル数",
+    "comparison.columns.createdAt": "作成日時",
     "comparison.columns.action": "操作",
     "comparison.form.base.label": "Base Commit SHA",
     "comparison.form.base.placeholder": "完全な40文字のCommit SHAを入力してください",

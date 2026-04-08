@@ -52,16 +52,17 @@ model MergeRequest {
 }
 
 model Diff {
-  id        String @id @default(cuid())
+  id        String   @id @default(cuid())
   provider  String
-  repoID    String @map("repo_id")
+  repoID    String   @map("repo_id")
   from      String
   to        String
   path      String
   additions Int[]
   deletions Int[]
   subject   String
-  subjectID String @map("subject_id")
+  subjectID String   @map("subject_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
   @@map("canyon_next_diff")
 }

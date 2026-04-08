@@ -131,6 +131,7 @@
     "comparison.columns.base": "Base",
     "comparison.columns.head": "Head",
     "comparison.columns.fileCount": "文件数量",
+    "comparison.columns.createdAt": "创建时间",
     "comparison.columns.action": "操作",
     "comparison.form.base.label": "Base Commit SHA",
     "comparison.form.base.placeholder": "请输入完整的 40 位 Commit SHA",

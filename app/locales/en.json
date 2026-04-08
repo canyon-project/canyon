@@ -132,6 +132,7 @@
     "comparison.columns.base": "Base",
     "comparison.columns.head": "Head",
     "comparison.columns.fileCount": "File Count",
+    "comparison.columns.createdAt": "Created at",
     "comparison.columns.action": "Action",
     "comparison.form.base.label": "Base Commit SHA",
     "comparison.form.base.placeholder": "Please enter the full 40-character Commit SHA",

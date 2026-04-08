@@ -68,6 +68,8 @@ type CompareRecord = {
   head: string;
   subject: string;
   subjectID: string;
+  /** 该 compare 在库中的创建时间（取同组 diff 行中最早一条） */
+  createdAt?: string;
   files: DiffFile[];
   buildTargets: string[];
   compareUrl?: string | null;
@@ -84,7 +86,6 @@ const ComparePage = () => {
   const [loading, setLoading] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const [compareRecords, setCompareRecords] = useState<CompareRecord[]>([]);
-  const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [snapshotDrawerOpen, setSnapshotDrawerOpen] = useState(false);
@@ -102,7 +103,6 @@ const ComparePage = () => {
     try {
       const data = await getDiffList({ repoID: repo.id, provider: params.provider });
       setCompareRecords(Array.isArray(data.data) ? (data.data as CompareRecord[]) : []);
-      setTotal(data.total ?? 0);
     } catch (error) {
       message.error(t("projects.comparison.fetch.failed"));
       console.error(error);
@@ -315,10 +315,20 @@ const ComparePage = () => {
     {
       title: t("projects.comparison.columns.fileCount"),
       key: "fileCount",
-      width: 50,
+      width: 60,
       render: (_: unknown, record: CompareRecord) => (
         <Text strong>{record.files?.length || 0}</Text>
       ),
+    },
+    {
+      title: t("projects.comparison.columns.createdAt"),
+      key: "createdAt",
+      width: 100,
+      sorter: (a, b) =>
+        new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime(),
+      defaultSortOrder: "descend",
+      render: (_: unknown, record: CompareRecord) =>
+        record.createdAt ? formatDate(record.createdAt) : "-",
     },
     {
       title: t("projects.comparison.columns.action"),
@@ -497,9 +507,9 @@ const ComparePage = () => {
           loading={loading}
           rowKey="id"
           pagination={{
-            total: total,
-            showTotal: (total) => t("projects.comparison.pagination.total", { total }),
             pageSize: 10,
+            showSizeChanger: true,
+            showTotal: (total) => t("projects.comparison.pagination.total", { total }),
           }}
         />
       </CardPrimary>

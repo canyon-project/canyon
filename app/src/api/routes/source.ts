@@ -251,8 +251,9 @@ sourceApi.openapi(diffGetRoute, async (c) => {
       path: true,
       additions: true,
       deletions: true,
+      createdAt: true,
     },
-    orderBy: { id: "desc" },
+    orderBy: { createdAt: "desc" },
   });
 
   const recordsMap = new Map<
@@ -265,6 +266,7 @@ sourceApi.openapi(diffGetRoute, async (c) => {
       to: string;
       subject: string;
       subjectID: string;
+      createdAt: Date;
       files: Array<{ path: string; additions: number[]; deletions: number[] }>;
       buildTargets: string[];
     }
@@ -281,9 +283,15 @@ sourceApi.openapi(diffGetRoute, async (c) => {
         to: d.to,
         subject: d.subject,
         subjectID: d.subjectID,
+        createdAt: d.createdAt,
         files: [],
         buildTargets: [],
       });
+    } else {
+      const row = recordsMap.get(key)!;
+      if (d.createdAt < row.createdAt) {
+        row.createdAt = d.createdAt;
+      }
     }
     recordsMap.get(key)!.files.push({
       path: d.path,
@@ -366,7 +374,11 @@ sourceApi.openapi(diffGetRoute, async (c) => {
   });
   const pathWithNamespaceForCompare = repoRow?.pathWithNamespace ?? null;
 
-  const data = Array.from(recordsMap.values()).map((r) => {
+  const sorted = Array.from(recordsMap.values()).sort(
+    (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+  );
+
+  const data = sorted.map((r) => {
     const buildTargets = Array.from(buildTargetsMap.get(r.to) || []);
     const fromCommit = commitInfoMap.get(r.from);
     const toCommit = commitInfoMap.get(r.to);
@@ -378,6 +390,7 @@ sourceApi.openapi(diffGetRoute, async (c) => {
       head: r.to,
       subject: r.subject,
       subjectID: r.subjectID,
+      createdAt: r.createdAt.toISOString(),
       files: r.files,
       buildTargets,
       compareUrl: pathWithNamespaceForCompare
