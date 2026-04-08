@@ -62,7 +62,7 @@
     "@hono/vite-build": "^1.10.0",
     "@hono/vite-dev-server": "^0.25.0",
     "@playwright/test": "1.56.1",
-    "@tailwindcss/vite": "0.0.0-insiders.a4be983",
+    "@tailwindcss/vite": "4.2.2",
     "@types/node": "^24.10.1",
     "@types/pg": "^8.16.0",
     "@types/react": "19.2.3",
