@@ -1,5 +1,8 @@
 import { installCollect } from "./core.js";
 import { applyCollectParamsFromCurrentScript } from "./script-params.js";
+import { isWebDriverBrowser } from "./webdriver.js";
 
-applyCollectParamsFromCurrentScript();
-installCollect();
+if (!isWebDriverBrowser()) {
+  applyCollectParamsFromCurrentScript();
+  installCollect();
+}

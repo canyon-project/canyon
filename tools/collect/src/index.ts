@@ -1,8 +1,9 @@
 import { installCollect, sendCoverage } from "./core.js";
 import { getGlobal } from "./global.js";
 import { applyCollectParamsFromCurrentScript } from "./script-params.js";
+import { isWebDriverBrowser } from "./webdriver.js";
 
-export { applyCollectParamsFromCurrentScript, installCollect, sendCoverage };
+export { applyCollectParamsFromCurrentScript, installCollect, sendCoverage, isWebDriverBrowser };
 
 export interface CollectInitOptions {
   dsn?: string;

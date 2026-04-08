@@ -1,6 +1,10 @@
 import { getGlobal } from "./global.js";
+import { isWebDriverBrowser } from "./webdriver.js";
 
 export const sendCoverage = () => {
+  if (isWebDriverBrowser()) {
+    return;
+  }
   const g = getGlobal();
   const dsn = g.CANYON_DSN;
   const coverage = g.__coverage__;
@@ -49,6 +53,9 @@ export const sendCoverage = () => {
 let listenerAttached = false;
 
 export const installCollect = () => {
+  if (isWebDriverBrowser()) {
+    return;
+  }
   if (listenerAttached) {
     return;
   }
