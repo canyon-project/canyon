@@ -165,11 +165,15 @@ const CommitsPage = () => {
     return result;
   }, [commits]);
 
-  // 前端搜索：按 commit SHA 过滤
+  // 前端搜索：按 commit SHA 或 build target 过滤
   const flatData = useMemo(() => {
     const kw = searchKeyword.trim().toLowerCase();
     if (!kw) return allFlatData;
-    return allFlatData.filter((row) => row.sha.toLowerCase().includes(kw));
+    return allFlatData.filter(
+      (row) =>
+        row.sha.toLowerCase().includes(kw) ||
+        (row.currentBuildTarget || "").toLowerCase().includes(kw),
+    );
   }, [allFlatData, searchKeyword]);
 
   // 前端分页
@@ -183,50 +187,59 @@ const CommitsPage = () => {
       title: (
         <Space>
           <BranchesOutlined />
-          {t("projects.commits.columns.sha")}
+          {t("projects.commits.columns.buildInfo")}
         </Space>
       ),
-      dataIndex: "sha",
-      key: "sha",
-      width: 120,
-      render: (_: string, record: FlatCommitRow) => (
-        <Space size={4}>
-          {record.commitUrl ? (
-            <a
-              href={record.commitUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="font-mono tabular-nums"
-              style={{ width: "7ch", display: "inline-block", textAlign: "right" }}
-            >
-              {record.sha.substring(0, 7)}
-            </a>
-          ) : (
-            <Link
-              to={`/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}`}
-              className="font-mono tabular-nums"
-              style={{ width: "7ch", display: "inline-block", textAlign: "right" }}
-            >
-              {record.sha.substring(0, 7)}
-            </Link>
-          )}
-          <Tooltip title={t("common.copy")}>
-            <CopyOutlined
-              className="cursor-pointer text-gray-400 hover:text-gray-600"
-              onClick={async (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                try {
-                  await navigator.clipboard.writeText(record.sha);
-                  message.success(t("common.copy_success"));
-                } catch {
-                  message.error(t("common.copy_failed"));
-                }
-              }}
-            />
-          </Tooltip>
-        </Space>
-      ),
+      key: "buildInfo",
+      width: 300,
+      render: (_: unknown, record: FlatCommitRow) => {
+        const bt = record.currentBuildTarget?.trim();
+        return (
+          <Space direction="vertical" size={6} style={{ width: "100%" }}>
+            <Space size={4} wrap>
+              {record.commitUrl ? (
+                <a
+                  href={record.commitUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="font-mono tabular-nums"
+                  style={{ minWidth: "7ch", display: "inline-block" }}
+                >
+                  {record.sha.substring(0, 7)}
+                </a>
+              ) : (
+                <Link
+                  to={`/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}`}
+                  className="font-mono tabular-nums"
+                  style={{ minWidth: "7ch", display: "inline-block" }}
+                >
+                  {record.sha.substring(0, 7)}
+                </Link>
+              )}
+              <Tooltip title={t("common.copy")}>
+                <CopyOutlined
+                  className="cursor-pointer text-gray-400 hover:text-gray-600"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    try {
+                      await navigator.clipboard.writeText(record.sha);
+                      message.success(t("common.copy_success"));
+                    } catch {
+                      message.error(t("common.copy_failed"));
+                    }
+                  }}
+                />
+              </Tooltip>
+            </Space>
+            {bt ? (
+              <Tag className="m-0 max-w-full" style={{ whiteSpace: "normal", wordBreak: "break-all" }}>
+                {bt}
+              </Tag>
+            ) : null}
+          </Space>
+        );
+      },
     },
     {
       title: t("projects.message"),
@@ -266,14 +279,6 @@ const CommitsPage = () => {
             )}
           </Space>
         );
-      },
-    },
-    {
-      title: t("projects.commits.columns.buildTarget"),
-      dataIndex: "currentBuildTarget",
-      key: "currentBuildTarget",
-      render: (text: string) => {
-        return text ? <Tag>{text}</Tag> : "-";
       },
     },
     {

@@ -149,6 +149,7 @@
     "commits.fetch.failed": "Failed to fetch records",
     "commits.search.placeholder": "Search Commit SHA",
     "commits.columns.sha": "Sha",
+    "commits.columns.buildInfo": "Build info",
     "commits.columns.buildTarget": "Build Target",
     "commits.columns.scene": "Scene",
     "commits.columns.overall": "Overall",

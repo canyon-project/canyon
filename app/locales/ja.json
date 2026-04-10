@@ -148,6 +148,7 @@
     "commits.fetch.failed": "記録の取得に失敗しました",
     "commits.search.placeholder": "Commit SHA を検索",
     "commits.columns.sha": "Sha",
+    "commits.columns.buildInfo": "ビルド情報",
     "commits.columns.buildTarget": "Build Target",
     "commits.columns.scene": "シーン",
     "commits.columns.overall": "全体",
