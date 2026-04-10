@@ -4,7 +4,6 @@ import {
   DownloadOutlined,
   EditOutlined,
   EyeOutlined,
-  ReloadOutlined,
 } from "@ant-design/icons";
 import {
   Badge,
@@ -17,7 +16,6 @@ import {
   message,
   Modal,
   Popconfirm,
-  Select,
   Space,
   Spin,
   Table,
@@ -99,8 +97,6 @@ export type SnapshotDrawerProps = {
   initialValues?: Partial<SnapshotFormValues>;
   /** 创建成功后调用，不关闭抽屉并切换到快照记录视图；不传则保持原逻辑（关闭抽屉） */
   onCreateSuccess?: () => void;
-  /** 在快照记录视图点击「生成快照」时调用，切换到创建表单 */
-  onSwitchToCreate?: () => void;
   /** 标题上下文：org/repo，用于在标题上区分是哪个仓库 */
   titleContext?: { org: string; repo: string };
 };
@@ -111,11 +107,10 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   mode,
   initialValues,
   onCreateSuccess,
-  onSwitchToCreate,
   titleContext,
 }) => {
   const { t } = useTranslation();
-  const [form] = Form.useForm<SnapshotFormValues>();
+  const [form] = Form.useForm<{ title: string; description: string }>();
   const [submitLoading, setSubmitLoading] = useState(false);
   const [recordsLoading, setRecordsLoading] = useState(false);
   const [records, setRecords] = useState<SnapshotRecord[]>([]);
@@ -217,11 +212,6 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   useEffect(() => {
     if (open && mode === "create" && initialValues) {
       form.setFieldsValue({
-        repoID: initialValues.repoID ?? "",
-        provider: initialValues.provider ?? "",
-        subject: initialValues.subject ?? "commit",
-        subjectID: initialValues.subjectID ?? "",
-        buildTarget: initialValues.buildTarget ?? "",
         title: initialValues.title ?? "",
         description: initialValues.description ?? "",
       });
@@ -320,15 +310,24 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
     }
   };
 
-  const onFinish = async (values: SnapshotFormValues) => {
+  const onFinish = async (values: { title: string; description: string }) => {
+    if (
+      !initialValues?.repoID ||
+      !initialValues?.provider ||
+      !initialValues?.subject ||
+      !initialValues?.subjectID
+    ) {
+      message.error(t("projects.snapshot.create.context_missing"));
+      return;
+    }
     setSubmitLoading(true);
     try {
       await snapshotService.createSnapshot({
-        repoID: values.repoID,
-        provider: values.provider,
-        subject: values.subject,
-        subjectID: values.subjectID,
-        buildTarget: values.buildTarget,
+        repoID: initialValues.repoID,
+        provider: initialValues.provider,
+        subject: initialValues.subject,
+        subjectID: initialValues.subjectID,
+        buildTarget: initialValues.buildTarget,
         title: values.title,
         description: values.description,
       });
@@ -529,74 +528,63 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
       destroyOnClose
     >
       {mode === "create" ? (
-        <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item
-            name="repoID"
-            label={t("projects.snapshot.form.repoID")}
-            rules={[{ required: true, message: t("projects.snapshot.form.repoID.required") }]}
-          >
-            <Input placeholder={t("projects.snapshot.form.repoID.placeholder")} />
-          </Form.Item>
-          <Form.Item
-            name="provider"
-            label={t("projects.snapshot.form.provider")}
-            rules={[{ required: true, message: t("projects.snapshot.form.provider.required") }]}
-          >
-            <Input placeholder={t("projects.snapshot.form.provider.placeholder")} />
-          </Form.Item>
-          <Form.Item name="subject" label="Subject" initialValue="commit">
-            <Select
-              options={[
-                { label: "commit", value: "commit" },
-                { label: "compare", value: "compare" },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item
-            name="subjectID"
-            label={t("projects.snapshot.form.sha")}
-            rules={[{ required: true, message: t("projects.snapshot.form.sha.required") }]}
-          >
-            <Input placeholder={t("projects.snapshot.form.sha.placeholder")} />
-          </Form.Item>
-          <Form.Item name="buildTarget" label={t("projects.commits.columns.buildTarget")}>
-            <Input placeholder="build target" />
-          </Form.Item>
-          <Form.Item name="title" label={t("projects.snapshot.form.title")}>
-            <Input placeholder={t("projects.snapshot.form.title.placeholder")} />
-          </Form.Item>
-          <Form.Item name="description" label={t("projects.snapshot.form.description")}>
-            <Input.TextArea
-              rows={3}
-              placeholder={t("projects.snapshot.form.description.placeholder")}
-            />
-          </Form.Item>
-          <Form.Item>
-            <Space>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={submitLoading}
-                icon={<CameraOutlined />}
-              >
-                {t("projects.snapshot.create.submit")}
-              </Button>
-              <Button onClick={onClose}>{t("common.cancel")}</Button>
-            </Space>
-          </Form.Item>
-        </Form>
+        <>
+          <Descriptions bordered size="small" column={1} style={{ marginBottom: 16 }}>
+            <Descriptions.Item label={t("projects.snapshot.form.repoID")}>
+              {initialValues?.repoID ? (
+                <Typography.Text copyable={{ text: initialValues.repoID }}>
+                  {initialValues.repoID}
+                </Typography.Text>
+              ) : (
+                "-"
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item label={t("projects.snapshot.form.provider")}>
+              {initialValues?.provider ?? "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label={t("projects.snapshot.context.subject")}>
+              {initialValues?.subject ?? "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label={t("projects.snapshot.form.sha")}>
+              {initialValues?.subjectID ? (
+                <Typography.Text copyable={{ text: initialValues.subjectID }}>
+                  {initialValues.subjectID}
+                </Typography.Text>
+              ) : (
+                "-"
+              )}
+            </Descriptions.Item>
+            <Descriptions.Item label={t("projects.commits.columns.buildTarget")}>
+              {initialValues?.buildTarget?.trim() ? initialValues.buildTarget : "-"}
+            </Descriptions.Item>
+          </Descriptions>
+          <Form form={form} layout="vertical" onFinish={onFinish}>
+            <Form.Item name="title" label={t("projects.snapshot.form.title")}>
+              <Input placeholder={t("projects.snapshot.form.title.placeholder")} />
+            </Form.Item>
+            <Form.Item name="description" label={t("projects.snapshot.form.description")}>
+              <Input.TextArea
+                rows={3}
+                placeholder={t("projects.snapshot.form.description.placeholder")}
+              />
+            </Form.Item>
+            <Form.Item>
+              <Space>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  loading={submitLoading}
+                  icon={<CameraOutlined />}
+                >
+                  {t("projects.snapshot.create.submit")}
+                </Button>
+                <Button onClick={onClose}>{t("common.cancel")}</Button>
+              </Space>
+            </Form.Item>
+          </Form>
+        </>
       ) : (
         <>
-          {onSwitchToCreate && (
-            <div className="mb-3 flex items-center justify-between">
-              <Button type="primary" icon={<CameraOutlined />} onClick={onSwitchToCreate}>
-                {t("projects.snapshot.button.create")}
-              </Button>
-              <Button icon={<ReloadOutlined />} onClick={() => fetchRecords()}>
-                刷新状态
-              </Button>
-            </div>
-          )}
           <Table<SnapshotRecord>
             size="small"
             columns={recordsColumns}

@@ -1,4 +1,4 @@
-import { Breadcrumb, Button, Divider, message, Tabs } from "antd";
+import { Breadcrumb, Divider, message, Tabs, Typography } from "antd";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
@@ -53,19 +53,29 @@ const ProjectDetailPage = () => {
   return (
     <BasicLayout>
       <RIf condition={!loading && repo !== null}>
-        <div className={"h-[48px] flex items-center justify-between"}>
-          <Breadcrumb
-            items={[
-              {
-                title: t("menus.projects"),
-                href: "/projects",
-              },
-              {
-                title: params.repo,
-                href: `/${params.provider}/${params.org}/${params.repo}/compare`,
-              },
-            ]}
-          />
+        <div className={"flex h-[48px] items-center justify-between gap-4"}>
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-4 gap-y-1">
+            <Breadcrumb
+              items={[
+                {
+                  title: t("menus.projects"),
+                  href: "/projects",
+                },
+                {
+                  title: params.repo,
+                  href: `/${params.provider}/${params.org}/${params.repo}/compare`,
+                },
+              ]}
+            />
+            {repo ? (
+              <Typography.Text type="secondary" className="text-sm">
+                {t("projects.detail.repo_id")}{" "}
+                <Typography.Text code copyable={{ text: repo.id }} className="text-xs">
+                  {repo.id}
+                </Typography.Text>
+              </Typography.Text>
+            ) : null}
+          </div>
 
           {/*<Button*/}
           {/*  type={'primary'}*/}

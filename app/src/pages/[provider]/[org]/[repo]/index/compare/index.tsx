@@ -333,7 +333,7 @@ const ComparePage = () => {
     {
       title: t("projects.comparison.columns.action"),
       key: "action",
-      width: 200,
+      width: 360,
       render: (_: unknown, record: CompareRecord) => {
         const buildTargets = record.buildTargets || [];
         const menuItems: MenuProps["items"] = [];
@@ -369,68 +369,63 @@ const ComparePage = () => {
         }
 
         return (
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-start",
-              gap: 6,
-              width: "100%",
-            }}
-          >
-            <Space size={12}>
-              {record.compareUrl ? (
-                <a href={record.compareUrl} target="_blank" rel="noreferrer">
-                  <GitlabFilled style={{ marginRight: 4 }} />
-                  源码对比
-                </a>
-              ) : null}
-              <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
-                <a onClick={(e) => e.preventDefault()}>
-                  {t("projects.comparison.view.report")} <DownOutlined />
-                </a>
-              </Dropdown>
-              <Popconfirm
-                title={t("projects.comparison.delete.confirm")}
-                onConfirm={() => handleDelete(record)}
-                okText={t("projects.comparison.modal.confirm")}
-                cancelText={t("projects.comparison.modal.cancel")}
-              >
-                <Button type="link" danger icon={<DeleteOutlined />} size="small">
-                  {t("common.delete")}
-                </Button>
-              </Popconfirm>
-            </Space>
-            <div
-              style={{
-                width: "100%",
-                borderTop: "1px solid #f0f0f0",
+          <Space size={12} wrap={false}>
+            <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
+              <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                  {t("projects.comparison.report")}
+                  <DownOutlined />
+                </Space>
+              </a>
+            </Dropdown>
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: "create",
+                    icon: <CameraOutlined />,
+                    label: t("projects.snapshot.button.create"),
+                  },
+                  {
+                    key: "records",
+                    icon: <UnorderedListOutlined />,
+                    label: t("projects.snapshot.button.records"),
+                  },
+                ],
+                onClick: ({ key }) => {
+                  if (key === "create") {
+                    openSnapshotCreate(record);
+                  } else if (key === "records") {
+                    openSnapshotRecords();
+                  }
+                },
               }}
-            />
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                width: "100%",
-              }}
+              placement="bottomLeft"
             >
-              <Space size={12}>
-                <a onClick={() => openSnapshotCreate(record)}>
-                  <Space size={4}>
-                    <CameraOutlined />
-                    {t("projects.snapshot.button.create")}
-                  </Space>
-                </a>
-                <a onClick={openSnapshotRecords}>
-                  <Space size={4}>
-                    <UnorderedListOutlined />
-                    {t("projects.snapshot.button.records")}
-                  </Space>
-                </a>
-              </Space>
-            </div>
-          </div>
+              <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                  {t("projects.snapshot.menu")}
+                  <DownOutlined />
+                </Space>
+              </a>
+            </Dropdown>
+            {record.compareUrl ? (
+              <a href={record.compareUrl} target="_blank" rel="noreferrer">
+                <GitlabFilled style={{ marginRight: 4 }} />
+                源码对比
+              </a>
+            ) : null}
+            <Popconfirm
+              title={t("projects.comparison.delete.confirm")}
+              onConfirm={() => handleDelete(record)}
+              okText={t("projects.comparison.modal.confirm")}
+              cancelText={t("projects.comparison.modal.cancel")}
+            >
+              <Button type="link" danger icon={<DeleteOutlined />} size="small">
+                {t("common.delete")}
+              </Button>
+            </Popconfirm>
+          </Space>
         );
       },
     },
@@ -488,18 +483,6 @@ const ComparePage = () => {
             params.org && params.repo ? { org: params.org, repo: params.repo } : undefined
           }
           onCreateSuccess={() => setSnapshotDrawerMode("records")}
-          onSwitchToCreate={() => {
-            setSnapshotDrawerMode("create");
-            setSnapshotInitialValues({
-              repoID: repo?.id ?? "",
-              provider: params.provider ?? "",
-              subject: "compare",
-              subjectID: "",
-              buildTarget: "",
-              title: "",
-              description: "",
-            });
-          }}
         />
         <Table<CompareRecord>
           columns={columns}

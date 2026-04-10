@@ -302,7 +302,6 @@ const CommitsPage = () => {
       render: (_: any, record: FlatCommitRow) => {
         const detailPath = `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/?build_target=${record.currentBuildTarget}`;
 
-        // 构建报告路径的辅助函数
         const buildReportPath = (scene: Record<string, unknown>) => {
           const searchParams = new URLSearchParams();
           if (record.currentBuildTarget) {
@@ -321,81 +320,93 @@ const CommitsPage = () => {
           return `/report/-/${params.provider}/${params.org}/${params.repo}/commit/${record.sha}/-/${queryString ? `?${queryString}` : ""}`;
         };
 
-        // 处理场景显示
         const scenes = record.currentScenes || [];
-        let sceneDropdown = null;
-
-        if (scenes.length > 0) {
-          // 收集所有场景中的所有 key-value 对，去重
-          const kvPairs = new Map<string, { key: string; value: unknown }>();
-          scenes.forEach((sceneInfo) => {
-            const scene = sceneInfo.scene || {};
-            Object.entries(scene).forEach(([key, value]) => {
-              const kvKey = `${key}=${value}`;
-              if (!kvPairs.has(kvKey)) {
-                kvPairs.set(kvKey, { key, value });
-              }
-            });
-          });
-
-          const kvPairsArray = Array.from(kvPairs.values());
-
-          if (kvPairsArray.length > 0) {
-            if (kvPairsArray.length === 1) {
-              // 如果只有一个 key-value 对，直接显示链接
-              const { key, value } = kvPairsArray[0];
-              const sceneObj = { [key]: value };
-              const reportPath = buildReportPath(sceneObj);
-              sceneDropdown = (
-                <a href={reportPath} target="_blank" rel="noreferrer">
-                  {key}={String(value)}
-                </a>
-              );
-            } else {
-              // 如果有多个 key-value 对，使用下拉菜单
-              const menuItems: MenuProps["items"] = kvPairsArray.map(({ key, value }, index) => {
-                const sceneObj = { [key]: value };
-                const reportPath = buildReportPath(sceneObj);
-
-                return {
-                  key: index,
-                  label: (
-                    <a href={reportPath} target="_blank" rel="noreferrer">
-                      {key}={String(value)}
-                    </a>
-                  ),
-                };
-              });
-
-              sceneDropdown = (
-                <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
-                  <a onClick={(e) => e.preventDefault()}>
-                    {t("projects.commits.columns.scene")} <DownOutlined />
-                  </a>
-                </Dropdown>
-              );
+        const kvPairs = new Map<string, { key: string; value: unknown }>();
+        scenes.forEach((sceneInfo) => {
+          const scene = sceneInfo.scene || {};
+          Object.entries(scene).forEach(([key, value]) => {
+            const kvKey = `${key}=${value}`;
+            if (!kvPairs.has(kvKey)) {
+              kvPairs.set(kvKey, { key, value });
             }
-          }
+          });
+        });
+        const kvPairsArray = Array.from(kvPairs.values());
+
+        const reportMenuItems: MenuProps["items"] = [
+          {
+            key: "full",
+            label: (
+              <a href={detailPath} target="_blank" rel="noreferrer">
+                {t("projects.commits.columns.full")}
+              </a>
+            ),
+          },
+        ];
+
+        if (kvPairsArray.length > 0) {
+          reportMenuItems.push({
+            key: "scene-group",
+            type: "group",
+            label: t("projects.commits.columns.scene"),
+            children: kvPairsArray.map(({ key: sceneKey, value }, index) => {
+              const sceneObj = { [sceneKey]: value };
+              const reportPath = buildReportPath(sceneObj);
+              return {
+                key: `scene-${index}`,
+                label: (
+                  <a href={reportPath} target="_blank" rel="noreferrer">
+                    {sceneKey}={String(value)}
+                  </a>
+                ),
+              };
+            }),
+          });
         }
+
+        const snapshotMenuItems: MenuProps["items"] = [
+          {
+            key: "create",
+            icon: <CameraOutlined />,
+            label: t("projects.snapshot.button.create"),
+          },
+          {
+            key: "records",
+            icon: <UnorderedListOutlined />,
+            label: t("projects.snapshot.button.records"),
+          },
+        ];
 
         return (
           <Space wrap>
-            <Link to={detailPath} target={"_blank"}>
-              {t("projects.commits.columns.overall")}
-            </Link>
-            {sceneDropdown}
-            <a onClick={() => openSnapshotCreate(record)}>
-              <Space size={4}>
-                <CameraOutlined />
-                {t("projects.snapshot.button.create")}
-              </Space>
-            </a>
-            <a onClick={openSnapshotRecords}>
-              <Space size={4}>
-                <UnorderedListOutlined />
-                {t("projects.snapshot.button.records")}
-              </Space>
-            </a>
+            <Dropdown menu={{ items: reportMenuItems }} placement="bottomLeft">
+              <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                  {t("projects.commits.columns.report")}
+                  <DownOutlined />
+                </Space>
+              </a>
+            </Dropdown>
+            <Dropdown
+              menu={{
+                items: snapshotMenuItems,
+                onClick: ({ key }) => {
+                  if (key === "create") {
+                    openSnapshotCreate(record);
+                  } else if (key === "records") {
+                    openSnapshotRecords();
+                  }
+                },
+              }}
+              placement="bottomLeft"
+            >
+              <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                  {t("projects.snapshot.menu")}
+                  <DownOutlined />
+                </Space>
+              </a>
+            </Dropdown>
           </Space>
         );
       },
@@ -420,6 +431,7 @@ const CommitsPage = () => {
     setSnapshotInitialValues({
       repoID: repo?.id ?? "",
       provider: params.provider ?? "",
+      subject: "commit",
     });
     setSnapshotDrawerMode("records");
     setSnapshotDrawerOpen(true);
@@ -457,18 +469,6 @@ const CommitsPage = () => {
           params.org && params.repo ? { org: params.org, repo: params.repo } : undefined
         }
         onCreateSuccess={() => setSnapshotDrawerMode("records")}
-        onSwitchToCreate={() => {
-          setSnapshotDrawerMode("create");
-          setSnapshotInitialValues({
-            repoID: repo?.id ?? "",
-            provider: params.provider ?? "",
-            subject: "commit",
-            subjectID: "",
-            buildTarget: "",
-            title: "",
-            description: "",
-          });
-        }}
       />
       <CardPrimary>
         <Table<FlatCommitRow>
