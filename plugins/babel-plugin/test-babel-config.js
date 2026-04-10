@@ -9,7 +9,7 @@ module.exports = {
         provider: "gitlab",
         buildTarget: "",
         ci: true,
-        keepMap: true,
+        keepMap: false,
         include: ["features/add.js"],
       },
     ],

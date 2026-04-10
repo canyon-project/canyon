@@ -158,7 +158,7 @@ export function visitorProgramExit(
             // 注意：keepMap 属性不在配置接口中，这里保留原逻辑但添加注释说明
             const shouldKeepMap = config.keepMap; // 默认不保留 map
             if (!shouldKeepMap) {
-              const keysToRemove = ["statementMap", "fnMap", "branchMap", "inputSourceMap"];
+              const keysToRemove = ["statementMap", "fnMap", "branchMap", "inputSourceMap","hash","_coverageSchema"];
               keysToRemove.forEach((keyToRemove) => {
                 const propertyIndex = objectProperties.findIndex(
                   (property) =>
