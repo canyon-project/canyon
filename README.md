@@ -1,4 +1,4 @@
-# Canyon [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/canyon-project/canyon/blob/main/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/canyon-project/canyon) [![docker image size](https://img.shields.io/docker/image-size/zhangtao25/canyon/next)](https://hub.docker.com/r/zhangtao25/canyon) [![Made with Prisma](https://made-with.prisma.io/dark.svg)](https://prisma.io) [![Wappalyzer](https://img.shields.io/badge/Detected%20by-Wappalyzer-blue?logo=wappalyzer)](https://www.wappalyzer.com/technologies/development/canyon/)
+# Canyon [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/canyon-project/canyon/blob/main/LICENSE) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/canyon-project/canyon) [![docker image size](https://img.shields.io/docker/image-size/zhangtao25/canyon/next)](https://hub.docker.com/r/zhangtao25/canyon) [![Made with Prisma](https://made-with.prisma.io/dark.svg)](https://prisma.io) [![Wappalyzer](https://img.shields.io/badge/Detected%20by-Wappalyzer-blue?logo=wappalyzer)](https://www.wappalyzer.com/technologies/development/canyon/)
 
 ## Introduction
 
@@ -127,17 +127,10 @@ flowchart LR
 
 ```
 
-## Report preview
-
-![](./screenshots/coverage-report.jpg)
 
 ## WeChat Group
 
 <img src="./screenshots/wechat66.jpg" style="width: 200px"/>
-
-## Developing
-
-Follow our [self-hosting documentation](https://docs.canyonjs.io/docs/self-host/community-edition/prerequisites) to set up a local development environment.
 
 ## Contributing
 
