@@ -11,7 +11,7 @@ export default defineConfig({
       sha: "xxxxx",
       provider: "gitlab",
       ci: true,
-      keepMap: true,
+      keepMap: false,
     }),
   ],
   build: {

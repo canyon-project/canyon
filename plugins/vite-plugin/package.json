@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/vite-plugin",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Vite plugin that instruments code via @canyonjs/babel-plugin",
   "keywords": [],
   "license": "ISC",
