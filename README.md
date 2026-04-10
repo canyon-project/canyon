@@ -1,52 +1,61 @@
-# Canyon [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/canyon-project/canyon/blob/main/LICENSE) [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/canyon-project/canyon) [![docker image size](https://img.shields.io/docker/image-size/zhangtao25/canyon/next)](https://hub.docker.com/r/zhangtao25/canyon) [![Made with Prisma](https://made-with.prisma.io/dark.svg)](https://prisma.io) [![Wappalyzer](https://img.shields.io/badge/Detected%20by-Wappalyzer-blue?logo=wappalyzer)](https://www.wappalyzer.com/technologies/development/canyon/)
+# Canyon [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/canyon-project/canyon/blob/main/LICENSE) [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/canyon-project/canyon) [![docker image size](https://img.shields.io/docker/image-size/zhangtao25/canyon/next)](https://hub.docker.com/r/zhangtao25/canyon) [![Made with Prisma](https://made-with.prisma.io/dark.svg)](https://prisma.io) [![Wappalyzer](https://img.shields.io/badge/Detected%20by-Wappalyzer-blue?logo=wappalyzer)](https://www.wappalyzer.com/technologies/development/canyon/)
 
-Canyon is a JavaScript code coverage solution
+## Introduction
 
-![](./screenshots/coverage-report.jpg)
+### Overview
+
+Canyon is a **JavaScript code coverage collection platform**. It tackles the problems developers and QA engineers face when they need **per–test-case** coverage during **end-to-end (E2E) and UI automation** runs.
+
+It is made up of three main parts:
+
+- A set of [**plugins**](https://github.com/canyon-project/canyon/tree/main/plugins) that integrate with common CI setups and read environment variables.
+- A [**full-stack application**](https://github.com/canyon-project/canyon/tree/main/app) (**Node.js + React**) that ingests and processes coverage data, exposes backend APIs, and renders coverage reports in the browser.
+
+![Canyon home screen](https://cdn.jsdelivr.net/gh/canyon-project/assets/docs/static/docs/getting-started/introduction/home-screen.png)
+
+### Why Canyon?
+
+Canyon **splits hit data and map data at compile time**, so it can handle the **large volumes** of coverage produced by UI automation **efficiently**.
+
+It also **integrates with common CI providers**: instrumentation is injected at **build** time, and coverage can be **collected and reported** while UI automation runs.
+
+That way teams can see **accurate**, near–**real-time** coverage **per test case** in UI automation, and use it to judge and improve code quality.
+
+### Features
+
+- **[Accurate and efficient](https://docs.canyonjs.io/docs/core-concepts/separate-hit-and-map)** — separate hit and map; initial coverage data is produced at compile time for reliable, efficient collection.
+- **[Source maps](https://docs.canyonjs.io/docs/core-concepts/restore-source-code-coverage)** — map coverage back to real source code.
+- **[Build tooling](https://docs.canyonjs.io/docs/installation/getting-started)** — coverage flows for stacks such as Next.js, Vite, and Webpack.
+- **[Automation frameworks](https://docs.canyonjs.io/docs/end-to-end-testing/getting-started)** — integration patterns for common UI automation stacks.
+- **[CI providers](https://docs.canyonjs.io/docs/reference/provider)** — GitHub Actions, GitLab CI, and similar runners; CI env detection where applicable.
+
+### Self-hosting
+
+If you want **full control** over coverage and test metadata, you can **[self-host Canyon](https://docs.canyonjs.io/docs/self-host/community-edition/prerequisites)** on your own infrastructure.
 
 ## Ecosystem
 
-| Project               | Status                                                       | Description                                          |
-| --------------------- | ------------------------------------------------------------ | ---------------------------------------------------- |
-| [babel-plugin-canyon] | [![babel-plugin-canyon-status]][babel-plugin-canyon-package] | Detecting environment variables in the pipeline      |
-| [canyon-uploader]     | [![canyon-uploader-status]][canyon-uploader-package]         | Coverage data uploader                               |
-| [canyon-extension]    | [![canyon-extension-status]][canyon-extension-package]       | Chrome plugin for coverage reporting of manual tests |
+| Project | Status | Description |
+| ------- | ------ | ----------- |
+| [@canyonjs/babel-plugin](https://docs.canyonjs.io/docs/ecosystem/babel-plugin) | [![@canyonjs/babel-plugin-status]][@canyonjs/babel-plugin-package] | Babel plugin that detects pipeline / CI environment variables |
+| [@canyonjs/cli](https://docs.canyonjs.io/docs/ecosystem/cli) | [![@canyonjs/cli-status]][@canyonjs/cli-package] | Scans local `.canyon_output` and uploads coverage to the server |
+| [@canyonjs/collect](https://docs.canyonjs.io/docs/ecosystem/collect) | [![@canyonjs/collect-status]][@canyonjs/collect-package] | Browser-side script package for collecting coverage from web apps |
 
-[babel-plugin-canyon]: https://github.com/canyon-project/canyon/tree/main/plugins/babel-plugin-canyon
-[vite-plugin-canyon]: https://github.com/canyon-project/canyon/tree/main/plugins/vite-plugin-canyon
-[swc-plugin-canyon]: https://github.com/canyon-project/canyon/tree/main/plugins/swc-plugin-canyon
-[canyon-report]: https://github.com/canyon-project/canyon/tree/main/packages/canyon-report
-[canyon-sdk]: https://github.com/canyon-project/canyon/tree/main/tools/canyon-sdk
-[canyon-uploader]: https://github.com/canyon-project/canyon/tree/main/tools/canyon-uploader
-[canyon-extension]: https://github.com/canyon-project/canyon/tree/main/tools/canyon-extension
-[babel-plugin-canyon-status]: https://img.shields.io/npm/v/babel-plugin-canyon.svg
-[vite-plugin-canyon-status]: https://img.shields.io/npm/v/vite-plugin-canyon.svg
-[swc-plugin-canyon-status]: https://img.shields.io/npm/v/swc-plugin-canyon.svg
-[canyon-report-status]: https://img.shields.io/npm/v/canyon-report.svg
-[canyon-sdk-status]: https://img.shields.io/npm/v/canyon-sdk.svg
-[canyon-uploader-status]: https://img.shields.io/npm/v/canyon-uploader.svg
-[canyon-extension-status]: https://img.shields.io/chrome-web-store/v/omnpafdjidgpdmlimbangcjjaaodbeof.svg
-[babel-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
-[vite-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
-[swc-plugin-canyon-package]: https://npmjs.com/package/babel-plugin-canyon
-[canyon-report-package]: https://github.com/canyon-project/uploader/releases
-[canyon-sdk-package]: https://github.com/canyon-project/uploader/releases
-[canyon-uploader-package]: https://github.com/canyon-project/uploader/releases
-[canyon-extension-package]: https://chrome.google.com/webstore/detail/canyon/omnpafdjidgpdmlimbangcjjaaodbeof
-
-## Project Structure
-
-Canyon (pronounced /ˈkænjən/) is a JavaScript code coverage collection platform. We address the difficulties developers and QA engineers encounter in collecting test case code coverage during end-to-end testing. It consists of three main parts:
-
-- A series of plugin responsible for adapting to various CI tools and reading environment variables.
-
-- An API service responsible for collecting and processing coverage data.
-
-- A set of front-end and back-end services responsible for displaying coverage reports.
-
-[Read the Docs to Learn More.](https://docs.canyonjs.io)
+[@canyonjs/babel-plugin-status]: https://img.shields.io/npm/v/@canyonjs/babel-plugin.svg
+[@canyonjs/cli-status]: https://img.shields.io/npm/v/@canyonjs/cli.svg
+[@canyonjs/collect-status]: https://img.shields.io/npm/v/@canyonjs/collect.svg
+[@canyonjs/babel-plugin-package]: https://www.npmjs.com/package/@canyonjs/babel-plugin
+[@canyonjs/cli-package]: https://www.npmjs.com/package/@canyonjs/cli
+[@canyonjs/collect-package]: https://www.npmjs.com/package/@canyonjs/collect
 
 ## Architecture
+
+High-level flow:
+
+1. A Babel (or compatible) plugin instruments code in your **CI/CD** pipeline.
+2. The app is deployed to a **test** environment; **UI automation** or **manual** testing runs the instrumented code.
+3. Coverage **hits** are reported to the **Canyon server**.
+4. The server stores and processes data, and together with **SCM** source metadata (e.g. GitLab) builds **coverage reports**.
 
 ```mermaid
 %%{init: {
@@ -118,13 +127,10 @@ flowchart LR
 
 ```
 
+
 ## WeChat Group
 
 <img src="./screenshots/wechat66.jpg" style="width: 200px"/>
-
-## Developing
-
-Follow our [self-hosting documentation](https://docs.canyonjs.io/cn/docs/self-host/community-edition/prerequisites) to get started with the development environment.
 
 ## Contributing
 
