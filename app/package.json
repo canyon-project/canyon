@@ -13,9 +13,7 @@
     "generate": "prisma generate && prisma generate --schema prisma/schema-sqlite.prisma",
     "postinstall": "npm run generate",
     "preinstall": "node ./scripts/check.mjs",
-    "migrate:sql": "prisma migrate diff --from-empty --to-schema-datamodel ./prisma/schema.prisma --script > ./schema.sql",
-    "clean": "node scripts/clean.mjs",
-    "sync-catalog": "node scripts/sync-catalog.mjs"
+    "migrate:sql": "prisma migrate diff --from-empty --to-schema-datamodel ./prisma/schema.prisma --script > ./schema.sql"
   },
   "dependencies": {
     "@canyonjs/report-html": "latest",
