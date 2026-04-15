@@ -153,6 +153,14 @@ model CoverageHit {
   @@map("canyon_next_coverage_hit")
 }
 
+/// POST /api/coverage/client 全量请求体 hash，用于幂等去重
+model CoverageClientPayloadIdempotency {
+  payloadHash String   @id @map("payload_hash")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("canyon_next_coverage_client_payload_idempotency")
+}
+
 model CoverageLock {
   coverageID String   @id @map("coverage_id")
   lockedAt   DateTime @map("locked_at")
