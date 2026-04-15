@@ -60,7 +60,7 @@ export default async function RootLayout({ children, params }) {
         <Layout
           pageMap={await getPageMap()}
           navbar={navbar}
-          docsRepositoryBase="https://github.com/canyon-project/canyon/tree/dev/website"
+          docsRepositoryBase="https://github.com/canyon-project/canyon/tree/main/website"
           footer={footer}
           sidebar={{ defaultMenuCollapseLevel: 1 }}
         >
