@@ -1,5 +1,6 @@
 import { createRoute } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/api/lib/prisma.ts";
 import { prisma as prismaSqlite } from "@/api/lib/prisma-sqlite.ts";
 import { ensureCommitFromScm } from "@/api/lib/commit.ts";
@@ -8,6 +9,7 @@ import { remapCoverageByOld } from "canyon-map";
 import {
   generateObjectSignature,
   encodeObjectToCompressedBuffer,
+  filterInvalidCoverageFiles,
 } from "@/api/lib/collect/helpers.ts";
 import {
   CoverageClientSchema,
@@ -74,13 +76,39 @@ const coverageMapInitRoute = createRoute({
 
 const collectApi = new OpenAPIHono();
 
+function firstBuildHashInCoverage(coverage: Record<string, unknown>): string | undefined {
+  for (const entry of Object.values(coverage)) {
+    const bh = (entry as Record<string, unknown> | undefined)?.buildHash;
+    if (typeof bh === "string" && bh.length > 0) {
+      return bh;
+    }
+  }
+  return undefined;
+}
+
 collectApi.openapi(coverageClientRoute, async (c) => {
   const body = c.req.valid("json");
-  const coverage = body.coverage;
-  const sceneKey = generateObjectSignature(body.scene || {});
+  const payloadHash = generateObjectSignature(body);
 
-  const coverageValue = Object.values(coverage)[0] as Record<string, unknown> | undefined;
-  const buildHash = coverageValue?.buildHash as string | undefined;
+  const idempotentRow = await prisma.coverageClientPayloadIdempotency.findUnique({
+    where: { payloadHash },
+  });
+
+  const sceneKey = generateObjectSignature(body.scene || {});
+  const filterResult = filterInvalidCoverageFiles(body.coverage);
+  const coverage = filterResult.filteredCoverage as typeof body.coverage;
+
+  if (filterResult.remainingFiles === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "过滤后无有效覆盖率文件（语句 hit 均为 0 或缺少有效 s 字段）",
+      },
+      400,
+    );
+  }
+
+  const buildHash = firstBuildHashInCoverage(coverage as Record<string, unknown>);
 
   if (!buildHash) {
     return c.json({ success: false, message: "coverage 中缺少 buildHash" }, 400);
@@ -99,6 +127,28 @@ collectApi.openapi(coverageClientRoute, async (c) => {
       },
       502,
     );
+  }
+
+  const successPayload = {
+    success: true as const,
+    buildHash,
+    sceneKey,
+    coverageLength: Object.keys(coverage).length,
+    coverageFilesTotal: filterResult.totalFiles,
+    coverageFilesFiltered: filterResult.filteredFiles,
+    provider: prismacoverage.provider,
+    repoID: prismacoverage.repoID,
+    sha: prismacoverage.sha,
+    buildTarget: prismacoverage.buildTarget,
+    instrumentCwd: prismacoverage.instrumentCwd,
+  };
+
+  if (idempotentRow) {
+    return c.json({
+      ...successPayload,
+      idempotent: true,
+      message: "重复负载，已忽略（幂等）",
+    });
   }
 
   try {
@@ -137,17 +187,17 @@ collectApi.openapi(coverageClientRoute, async (c) => {
     // 记录已存在时忽略
   }
 
-  return c.json({
-    success: true,
-    buildHash,
-    sceneKey,
-    coverageLength: Object.keys(coverage).length,
-    provider: prismacoverage.provider,
-    repoID: prismacoverage.repoID,
-    sha: prismacoverage.sha,
-    buildTarget: prismacoverage.buildTarget,
-    instrumentCwd: prismacoverage.instrumentCwd,
-  });
+  try {
+    await prisma.coverageClientPayloadIdempotency.create({
+      data: { payloadHash },
+    });
+  } catch (e) {
+    if (!(e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002")) {
+      throw e;
+    }
+  }
+
+  return c.json(successPayload);
 });
 
 function calculateBuildHash(

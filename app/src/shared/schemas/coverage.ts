@@ -83,9 +83,13 @@ export const CoverageCommitsQuerySchema = z
 export const CoverageClientResponseSchema = z
   .object({
     success: z.boolean(),
+    message: z.string().optional(),
+    idempotent: z.boolean().optional(),
     buildHash: z.string(),
     sceneKey: z.string(),
     coverageLength: z.number(),
+    coverageFilesTotal: z.number().optional(),
+    coverageFilesFiltered: z.number().optional(),
     provider: z.string(),
     repoID: z.string(),
     sha: z.string(),

@@ -3,6 +3,7 @@ import {
   generateObjectSignature,
   encodeObjectToCompressedBuffer,
   decodeCompressedObject,
+  filterInvalidCoverageFiles,
 } from "../helpers";
 
 describe("generateObjectSignature", () => {
@@ -47,5 +48,24 @@ describe("encodeObjectToCompressedBuffer / decodeCompressedObject", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(decodeCompressedObject(Buffer.from("invalid"))).toBe(null);
     spy.mockRestore();
+  });
+});
+
+describe("filterInvalidCoverageFiles", () => {
+  it("应移除 s 全为 0 的文件", () => {
+    const coverage = {
+      "a.ts": { s: { "0": 0, "1": 0 }, buildHash: "h1" },
+      "b.ts": { s: { "0": 1 }, buildHash: "h1" },
+    };
+    const r = filterInvalidCoverageFiles(coverage);
+    expect(r.remainingFiles).toBe(1);
+    expect(r.filteredFiles).toBe(1);
+    expect(r.filteredCoverage).toHaveProperty("b.ts");
+    expect(r.filteredCoverage).not.toHaveProperty("a.ts");
+  });
+
+  it("s 为空对象应过滤", () => {
+    const r = filterInvalidCoverageFiles({ "x.ts": { s: {}, buildHash: "h" } });
+    expect(r.remainingFiles).toBe(0);
   });
 });
