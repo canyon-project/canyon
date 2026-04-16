@@ -87,6 +87,24 @@ export function filterInvalidCoverageFiles(coverage: unknown): {
   };
 }
 
+/**
+ * 仅保留每条 coverage 记录自身带有 buildHash 的条目（与 map/init 上报结构一致，避免混入无关键值）。
+ */
+export function filterCoverageEntriesWithBuildHash(coverage: unknown): Record<string, unknown> {
+  if (!coverage || typeof coverage !== "object" || Array.isArray(coverage)) {
+    return {};
+  }
+  return Object.fromEntries(
+    Object.entries(coverage as Record<string, unknown>).filter(
+      ([, item]) =>
+        item !== null &&
+        typeof item === "object" &&
+        !Array.isArray(item) &&
+        Object.prototype.hasOwnProperty.call(item, "buildHash"),
+    ),
+  );
+}
+
 export function encodeObjectToCompressedBuffer(object: unknown): Buffer {
   const jsonString = JSON.stringify(object);
   const buffer = Buffer.from(jsonString, "utf-8");
