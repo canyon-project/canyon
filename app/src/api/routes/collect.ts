@@ -265,14 +265,13 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
     );
   }
 
-  // instrumentCwd、buildTarget 优先 body 中的值，如果 body 中没有，再从 coverage 条目中取
   const firstEntry = coverageValues[0] as Record<string, unknown>;
   if (firstEntry.sha !== undefined) sha = firstEntry.sha as string;
   if (firstEntry.provider !== undefined) provider = firstEntry.provider as string;
   if (firstEntry.repoID !== undefined) repoID = firstEntry.repoID as string;
-  if (firstEntry.instrumentCwd !== undefined && !instrumentCwd)
+  if (firstEntry.instrumentCwd !== undefined)
     instrumentCwd = firstEntry.instrumentCwd as string;
-  if (firstEntry.buildTarget !== undefined  && !buildTarget) buildTarget = firstEntry.buildTarget as string;
+  if (firstEntry.buildTarget !== undefined) buildTarget = firstEntry.buildTarget as string;
 
   if (!sha || !provider || !repoID || !instrumentCwd) {
     logger({
