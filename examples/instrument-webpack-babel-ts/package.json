@@ -13,7 +13,7 @@
   "devDependencies": {
     "@typescript/native-preview": "catalog:",
     "babel-loader": "latest",
-    "babel-plugin-canyon": "latest",
+    "@canyonjs/babel-plugin": "latest",
     "babel-plugin-istanbul": "latest",
     "webpack": "latest",
     "webpack-cli": "latest"

@@ -2,7 +2,7 @@ module.exports = {
   plugins: [
     "istanbul",
     [
-      "canyon",
+      "@canyonjs",
       {
         keepMap: true,
         ci: true,
