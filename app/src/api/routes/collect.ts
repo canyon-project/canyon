@@ -9,6 +9,7 @@ import { remapCoverageByOld } from "canyon-map";
 import {
   generateObjectSignature,
   encodeObjectToCompressedBuffer,
+  filterCoverageEntriesWithBuildHash,
   filterInvalidCoverageFiles,
 } from "@/api/lib/collect/helpers.ts";
 import {
@@ -95,7 +96,18 @@ collectApi.openapi(coverageClientRoute, async (c) => {
   });
 
   const sceneKey = generateObjectSignature(body.scene || {});
-  const filterResult = filterInvalidCoverageFiles(body.coverage);
+  const coverageWithBuildHash = filterCoverageEntriesWithBuildHash(body.coverage);
+  if (Object.keys(coverageWithBuildHash).length === 0) {
+    return c.json(
+      {
+        success: false,
+        message: "coverage 中无带 buildHash 的有效文件条目",
+      },
+      400,
+    );
+  }
+
+  const filterResult = filterInvalidCoverageFiles(coverageWithBuildHash);
   const coverage = filterResult.filteredCoverage as typeof body.coverage;
 
   if (filterResult.remainingFiles === 0) {

@@ -3,6 +3,7 @@ import {
   generateObjectSignature,
   encodeObjectToCompressedBuffer,
   decodeCompressedObject,
+  filterCoverageEntriesWithBuildHash,
   filterInvalidCoverageFiles,
 } from "../helpers";
 
@@ -48,6 +49,24 @@ describe("encodeObjectToCompressedBuffer / decodeCompressedObject", () => {
     const spy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(decodeCompressedObject(Buffer.from("invalid"))).toBe(null);
     spy.mockRestore();
+  });
+});
+
+describe("filterCoverageEntriesWithBuildHash", () => {
+  it("应保留含自有 buildHash 的条目", () => {
+    const r = filterCoverageEntriesWithBuildHash({
+      "a.ts": { buildHash: "h", s: { "0": 1 } },
+    });
+    expect(r).toEqual({ "a.ts": { buildHash: "h", s: { "0": 1 } } });
+  });
+
+  it("应丢弃无 buildHash 或非对象的条目", () => {
+    const r = filterCoverageEntriesWithBuildHash({
+      "a.ts": { buildHash: "h", s: {} },
+      "b.ts": { s: { "0": 1 } },
+      "c.ts": null,
+    });
+    expect(Object.keys(r)).toEqual(["a.ts"]);
   });
 });
 
