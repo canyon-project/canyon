@@ -1,0 +1,57 @@
+name: Release CLI binaries
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-cli-binaries-${{ github.event.release.tag_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build @canyonjs/cli (rslib) and native binaries (pkg)
+        working-directory: tools/cli
+        run: |
+          set -euo pipefail
+          pnpm run build
+          pnpm exec pkg bin/canyon-pkg.cjs --targets node18-linuxstatic-x64 --output out/canyon-linux-x64
+          pnpm exec pkg bin/canyon-pkg.cjs --targets node18-linuxstatic-arm64 --output out/canyon-linux-arm64
+          pnpm exec pkg bin/canyon-pkg.cjs --targets node18-macos-x64 --output out/canyon-macos-x64
+          pnpm exec pkg bin/canyon-pkg.cjs --targets node18-macos-arm64 --output out/canyon-macos-arm64
+          pnpm exec pkg bin/canyon-pkg.cjs --targets node18-alpine-x64 --output out/canyon-alpine-x64
+          pnpm exec pkg bin/canyon-pkg.cjs --targets node18-win-x64 --output out/canyon-windows-x64.exe
+          chmod +x out/canyon-linux-x64 out/canyon-linux-arm64 out/canyon-macos-x64 out/canyon-macos-arm64 out/canyon-alpine-x64
+          mkdir -p upload
+          TAG="${{ github.event.release.tag_name }}"
+          cp out/canyon-linux-x64 "upload/canyon-${TAG}-linux-x64"
+          cp out/canyon-linux-arm64 "upload/canyon-${TAG}-linux-arm64"
+          cp out/canyon-macos-x64 "upload/canyon-${TAG}-macos-x64"
+          cp out/canyon-macos-arm64 "upload/canyon-${TAG}-macos-arm64"
+          cp out/canyon-alpine-x64 "upload/canyon-${TAG}-alpine-x64"
+          cp out/canyon-windows-x64.exe "upload/canyon-${TAG}-windows-x64.exe"
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: tools/cli/upload/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
