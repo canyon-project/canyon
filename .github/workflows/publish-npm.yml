@@ -3,7 +3,7 @@ name: publish-npm
 on:
   workflow_dispatch:
   push:
-    branches: ["*"]
+    branches: ["main"]
 
 concurrency:
   group: publish-npm-${{ github.ref }}
