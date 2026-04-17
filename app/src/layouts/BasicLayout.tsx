@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import AboutCanyonModal from "@/components/app/AboutCanyonModal.tsx";
 import AppFooter from "@/components/app/footer.tsx";
-import LayoutPlaceholder from "@/layouts/LayoutPlaceholder";
 import { getCurrentUser } from "@/services/user";
 
 const BasicLayout: FC<{
@@ -26,6 +26,7 @@ const BasicLayout: FC<{
 
   const [user, setUser] = useState<UserInfo | null>(null);
   const [userLoading, setUserLoading] = useState(true);
+  const [aboutOpen, setAboutOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -63,10 +64,14 @@ const BasicLayout: FC<{
 
   // 分区组件：侧边头部（Logo 与标题）
   const SidebarHeader: FC = () => (
-    <div className={"px-3 py-[16px] flex items-center justify-between"}>
-      <div className={"cursor-pointer flex items-center"} style={{ marginBottom: 0 }} onClick={()=>{
-        window.location.href = "/";
-      }}>
+    <div className={"px-3 py-[16px] flex items-center"}>
+      <div
+        className={"cursor-pointer flex items-center"}
+        style={{ marginBottom: 0 }}
+        onClick={() => {
+          window.location.href = "/";
+        }}
+      >
         <img src="/logo.svg" className={"w-[36px]"} alt="" />
         <span
           className={"ml-[6px]"}
@@ -78,15 +83,29 @@ const BasicLayout: FC<{
           Canyon
         </span>
       </div>
-
-      <LayoutPlaceholder />
     </div>
   );
 
-  // 分区组件：侧边菜单
+  /** 菜单与用户区之间：单行版本 + 关于（弱样式） */
+  const SidebarAboutStrip: FC = () => (
+    <div className="shrink-0 px-3 py-2.5 border-t" style={{ borderColor: token.colorBorder }}>
+      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 text-[12px] leading-snug text-neutral-500 dark:text-neutral-500">
+        <span className="tabular-nums tracking-tight">v{__APP_VERSION__}</span>
+        <button
+          type="button"
+          className="m-0 cursor-pointer border-0 bg-transparent p-0 text-left text-inherit underline-offset-2 transition-colors hover:text-[#0071c2] hover:underline dark:hover:text-[#4da3e6]"
+          onClick={() => setAboutOpen(true)}
+        >
+          {t("about.aboutCanyon")}
+        </button>
+      </div>
+    </div>
+  );
+
+  // 分区组件：侧边菜单（与底部条共同占满中间区域）
   const SidebarMenu: FC = () => (
     <Menu
-      className={"flex-1"}
+      className="border-0 !border-e-0"
       mode="inline"
       selectedKeys={[selected]}
       items={[
@@ -156,6 +175,7 @@ const BasicLayout: FC<{
   );
   return (
     <div className="min-h-screen flex">
+      <AboutCanyonModal open={aboutOpen} onClose={() => setAboutOpen(false)} userEmail={user?.email} />
       <div
         className={"w-[260px] h-[100vh] overflow-hidden flex flex-col"}
         style={{
@@ -171,7 +191,12 @@ const BasicLayout: FC<{
           }}
         />
 
-        <SidebarMenu />
+        <div className="flex-1 min-h-0 flex flex-col">
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            <SidebarMenu />
+          </div>
+          <SidebarAboutStrip />
+        </div>
 
         <SidebarUser />
       </div>

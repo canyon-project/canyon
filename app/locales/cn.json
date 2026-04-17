@@ -235,7 +235,22 @@
     "cancel": "取消",
     "total": "总数",
     "covered": "已覆盖",
-    "favor.only": "只看收藏"
+    "favor.only": "只看收藏",
+    "ok": "确定"
+  },
+  "about": {
+    "help": "帮助",
+    "aboutCanyon": "关于 Canyon",
+    "title": "关于 Canyon",
+    "version": "版本",
+    "appMode": "应用模式",
+    "appModeValue": "Web 客户端",
+    "commit": "提交",
+    "currentUser": "当前用户",
+    "browser": "浏览器",
+    "os": "操作系统",
+    "nodejs": "Node.js",
+    "clientConfig": "客户端配置"
   },
   "app": {
     "logout": "退出登录"

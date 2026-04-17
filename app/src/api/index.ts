@@ -14,6 +14,7 @@ import sourceApi from "@/api/routes/source.ts";
 import collectApi from "@/api/routes/collect.ts";
 import coverageApi from "@/api/routes/coverage.ts";
 import userApi from "@/api/routes/user.ts";
+import aboutApi from "@/api/routes/about.ts";
 import infraApi from "@/api/routes/infra.ts";
 import loggerApi from "@/api/routes/logger.ts";
 import { historyApiFallback } from "hono-history-api-fallback";
@@ -30,6 +31,7 @@ const api = new OpenAPIHono();
 
 api.route("/repos", reposApi);
 api.route("/user", userApi);
+api.route("/about", aboutApi);
 api.route("/infra", infraApi);
 api.route("/source", sourceApi);
 api.route("/coverage", collectApi);

@@ -235,7 +235,22 @@
     "cancel": "Cancel",
     "total": "Total",
     "covered": "Covered",
-    "favor.only": "Favor Only"
+    "favor.only": "Favor Only",
+    "ok": "OK"
+  },
+  "about": {
+    "help": "Help",
+    "aboutCanyon": "About Canyon",
+    "title": "About Canyon",
+    "version": "Version",
+    "appMode": "Application mode",
+    "appModeValue": "Web client",
+    "commit": "Commit",
+    "currentUser": "Current user",
+    "browser": "Browser",
+    "os": "Operating system",
+    "nodejs": "Node.js",
+    "clientConfig": "Client configuration"
   },
   "app": {
     "logout": "Logout"

@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import devServer from "@hono/vite-dev-server";
 import build from "@hono/vite-build/node";
@@ -10,6 +12,16 @@ import canyonVitePlugin from "@canyonjs/vite-plugin";
 
 const isProduction = process.env.NODE_ENV === "production";
 
+const pkg = JSON.parse(
+  readFileSync(fileURLToPath(new URL("./package.json", import.meta.url)), "utf-8"),
+) as { version: string };
+
+const gitCommit =
+  process.env.VITE_GIT_COMMIT ||
+  process.env.GITHUB_SHA?.slice(0, 12) ||
+  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ||
+  "development";
+
 if (isProduction) {
   console.log("当前是【生产环境】");
 } else {
@@ -17,6 +29,10 @@ if (isProduction) {
 }
 
 export default defineConfig({
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_COMMIT__: JSON.stringify(gitCommit),
+  },
   build: {
     target: "es2022",
   },

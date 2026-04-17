@@ -234,7 +234,22 @@
     "cancel": "キャンセル",
     "total": "合計",
     "covered": "カバー済み",
-    "favor.only": "お気に入りのみ"
+    "favor.only": "お気に入りのみ",
+    "ok": "OK"
+  },
+  "about": {
+    "help": "ヘルプ",
+    "aboutCanyon": "Canyon について",
+    "title": "Canyon について",
+    "version": "バージョン",
+    "appMode": "アプリモード",
+    "appModeValue": "Web クライアント",
+    "commit": "コミット",
+    "currentUser": "現在のユーザー",
+    "browser": "ブラウザ",
+    "os": "オペレーティングシステム",
+    "nodejs": "Node.js",
+    "clientConfig": "クライアント設定"
   },
   "app": {
     "logout": "ログアウト"
