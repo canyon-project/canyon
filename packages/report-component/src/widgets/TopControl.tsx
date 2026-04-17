@@ -13,6 +13,8 @@ const TopControl: FC<{
   onChangeKeywords: (word: string) => void;
   onChangeOnlyChange: (checked: boolean) => void;
   onlyChange: boolean;
+  /** 无任何变更文件时为 false，隐藏 “Only Changed” 开关 */
+  showOnlyChangeSwitch?: boolean;
 }> = ({
   total,
   showMode,
@@ -21,6 +23,7 @@ const TopControl: FC<{
   filenameKeywords,
   onChangeOnlyChange,
   onlyChange,
+  showOnlyChangeSwitch = true,
 }) => {
   return (
     <div>
@@ -75,19 +78,23 @@ const TopControl: FC<{
             alignItems: "center",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-            }}
-          >
-            <Typography.Text type={"secondary"} style={{ fontSize: "12px" }}>
-              {"Only Changed"}:{" "}
-            </Typography.Text>
-            <Switch checked={onlyChange} size={"small"} onChange={onChangeOnlyChange} />
-          </div>
-          <Divider type={"vertical"} />
+          {showOnlyChangeSwitch && (
+            <>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                }}
+              >
+                <Typography.Text type={"secondary"} style={{ fontSize: "12px" }}>
+                  {"Only Changed"}:{" "}
+                </Typography.Text>
+                <Switch checked={onlyChange} size={"small"} onChange={onChangeOnlyChange} />
+              </div>
+              <Divider type={"vertical"} />
+            </>
+          )}
           <Input
             placeholder={"Enter the file path to search"}
             value={filenameKeywords}

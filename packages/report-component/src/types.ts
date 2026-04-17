@@ -14,6 +14,8 @@ export interface FileDataResponse {
 
 export interface DataSourceItem {
   path: string;
+  /** 该文件相对基准是否有变更（用于 Only Changed 筛选） */
+  change?: boolean;
   [key: string]: unknown;
 }
 
