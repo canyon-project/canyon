@@ -54,6 +54,28 @@ export const CanyonReport: FC<CanyonReportProps> = ({
   // 使用受控或非受控的值
   const onlyChange = isControlled ? controlledOnlyChange : internalOnlyChange;
 
+  const hasAnyFileChange = useMemo(
+    () => dataSource.some((item) => item["change"] === true),
+    [dataSource],
+  );
+
+  useEffect(() => {
+    if (!hasAnyFileChange) {
+      if (isControlled && controlledOnChangeOnlyChange) {
+        if (controlledOnlyChange) {
+          controlledOnChangeOnlyChange(false);
+        }
+      } else {
+        setInternalOnlyChange(false);
+      }
+    }
+  }, [
+    hasAnyFileChange,
+    isControlled,
+    controlledOnChangeOnlyChange,
+    controlledOnlyChange,
+  ]);
+
   const rootClassName = useMemo(
     () => `report-scope-${Math.random().toString(36).slice(2, 9)} canyonjs-report-html`,
     [
@@ -108,7 +130,9 @@ export const CanyonReport: FC<CanyonReportProps> = ({
 
   const { treeDataSource, rootDataSource, listDataSource } = useMemo(() => {
     return generateCoreDataForEachComponent({
-      dataSource,
+      dataSource: dataSource as Parameters<
+        typeof generateCoreDataForEachComponent
+      >[0]["dataSource"],
       filenameKeywords,
       value,
       onlyChange,
@@ -132,6 +156,7 @@ export const CanyonReport: FC<CanyonReportProps> = ({
         </style>
         <TopControl
           onlyChange={onlyChange}
+          showOnlyChangeSwitch={hasAnyFileChange}
           filenameKeywords={filenameKeywords}
           showMode={showMode}
           onChangeShowMode={(val) => {
