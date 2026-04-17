@@ -3,16 +3,24 @@ import { CanyonReport } from "@canyonjs/report-component";
 import { genSummaryMapByCoverageMap } from "canyon-data";
 import { useState } from "react";
 
+import reportPkg from "../../report/package.json";
+
 type FileDataResponse = {
   fileCoverage: any;
   fileContent: string;
   fileCodeChange: number[] | { additions: number[]; deletions: number[] };
 };
 
+function npmPackageVersionUrl(packageName: string, packageVersion: string): string {
+  return `https://www.npmjs.com/package/${packageName}/v/${encodeURIComponent(packageVersion)}`;
+}
+
 function App() {
   const [value, setValue] = useState("");
 
   const { files: dataSource = [], instrumentCwd } = window.reportData;
+  const pkgName = reportPkg.name;
+  const pkgVersion = reportPkg.version;
 
   const _dataSource = dataSource.map((item) => {
     return {
@@ -104,6 +112,16 @@ function App() {
           style={{ color: "#0074D9", textDecoration: "underline" }}
         >
           canyonjs
+        </a>
+        {" "}
+        ·{" "}
+        <a
+          href={npmPackageVersionUrl(pkgName, pkgVersion)}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: "#0074D9", textDecoration: "underline" }}
+        >
+          {pkgName} v{pkgVersion}
         </a>{" "}
         at {window.reportData.generatedAt || new Date().toISOString()}
       </div>
