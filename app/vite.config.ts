@@ -20,6 +20,10 @@ export default defineConfig({
   build: {
     target: "es2022",
   },
+  define:{
+    __APP_VERSION__: JSON.stringify(process.env["APP_VERSION"] || undefined),
+    __APP_BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     react(),
     Pages({

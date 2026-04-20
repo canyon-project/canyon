@@ -14,6 +14,10 @@
     "members": "成员",
     "cart": "购物车"
   },
+  "layout": {
+    "builtOn": "构建于",
+    "openRelease": "在 GitHub 查看此版本"
+  },
   "new": {
     "step1": "从源代码创建项目",
     "step2": "检查你的项目",

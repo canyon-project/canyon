@@ -14,6 +14,10 @@
     "members": "メンバー",
     "cart": "カート"
   },
+  "layout": {
+    "builtOn": "ビルド",
+    "openRelease": "GitHub でこのリリースを開く"
+  },
   "new": {
     "step1": "ソースコードからリソースを作成",
     "step2": "プロジェクトを確認",
