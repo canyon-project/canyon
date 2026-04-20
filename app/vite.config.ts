@@ -21,7 +21,7 @@ export default defineConfig({
     target: "es2022",
   },
   define:{
-    __APP_VERSION__: JSON.stringify(process.env["APP_VERSION"] || undefined),
+    __APP_VERSION__: JSON.stringify("v3.0.6"),
     __APP_BUILD_DATE__: JSON.stringify(new Date().toISOString()),
   },
   plugins: [
