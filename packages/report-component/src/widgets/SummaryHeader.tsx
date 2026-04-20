@@ -56,7 +56,8 @@ const SummaryNav: FC<{
 const SummaryMetric: FC<{
   data: CoverageSummaryData & { path: string };
   onlyChange: boolean;
-}> = ({ data, onlyChange }) => {
+  showChangeMetrics: boolean;
+}> = ({ data, onlyChange, showChangeMetrics }) => {
   const t = (v: string) => v;
   const summaryTreeItem = {
     summary: data,
@@ -89,13 +90,15 @@ const SummaryMetric: FC<{
           })
           .filter(([key]) =>
             (onlyChange
-              ? ["changestatements"]
+              ? showChangeMetrics
+                ? ["changestatements"]
+                : []
               : [
                   "statements",
                   "branches",
                   "functions",
                   "lines",
-                  "changestatements",
+                  ...(showChangeMetrics ? ["changestatements"] : []),
                   // "changebranches",
                   // "changefunctions"
                 ]
@@ -145,11 +148,12 @@ const SummaryHeader: FC<{
   data: CoverageSummaryData & { path: string };
   reportName: string;
   onlyChange: boolean;
-}> = ({ value, onSelect, data, reportName, onlyChange }) => {
+  showChangeMetrics: boolean;
+}> = ({ value, onSelect, data, reportName, onlyChange, showChangeMetrics }) => {
   return (
     <div>
       <SummaryNav reportName={reportName} value={value} onClick={onSelect} />
-      <SummaryMetric data={data} onlyChange={onlyChange} />
+      <SummaryMetric data={data} onlyChange={onlyChange} showChangeMetrics={showChangeMetrics} />
       <SummaryBar pct={data.statements.pct} />
     </div>
   );

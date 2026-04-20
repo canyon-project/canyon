@@ -174,6 +174,7 @@ export const CanyonReport: FC<CanyonReportProps> = ({
           value={value}
           onSelect={newOnSelect}
           onlyChange={onlyChange}
+          showChangeMetrics={hasAnyFileChange}
         />
 
         <RIf condition={mode === "file"}>
