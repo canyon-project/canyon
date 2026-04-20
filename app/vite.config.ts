@@ -9,12 +9,6 @@ import canyonVitePlugin from "@canyonjs/vite-plugin";
 
 const isProduction = process.env.NODE_ENV === "production";
 
-if (isProduction) {
-  console.log("当前是【生产环境】");
-} else {
-  console.log("当前是【开发/测试环境】");
-}
-
 export default defineConfig({
   build: {
     target: "es2022",
