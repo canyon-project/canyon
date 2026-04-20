@@ -34,12 +34,14 @@ export async function mapCommand(params: any, options: any) {
     instrument_cwd,
     filter,
     scene,
+    coverageDir,
   } = params;
-  if (!fs.existsSync(path.resolve(process.cwd(), ".canyon_output"))) {
-    logger.info("No .canyon_output directory found, skipping upload.");
+  const coveragePath = path.resolve(process.cwd(), coverageDir || ".canyon_output");
+  if (!fs.existsSync(coveragePath)) {
+    logger.info(`No coverage directory found at ${coveragePath}, skipping upload.`);
     return;
   }
-  const files = fs.readdirSync(path.resolve(process.cwd(), ".canyon_output"));
+  const files = fs.readdirSync(coveragePath);
   let data: Record<string, any> = {};
   for (let i = 0; i < files.length; i++) {
     const fileName = files[i];
@@ -47,7 +49,7 @@ export async function mapCommand(params: any, options: any) {
     const isCoverageFinalFile = /^coverage-final-.*\.json$/.test(fileName);
 
     const fileCoverageString = fs.readFileSync(
-      path.resolve(process.cwd(), ".canyon_output", fileName),
+      path.resolve(coveragePath, fileName),
       "utf-8",
     );
     const fileCoverage = JSON.parse(fileCoverageString);

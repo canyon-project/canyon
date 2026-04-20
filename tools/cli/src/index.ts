@@ -61,6 +61,7 @@ program
   .option("--debug <dsn>", "debug")
   .option("--dsn <dsn>", "dsn of the canyon server")
   .option("--repo_id <repo_id>", "repo id of the canyon server")
+  .option("--coverage-dir <coverage_dir>", "覆盖率目录，默认 .canyon_output")
   .option("--filter <filter>", "仅合并路径包含该子串的文件覆盖率")
   .option("--instrument_cwd <instrument_cwd>", "instrument cwd of the canyon server")
   .option("--sha <sha>", "sha of the canyon server")
