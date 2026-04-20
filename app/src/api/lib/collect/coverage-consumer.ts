@@ -20,7 +20,7 @@ interface CoverageQueuePayload {
   sceneKey: string;
 }
 
-const QUERY_LIMIT = Number(process.env.COVERAGE_CONSUMER_QUERY_LIMIT || 100);
+const _QUERY_LIMIT = Number(process.env.COVERAGE_CONSUMER_QUERY_LIMIT || 100);
 const currentPid = process.pid!;
 
 function sleep(ms: number): Promise<void> {
@@ -39,6 +39,7 @@ async function mergeLocalCoverageData(): Promise<void> {
         ),
       )
       .orderBy(asc(coverageQueue.createdAt))
+      .limit(_QUERY_LIMIT)
       .all();
 
     if (pendingItems.length <= 1) return;

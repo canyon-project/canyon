@@ -19,7 +19,6 @@ import {
   CoverageClientResponseSchema,
   CoverageMapInitResponseSchema,
 } from "@/shared/schemas/coverage.ts";
-import { logger } from "@/api/logger";
 
 const coverageClientRoute = createRoute({
   method: "post",
@@ -90,6 +89,7 @@ function firstBuildHashInCoverage(coverage: Record<string, unknown>): string | u
 
 collectApi.openapi(coverageClientRoute, async (c) => {
   const body = c.req.valid("json");
+
   const payloadHash = generateObjectSignature(body);
 
   const idempotentRow = await prisma.coverageClientPayloadIdempotency.findUnique({
@@ -165,17 +165,20 @@ collectApi.openapi(coverageClientRoute, async (c) => {
   }
 
   try {
-    // 写入队列，异步处理
     sqliteQueueDb
       .insert(coverageQueue)
       .values({
         payload: JSON.stringify({ coverage, buildHash, sceneKey }),
         status: "PENDING",
         pid: process.pid,
+        createdAt: new Date().toISOString(),
       })
       .run();
+  } catch {
+    // 队列写入失败时仍继续后续幂等记录等逻辑
+  }
 
-    // 同步处理
+  try {
     const id = `${buildHash}|${sceneKey}`;
     const scene = body.scene || {};
     const builds = Array.isArray(prismacoverage.builds) ? prismacoverage.builds : [];
@@ -198,7 +201,7 @@ collectApi.openapi(coverageClientRoute, async (c) => {
       },
     });
   } catch {
-    // 记录已存在时忽略
+    // 常为 coverage 主键已存在（重复上报）
   }
 
   try {
@@ -246,18 +249,6 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
 
   const coverageValues = Object.values(coverage);
   if (coverageValues.length === 0) {
-    logger({
-      type: "error",
-      title: "Coverage data is empty",
-      message: "Coverage data is empty, cannot extract parameters.",
-      addInfo: {
-        sha,
-        provider,
-        repoID,
-        instrumentCwd,
-        buildTarget,
-      },
-    });
     return c.json(
       {
         success: false,
@@ -276,18 +267,6 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
   if (firstEntry.buildTarget !== undefined) buildTarget = firstEntry.buildTarget as string;
 
   if (!sha || !provider || !repoID || !instrumentCwd) {
-    logger({
-      type: "error",
-      title: "Missing required parameters",
-      message: "Missing required parameters: sha, provider, repoID, instrumentCwd.",
-      addInfo: {
-        sha,
-        provider,
-        repoID,
-        instrumentCwd,
-        buildTarget,
-      },
-    });
     return c.json(
       {
         success: false,
@@ -450,21 +429,7 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
     data: hitEntities,
     skipDuplicates: true,
   });
-  logger({
-    type: "info",
-    title: "Coverage map initialized",
-    message: "Coverage map initialized successfully.",
-    addInfo: {
-      sha,
-      provider,
-      repoID,
-      instrumentCwd,
-      buildTarget,
-      buildHash,
-      fileCount: mapItems.length,
-      sourceMapCount: sourceMapItems.length,
-    },
-  });
+
   return c.json({
     success: true,
     message: "Coverage map initialized",
