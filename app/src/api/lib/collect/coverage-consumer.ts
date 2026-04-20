@@ -1,5 +1,8 @@
+import { and, asc, eq, inArray, isNull, or } from "drizzle-orm";
+
+import { coverageQueue } from "@/api/db/coverage-queue-schema.ts";
 import { prisma } from "@/api/lib/prisma.ts";
-import { prisma as prismaSqlite } from "@/api/lib/prisma-sqlite.ts";
+import { sqliteQueueDb } from "@/api/lib/sqlite-queue.ts";
 import { acquireLock, releaseLock } from "./coverage-lock.ts";
 import { addBranchHitMaps, addMaps, ensureBranchHitMap, ensureNumMap } from "./coverage-merge.util.ts";
 
@@ -26,13 +29,17 @@ function sleep(ms: number): Promise<void> {
 
 async function mergeLocalCoverageData(): Promise<void> {
   try {
-    const pendingItems = await prismaSqlite.coverageQueue.findMany({
-      where: {
-        status: "PENDING",
-        OR: [{ pid: null }, { pid: currentPid }],
-      },
-      orderBy: { createdAt: "asc" },
-    });
+    const pendingItems = sqliteQueueDb
+      .select()
+      .from(coverageQueue)
+      .where(
+        and(
+          eq(coverageQueue.status, "PENDING"),
+          or(isNull(coverageQueue.pid), eq(coverageQueue.pid, currentPid)),
+        ),
+      )
+      .orderBy(asc(coverageQueue.createdAt))
+      .all();
 
     if (pendingItems.length <= 1) return;
 
@@ -91,15 +98,14 @@ async function mergeLocalCoverageData(): Promise<void> {
       const idsToDelete = items.map((i) => i.id);
       const [firstId, ...otherIds] = idsToDelete;
 
-      await prismaSqlite.coverageQueue.update({
-        where: { id: firstId },
-        data: { payload: JSON.stringify(mergedPayload), pid: currentPid },
-      });
+      sqliteQueueDb
+        .update(coverageQueue)
+        .set({ payload: JSON.stringify(mergedPayload), pid: currentPid })
+        .where(eq(coverageQueue.id, firstId))
+        .run();
 
       if (otherIds.length > 0) {
-        await prismaSqlite.coverageQueue.deleteMany({
-          where: { id: { in: otherIds } },
-        });
+        sqliteQueueDb.delete(coverageQueue).where(inArray(coverageQueue.id, otherIds)).run();
       }
     }
   } catch {
@@ -156,17 +162,20 @@ async function mergeCoverageData(
 }
 
 async function processQueueItem(queueId: number): Promise<void> {
-  const updateResult = await prismaSqlite.coverageQueue.updateMany({
-    where: { id: queueId, status: "PENDING" },
-    data: { status: "PROCESSING", pid: currentPid },
-  });
+  const updateResult = sqliteQueueDb
+    .update(coverageQueue)
+    .set({ status: "PROCESSING", pid: currentPid })
+    .where(and(eq(coverageQueue.id, queueId), eq(coverageQueue.status, "PENDING")))
+    .run();
 
-  if (updateResult.count === 0) return;
+  if (updateResult.changes === 0) return;
 
   try {
-    const queueItem = await prismaSqlite.coverageQueue.findUnique({
-      where: { id: queueId },
-    });
+    const queueItem = sqliteQueueDb
+      .select()
+      .from(coverageQueue)
+      .where(eq(coverageQueue.id, queueId))
+      .get();
 
     if (!queueItem) return;
 
@@ -176,25 +185,27 @@ async function processQueueItem(queueId: number): Promise<void> {
 
     const lockAcquired = await acquireLock(coverageID);
     if (!lockAcquired) {
-      await prismaSqlite.coverageQueue.update({
-        where: { id: queueId },
-        data: { status: "PENDING" },
-      });
+      sqliteQueueDb
+        .update(coverageQueue)
+        .set({ status: "PENDING" })
+        .where(eq(coverageQueue.id, queueId))
+        .run();
       await sleep(1000);
       return;
     }
 
     try {
       await mergeCoverageData(coverage, buildHash, sceneKey);
-      await prismaSqlite.coverageQueue.delete({ where: { id: queueId } });
+      sqliteQueueDb.delete(coverageQueue).where(eq(coverageQueue.id, queueId)).run();
     } finally {
       await releaseLock(coverageID);
     }
   } catch {
-    await prismaSqlite.coverageQueue.update({
-      where: { id: queueId },
-      data: { status: "FAILED" },
-    });
+    sqliteQueueDb
+      .update(coverageQueue)
+      .set({ status: "FAILED" })
+      .where(eq(coverageQueue.id, queueId))
+      .run();
   }
 }
 
@@ -211,14 +222,18 @@ async function consumptionLoop(): Promise<void> {
     try {
       await mergeLocalCoverageData();
 
-      const queueItems = await prismaSqlite.coverageQueue.findMany({
-        where: {
-          status: "PENDING",
-          OR: [{ pid: null }, { pid: currentPid }],
-        },
-        orderBy: { createdAt: "asc" },
-        take: 1,
-      });
+      const queueItems = sqliteQueueDb
+        .select()
+        .from(coverageQueue)
+        .where(
+          and(
+            eq(coverageQueue.status, "PENDING"),
+            or(isNull(coverageQueue.pid), eq(coverageQueue.pid, currentPid)),
+          ),
+        )
+        .orderBy(asc(coverageQueue.createdAt))
+        .limit(1)
+        .all();
 
       const queueItem = queueItems[0];
       if (!queueItem) {

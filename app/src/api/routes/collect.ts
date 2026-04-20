@@ -1,8 +1,9 @@
 import { createRoute } from "@hono/zod-openapi";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { Prisma } from "@prisma/client";
+import { coverageQueue } from "@/api/db/coverage-queue-schema.ts";
 import { prisma } from "@/api/lib/prisma.ts";
-import { prisma as prismaSqlite } from "@/api/lib/prisma-sqlite.ts";
+import { sqliteQueueDb } from "@/api/lib/sqlite-queue.ts";
 import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { getScm } from "@/api/lib/scm.ts";
 import { remapCoverageByOld } from "canyon-map";
@@ -165,13 +166,14 @@ collectApi.openapi(coverageClientRoute, async (c) => {
 
   try {
     // 写入队列，异步处理
-    await prismaSqlite.coverageQueue.create({
-      data: {
+    sqliteQueueDb
+      .insert(coverageQueue)
+      .values({
         payload: JSON.stringify({ coverage, buildHash, sceneKey }),
         status: "PENDING",
         pid: process.pid,
-      },
-    });
+      })
+      .run();
 
     // 同步处理
     const id = `${buildHash}|${sceneKey}`;
