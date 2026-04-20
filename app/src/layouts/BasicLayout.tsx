@@ -1,4 +1,9 @@
-import { AppstoreOutlined, MoreOutlined, SettingOutlined } from "@ant-design/icons";
+import {
+  AppstoreOutlined,
+  ExportOutlined,
+  MoreOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
 import { Avatar, Dropdown, Menu, Typography, theme } from "antd";
 import type { FC, ReactNode } from "react";
 import { useEffect, useState } from "react";
@@ -15,7 +20,7 @@ const BasicLayout: FC<{
   const { token } = theme.useToken();
   const location = useLocation();
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   type UserInfo = {
     username: string;
@@ -60,6 +65,62 @@ const BasicLayout: FC<{
   }, [user]);
 
   const selected = `/${location.pathname.split("/")[1] || "projects"}`;
+
+  const formatBuildDateLabel = (iso: string, language: string) => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    const localeTag = language === "en" ? "en-US" : language === "ja" ? "ja-JP" : "zh-CN";
+    return d.toLocaleDateString(localeTag, {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // 分区组件：构建信息（版本 / 构建时间）
+  const SidebarBuildMeta: FC = () => {
+    const dateLabel = __APP_BUILD_DATE__
+      ? formatBuildDateLabel(__APP_BUILD_DATE__, i18n.language)
+      : "";
+    const rawVersion = typeof __APP_VERSION__ !== "undefined" ? __APP_VERSION__ : "";
+    const version =
+      rawVersion && rawVersion !== "undefined" && rawVersion.trim() !== "" ? rawVersion.trim() : "";
+    const displayVersion = version.startsWith("v") ? version : version ? `v${version}` : "";
+    const tagForUrl = version.startsWith("v") ? version : version ? `v${version}` : "";
+    const releaseHref = tagForUrl
+      ? `https://github.com/canyon-project/canyon/releases/tag/${encodeURIComponent(tagForUrl)}`
+      : "https://github.com/canyon-project/canyon/releases";
+
+    return (
+      <div
+        className="flex-shrink-0 px-3 py-2"
+        style={{ borderTop: `1px solid ${token.colorBorder}` }}
+      >
+        <Typography.Text type="secondary" style={{ fontSize: 12 }} className="inline">
+          <span className="whitespace-nowrap">
+            {t("layout.builtOn")}
+            {dateLabel ? <> {dateLabel}</> : null}
+            {displayVersion ? (
+              <>
+                <span className="mx-1">·</span>
+                <a
+                  href={releaseHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={t("layout.openRelease")}
+                  className="inline-flex items-center gap-0.5 underline underline-offset-2"
+                  style={{ color: token.colorLink }}
+                >
+                  {displayVersion}
+                  <ExportOutlined style={{ fontSize: 11 }} />
+                </a>
+              </>
+            ) : null}
+          </span>
+        </Typography.Text>
+      </div>
+    );
+  };
 
   // 分区组件：侧边头部（Logo 与标题）
   const SidebarHeader: FC = () => (
@@ -172,6 +233,8 @@ const BasicLayout: FC<{
         />
 
         <SidebarMenu />
+
+        <SidebarBuildMeta />
 
         <SidebarUser />
       </div>
