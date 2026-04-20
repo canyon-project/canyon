@@ -15,4 +15,9 @@ export default {
     title: "Support",
     type: "page",
   },
+  about: {
+    title: "Blog",
+    type: "page",
+    href: "/blog/about-canyon",
+  },
 };
