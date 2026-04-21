@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { ChangedFile, CommitDetail, CommitInfo, CompareDiffItem, RepoInfo } from "./types.ts";
 import type { ScmAdapter } from "./adapter.ts";
+import {createGitProviderClient} from "@canyonjs/git-provider";
 
 type GitlabScmConfig = { type: "gitlab"; base: string; token: string };
 
@@ -22,26 +23,18 @@ export class GitlabAdapter implements ScmAdapter {
    */
   async getRepoInfo(repoID: string): Promise<RepoInfo> {
     const raw = repoID.trim();
-    const id = raw.includes("/") ? encodeURIComponent(raw) : raw;
-    const url = `${this.base}/api/v4/projects/${id}`;
-    const { data } = await axios.get<{
-      id?: number;
-      path_with_namespace?: string;
-      description?: string;
-      bu?: string;
-    }>(url, {
-      headers: this.headers(),
-      timeout: 10000,
-    });
-    if (!data?.path_with_namespace) {
-      throw new Error("GitLab 未返回 path_with_namespace");
-    }
+    const client = createGitProviderClient({
+      provider: 'gitlab',
+      token: this.token,
+      baseUrl: this.base+'/api/v4'
+    })
+    const summary = await client.getRepositorySummary(raw)
     return {
-      id: String(data.id),
-      pathWithNamespace: data.path_with_namespace,
-      description: data.description ?? "",
-      ...(data.bu != null && { bu: String(data.bu) }),
-    };
+      id: String(summary.id),
+      pathWithNamespace: summary.fullName,
+      description: summary.description ?? "",
+      bu: "默认"
+    }
   }
 
   async getChangedFiles(repoID: string, base: string, head: string): Promise<ChangedFile[]> {
