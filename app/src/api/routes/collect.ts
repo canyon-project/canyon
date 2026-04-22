@@ -6,6 +6,7 @@ import { prisma } from "@/api/lib/prisma.ts";
 import { sqliteQueueDb } from "@/api/lib/sqlite-queue.ts";
 import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { getScm } from "@/api/lib/scm.ts";
+import { publishCoverageMapInitMessage } from "@/api/lib/coverage/coverage-map-init-producer.ts";
 import { remapCoverageByOld } from "canyon-map";
 import {
   generateObjectSignature,
@@ -429,6 +430,32 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
     data: hitEntities,
     skipDuplicates: true,
   });
+
+  try {
+    await publishCoverageMapInitMessage({
+      id: coverageCreateRes.id,
+      buildHash,
+      sceneKey,
+      provider,
+      repoID,
+      sha,
+      buildTarget: buildTarget || "",
+      instrumentCwd,
+      coverageFileCount: Object.keys(coverage).length,
+      mapItemCount: mapItems.length,
+      relationItemCount: relationItems.length,
+      hitEntityCount: hitEntities.length,
+      sourceMapItemCount: sourceMapItems.length,
+      createdAt: coverageCreateRes.createdAt.toISOString(),
+      updatedAt: coverageCreateRes.updatedAt.toISOString(),
+    });
+  } catch (error) {
+    console.error("[coverage:map:init] producer failed", {
+      id: coverageCreateRes.id,
+      buildHash,
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
 
   return c.json({
     success: true,

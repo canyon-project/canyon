@@ -10,6 +10,7 @@ import { createRequire } from "node:module";
 import { getCoverageMapForCommit } from "@/api/lib/coverage/coverage-map-for-commit.ts";
 import { getCoverageMapForCr } from "@/api/lib/coverage/coverage-map-for-cr.ts";
 import { getCoverageMapForCompare } from "@/api/lib/coverage/coverage-map-for-compare.ts";
+import { publishSnapshotGeneratedMessage } from "@/api/lib/coverage/snapshot-generated-producer.ts";
 import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { buildCommitUrl } from "@/api/lib/commit-url.ts";
 import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
@@ -1312,7 +1313,7 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
         buildTarget: body.buildTarget,
         freezeTime,
       });
-      await prisma.coverageSnapshot.update({
+      const completedSnapshot = await prisma.coverageSnapshot.update({
         where: { id: created.id },
         data: {
           status: "completed",
@@ -1335,6 +1336,62 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
           finishedAt: new Date(),
           reportDataGzip: artifact.reportDataGzip,
         },
+        select: {
+          id: true,
+          provider: true,
+          repoID: true,
+          subject: true,
+          subjectID: true,
+          status: true,
+          buildHash: true,
+          artifactSize: true,
+          durationMs: true,
+          createdBy: true,
+          createdAt: true,
+          freezeTime: true,
+          finishedAt: true,
+          buildTarget: true,
+          statementsCovered: true,
+          statementsTotal: true,
+          functionsCovered: true,
+          functionsTotal: true,
+          branchesCovered: true,
+          branchesTotal: true,
+          changestatementsCovered: true,
+          changestatementsTotal: true,
+          changefunctionsCovered: true,
+          changefunctionsTotal: true,
+          changebranchesCovered: true,
+          changebranchesTotal: true,
+        },
+      });
+      await publishSnapshotGeneratedMessage({
+        snapshotID: completedSnapshot.id,
+        provider: completedSnapshot.provider,
+        repoID: completedSnapshot.repoID,
+        subject: completedSnapshot.subject,
+        subjectID: completedSnapshot.subjectID,
+        status: "completed",
+        buildHash: completedSnapshot.buildHash,
+        artifactSize: completedSnapshot.artifactSize,
+        durationMs: completedSnapshot.durationMs,
+        createdBy: completedSnapshot.createdBy,
+        createdAt: completedSnapshot.createdAt.toISOString(),
+        freezeTime: completedSnapshot.freezeTime.toISOString(),
+        finishedAt: completedSnapshot.finishedAt.toISOString(),
+        buildTarget: completedSnapshot.buildTarget,
+        statementsCovered: completedSnapshot.statementsCovered,
+        statementsTotal: completedSnapshot.statementsTotal,
+        functionsCovered: completedSnapshot.functionsCovered,
+        functionsTotal: completedSnapshot.functionsTotal,
+        branchesCovered: completedSnapshot.branchesCovered,
+        branchesTotal: completedSnapshot.branchesTotal,
+        changestatementsCovered: completedSnapshot.changestatementsCovered,
+        changestatementsTotal: completedSnapshot.changestatementsTotal,
+        changefunctionsCovered: completedSnapshot.changefunctionsCovered,
+        changefunctionsTotal: completedSnapshot.changefunctionsTotal,
+        changebranchesCovered: completedSnapshot.changebranchesCovered,
+        changebranchesTotal: completedSnapshot.changebranchesTotal,
       });
     } catch (error: unknown) {
       const status = isSnapshotTimeoutError(error) ? "timeout" : "failed";
