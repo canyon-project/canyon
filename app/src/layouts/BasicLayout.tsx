@@ -6,13 +6,12 @@ import {
 } from "@ant-design/icons";
 import { Avatar, Dropdown, Menu, Typography, theme } from "antd";
 import type { FC, ReactNode } from "react";
-import { useEffect, useState } from "react";
 import { ErrorBoundary } from "react-error-boundary";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AppFooter from "@/components/app/footer.tsx";
+import { useContent } from "@/contexts/AuthContent";
 import LayoutPlaceholder from "@/layouts/LayoutPlaceholder";
-import { getCurrentUser } from "@/services/user";
 
 const BasicLayout: FC<{
   children: ReactNode;
@@ -21,48 +20,12 @@ const BasicLayout: FC<{
   const location = useLocation();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+  const { user, status, logout } = useContent();
+  const userLoading = status === "loading";
 
-  type UserInfo = {
-    username: string;
-    nickname: string;
-    email: string;
-    avatar: string;
+  const handleLogout = async () => {
+    await logout();
   };
-
-  const [user, setUser] = useState<UserInfo | null>(null);
-  const [userLoading, setUserLoading] = useState(true);
-
-  useEffect(() => {
-    let cancelled = false;
-    getCurrentUser()
-      .then((data) => {
-        if (!cancelled && data?.username) setUser(data);
-      })
-      .catch(() => {
-        if (!cancelled) setUser(null);
-      })
-      .finally(() => {
-        if (!cancelled) setUserLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  useEffect(() => {
-    const storageKey = "canyon_user_info";
-    if (!user) {
-      localStorage.removeItem(storageKey);
-      return;
-    }
-
-    const userInfo = {
-      username: user.username,
-      nickname: user.nickname,
-      email: user.email,
-    };
-    localStorage.setItem(storageKey, JSON.stringify(userInfo));
-  }, [user]);
 
   const selected = `/${location.pathname.split("/")[1] || "projects"}`;
 
@@ -192,9 +155,7 @@ const BasicLayout: FC<{
                 items: [{ key: "logout", label: t("退出登录") || "退出登录" }],
                 onClick: async ({ key }) => {
                   if (key === "logout") {
-                    const { clearToken } = await import("@/helpers/login");
-                    clearToken();
-                    setUser(null);
+                    await handleLogout();
                   }
                 },
               }}

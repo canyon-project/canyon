@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canyon 登录</title>
+    <style>
+      :root {
+        color-scheme: light;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #f5f6f8;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        box-sizing: border-box;
+      }
+
+      .card {
+        width: 100%;
+        max-width: 420px;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+        padding: 24px;
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font-size: 22px;
+      }
+
+      p {
+        margin: 0;
+        color: #667085;
+      }
+
+      .actions {
+        margin-top: 20px;
+        display: grid;
+        gap: 10px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 8px;
+        height: 40px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      .primary {
+        background: #1677ff;
+        color: #fff;
+      }
+
+      .tips {
+        margin-top: 14px;
+        font-size: 13px;
+        color: #475467;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>欢迎回来</h1>
+      <p>登录后即可进入系统</p>
+      <div class="actions">
+        <button id="gitlab-login" class="primary" type="button">使用 GitLab 登录</button>
+      </div>
+      <p id="tips" class="tips">仅支持 GitLab SSO 登录</p>
+    </main>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const redirectPath = params.get("redirect") || "/";
+      const tipsEl = document.getElementById("tips");
+
+      function setTips(message) {
+        if (tipsEl) {
+          tipsEl.textContent = message;
+        }
+      }
+
+      async function startGitlabLogin(redirectPathname) {
+        const callbackURL = `${window.location.origin}${redirectPathname}`;
+        const endpoint = "/api/auth/sign-in/social";
+
+        async function requestSocialSignIn(payload) {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "content-type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+
+          const data = await response.json().catch(() => null);
+          if (!response.ok) {
+            const message =
+              data && typeof data.message === "string" ? data.message : "GitLab 登录失败，请重试";
+            const error = new Error(message);
+            error.code = data && typeof data.code === "string" ? data.code : "UNKNOWN_ERROR";
+            throw error;
+          }
+
+          if (!data || typeof data.url !== "string") {
+            throw new Error("登录响应异常，请稍后重试");
+          }
+
+          return data.url;
+        }
+
+        try {
+          const url = await requestSocialSignIn({
+            provider: "gitlab",
+            callbackURL,
+          });
+          window.location.replace(url);
+        } catch (error) {
+          if (error && error.code === "INVALID_CALLBACK_URL") {
+            const url = await requestSocialSignIn({
+              provider: "gitlab",
+            });
+            window.location.replace(url);
+            return;
+          }
+          throw error;
+        }
+      }
+
+      document.getElementById("gitlab-login")?.addEventListener("click", async () => {
+        setTips("正在跳转 GitLab...");
+        try {
+          await startGitlabLogin(redirectPath);
+        } catch (error) {
+          setTips(error instanceof Error ? error.message : "GitLab 登录失败，请重试");
+        }
+      });
+    </script>
+  </body>
+</html>

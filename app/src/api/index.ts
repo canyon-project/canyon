@@ -16,6 +16,7 @@ import coverageApi from "@/api/routes/coverage.ts";
 import userApi from "@/api/routes/user.ts";
 import infraApi from "@/api/routes/infra.ts";
 import loggerApi from "@/api/routes/logger.ts";
+import { getAuth } from "@/api/lib/auth.ts"
 import { historyApiFallback } from "hono-history-api-fallback";
 
 await loadInfra();
@@ -65,6 +66,10 @@ api.post("/debug/body-size", async (c) => {
 app.get("/vi/health", (c) => c.text("OK"));
 
 app.use("/api/*", cors());
+
+app.on(["POST", "GET"], "/api/auth/*", (c) => {
+  return getAuth().handler(c.req.raw);
+});
 
 app.route("/api", api);
 

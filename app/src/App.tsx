@@ -3,9 +3,9 @@ import enUS from "antd/es/locale/en_US";
 import jaJP from "antd/es/locale/ja_JP";
 import zhCN from "antd/es/locale/zh_CN";
 import { useRoutes } from "react-router-dom";
+import AppAuthGuard from "@/guards/AppAuthGuard";
 import CoverageReport from "@/independents/report/index.tsx";
 import routes from "~react-pages";
-import { AuthLayer } from "@/providers/AuthLayer";
 
 const languages = {
   cn: zhCN,
@@ -38,7 +38,7 @@ const App = () => {
         algorithm: isDark ? [darkAlgorithm] : [],
       }}
     >
-      <AuthLayer>{useRoutes(routes)}</AuthLayer>
+      <AppAuthGuard>{useRoutes(routes)}</AppAuthGuard>
     </ConfigProvider>
   );
 };
