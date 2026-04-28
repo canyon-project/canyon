@@ -4,6 +4,7 @@ import { OpenAPIHono } from "@hono/zod-openapi";
 import { prisma } from "@/api/lib/prisma.ts";
 import { getScm } from "@/api/lib/scm.ts";
 import { buildRepoUrl } from "@/api/lib/commit-url.ts";
+import { getAuth } from "@/api/lib/auth.ts";
 import { RepoSchema, CreateRepoSchema, UpdateRepoSchema } from "@/shared/schemas/repo.ts";
 
 const IdParamSchema = z.object({
@@ -129,6 +130,8 @@ const createRouteDef = createRoute({
       },
       description: "创建成功",
     },
+    400: { description: "参数错误或获取仓库信息失败" },
+    401: { description: "未登录" },
   },
 });
 
@@ -182,6 +185,7 @@ const toResponse = (
     description: string;
     config: string;
     bu: string;
+    creator: string;
     createdAt: Date;
     updatedAt: Date;
   },
@@ -315,6 +319,13 @@ reposApi.openapi(getRoute, async (c) => {
 });
 
 reposApi.openapi(createRouteDef, async (c) => {
+  const session = await getAuth().api.getSession({
+    headers: c.req.raw.headers,
+  });
+  if (!session?.user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  const creator = session.user.id;
   const body = c.req.valid("json");
   const scm = getScm(body.provider);
   if (!scm) {
@@ -324,7 +335,6 @@ reposApi.openapi(createRouteDef, async (c) => {
     const info = await scm.getRepoInfo(body.repoID.trim());
     const id = `${body.provider}-${info.id}`;
     const now = new Date();
-    console.log("info", info, id);
     const repo = await prisma.repo.create({
       data: {
         id,
@@ -333,6 +343,7 @@ reposApi.openapi(createRouteDef, async (c) => {
         description: info.description ?? "",
         config: body.config ?? "",
         bu: info.bu ?? body.bu ?? "",
+        creator,
         createdAt: now,
         updatedAt: now,
       },

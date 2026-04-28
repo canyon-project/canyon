@@ -9,6 +9,7 @@ export const RepoSchema = z
     description: z.string(),
     config: z.string(),
     bu: z.string(),
+    creator: z.string(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
     reportTimes: z.number().optional(),
