@@ -131,9 +131,9 @@ export async function mapCommand(params: any, options: any) {
     ...(sceneMap && { scene: sceneMap }),
     ...(diffData && { diff: diffData }),
   };
-  if (debug === "true") {
-    logger.info(p);
-  }
+  // if (debug === "true") {
+  //   logger.info(p);
+  // }
   await axios
     .post(dsn, {
       ...p,
