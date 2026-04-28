@@ -83,6 +83,7 @@ model Repo {
   description       String
   config            String
   bu                String
+  creator           String   @default("")
   createdAt         DateTime @map("created_at")
   updatedAt         DateTime @map("updated_at")
 
