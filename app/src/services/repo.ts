@@ -8,6 +8,24 @@ export function getBu() {
 }
 
 export type ReposQuery = { bu?: string; search?: string };
+export type RepoMemberRole = "admin" | "developer";
+
+export type RepoMember = {
+  id: string;
+  repoID: string;
+  userID: string;
+  userName?: string | null;
+  userEmail?: string | null;
+  role: RepoMemberRole;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type MemberCandidateUser = {
+  id: string;
+  name: string;
+  email: string;
+};
 
 /**
  * 获取仓库列表
@@ -58,7 +76,7 @@ export function updateRepo(
   repoId: string,
   data: { bu?: string; description?: string; config?: string },
 ) {
-  return request.patch(`/api/repos/${encodeURIComponent(repoId)}`, data);
+  return request.put(`/api/repos/${encodeURIComponent(repoId)}`, data);
 }
 
 /**
@@ -67,4 +85,44 @@ export function updateRepo(
  */
 export function deleteRepo(repoId: string) {
   return request.delete(`/api/repos/${encodeURIComponent(repoId)}`);
+}
+
+export function getRepoMembers(repoId: string) {
+  return request
+    .get<RepoMember[]>(`/api/repos/${encodeURIComponent(repoId)}/members`)
+    .then((res) => res.data);
+}
+
+export function searchRepoMemberCandidates(
+  repoId: string,
+  params?: { keyword?: string; limit?: number },
+) {
+  return request
+    .get<MemberCandidateUser[]>(`/api/repos/${encodeURIComponent(repoId)}/member-candidates`, {
+      params,
+    })
+    .then((res) => res.data);
+}
+
+export function createRepoMember(
+  repoId: string,
+  data: { userID: string; role: RepoMemberRole },
+) {
+  return request
+    .post<RepoMember>(`/api/repos/${encodeURIComponent(repoId)}/members`, data)
+    .then((res) => res.data);
+}
+
+export function updateRepoMember(
+  repoId: string,
+  memberId: string,
+  data: { userID?: string; role?: RepoMemberRole },
+) {
+  return request
+    .put<RepoMember>(`/api/repos/${encodeURIComponent(repoId)}/members/${memberId}`, data)
+    .then((res) => res.data);
+}
+
+export function deleteRepoMember(repoId: string, memberId: string) {
+  return request.delete(`/api/repos/${encodeURIComponent(repoId)}/members/${memberId}`);
 }
