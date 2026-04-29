@@ -5,10 +5,22 @@ import { prisma } from "@/api/lib/prisma.ts";
 import { getScm } from "@/api/lib/scm.ts";
 import { buildRepoUrl } from "@/api/lib/commit-url.ts";
 import { getAuth } from "@/api/lib/auth.ts";
-import { RepoSchema, CreateRepoSchema, UpdateRepoSchema } from "@/shared/schemas/repo.ts";
+import {
+  RepoSchema,
+  CreateRepoSchema,
+  UpdateRepoSchema,
+  RepoMemberSchema,
+  CreateRepoMemberSchema,
+  UpdateRepoMemberSchema,
+} from "@/shared/schemas/repo.ts";
 
 const IdParamSchema = z.object({
   id: z.string().openapi({ param: { name: "id", in: "path" } }),
+});
+
+const MemberIdParamSchema = z.object({
+  id: z.string().openapi({ param: { name: "id", in: "path" } }),
+  memberId: z.string().openapi({ param: { name: "memberId", in: "path" } }),
 });
 
 const checkRoute = createRoute({
@@ -175,6 +187,136 @@ const deleteRoute = createRoute({
   },
 });
 
+const listMembersRoute = createRoute({
+  method: "get",
+  path: "/{id}/members",
+  summary: "获取仓库成员",
+  description: "获取仓库成员列表，成员角色支持 admin / developer。",
+  tags: ["仓库"],
+  request: { params: IdParamSchema },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.array(RepoMemberSchema),
+        },
+      },
+      description: "成员列表",
+    },
+    404: { description: "未找到" },
+  },
+});
+
+const searchMemberCandidatesRoute = createRoute({
+  method: "get",
+  path: "/{id}/member-candidates",
+  summary: "搜索可添加成员用户",
+  description: "按用户 name/email 关键字模糊匹配，返回 user id、name、email。",
+  tags: ["仓库"],
+  request: {
+    params: IdParamSchema,
+    query: z.object({
+      keyword: z
+        .string()
+        .optional()
+        .openapi({ param: { name: "keyword", in: "query" } }),
+      limit: z
+        .coerce.number()
+        .int()
+        .min(1)
+        .max(50)
+        .optional()
+        .openapi({ param: { name: "limit", in: "query" } }),
+    }),
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.array(
+            z.object({
+              id: z.string(),
+              name: z.string(),
+              email: z.string(),
+            }),
+          ),
+        },
+      },
+      description: "候选用户列表",
+    },
+    404: { description: "未找到" },
+  },
+});
+
+const createMemberRoute = createRoute({
+  method: "post",
+  path: "/{id}/members",
+  summary: "新增仓库成员",
+  description: "通过 userID 新增成员，并设置角色（admin / developer）。",
+  tags: ["仓库"],
+  request: {
+    params: IdParamSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: CreateRepoMemberSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    201: {
+      content: {
+        "application/json": { schema: RepoMemberSchema },
+      },
+      description: "创建成功",
+    },
+    404: { description: "未找到" },
+    409: { description: "成员已存在" },
+  },
+});
+
+const updateMemberRoute = createRoute({
+  method: "put",
+  path: "/{id}/members/{memberId}",
+  summary: "更新仓库成员",
+  description: "更新成员 userID 或角色（admin / developer）。",
+  tags: ["仓库"],
+  request: {
+    params: MemberIdParamSchema,
+    body: {
+      content: {
+        "application/json": {
+          schema: UpdateRepoMemberSchema,
+        },
+      },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": { schema: RepoMemberSchema },
+      },
+      description: "更新成功",
+    },
+    404: { description: "未找到" },
+    409: { description: "成员已存在" },
+  },
+});
+
+const deleteMemberRoute = createRoute({
+  method: "delete",
+  path: "/{id}/members/{memberId}",
+  summary: "删除仓库成员",
+  description: "删除仓库成员。",
+  tags: ["仓库"],
+  request: { params: MemberIdParamSchema },
+  responses: {
+    204: { description: "删除成功" },
+    404: { description: "未找到" },
+  },
+});
+
 const reposApi = new OpenAPIHono();
 
 const toResponse = (
@@ -198,6 +340,21 @@ const toResponse = (
     reportTimes: extra.reportTimes ?? 0,
     lastReportTime: extra.lastReportTime?.toISOString() ?? null,
   }),
+});
+
+const toMemberResponse = (m: {
+  id: string;
+  repoID: string;
+  userID: string;
+  userName?: string | null;
+  userEmail?: string | null;
+  role: "admin" | "developer";
+  createdAt: Date;
+  updatedAt: Date;
+}) => ({
+  ...m,
+  createdAt: m.createdAt.toISOString(),
+  updatedAt: m.updatedAt.toISOString(),
 });
 
 reposApi.openapi(checkRoute, async (c) => {
@@ -363,10 +520,14 @@ async function resolveRepoId(id: string): Promise<string | null> {
     });
     return repo?.id ?? null;
   }
-  const repo = await prisma.repo.findUnique({
+  const exact = await prisma.repo.findUnique({
     where: { id: decodedId },
   });
-  return repo?.id ?? null;
+  if (exact) return exact.id;
+  const shortMatched = await prisma.repo.findFirst({
+    where: { id: { endsWith: `-${decodedId}` } },
+  });
+  return shortMatched?.id ?? null;
 }
 
 reposApi.openapi(updateRoute, async (c) => {
@@ -402,6 +563,150 @@ reposApi.openapi(deleteRoute, async (c) => {
   } catch {
     return c.json({ error: "Not found" }, 404);
   }
+});
+
+reposApi.openapi(listMembersRoute, async (c) => {
+  const { id } = c.req.valid("param");
+  const resolvedId = await resolveRepoId(id);
+  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+  const members = await prisma.repoMember.findMany({
+    where: { repoID: resolvedId },
+    orderBy: { createdAt: "desc" },
+  });
+  const users = await prisma.user.findMany({
+    select: { id: true, name: true, email: true },
+    where: { id: { in: members.map((member) => member.userID) } },
+  });
+  const userMap = new Map(users.map((user) => [user.id, user]));
+  return c.json(
+    members.map((member) => {
+      const user = userMap.get(member.userID);
+      return toMemberResponse({
+        ...member,
+        userName: user?.name ?? null,
+        userEmail: user?.email ?? null,
+      });
+    }),
+  );
+});
+
+reposApi.openapi(searchMemberCandidatesRoute, async (c) => {
+  const { id } = c.req.valid("param");
+  const query = c.req.valid("query");
+  const resolvedId = await resolveRepoId(id);
+  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+
+  const keyword = (query.keyword ?? "").trim();
+  const limit = query.limit ?? 20;
+  const users = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+    where: keyword
+      ? {
+          OR: [
+            { name: { contains: keyword, mode: "insensitive" } },
+            { email: { contains: keyword, mode: "insensitive" } },
+          ],
+        }
+      : undefined,
+    orderBy: { createdAt: "desc" },
+    take: limit,
+  });
+  return c.json(users);
+});
+
+reposApi.openapi(createMemberRoute, async (c) => {
+  const { id } = c.req.valid("param");
+  const body = c.req.valid("json");
+  const resolvedId = await resolveRepoId(id);
+  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+  try {
+    const member = await prisma.repoMember.create({
+      data: {
+        repoID: resolvedId,
+        userID: body.userID,
+        role: body.role,
+      },
+    });
+    const user = await prisma.user.findUnique({
+      select: { name: true, email: true },
+      where: { id: member.userID },
+    });
+    return c.json(
+      toMemberResponse({
+        ...member,
+        userName: user?.name ?? null,
+        userEmail: user?.email ?? null,
+      }),
+      201,
+    );
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: string }).code === "P2002"
+    ) {
+      return c.json({ error: "Member already exists" }, 409);
+    }
+    return c.json({ error: "Create failed" }, 400);
+  }
+});
+
+reposApi.openapi(updateMemberRoute, async (c) => {
+  const { id, memberId } = c.req.valid("param");
+  const body = c.req.valid("json");
+  const resolvedId = await resolveRepoId(id);
+  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+  const exists = await prisma.repoMember.findFirst({
+    where: { id: memberId, repoID: resolvedId },
+  });
+  if (!exists) return c.json({ error: "Not found" }, 404);
+  try {
+    const member = await prisma.repoMember.update({
+      where: { id: memberId },
+      data: {
+        ...(body.userID !== undefined && { userID: body.userID }),
+        ...(body.role !== undefined && { role: body.role }),
+      },
+    });
+    const user = await prisma.user.findUnique({
+      select: { name: true, email: true },
+      where: { id: member.userID },
+    });
+    return c.json(
+      toMemberResponse({
+        ...member,
+        userName: user?.name ?? null,
+        userEmail: user?.email ?? null,
+      }),
+    );
+  } catch (error) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: string }).code === "P2002"
+    ) {
+      return c.json({ error: "Member already exists" }, 409);
+    }
+    return c.json({ error: "Update failed" }, 400);
+  }
+});
+
+reposApi.openapi(deleteMemberRoute, async (c) => {
+  const { id, memberId } = c.req.valid("param");
+  const resolvedId = await resolveRepoId(id);
+  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+  const exists = await prisma.repoMember.findFirst({
+    where: { id: memberId, repoID: resolvedId },
+  });
+  if (!exists) return c.json({ error: "Not found" }, 404);
+  await prisma.repoMember.delete({ where: { id: memberId } });
+  return c.body(null, 204);
 });
 
 export default reposApi;

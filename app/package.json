@@ -11,6 +11,8 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "generate": "prisma generate",
+    "seed:mock:users": "node ./scripts/seed-mock-users.mjs",
+    "seed:mock:repos": "node ./scripts/seed-mock-repos.mjs",
     "postinstall": "npm run generate",
     "preinstall": "node ./scripts/check.mjs",
     "migrate:sql": "prisma migrate diff --from-empty --to-schema-datamodel ./prisma/schema.prisma --script > ./schema.sql"

@@ -86,8 +86,28 @@ model Repo {
   creator           String   @default("")
   createdAt         DateTime @map("created_at")
   updatedAt         DateTime @map("updated_at")
+  members           RepoMember[]
 
   @@map("canyon_next_repo")
+}
+
+enum RepoMemberRole {
+  admin
+  developer
+}
+
+model RepoMember {
+  id        String         @id @default(cuid())
+  repoID    String         @map("repo_id")
+  userID    String         @map("user_id")
+  role      RepoMemberRole @default(developer)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+  repo      Repo           @relation(fields: [repoID], references: [id], onDelete: Cascade)
+
+  @@unique([repoID, userID])
+  @@index([repoID])
+  @@map("canyon_next_repo_member")
 }
 
 // 更新
