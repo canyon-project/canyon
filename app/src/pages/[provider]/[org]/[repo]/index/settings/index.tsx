@@ -3,7 +3,6 @@ import { Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, T
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useRef, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
-import { getRepoIDFromId } from "@/helpers/repo";
 import {
   createRepoMember,
   deleteRepoMember,
@@ -23,7 +22,6 @@ type Repo = {
   id: string;
   pathWithNamespace: string;
   description: string;
-  bu: string;
 };
 
 type MemberFormValues = {
@@ -49,14 +47,14 @@ const RepoSettings = () => {
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const repoPath = repo?.pathWithNamespace || `${params.org}/${params.repo}`;
-  const repoID = getRepoIDFromId(repo?.id);
-  const bu = repo?.bu || "";
+  const repoID = repo?.id;
+  const provider = params.provider;
 
   const fetchMembers = async () => {
-    if (!repoID) return;
+    if (!repoID || !provider) return;
     setMembersLoading(true);
     try {
-      const data = await getRepoMembers(repoID);
+      const data = await getRepoMembers(repoID, provider);
       setMembers(Array.isArray(data) ? data : []);
     } catch {
       message.error("获取成员列表失败");
@@ -79,14 +77,14 @@ const RepoSettings = () => {
   }, []);
 
   const onSaveRepo = async () => {
-    if (!repoID) {
-      message.error("仓库 ID 不存在");
+    if (!repoID || !provider) {
+      message.error("仓库 ID 或 provider 不存在");
       return;
     }
     setLoading(true);
     try {
-      const values = form.getFieldsValue() as { bu?: string; description?: string };
-      await updateRepo(repoID, { bu: values.bu, description: values.description });
+      const values = form.getFieldsValue() as { description?: string };
+      await updateRepo(repoID, provider, { description: values.description });
       message.success("保存成功");
     } catch (error) {
       message.error("保存失败");
@@ -123,10 +121,10 @@ const RepoSettings = () => {
   });
 
   const loadMemberCandidates = async (keyword: string) => {
-    if (!repoID) return;
+    if (!repoID || !provider) return;
     setCandidateLoading(true);
     try {
-      const users = await searchRepoMemberCandidates(repoID, { keyword, limit: 20 });
+      const users = await searchRepoMemberCandidates(repoID, provider, { keyword, limit: 20 });
       setCandidateOptions(users.map(toCandidateOption));
     } catch {
       message.error("搜索用户失败");
@@ -145,18 +143,18 @@ const RepoSettings = () => {
   };
 
   const handleMemberSubmit = async () => {
-    if (!repoID) {
-      message.error("仓库 ID 不存在");
+    if (!repoID || !provider) {
+      message.error("仓库 ID 或 provider 不存在");
       return;
     }
     try {
       const values = await memberForm.validateFields();
       setMemberSubmitting(true);
       if (editingMember) {
-        await updateRepoMember(repoID, editingMember.id, values);
+        await updateRepoMember(repoID, provider, editingMember.id, values);
         message.success("成员更新成功");
       } else {
-        await createRepoMember(repoID, values);
+        await createRepoMember(repoID, provider, values);
         message.success("成员添加成功");
       }
       setMemberModalOpen(false);
@@ -176,12 +174,12 @@ const RepoSettings = () => {
   };
 
   const handleDeleteMember = async (member: RepoMember) => {
-    if (!repoID) {
-      message.error("仓库 ID 不存在");
+    if (!repoID || !provider) {
+      message.error("仓库 ID 或 provider 不存在");
       return;
     }
     try {
-      await deleteRepoMember(repoID, member.id);
+      await deleteRepoMember(repoID, provider, member.id);
       message.success("成员删除成功");
       await fetchMembers();
     } catch {
@@ -259,16 +257,13 @@ className="mb-4"
         <Form
           form={form}
           layout={"vertical"}
-          initialValues={{ repoPath, repoID, bu, description: repo?.description || "" }}
+          initialValues={{ repoPath, repoID, description: repo?.description || "" }}
         >
           <Form.Item label={"仓库"} name={"repoPath"}>
             <Input disabled />
           </Form.Item>
           <Form.Item label={"项目 ID"} name={"repoID"}>
             <Input disabled />
-          </Form.Item>
-          <Form.Item label={"Bu"} name={"bu"}>
-            <Input placeholder={"请输入 Bu"} />
           </Form.Item>
           <Form.Item label={"描述"} name={"description"}>
             <Input.TextArea rows={4} placeholder={"请输入项目描述"} />

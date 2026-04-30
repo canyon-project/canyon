@@ -10,7 +10,6 @@ type Repo = {
   id: string;
   pathWithNamespace: string;
   description: string;
-  bu: string;
   tags: string;
   members: string;
   config: string;
@@ -28,11 +27,11 @@ const ProjectDetailPage = () => {
 
   useEffect(() => {
     const fetchRepo = async () => {
-      if (!params.org || !params.repo) return;
+      if (!params.org || !params.repo || !params.provider) return;
       setLoading(true);
       try {
         const repoId = `${params.org}/${params.repo}`;
-        const { data } = await getRepo(repoId);
+        const { data } = await getRepo(repoId, params.provider);
         setRepo(data);
       } catch (error: unknown) {
         const status = (error as { response?: { status: number } })?.response?.status;

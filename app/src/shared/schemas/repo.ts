@@ -8,7 +8,6 @@ export const RepoSchema = z
     pathWithNamespace: z.string(),
     description: z.string(),
     config: z.string(),
-    bu: z.string(),
     creator: z.string(),
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),
@@ -24,7 +23,6 @@ export const CreateRepoSchema = z
     provider: z.string().min(1).openapi({ example: "gitlab" }),
     repoID: z.string().min(1).openapi({ example: "118075" }),
     config: z.string().optional().default(""),
-    bu: z.string().optional().default(""),
   })
   .openapi("CreateRepo");
 
@@ -33,7 +31,6 @@ export const UpdateRepoSchema = z
   .object({
     description: z.string().optional(),
     config: z.string().optional(),
-    bu: z.string().optional(),
   })
   .openapi("UpdateRepo");
 
@@ -43,6 +40,7 @@ export const RepoMemberSchema = z
   .object({
     id: z.string(),
     repoID: z.string(),
+    provider: z.string(),
     userID: z.string(),
     userName: z.string().nullable().optional(),
     userEmail: z.string().nullable().optional(),

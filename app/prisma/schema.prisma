@@ -78,15 +78,14 @@ model Verification {
 // 更新
 model Repo {
   id                String   @id
+  repoID            String   @map("repo_id")
   provider          String
   pathWithNamespace String   @map("path_with_namespace")
   description       String
   config            String
-  bu                String
   creator           String   @default("")
   createdAt         DateTime @map("created_at")
   updatedAt         DateTime @map("updated_at")
-  members           RepoMember[]
 
   @@map("canyon_next_repo")
 }
@@ -99,14 +98,13 @@ enum RepoMemberRole {
 model RepoMember {
   id        String         @id @default(cuid())
   repoID    String         @map("repo_id")
+  provider  String
   userID    String         @map("user_id")
   role      RepoMemberRole @default(developer)
   createdAt DateTime       @default(now()) @map("created_at")
   updatedAt DateTime       @updatedAt @map("updated_at")
-  repo      Repo           @relation(fields: [repoID], references: [id], onDelete: Cascade)
 
-  @@unique([repoID, userID])
-  @@index([repoID])
+  @@unique([repoID, userID, provider])
   @@map("canyon_next_repo_member")
 }
 
@@ -246,38 +244,38 @@ model CoverageLock {
 }
 
 model CoverageSnapshot {
-  id           Int      @id @default(autoincrement())
-  provider     String
-  repoID       String   @map("repo_id")
-  subject      String
-  subjectID    String   @map("subject_id")
-  title        String?
-  description  String?
-  freezeTime   DateTime @map("freeze_time") @db.Timestamp(3)
-  status       String
-  artifactZip  Bytes    @map("artifact_zip")
-  artifactSize Int      @map("artifact_size")
-  createdBy    String   @map("created_by")
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
-  finishedAt   DateTime @map("finished_at") @db.Timestamp(3)
-  buildHash    String   @map("build_hash")
-  buildTarget  String   @default("") @map("build_target")
-  scene        Json
-  statementsCovered      Int? @map("statements_covered")
-  statementsTotal        Int? @map("statements_total")
-  functionsCovered       Int? @map("functions_covered")
-  functionsTotal         Int? @map("functions_total")
-  branchesCovered        Int? @map("branches_covered")
-  branchesTotal          Int? @map("branches_total")
-  changestatementsCovered Int? @map("changestatements_covered")
-  changestatementsTotal   Int? @map("changestatements_total")
-  changefunctionsCovered  Int? @map("changefunctions_covered")
-  changefunctionsTotal    Int? @map("changefunctions_total")
-  changebranchesCovered   Int? @map("changebranches_covered")
-  changebranchesTotal     Int? @map("changebranches_total")
-  durationMs              Int? @map("duration_ms")
+  id                      Int      @id @default(autoincrement())
+  provider                String
+  repoID                  String   @map("repo_id")
+  subject                 String
+  subjectID               String   @map("subject_id")
+  title                   String?
+  description             String?
+  freezeTime              DateTime @map("freeze_time") @db.Timestamp(3)
+  status                  String
+  artifactZip             Bytes    @map("artifact_zip")
+  artifactSize            Int      @map("artifact_size")
+  createdBy               String   @map("created_by")
+  createdAt               DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  finishedAt              DateTime @map("finished_at") @db.Timestamp(3)
+  buildHash               String   @map("build_hash")
+  buildTarget             String   @default("") @map("build_target")
+  scene                   Json
+  statementsCovered       Int?     @map("statements_covered")
+  statementsTotal         Int?     @map("statements_total")
+  functionsCovered        Int?     @map("functions_covered")
+  functionsTotal          Int?     @map("functions_total")
+  branchesCovered         Int?     @map("branches_covered")
+  branchesTotal           Int?     @map("branches_total")
+  changestatementsCovered Int?     @map("changestatements_covered")
+  changestatementsTotal   Int?     @map("changestatements_total")
+  changefunctionsCovered  Int?     @map("changefunctions_covered")
+  changefunctionsTotal    Int?     @map("changefunctions_total")
+  changebranchesCovered   Int?     @map("changebranches_covered")
+  changebranchesTotal     Int?     @map("changebranches_total")
+  durationMs              Int?     @map("duration_ms")
   /// 与 report-data.js 中 window.reportData（base64 gzip）对应的原始 gzip 字节，解压后为 JSON
-  reportDataGzip          Bytes? @map("report_data_gzip")
+  reportDataGzip          Bytes?   @map("report_data_gzip")
 
   @@map("canyon_next_coverage_snapshot")
 }

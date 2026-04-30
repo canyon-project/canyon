@@ -10,8 +10,6 @@ export interface RepoInfo {
   id: string;
   pathWithNamespace: string;
   description: string;
-  /** 业务单元，从 SCM 接口返回中取（若平台有该字段） */
-  bu?: string;
 }
 
 export interface ChangedFile {

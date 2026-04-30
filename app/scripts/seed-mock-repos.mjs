@@ -108,7 +108,6 @@ const KNOWN_PROJECTS = [
 
 const REPO_COUNT = KNOWN_PROJECTS.length;
 const CHUNK_SIZE = 50;
-const BU_LIST = ["rd", "qa", "infra", "fe", "be", "data"];
 
 function pickProvider(index) {
   return index % 2 === 0 ? "gitlab" : "github";
@@ -125,13 +124,14 @@ function buildRepo(index, creator) {
   const project = KNOWN_PROJECTS[index];
   const provider = pickProvider(index);
   const numericRepoId = 500000 + index + 1;
+  const repoID = String(numericRepoId);
   return {
-    id: `${provider}-${numericRepoId}`,
+    id: `${provider}-${repoID}`,
+    repoID,
     provider,
     pathWithNamespace: `${project.owner}/${project.repo}`,
     description: project.description,
     config: "",
-    bu: BU_LIST[index % BU_LIST.length],
     creator,
     createdAt: new Date(),
     updatedAt: new Date(),
