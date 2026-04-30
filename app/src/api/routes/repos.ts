@@ -483,21 +483,28 @@ reposApi.openapi(createRouteDef, async (c) => {
   }
 });
 
-async function resolveRepoId(id: string, provider: string): Promise<string | null> {
+async function resolveRepo(
+  id: string,
+  provider: string,
+): Promise<{ id: string; repoID: string } | null> {
   const decodedId = decodeURIComponent(id);
   if (decodedId.includes("/")) {
     const repo = await prisma.repo.findFirst({
       where: { pathWithNamespace: decodedId, provider },
-      select: { id: true },
+      select: { id: true, repoID: true },
     });
-    return repo?.id ?? null;
+    return repo;
   }
   const fullId = decodedId.startsWith(`${provider}-`) ? decodedId : `${provider}-${decodedId}`;
-  const exact = await prisma.repo.findUnique({
+  return prisma.repo.findUnique({
     where: { id: fullId },
-    select: { id: true },
+    select: { id: true, repoID: true },
   });
-  return exact?.id ?? null;
+}
+
+async function resolveRepoId(id: string, provider: string): Promise<string | null> {
+  const repo = await resolveRepo(id, provider);
+  return repo?.id ?? null;
 }
 
 reposApi.openapi(updateRoute, async (c) => {
@@ -539,10 +546,10 @@ reposApi.openapi(deleteRoute, async (c) => {
 reposApi.openapi(listMembersRoute, async (c) => {
   const { id } = c.req.valid("param");
   const { provider } = c.req.valid("query");
-  const resolvedId = await resolveRepoId(id, provider);
-  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+  const resolvedRepo = await resolveRepo(id, provider);
+  if (!resolvedRepo) return c.json({ error: "Not found" }, 404);
   const members = await prisma.repoMember.findMany({
-    where: { repoID: resolvedId, provider },
+    where: { repoID: resolvedRepo.repoID, provider },
     orderBy: { createdAt: "desc" },
   });
   const users = await prisma.user.findMany({
@@ -565,8 +572,8 @@ reposApi.openapi(listMembersRoute, async (c) => {
 reposApi.openapi(searchMemberCandidatesRoute, async (c) => {
   const { id } = c.req.valid("param");
   const query = c.req.valid("query");
-  const resolvedId = await resolveRepoId(id, query.provider);
-  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+  const resolvedRepo = await resolveRepo(id, query.provider);
+  if (!resolvedRepo) return c.json({ error: "Not found" }, 404);
 
   const keyword = (query.keyword ?? "").trim();
   const limit = query.limit ?? 20;
@@ -594,12 +601,12 @@ reposApi.openapi(createMemberRoute, async (c) => {
   const { id } = c.req.valid("param");
   const { provider } = c.req.valid("query");
   const body = c.req.valid("json");
-  const resolvedId = await resolveRepoId(id, provider);
-  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+  const resolvedRepo = await resolveRepo(id, provider);
+  if (!resolvedRepo) return c.json({ error: "Not found" }, 404);
   try {
     const member = await prisma.repoMember.create({
       data: {
-        repoID: resolvedId,
+        repoID: resolvedRepo.repoID,
         provider,
         userID: body.userID,
         role: body.role,
@@ -634,10 +641,10 @@ reposApi.openapi(updateMemberRoute, async (c) => {
   const { id, memberId } = c.req.valid("param");
   const { provider } = c.req.valid("query");
   const body = c.req.valid("json");
-  const resolvedId = await resolveRepoId(id, provider);
-  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+  const resolvedRepo = await resolveRepo(id, provider);
+  if (!resolvedRepo) return c.json({ error: "Not found" }, 404);
   const exists = await prisma.repoMember.findFirst({
-    where: { id: memberId, repoID: resolvedId, provider },
+    where: { id: memberId, repoID: resolvedRepo.repoID, provider },
   });
   if (!exists) return c.json({ error: "Not found" }, 404);
   try {
@@ -675,10 +682,10 @@ reposApi.openapi(updateMemberRoute, async (c) => {
 reposApi.openapi(deleteMemberRoute, async (c) => {
   const { id, memberId } = c.req.valid("param");
   const { provider } = c.req.valid("query");
-  const resolvedId = await resolveRepoId(id, provider);
-  if (!resolvedId) return c.json({ error: "Not found" }, 404);
+  const resolvedRepo = await resolveRepo(id, provider);
+  if (!resolvedRepo) return c.json({ error: "Not found" }, 404);
   const exists = await prisma.repoMember.findFirst({
-    where: { id: memberId, repoID: resolvedId, provider },
+    where: { id: memberId, repoID: resolvedRepo.repoID, provider },
   });
   if (!exists) return c.json({ error: "Not found" }, 404);
   await prisma.repoMember.delete({ where: { id: memberId } });
