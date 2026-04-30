@@ -79,10 +79,10 @@ const ReportIndependent = () => {
   const { data: repoData } = useRequest(
     async () => {
       const repoId = `${org}/${repo}`;
-      const { data } = await getRepo(repoId);
+      const { data } = await getRepo(repoId, provider);
       return data;
     },
-    { refreshDeps: [org, repo] },
+    { refreshDeps: [org, repo, provider] },
   );
 
   const repoID = getRepoIDFromId(repoData?.id);

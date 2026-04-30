@@ -6,6 +6,7 @@ export type RepoMemberRole = "admin" | "developer";
 export type RepoMember = {
   id: string;
   repoID: string;
+  provider: string;
   userID: string;
   userName?: string | null;
   userEmail?: string | null;
@@ -31,16 +32,18 @@ export function getRepos(params?: ReposQuery) {
  * 获取仓库详情
  * @param repoId repoID（短）或 pathWithNamespace（org/repo）
  */
-export function getRepo(repoId: string) {
-  return request.get(`/api/repos/${encodeURIComponent(repoId)}`).then((res) => {
-    const data = res.data;
-    return {
-      data: {
-        ...data,
-        id: data.id?.split("-").pop() ?? "",
-      },
-    };
-  });
+export function getRepo(repoId: string, provider: string) {
+  return request
+    .get(`/api/repos/${encodeURIComponent(repoId)}`, { params: { provider } })
+    .then((res) => {
+      const data = res.data;
+      return {
+        data: {
+          ...data,
+          id: data.id?.split("-").pop() ?? "",
+        },
+      };
+    });
 }
 
 /**
@@ -67,55 +70,63 @@ export function createRepo(data: { repoID: string; provider: string }) {
  */
 export function updateRepo(
   repoId: string,
+  provider: string,
   data: { description?: string; config?: string },
 ) {
-  return request.put(`/api/repos/${encodeURIComponent(repoId)}`, data);
+  return request.put(`/api/repos/${encodeURIComponent(repoId)}`, data, { params: { provider } });
 }
 
 /**
  * 删除仓库
  * @param repoId repoID（短）
  */
-export function deleteRepo(repoId: string) {
-  return request.delete(`/api/repos/${encodeURIComponent(repoId)}`);
+export function deleteRepo(repoId: string, provider: string) {
+  return request.delete(`/api/repos/${encodeURIComponent(repoId)}`, { params: { provider } });
 }
 
-export function getRepoMembers(repoId: string) {
+export function getRepoMembers(repoId: string, provider: string) {
   return request
-    .get<RepoMember[]>(`/api/repos/${encodeURIComponent(repoId)}/members`)
+    .get<RepoMember[]>(`/api/repos/${encodeURIComponent(repoId)}/members`, { params: { provider } })
     .then((res) => res.data);
 }
 
 export function searchRepoMemberCandidates(
   repoId: string,
+  provider: string,
   params?: { keyword?: string; limit?: number },
 ) {
   return request
     .get<MemberCandidateUser[]>(`/api/repos/${encodeURIComponent(repoId)}/member-candidates`, {
-      params,
+      params: { ...params, provider },
     })
     .then((res) => res.data);
 }
 
 export function createRepoMember(
   repoId: string,
+  provider: string,
   data: { userID: string; role: RepoMemberRole },
 ) {
   return request
-    .post<RepoMember>(`/api/repos/${encodeURIComponent(repoId)}/members`, data)
+    .post<RepoMember>(`/api/repos/${encodeURIComponent(repoId)}/members`, data, { params: { provider } })
     .then((res) => res.data);
 }
 
 export function updateRepoMember(
   repoId: string,
+  provider: string,
   memberId: string,
   data: { userID?: string; role?: RepoMemberRole },
 ) {
   return request
-    .put<RepoMember>(`/api/repos/${encodeURIComponent(repoId)}/members/${memberId}`, data)
+    .put<RepoMember>(`/api/repos/${encodeURIComponent(repoId)}/members/${memberId}`, data, {
+      params: { provider },
+    })
     .then((res) => res.data);
 }
 
-export function deleteRepoMember(repoId: string, memberId: string) {
-  return request.delete(`/api/repos/${encodeURIComponent(repoId)}/members/${memberId}`);
+export function deleteRepoMember(repoId: string, provider: string, memberId: string) {
+  return request.delete(`/api/repos/${encodeURIComponent(repoId)}/members/${memberId}`, {
+    params: { provider },
+  });
 }

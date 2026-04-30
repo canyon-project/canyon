@@ -40,6 +40,7 @@ export const RepoMemberSchema = z
   .object({
     id: z.string(),
     repoID: z.string(),
+    provider: z.string(),
     userID: z.string(),
     userName: z.string().nullable().optional(),
     userEmail: z.string().nullable().optional(),
