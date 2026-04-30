@@ -3,7 +3,6 @@ import { Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, T
 import type { ColumnsType } from "antd/es/table";
 import { useEffect, useRef, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
-import { getRepoIDFromId } from "@/helpers/repo";
 import {
   createRepoMember,
   deleteRepoMember,
@@ -48,7 +47,7 @@ const RepoSettings = () => {
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const repoPath = repo?.pathWithNamespace || `${params.org}/${params.repo}`;
-  const repoID = getRepoIDFromId(repo?.id);
+  const repoID = repo?.id;
 
   const fetchMembers = async () => {
     if (!repoID) return;
