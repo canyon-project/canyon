@@ -23,7 +23,6 @@ type Repo = {
   id: string;
   pathWithNamespace: string;
   description: string;
-  bu: string;
 };
 
 type MemberFormValues = {
@@ -50,7 +49,6 @@ const RepoSettings = () => {
 
   const repoPath = repo?.pathWithNamespace || `${params.org}/${params.repo}`;
   const repoID = getRepoIDFromId(repo?.id);
-  const bu = repo?.bu || "";
 
   const fetchMembers = async () => {
     if (!repoID) return;
@@ -85,8 +83,8 @@ const RepoSettings = () => {
     }
     setLoading(true);
     try {
-      const values = form.getFieldsValue() as { bu?: string; description?: string };
-      await updateRepo(repoID, { bu: values.bu, description: values.description });
+      const values = form.getFieldsValue() as { description?: string };
+      await updateRepo(repoID, { description: values.description });
       message.success("保存成功");
     } catch (error) {
       message.error("保存失败");
@@ -259,16 +257,13 @@ className="mb-4"
         <Form
           form={form}
           layout={"vertical"}
-          initialValues={{ repoPath, repoID, bu, description: repo?.description || "" }}
+          initialValues={{ repoPath, repoID, description: repo?.description || "" }}
         >
           <Form.Item label={"仓库"} name={"repoPath"}>
             <Input disabled />
           </Form.Item>
           <Form.Item label={"项目 ID"} name={"repoID"}>
             <Input disabled />
-          </Form.Item>
-          <Form.Item label={"Bu"} name={"bu"}>
-            <Input placeholder={"请输入 Bu"} />
           </Form.Item>
           <Form.Item label={"描述"} name={"description"}>
             <Input.TextArea rows={4} placeholder={"请输入项目描述"} />

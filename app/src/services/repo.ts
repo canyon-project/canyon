@@ -1,13 +1,6 @@
 import { request } from "./request";
 
-/**
- * 获取所有 Bu 选项
- */
-export function getBu() {
-  return request.get<string[]>("/api/repos/bu").then((res) => res.data);
-}
-
-export type ReposQuery = { bu?: string; search?: string };
+export type ReposQuery = { search?: string };
 export type RepoMemberRole = "admin" | "developer";
 
 export type RepoMember = {
@@ -74,7 +67,7 @@ export function createRepo(data: { repoID: string; provider: string }) {
  */
 export function updateRepo(
   repoId: string,
-  data: { bu?: string; description?: string; config?: string },
+  data: { description?: string; config?: string },
 ) {
   return request.put(`/api/repos/${encodeURIComponent(repoId)}`, data);
 }

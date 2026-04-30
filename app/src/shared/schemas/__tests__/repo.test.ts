@@ -10,7 +10,6 @@ describe("CreateRepoSchema", () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.config).toBe("");
-      expect(result.data.bu).toBe("");
     }
   });
 

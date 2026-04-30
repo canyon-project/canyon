@@ -53,35 +53,15 @@ const checkRoute = createRoute({
   },
 });
 
-const buRoute = createRoute({
-  method: "get",
-  path: "/bu",
-  summary: "获取 Bu 列表",
-  description: "返回所有已配置的 Bu（业务单元）列表，用于筛选仓库。",
-  tags: ["仓库"],
-  responses: {
-    200: {
-      content: {
-        "application/json": { schema: z.array(z.string()) },
-      },
-      description: "所有 Bu 列表",
-    },
-  },
-});
-
 const listRoute = createRoute({
   method: "get",
   path: "/",
   summary: "获取仓库列表",
   description:
-    "返回所有仓库，支持按 bu 筛选、按 id/pathWithNamespace 搜索。附带覆盖率统计（reportTimes、lastReportTime）。",
+    "返回所有仓库，支持按 id/pathWithNamespace 搜索。附带覆盖率统计（reportTimes、lastReportTime）。",
   tags: ["仓库"],
   request: {
     query: z.object({
-      bu: z
-        .string()
-        .optional()
-        .openapi({ param: { name: "bu", in: "query" } }),
       search: z
         .string()
         .optional()
@@ -151,7 +131,7 @@ const updateRoute = createRoute({
   method: "put",
   path: "/{id}",
   summary: "更新仓库",
-  description: "更新仓库的 description、config、bu 等配置。",
+  description: "更新仓库的 description、config 等配置。",
   tags: ["仓库"],
   request: {
     params: IdParamSchema,
@@ -326,7 +306,6 @@ const toResponse = (
     pathWithNamespace: string;
     description: string;
     config: string;
-    bu: string;
     creator: string;
     createdAt: Date;
     updatedAt: Date;
@@ -376,23 +355,11 @@ reposApi.openapi(checkRoute, async (c) => {
   }
 });
 
-reposApi.openapi(buRoute, async (c) => {
-  const rows = await prisma.repo.findMany({
-    select: { bu: true },
-    distinct: ["bu"],
-    where: { bu: { not: "" } },
-    orderBy: { bu: "asc" },
-  });
-  return c.json(rows.map((r) => r.bu).filter(Boolean));
-});
-
 reposApi.openapi(listRoute, async (c) => {
   const query = c.req.valid("query");
   const where: {
-    bu?: string;
     OR?: Array<{ id?: { contains: string }; pathWithNamespace?: { contains: string } }>;
   } = {};
-  if (query?.bu) where.bu = query.bu;
   if (query?.search) {
     where.OR = [
       { id: { contains: query.search } },
@@ -499,7 +466,6 @@ reposApi.openapi(createRouteDef, async (c) => {
         pathWithNamespace: info.pathWithNamespace,
         description: info.description ?? "",
         config: body.config ?? "",
-        bu: info.bu ?? body.bu ?? "",
         creator,
         createdAt: now,
         updatedAt: now,
@@ -541,7 +507,6 @@ reposApi.openapi(updateRoute, async (c) => {
       data: {
         ...(body.description !== undefined && { description: body.description }),
         ...(body.config !== undefined && { config: body.config }),
-        ...(body.bu !== undefined && { bu: body.bu }),
         updatedAt: new Date(),
       },
     });

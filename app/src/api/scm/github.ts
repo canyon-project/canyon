@@ -58,7 +58,6 @@ export class GithubAdapter implements ScmAdapter {
       id?: number;
       full_name?: string;
       description?: string;
-      bu?: string;
     }>(url, {
       headers: this.headers(),
       timeout: 10000,
@@ -70,7 +69,6 @@ export class GithubAdapter implements ScmAdapter {
       id: String(data.id),
       pathWithNamespace: data.full_name,
       description: data.description ?? "",
-      ...(data.bu != null && { bu: String(data.bu) }),
     };
   }
 

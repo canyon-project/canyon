@@ -10,7 +10,6 @@ type Repo = {
   id: string;
   pathWithNamespace: string;
   description: string;
-  bu: string;
   tags: string;
   members: string;
   config: string;

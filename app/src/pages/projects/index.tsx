@@ -1,12 +1,12 @@
 import { FolderOutlined, HeartFilled, HeartOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Divider, Input, message, Select, Space, Table, Typography } from "antd";
+import { Button, Divider, Input, message, Space, Table, Typography } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import CardPrimary from "@/components/card/Primary.tsx";
-import { getBu, getRepos } from "@/services/repo";
+import { getRepos } from "@/services/repo";
 import TextTypography from "@/components/typography/text.tsx";
 import BasicLayout from "@/layouts/BasicLayout.tsx";
 
@@ -18,7 +18,6 @@ type Repo = {
   pathWithNamespace: string;
   description: string;
   org: string;
-  bu: string;
   tags: string;
   members: string;
   config: string;
@@ -37,7 +36,6 @@ type ProjectRow = {
   id: string;
   slug: string;
   repo: string;
-  bu: string;
   times: number;
   maxCoverage: number;
   latestAt: string;
@@ -55,8 +53,6 @@ const Projects = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [repos, setRepos] = useState<Repo[]>([]);
-  const [buOptions, setBuOptions] = useState<{ label: string; value: string }[]>([]);
-  const [selectedBu, setSelectedBu] = useState<string | undefined>(undefined);
   const [searchKeyword, setSearchKeyword] = useState<string>("");
   const [favoriteOnly, setFavoriteOnly] = useState(false);
 
@@ -74,27 +70,10 @@ const Projects = () => {
     localStorage.setItem(REPO_FAVORITES_STORAGE_KEY, JSON.stringify(ids));
   };
 
-  const fetchBuOptions = async () => {
-    try {
-      const data = await getBu();
-      setBuOptions(
-        (data || []).map((bu: string) => ({
-          label: bu,
-          value: bu,
-        })),
-      );
-    } catch (error) {
-      console.error("获取 Bu 选项失败", error);
-    }
-  };
-
   const fetchRepos = async () => {
     setLoading(true);
     try {
-      const data = await getRepos({
-        bu: selectedBu,
-        search: searchKeyword,
-      });
+      const data = await getRepos({ search: searchKeyword });
       const favoriteIdSet = new Set(getFavoriteRepoIds());
       const reposWithFavorite = (data || []).map((repo: Repo) => ({
         ...repo,
@@ -110,12 +89,8 @@ const Projects = () => {
   };
 
   useEffect(() => {
-    fetchBuOptions();
-  }, []);
-
-  useEffect(() => {
     fetchRepos();
-  }, [selectedBu]);
+  }, []);
 
   const toggleFavorite = (record: ProjectRow) => {
     setRepos((prev) => {
@@ -187,10 +162,6 @@ const Projects = () => {
           </div>
         );
       },
-    },
-    {
-      title: "Bu",
-      dataIndex: "bu",
     },
     {
       title: t("projects.report_times"),
@@ -285,7 +256,6 @@ const Projects = () => {
     id: r.id,
     pathWithNamespace: r.pathWithNamespace,
     description: r.description,
-    bu: r.bu,
     slug: r.id,
     repo: r.pathWithNamespace,
     times: r.reportTimes || 0,
@@ -321,14 +291,6 @@ const Projects = () => {
       />
 
       <div className="mb-4 flex items-center gap-3">
-        <Select
-          allowClear
-          placeholder="Bu"
-          style={{ width: 160 }}
-          value={selectedBu}
-          onChange={(value) => setSelectedBu(value)}
-          options={buOptions}
-        />
         <div>
           <Input
             style={{ width: "420px" }}
