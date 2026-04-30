@@ -462,6 +462,7 @@ reposApi.openapi(createRouteDef, async (c) => {
     const repo = await prisma.repo.create({
       data: {
         id,
+        repoID: info.id,
         provider: body.provider,
         pathWithNamespace: info.pathWithNamespace,
         description: info.description ?? "",
