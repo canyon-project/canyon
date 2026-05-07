@@ -1,6 +1,8 @@
 import { createScmAdapter } from "@/api/scm/index.ts";
 import { getInfra } from "@/api/lib/infra.ts";
 import type { ScmAdapter } from "@/api/scm/adapter.ts";
+import { createScmAdapter as newCreateScmAdapter} from "@canyonjs/git-provider";
+import type { ScmAdapter as NewScmAdapter } from "@canyonjs/git-provider";
 
 /** provider 转 infra 键前缀，如 gitlab_tujia -> GITLAB_TUJIA */
 export function getProviderInfraPrefix(provider: string): string {
@@ -35,6 +37,22 @@ export function getScm(provider: string): ScmAdapter | null {
     const { token } = getProviderInfra(provider);
     if (!token || token === "-") return null;
     return createScmAdapter({ type: "github", token });
+  }
+  return null;
+}
+
+
+export function getNewScm(provider: string): NewScmAdapter | null {
+  const p = provider.toLowerCase();
+  if (p === "gitlab" || p.startsWith("gitlab_")) {
+    const { base, token } = getProviderInfra(provider);
+    if (!base || !token || token === "-") return null;
+    return newCreateScmAdapter({ type: "gitlab", base, token });
+  }
+  if (p === "github" || p.startsWith("github_")) {
+    const { token } = getProviderInfra(provider);
+    if (!token || token === "-") return null;
+    return newCreateScmAdapter({ type: "github", token });
   }
   return null;
 }

@@ -1,7 +1,6 @@
 import axios from "axios";
-import type { ChangedFile, CommitDetail, CommitInfo, CompareDiffItem, RepoInfo } from "./types.ts";
+import type { ChangedFile, CommitDetail, CommitInfo, CompareDiffItem } from "./types.ts";
 import type { ScmAdapter } from "./adapter.ts";
-import { createGitProviderClient } from "@canyonjs/git-provider";
 
 type GitlabScmConfig = { type: "gitlab"; base: string; token: string };
 
@@ -16,24 +15,6 @@ export class GitlabAdapter implements ScmAdapter {
 
   private headers() {
     return { "PRIVATE-TOKEN": this.token };
-  }
-
-  /**
-   * 支持 repoID：数字 ID，或 org/repo（path_with_namespace）形式；path 需 URL 编码
-   */
-  async getRepoInfo(repoID: string): Promise<RepoInfo> {
-    const raw = repoID.trim();
-    const client = createGitProviderClient({
-      provider: "gitlab",
-      token: this.token,
-      baseUrl: `${this.base}/api/v4`,
-    });
-    const summary = await client.getRepositorySummary(raw);
-    return {
-      id: String(summary.id),
-      pathWithNamespace: summary.fullName,
-      description: summary.description ?? "",
-    };
   }
 
   async getChangedFiles(repoID: string, base: string, head: string): Promise<ChangedFile[]> {

@@ -2,7 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi";
 import { ProviderQueryParam } from "@/shared/schemas/provider.ts";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { prisma } from "@/api/lib/prisma.ts";
-import { getScm } from "@/api/lib/scm.ts";
+import {getNewScm, getScm} from "@/api/lib/scm.ts";
 import { buildRepoUrl } from "@/api/lib/commit-url.ts";
 import { getAuth } from "@/api/lib/auth.ts";
 import {
@@ -350,7 +350,7 @@ const toMemberResponse = (m: {
 
 reposApi.openapi(checkRoute, async (c) => {
   const { repoID, provider } = c.req.valid("query");
-  const scm = getScm(provider);
+  const scm = getNewScm(provider);
   if (!scm) {
     return c.json({ error: `不支持的 provider 或配置缺失: ${provider}` }, 400);
   }
@@ -359,7 +359,7 @@ reposApi.openapi(checkRoute, async (c) => {
     return c.json({
       repoID: info.id,
       pathWithNamespace: info.pathWithNamespace,
-      description: info.description ?? "",
+      description: info.description,
     });
   } catch (err) {
     const msg = err instanceof Error ? err.message : "获取仓库信息失败";
@@ -436,7 +436,7 @@ reposApi.openapi(getRoute, async (c) => {
   const response = toResponse(repo);
 
   // 尝试从 SCM（GitLab/GitHub）拉取最新仓库信息，丰富 description
-  const scm = getScm(repo.provider);
+  const scm = getNewScm(repo.provider);
   if (scm) {
     try {
       const scmInfo = await scm.getRepoInfo(repo.pathWithNamespace);
@@ -458,7 +458,7 @@ reposApi.openapi(createRouteDef, async (c) => {
   }
   const creator = session.user.id;
   const body = c.req.valid("json");
-  const scm = getScm(body.provider);
+  const scm = getNewScm(body.provider);
   if (!scm) {
     return c.json({ error: `不支持的 provider 或配置缺失: ${body.provider}` }, 400);
   }

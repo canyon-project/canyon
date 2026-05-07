@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { ChangedFile, CommitDetail, CommitInfo, CompareDiffItem, RepoInfo } from "./types.ts";
+import type { ChangedFile, CommitDetail, CommitInfo, CompareDiffItem } from "./types.ts";
 import type { ScmAdapter } from "./adapter.ts";
 
 const GITHUB_BASE = "https://api.github.com";
@@ -39,37 +39,6 @@ export class GithubAdapter implements ScmAdapter {
       }
     }
     throw new Error("GitHub repoID 需为 owner/repo 或数字 ID");
-  }
-
-  /**
-   * 支持 repoID：数字 ID，或 owner/repo 形式
-   */
-  async getRepoInfo(repoID: string): Promise<RepoInfo> {
-    const raw = repoID.trim();
-    let url: string;
-    if (raw.includes("/")) {
-      const [owner, repo] = raw.split("/");
-      if (!owner || !repo) throw new Error("GitHub owner/repo 格式无效");
-      url = `${this.base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`;
-    } else {
-      url = `${this.base}/repositories/${encodeURIComponent(raw)}`;
-    }
-    const { data } = await axios.get<{
-      id?: number;
-      full_name?: string;
-      description?: string;
-    }>(url, {
-      headers: this.headers(),
-      timeout: 10000,
-    });
-    if (!data?.full_name) {
-      throw new Error("GitHub 未返回 full_name");
-    }
-    return {
-      id: String(data.id),
-      pathWithNamespace: data.full_name,
-      description: data.description ?? "",
-    };
   }
 
   async getChangedFiles(repoID: string, base: string, head: string): Promise<ChangedFile[]> {
