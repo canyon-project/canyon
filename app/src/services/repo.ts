@@ -10,6 +10,7 @@ export type RepoMember = {
   userID: string;
   userName?: string | null;
   userEmail?: string | null;
+  userImage?: string | null;
   role: RepoMemberRole;
   createdAt: string;
   updatedAt: string;
@@ -19,6 +20,7 @@ export type MemberCandidateUser = {
   id: string;
   name: string;
   email: string;
+  userImage?: string | null;
 };
 
 /**

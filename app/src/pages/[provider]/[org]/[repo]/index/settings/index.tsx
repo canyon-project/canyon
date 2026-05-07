@@ -1,6 +1,21 @@
 import Icon, { TeamOutlined } from "@ant-design/icons";
-import { Button, Card, Form, Input, message, Modal, Popconfirm, Select, Space, Table, Tag, Typography } from "antd";
+import {
+  Avatar,
+  Button,
+  Card,
+  Form,
+  Input,
+  message,
+  Modal,
+  Popconfirm,
+  Select,
+  Space,
+  Table,
+  Tag,
+  Typography,
+} from "antd";
 import type { ColumnsType } from "antd/es/table";
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useOutletContext, useParams } from "react-router-dom";
 import {
@@ -41,9 +56,9 @@ const RepoSettings = () => {
   const [memberModalOpen, setMemberModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<RepoMember | null>(null);
   const [candidateLoading, setCandidateLoading] = useState(false);
-  const [candidateOptions, setCandidateOptions] = useState<Array<{ label: string; value: string }>>(
-    [],
-  );
+  const [candidateOptions, setCandidateOptions] = useState<
+    Array<{ label: ReactNode; value: string }>
+  >([]);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const repoPath = repo?.pathWithNamespace || `${params.org}/${params.repo}`;
@@ -104,11 +119,25 @@ const RepoSettings = () => {
   const openEditMemberModal = (member: RepoMember) => {
     setEditingMember(member);
     memberForm.setFieldsValue({ userID: member.userID, role: member.role });
+    const display =
+      member.userName
+        ? `${member.userName}${member.userEmail ? ` <${member.userEmail}>` : ""}`
+        : member.userEmail || "未知用户";
+    const initial = (
+      member.userName ||
+      member.userEmail ||
+      "?"
+    ).charAt(0).toUpperCase();
     setCandidateOptions([
       {
-        label: member.userName
-          ? `${member.userName}${member.userEmail ? ` <${member.userEmail}>` : ""}`
-          : member.userEmail || "未知用户",
+        label: (
+          <Space size="small">
+            <Avatar src={member.userImage ?? undefined} size="small">
+              {initial}
+            </Avatar>
+            <span>{display}</span>
+          </Space>
+        ),
         value: member.userID,
       },
     ]);
@@ -117,7 +146,14 @@ const RepoSettings = () => {
 
   const toCandidateOption = (user: MemberCandidateUser) => ({
     value: user.id,
-    label: `${user.name} <${user.email}>`,
+    label: (
+      <Space size="small">
+        <Avatar src={user.userImage ?? undefined} size="small">
+          {(user.name || user.email).charAt(0).toUpperCase()}
+        </Avatar>
+        <span>{`${user.name} <${user.email}>`}</span>
+      </Space>
+    ),
   });
 
   const loadMemberCandidates = async (keyword: string) => {
@@ -191,12 +227,18 @@ const RepoSettings = () => {
     {
       title: "成员",
       key: "member",
-      render: (_, record) => (
-        <div>
-          <div>{record.userName || "-"}</div>
-          <div style={{ color: "rgba(0, 0, 0, 0.45)", fontSize: 12 }}>{record.userEmail || "-"}</div>
-        </div>
-      ),
+      render: (_, record) => {
+        const initial = (record.userName || record.userEmail || "?").charAt(0).toUpperCase();
+        return (
+          <Space align="center" size="middle">
+            <Avatar src={record.userImage ?? undefined}>{initial}</Avatar>
+            <div>
+              <div>{record.userName || "-"}</div>
+              <div style={{ color: "rgba(0, 0, 0, 0.45)", fontSize: 12 }}>{record.userEmail || "-"}</div>
+            </div>
+          </Space>
+        );
+      },
     },
     {
       title: "角色",

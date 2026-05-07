@@ -8,7 +8,7 @@ import {
   fetchExternalUserProfilesByEmails,
   normalizeEmail,
 } from "@/api/lib/external-user-profile.ts";
-import { getScm } from "@/api/lib/scm.ts";
+import {getNewScm, getScm} from "@/api/lib/scm.ts";
 import { resolveRepoAndRef } from "@/api/lib/source/get-file-content.ts";
 import { diffLine } from "@/api/lib/source/diff-line.ts";
 
@@ -224,7 +224,7 @@ sourceApi.openapi(sourceRoute, async (c) => {
 sourceApi.openapi(projectRoute, async (c) => {
   const { path, provider = "gitlab" } = c.req.valid("query");
   if (!path) return c.json({ path, project: null });
-  const scm = getScm(provider);
+  const scm = getNewScm(provider);
   if (!scm) return c.json({ path, project: null });
   try {
     const info = await scm.getRepoInfo(path);
