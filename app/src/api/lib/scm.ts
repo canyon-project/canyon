@@ -47,7 +47,7 @@ export function getNewScm(provider: string): NewScmAdapter | null {
   if (p === "gitlab" || p.startsWith("gitlab_")) {
     const { base, token } = getProviderInfra(provider);
     if (!base || !token || token === "-") return null;
-    return newCreateScmAdapter({ type: "gitlab", base, token });
+    return newCreateScmAdapter({ type: "gitlab", base: `${base}/api/v4`, token });
   }
   if (p === "github" || p.startsWith("github_")) {
     const { token } = getProviderInfra(provider);
