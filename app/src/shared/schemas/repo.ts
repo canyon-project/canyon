@@ -44,6 +44,7 @@ export const RepoMemberSchema = z
     userID: z.string(),
     userName: z.string().nullable().optional(),
     userEmail: z.string().nullable().optional(),
+    userImage: z.string().nullable().optional(),
     role: RepoMemberRoleSchema,
     createdAt: z.string().datetime(),
     updatedAt: z.string().datetime(),

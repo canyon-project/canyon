@@ -176,7 +176,8 @@ const listMembersRoute = createRoute({
   method: "get",
   path: "/{id}/members",
   summary: "获取仓库成员",
-  description: "获取仓库成员列表，成员角色支持 admin / developer。",
+  description:
+    "获取仓库成员列表，附带用户信息（昵称、邮箱、头像 URL）；成员角色支持 admin / developer。",
   tags: ["仓库"],
   request: { params: IdParamSchema, query: ProviderOnlyQuerySchema },
   responses: {
@@ -196,7 +197,7 @@ const searchMemberCandidatesRoute = createRoute({
   method: "get",
   path: "/{id}/member-candidates",
   summary: "搜索可添加成员用户",
-  description: "按用户 name/email 关键字模糊匹配，返回 user id、name、email。",
+  description: "按用户 name/email 关键字模糊匹配，返回 id、name、email、userImage（头像 URL）。",
   tags: ["仓库"],
   request: {
     params: IdParamSchema,
@@ -224,6 +225,7 @@ const searchMemberCandidatesRoute = createRoute({
               id: z.string(),
               name: z.string(),
               email: z.string(),
+              userImage: z.string().nullable().optional(),
             }),
           ),
         },
@@ -336,6 +338,7 @@ const toMemberResponse = (m: {
   userID: string;
   userName?: string | null;
   userEmail?: string | null;
+  userImage?: string | null;
   role: "admin" | "developer";
   createdAt: Date;
   updatedAt: Date;
@@ -553,7 +556,7 @@ reposApi.openapi(listMembersRoute, async (c) => {
     orderBy: { createdAt: "desc" },
   });
   const users = await prisma.user.findMany({
-    select: { id: true, name: true, email: true },
+    select: { id: true, name: true, email: true, image: true },
     where: { id: { in: members.map((member) => member.userID) } },
   });
   const userMap = new Map(users.map((user) => [user.id, user]));
@@ -564,6 +567,7 @@ reposApi.openapi(listMembersRoute, async (c) => {
         ...member,
         userName: user?.name ?? null,
         userEmail: user?.email ?? null,
+        userImage: user?.image ?? null,
       });
     }),
   );
@@ -582,6 +586,7 @@ reposApi.openapi(searchMemberCandidatesRoute, async (c) => {
       id: true,
       name: true,
       email: true,
+      image: true,
     },
     where: keyword
       ? {
@@ -594,7 +599,14 @@ reposApi.openapi(searchMemberCandidatesRoute, async (c) => {
     orderBy: { createdAt: "desc" },
     take: limit,
   });
-  return c.json(users);
+  return c.json(
+    users.map((u) => ({
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      userImage: u.image ?? null,
+    })),
+  );
 });
 
 reposApi.openapi(createMemberRoute, async (c) => {
@@ -613,7 +625,7 @@ reposApi.openapi(createMemberRoute, async (c) => {
       },
     });
     const user = await prisma.user.findUnique({
-      select: { name: true, email: true },
+      select: { name: true, email: true, image: true },
       where: { id: member.userID },
     });
     return c.json(
@@ -621,6 +633,7 @@ reposApi.openapi(createMemberRoute, async (c) => {
         ...member,
         userName: user?.name ?? null,
         userEmail: user?.email ?? null,
+        userImage: user?.image ?? null,
       }),
       201,
     );
@@ -656,7 +669,7 @@ reposApi.openapi(updateMemberRoute, async (c) => {
       },
     });
     const user = await prisma.user.findUnique({
-      select: { name: true, email: true },
+      select: { name: true, email: true, image: true },
       where: { id: member.userID },
     });
     return c.json(
@@ -664,6 +677,7 @@ reposApi.openapi(updateMemberRoute, async (c) => {
         ...member,
         userName: user?.name ?? null,
         userEmail: user?.email ?? null,
+        userImage: user?.image ?? null,
       }),
     );
   } catch (error) {
