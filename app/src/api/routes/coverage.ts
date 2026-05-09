@@ -14,7 +14,7 @@ import { publishSnapshotGeneratedMessage } from "@/api/lib/coverage/snapshot-gen
 import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { buildCommitUrl } from "@/api/lib/commit-url.ts";
 import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
-import { getScm } from "@/api/lib/scm.ts";
+import {getNewScm, getScm} from "@/api/lib/scm.ts";
 import { diffLine } from "@/api/lib/source/diff-line.ts";
 import { CoverageMapQuerySchema, CoverageCommitsQuerySchema } from "@/shared/schemas/coverage.ts";
 import { genSummaryMapByCoverageMap } from "canyon-data";
@@ -541,7 +541,7 @@ async function buildSnapshotReportDataScript(args: {
   freezeTime: Date;
   coverageMap: Record<string, Record<string, unknown>>;
 }) {
-  const scm = getScm(args.provider);
+  const scm = getNewScm(args.provider);
   if (!scm) {
     throw new Error(`scm adapter not configured for provider: ${args.provider}`);
   }
@@ -549,7 +549,6 @@ async function buildSnapshotReportDataScript(args: {
   const refSha = getRefShaBySubject(args.subject, args.subjectID);
   const filePaths = Object.keys(args.coverageMap);
   const sourceMap = await scm.getSourceFiles(args.repoID, refSha, filePaths);
-
   const files = filePaths.map((filePath) => {
     const fileCoverage = args.coverageMap[filePath] || {};
     const sourceFromMap = typeof fileCoverage.source === "string" ? fileCoverage.source : undefined;

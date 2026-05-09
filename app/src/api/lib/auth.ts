@@ -4,6 +4,16 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { getInfra, getInfraOrThrow, InfraKey } from "./infra";
 
+function parseTrustedOrigins(raw: string | undefined): string[] {
+  const fallback = ["http://localhost:3000"];
+  if (!raw?.trim()) return fallback;
+  const list = raw
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return list.length > 0 ? list : fallback;
+}
+
 function createAuthInstance() {
   const gitlabClientId = getInfra(InfraKey.GITLAB_CLIENT_ID);
   const gitlabClientSecret = getInfra(InfraKey.GITLAB_CLIENT_SECRET);
@@ -14,9 +24,14 @@ function createAuthInstance() {
     database: prismaAdapter(prisma, {
       provider: "postgresql",
     }),
-    baseURL: getInfra(InfraKey.BETTER_AUTH_URL) ?? "http://localhost:3000",
+    baseURL:
+      process.env.NODE_ENV === "development"
+        ? "http://localhost:3000"
+        : (getInfra(InfraKey.BETTER_AUTH_URL) ?? "http://localhost:3000"),
     secret: getInfraOrThrow(InfraKey.BETTER_AUTH_SECRET),
-    trustedOrigins: [getInfra(InfraKey.BETTER_AUTH_TRUSTED_ORIGIN) ?? "http://localhost:3000"],
+    trustedOrigins: parseTrustedOrigins(
+      getInfra(InfraKey.BETTER_AUTH_TRUSTED_ORIGIN),
+    ),
     emailAndPassword: {
       enabled: true,
       disableSignUp: true,
