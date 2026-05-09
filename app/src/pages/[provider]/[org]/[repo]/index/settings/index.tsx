@@ -282,8 +282,8 @@ const RepoSettings = () => {
   if (!repo) return <div>加载中...</div>;
 
   return (
-    <div>
-      <Title level={4} className="mb-4 pt-4">
+    <div className={'w-[768px] m-auto my-[30px]'}>
+      <Title level={4} className="mb-[30px]">
         项目设置
       </Title>
 
