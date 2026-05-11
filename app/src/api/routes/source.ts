@@ -11,6 +11,7 @@ import {
 import {getNewScm, getScm} from "@/api/lib/scm.ts";
 import { resolveRepoAndRef } from "@/api/lib/source/get-file-content.ts";
 import { diffLine } from "@/api/lib/source/diff-line.ts";
+import {encode} from "@/api/lib/source/encode.ts";
 
 const SourceQuerySchema = z.object({
   repo_id: z.string().openapi({ param: { name: "repo_id", in: "query" } }),
@@ -201,12 +202,12 @@ sourceApi.openapi(sourceRoute, async (c) => {
   const scmRepoId = resolved.repoID.includes(":")
     ? resolved.repoID.slice(resolved.repoID.indexOf(":") + 1)
     : resolved.repoID;
-  const scm = getScm(provider);
+  const scm = getNewScm(provider);
   if (!scm) return c.json({ error: "SCM 未配置" }, 502);
 
   try {
-    const content = await scm.getFileContent(scmRepoId, path, resolved.ref);
-    const encoded = Buffer.from(content, "utf-8").toString("base64");
+    const content = await scm.getSourceFiles(scmRepoId, resolved.ref ,[path]);
+    const encoded =encode(content.get(path)||'');
     return c.json({ content: encoded });
   } catch (err: unknown) {
     const status =
