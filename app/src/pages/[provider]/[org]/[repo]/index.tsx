@@ -1,10 +1,11 @@
-import { Breadcrumb, Divider, message, Tabs, Typography } from "antd";
+import {Breadcrumb, Button, Divider, message, Tabs, Typography} from "antd";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 import RIf from "@/components/RIf.tsx";
 import BasicLayout from "@/layouts/BasicLayout.tsx";
 import { getRepo } from "@/services/repo";
+import {SettingOutlined} from "@ant-design/icons";
 
 type Repo = {
   id: string;
@@ -76,16 +77,16 @@ const ProjectDetailPage = () => {
             ) : null}
           </div>
 
-          {/*<Button*/}
-          {/*  type={'primary'}*/}
-          {/*  onClick={() =>*/}
-          {/*    navigate(*/}
-          {/*      `/${params.provider}/${params.org}/${params.repo}/settings`,*/}
-          {/*    )*/}
-          {/*  }*/}
-          {/*>*/}
-          {/*  设置*/}
-          {/*</Button>*/}
+          <Button
+            size={'small'}
+            icon={<SettingOutlined/>}
+            type={'primary'}
+            onClick={() =>
+              navigate(
+                `/${params.provider}/${params.org}/${params.repo}/settings`,
+              )
+            }
+          />
         </div>
         <Divider style={{ margin: "0" }} />
         {!location.pathname.includes("/settings") && (
