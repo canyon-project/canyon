@@ -1,5 +1,5 @@
 import { prisma } from "@/api/lib/prisma.ts";
-import { getScm } from "@/api/lib/scm.ts";
+import {getNewScm} from "@/api/lib/scm.ts";
 import { decodeCompressedObject } from "@/api/lib/collect/helpers.ts";
 import {
   addBranchHitMaps,
@@ -101,7 +101,7 @@ export async function getCoverageMapForCompare(params: CoverageMapForComparePara
     select: { path: true, additions: true, deletions: true },
   });
 
-  const scm = getScm(provider);
+  const scm = getNewScm(provider);
   if (!scm) return { success: false, message: "SCM 配置缺失" };
 
   const filteredCommits = await scm.getCommitsBetween(repoID, baseSha, headSha);

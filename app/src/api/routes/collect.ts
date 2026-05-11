@@ -5,7 +5,6 @@ import { coverageQueue } from "@/api/db/coverage-queue-schema.ts";
 import { prisma } from "@/api/lib/prisma.ts";
 import { sqliteQueueDb } from "@/api/lib/sqlite-queue.ts";
 import { ensureCommitFromScm } from "@/api/lib/commit.ts";
-import { getScm } from "@/api/lib/scm.ts";
 import { publishCoverageMapInitMessage } from "@/api/lib/coverage/coverage-map-init-producer.ts";
 import { remapCoverageByOld } from "canyon-map";
 import {
@@ -313,7 +312,7 @@ collectApi.openapi(coverageMapInitRoute, async (c) => {
     });
   }
 
-  await ensureCommitFromScm(prisma, getScm(provider), provider, repoID, sha);
+  await ensureCommitFromScm(prisma, provider, repoID, sha);
 
   // remapCoverageByOld 需要每个 entry 有 path，用于 source map 还原
   const coverageForRemap = Object.fromEntries(

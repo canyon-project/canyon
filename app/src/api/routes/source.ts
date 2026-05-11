@@ -8,9 +8,9 @@ import {
   fetchExternalUserProfilesByEmails,
   normalizeEmail,
 } from "@/api/lib/external-user-profile.ts";
-import {getNewScm, getScm} from "@/api/lib/scm.ts";
+import {getNewScm} from "@/api/lib/scm.ts";
 import { resolveRepoAndRef } from "@/api/lib/source/get-file-content.ts";
-import { diffLine } from "@/api/lib/source/diff-line.ts";
+import {encode} from "@/api/lib/source/encode.ts";
 
 const SourceQuerySchema = z.object({
   repo_id: z.string().openapi({ param: { name: "repo_id", in: "query" } }),
@@ -201,12 +201,12 @@ sourceApi.openapi(sourceRoute, async (c) => {
   const scmRepoId = resolved.repoID.includes(":")
     ? resolved.repoID.slice(resolved.repoID.indexOf(":") + 1)
     : resolved.repoID;
-  const scm = getScm(provider);
+  const scm = getNewScm(provider);
   if (!scm) return c.json({ error: "SCM 未配置" }, 502);
 
   try {
-    const content = await scm.getFileContent(scmRepoId, path, resolved.ref);
-    const encoded = Buffer.from(content, "utf-8").toString("base64");
+    const content = await scm.getSourceFiles(scmRepoId, resolved.ref ,[path]);
+    const encoded =encode(content.get(path)||'');
     return c.json({ content: encoded });
   } catch (err: unknown) {
     const status =
@@ -309,13 +309,20 @@ sourceApi.openapi(diffGetRoute, async (c) => {
   const commitIds = Array.from(allCommits).map((sha) => toCommitId(provider, repoID, sha));
   const commits = await prisma.commit.findMany({
     where: { id: { in: commitIds } },
-    select: { id: true, content: true },
+    select: {
+      id: true,
+      sha: true,
+      title: true,
+      authorName: true,
+      authorEmail: true,
+      createdAt: true,
+    },
   });
 
   const commitInfoMap = new Map<
     string,
     {
-      commitMessage?: string;
+      title?: string;
       authorName?: string;
       authorEmail?: string;
       createdAt?: string;
@@ -323,13 +330,12 @@ sourceApi.openapi(diffGetRoute, async (c) => {
     }
   >();
   for (const c of commits) {
-    const content = c.content as Record<string, unknown> | null;
-    const sha = (content?.sha as string) ?? c.id.replace(`${provider}-${repoID}-`, "");
+    const sha = c.sha || c.id.replace(`${provider}-${repoID}-`, "");
     commitInfoMap.set(sha, {
-      commitMessage: content?.commitMessage as string,
-      authorName: content?.authorName as string,
-      authorEmail: content?.authorEmail as string,
-      createdAt: content?.createdAt as string,
+      title: c.title,
+      authorName: c.authorName,
+      authorEmail: c.authorEmail,
+      createdAt: c.createdAt.toISOString(),
     });
   }
 
@@ -412,13 +418,13 @@ sourceApi.openapi(commitPostRoute, async (c) => {
     return c.json({ success: false, error: "缺少必要参数：provider、repoID、sha" }, 400);
   }
 
-  const scm = getScm(provider);
+  const scm = getNewScm(provider);
   if (!scm) {
     return c.json({ success: false, error: "SCM 未配置" }, 502);
   }
 
   try {
-    await ensureCommitFromScm(prisma, scm, provider, repoID, sha);
+    await ensureCommitFromScm(prisma, provider, repoID, sha);
     const id = toCommitId(provider, repoID, sha);
     return c.json({ success: true, id });
   } catch (err) {
@@ -440,18 +446,20 @@ sourceApi.openapi(diffPostRoute, async (c) => {
     return c.json({ error: "subjectID 格式错误，from 和 to 不能为空" }, 400);
   }
 
-  const scm = getScm(provider);
+  const scm = getNewScm(provider);
+  if (!scm) return c.json({ error: "SCM 未配置" }, 502);
+
   for (const s of [fromSha, toSha]) {
-    await ensureCommitFromScm(prisma, scm, provider, repoID, s);
+    await ensureCommitFromScm(prisma, provider, repoID, s);
   }
 
   await prisma.diff.deleteMany({
     where: { provider, repoID, subjectID, subject },
   });
 
-  if (!scm) return c.json({ error: "SCM 未配置" }, 502);
-
-  const diffResult = await diffLine(scm, repoID, fromSha, toSha);
+  const diffResult = await scm.getCompare(repoID, fromSha, toSha).then(res=>{
+    return res.changedFiles
+  });
   const data = diffResult.map((item) => ({
     id: `${provider}|${repoID}|${subject}|${subjectID}|${item.path}`,
     provider,

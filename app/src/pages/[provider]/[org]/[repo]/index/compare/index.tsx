@@ -52,11 +52,11 @@ type DiffFile = {
 };
 
 type CommitInfo = {
-  commitMessage: string;
+  title: string;
   authorName: string | null;
   authorEmail: string | null;
   avatar?: string | null;
-  createdAt: string;
+  createdAt?: string;
 };
 
 type CompareRecord = {
@@ -193,8 +193,8 @@ const ComparePage = () => {
       render: (text: string, record: CompareRecord) => {
         const commitInfo = record.baseCommit;
         const shortSha = text ? text.substring(0, 7) : "-";
-        const commitMessage = commitInfo?.commitMessage
-          ? commitInfo.commitMessage.split("\n")[0].substring(0, 60)
+        const titlePreview = commitInfo?.title
+          ? commitInfo.title.split("\n")[0].substring(0, 60)
           : null;
         const author = commitInfo?.authorName || commitInfo?.authorEmail || null;
         const email = commitInfo?.authorEmail || null;
@@ -220,11 +220,11 @@ const ComparePage = () => {
                 />
               </Tooltip>
             )}
-            {commitMessage && commitInfo && (
+            {titlePreview && commitInfo && (
               <div style={{ fontSize: "12px", marginTop: "4px", color: "#666" }}>
-                <Tooltip title={commitInfo.commitMessage}>
-                  {commitMessage}
-                  {commitInfo.commitMessage.length > 60 ? "..." : ""}
+                <Tooltip title={commitInfo.title}>
+                  {titlePreview}
+                  {commitInfo.title.length > 60 ? "..." : ""}
                 </Tooltip>
               </div>
             )}
@@ -256,8 +256,8 @@ const ComparePage = () => {
       render: (text: string, record: CompareRecord) => {
         const commitInfo = record.headCommit;
         const shortSha = text ? text.substring(0, 7) : "-";
-        const commitMessage = commitInfo?.commitMessage
-          ? commitInfo.commitMessage.split("\n")[0].substring(0, 60)
+        const titlePreview = commitInfo?.title
+          ? commitInfo.title.split("\n")[0].substring(0, 60)
           : null;
         const author = commitInfo?.authorName || commitInfo?.authorEmail || null;
         const email = commitInfo?.authorEmail || null;
@@ -283,11 +283,11 @@ const ComparePage = () => {
                 />
               </Tooltip>
             )}
-            {commitMessage && commitInfo && (
+            {titlePreview && commitInfo && (
               <div style={{ fontSize: "12px", marginTop: "4px", color: "#666" }}>
-                <Tooltip title={commitInfo.commitMessage}>
-                  {commitMessage}
-                  {commitInfo.commitMessage.length > 60 ? "..." : ""}
+                <Tooltip title={commitInfo.title}>
+                  {titlePreview}
+                  {commitInfo.title.length > 60 ? "..." : ""}
                 </Tooltip>
               </div>
             )}

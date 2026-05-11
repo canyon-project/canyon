@@ -2,7 +2,7 @@ import { createRoute, z } from "@hono/zod-openapi";
 import { ProviderQueryParam } from "@/shared/schemas/provider.ts";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { prisma } from "@/api/lib/prisma.ts";
-import {getNewScm, getScm} from "@/api/lib/scm.ts";
+import {getNewScm} from "@/api/lib/scm.ts";
 import { buildRepoUrl } from "@/api/lib/commit-url.ts";
 import { getAuth } from "@/api/lib/auth.ts";
 import {
