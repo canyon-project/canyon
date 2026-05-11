@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { CommitDetail, CommitInfo } from "./types.ts";
+import type { CommitDetail } from "./types.ts";
 import type { ScmAdapter } from "./adapter.ts";
 
 const GITHUB_BASE = "https://api.github.com";
@@ -40,20 +40,6 @@ export class GithubAdapter implements ScmAdapter {
     }
     throw new Error("GitHub repoID 需为 owner/repo 或数字 ID");
   }
-
-  async getCommitInfo(repoID: string, sha: string): Promise<CommitInfo> {
-    const { owner, repo } = await this.resolveOwnerRepo(repoID);
-    const url = `${this.base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${encodeURIComponent(sha)}`;
-    const { data } = await axios.get<{
-      parents?: Array<{ sha?: string }>;
-      stats?: { additions?: number };
-    }>(url, { headers: this.headers(), timeout: 10000 });
-    return {
-      parent_ids: (data?.parents ?? []).map((p) => p.sha ?? "").filter(Boolean),
-      stats: { additions: data?.stats?.additions ?? 0 },
-    };
-  }
-
   async getCommitDetail(repoID: string, sha: string, provider: string): Promise<CommitDetail> {
     const { owner, repo } = await this.resolveOwnerRepo(repoID);
     const url = `${this.base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/commits/${encodeURIComponent(sha)}`;

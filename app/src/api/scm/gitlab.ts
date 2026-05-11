@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { CommitDetail, CommitInfo } from "./types.ts";
+import type { CommitDetail } from "./types.ts";
 import type { ScmAdapter } from "./adapter.ts";
 
 type GitlabScmConfig = { type: "gitlab"; base: string; token: string };
@@ -16,22 +16,6 @@ export class GitlabAdapter implements ScmAdapter {
   private headers() {
     return { "PRIVATE-TOKEN": this.token };
   }
-
-  async getCommitInfo(repoID: string, sha: string): Promise<CommitInfo> {
-    const pid = encodeURIComponent(repoID);
-    const url = `${this.base}/api/v4/projects/${pid}/repository/commits/${encodeURIComponent(sha)}`;
-    const { data } = await axios.get<{
-      parent_ids?: string[];
-      stats?: { additions?: number; deletions?: number };
-    }>(url, { headers: this.headers(), timeout: 10000 });
-    return {
-      parent_ids: data?.parent_ids ?? [],
-      stats: {
-        additions: data?.stats?.additions ?? 0,
-      },
-    };
-  }
-
   async getCommitDetail(repoID: string, sha: string, provider: string): Promise<CommitDetail> {
     const pid = encodeURIComponent(repoID);
     const url = `${this.base}/api/v4/projects/${pid}/repository/commits/${encodeURIComponent(sha)}`;
