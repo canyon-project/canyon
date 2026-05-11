@@ -19,7 +19,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "6.1.0",
-    "@canyonjs/git-provider": "0.0.7",
+    "@canyonjs/git-provider": "0.0.8",
     "@canyonjs/report-component": "latest",
     "@canyonjs/report-html": "latest",
     "@hono/node-server": "^1.19.11",
