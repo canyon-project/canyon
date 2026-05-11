@@ -17,14 +17,6 @@ export interface ChangedFile {
   status?: "added" | "modified" | "removed";
 }
 
-/** 用于 diff 的 compare 单项 */
-export interface CompareDiffItem {
-  old_path?: string;
-  new_path?: string;
-  new_file?: boolean;
-  deleted_file?: boolean;
-}
-
 export interface CommitInfo {
   parent_ids: string[];
   stats: { additions: number };

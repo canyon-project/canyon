@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { CommitDetail, CommitInfo, CompareDiffItem } from "./types.ts";
+import type { CommitDetail, CommitInfo } from "./types.ts";
 import type { ScmAdapter } from "./adapter.ts";
 
 type GitlabScmConfig = { type: "gitlab"; base: string; token: string };
@@ -61,36 +61,5 @@ export class GitlabAdapter implements ScmAdapter {
       stats: data?.stats,
       ...data,
     };
-  }
-
-  async getCompareDiffs(repoID: string, from: string, to: string): Promise<CompareDiffItem[]> {
-    const pid = encodeURIComponent(repoID);
-    const url = `${this.base}/api/v4/projects/${pid}/repository/compare?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
-    const { data } = await axios.get<{
-      diffs?: Array<{
-        old_path?: string;
-        new_path?: string;
-        new_file?: boolean;
-        deleted_file?: boolean;
-      }>;
-    }>(url, { headers: this.headers(), timeout: 10000 });
-    return (data?.diffs ?? []).map((d) => ({
-      old_path: d.old_path,
-      new_path: d.new_path,
-      new_file: d.new_file,
-      deleted_file: d.deleted_file,
-    }));
-  }
-
-  async getFileContent(repoID: string, path: string, ref: string): Promise<string> {
-    const pid = encodeURIComponent(repoID);
-    const encodedPath = encodeURIComponent(path);
-    const url = `${this.base}/api/v4/projects/${pid}/repository/files/${encodedPath}?ref=${encodeURIComponent(ref)}`;
-    const { data } = await axios.get<{ content?: string }>(url, {
-      headers: this.headers(),
-      timeout: 10000,
-    });
-    if (!data?.content) return "";
-    return Buffer.from(data.content, "base64").toString("utf8");
   }
 }

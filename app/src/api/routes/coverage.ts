@@ -11,11 +11,9 @@ import { getCoverageMapForCommit } from "@/api/lib/coverage/coverage-map-for-com
 import { getCoverageMapForCr } from "@/api/lib/coverage/coverage-map-for-cr.ts";
 import { getCoverageMapForCompare } from "@/api/lib/coverage/coverage-map-for-compare.ts";
 import { publishSnapshotGeneratedMessage } from "@/api/lib/coverage/snapshot-generated-producer.ts";
-import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { buildCommitUrl } from "@/api/lib/commit-url.ts";
 import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
-import {getNewScm, getScm} from "@/api/lib/scm.ts";
-import { diffLine } from "@/api/lib/source/diff-line.ts";
+import {getNewScm} from "@/api/lib/scm.ts";
 import { CoverageMapQuerySchema, CoverageCommitsQuerySchema } from "@/shared/schemas/coverage.ts";
 import { genSummaryMapByCoverageMap } from "canyon-data";
 
@@ -844,16 +842,19 @@ async function ensureCompareDiffIfMissing(args: {
     throw new Error("subjectID format invalid, expected baseSha...headSha");
   }
 
-  const scm = getScm(args.provider);
+  const scm = getNewScm(args.provider);
   if (!scm) {
     throw new Error(`scm adapter not configured for provider: ${args.provider}`);
   }
 
   for (const sha of [fromSha, toSha]) {
-    await ensureCommitFromScm(prisma, scm, args.provider, args.repoID, sha);
+    // TODO: 待实现
+    // await ensureCommitFromScm(prisma, scm, args.provider, args.repoID, sha);
   }
 
-  const diffResult = await diffLine(scm, args.repoID, fromSha, toSha);
+  const diffResult = await scm.getCompare(args.repoID, fromSha, toSha).then(res=>{
+    return res.changedFiles
+  });
 
   await prisma.diff.deleteMany({
     where: {

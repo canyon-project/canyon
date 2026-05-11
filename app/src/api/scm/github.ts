@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { CommitDetail, CommitInfo, CompareDiffItem } from "./types.ts";
+import type { CommitDetail, CommitInfo } from "./types.ts";
 import type { ScmAdapter } from "./adapter.ts";
 
 const GITHUB_BASE = "https://api.github.com";
@@ -84,39 +84,5 @@ export class GithubAdapter implements ScmAdapter {
       stats: data?.stats,
       ...data,
     };
-  }
-
-  async getCompareDiffs(repoID: string, from: string, to: string): Promise<CompareDiffItem[]> {
-    const { owner, repo } = await this.resolveOwnerRepo(repoID);
-    const url = `${this.base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/compare/${encodeURIComponent(from)}...${encodeURIComponent(to)}`;
-    const { data } = await axios.get<{
-      files?: Array<{
-        filename?: string;
-        previous_filename?: string;
-        status?: string;
-      }>;
-    }>(url, { headers: this.headers(), timeout: 10000 });
-    const files = data?.files ?? [];
-    return files.map((f) => ({
-      old_path: f.previous_filename ?? f.filename,
-      new_path: f.filename,
-      new_file: f.status === "added",
-      deleted_file: f.status === "removed",
-    }));
-  }
-
-  async getFileContent(repoID: string, path: string, ref: string): Promise<string> {
-    const { owner, repo } = await this.resolveOwnerRepo(repoID);
-    const encodedPath = path
-      .split("/")
-      .map((s) => encodeURIComponent(s))
-      .join("/");
-    const url = `${this.base}/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/contents/${encodedPath}?ref=${encodeURIComponent(ref)}`;
-    const { data } = await axios.get<{ content?: string }>(url, {
-      headers: this.headers(),
-      timeout: 10000,
-    });
-    if (!data?.content) return "";
-    return Buffer.from(data.content, "base64").toString("utf8");
   }
 }

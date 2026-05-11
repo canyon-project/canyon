@@ -10,7 +10,6 @@ import {
 } from "@/api/lib/external-user-profile.ts";
 import {getNewScm, getScm} from "@/api/lib/scm.ts";
 import { resolveRepoAndRef } from "@/api/lib/source/get-file-content.ts";
-import { diffLine } from "@/api/lib/source/diff-line.ts";
 import {encode} from "@/api/lib/source/encode.ts";
 
 const SourceQuerySchema = z.object({
@@ -441,9 +440,10 @@ sourceApi.openapi(diffPostRoute, async (c) => {
     return c.json({ error: "subjectID 格式错误，from 和 to 不能为空" }, 400);
   }
 
-  const scm = getScm(provider);
+  const scm = getNewScm(provider);
   for (const s of [fromSha, toSha]) {
-    await ensureCommitFromScm(prisma, scm, provider, repoID, s);
+    // TODO: 待实现
+    // await ensureCommitFromScm(prisma, scm, provider, repoID, s);
   }
 
   await prisma.diff.deleteMany({
@@ -452,7 +452,9 @@ sourceApi.openapi(diffPostRoute, async (c) => {
 
   if (!scm) return c.json({ error: "SCM 未配置" }, 502);
 
-  const diffResult = await diffLine(scm, repoID, fromSha, toSha);
+  const diffResult = await scm.getCompare(repoID, fromSha, toSha).then(res=>{
+    return res.changedFiles
+  });
   const data = diffResult.map((item) => ({
     id: `${provider}|${repoID}|${subject}|${subjectID}|${item.path}`,
     provider,
