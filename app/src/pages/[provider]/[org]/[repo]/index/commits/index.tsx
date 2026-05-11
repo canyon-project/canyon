@@ -47,7 +47,7 @@ type CommitRecord = {
   commitUrl?: string | null;
   branch: string;
   compareTarget: string;
-  commitMessage: string;
+  title: string;
   statements: number;
   newLines: number;
   times: number;
@@ -245,18 +245,18 @@ const CommitsPage = () => {
       key: "commitInfo",
       ellipsis: true,
       render: (_: any, record: FlatCommitRow) => {
-        const hasMessage = record.commitMessage;
+        const hasTitle = record.title;
         const hasAuthor = record.authorName || record.authorEmail;
         const hasTime = record.createdAt;
 
-        if (!hasMessage && !hasAuthor && !hasTime) {
+        if (!hasTitle && !hasAuthor && !hasTime) {
           return "-";
         }
 
         return (
           <Space direction="vertical" size={2} style={{ width: "100%" }}>
-            {hasMessage && (
-              <Text ellipsis={{ tooltip: record.commitMessage }}>{record.commitMessage}</Text>
+            {hasTitle && (
+              <Text ellipsis={{ tooltip: record.title }}>{record.title}</Text>
             )}
             {hasAuthor && (
               <Space size={4}>
@@ -419,7 +419,7 @@ const CommitsPage = () => {
       subject: "commit",
       subjectID: record.sha ?? "",
       buildTarget: record.currentBuildTarget ?? "",
-      title: record.commitMessage ?? "",
+      title: record.title ?? "",
       description: "",
     });
     setSnapshotDrawerMode("create");

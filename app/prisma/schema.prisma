@@ -110,8 +110,12 @@ model RepoMember {
 
 // 更新
 model Commit {
-  id      String @id
-  content Json
+  id          String   @id
+  sha         String
+  title       String
+  authorName  String   @map("author_name")
+  authorEmail String   @map("author_email")
+  createdAt   DateTime @map("created_at")
 
   @@map("canyon_next_commit")
 }

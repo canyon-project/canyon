@@ -11,6 +11,7 @@ import { getCoverageMapForCommit } from "@/api/lib/coverage/coverage-map-for-com
 import { getCoverageMapForCr } from "@/api/lib/coverage/coverage-map-for-cr.ts";
 import { getCoverageMapForCompare } from "@/api/lib/coverage/coverage-map-for-compare.ts";
 import { publishSnapshotGeneratedMessage } from "@/api/lib/coverage/snapshot-generated-producer.ts";
+import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { buildCommitUrl } from "@/api/lib/commit-url.ts";
 import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
 import {getNewScm} from "@/api/lib/scm.ts";
@@ -848,8 +849,7 @@ async function ensureCompareDiffIfMissing(args: {
   }
 
   for (const sha of [fromSha, toSha]) {
-    // TODO: 待实现
-    // await ensureCommitFromScm(prisma, scm, args.provider, args.repoID, sha);
+    await ensureCommitFromScm(prisma, args.provider, args.repoID, sha);
   }
 
   const diffResult = await scm.getCompare(args.repoID, fromSha, toSha).then(res=>{

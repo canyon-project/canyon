@@ -1,4 +1,5 @@
 import { prisma } from "@/api/lib/prisma.ts";
+import { toCommitId } from "@/api/lib/commit.ts";
 import {
   fetchExternalUserProfilesByEmails,
   normalizeEmail,
@@ -20,7 +21,7 @@ export type CommitRecord = {
   commitUrl?: string | null;
   branch: string;
   compareTarget: string;
-  commitMessage: string;
+  title: string;
   statements: number;
   newLines: number;
   times: number;
@@ -72,7 +73,7 @@ export async function getCommitsByRepoID(repoID: string): Promise<CommitRecord[]
         sha,
         branch,
         compareTarget: "",
-        commitMessage: "",
+        title: "",
         statements: 0,
         newLines: 0,
         times: 0,
@@ -147,26 +148,23 @@ export async function getCommitsByRepoID(repoID: string): Promise<CommitRecord[]
   }
 
   const commits = Array.from(commitsMap.values());
-  const commitDetails = await prisma.commit.findMany({
-    where: {
-      content: { path: ["repoID"], equals: repoID },
-    },
+  const commitIds = [...new Set(commits.map((c) => toCommitId(c.provider, repoID, c.sha)))];
+  const commitRows = await prisma.commit.findMany({
+    where: { id: { in: commitIds } },
   });
 
-  const detailBySha = new Map<string, (typeof commitDetails)[0]>();
-  for (const d of commitDetails) {
-    const c = d.content as Record<string, unknown> | null;
-    if (c?.sha) detailBySha.set(c.sha as string, d);
+  const detailBySha = new Map<string, (typeof commitRows)[0]>();
+  for (const row of commitRows) {
+    detailBySha.set(row.sha, row);
   }
 
   for (const commit of commits) {
-    const detail = detailBySha.get(commit.sha);
-    if (detail) {
-      const c = detail.content as Record<string, unknown>;
-      commit.commitMessage = (c.commitMessage as string) ?? "";
-      commit.authorName = (c.authorName as string) ?? null;
-      commit.authorEmail = (c.authorEmail as string) ?? null;
-      commit.createdAt = (c.createdAt as string) ?? undefined;
+    const row = detailBySha.get(commit.sha);
+    if (row) {
+      commit.title = row.title ?? "";
+      commit.authorName = row.authorName ?? null;
+      commit.authorEmail = row.authorEmail ?? null;
+      commit.createdAt = row.createdAt.toISOString();
     }
   }
 
