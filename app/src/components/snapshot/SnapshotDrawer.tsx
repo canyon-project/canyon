@@ -26,6 +26,7 @@ import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import dayjs from "dayjs";
+import { useContent } from "@/contexts/AuthContent";
 import * as snapshotService from "@/services/snapshot";
 
 export type SnapshotFormValues = {
@@ -110,6 +111,7 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   titleContext,
 }) => {
   const { t } = useTranslation();
+  const { user } = useContent();
   const [form] = Form.useForm<{ title: string; description: string }>();
   const [submitLoading, setSubmitLoading] = useState(false);
   const [recordsLoading, setRecordsLoading] = useState(false);
@@ -330,6 +332,9 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
         buildTarget: initialValues.buildTarget,
         title: values.title,
         description: values.description,
+        ...(user?.username || user?.email
+          ? { createdBy: user.username || user.email }
+          : {}),
       });
       message.success(t("projects.snapshot.create.success"));
       form.resetFields();

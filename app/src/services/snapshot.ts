@@ -8,6 +8,8 @@ export type SnapshotFormValues = {
   buildTarget?: string;
   title?: string;
   description?: string;
+  /** 与 OpenAPI body.createdBy 一致；未传时由服务端回退 */
+  createdBy?: string;
 };
 
 export type SnapshotRecord = {
