@@ -332,8 +332,8 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
         buildTarget: initialValues.buildTarget,
         title: values.title,
         description: values.description,
-        ...(user?.username || user?.email
-          ? { createdBy: user.username || user.email }
+        ...(user?.email
+          ? { createdBy: user.email}
           : {}),
       });
       message.success(t("projects.snapshot.create.success"));
