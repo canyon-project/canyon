@@ -14,7 +14,8 @@ import { publishSnapshotGeneratedMessage } from "@/api/lib/coverage/snapshot-gen
 import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { buildCommitUrl } from "@/api/lib/commit-url.ts";
 import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
-import {getNewScm} from "@/api/lib/scm.ts";
+import { getAuth } from "@/api/lib/auth.ts";
+import { getNewScm } from "@/api/lib/scm.ts";
 import { CoverageMapQuerySchema, CoverageCommitsQuerySchema } from "@/shared/schemas/coverage.ts";
 import { genSummaryMapByCoverageMap } from "canyon-data";
 
@@ -144,7 +145,6 @@ const snapshotCreateRoute = createRoute({
             buildTarget: z.string().optional(),
             title: z.string().optional(),
             description: z.string().optional(),
-            createdBy: z.string().optional(),
           }),
         },
       },
@@ -1249,6 +1249,14 @@ coverageApi.openapi(coverageCleanupOrphanMapsRoute, async (c) => {
 });
 
 coverageApi.openapi(snapshotCreateRoute, async (c) => {
+  const session = await getAuth().api.getSession({
+    headers: c.req.raw.headers,
+  });
+  if (!session?.user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+  const createdBy = String(session.user.email);
+
   const body = c.req.valid("json");
   const subject = body.subject ?? "commit";
   const subjectID = body.subjectID ?? body.sha;
@@ -1258,7 +1266,6 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
   const resolvedRepoID = await resolveRepoIDForCoverage(body.repoID);
 
   const freezeTime = new Date();
-  const createdBy = body.createdBy ?? c.req.header("x-user-id") ?? "system";
   const created = await prisma.coverageSnapshot.create({
     data: {
       provider: body.provider,
