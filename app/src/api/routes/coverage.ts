@@ -145,6 +145,7 @@ const snapshotCreateRoute = createRoute({
             buildTarget: z.string().optional(),
             title: z.string().optional(),
             description: z.string().optional(),
+            createdBy: z.string().optional(),
           }),
         },
       },
