@@ -28,7 +28,8 @@
     "@tailwindcss/postcss": "4.1.18",
     "pagefind": "*",
     "tailwindcss": "4.1.18",
-    "tsx": "^4.19.0"
+    "tsx": "^4.19.0",
+    "@theguild/remark-mermaid，": "latest"
   },
   "engines": {
     "node": "22"
