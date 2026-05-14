@@ -14,7 +14,8 @@ import { publishSnapshotGeneratedMessage } from "@/api/lib/coverage/snapshot-gen
 import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { buildCommitUrl } from "@/api/lib/commit-url.ts";
 import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
-import {getNewScm} from "@/api/lib/scm.ts";
+import { getAuth } from "@/api/lib/auth.ts";
+import { getNewScm } from "@/api/lib/scm.ts";
 import { CoverageMapQuerySchema, CoverageCommitsQuerySchema } from "@/shared/schemas/coverage.ts";
 import { genSummaryMapByCoverageMap } from "canyon-data";
 
@@ -1250,6 +1251,13 @@ coverageApi.openapi(coverageCleanupOrphanMapsRoute, async (c) => {
 
 coverageApi.openapi(snapshotCreateRoute, async (c) => {
   const body = c.req.valid("json");
+  const session = await getAuth().api.getSession({
+    headers: c.req.raw.headers,
+  });
+  let createdBy = body.createdBy ?? c.req.header("x-user-id") ?? "system";
+  if (session?.user?.email) {
+    createdBy = String(session.user.email);
+  }
   const subject = body.subject ?? "commit";
   const subjectID = body.subjectID ?? body.sha;
   if (!subjectID) {
@@ -1258,7 +1266,6 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
   const resolvedRepoID = await resolveRepoIDForCoverage(body.repoID);
 
   const freezeTime = new Date();
-  const createdBy = body.createdBy ?? c.req.header("x-user-id") ?? "system";
   const created = await prisma.coverageSnapshot.create({
     data: {
       provider: body.provider,
