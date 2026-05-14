@@ -1372,7 +1372,6 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
           changebranchesTotal: true,
         },
       });
-      console.log('completedSnapshot-cct',completedSnapshot)
       await publishSnapshotGeneratedMessage({
         snapshotID: completedSnapshot.id,
         provider: completedSnapshot.provider,
