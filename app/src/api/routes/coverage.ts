@@ -1250,15 +1250,14 @@ coverageApi.openapi(coverageCleanupOrphanMapsRoute, async (c) => {
 });
 
 coverageApi.openapi(snapshotCreateRoute, async (c) => {
+  const body = c.req.valid("json");
   const session = await getAuth().api.getSession({
     headers: c.req.raw.headers,
   });
-  if (!session?.user) {
-    return c.json({ error: "Unauthorized" }, 401);
+  let createdBy = body.createdBy ?? c.req.header("x-user-id") ?? "system";
+  if (session?.user?.email) {
+    createdBy = String(session.user.email);
   }
-  const createdBy = String(session.user.email);
-
-  const body = c.req.valid("json");
   const subject = body.subject ?? "commit";
   const subjectID = body.subjectID ?? body.sha;
   if (!subjectID) {
@@ -1373,6 +1372,7 @@ coverageApi.openapi(snapshotCreateRoute, async (c) => {
           changebranchesTotal: true,
         },
       });
+      console.log('completedSnapshot-cct',completedSnapshot)
       await publishSnapshotGeneratedMessage({
         snapshotID: completedSnapshot.id,
         provider: completedSnapshot.provider,
