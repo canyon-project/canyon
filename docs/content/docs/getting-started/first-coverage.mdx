@@ -70,7 +70,7 @@ pages:
 等待 CI 完成后，将页面部署到测试环境。为了收集人工测试的覆盖率数据，您需要在 HTML 文件中引入 Canyon 收集脚本：
 
 ```html copy
-<script src="https://unpkg.com/@canyonjs/collect"></script>
+<script src="https://unpkg.com/@canyonjs/collect/dist/index.iife.js"></script>
 <script>
   window.CANYON_DSN = "https://app.canyonjs.io/api/coverage/client";
   window.CANYON_SCENE = {
