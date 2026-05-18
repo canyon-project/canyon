@@ -12,7 +12,7 @@ export interface CanyonBabelPluginConfig {
   keepMap?: boolean;
 }
 
-const DEFAULT_INCLUDE = /\.(?:[cm]?[jt]sx?)$/;
+const DEFAULT_INCLUDE = /\.(?:[cm]?[jt]sx?|vue|svelte)$/;
 const DEFAULT_EXCLUDE = [/node_modules/];
 
 function matches(id: string, pattern?: RegExp | RegExp[]): boolean {
