@@ -1,4 +1,5 @@
 export default {
+  "compare-snapshot-workflow": "Compare 与快照（实操）",
   "instrumenting-code": "代码插桩",
   "separate-hit-and-map": "分离 Hit 和 Map",
   "change-code-coverage": "变更代码覆盖率",
