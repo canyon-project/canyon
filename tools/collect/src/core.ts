@@ -39,7 +39,7 @@ export const sendCoverage = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        keepalive: true,
+        // keepalive: true,
         body: JSON.stringify({
           buildHash,
           coverage: coverageByBuildHash,
