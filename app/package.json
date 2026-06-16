@@ -73,7 +73,7 @@
     "tailwindcss": "^4.2.1",
     "typescript": "~5.9.3",
     "vite": "8",
-    "vite-plugin-istanbul": "latest",
+    "vite-plugin-istanbul": "7",
     "vite-plugin-pages": "^0.33.3",
     "vitest": "4.1.3"
   }
