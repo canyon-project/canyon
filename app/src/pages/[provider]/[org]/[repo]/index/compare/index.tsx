@@ -85,6 +85,9 @@ const ComparePage = () => {
   const [loading, setLoading] = useState(false);
   const [addLoading, setAddLoading] = useState(false);
   const [compareRecords, setCompareRecords] = useState<CompareRecord[]>([]);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [snapshotDrawerOpen, setSnapshotDrawerOpen] = useState(false);
@@ -93,15 +96,21 @@ const ComparePage = () => {
     {},
   );
 
-  const fetchCompareRecords = async () => {
+  const fetchCompareRecords = async (targetPage = page, targetPageSize = pageSize) => {
     if (!repo?.id || !params.provider) {
       return;
     }
 
     setLoading(true);
     try {
-      const data = await getDiffList({ repoID: repo.id, provider: params.provider });
+      const data = await getDiffList({
+        repoID: repo.id,
+        provider: params.provider,
+        page: targetPage,
+        pageSize: targetPageSize,
+      });
       setCompareRecords(Array.isArray(data.data) ? (data.data as CompareRecord[]) : []);
+      setTotal(typeof data.total === "number" ? data.total : 0);
     } catch (error) {
       message.error(t("projects.comparison.fetch.failed"));
       console.error(error);
@@ -112,7 +121,7 @@ const ComparePage = () => {
 
   useEffect(() => {
     fetchCompareRecords();
-  }, [repo?.id, params.provider]);
+  }, [repo?.id, params.provider, page, pageSize]);
 
   const handleAdd = async (values: { base: string; head: string }) => {
     if (!repo?.id || !params.provider) {
@@ -133,7 +142,11 @@ const ComparePage = () => {
       message.success(t("projects.comparison.create.success"));
       setIsModalOpen(false);
       form.resetFields();
-      fetchCompareRecords();
+      if (page === 1) {
+        fetchCompareRecords(1, pageSize);
+      } else {
+        setPage(1);
+      }
     } catch (error) {
       message.error(t("projects.comparison.create.failed"));
       console.error(error);
@@ -155,7 +168,11 @@ const ComparePage = () => {
         subject: record.subject,
       });
       message.success(t("projects.comparison.delete.success"));
-      fetchCompareRecords();
+      if (compareRecords.length === 1 && page > 1) {
+        setPage(page - 1);
+      } else {
+        fetchCompareRecords();
+      }
     } catch (error) {
       message.error(t("projects.comparison.delete.failed"));
       console.error(error);
@@ -489,9 +506,18 @@ const ComparePage = () => {
           loading={loading}
           rowKey="id"
           pagination={{
-            pageSize: 10,
+            current: page,
+            pageSize,
+            total,
             showSizeChanger: true,
-            showTotal: (total) => t("projects.comparison.pagination.total", { total }),
+            showTotal: (count) => t("projects.comparison.pagination.total", { total: count }),
+            onChange: (newPage, newPageSize) => {
+              setPage(newPage);
+              if (newPageSize !== pageSize) {
+                setPageSize(newPageSize);
+                setPage(1);
+              }
+            },
           }}
         />
       </CardPrimary>

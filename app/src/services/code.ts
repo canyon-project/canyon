@@ -1,9 +1,7 @@
+import type { DiffListQuery } from "@/shared/schemas/source";
 import { request } from "./request";
 
-export type DiffListQuery = {
-  repoID: string;
-  provider: string;
-};
+export type { DiffListQuery };
 
 export type DiffCreateBody = {
   repoID: string;
