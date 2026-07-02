@@ -1,5 +1,6 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { ProviderQueryParam, ProviderSchema } from "@/shared/schemas/provider.ts";
+import { DiffListQuerySchema } from "@/shared/schemas/source.ts";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { prisma } from "@/api/lib/prisma.ts";
 import { ensureCommitFromScm, toCommitId } from "@/api/lib/commit.ts";
@@ -85,13 +86,10 @@ const diffGetRoute = createRoute({
   method: "get",
   path: "/diff",
   summary: "获取 Diff 列表",
-  description: "根据 repoID、provider 获取 diff 记录列表（累积分析等）。",
+  description: "根据 repoID、provider 获取 diff 记录列表（累积分析等），支持分页（page、pageSize）。",
   tags: ["源码"],
   request: {
-    query: z.object({
-      repoID: z.string().openapi({ param: { name: "repoID", in: "query" } }),
-      provider: z.string().openapi({ param: { name: "provider", in: "query" } }),
-    }),
+    query: DiffListQuerySchema,
   },
   responses: { 200: { description: "diff 列表" } },
 });
@@ -235,11 +233,37 @@ sourceApi.openapi(projectRoute, async (c) => {
 });
 
 sourceApi.openapi(diffGetRoute, async (c) => {
-  const { repoID, provider } = c.req.valid("query");
+  const { repoID, provider, page, pageSize } = c.req.valid("query");
   if (!repoID || !provider) return c.json({ data: [], total: 0 });
 
-  const diffs = await prisma.diff.findMany({
+  const totalRows = await prisma.$queryRaw<[{ count: number }]>`
+    SELECT COUNT(*)::int AS count
+    FROM (
+      SELECT 1
+      FROM canyon_next_diff
+      WHERE provider = ${provider} AND repo_id = ${repoID}
+      GROUP BY subject_id, subject
+    ) grouped
+  `;
+  const total = totalRows[0]?.count ?? 0;
+  if (total === 0) return c.json({ data: [], total: 0 });
+
+  const groups = await prisma.diff.groupBy({
+    by: ["subjectID", "subject"],
     where: { provider, repoID },
+    _min: { createdAt: true },
+    orderBy: { _min: { createdAt: "desc" } },
+    skip: (page - 1) * pageSize,
+    take: pageSize,
+  });
+  if (groups.length === 0) return c.json({ data: [], total });
+
+  const diffs = await prisma.diff.findMany({
+    where: {
+      provider,
+      repoID,
+      OR: groups.map((g) => ({ subjectID: g.subjectID, subject: g.subject })),
+    },
     select: {
       id: true,
       provider: true,
@@ -407,7 +431,7 @@ sourceApi.openapi(diffGetRoute, async (c) => {
     };
   });
 
-  return c.json({ data, total: data.length });
+  return c.json({ data, total });
 });
 
 sourceApi.openapi(commitPostRoute, async (c) => {
