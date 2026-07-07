@@ -6,6 +6,7 @@ on:
       - main
       - next
       - dev
+      - swc-plugin-0.0.20
 
 env:
   RUST_LOG: debug
@@ -20,22 +21,20 @@ jobs:
       run:
         working-directory: plugins/swc-plugin
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: Setup node
-        uses: actions/setup-node@v2
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: https://registry.npmjs.org/
 
-      - run: |
-          echo "Before: corepack version => $(corepack --version || echo 'not installed')"
-          npm install -g corepack@latest
-          echo "After : corepack version => $(corepack --version)"
-          corepack enable
-          pnpm --version
-          pnpm i
+      - run: pnpm install
 
       - name: Install Rust Nightly
         uses: actions-rs/toolchain@v1
@@ -48,10 +47,6 @@ jobs:
         shell: bash
         run: |
           rustup target add wasm32-wasip1
-
-      - name: Login to npm
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NODE_AUTH_TOKEN }}" > ~/.npmrc
 
       - name: Publish to npm
         run: pnpm publish -f --no-git-checks --access=public
