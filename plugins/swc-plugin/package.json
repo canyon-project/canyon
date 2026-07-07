@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/swc-plugin",
-  "version": "0.0.5",
+  "version": "0.0.20-beta.1",
   "description": "A SWC plugin cooperates with istanbul to report the coverage",
   "files": [
     "swc_plugin_canyon.wasm"
@@ -11,8 +11,8 @@
     "prepack": "cargo build --release -p swc_plugin_canyon --target wasm32-wasip1 && cp ../../target/wasm32-wasip1/release/swc_plugin_canyon.wasm ."
   },
   "devDependencies": {
-    "@swc/cli": "^0.6.0",
-    "@swc/core": "^1.10.7",
-    "swc-plugin-coverage-instrument": "0.0.32"
+    "@swc/cli": "^0.1.62",
+    "@swc/core": "^1.3.58",
+    "swc-plugin-coverage-instrument": "0.0.20"
   }
 }
