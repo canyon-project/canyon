@@ -1,6 +1,6 @@
 {
   "name": "@canyonjs/swc-plugin",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A SWC plugin cooperates with istanbul to report the coverage",
   "files": [
     "swc_plugin_canyon.wasm"
