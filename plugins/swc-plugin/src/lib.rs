@@ -1,3 +1,6 @@
+mod instrument_filter;
+
+use instrument_filter::InstrumentFilter;
 use std::fs;
 use std::fs::write;
 use std::path::Path;
@@ -22,7 +25,15 @@ pub struct Config {
     pub instrumentCwd: Option<String>,
     pub sha: Option<String>,
     pub keepMap: Option<bool>,
-    pub ci: Option<bool>
+    pub ci: Option<bool>,
+    #[serde(default)]
+    pub include: Option<Vec<String>>,
+    #[serde(default)]
+    pub exclude: Option<Vec<String>>,
+    #[serde(default, alias = "extensions")]
+    pub extension: Option<Vec<String>>,
+    #[serde(default)]
+    pub excludeNodeModules: Option<bool>,
 }
 
 impl Default for Config {
@@ -31,7 +42,11 @@ impl Default for Config {
             instrumentCwd: None,
             sha: None,
             keepMap: Some(false),
-            ci: Some(false)
+            ci: Some(false),
+            include: None,
+            exclude: None,
+            extension: None,
+            excludeNodeModules: Some(true),
         }
     }
 }
@@ -368,10 +383,21 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
     // 使用TransformPluginProgramMetadata获取环境变量
     let _env = metadata.get_context(&TransformPluginMetadataContextKind::Env).unwrap_or("-".to_string());
     let filename = metadata.get_context(&TransformPluginMetadataContextKind::Filename).unwrap_or("-".to_string());
-    let _cwd = metadata.get_context(&TransformPluginMetadataContextKind::Cwd).unwrap_or("-".to_string());
+    let cwd = metadata.get_context(&TransformPluginMetadataContextKind::Cwd).unwrap_or("-".to_string());
 
-    // Skip: node_modules、Turbopack 包装模块、或 React Compiler 编译产物
-    if filename.contains("node_modules") {
+    let instrument_cwd = config
+        .instrumentCwd
+        .as_deref()
+        .filter(|value| !value.is_empty())
+        .unwrap_or(&cwd);
+    let filter = InstrumentFilter::new(
+        instrument_cwd,
+        config.include.clone(),
+        config.exclude.clone(),
+        config.extension.clone(),
+        config.excludeNodeModules.unwrap_or(true),
+    );
+    if !filter.should_instrument(&filename) {
         return program;
     }
     if is_turbopack_helper_module(&program) {
