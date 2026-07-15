@@ -1,5 +1,5 @@
 use regex::Regex;
-use std::path::{Path, PathBuf};
+use std::path::{Component, Path, PathBuf};
 
 const DEFAULT_EXTENSIONS: &[&str] = &[".js", ".cjs", ".mjs", ".ts", ".tsx", ".jsx", ".vue"];
 
@@ -120,13 +120,68 @@ fn matches_any(patterns: &[Regex], path: &str) -> bool {
     patterns.iter().any(|pattern| pattern.is_match(path))
 }
 
+fn normalize_path(path: &Path) -> PathBuf {
+    let mut normalized = PathBuf::new();
+    for component in path.components() {
+        match component {
+            Component::Prefix(prefix) => normalized.push(prefix.as_os_str()),
+            Component::RootDir => normalized.push(component.as_os_str()),
+            Component::CurDir => {}
+            Component::ParentDir => {
+                normalized.pop();
+            }
+            Component::Normal(part) => normalized.push(part),
+        }
+    }
+    normalized
+}
+
+fn resolve_path(base: &Path, path: &Path) -> PathBuf {
+    if path.is_absolute() {
+        normalize_path(path)
+    } else {
+        normalize_path(&base.join(path))
+    }
+}
+
+fn relative_path(from: &Path, to: &Path) -> Option<PathBuf> {
+    let from = normalize_path(from);
+    let to = normalize_path(to);
+
+    let from_components: Vec<_> = from.components().collect();
+    let to_components: Vec<_> = to.components().collect();
+
+    let mut common = 0;
+    while common < from_components.len()
+        && common < to_components.len()
+        && from_components[common] == to_components[common]
+    {
+        common += 1;
+    }
+
+    let mut result = PathBuf::new();
+    for _ in from_components[common..].iter() {
+        result.push("..");
+    }
+    for component in &to_components[common..] {
+        if let Component::Normal(part) = component {
+            result.push(part);
+        }
+    }
+
+    if result.as_os_str().is_empty() {
+        Some(PathBuf::from("."))
+    } else {
+        Some(result)
+    }
+}
+
 fn is_outside_dir(dir: &Path, filename: &Path) -> bool {
-    filename
-        .strip_prefix(dir)
+    relative_path(dir, filename)
         .map(|rel| {
-            rel.components().next().map_or(false, |c| {
-                matches!(c, std::path::Component::ParentDir)
-            })
+            rel.components()
+                .next()
+                .is_some_and(|c| matches!(c, Component::ParentDir))
         })
         .unwrap_or(true)
 }
@@ -140,7 +195,8 @@ fn normalize_relative_path(path: &Path) -> String {
 }
 
 pub struct InstrumentFilter {
-    cwd: PathBuf,
+    base_cwd: PathBuf,
+    instrument_root: PathBuf,
     include: Vec<Regex>,
     exclude: Vec<Regex>,
     exclude_negated: Vec<Regex>,
@@ -149,13 +205,15 @@ pub struct InstrumentFilter {
 
 impl InstrumentFilter {
     pub fn new(
-        cwd: impl AsRef<Path>,
+        base_cwd: impl AsRef<Path>,
+        instrument_cwd: impl AsRef<Path>,
         include: Option<Vec<String>>,
         exclude: Option<Vec<String>>,
         extension: Option<Vec<String>>,
         exclude_node_modules: bool,
     ) -> Self {
-        let cwd = cwd.as_ref().to_path_buf();
+        let base_cwd = base_cwd.as_ref().to_path_buf();
+        let instrument_root = resolve_path(&base_cwd, instrument_cwd.as_ref());
 
         let mut include_patterns = include.unwrap_or_default();
         let mut exclude_patterns = exclude.unwrap_or_default();
@@ -171,7 +229,8 @@ impl InstrumentFilter {
         let (exclude_positive, exclude_negated) = split_negated_patterns(exclude_patterns);
 
         Self {
-            cwd,
+            base_cwd,
+            instrument_root,
             include: build_regex_set(&include_patterns),
             exclude: build_regex_set(&exclude_positive),
             exclude_negated: build_regex_set(&exclude_negated),
@@ -195,15 +254,15 @@ impl InstrumentFilter {
             }
         }
 
-        let filename_path = Path::new(filename);
-        if is_outside_dir(&self.cwd, filename_path) {
+        let filename_path = resolve_path(&self.base_cwd, Path::new(filename));
+        if is_outside_dir(&self.instrument_root, &filename_path) {
             return false;
         }
 
         let path_to_check = normalize_relative_path(
-            filename_path
-                .strip_prefix(&self.cwd)
-                .unwrap_or(filename_path),
+            relative_path(&self.instrument_root, &filename_path)
+                .unwrap_or_else(|| filename_path.clone())
+                .as_path(),
         );
 
         if !self.include.is_empty() && !matches_any(&self.include, &path_to_check) {
@@ -223,7 +282,7 @@ mod tests {
 
     #[test]
     fn skips_node_modules_by_default() {
-        let filter = InstrumentFilter::new("/project", None, None, None, true);
+        let filter = InstrumentFilter::new("/project", "/project", None, None, None, true);
         assert!(!filter.should_instrument("/project/node_modules/pkg/index.js"));
         assert!(filter.should_instrument("/project/src/index.ts"));
     }
@@ -231,6 +290,7 @@ mod tests {
     #[test]
     fn respects_include_and_extension() {
         let filter = InstrumentFilter::new(
+            "/project",
             "/project",
             Some(vec!["src/**/*.ts".to_string()]),
             None,
@@ -246,6 +306,7 @@ mod tests {
     fn respects_exclude() {
         let filter = InstrumentFilter::new(
             "/project",
+            "/project",
             None,
             Some(vec!["**/*.test.ts".to_string()]),
             Some(vec![".ts".to_string()]),
@@ -253,5 +314,13 @@ mod tests {
         );
         assert!(filter.should_instrument("/project/src/foo.ts"));
         assert!(!filter.should_instrument("/project/src/foo.test.ts"));
+    }
+
+    #[test]
+    fn resolves_relative_instrument_cwd() {
+        let filter = InstrumentFilter::new("/project", "./src", None, None, None, true);
+        assert!(filter.should_instrument("/project/src/index.ts"));
+        assert!(!filter.should_instrument("/project/features/add.js"));
+        assert!(!filter.should_instrument("features/add.js"));
     }
 }

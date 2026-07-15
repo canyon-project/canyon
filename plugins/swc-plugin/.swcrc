@@ -7,9 +7,10 @@
         [
           "./swc_plugin_canyon.wasm",
           {
-            "instrumentCwd": "./src",
+            "instrumentCwd": ".",
             "sha": "xxx",
-            "ci": true
+            "ci": true,
+            "include":["features/add.js"]
             //             "keepMap": true
           }
         ]

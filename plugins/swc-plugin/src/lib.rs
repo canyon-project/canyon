@@ -391,6 +391,7 @@ pub fn process_transform(program: Program, metadata: TransformPluginProgramMetad
         .filter(|value| !value.is_empty())
         .unwrap_or(&cwd);
     let filter = InstrumentFilter::new(
+        &cwd,
         instrument_cwd,
         config.include.clone(),
         config.exclude.clone(),
