@@ -1,0 +1,32 @@
+[
+  {
+    "type": "file",
+    "name": "architecture",
+    "label": "整体架构"
+  },
+  {
+    "type": "file",
+    "name": "build-hash",
+    "label": "BuildHash"
+  },
+  {
+    "type": "file",
+    "name": "separate-hit-and-map",
+    "label": "分离 Hit 与 Map"
+  },
+  {
+    "type": "file",
+    "name": "scene",
+    "label": "Scene 分场景"
+  },
+  {
+    "type": "file",
+    "name": "aggregation",
+    "label": "Scene Hash 聚合"
+  },
+  {
+    "type": "file",
+    "name": "data-formats",
+    "label": "数据格式"
+  }
+]

@@ -1,0 +1,82 @@
+---
+title: Babel Plugin
+description: Configuration reference for @canyonjs/babel-plugin.
+---
+
+# @canyonjs/babel-plugin
+
+Corresponds to `CanyonBabelPluginConfig` in the plugin source.
+
+## Type
+
+```ts
+interface CanyonBabelPluginConfig {
+  /** Repository id */
+  repoID?: string;
+  /** Git commit SHA */
+  sha?: string;
+  /** SCM provider, e.g. gitlab / github */
+  provider?: string;
+  /** Build target */
+  buildTarget?: string;
+  /** CI mode — write .canyon_output */
+  ci?: boolean;
+  /** Instrumentation working directory */
+  instrumentCwd?: string;
+  /** Include globs */
+  include?: string[];
+  /** Exclude globs */
+  exclude?: string[];
+  /** Extensions used for matching */
+  extensions?: string[];
+  /** Keep maps in the runtime object */
+  keepMap?: boolean;
+}
+```
+
+## Merge priority
+
+```text
+Explicit user config > CI auto-detection > defaults
+```
+
+## buildHash inputs
+
+SHA-1 over a stable serialization of:
+
+- `provider`
+- `repoID`
+- `sha`
+- `buildTarget`
+- `instrumentCwd`
+
+## Example
+
+```js
+module.exports = {
+  plugins: [
+    'istanbul',
+    [
+      '@canyonjs/babel-plugin',
+      {
+        repoID: '9050',
+        sha: 'abc123',
+        provider: 'gitlab',
+        buildTarget: 'web',
+        ci: true,
+        keepMap: false,
+        instrumentCwd: process.cwd(),
+        include: ['src/**/*.ts', 'src/**/*.tsx'],
+        exclude: ['**/*.test.ts'],
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
+      },
+    ],
+  ],
+};
+```
+
+## Related
+
+- [Guide](/guide/ecosystem/babel-plugin)
+- [BuildHash](/guide/concepts/build-hash)
+- [Separate Hit and Map](/guide/concepts/separate-hit-and-map)

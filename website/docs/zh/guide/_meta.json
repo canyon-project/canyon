@@ -1,0 +1,17 @@
+[
+  {
+    "type": "dir-section-header",
+    "name": "start",
+    "label": "快速开始"
+  },
+  {
+    "type": "dir-section-header",
+    "name": "concepts",
+    "label": "核心概念"
+  },
+  {
+    "type": "dir-section-header",
+    "name": "ecosystem",
+    "label": "生态系统"
+  }
+]

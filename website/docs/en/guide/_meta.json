@@ -1,0 +1,17 @@
+[
+  {
+    "type": "dir-section-header",
+    "name": "start",
+    "label": "Getting Started"
+  },
+  {
+    "type": "dir-section-header",
+    "name": "concepts",
+    "label": "Core Concepts"
+  },
+  {
+    "type": "dir-section-header",
+    "name": "ecosystem",
+    "label": "Ecosystem"
+  }
+]

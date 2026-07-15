@@ -1,0 +1,9 @@
+{
+  "version": 3,
+  "file": "subtract.js",
+  "sourceRoot": "",
+  "sources": ["subtract.js"],
+  "names": ["subtract", "a", "b"],
+  "mappings": "AAAA,SAAS,SAAT,CAAY,CAAZ,EAA0B;EACxB,OAAO,CAAC,GAAD,EAAK,GAAL,CAAX;AACD"
+}
+

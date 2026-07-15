@@ -1,0 +1,12 @@
+[
+  {
+    "type": "file",
+    "name": "index",
+    "label": "API 概览"
+  },
+  {
+    "type": "file",
+    "name": "babel-plugin",
+    "label": "Babel Plugin"
+  }
+]

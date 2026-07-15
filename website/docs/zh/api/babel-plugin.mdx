@@ -1,0 +1,82 @@
+---
+title: Babel Plugin
+description: @canyonjs/babel-plugin 配置项参考。
+---
+
+# @canyonjs/babel-plugin
+
+Babel 插件配置接口对应源码中的 `CanyonBabelPluginConfig`。
+
+## 类型
+
+```ts
+interface CanyonBabelPluginConfig {
+  /** 仓库 ID */
+  repoID?: string;
+  /** Git commit SHA */
+  sha?: string;
+  /** Git 提供商，如 gitlab / github */
+  provider?: string;
+  /** 构建目标 */
+  buildTarget?: string;
+  /** 是否为 CI（写出 .canyon_output） */
+  ci?: boolean;
+  /** 插桩工作目录 */
+  instrumentCwd?: string;
+  /** 包含的文件 glob */
+  include?: string[];
+  /** 排除的文件 glob */
+  exclude?: string[];
+  /** 参与匹配的扩展名 */
+  extensions?: string[];
+  /** 是否在产物中保留 map */
+  keepMap?: boolean;
+}
+```
+
+## 合并优先级
+
+```text
+用户显式配置 > CI 自动检测 > 默认值
+```
+
+## buildHash 字段
+
+`buildHash` 由以下字段稳定序列化后 SHA-1 得到：
+
+- `provider`
+- `repoID`
+- `sha`
+- `buildTarget`
+- `instrumentCwd`
+
+## 示例
+
+```js
+module.exports = {
+  plugins: [
+    'istanbul',
+    [
+      '@canyonjs/babel-plugin',
+      {
+        repoID: '9050',
+        sha: 'abc123',
+        provider: 'gitlab',
+        buildTarget: 'web',
+        ci: true,
+        keepMap: false,
+        instrumentCwd: process.cwd(),
+        include: ['src/**/*.ts', 'src/**/*.tsx'],
+        exclude: ['**/*.test.ts'],
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
+      },
+    ],
+  ],
+};
+```
+
+## 相关文档
+
+- [使用指南](/guide/ecosystem/babel-plugin)
+- [BuildHash](/guide/concepts/build-hash)
+- [分离 Hit 与 Map](/guide/concepts/separate-hit-and-map)
