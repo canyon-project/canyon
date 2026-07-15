@@ -20,22 +20,20 @@ jobs:
       run:
         working-directory: plugins/swc-plugin
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: true
 
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: |
-          echo "Before: corepack version => $(corepack --version || echo 'not installed')"
-          npm install -g corepack@latest
-          echo "After : corepack version => $(corepack --version)"
-          corepack enable
-          pnpm --version
-          pnpm i
+      - run: pnpm i
 
       - name: Install Rust Nightly
         uses: actions-rs/toolchain@v1
