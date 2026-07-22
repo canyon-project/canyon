@@ -76,11 +76,10 @@ model CoverageHit {
   buildHash      String   @map("build_hash")
   sceneKey       String   @map("scene_key")
   rawFilePath    String   @map("raw_file_path")
-  s              Json
-  f              Json
-  b              Json
-  inputSourceMap Int?     @map("input_source_map")
-  createdAt      DateTime @map("created_at")
+  s         Json
+  f         Json
+  b         Json
+  createdAt DateTime @map("created_at")
 
   scene CoverageScene @relation(fields: [buildHash, sceneKey], references: [buildHash, sceneKey], onDelete: Cascade)
 

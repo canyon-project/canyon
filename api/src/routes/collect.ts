@@ -287,7 +287,6 @@ collect.post('/coverage/client', async (c) => {
       s: ensureNumMap(entry.s || {}),
       f: ensureNumMap(entry.f || {}),
       b: ensureBranchHitMap(entry.b || {}),
-      inputSourceMap: entry.inputSourceMap ? 1 : null,
       createdAt: now,
     }
   })

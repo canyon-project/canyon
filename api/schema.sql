@@ -53,7 +53,6 @@ CREATE TABLE "canyonjs_next5_coverage_hit" (
     "s" JSONB NOT NULL,
     "f" JSONB NOT NULL,
     "b" JSONB NOT NULL,
-    "input_source_map" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "canyonjs_next5_coverage_hit_pkey" PRIMARY KEY ("id")
