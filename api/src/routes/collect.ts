@@ -318,11 +318,17 @@ const snapshotPublicSelect = {
 } as const
 
 /** 进程内串行队列：queued 不计超时，真正开始 generating 后才计 5 分钟 */
-const snapshotQueue: string[] = []
+const snapshotQueue: number[] = []
 let snapshotWorkerRunning = false
 
+function parseSnapshotId(raw: string): number | null {
+  if (!/^\d+$/.test(raw)) return null
+  const id = Number(raw)
+  return Number.isSafeInteger(id) && id > 0 ? id : null
+}
+
 async function runSnapshotJob(
-  snapshotId: string,
+  snapshotId: number,
   buildHash: string,
   sceneKeys: string[],
   freezeTime: Date,
@@ -344,7 +350,7 @@ async function runSnapshotJob(
   })
 }
 
-async function processSnapshotTask(snapshotId: string): Promise<void> {
+async function processSnapshotTask(snapshotId: number): Promise<void> {
   const claimed = await prisma.coverageSnapshot.updateMany({
     where: { id: snapshotId, status: 'queued' },
     data: { status: 'generating' },
@@ -418,7 +424,7 @@ async function pumpSnapshotQueue(): Promise<void> {
   }
 }
 
-function enqueueSnapshotTask(snapshotId: string): void {
+function enqueueSnapshotTask(snapshotId: number): void {
   snapshotQueue.push(snapshotId)
   void pumpSnapshotQueue()
 }
@@ -479,7 +485,10 @@ collect.post('/coverage/snapshot', async (c) => {
  * 查询快照还原后的 Istanbul.js coverage（仅 completed）
  */
 collect.get('/coverage/snapshot/:id/report-data', async (c) => {
-  const id = c.req.param('id')
+  const id = parseSnapshotId(c.req.param('id'))
+  if (id == null) {
+    return c.json({ success: false, message: 'invalid snapshot id' }, 400)
+  }
   const snapshot = await prisma.coverageSnapshot.findUnique({
     where: { id },
     select: {
@@ -523,7 +532,10 @@ collect.get('/coverage/snapshot/:id/report-data', async (c) => {
  * 轮询快照任务状态（不含 istanbul）
  */
 collect.get('/coverage/snapshot/:id', async (c) => {
-  const id = c.req.param('id')
+  const id = parseSnapshotId(c.req.param('id'))
+  if (id == null) {
+    return c.json({ success: false, message: 'invalid snapshot id' }, 400)
+  }
   const snapshot = await prisma.coverageSnapshot.findUnique({
     where: { id },
     select: snapshotPublicSelect,

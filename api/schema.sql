@@ -91,7 +91,7 @@ CREATE TABLE "canyonjs_next5_coverage_source_map" (
 
 -- CreateTable
 CREATE TABLE "canyonjs_next5_coverage_snapshot" (
-    "id" TEXT NOT NULL,
+    "id" SERIAL NOT NULL,
     "build_hash" TEXT NOT NULL,
     "scene" JSONB NOT NULL,
     "status" TEXT NOT NULL,
