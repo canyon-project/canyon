@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import logger from './logger/index.js'
 import books from './routes/books.js'
+import collect from './routes/collect.js'
 import health from './routes/health.js'
 
 const app = new Hono()
@@ -13,6 +14,7 @@ app.get('/', (c) => {
 
 app.route('/vi/health', health)
 app.route('/books', books)
+app.route('/api', collect)
 
 serve({
   fetch: app.fetch,
