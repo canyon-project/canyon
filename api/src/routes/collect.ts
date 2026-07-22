@@ -60,10 +60,10 @@ async function ensureScene(
 }
 
 /**
- * POST /api/coverage/init
+ * POST /api/coverage/map/init
  * 初始化 build + coverage map（不写 hit；hit 由 /client 追加写入）
  */
-collect.post('/coverage/init', async (c) => {
+collect.post('/coverage/map/init', async (c) => {
   const body = await c.req.json<{
     coverage?: CoverageMap
     sha?: string
@@ -241,7 +241,7 @@ collect.post('/coverage/client', async (c) => {
     return c.json(
       {
         success: false,
-        message: '找不到对应的 CoverageBuild，请先调用 /api/coverage/init',
+        message: '找不到对应的 CoverageBuild，请先调用 /api/coverage/map/init',
       },
       502,
     )
