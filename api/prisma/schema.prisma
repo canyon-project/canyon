@@ -11,4 +11,5 @@ model Book {
   id String @id @default(uuid())
   title String
   author String
+  @@map("canyonjs_next_book")
 }
