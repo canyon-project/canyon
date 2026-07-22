@@ -1,0 +1,210 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// 以下是生成的，不要改！！！
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("memshare_template_user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("memshare_template_session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("memshare_template_account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("memshare_template_verification")
+}
+
+// user、user、user
+
+/// 全局媒体库：按文件指纹或 YouTube 视频 ID 去重
+model Media {
+  id               String   @id @default(uuid())
+  sourceType       String   @default("file") // file / youtube / url
+  title            String
+  fileName         String?
+  fileSize         BigInt?
+  fileExt          String?
+  fileHash         String?  @unique
+  youtubeVideoId   String?  @unique
+  youtubeUrl       String?  @db.Text
+  sourceUrl        String?  @unique @db.Text
+  durationSeconds  Float?
+  coverUrl         String?  @db.Text
+  audioS3Key       String?
+  subtitleStatus   String   @default("pending")
+  subtitleLanguage String   @default("ja")
+  subtitleLog      String?  @db.Text
+  subtitleError    String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  userMedia UserMedia[]
+  subtitles Subtitle[]
+
+  @@index([subtitleStatus, createdAt])
+  @@map("memshare_template_media")
+}
+
+/// 用户媒体库：个人收藏、标题覆盖与标签
+model UserMedia {
+  id        String   @id @default(uuid())
+  userId    String
+  mediaId   String
+  title     String?
+  tags      String[] @default([])
+  media     Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, mediaId])
+  @@index([userId])
+  @@index([mediaId])
+  @@map("memshare_template_user_media")
+}
+
+model Subtitle {
+  id        String   @id @default(uuid())
+  fileHash  String
+  mediaId   String?
+  media     Media?   @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+  language  String
+  text      String   @db.Text
+  meta      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clauses SubtitleClause[]
+
+  @@unique([fileHash, language])
+  @@index([mediaId])
+  @@index([fileHash])
+  @@map("memshare_template_subtitle")
+}
+
+model SubtitleClause {
+  id                String   @id @default(uuid())
+  subtitleId        String
+  subtitle          Subtitle @relation(fields: [subtitleId], references: [id], onDelete: Cascade)
+  clauseIndex       Int
+  text              String   @db.Text
+  startSeconds      Float
+  endSeconds        Float
+  translation       String?  @db.Text
+  translationCached Boolean?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  tokens SubtitleToken[]
+  chunk  SubtitleChunk[]
+
+  @@unique([subtitleId, clauseIndex])
+  @@index([subtitleId])
+  @@index([startSeconds])
+  @@map("memshare_template_subtitle_clause")
+}
+
+model SubtitleToken {
+  id           String         @id @default(uuid())
+  clauseId     String
+  clause       SubtitleClause @relation(fields: [clauseId], references: [id], onDelete: Cascade)
+  tokenIndex   Int
+  text         String
+  base         String?
+  startSeconds Float
+  endSeconds   Float
+  reading      String         @default("")
+  pos          String         @default("")
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([clauseId, tokenIndex])
+  @@index([clauseId])
+  @@map("memshare_template_subtitle_token")
+}
+
+model SubtitleChunk {
+  id           String         @id @default(uuid())
+  clauseId     String
+  clause       SubtitleClause @relation(fields: [clauseId], references: [id], onDelete: Cascade)
+  chunkIndex   Int
+  type         String
+  tokenIndices Json
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  @@unique([clauseId, chunkIndex])
+  @@index([clauseId])
+  @@map("memshare_template_subtitle_chunk")
+}
+
+/// 用户已会的假名标注：按词面 text 去重，播放时隐藏对应 ruby
+model KnownReading {
+  id        String   @id @default(uuid())
+  userId    String
+  text      String
+  reading   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, text])
+  @@index([userId])
+  @@map("memshare_template_known_reading")
+}
