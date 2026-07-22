@@ -79,19 +79,12 @@ collect.post('/coverage/map/init', async (c) => {
   }
 
   const firstEntry = Object.values(coverage)[0] as CoverageEntry
-  const sha = body.sha ?? firstEntry?.sha
-  const provider = body.provider ?? firstEntry?.provider
-  const repoID = body.repoID ?? firstEntry?.repoID
-  const instrumentCwd = body.instrumentCwd ?? firstEntry?.instrumentCwd
-  const buildTarget = body.buildTarget ?? firstEntry?.buildTarget ?? ''
-  console.log(sha, provider, repoID, instrumentCwd, buildTarget)
-  console.log(JSON.stringify(firstEntry))
-
-  // 打印body，除了coverage
-  console.log(JSON.stringify({
-    ...body,
-    coverage: undefined,
-  }, null, 2))
+  // "" 也要回退到 coverage entry（?? 不会）
+  const sha = body.sha || firstEntry?.sha
+  const provider = body.provider || firstEntry?.provider
+  const repoID = body.repoID || firstEntry?.repoID
+  const instrumentCwd = body.instrumentCwd || firstEntry?.instrumentCwd
+  const buildTarget = body.buildTarget || firstEntry?.buildTarget || ''
   if (!sha || !provider || !repoID || !instrumentCwd) {
     return c.json(
       { success: false, message: '缺少必要参数：sha, provider, repoID, instrumentCwd' },
