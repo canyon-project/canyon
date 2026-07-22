@@ -304,11 +304,128 @@ collect.post('/coverage/client', async (c) => {
   return c.json({ ...base, coverageLength: created.count })
 })
 
+const SNAPSHOT_TIMEOUT_MS = 5 * 60 * 1000
+
+const snapshotPublicSelect = {
+  id: true,
+  buildHash: true,
+  scene: true,
+  status: true,
+  fileCount: true,
+  hitCount: true,
+  createdAt: true,
+  finishedAt: true,
+} as const
+
+/** 进程内串行队列：queued 不计超时，真正开始 generating 后才计 5 分钟 */
+const snapshotQueue: string[] = []
+let snapshotWorkerRunning = false
+
+async function runSnapshotJob(
+  snapshotId: string,
+  buildHash: string,
+  sceneKeys: string[],
+  freezeTime: Date,
+): Promise<void> {
+  const compactedHits = await compactHitsByScene(buildHash, sceneKeys, freezeTime)
+  const mergedByFile = mergeHitsAcrossScenes(compactedHits)
+  const istanbul = await buildIstanbulCoverage(buildHash, mergedByFile)
+
+  // 仅 generating 可转为 completed，避免覆盖已 timeout
+  await prisma.coverageSnapshot.updateMany({
+    where: { id: snapshotId, status: 'generating' },
+    data: {
+      status: 'completed',
+      istanbul: istanbul as Prisma.InputJsonValue,
+      fileCount: Object.keys(istanbul).length,
+      hitCount: compactedHits.length,
+      finishedAt: new Date(),
+    },
+  })
+}
+
+async function processSnapshotTask(snapshotId: string): Promise<void> {
+  const claimed = await prisma.coverageSnapshot.updateMany({
+    where: { id: snapshotId, status: 'queued' },
+    data: { status: 'generating' },
+  })
+  if (claimed.count === 0) return
+
+  const snapshot = await prisma.coverageSnapshot.findUnique({ where: { id: snapshotId } })
+  if (!snapshot) return
+
+  const sceneFilter =
+    snapshot.scene && typeof snapshot.scene === 'object' && !Array.isArray(snapshot.scene)
+      ? (snapshot.scene as Record<string, unknown>)
+      : {}
+
+  const scenes = await prisma.coverageScene.findMany({ where: { buildHash: snapshot.buildHash } })
+  const sceneKeys = scenes
+    .filter((s) => sceneMatches(s.scene, sceneFilter))
+    .map((s) => s.sceneKey)
+
+  // 真正开始时才冻结时间与超时计时
+  const freezeTime = new Date()
+  const timeout = setTimeout(() => {
+    void prisma.coverageSnapshot
+      .updateMany({
+        where: { id: snapshotId, status: 'generating' },
+        data: { status: 'timeout', finishedAt: new Date() },
+      })
+      .catch((error) => {
+        console.error('[snapshot] mark timeout failed', snapshotId, error)
+      })
+  }, SNAPSHOT_TIMEOUT_MS)
+
+  try {
+    if (sceneKeys.length === 0) {
+      await prisma.coverageSnapshot.updateMany({
+        where: { id: snapshotId, status: 'generating' },
+        data: { status: 'failed', finishedAt: new Date() },
+      })
+      return
+    }
+    await runSnapshotJob(snapshotId, snapshot.buildHash, sceneKeys, freezeTime)
+  } catch (error) {
+    console.error('[snapshot] generation failed', snapshotId, error)
+    await prisma.coverageSnapshot
+      .updateMany({
+        where: { id: snapshotId, status: 'generating' },
+        data: { status: 'failed', finishedAt: new Date() },
+      })
+      .catch((updateError) => {
+        console.error('[snapshot] mark failed failed', snapshotId, updateError)
+      })
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+async function pumpSnapshotQueue(): Promise<void> {
+  if (snapshotWorkerRunning) return
+  snapshotWorkerRunning = true
+  try {
+    while (snapshotQueue.length > 0) {
+      const nextId = snapshotQueue.shift()
+      if (!nextId) break
+      await processSnapshotTask(nextId)
+    }
+  } finally {
+    snapshotWorkerRunning = false
+    if (snapshotQueue.length > 0) {
+      void pumpSnapshotQueue()
+    }
+  }
+}
+
+function enqueueSnapshotTask(snapshotId: string): void {
+  snapshotQueue.push(snapshotId)
+  void pumpSnapshotQueue()
+}
+
 /**
  * POST /api/coverage/snapshot
- * 1. 按 scene 过滤选出关联 hit
- * 2. 按 sceneKey+file 聚合写回 hit 表并删旧数据
- * 3. 跨 sceneKey merge，结合 map/sourcemap 还原 Istanbul，落入快照表
+ * 创建快照任务（queued）；有执行中任务时先排队，真正开始后才计 5 分钟超时
  */
 collect.post('/coverage/snapshot', async (c) => {
   const body = await c.req.json<{
@@ -337,69 +454,84 @@ collect.post('/coverage/snapshot', async (c) => {
     return c.json({ success: false, message: '没有匹配的 CoverageScene' }, 404)
   }
 
-  const sceneKeys = matchedScenes.map((s) => s.sceneKey)
-  const freezeTime = new Date()
-
   const snapshot = await prisma.coverageSnapshot.create({
     data: {
       buildHash,
       scene: sceneFilter as Prisma.InputJsonValue,
-      status: 'generating',
+      status: 'queued',
       istanbul: {},
       fileCount: 0,
       hitCount: 0,
-      createdAt: freezeTime,
     },
+    select: snapshotPublicSelect,
   })
 
-  try {
-    // 1) 按 sceneKey 聚合落回 hit 表，删除旧行
-    const compactedHits = await compactHitsByScene(buildHash, sceneKeys, freezeTime)
+  enqueueSnapshotTask(snapshot.id)
 
-    // 2) 跨 sceneKey merge
-    const mergedByFile = mergeHitsAcrossScenes(compactedHits)
+  return c.json({
+    success: true,
+    data: snapshot,
+  })
+})
 
-    // 3) 结合 map / sourcemap 还原 Istanbul
-    const istanbul = await buildIstanbulCoverage(buildHash, mergedByFile)
-
-    const finishedAt = new Date()
-    const updated = await prisma.coverageSnapshot.update({
-      where: { id: snapshot.id },
-      data: {
-        status: 'completed',
-        istanbul: istanbul as Prisma.InputJsonValue,
-        fileCount: Object.keys(istanbul).length,
-        hitCount: compactedHits.length,
-        finishedAt,
-      },
-    })
-
-    return c.json({
-      success: true,
-      data: {
-        id: updated.id,
-        buildHash: updated.buildHash,
-        scene: updated.scene,
-        status: updated.status,
-        fileCount: updated.fileCount,
-        hitCount: updated.hitCount,
-        sceneKeyCount: sceneKeys.length,
-        createdAt: updated.createdAt,
-        finishedAt: updated.finishedAt,
-        // 简单版直接带回 istanbul；量大时可改成只返回 id
-        istanbul: updated.istanbul,
-      },
-    })
-  } catch (error) {
-    await prisma.coverageSnapshot.update({
-      where: { id: snapshot.id },
-      data: {
-        status: 'failed',
-        finishedAt: new Date(),
-      },
-    })
-    throw error
+/**
+ * GET /api/coverage/snapshot/:id/report-data
+ * 查询快照还原后的 Istanbul.js coverage（仅 completed）
+ */
+collect.get('/coverage/snapshot/:id/report-data', async (c) => {
+  const id = c.req.param('id')
+  const snapshot = await prisma.coverageSnapshot.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      buildHash: true,
+      scene: true,
+      status: true,
+      istanbul: true,
+      fileCount: true,
+      hitCount: true,
+      createdAt: true,
+      finishedAt: true,
+    },
+  })
+  if (!snapshot) {
+    return c.json({ success: false, message: 'snapshot not found' }, 404)
   }
+  if (snapshot.status !== 'completed') {
+    return c.json(
+      { success: false, message: `snapshot status is ${snapshot.status}` },
+      409,
+    )
+  }
+
+  return c.json({
+    type: 'istanbuljs',
+    version: '1.0.0',
+    id: snapshot.id,
+    buildHash: snapshot.buildHash,
+    scene: snapshot.scene,
+    fileCount: snapshot.fileCount,
+    hitCount: snapshot.hitCount,
+    createdAt: snapshot.createdAt,
+    finishedAt: snapshot.finishedAt,
+    coverage: snapshot.istanbul,
+  })
+})
+
+/**
+ * GET /api/coverage/snapshot/:id
+ * 轮询快照任务状态（不含 istanbul）
+ */
+collect.get('/coverage/snapshot/:id', async (c) => {
+  const id = c.req.param('id')
+  const snapshot = await prisma.coverageSnapshot.findUnique({
+    where: { id },
+    select: snapshotPublicSelect,
+  })
+  if (!snapshot) {
+    return c.json({ success: false, message: 'snapshot not found' }, 404)
+  }
+  return c.json({ success: true, data: snapshot })
 })
 
 export default collect
