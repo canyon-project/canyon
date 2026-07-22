@@ -10,7 +10,8 @@
     "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
-    "fmt": "oxfmt"
+    "fmt": "oxfmt",
+    "postinstall": "node ./scripts/setup-env.mjs"
   },
   "devDependencies": {
     "oxfmt": "^0.35.0",
