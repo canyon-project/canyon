@@ -1,6 +1,6 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
-import logger from './logger'
+import logger from './logger/index.js'
 
 const app = new Hono()
 
