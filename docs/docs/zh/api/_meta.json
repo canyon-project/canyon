@@ -6,6 +6,11 @@
   },
   {
     "type": "file",
+    "name": "coverage",
+    "label": "覆盖率 API"
+  },
+  {
+    "type": "file",
     "name": "commands",
     "label": "命令"
   }
