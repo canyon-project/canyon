@@ -1,6 +1,6 @@
 {
-  "name": "@canyonjs/monorepo",
-  "version": "3.0.1",
+  "name": "canyonjs",
+  "version": "5.0.1",
   "private": true,
   "description": "",
   "scripts": {
