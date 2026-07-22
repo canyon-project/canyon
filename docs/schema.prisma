@@ -1,0 +1,321 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// 以下是生成的，不要改！！！
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+
+  @@unique([email])
+  @@map("canyon_next_user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("canyon_next_session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("canyon_next_account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("canyon_next_verification")
+}
+
+// 以上是生成的，不要改！！！
+
+// 更新
+model Repo {
+  id                String   @id
+  repoID            String   @map("repo_id")
+  provider          String
+  pathWithNamespace String   @map("path_with_namespace")
+  description       String
+  config            String
+  creator           String   @default("")
+  createdAt         DateTime @map("created_at")
+  updatedAt         DateTime @map("updated_at")
+
+  @@map("canyon_next_repo")
+}
+
+enum RepoMemberRole {
+  admin
+  developer
+}
+
+model RepoMember {
+  id        String         @id @default(cuid())
+  repoID    String         @map("repo_id")
+  provider  String
+  userID    String         @map("user_id")
+  role      RepoMemberRole @default(developer)
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  @@unique([repoID, userID, provider])
+  @@map("canyon_next_repo_member")
+}
+
+// 更新
+model Commit {
+  id          String   @id
+  sha         String
+  title       String
+  authorName  String   @map("author_name")
+  authorEmail String   @map("author_email")
+  createdAt   DateTime @map("created_at")
+
+  @@map("canyon_next_commit")
+}
+
+// 新增
+// GitHub PR | GitLab Merge Request（PR/MR 信息，用于 pull/merge_requests 覆盖率）
+model MergeRequest {
+  id      String @id
+  content Json
+
+  @@map("canyon_next_merge_request")
+}
+
+model Diff {
+  id        String   @id @default(cuid())
+  provider  String
+  repoID    String   @map("repo_id")
+  from      String
+  to        String
+  path      String
+  additions Int[]
+  deletions Int[]
+  subject   String
+  subjectID String   @map("subject_id")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  @@map("canyon_next_diff")
+}
+
+model Infra {
+  id                     String   @id
+  name                   String
+  value                  String   @db.Text
+  createdAt              DateTime @default(now()) @map("createdOn")
+  updatedAt              DateTime @updatedAt @map("updatedOn")
+  isEncrypted            Boolean  @default(false) @map("isEncrypted")
+  lastSyncedEnvFileValue String?  @map("lastSyncedEnvFileValue")
+
+  @@map("canyon_next_infra_config")
+}
+
+/// 构建级覆盖率实体（PK=buildHash）。MapRelation 按 build 共享；Coverage(scene) 挂在其上。
+model CoverageBuild {
+  buildHash     String   @id @map("build_hash")
+  provider      String
+  repoID        String   @map("repo_id")
+  sha           String
+  buildTarget   String   @map("build_target")
+  /// instrumentCwd 不一样的话 sourceMap 解析也会有问题
+  instrumentCwd String   @map("instrument_cwd")
+  /// 包含 buildProvider、buildID、branch 等信息
+  builds        Json
+  createdAt     DateTime @map("created_at")
+  updatedAt     DateTime @map("updated_at")
+
+  coverages    Coverage[]
+  mapRelations CoverageMapRelation[]
+
+  @@index([provider, repoID, sha, buildTarget])
+  @@index([repoID])
+  @@map("canyon_next_coverage_build")
+}
+
+model Coverage {
+  /// buildHash|sceneKey
+  id        String @id
+  buildHash String @map("build_hash")
+  /// sceneKey = hash(source + type + env + trigger …)
+  /// source: automation, manual, replay
+  /// type: e2e, unit, integration
+  /// env: test, staging, prod
+  /// trigger: pipeline, schedule, manual
+  sceneKey  String @map("scene_key")
+  scene     Json
+  createdAt DateTime @map("created_at")
+  updatedAt DateTime @map("updated_at")
+
+  build CoverageBuild @relation(fields: [buildHash], references: [buildHash], onDelete: Cascade)
+  hits  CoverageHit[]
+  lock  CoverageLock?
+
+  @@unique([buildHash, sceneKey])
+  @@index([buildHash])
+  @@map("canyon_next_coverage")
+}
+
+model CoverageMapRelation {
+  id                  String  @id
+  fullFilePath        String  @map("full_file_path")
+  restoreFullFilePath String  @map("restore_full_file_path")
+  buildHash           String  @map("build_hash")
+  /// 找 coverageMap，减少存储
+  coverageMapHash     String  @map("coverage_map_hash")
+  /// 文件内容 hash，未来多 build 合并提供依据
+  fileContentHash     String  @map("file_content_hash")
+  /// = coverageMapHash + "|" + fileContentHash，用于 FK 引用 CoverageMap
+  coverageMapKey      String  @map("coverage_map_key")
+  /// 找 sourceMap；无 sourcemap 时为 null
+  sourceMapHash       String? @map("source_map_hash")
+
+  build       CoverageBuild       @relation(fields: [buildHash], references: [buildHash], onDelete: Cascade)
+  coverageMap CoverageMap         @relation(fields: [coverageMapKey], references: [hash])
+  sourceMap   CoverageSourceMap?  @relation(fields: [sourceMapHash], references: [hash])
+
+  @@unique([buildHash, fullFilePath])
+  @@index([buildHash])
+  @@index([coverageMapKey])
+  @@index([sourceMapHash])
+  @@map("canyon_next_coverage_map_relation")
+}
+
+model CoverageMap {
+  hash      String   @id
+  map       Bytes
+  createdAt DateTime @map("created_at")
+
+  relations CoverageMapRelation[]
+
+  @@map("canyon_next_coverage_map")
+}
+
+model CoverageSourceMap {
+  hash      String @id
+  sourceMap Bytes  @map("source_map")
+
+  relations CoverageMapRelation[]
+
+  @@map("canyon_next_coverage_source_map")
+}
+
+model CoverageHit {
+  id             String   @id
+  buildHash      String   @map("build_hash")
+  sceneKey       String   @map("scene_key")
+  rawFilePath    String   @map("raw_file_path")
+  s              Json
+  f              Json
+  b              Json
+  inputSourceMap Int?     @map("input_source_map")
+  createdAt      DateTime @map("created_at")
+
+  coverage Coverage @relation(fields: [buildHash, sceneKey], references: [buildHash, sceneKey], onDelete: Cascade)
+
+  @@unique([buildHash, sceneKey, rawFilePath])
+  @@index([buildHash, sceneKey])
+  @@map("canyon_next_coverage_hit")
+}
+
+/// POST /api/coverage/client 全量请求体 hash，用于幂等去重
+model CoverageClientPayloadIdempotency {
+  payloadHash String   @id @map("payload_hash")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("canyon_next_coverage_client_payload_idempotency")
+}
+
+model CoverageLock {
+  coverageID String   @id @map("coverage_id")
+  lockedAt   DateTime @map("locked_at")
+  lockedBy   String   @map("locked_by")
+
+  coverage Coverage @relation(fields: [coverageID], references: [id], onDelete: Cascade)
+
+  @@map("canyon_next_coverage_lock")
+}
+
+model CoverageSnapshot {
+  id                      Int      @id @default(autoincrement())
+  provider                String
+  repoID                  String   @map("repo_id")
+  subject                 String
+  subjectID               String   @map("subject_id")
+  title                   String?
+  description             String?
+  freezeTime              DateTime @map("freeze_time") @db.Timestamp(3)
+  status                  String
+  artifactZip             Bytes    @map("artifact_zip")
+  artifactSize            Int      @map("artifact_size")
+  createdBy               String   @map("created_by")
+  createdAt               DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  finishedAt              DateTime @map("finished_at") @db.Timestamp(3)
+  /// 产物内容哈希（reportDataScript 的 sha256），与 CoverageBuild.buildHash 无关
+  artifactHash            String   @map("artifact_hash")
+  buildTarget             String   @default("") @map("build_target")
+  scene                   Json
+  statementsCovered       Int?     @map("statements_covered")
+  statementsTotal         Int?     @map("statements_total")
+  functionsCovered        Int?     @map("functions_covered")
+  functionsTotal          Int?     @map("functions_total")
+  branchesCovered         Int?     @map("branches_covered")
+  branchesTotal           Int?     @map("branches_total")
+  changestatementsCovered Int?     @map("changestatements_covered")
+  changestatementsTotal   Int?     @map("changestatements_total")
+  changefunctionsCovered  Int?     @map("changefunctions_covered")
+  changefunctionsTotal    Int?     @map("changefunctions_total")
+  changebranchesCovered   Int?     @map("changebranches_covered")
+  changebranchesTotal     Int?     @map("changebranches_total")
+  durationMs              Int?     @map("duration_ms")
+  /// 与 report-data.js 中 window.reportData（base64 gzip）对应的原始 gzip 字节，解压后为 JSON
+  reportDataGzip          Bytes?   @map("report_data_gzip")
+
+  @@map("canyon_next_coverage_snapshot")
+}

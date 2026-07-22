@@ -1,0 +1,19 @@
+{
+  "name": "@canyonjs/monorepo",
+  "version": "3.0.1",
+  "private": true,
+  "description": "",
+  "scripts": {
+    "clean": "node ./scripts/clean.mjs",
+    "test": "pnpm run -r test",
+    "build": "pnpm run -r build",
+    "idea:update-excludes": "node ./scripts/update-idea-excludes.mjs",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.35.0",
+    "oxlint": "^1.50.0"
+  }
+}
