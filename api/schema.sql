@@ -106,7 +106,7 @@ CREATE UNIQUE INDEX "canyonjs_next5_coverage_scene_build_hash_scene_key_key" ON 
 CREATE INDEX "canyonjs_next5_coverage_hit_build_hash_scene_key_idx" ON "canyonjs_next5_coverage_hit"("build_hash", "scene_key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "canyonjs_next5_coverage_hit_build_hash_scene_key_raw_file_p_key" ON "canyonjs_next5_coverage_hit"("build_hash", "scene_key", "raw_file_path");
+CREATE INDEX "canyonjs_next5_coverage_hit_build_hash_scene_key_raw_file_p_idx" ON "canyonjs_next5_coverage_hit"("build_hash", "scene_key", "raw_file_path");
 
 -- CreateIndex
 CREATE INDEX "canyonjs_next5_coverage_map_relation_build_hash_idx" ON "canyonjs_next5_coverage_map_relation"("build_hash");

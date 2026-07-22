@@ -71,7 +71,7 @@ model CoverageScene {
 }
 
 model CoverageHit {
-  /// buildHash|sceneKey|rawFilePath
+  /// 追加写：payloadHash|rawFilePath；同文件可有多行，由快照聚合
   id             String   @id
   buildHash      String   @map("build_hash")
   sceneKey       String   @map("scene_key")
@@ -84,8 +84,8 @@ model CoverageHit {
 
   scene CoverageScene @relation(fields: [buildHash, sceneKey], references: [buildHash, sceneKey], onDelete: Cascade)
 
-  @@unique([buildHash, sceneKey, rawFilePath])
   @@index([buildHash, sceneKey])
+  @@index([buildHash, sceneKey, rawFilePath])
   @@map("canyonjs_next5_coverage_hit")
 }
 
