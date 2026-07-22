@@ -27,3 +27,73 @@ model CoverageHit {
 
   @@map("canyonjs_next5_coverage_hit")
 }
+
+
+/// POST /api/coverage/client 全量请求体 hash，用于幂等去重
+model CoverageClientPayloadIdempotency {
+  payloadHash String   @id @map("payload_hash")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("canyon_next_coverage_client_payload_idempotency")
+}
+
+
+model Coverage {
+  // buildHash+sceneKey
+  id            String @id
+  // 包含buildProvider、buildID、branch等信息
+  builds        Json
+  // buildHash. instrumentCwd 不一样的话sourceMap解析也会有问题
+  buildHash     String @map("build_hash")
+  provider      String
+  repoID        String @map("repo_id")
+  sha           String
+  buildTarget   String @map("build_target")
+  instrumentCwd String @map("instrument_cwd")
+
+  // sceneKey 场景
+  sceneKey String @map("scene_key")
+  // sceneKey = hash(
+  // source +      // automation, manual, replay
+  // type +        // e2e, unit, integration
+  // env +         // test, staging, prod
+  // trigger       // pipeline, schedule, manual
+  // )
+  scene    Json
+
+  createdAt DateTime @map("created_at")
+  updatedAt DateTime @map("updated_at")
+
+  @@map("canyon_next_coverage")
+}
+
+model CoverageMapRelation {
+  id                  String @id
+  fullFilePath        String @map("full_file_path")
+  restoreFullFilePath String @map("restore_full_file_path")
+  // 唯一构建hash
+  buildHash           String @map("build_hash")
+  // 找coverageMap，减少存储
+  coverageMapHash     String @map("coverage_map_hash")
+  // 找sourceMap，减少存储
+  sourceMapHash       String @map("source_map_hash")
+  // 文件内容hash，未来多build合并提供依据
+  fileContentHash     String @map("file_content_hash")
+
+  @@map("canyon_next_coverage_map_relation")
+}
+
+model CoverageMap {
+  hash      String   @id
+  map       Bytes
+  createdAt DateTime @map("created_at")
+
+  @@map("canyon_next_coverage_map")
+}
+
+model CoverageSourceMap {
+  hash      String @id
+  sourceMap Bytes  @map("source_map")
+
+  @@map("canyon_next_coverage_source_map")
+}
