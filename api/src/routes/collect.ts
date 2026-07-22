@@ -86,6 +86,12 @@ collect.post('/coverage/map/init', async (c) => {
   const buildTarget = body.buildTarget ?? firstEntry?.buildTarget ?? ''
   console.log(sha, provider, repoID, instrumentCwd, buildTarget)
   console.log(JSON.stringify(firstEntry))
+
+  // 打印body，除了coverage
+  console.log(JSON.stringify({
+    ...body,
+    coverage: undefined,
+  }, null, 2))
   if (!sha || !provider || !repoID || !instrumentCwd) {
     return c.json(
       { success: false, message: '缺少必要参数：sha, provider, repoID, instrumentCwd' },
