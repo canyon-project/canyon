@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "CommonJS",
+    "moduleResolution": "Bundler",
+    "esModuleInterop": true,
     "strict": true,
-    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": [
       "node"
