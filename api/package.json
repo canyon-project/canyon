@@ -4,7 +4,10 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "generate": "prisma generate",
+    "postinstall": "npm run generate",
+    "migrate:sql": "prisma migrate diff --from-empty --to-schema ./prisma/schema.prisma --script -o ./schema.sql"
   },
   "dependencies": {
     "@hono/node-server": "^2.0.11",
