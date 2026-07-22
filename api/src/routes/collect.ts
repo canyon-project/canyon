@@ -84,7 +84,7 @@ collect.post('/coverage/map/init', async (c) => {
   const repoID = body.repoID ?? firstEntry?.repoID
   const instrumentCwd = body.instrumentCwd ?? firstEntry?.instrumentCwd
   const buildTarget = body.buildTarget ?? firstEntry?.buildTarget ?? ''
-
+  console.log(sha, provider, repoID, instrumentCwd, buildTarget)
   if (!sha || !provider || !repoID || !instrumentCwd) {
     return c.json(
       { success: false, message: '缺少必要参数：sha, provider, repoID, instrumentCwd' },
