@@ -13,3 +13,17 @@ model Book {
   author String
   @@map("canyonjs_next5_book")
 }
+
+model CoverageHit {
+  id             String   @id
+  buildHash      String   @map("build_hash")
+  sceneKey       String   @map("scene_key")
+  rawFilePath    String   @map("raw_file_path")
+  s              Json
+  f              Json
+  b              Json
+  inputSourceMap Int?     @map("input_source_map")
+  createdAt      DateTime @map("created_at")
+
+  @@map("canyon_next_coverage_hit")
+}
