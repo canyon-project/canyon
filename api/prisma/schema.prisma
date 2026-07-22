@@ -131,3 +131,21 @@ model CoverageSourceMap {
 
   @@map("canyonjs_next5_coverage_source_map")
 }
+
+/// 用户触发的覆盖率快照；istanbul 为还原后的 Istanbul coverage map
+model CoverageSnapshot {
+  id        String   @id @default(uuid())
+  buildHash String   @map("build_hash")
+  /// 用户传入的 scene 过滤条件
+  scene     Json
+  status    String
+  /// 还原后的 Istanbul 数据结构（Record<filePath, FileCoverage>）
+  istanbul  Json
+  fileCount Int      @map("file_count")
+  hitCount  Int      @map("hit_count")
+  createdAt DateTime @default(now()) @map("created_at")
+  finishedAt DateTime? @map("finished_at")
+
+  @@index([buildHash])
+  @@map("canyonjs_next5_coverage_snapshot")
+}

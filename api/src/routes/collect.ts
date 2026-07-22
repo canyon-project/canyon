@@ -10,6 +10,12 @@ import {
   type CoverageMap,
 } from '../lib/coverage.js'
 import { ensureBranchHitMap, ensureNumMap } from '../lib/coverage-merge.js'
+import {
+  buildIstanbulCoverage,
+  compactHitsByScene,
+  mergeHitsAcrossScenes,
+  sceneMatches,
+} from '../lib/coverage-snapshot.js'
 import { encodeObjectToCompressedBuffer, generateObjectSignature } from '../lib/hash.js'
 
 const collect = new Hono()
@@ -296,6 +302,104 @@ collect.post('/coverage/client', async (c) => {
   })
 
   return c.json({ ...base, coverageLength: created.count })
+})
+
+/**
+ * POST /api/coverage/snapshot
+ * 1. 按 scene 过滤选出关联 hit
+ * 2. 按 sceneKey+file 聚合写回 hit 表并删旧数据
+ * 3. 跨 sceneKey merge，结合 map/sourcemap 还原 Istanbul，落入快照表
+ */
+collect.post('/coverage/snapshot', async (c) => {
+  const body = await c.req.json<{
+    buildHash?: string
+    scene?: Record<string, unknown>
+  }>()
+
+  const buildHash = body.buildHash?.trim()
+  if (!buildHash) {
+    return c.json({ success: false, message: 'buildHash 不能为空' }, 400)
+  }
+
+  const sceneFilter =
+    body.scene && typeof body.scene === 'object' && !Array.isArray(body.scene)
+      ? body.scene
+      : {}
+
+  const build = await prisma.coverageBuild.findUnique({ where: { buildHash } })
+  if (!build) {
+    return c.json({ success: false, message: '找不到对应的 CoverageBuild' }, 404)
+  }
+
+  const scenes = await prisma.coverageScene.findMany({ where: { buildHash } })
+  const matchedScenes = scenes.filter((s) => sceneMatches(s.scene, sceneFilter))
+  if (matchedScenes.length === 0) {
+    return c.json({ success: false, message: '没有匹配的 CoverageScene' }, 404)
+  }
+
+  const sceneKeys = matchedScenes.map((s) => s.sceneKey)
+  const freezeTime = new Date()
+
+  const snapshot = await prisma.coverageSnapshot.create({
+    data: {
+      buildHash,
+      scene: sceneFilter as Prisma.InputJsonValue,
+      status: 'generating',
+      istanbul: {},
+      fileCount: 0,
+      hitCount: 0,
+      createdAt: freezeTime,
+    },
+  })
+
+  try {
+    // 1) 按 sceneKey 聚合落回 hit 表，删除旧行
+    const compactedHits = await compactHitsByScene(buildHash, sceneKeys, freezeTime)
+
+    // 2) 跨 sceneKey merge
+    const mergedByFile = mergeHitsAcrossScenes(compactedHits)
+
+    // 3) 结合 map / sourcemap 还原 Istanbul
+    const istanbul = await buildIstanbulCoverage(buildHash, mergedByFile)
+
+    const finishedAt = new Date()
+    const updated = await prisma.coverageSnapshot.update({
+      where: { id: snapshot.id },
+      data: {
+        status: 'completed',
+        istanbul: istanbul as Prisma.InputJsonValue,
+        fileCount: Object.keys(istanbul).length,
+        hitCount: compactedHits.length,
+        finishedAt,
+      },
+    })
+
+    return c.json({
+      success: true,
+      data: {
+        id: updated.id,
+        buildHash: updated.buildHash,
+        scene: updated.scene,
+        status: updated.status,
+        fileCount: updated.fileCount,
+        hitCount: updated.hitCount,
+        sceneKeyCount: sceneKeys.length,
+        createdAt: updated.createdAt,
+        finishedAt: updated.finishedAt,
+        // 简单版直接带回 istanbul；量大时可改成只返回 id
+        istanbul: updated.istanbul,
+      },
+    })
+  } catch (error) {
+    await prisma.coverageSnapshot.update({
+      where: { id: snapshot.id },
+      data: {
+        status: 'failed',
+        finishedAt: new Date(),
+      },
+    })
+    throw error
+  }
 })
 
 export default collect

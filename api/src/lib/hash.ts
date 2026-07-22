@@ -25,3 +25,14 @@ export function generateObjectSignature(object: unknown): string {
 export function encodeObjectToCompressedBuffer(object: unknown): Buffer {
   return zlib.gzipSync(Buffer.from(JSON.stringify(object), 'utf-8'))
 }
+
+export function decodeCompressedObject(compressedBuffer: Buffer | Uint8Array): unknown {
+  try {
+    const decompressed = zlib.gunzipSync(
+      Buffer.isBuffer(compressedBuffer) ? compressedBuffer : Buffer.from(compressedBuffer),
+    )
+    return JSON.parse(decompressed.toString('utf-8'))
+  } catch {
+    return null
+  }
+}

@@ -89,6 +89,21 @@ CREATE TABLE "canyonjs_next5_coverage_source_map" (
     CONSTRAINT "canyonjs_next5_coverage_source_map_pkey" PRIMARY KEY ("hash")
 );
 
+-- CreateTable
+CREATE TABLE "canyonjs_next5_coverage_snapshot" (
+    "id" TEXT NOT NULL,
+    "build_hash" TEXT NOT NULL,
+    "scene" JSONB NOT NULL,
+    "status" TEXT NOT NULL,
+    "istanbul" JSONB NOT NULL,
+    "file_count" INTEGER NOT NULL,
+    "hit_count" INTEGER NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "finished_at" TIMESTAMP(3),
+
+    CONSTRAINT "canyonjs_next5_coverage_snapshot_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE INDEX "canyonjs_next5_coverage_build_provider_repo_id_sha_build_ta_idx" ON "canyonjs_next5_coverage_build"("provider", "repo_id", "sha", "build_target");
 
@@ -118,6 +133,9 @@ CREATE INDEX "canyonjs_next5_coverage_map_relation_source_map_hash_idx" ON "cany
 
 -- CreateIndex
 CREATE UNIQUE INDEX "canyonjs_next5_coverage_map_relation_build_hash_full_file_p_key" ON "canyonjs_next5_coverage_map_relation"("build_hash", "full_file_path");
+
+-- CreateIndex
+CREATE INDEX "canyonjs_next5_coverage_snapshot_build_hash_idx" ON "canyonjs_next5_coverage_snapshot"("build_hash");
 
 -- AddForeignKey
 ALTER TABLE "canyonjs_next5_coverage_scene" ADD CONSTRAINT "canyonjs_next5_coverage_scene_build_hash_fkey" FOREIGN KEY ("build_hash") REFERENCES "canyonjs_next5_coverage_build"("build_hash") ON DELETE CASCADE ON UPDATE CASCADE;
