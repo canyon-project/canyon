@@ -11,7 +11,7 @@ CREATE TABLE "canyonjs_next5_book" (
 );
 
 -- CreateTable
-CREATE TABLE "canyon_next_coverage_hit" (
+CREATE TABLE "canyonjs_next5_coverage_hit" (
     "id" TEXT NOT NULL,
     "build_hash" TEXT NOT NULL,
     "scene_key" TEXT NOT NULL,
@@ -22,5 +22,5 @@ CREATE TABLE "canyon_next_coverage_hit" (
     "input_source_map" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "canyon_next_coverage_hit_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "canyonjs_next5_coverage_hit_pkey" PRIMARY KEY ("id")
 );
