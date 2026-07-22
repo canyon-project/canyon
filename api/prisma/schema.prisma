@@ -25,7 +25,7 @@ model CoverageClientPayloadIdempotency {
 
 /// 构建级覆盖率实体（PK=buildHash）。
 /// CoverageScene / CoverageHit 按 scene 挂在其上；MapRelation 按 build 共享。
-model Coverage {
+model CoverageBuild {
   buildHash     String @id @map("build_hash")
   provider      String
   repoID        String @map("repo_id")
@@ -42,10 +42,10 @@ model Coverage {
 
   @@index([provider, repoID, sha, buildTarget])
   @@index([repoID])
-  @@map("canyonjs_next5_coverage")
+  @@map("canyonjs_next5_coverage_build")
 }
 
-/// 覆盖率场景。同一 Coverage(buildHash) 下仅 sceneKey / scene 不同
+/// 覆盖率场景。同一 CoverageBuild(buildHash) 下仅 sceneKey / scene 不同
 model CoverageScene {
   /// buildHash|sceneKey
   id        String @id
@@ -62,8 +62,8 @@ model CoverageScene {
   createdAt DateTime @map("created_at")
   updatedAt DateTime @map("updated_at")
 
-  coverage Coverage      @relation(fields: [buildHash], references: [buildHash], onDelete: Cascade)
-  hits     CoverageHit[]
+  build CoverageBuild @relation(fields: [buildHash], references: [buildHash], onDelete: Cascade)
+  hits  CoverageHit[]
 
   @@unique([buildHash, sceneKey])
   @@index([buildHash])
@@ -103,7 +103,7 @@ model CoverageMapRelation {
   /// 找 sourceMap；无 sourcemap 时为 null
   sourceMapHash       String? @map("source_map_hash")
 
-  coverage    Coverage           @relation(fields: [buildHash], references: [buildHash], onDelete: Cascade)
+  build       CoverageBuild      @relation(fields: [buildHash], references: [buildHash], onDelete: Cascade)
   coverageMap CoverageMap        @relation(fields: [coverageMapKey], references: [hash])
   sourceMap   CoverageSourceMap? @relation(fields: [sourceMapHash], references: [hash])
 
