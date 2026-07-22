@@ -39,30 +39,41 @@ model CoverageClientPayloadIdempotency {
 
 
 model Coverage {
-  // buildHash+sceneKey
+  // PK = buildHash。同一 build 共享；场景差异见 CoverageScene
   id            String @id
-  // buildHash. instrumentCwd 不一样的话sourceMap解析也会有问题
-  buildHash     String @map("build_hash")
+  // instrumentCwd 不一样的话 sourceMap 解析也会有问题
+  buildHash     String @unique @map("build_hash")
   provider      String
   repoID        String @map("repo_id")
   sha           String
   buildTarget   String @map("build_target")
   instrumentCwd String @map("instrument_cwd")
 
-  // sceneKey 场景
-  sceneKey String @map("scene_key")
+  createdAt DateTime @map("created_at")
+  updatedAt DateTime @map("updated_at")
+
+  @@map("canyonjs_next5_coverage")
+}
+
+/// 覆盖率场景。同一 Coverage(buildHash) 下仅 sceneKey / scene 不同
+model CoverageScene {
+  // PK = buildHash|sceneKey
+  id        String @id
+  buildHash String @map("build_hash")
   // sceneKey = hash(
   // source +      // automation, manual, replay
   // type +        // e2e, unit, integration
   // env +         // test, staging, prod
   // trigger       // pipeline, schedule, manual
   // )
-  scene    Json
+  sceneKey  String @map("scene_key")
+  scene     Json
 
   createdAt DateTime @map("created_at")
   updatedAt DateTime @map("updated_at")
 
-  @@map("canyonjs_next5_coverage")
+  @@unique([buildHash, sceneKey])
+  @@map("canyonjs_next5_coverage_scene")
 }
 
 model CoverageMapRelation {
