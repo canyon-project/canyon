@@ -156,38 +156,64 @@ export async function buildIstanbulCoverage(
     }
   }
 
+  const findRelation = (rawFilePath: string): CoverageMapRelation | undefined => {
+    const exact = relationByPath.get(rawFilePath)
+    if (exact) return exact
+    // hit path 可能与 fullFilePath 不完全一致，按后缀兜底
+    for (const [mappedPath, relation] of relationByPath) {
+      if (
+        rawFilePath.endsWith(mappedPath) ||
+        mappedPath.endsWith(rawFilePath) ||
+        rawFilePath.endsWith(relation.fullFilePath) ||
+        (relation.restoreFullFilePath && rawFilePath.endsWith(relation.restoreFullFilePath))
+      ) {
+        return relation
+      }
+    }
+    return undefined
+  }
+
   const istanbul: Record<string, Record<string, unknown>> = {}
 
   for (const [rawFilePath, hit] of hitByFile) {
-    const relation = relationByPath.get(rawFilePath)
-    const path = relation?.fullFilePath || rawFilePath
-    const entry: Record<string, unknown> = {
-      path,
-      s: hit.s,
-      f: hit.f,
-      b: hit.b,
-    }
+    const relation = findRelation(rawFilePath)
+    const filePath = relation?.fullFilePath || rawFilePath
+
+    // Istanbul FileCoverage 必须包含 statementMap / fnMap / branchMap
+    let statementMap: unknown = {}
+    let fnMap: unknown = {}
+    let branchMap: unknown = {}
+    let inputSourceMap: unknown
 
     if (relation) {
       const cm = mapIndex.get(relation.coverageMapKey)
       if (cm) {
         const decoded = decodeCompressedObject(cm.map) as CoverageMapChunk | null
         if (decoded && typeof decoded === 'object') {
-          entry.statementMap = decoded.statementMap ?? {}
-          entry.fnMap = decoded.fnMap ?? {}
-          entry.branchMap = decoded.branchMap ?? {}
+          statementMap = decoded.statementMap ?? {}
+          fnMap = decoded.fnMap ?? {}
+          branchMap = decoded.branchMap ?? {}
         }
       }
       if (relation.sourceMapHash) {
         const sm = sourceMapIndex.get(relation.sourceMapHash)
         if (sm) {
           const decodedSm = decodeCompressedObject(sm.sourceMap)
-          if (decodedSm) entry.inputSourceMap = decodedSm
+          if (decodedSm) inputSourceMap = decodedSm
         }
       }
     }
 
-    istanbul[path] = entry
+    istanbul[filePath] = {
+      path: filePath,
+      statementMap,
+      fnMap,
+      branchMap,
+      s: hit.s,
+      f: hit.f,
+      b: hit.b,
+      ...(inputSourceMap ? { inputSourceMap } : {}),
+    }
   }
 
   return istanbul

@@ -2,11 +2,17 @@ import { Prisma } from '@prisma/client'
 import { Hono } from 'hono'
 import { prisma } from '../db/index.js'
 import {
+  generateIstanbulHtmlReport,
+  snapshotPublicReportDir,
+  snapshotPublicReportUrl,
+} from '../lib/coverage-html-report.js'
+import {
   buildIstanbulCoverage,
   compactHitsByScene,
   mergeHitsAcrossScenes,
   sceneMatches,
 } from '../lib/coverage-snapshot.js'
+import { ensureGitlabSourceTree } from '../lib/gitlab.js'
 
 const coverage = new Hono()
 
@@ -22,6 +28,14 @@ const snapshotPublicSelect = {
   createdAt: true,
   finishedAt: true,
 } as const
+
+function withReportUrl<T extends { id: number; status: string }>(snapshot: T) {
+  if (snapshot.status !== 'completed') return snapshot
+  return {
+    ...snapshot,
+    reportUrl: snapshotPublicReportUrl(snapshot.id),
+  }
+}
 
 /** 进程内串行队列：queued 不计超时，真正开始 generating 后才计 5 分钟 */
 const snapshotQueue: number[] = []
@@ -39,9 +53,20 @@ async function runSnapshotJob(
   sceneKeys: string[],
   freezeTime: Date,
 ): Promise<void> {
+  const build = await prisma.coverageBuild.findUniqueOrThrow({ where: { buildHash } })
+
   const compactedHits = await compactHitsByScene(buildHash, sceneKeys, freezeTime)
   const mergedByFile = mergeHitsAcrossScenes(compactedHits)
   const istanbul = await buildIstanbulCoverage(buildHash, mergedByFile)
+
+  // 拉 GitLab 源码 zip → 解压 → 结合 Istanbul 生成 HTML 到 public/snapshots/{id}
+  const sourceRoot = await ensureGitlabSourceTree(build.repoID, build.sha)
+  await generateIstanbulHtmlReport({
+    istanbul,
+    instrumentCwd: build.instrumentCwd,
+    sourceRoot,
+    outputDir: snapshotPublicReportDir(snapshotId),
+  })
 
   // 仅 generating 可转为 completed，避免覆盖已 timeout
   await prisma.coverageSnapshot.updateMany({
@@ -182,7 +207,7 @@ coverage.post('/coverage/snapshot', async (c) => {
 
   return c.json({
     success: true,
-    data: snapshot,
+    data: withReportUrl(snapshot),
   })
 })
 
@@ -229,6 +254,7 @@ coverage.get('/coverage/snapshot/:id/report-data', async (c) => {
     hitCount: snapshot.hitCount,
     createdAt: snapshot.createdAt,
     finishedAt: snapshot.finishedAt,
+    reportUrl: snapshotPublicReportUrl(snapshot.id),
     coverage: snapshot.istanbul,
   })
 })
@@ -249,7 +275,7 @@ coverage.get('/coverage/snapshot/:id', async (c) => {
   if (!snapshot) {
     return c.json({ success: false, message: 'snapshot not found' }, 404)
   }
-  return c.json({ success: true, data: snapshot })
+  return c.json({ success: true, data: withReportUrl(snapshot) })
 })
 
 export default coverage

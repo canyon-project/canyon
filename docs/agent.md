@@ -67,10 +67,11 @@ CoverageClientPayloadIdempotency  (client 全量 body 幂等)
 - 用户传 `scene` 对象；匹配规则：filter 中每个字段都与 `CoverageScene.scene` 相等。  
 - `scene: {}` 或不传 → 匹配该 build 下全部 scene。
 
-## 产物存储（规划）
+## 快照 HTML 报告
 
-- 静态报告（html/js/css）可用 S3/OSS + CDN 直接访问。  
-- DB 存元数据与 Istanbul；大体积产物走对象存储（尚未实现上传）。
+- 生成快照时用 `GITLAB_BASE_URL` + `GITLAB_PRIVATE_TOKEN`，按 `CoverageBuild.repoID` + `sha` 拉 archive.zip 并解压（缓存于 `api/.cache`）。  
+- 用解压源码作 `sourceFinder`，结合 Istanbul 生成 html 到 `api/public/snapshots/{id}/`。  
+- 访问：`http://localhost:8080/snapshots/{id}/index.html`（完成后轮询响应带 `reportUrl`）。
 
 ## 本地常用命令
 

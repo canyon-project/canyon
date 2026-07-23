@@ -35,5 +35,10 @@ pnpm run dev
 | GET | `/api/coverage/snapshot/:id` | `src/routes/coverage.ts` |
 | GET | `/api/coverage/snapshot/:id/report-data` | `src/routes/coverage.ts` |
 
+快照完成后 HTML 报告目录：`public/snapshots/{id}/`  
+访问：`http://localhost:8080/snapshots/{id}/index.html`
+
+需配置 `.env` 中的 `GITLAB_BASE_URL`、`GITLAB_PRIVATE_TOKEN`（见 `.env.example`）。
+
 详细说明：[覆盖率 API 文档](../docs/docs/zh/api/coverage.md)  
 Agent 约定：[docs/agent.md](../docs/agent.md)

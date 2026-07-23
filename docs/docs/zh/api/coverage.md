@@ -186,7 +186,15 @@ sequenceDiagram
 2. 按 `sceneKey + rawFilePath` 聚合，写回 hit（`id=agg|...`），删除旧行。  
 3. 跨 sceneKey 按文件再 merge。  
 4. 结合 `CoverageMap` / `CoverageSourceMap` 还原 Istanbul（当前不做 canyon-map remap）。  
-5. 写入 `CoverageSnapshot`。
+5. 用 GitLab `repoID` + `sha` 拉代码 zip 解压，结合源码生成 Istanbul HTML 到 `api/public/snapshots/{id}/`。  
+6. 写入 `CoverageSnapshot`。
+
+环境变量（见 `api/.env.example`）：
+
+- `GITLAB_BASE_URL`
+- `GITLAB_PRIVATE_TOKEN`
+
+完成后可通过 `reportUrl`（如 `/snapshots/1/index.html`）直接访问 HTML 报告。
 
 ### 响应
 

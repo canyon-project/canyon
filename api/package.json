@@ -13,13 +13,21 @@
     "@hono/node-server": "^2.0.11",
     "@prisma/adapter-pg": "^7.9.0",
     "@prisma/client": "^7.9.0",
+    "adm-zip": "^0.6.0",
     "axios": "^1.18.1",
     "dotenv": "^17.4.2",
     "hono": "^4.12.31",
+    "istanbul-lib-coverage": "^3.2.2",
+    "istanbul-lib-report": "^3.0.1",
+    "istanbul-reports": "^3.2.0",
     "pg": "^8.22.0",
     "prisma": "^7.9.0"
   },
   "devDependencies": {
+    "@types/adm-zip": "^0.5.8",
+    "@types/istanbul-lib-coverage": "^2.0.6",
+    "@types/istanbul-lib-report": "^3.0.3",
+    "@types/istanbul-reports": "^3.0.4",
     "@types/node": "^26.1.1",
     "tsx": "^4.23.0",
     "typescript": "^7.0.2"
