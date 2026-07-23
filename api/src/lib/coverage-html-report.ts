@@ -8,7 +8,25 @@ import reports from 'istanbul-reports'
 
 export type IstanbulCoverageMap = Record<string, Record<string, unknown>>
 
-/** 将 CI 绝对路径覆盖率 key 收敛为相对 instrumentCwd 的路径，便于对照源码 */
+/** 补齐 Istanbul 必填字段，不改路径（供 source-maps remap 使用原始 path） */
+function ensureCoverageShape(istanbul: IstanbulCoverageMap): IstanbulCoverageMap {
+  const out: IstanbulCoverageMap = {}
+  for (const [filePath, entry] of Object.entries(istanbul)) {
+    out[filePath] = {
+      ...entry,
+      path: typeof entry.path === 'string' ? entry.path : filePath,
+      statementMap: entry.statementMap ?? {},
+      fnMap: entry.fnMap ?? {},
+      branchMap: entry.branchMap ?? {},
+      s: entry.s ?? {},
+      f: entry.f ?? {},
+      b: entry.b ?? {},
+    }
+  }
+  return out
+}
+
+/** 将路径收敛为相对 instrumentCwd（应在 source-maps remap 之后调用） */
 export function remapCoveragePaths(
   istanbul: IstanbulCoverageMap,
   instrumentCwd: string,
@@ -25,7 +43,6 @@ export function remapCoveragePaths(
     out[rel] = {
       ...entry,
       path: rel,
-      // 兜底：保证 html 生成前结构完整；保留 inputSourceMap 供后续 remap
       statementMap: entry.statementMap ?? {},
       fnMap: entry.fnMap ?? {},
       branchMap: entry.branchMap ?? {},
@@ -36,6 +53,21 @@ export function remapCoveragePaths(
   }
 
   return out
+}
+
+/** 路径替换后过滤：去掉 dist 开头的产物文件 */
+export function filterOutDistPaths(istanbul: IstanbulCoverageMap): IstanbulCoverageMap {
+  const out: IstanbulCoverageMap = {}
+  for (const [filePath, entry] of Object.entries(istanbul)) {
+    const normalized = filePath.replace(/^\/+/, '')
+    if (normalized === 'dist' || normalized.startsWith('dist/')) continue
+    out[filePath] = entry
+  }
+  return out
+}
+
+function coverageMapToPlain(coverageMap: CoverageMap): IstanbulCoverageMap {
+  return coverageMap.toJSON() as unknown as IstanbulCoverageMap
 }
 
 function createDiskSourceFinder(sourceRoot: string): (filePath: string) => string {
@@ -106,8 +138,8 @@ function combineSourceFinders(
 }
 
 /**
- * 用解压后的源码树 + Istanbul coverage 生成 html 报告到 outputDir。
- * 有 inputSourceMap 时先走 istanbul-lib-source-maps.transformCoverage。
+ * 用两个源码树 + Istanbul coverage 生成 html 报告到 outputDir。
+ * 顺序：补齐字段 → source-maps remap → instrumentCwd 路径替换 → 过滤 dist → 出 HTML。
  */
 export async function generateIstanbulHtmlReport(args: {
   istanbul: IstanbulCoverageMap
@@ -115,12 +147,26 @@ export async function generateIstanbulHtmlReport(args: {
   sourceRoot: string
   outputDir: string
 }): Promise<{ reportDir: string; indexPath: string }> {
-  const prepared = remapCoveragePaths(args.istanbul, args.instrumentCwd)
   await mkdir(args.outputDir, { recursive: true })
 
-  const rawMap = libCoverage.createCoverageMap(prepared as unknown as CoverageMapData)
-  const { coverageMap, sourceFinderFromMaps } =
+  // 1) 保持原始 path，先给 source-maps 用
+  const shaped = ensureCoverageShape(args.istanbul)
+  const rawMap = libCoverage.createCoverageMap(shaped as unknown as CoverageMapData)
+
+  // 2) inputSourceMap → 原始文件
+  const { coverageMap: transformedMap, sourceFinderFromMaps } =
     await maybeTransformWithInputSourceMaps(rawMap)
+
+  // 3) source-maps remap 之后再替换 instrumentCwd 前缀
+  const pathRemapped = remapCoveragePaths(
+    coverageMapToPlain(transformedMap),
+    args.instrumentCwd,
+  )
+  // 4) 过滤 dist 开头的路径
+  const filtered = filterOutDistPaths(pathRemapped)
+  const coverageMap = libCoverage.createCoverageMap(
+    filtered as unknown as CoverageMapData,
+  )
 
   const context = libReport.createContext({
     dir: args.outputDir,
