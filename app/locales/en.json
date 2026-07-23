@@ -200,6 +200,7 @@
     "snapshot.update.failed": "Update failed",
     "snapshot.edit.title": "Edit Snapshot",
     "snapshot.view_detail": "View details",
+    "snapshot.view_report": "Snapshot report",
     "snapshot.detail.title": "Snapshot details",
     "snapshot.detail.fetch_failed": "Failed to load snapshot details",
     "snapshot.detail.report_json": "Report data (JSON)",

@@ -386,14 +386,14 @@ const ComparePage = () => {
 
         return (
           <Space size={12} wrap={false}>
-            <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
+            {/* <Dropdown menu={{ items: menuItems }} placement="bottomLeft">
               <a onClick={(e) => e.preventDefault()}>
                 <Space>
                   {t("projects.comparison.report")}
                   <DownOutlined />
                 </Space>
               </a>
-            </Dropdown>
+            </Dropdown> */}
             <Dropdown
               menu={{
                 items: [

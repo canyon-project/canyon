@@ -4,7 +4,8 @@ import jaJP from "antd/es/locale/ja_JP";
 import zhCN from "antd/es/locale/zh_CN";
 import { useRoutes } from "react-router-dom";
 import AppAuthGuard from "@/guards/AppAuthGuard";
-import CoverageReport from "@/independents/report/index.tsx";
+import CoverageReport from "@/independents/report/realtime.tsx";
+import SnapshotReport from "@/independents/report/snapshot.tsx";
 import routes from "~react-pages";
 
 const languages = {
@@ -20,6 +21,11 @@ const { darkAlgorithm } = theme;
 routes.push({
   path: "/report/-/:provider/:org/:repo/:subject/:subjectID/-*",
   element: <CoverageReport />,
+});
+
+routes.push({
+  path: "/report/-/:provider/:org/:repo/snapshot/:snapshotID/-*",
+  element: <SnapshotReport />,
 });
 
 message.config({});
