@@ -71,6 +71,7 @@ CoverageClientPayloadIdempotency  (client 全量 body 幂等)
 
 - 生成快照时用 `GITLAB_BASE_URL` + `GITLAB_PRIVATE_TOKEN`，按 `CoverageBuild.repoID` + `sha` 拉 archive.zip 并解压（缓存于 `api/.cache`）。  
 - 用解压源码作 `sourceFinder`，结合 Istanbul 生成 html 到 `api/public/snapshots/{id}/`。  
+- 若 FileCoverage 带 `inputSourceMap`，生成 HTML 前必须经 `istanbul-lib-source-maps` 的 `transformCoverage` 还原到原始文件；`sourceFinder` 优先读 sourcemap 的 `sourcesContent`，再回退到解压目录。  
 - 访问：`http://localhost:8080/snapshots/{id}/index.html`（完成后轮询响应带 `reportUrl`）。
 
 ## 本地常用命令

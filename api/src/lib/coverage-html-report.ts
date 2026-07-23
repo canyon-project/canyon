@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import path from 'node:path'
-import libCoverage, { type CoverageMapData } from 'istanbul-lib-coverage'
+import libCoverage, { type CoverageMap, type CoverageMapData } from 'istanbul-lib-coverage'
 import libReport from 'istanbul-lib-report'
+import libSourceMaps from 'istanbul-lib-source-maps'
 import reports from 'istanbul-reports'
 
 export type IstanbulCoverageMap = Record<string, Record<string, unknown>>
@@ -24,7 +25,7 @@ export function remapCoveragePaths(
     out[rel] = {
       ...entry,
       path: rel,
-      // 兜底：保证 html 生成前结构完整
+      // 兜底：保证 html 生成前结构完整；保留 inputSourceMap 供后续 remap
       statementMap: entry.statementMap ?? {},
       fnMap: entry.fnMap ?? {},
       branchMap: entry.branchMap ?? {},
@@ -37,16 +38,18 @@ export function remapCoveragePaths(
   return out
 }
 
-function createSourceFinder(sourceRoot: string): (filePath: string) => string {
+function createDiskSourceFinder(sourceRoot: string): (filePath: string) => string {
   return (filePath: string) => {
     const candidates = [
       path.join(sourceRoot, filePath),
       path.resolve(sourceRoot, filePath),
+      path.join(sourceRoot, filePath.replace(/^\/+/, '')),
     ]
 
     for (const candidate of candidates) {
       try {
-        if (candidate.startsWith(sourceRoot)) {
+        const normalizedRoot = path.resolve(sourceRoot)
+        if (path.resolve(candidate).startsWith(normalizedRoot)) {
           return readFileSync(candidate, 'utf8')
         }
       } catch {
@@ -54,18 +57,57 @@ function createSourceFinder(sourceRoot: string): (filePath: string) => string {
       }
     }
 
-    // 回退：用路径后缀在常见层级下再试一次（简单版）
-    const normalized = filePath.replace(/^\/+/, '')
-    try {
-      return readFileSync(path.join(sourceRoot, normalized), 'utf8')
-    } catch {
-      throw new Error(`Unable to lookup source: ${filePath} (root=${sourceRoot})`)
+    throw new Error(`Unable to lookup source: ${filePath} (root=${sourceRoot})`)
+  }
+}
+
+function coverageHasInputSourceMap(coverageMap: CoverageMap): boolean {
+  return coverageMap.files().some((file) => {
+    const data = coverageMap.fileCoverageFor(file).data as { inputSourceMap?: unknown }
+    return Boolean(data.inputSourceMap)
+  })
+}
+
+/**
+ * 若 coverage 带 inputSourceMap，用 istanbul-lib-source-maps 还原到原始文件。
+ * 返回 remap 后的 CoverageMap，以及优先读 sourcemap sourcesContent 的 sourceFinder。
+ */
+async function maybeTransformWithInputSourceMaps(coverageMap: CoverageMap): Promise<{
+  coverageMap: CoverageMap
+  sourceFinderFromMaps: ((filePath: string) => string) | null
+}> {
+  if (!coverageHasInputSourceMap(coverageMap)) {
+    return { coverageMap, sourceFinderFromMaps: null }
+  }
+
+  const store = libSourceMaps.createSourceMapStore()
+  const transformed = await store.transformCoverage(coverageMap)
+  return {
+    coverageMap: transformed,
+    sourceFinderFromMaps: (filePath: string) => store.sourceFinder(filePath),
+  }
+}
+
+function combineSourceFinders(
+  primary: ((filePath: string) => string) | null,
+  fallback: (filePath: string) => string,
+): (filePath: string) => string {
+  return (filePath: string) => {
+    if (primary) {
+      try {
+        const content = primary(filePath)
+        if (typeof content === 'string') return content
+      } catch {
+        // fall through to disk
+      }
     }
+    return fallback(filePath)
   }
 }
 
 /**
- * 用解压后的源码树 + Istanbul coverage 生成 html 报告到 outputDir
+ * 用解压后的源码树 + Istanbul coverage 生成 html 报告到 outputDir。
+ * 有 inputSourceMap 时先走 istanbul-lib-source-maps.transformCoverage。
  */
 export async function generateIstanbulHtmlReport(args: {
   istanbul: IstanbulCoverageMap
@@ -73,15 +115,21 @@ export async function generateIstanbulHtmlReport(args: {
   sourceRoot: string
   outputDir: string
 }): Promise<{ reportDir: string; indexPath: string }> {
-  const remapped = remapCoveragePaths(args.istanbul, args.instrumentCwd)
+  const prepared = remapCoveragePaths(args.istanbul, args.instrumentCwd)
   await mkdir(args.outputDir, { recursive: true })
 
-  const coverageMap = libCoverage.createCoverageMap(remapped as unknown as CoverageMapData)
+  const rawMap = libCoverage.createCoverageMap(prepared as unknown as CoverageMapData)
+  const { coverageMap, sourceFinderFromMaps } =
+    await maybeTransformWithInputSourceMaps(rawMap)
+
   const context = libReport.createContext({
     dir: args.outputDir,
     defaultSummarizer: 'nested',
     coverageMap,
-    sourceFinder: createSourceFinder(args.sourceRoot),
+    sourceFinder: combineSourceFinders(
+      sourceFinderFromMaps,
+      createDiskSourceFinder(args.sourceRoot),
+    ),
     watermarks: {
       statements: [50, 80],
       functions: [50, 80],
