@@ -4,6 +4,7 @@ import {
   DownloadOutlined,
   EditOutlined,
   EyeOutlined,
+  FileTextOutlined,
 } from "@ant-design/icons";
 import {
   Badge,
@@ -25,6 +26,7 @@ import type { ColumnsType } from "antd/es/table";
 import type { FC } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useParams } from "react-router-dom";
 import dayjs from "dayjs";
 import * as snapshotService from "@/services/snapshot";
 
@@ -110,6 +112,7 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   titleContext,
 }) => {
   const { t } = useTranslation();
+  const params = useParams();
   const [form] = Form.useForm<{ title: string; description: string }>();
   const [submitLoading, setSubmitLoading] = useState(false);
   const [recordsLoading, setRecordsLoading] = useState(false);
@@ -125,6 +128,9 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
   const [reportText, setReportText] = useState("");
   const [reportError, setReportError] = useState("");
   const pollingTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const reportOrg = titleContext?.org ?? params.org;
+  const reportRepo = titleContext?.repo ?? params.repo;
 
   const formatCoveragePercent = (covered: number, total: number) => {
     if (!Number.isFinite(covered) || !Number.isFinite(total) || total <= 0) return "-";
@@ -473,37 +479,57 @@ const SnapshotDrawer: FC<SnapshotDrawerProps> = ({
     {
       title: t("common.option"),
       key: "action",
-      render: (_: unknown, record: SnapshotRecord) => (
-        <Space size="small" wrap>
-          <Button
-            type="link"
-            size="small"
-            icon={<EyeOutlined />}
-            onClick={() => openDetail(record)}
-          >
-            {t("projects.snapshot.view_detail")}
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            icon={<DownloadOutlined />}
-            onClick={() => handleDownload(record.id)}
-          >
-            {t("projects.snapshot.download.button")}
-          </Button>
-          <Button type="link" size="small" icon={<EditOutlined />} onClick={() => openEdit(record)}>
-            {t("common.edit")}
-          </Button>
-          <Popconfirm
-            title={t("projects.snapshot.delete.confirm")}
-            onConfirm={() => handleDelete(record.id)}
-          >
-            <Button type="link" size="small" danger icon={<DeleteOutlined />}>
-              {t("common.delete")}
+      render: (_: unknown, record: SnapshotRecord) => {
+        const provider = record.provider || params.provider;
+        const reportHref =
+          record.status === "completed" && provider && reportOrg && reportRepo
+            ? `/report/-/${provider}/${reportOrg}/${reportRepo}/snapshot/${record.id}/-`
+            : null;
+
+        return (
+          <Space size="small" wrap>
+            {reportHref ? (
+              <Button
+                type="link"
+                size="small"
+                icon={<FileTextOutlined />}
+                href={reportHref}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {t("projects.snapshot.view_report")}
+              </Button>
+            ) : null}
+            <Button
+              type="link"
+              size="small"
+              icon={<EyeOutlined />}
+              onClick={() => openDetail(record)}
+            >
+              {t("projects.snapshot.view_detail")}
             </Button>
-          </Popconfirm>
-        </Space>
-      ),
+            <Button
+              type="link"
+              size="small"
+              icon={<DownloadOutlined />}
+              onClick={() => handleDownload(record.id)}
+            >
+              {t("projects.snapshot.download.button")}
+            </Button>
+            <Button type="link" size="small" icon={<EditOutlined />} onClick={() => openEdit(record)}>
+              {t("common.edit")}
+            </Button>
+            <Popconfirm
+              title={t("projects.snapshot.delete.confirm")}
+              onConfirm={() => handleDelete(record.id)}
+            >
+              <Button type="link" size="small" danger icon={<DeleteOutlined />}>
+                {t("common.delete")}
+              </Button>
+            </Popconfirm>
+          </Space>
+        );
+      },
     },
   ];
 

@@ -87,6 +87,22 @@ export function downloadSnapshot(id: string | number): Promise<Blob> {
 /**
  * 获取快照 HTML 报告对应的 report-data JSON（与 data/report-data.js 内 window.reportData 解析后一致）
  */
-export function getSnapshotReportData(id: string | number): Promise<unknown> {
+export type SnapshotReportData = {
+  files: Array<{
+    path: string;
+    source: string;
+    diff?: {
+      additions: number[];
+      deletions: number[];
+    };
+    [key: string]: unknown;
+  }>;
+  instrumentCwd: string;
+  generatedAt?: string;
+  version?: string;
+  [key: string]: unknown;
+};
+
+export function getSnapshotReportData(id: string | number): Promise<SnapshotReportData> {
   return request.get(`/api/coverage/snapshot/${id}/report-data`).then((res) => res.data);
 }

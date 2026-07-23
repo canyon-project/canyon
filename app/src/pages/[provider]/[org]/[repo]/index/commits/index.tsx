@@ -378,14 +378,14 @@ const CommitsPage = () => {
 
         return (
           <Space wrap>
-            <Dropdown menu={{ items: reportMenuItems }} placement="bottomLeft">
+            {/* <Dropdown menu={{ items: reportMenuItems }} placement="bottomLeft">
               <a onClick={(e) => e.preventDefault()}>
                 <Space>
                   {t("projects.commits.columns.report")}
                   <DownOutlined />
                 </Space>
               </a>
-            </Dropdown>
+            </Dropdown> */}
             <Dropdown
               menu={{
                 items: snapshotMenuItems,
