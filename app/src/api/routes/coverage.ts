@@ -129,7 +129,7 @@ const snapshotCreateRoute = createRoute({
   path: "/snapshot",
   summary: "创建覆盖率快照",
   description:
-    "基于 /coverage/map 全量数据创建快照。创建后状态先为 generating，完成后为 completed，超过 120 秒置为 timeout。",
+    "基于 /coverage/map 全量数据创建快照。创建后状态先为 generating，完成后为 completed，超过 300 秒置为 timeout。",
   tags: ["覆盖率"],
   request: {
     body: {
@@ -382,7 +382,7 @@ const snapshotReportDataRoute = createRoute({
 });
 
 const coverageApi = new OpenAPIHono();
-const SNAPSHOT_TIMEOUT_MS = 120 * 1000;
+const SNAPSHOT_TIMEOUT_MS = 300 * 1000;
 const SNAPSHOT_TIMEOUT_MESSAGE = "snapshot generation timeout";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
