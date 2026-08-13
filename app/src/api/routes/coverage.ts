@@ -11,11 +11,11 @@ import { getCoverageMapForCommit } from "@/api/lib/coverage/coverage-map-for-com
 import { getCoverageMapForCr } from "@/api/lib/coverage/coverage-map-for-cr.ts";
 import { getCoverageMapForCompare } from "@/api/lib/coverage/coverage-map-for-compare.ts";
 import { publishSnapshotGeneratedMessage } from "@/api/lib/coverage/snapshot-generated-producer.ts";
-import { ensureCommitFromScm } from "@/api/lib/commit.ts";
 import { buildCommitUrl } from "@/api/lib/commit-url.ts";
 import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
 import { getAuth } from "@/api/lib/auth.ts";
 import { getNewScm } from "@/api/lib/scm.ts";
+import { ensureCompareDiff } from "@/api/lib/compare/ensure-diff.ts";
 import { CoverageMapQuerySchema, CoverageCommitsQuerySchema } from "@/shared/schemas/coverage.ts";
 import { genSummaryMapByCoverageMap } from "canyon-data";
 
@@ -510,13 +510,19 @@ async function resolveReportHtmlDistDir() {
   );
 }
 
-function getRefShaBySubject(subject: "commit" | "compare", subjectID: string) {
-  if (subject === "commit") return subjectID;
-  const headSha = subjectID.split("...")[1];
-  if (!headSha) {
-    throw new Error("invalid compare subjectID, expected baseSha...headSha");
-  }
-  return headSha;
+async function getRefShaBySubject(args: {
+  provider: string;
+  repoID: string;
+  subject: "commit" | "compare";
+  subjectID: string;
+}) {
+  if (args.subject === "commit") return args.subjectID;
+  const ensured = await ensureCompareDiff({
+    provider: args.provider,
+    repoID: args.repoID,
+    subjectID: args.subjectID,
+  });
+  return ensured.headSha;
 }
 
 function toCoverageMapRecord(mapResult: unknown): Record<string, Record<string, unknown>> {
@@ -546,7 +552,12 @@ async function buildSnapshotReportDataScript(args: {
     throw new Error(`scm adapter not configured for provider: ${args.provider}`);
   }
 
-  const refSha = getRefShaBySubject(args.subject, args.subjectID);
+  const refSha = await getRefShaBySubject({
+    provider: args.provider,
+    repoID: args.repoID,
+    subject: args.subject,
+    subjectID: args.subjectID,
+  });
   const filePaths = Object.keys(args.coverageMap);
   const sourceMap = await scm.getSourceFiles(args.repoID, refSha, filePaths);
   const files = filePaths.map((filePath) => {
@@ -828,60 +839,10 @@ async function ensureCompareDiffIfMissing(args: {
   repoID: string;
   subjectID: string;
 }) {
-  const subject = "compare";
-  const existingCount = await prisma.diff.count({
-    where: {
-      provider: args.provider,
-      repoID: args.repoID,
-      subject,
-      subjectID: args.subjectID,
-    },
-  });
-  if (existingCount > 0) return;
-
-  const [fromSha, toSha] = args.subjectID.split("...");
-  if (!fromSha || !toSha) {
-    throw new Error("subjectID format invalid, expected baseSha...headSha");
-  }
-
-  const scm = getNewScm(args.provider);
-  if (!scm) {
-    throw new Error(`scm adapter not configured for provider: ${args.provider}`);
-  }
-
-  for (const sha of [fromSha, toSha]) {
-    await ensureCommitFromScm(prisma, args.provider, args.repoID, sha);
-  }
-
-  const diffResult = await scm.getCompare(args.repoID, fromSha, toSha).then(res=>{
-    return res.changedFiles
-  });
-
-  await prisma.diff.deleteMany({
-    where: {
-      provider: args.provider,
-      repoID: args.repoID,
-      subject,
-      subjectID: args.subjectID,
-    },
-  });
-
-  if (diffResult.length === 0) return;
-
-  await prisma.diff.createMany({
-    data: diffResult.map((item) => ({
-      id: `${args.provider}|${args.repoID}|${subject}|${args.subjectID}|${item.path}`,
-      provider: args.provider,
-      repoID: args.repoID,
-      from: fromSha,
-      to: toSha,
-      subjectID: args.subjectID,
-      subject,
-      path: item.path,
-      additions: item.additions,
-      deletions: item.deletions,
-    })),
-    skipDuplicates: true,
+  await ensureCompareDiff({
+    provider: args.provider,
+    repoID: args.repoID,
+    subjectID: args.subjectID,
   });
 }
 

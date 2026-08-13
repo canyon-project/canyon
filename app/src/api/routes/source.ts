@@ -1,10 +1,16 @@
 import { createRoute, z } from "@hono/zod-openapi";
 import { ProviderQueryParam, ProviderSchema } from "@/shared/schemas/provider.ts";
-import { DiffListQuerySchema } from "@/shared/schemas/source.ts";
+import { DiffCreateBodySchema, DiffListQuerySchema } from "@/shared/schemas/source.ts";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { prisma } from "@/api/lib/prisma.ts";
 import { ensureCommitFromScm, toCommitId } from "@/api/lib/commit.ts";
 import { buildCompareUrl } from "@/api/lib/commit-url.ts";
+import {
+  COMPARE_PLACEHOLDER_PATH,
+  buildCompareSpec,
+  parseCompareSubjectID,
+} from "@/api/lib/compare/identity.ts";
+import { ensureCompareDiff } from "@/api/lib/compare/ensure-diff.ts";
 import {
   fetchExternalUserProfilesByEmails,
   normalizeEmail,
@@ -98,18 +104,14 @@ const diffPostRoute = createRoute({
   method: "post",
   path: "/diff",
   summary: "创建 Diff",
-  description: "创建累积分析记录，subjectID 格式为 commit1...commit2。",
+  description:
+    "创建累积分析记录。支持双 Commit SHA、Commit/分支、分支/分支，以及单个 MR IID（解析为 target...source 分支对比）。含分支或 MR 的记录为动态引用，查看覆盖率时会按最新 tip 刷新 diff。",
   tags: ["源码"],
   request: {
     body: {
       content: {
         "application/json": {
-          schema: z.object({
-            repoID: z.string(),
-            provider: z.string(),
-            subject: z.string(),
-            subjectID: z.string(),
-          }),
+          schema: DiffCreateBodySchema,
         },
       },
     },
@@ -180,7 +182,7 @@ sourceApi.openapi(sourceRoute, async (c) => {
   if (!repo_id || !path) {
     return c.json({ content: null });
   }
-  if (!q.ref && !q.sha && !q.compareID && !(q.subject === "pull" && q.subjectID)) {
+  if (!q.ref && !q.sha && !q.compareID && !(q.subject === "pull" && q.subjectID) && !(q.subject === "compare" && q.subjectID)) {
     return c.json({ content: null });
   }
 
@@ -317,11 +319,13 @@ sourceApi.openapi(diffGetRoute, async (c) => {
         row.createdAt = d.createdAt;
       }
     }
-    recordsMap.get(key)!.files.push({
-      path: d.path,
-      additions: (d.additions as number[]) || [],
-      deletions: (d.deletions as number[]) || [],
-    });
+    if (d.path !== COMPARE_PLACEHOLDER_PATH) {
+      recordsMap.get(key)!.files.push({
+        path: d.path,
+        additions: (d.additions as number[]) || [],
+        deletions: (d.deletions as number[]) || [],
+      });
+    }
   }
 
   const allCommits = new Set<string>();
@@ -412,6 +416,12 @@ sourceApi.openapi(diffGetRoute, async (c) => {
     const buildTargets = Array.from(buildTargetsMap.get(r.to) || []);
     const fromCommit = commitInfoMap.get(r.from);
     const toCommit = commitInfoMap.get(r.to);
+    let spec: ReturnType<typeof parseCompareSubjectID> | null = null;
+    try {
+      spec = parseCompareSubjectID(r.subjectID);
+    } catch {
+      spec = null;
+    }
     return {
       id: r.id,
       provider: r.provider,
@@ -428,6 +438,13 @@ sourceApi.openapi(diffGetRoute, async (c) => {
         : null,
       baseCommit: fromCommit || null,
       headCommit: toCommit || null,
+      mode: spec?.mode ?? "commits",
+      live: spec?.live ?? false,
+      baseKind: spec?.baseKind ?? "sha",
+      headKind: spec?.headKind ?? "sha",
+      baseRef: spec?.baseRef || r.from,
+      headRef: spec?.headRef || r.to,
+      mrIid: spec?.mrIid ?? null,
     };
   });
 
@@ -459,46 +476,46 @@ sourceApi.openapi(commitPostRoute, async (c) => {
 
 sourceApi.openapi(diffPostRoute, async (c) => {
   const body = c.req.valid("json");
-  const { repoID, provider, subjectID, subject } = body;
+  const { repoID, provider } = body;
 
-  const parts = subjectID.split("...");
-  if (parts.length !== 2) {
-    return c.json({ error: "subjectID 格式错误，应为 commit1...commit2" }, 400);
-  }
-  const [fromSha, toSha] = parts.map((s) => s.trim());
-  if (!fromSha || !toSha) {
-    return c.json({ error: "subjectID 格式错误，from 和 to 不能为空" }, 400);
+  if (!repoID || !provider) {
+    return c.json({ error: "缺少必要参数：repoID、provider" }, 400);
   }
 
-  const scm = getNewScm(provider);
-  if (!scm) return c.json({ error: "SCM 未配置" }, 502);
-
-  for (const s of [fromSha, toSha]) {
-    await ensureCommitFromScm(prisma, provider, repoID, s);
+  try {
+    const spec = buildCompareSpec({
+      subjectID: body.subjectID,
+      mode: body.mode,
+      baseKind: body.baseKind,
+      headKind: body.headKind,
+      baseRef: body.baseRef,
+      headRef: body.headRef,
+      mrIid: body.mrIid,
+    });
+    const ensured = await ensureCompareDiff({
+      provider,
+      repoID,
+      spec,
+      force: body.refresh === true,
+    });
+    return c.json({
+      subjectID: ensured.subjectID,
+      from: ensured.baseSha,
+      to: ensured.headSha,
+      live: spec.live,
+      mode: spec.mode,
+      baseKind: ensured.spec.baseKind,
+      headKind: ensured.spec.headKind,
+      baseRef: ensured.baseRef,
+      headRef: ensured.headRef,
+      mrIid: spec.mrIid ?? null,
+      files: ensured.files,
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    const status = msg.includes("SCM 未配置") ? 502 : 400;
+    return c.json({ error: msg }, status);
   }
-
-  await prisma.diff.deleteMany({
-    where: { provider, repoID, subjectID, subject },
-  });
-
-  const diffResult = await scm.getCompare(repoID, fromSha, toSha).then(res=>{
-    return res.changedFiles
-  });
-  const data = diffResult.map((item) => ({
-    id: `${provider}|${repoID}|${subject}|${subjectID}|${item.path}`,
-    provider,
-    repoID,
-    from: fromSha,
-    to: toSha,
-    subjectID,
-    subject,
-    path: item.path,
-    additions: item.additions,
-    deletions: item.deletions,
-  }));
-
-  await prisma.diff.createMany({ data, skipDuplicates: true });
-  return c.json(data);
 });
 
 sourceApi.openapi(diffDeleteRoute, async (c) => {
