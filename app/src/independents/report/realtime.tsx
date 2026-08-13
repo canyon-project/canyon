@@ -141,9 +141,9 @@ const ReportIndependent = () => {
       }
 
       if (subject === "compare") {
-        // 格式为 baseSha...headSha，使用 head (第二个) 作为 ref
+        // 旧格式 baseSha...headSha；动态 compare（分支/MR）走 subject+subjectID 解析
         const parts = subjectID.split("...");
-        if (parts.length === 2) {
+        if (parts.length === 2 && /^[a-f0-9]{40}$/i.test(parts[1].trim())) {
           return parts[1].trim();
         }
       }
@@ -250,7 +250,7 @@ const ReportIndependent = () => {
           fileContentCacheRef.current.set(fileContentKey, fileContentPromise);
         }
       } else if (
-        (routeParams.subject === "pull" || routeParams.subject === "merge_requests") &&
+        (routeParams.subject === "pull" || routeParams.subject === "compare") &&
         routeParams.subjectID
       ) {
         const pullFileContentKey = `${repoID}-${routeParams.subject}-${routeParams.subjectID}-${val}-${routeParams.provider}`;

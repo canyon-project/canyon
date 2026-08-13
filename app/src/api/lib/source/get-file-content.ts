@@ -1,6 +1,7 @@
 import axios from "axios";
 import { prisma } from "@/api/lib/prisma.ts";
 import { getProviderInfra } from "@/api/lib/scm.ts";
+import { ensureCompareDiff } from "@/api/lib/compare/ensure-diff.ts";
 
 /** 从 Cr content 提取 head repoID 和 sha */
 function extractHeadFromCr(content: unknown): { headRepoID: string; headSha: string } | null {
@@ -55,6 +56,19 @@ export async function resolveRepoAndRef(params: GetFileContentParams): Promise<{
     if (!head) return null;
     actualRepoID = head.headRepoID;
     actualRef = head.headSha;
+  }
+
+  if (subject === "compare" && subjectID && provider) {
+    try {
+      const ensured = await ensureCompareDiff({
+        provider,
+        repoID: actualRepoID,
+        subjectID,
+      });
+      actualRef = ensured.headSha;
+    } catch {
+      return null;
+    }
   }
 
   if (!actualRef && compareID && provider) {

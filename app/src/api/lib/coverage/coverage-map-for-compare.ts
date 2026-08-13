@@ -1,5 +1,6 @@
 import { prisma } from "@/api/lib/prisma.ts";
 import {getNewScm} from "@/api/lib/scm.ts";
+import { ensureCompareDiff } from "@/api/lib/compare/ensure-diff.ts";
 import { decodeCompressedObject } from "@/api/lib/collect/helpers.ts";
 import {
   addBranchHitMaps,
@@ -83,23 +84,28 @@ export async function getCoverageMapForCompare(params: CoverageMapForComparePara
 
   console.log("getCoverageMapForCompare", params);
 
-  const [baseSha, headSha] = compareID.split("...");
-  if (!baseSha || !headSha) {
-    return { success: false, message: "compareID 格式错误，应为 baseSha...headSha" };
+  let ensured: Awaited<ReturnType<typeof ensureCompareDiff>>;
+  try {
+    ensured = await ensureCompareDiff({
+      provider,
+      repoID,
+      subjectID: compareID,
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { success: false, message: msg };
   }
 
-  const diffWhere: { from: string; to: string; provider: string; repoID: string; path?: string } = {
-    from: baseSha,
-    to: headSha,
-    provider,
-    repoID,
-  };
-  if (filePath) diffWhere.path = filePath;
+  const baseSha = ensured.baseSha;
+  const headSha = ensured.headSha;
 
-  const diffList = await prisma.diff.findMany({
-    where: diffWhere,
-    select: { path: true, additions: true, deletions: true },
-  });
+  const diffList = ensured.files
+    .filter((d) => !filePath || d.path === filePath)
+    .map((d) => ({
+      path: d.path,
+      additions: d.additions,
+      deletions: d.deletions,
+    }));
 
   const scm = getNewScm(provider);
   if (!scm) return { success: false, message: "SCM 配置缺失" };
