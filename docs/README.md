@@ -1,29 +1,25 @@
-# Rspress website
+# Canyon docs
+
+English documentation site for Canyon, built with [Rspress](https://rspress.rs/).
 
 ## Setup
 
-Install the dependencies:
+From the repository root:
 
 ```bash
-npm install
+pnpm install
+pnpm --filter rspress-doc-template dev
 ```
 
-## Get started
-
-Start the dev server:
+## Scripts
 
 ```bash
-npm run dev
+pnpm dev      # local preview
+pnpm build    # production build
+pnpm preview  # serve the production build
 ```
 
-Build the website for production:
+## Content
 
-```bash
-npm run build
-```
-
-Preview the production build locally:
-
-```bash
-npm run preview
-```
+- Guide: `docs/guide/`
+- HTTP API: `docs/api/`

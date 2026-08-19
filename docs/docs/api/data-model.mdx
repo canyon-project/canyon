@@ -1,0 +1,74 @@
+# Data model
+
+SQLite schema defined in `api/prisma/schema.prisma`. Connection string: `DATABASE_URL` (default `file:./dev.db`).
+
+## Coverage
+
+One row per `buildHash` + `sceneKey`.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | string | `buildHash` and `sceneKey` joined with `\|` |
+| `builds` | JSON | Array of optional `build` objects from map init |
+| `buildHash` | string | Build identity |
+| `provider` | string | Git provider |
+| `repoID` | string | Repository id |
+| `sha` | string | Commit SHA |
+| `buildTarget` | string | Optional target |
+| `instrumentCwd` | string | Instrumentation cwd |
+| `sceneKey` | string | SHA-1 of the scene object |
+| `scene` | JSON | Scene payload |
+| `createdAt` / `updatedAt` | datetime | |
+
+## CoverageMapRelation
+
+Links a file path in a build to map hashes.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | string | `buildHash` and `fullFilePath` joined with `\|` |
+| `fullFilePath` | string | File path from coverage keys |
+| `restoreFullFilePath` | string | Currently stored as empty string |
+| `buildHash` | string | |
+| `coverageMapHash` | string | Hash of `statementMap` / `fnMap` / `branchMap` |
+| `sourceMapHash` | string | Hash of `inputSourceMap`, or empty |
+| `fileContentHash` | string | From `contentHash` if present |
+
+## CoverageMap
+
+Deduplicated, gzip-compressed Istanbul maps.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `hash` | string | `coverageMapHash` and `fileContentHash` joined with `\|` |
+| `map` | bytes | gzip JSON of `{ statementMap, fnMap, branchMap }` |
+| `createdAt` | datetime | |
+
+## CoverageSourceMap
+
+Deduplicated, gzip-compressed source maps.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `hash` | string | `sourceMapHash` |
+| `sourceMap` | bytes | gzip JSON of `inputSourceMap` |
+
+## CoverageHit
+
+Merged hit counts per file, build, and scene.
+
+| Column | Type | Notes |
+| --- | --- | --- |
+| `id` | string | `buildHash`, `sceneKey`, and `rawFilePath` joined with `\|` |
+| `buildHash` | string | |
+| `sceneKey` | string | |
+| `rawFilePath` | string | Coverage key |
+| `s` | JSON | Statement hits |
+| `f` | JSON | Function hits |
+| `b` | JSON | Branch hits |
+| `inputSourceMap` | int? | `1` / `0` / `null` depending on upload path |
+| `createdAt` | datetime | |
+
+## Hashing
+
+`generateObjectSignature` SHA-1 hashes a stably stringified JSON object (sorted keys). It is used for `sceneKey`, `buildHash` (when computed), coverage map hashes, and source map hashes.

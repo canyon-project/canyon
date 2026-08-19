@@ -1,51 +1,77 @@
 # Getting started
 
-## Project structure
+## Prerequisites
 
-After creating a project with `create-rspress`, you will get the following project structure:
+- Node.js 22+
+- [pnpm](https://pnpm.io/) 10+
 
-- `docs/` — The documentation source directory, configured via `root` in `rspress.config.ts`.
-- `docs/_nav.json` — The navigation bar configuration.
-- `docs/guide/_meta.json` — The sidebar configuration for the guide section.
-- `docs/public/` — Static assets directory.
-- `theme/` — Optional custom theme directory, generated when you choose the custom theme scaffold.
-- `rspress.config.ts` — The Rspress configuration file.
+## Install
 
-## Development
-
-Start the local development server:
+From the repository root:
 
 ```bash
-npm run dev
+pnpm install
 ```
 
-:::tip
+This also runs `prisma generate` for the API package.
 
-You can specify the port number or host with `--port` or `--host`, such as `rspress dev --port 8080 --host 0.0.0.0`.
+## Configure the API
 
-:::
-
-## Production build
-
-Build the site for production:
+Copy the example env file:
 
 ```bash
-npm run build
+cp api/.env.example api/.env
 ```
 
-By default, Rspress will output to `doc_build` directory.
-
-## Preview
-
-Preview the production build locally:
+Default values:
 
 ```bash
-npm run preview
+DATABASE_URL="file:./dev.db"
+PORT=3000
+```
+
+Create the SQLite schema:
+
+```bash
+pnpm --filter api db:push
+```
+
+## Start the API
+
+```bash
+pnpm --filter api dev
+```
+
+The server listens on `http://localhost:3000` by default.
+
+Check that it is healthy:
+
+```bash
+curl http://127.0.0.1:3000/api/health
+```
+
+Expected response:
+
+```json
+{ "ok": true }
+```
+
+## Documentation site
+
+From `docs/`:
+
+```bash
+pnpm --filter rspress-doc-template dev
+```
+
+Or from the docs package directory:
+
+```bash
+pnpm dev
 ```
 
 ## Next steps
 
-- Learn how to use [MDX & React Components](/guide/use-mdx/components) in your docs.
-- Learn about [Code Blocks](/guide/use-mdx/code-blocks/) syntax highlighting and line highlighting.
-- Learn about [Custom Containers](/guide/use-mdx/container) for tips, warnings, and more.
-- Explore the full [Rspress documentation](https://rspress.rs/) for advanced features.
+- Learn the [coverage workflow](/guide/start/workflow).
+- Run the [todolist example](/guide/start/example).
+- Read the [HTTP API](/api/).

@@ -1,15 +1,39 @@
 # Introduction
 
-Rspress is a static site generator based on [Rsbuild](https://rsbuild.rs/), rendered with the React framework. It comes with a default documentation theme, and you can quickly build a documentation site with Rspress.
+Canyon is a JavaScript coverage collection service. It stores Istanbul-style coverage maps from instrumented builds, then merges runtime hit data from tests or browsers.
 
-## Why Rspress
+This repository is a pnpm monorepo:
 
-- **Build Performance**. The core compilation module is based on the Rust front-end toolchain, providing millisecond-level startup and a more ultimate development experience.
-- **AI-native**. Technical documentation not only serves human readers but can also be better understood and utilized by AI through SSG-MD.
-- **MDX Support**. MDX is a powerful way to write content, allowing you to use React components in Markdown.
-- **Basic Capabilities**. Including full-text search, internationalization, multi-version support, component library documentation, etc.
-- **Extensibility**. Provides a built-in plugin system, supports extending Rspress through plugin API.
+| Package | Role |
+| --- | --- |
+| `api` | Hono HTTP server that stores coverage in SQLite |
+| `todolist` | Example app with Babel instrumentation and Playwright E2E |
+| `docs` | This documentation site (Rspress) |
 
-## Try Rspress
+## What Canyon collects
 
-Go to [Getting Started](/guide/start/getting-started) to learn how to use Rspress to build a documentation site.
+Canyon expects Istanbul coverage objects keyed by file path. Each file entry can include:
+
+- `s`, `f`, `b` — statement, function, and branch hit counts
+- `statementMap`, `fnMap`, `branchMap` — source location maps
+- `inputSourceMap` — optional source map
+- `buildHash`, `sha`, `provider`, `repoID`, `instrumentCwd`, `buildTarget` — build metadata
+
+## Typical flow
+
+1. Instrument the application with Istanbul and `@canyonjs/babel-plugin`.
+2. Upload the **coverage map** with `POST /api/coverage/map/init`.
+3. Run tests (for example Playwright with `@canyonjs/playwright`).
+4. Upload **client hits** with `POST /api/coverage/client`.
+
+The client upload requires a matching `buildHash` that was created during map initialization.
+
+## Ecosystem packages
+
+The example app uses these published Canyon packages:
+
+- [`@canyonjs/babel-plugin`](https://www.npmjs.com/package/@canyonjs/babel-plugin) — attach build metadata during instrumentation
+- [`@canyonjs/cli`](https://www.npmjs.com/package/@canyonjs/cli) — upload coverage JSON to the API
+- [`@canyonjs/playwright`](https://www.npmjs.com/package/@canyonjs/playwright) — collect browser coverage in Playwright
+
+Go to [Getting Started](/guide/start/getting-started) to run the API locally.

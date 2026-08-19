@@ -1,0 +1,101 @@
+# Initialize coverage map
+
+Stores Istanbul coverage maps for an instrumented build. Call this **before** uploading client hits.
+
+## POST /api/coverage/map/init
+
+### Request body
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `coverage` | `Record<string, IstanbulFileCoverage>` | yes | Istanbul coverage keyed by file path. Must not be empty. |
+| `sha` | `string` | no | Commit SHA. Defaults from coverage entries, then `"local"`. |
+| `provider` | `string` | no | Git provider. Defaults from coverage entries, then `"github"`. |
+| `repoID` | `string` | no | Repository id. Defaults from coverage entries, then `"todolist"`. |
+| `instrumentCwd` | `string` | no | Instrumentation working directory. Taken from coverage entries if omitted. **Required** after fallbacks. |
+| `buildTarget` | `string` | no | Optional build target name. |
+| `build` | `object` | no | Extra build metadata. Appended to the `builds` JSON array. |
+
+Each value in `coverage` is an Istanbul file coverage object. The API reads maps from:
+
+- `statementMap`
+- `fnMap`
+- `branchMap`
+- `inputSourceMap` (optional)
+- `contentHash` (optional)
+- `s`, `f`, `b` (optional initial hits)
+
+It also reads metadata fields from the first coverage entry that provides them: `sha`, `provider`, `repoID`, `instrumentCwd`, `buildTarget`, `buildHash`.
+
+### Behavior
+
+1. Resolve `sha`, `provider`, `repoID`, `instrumentCwd`, and `buildTarget`.
+2. Use `buildHash` from coverage, or hash `{ sha, provider, repoID, instrumentCwd, buildTarget }`.
+3. Upsert a `Coverage` row with `id = {buildHash}|{sceneKey}` where `scene` is `{}`.
+4. Store compressed coverage maps, optional source maps, file relations, and initial hit rows.
+
+Maps are gzip-compressed JSON in SQLite. Identical map payloads are de-duplicated by hash.
+
+### Responses
+
+**200** — map stored
+
+```json
+{
+  "success": true,
+  "message": "Coverage map initialized",
+  "data": {
+    "id": "abc123|sceneKey",
+    "buildHash": "abc123",
+    "provider": "github",
+    "repoID": "todolist",
+    "sha": "local",
+    "buildTarget": "",
+    "instrumentCwd": "/path/to/app",
+    "sceneKey": "...",
+    "scene": {},
+    "builds": []
+  }
+}
+```
+
+`data` is the Prisma `Coverage` record.
+
+**400** — validation or missing fields
+
+| `message` | When |
+| --- | --- |
+| `参数错误` | Body does not match the schema |
+| `Coverage 数据为空，无法提取参数。` | `coverage` has no file entries |
+| `缺少必要参数：instrumentCwd` | `instrumentCwd` is missing from both body and coverage entries |
+
+Validation failures also include Zod `issues`.
+
+**500** — unhandled error
+
+```json
+{ "success": false, "message": "..." }
+```
+
+### Example
+
+```bash
+curl -X POST http://127.0.0.1:3000/api/coverage/map/init \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sha": "abc",
+    "provider": "github",
+    "repoID": "acme/app",
+    "instrumentCwd": "/repo/app",
+    "coverage": {
+      "/repo/app/src/main.ts": {
+        "s": { "0": 0 },
+        "f": { "0": 0 },
+        "b": {},
+        "statementMap": {},
+        "fnMap": {},
+        "branchMap": {}
+      }
+    }
+  }'
+```

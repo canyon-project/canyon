@@ -8,9 +8,5 @@
     "text": "API",
     "link": "/api/",
     "activeMatch": "/api/"
-  },
-  {
-    "text": "Document",
-    "link": "https://rspress.rs/"
   }
 ]

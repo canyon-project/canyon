@@ -1,0 +1,99 @@
+# Upload client coverage
+
+Merges runtime hit counts into an existing build. The coverage map must already exist for the same `buildHash`.
+
+## POST /api/coverage/client
+
+### Request body
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `coverage` | `Record<string, IstanbulFileCoverage>` | yes | Istanbul hit data keyed by file path. Each kept file must include `buildHash`. |
+| `scene` | `object` | no | Arbitrary scene metadata. Hashed into `sceneKey`. Defaults to `{}`. |
+
+Hit fields used from each file entry:
+
+- `s` — statement hits (`Record<string, number>`)
+- `f` — function hits (`Record<string, number>`)
+- `b` — branch hits (`Record<string, number[]>`)
+- `inputSourceMap` — if present, stored as `1` on the hit row
+
+### Behavior
+
+1. Hash `scene` into `sceneKey`.
+2. Keep only entries that have a `buildHash` field.
+3. Drop files whose `s` map is missing or all zeros.
+4. Read `buildHash` from the remaining coverage.
+5. Look up an existing `Coverage` row for that `buildHash`.
+6. Upsert the coverage record for `{buildHash}|{sceneKey}`.
+7. Upsert per-file hits, adding counts if a hit row already exists.
+
+### Responses
+
+**200** — hits stored
+
+```json
+{
+  "success": true,
+  "buildHash": "abc123",
+  "sceneKey": "def456",
+  "coverageLength": 3,
+  "coverageFilesTotal": 5,
+  "coverageFilesFiltered": 2,
+  "provider": "github",
+  "repoID": "todolist",
+  "sha": "abc",
+  "buildTarget": "",
+  "instrumentCwd": "/repo/app"
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `coverageLength` | Files stored after filtering |
+| `coverageFilesTotal` | Files that had a `buildHash` |
+| `coverageFilesFiltered` | Files dropped for empty / invalid `s` |
+
+**400** — invalid payload
+
+| `message` | When |
+| --- | --- |
+| `参数错误` | Body does not match the schema |
+| `coverage 中无带 buildHash 的有效文件条目` | No file entries include `buildHash` |
+| `过滤后无有效覆盖率文件（语句 hit 均为 0 或缺少有效 s 字段）` | All remaining files were filtered out |
+| `coverage 中缺少 buildHash` | `buildHash` could not be read from remaining files |
+
+**502** — map not initialized
+
+```json
+{
+  "success": false,
+  "message": "找不到对应的 coverage 记录，请先通过 /api/coverage/map/init 接口上传覆盖率映射数据"
+}
+```
+
+Call [Initialize coverage map](/api/map-init) first.
+
+**500** — unhandled error
+
+```json
+{ "success": false, "message": "..." }
+```
+
+### Example
+
+```bash
+curl -X POST http://127.0.0.1:3000/api/coverage/client \
+  -H "Content-Type: application/json" \
+  -d '{
+    "scene": { "suite": "e2e" },
+    "coverage": {
+      "/repo/app/src/main.ts": {
+        "buildHash": "abc123",
+        "s": { "0": 1 },
+        "f": { "0": 1 },
+        "b": {}
+      }
+    }
+  }'
+```

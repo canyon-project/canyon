@@ -4,7 +4,8 @@ import { defineConfig } from '@rspress/core';
 export default defineConfig({
   root: path.join(__dirname, 'docs'),
   lang: 'en',
-  title: 'My Site',
+  title: 'Canyon',
+  description: 'JavaScript coverage collection and reporting',
   icon: '/rspress-icon.png',
   logo: {
     light: '/rspress-light-logo.png',
@@ -15,7 +16,7 @@ export default defineConfig({
       {
         icon: 'github',
         mode: 'link',
-        content: 'https://github.com/web-infra-dev/rspress',
+        content: 'https://github.com/canyon-project/canyon',
       },
     ],
   },
