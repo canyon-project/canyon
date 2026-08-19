@@ -39,7 +39,7 @@ explainFiles.txt
 
 .next
 
-pnpm-lock.yaml
+# pnpm-lock.yaml
 
 .nyc_output
 
