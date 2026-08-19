@@ -1,0 +1,35 @@
+{
+  "name": "webpack-babel-ts",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "main": "index.js",
+  "scripts": {
+    "build-ts": "tsc",
+    "build": "npm run build-ts && webpack --mode production",
+    "build-webpack-babel-ts": "npm run build",
+    "canyon:init": "node ./scripts/canyon-upload.mjs init",
+    "canyon:client": "node ./scripts/canyon-upload.mjs client",
+    "test:e2e": "playwright test",
+    "test": "rm -rf .canyon_output && npm run build && npm run canyon:init && npm run test:e2e && npm run canyon:client"
+  },
+  "devDependencies": {
+    "@canyonjs/babel-plugin": "latest",
+    "@canyonjs/cli": "latest",
+    "@canyonjs/playwright": "latest",
+    "@playwright/test": "^1.55.0",
+    "babel-loader": "latest",
+    "babel-plugin-istanbul": "latest",
+    "serve": "^14.2.4",
+    "typescript": "7",
+    "webpack": "latest",
+    "webpack-cli": "latest"
+  },
+  "nyc": {
+    "include": [
+      "build/**"
+    ]
+  }
+}

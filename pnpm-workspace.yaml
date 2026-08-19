@@ -1,0 +1,8 @@
+packages:
+  - docs
+  - packages/*
+  - examples/*
+  - tools/*
+  - plugins/*
+  - todolist
+  - api

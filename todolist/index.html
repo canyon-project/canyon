@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Todo List</title>
+    <style>
+      :root {
+        --bg: #f4f1ea;
+        --paper: #fffdf8;
+        --ink: #2c2a26;
+        --muted: #7a756c;
+        --line: #e6e0d4;
+        --accent: #3d6b5a;
+        --accent-hover: #325847;
+        --danger: #b54a3c;
+        --done: #9a948a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "IBM Plex Sans", "PingFang SC", "Hiragino Sans GB",
+          "Noto Sans SC", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at top left, #efe8d8 0, transparent 42%),
+          var(--bg);
+      }
+
+      .app {
+        width: min(560px, calc(100% - 32px));
+        margin: 64px auto;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+        letter-spacing: 0.04em;
+      }
+
+      .subtitle {
+        margin: 0 0 24px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 20px;
+        box-shadow: 0 12px 30px rgba(80, 70, 50, 0.08);
+      }
+
+      .composer {
+        display: flex;
+        gap: 8px;
+      }
+
+      .composer input {
+        flex: 1;
+        height: 42px;
+        padding: 0 14px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        color: var(--ink);
+        font-size: 15px;
+        outline: none;
+      }
+
+      .composer input:focus {
+        border-color: var(--accent);
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+        font: inherit;
+      }
+
+      .composer button {
+        height: 42px;
+        padding: 0 16px;
+        border-radius: 10px;
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .composer button:hover {
+        background: var(--accent-hover);
+      }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 16px 0 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .filters {
+        display: flex;
+        gap: 6px;
+      }
+
+      .filters button {
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: transparent;
+        color: var(--muted);
+      }
+
+      .filters button.active {
+        background: #edf4f0;
+        color: var(--accent);
+      }
+
+      ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      li {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      li:last-child {
+        border-bottom: 0;
+      }
+
+      li.done .text {
+        color: var(--done);
+        text-decoration: line-through;
+      }
+
+      .text {
+        flex: 1;
+        word-break: break-word;
+      }
+
+      .toggle {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--accent);
+      }
+
+      .remove {
+        background: transparent;
+        color: var(--danger);
+        font-size: 13px;
+      }
+
+      .empty {
+        padding: 28px 0 12px;
+        text-align: center;
+        color: var(--muted);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <h1>待办清单</h1>
+      <p class="subtitle">添加、完成或删除事项，数据会保存在本地。</p>
+      <section class="card">
+        <form class="composer" id="todo-form">
+          <input
+            id="todo-input"
+            type="text"
+            placeholder="今天要做什么？"
+            autocomplete="off"
+            maxlength="120"
+          />
+          <button type="submit">添加</button>
+        </form>
+        <div class="meta">
+          <span id="todo-count">0 项未完成</span>
+          <div class="filters">
+            <button type="button" data-filter="all" class="active">全部</button>
+            <button type="button" data-filter="active">未完成</button>
+            <button type="button" data-filter="done">已完成</button>
+          </div>
+        </div>
+        <ul id="todo-list"></ul>
+        <p class="empty" id="todo-empty">还没有待办，先加一条吧。</p>
+      </section>
+    </main>
+    <script src="./dist/bundle.js"></script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "api",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "prisma generate",
+    "start": "tsx src/index.ts",
+    "db:push": "prisma db push",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@hono/node-server": "^2.1.1",
+    "@prisma/client": "6",
+    "dotenv": "^17.2.3",
+    "hono": "^4.13.3",
+    "prisma": "6",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.0",
+    "typescript": "^7.0.2"
+  }
+}

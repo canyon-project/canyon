@@ -1,0 +1,14 @@
+# deps
+node_modules/
+
+# env
+.env.production
+
+# generated
+dist/
+prisma/dev.db
+prisma/dev.db-journal
+
+# logs
+*.log
+.DS_Store

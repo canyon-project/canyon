@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  todolist-coverage:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Playwright browser
+        run: pnpm --filter webpack-babel-ts exec playwright install --with-deps chromium
+
+      - name: Prepare API database
+        working-directory: api
+        env:
+          DATABASE_URL: file:./dev.db
+        run: pnpm exec prisma db push
+
+      - name: Start API
+        working-directory: api
+        env:
+          DATABASE_URL: file:./dev.db
+          PORT: 3000
+        run: |
+          pnpm start &
+          for i in $(seq 1 30); do
+            if curl -sf http://127.0.0.1:3000/api/health; then
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "API did not become ready"
+          exit 1
+
+      - name: Build todolist, upload init map, run Playwright, upload client coverage
+        working-directory: todolist
+        env:
+          CI: true
+          CANYON_DSN: http://127.0.0.1:3000
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: pnpm test

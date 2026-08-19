@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Coverage {
+  id            String   @id
+  builds        Json
+  buildHash     String
+  provider      String
+  repoID        String
+  sha           String
+  buildTarget   String
+  instrumentCwd String
+  sceneKey      String
+  scene         Json
+  createdAt     DateTime
+  updatedAt     DateTime
+}
+
+model CoverageMapRelation {
+  id                  String @id
+  fullFilePath        String
+  restoreFullFilePath String
+  buildHash           String
+  coverageMapHash     String
+  sourceMapHash       String
+  fileContentHash     String
+}
+
+model CoverageMap {
+  hash      String   @id
+  map       Bytes
+  createdAt DateTime
+}
+
+model CoverageSourceMap {
+  hash      String @id
+  sourceMap Bytes
+}
+
+model CoverageHit {
+  id             String   @id
+  buildHash      String
+  sceneKey       String
+  rawFilePath    String
+  s              Json
+  f              Json
+  b              Json
+  inputSourceMap Int?
+  createdAt      DateTime
+}
