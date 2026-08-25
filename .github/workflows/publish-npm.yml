@@ -19,6 +19,7 @@ jobs:
         @canyonjs/collect
         @canyonjs/babel-plugin
         @canyonjs/cli
+        @canyonjs/mcp
         @canyonjs/git-diff
         @canyonjs/playwright
         @canyonjs/report

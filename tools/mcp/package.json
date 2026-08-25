@@ -1,0 +1,45 @@
+{
+  "name": "@canyonjs/mcp",
+  "version": "0.1.0",
+  "description": "MCP server for Canyon coverage queries",
+  "license": "MIT",
+  "author": "Travis Zhang<https://github.com/travzhang>",
+  "homepage": "https://github.com/canyon-project/canyon#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/canyon-project/canyon"
+  },
+  "bin": {
+    "canyon-mcp": "bin/canyon-mcp.js"
+  },
+  "files": [
+    "bin",
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs",
+      "default": "./dist/index.mjs"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "start": "node bin/canyon-mcp.js",
+    "typecheck": "tsgo --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@tsconfig/strictest": "^2.0.8",
+    "@types/node": "catalog:",
+    "@typescript/native-preview": "catalog:",
+    "tsdown": "^0.17.0",
+    "vitest": "catalog:"
+  }
+}
