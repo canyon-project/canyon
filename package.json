@@ -5,7 +5,7 @@
   "main": "index.js",
   "packageManager": "pnpm@10.33.0",
   "scripts": {
-    "build": "node scripts/noop.mjs",
+    "build": "pnpm run -r build",
     "fmt": "node scripts/noop.mjs",
     "lint": "node scripts/noop.mjs",
     "typecheck": "node scripts/noop.mjs",
