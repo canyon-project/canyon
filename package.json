@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "packageManager": "pnpm@10.33.0",
   "scripts": {
     "build": "node scripts/noop.mjs",
     "fmt": "node scripts/noop.mjs",
