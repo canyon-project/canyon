@@ -9,7 +9,8 @@
     "fmt": "node scripts/noop.mjs",
     "lint": "node scripts/noop.mjs",
     "typecheck": "node scripts/noop.mjs",
-    "test": "node scripts/noop.mjs"
+    "test": "node scripts/noop.mjs",
+    "clean": "node scripts/clean.mjs"
   },
   "keywords": [],
   "author": "",
