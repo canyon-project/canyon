@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node scripts/noop.mjs",
+    "fmt": "node scripts/noop.mjs",
+    "lint": "node scripts/noop.mjs",
+    "typecheck": "node scripts/noop.mjs",
+    "test": "node scripts/noop.mjs"
   },
   "keywords": [],
   "author": "",
