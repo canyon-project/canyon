@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "canyon": {
+      "command": "pnpm",
+      "args": ["--dir", "tools/mcp", "start"],
+      "env": {
+        "CANYON_URL": "http://127.0.0.1:3000"
+      }
+    }
+  }
+}
