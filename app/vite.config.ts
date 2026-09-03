@@ -1,5 +1,3 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import devServer from "@hono/vite-dev-server";
 import build from "@hono/vite-build/node";
@@ -10,7 +8,6 @@ import istanbulPlugin from "vite-plugin-istanbul";
 import canyonVitePlugin from "@canyonjs/vite-plugin";
 
 const isProduction = process.env.NODE_ENV === "production";
-const appDir = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   build: {
@@ -37,21 +34,15 @@ export default defineConfig({
     }),
     ...(isProduction
       ? [
-          istanbulPlugin({
-            forceBuildInstrument: true,
-          }),
-          canyonVitePlugin(),
-        ]
+        istanbulPlugin({
+          forceBuildInstrument: true,
+        }),
+        canyonVitePlugin(),
+      ]
       : []),
   ],
   resolve: {
     tsconfigPaths: true,
-    alias: {
-      "@canyonjs/diff-coverage/style.css": path.resolve(
-        appDir,
-        "node_modules/@canyonjs/diff-coverage/src/style.css",
-      ),
-    },
   },
   server: {
     port: 3000,
