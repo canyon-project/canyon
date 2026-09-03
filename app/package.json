@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "6.1.0",
+    "@canyonjs/diff-coverage": "0.0.10",
     "@canyonjs/git-provider": "0.0.10",
     "@canyonjs/report-component": "latest",
     "@canyonjs/report-html": "latest",

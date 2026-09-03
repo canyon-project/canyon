@@ -1,3 +1,5 @@
+import { DiffCoverageReport } from "@canyonjs/diff-coverage";
+import "@canyonjs/diff-coverage/style.css";
 import { CanyonReportApp } from "@canyonjs/report-component";
 import { useRequest } from "ahooks";
 import { Alert, Spin } from "antd";
@@ -34,15 +36,24 @@ const SnapshotReport = () => {
     <Spin spinning={loading}>
       <div className="p-[6px]">
         {data ? (
-          <CanyonReportApp
-            files={data.files ?? []}
-            instrumentCwd={data.instrumentCwd || "__canyon_snapshot__"}
-            generatedAt={data.generatedAt}
-            defaultValue={defaultValue}
-            packageName="@canyonjs/report"
-            packageVersion={typeof data.version === "string" ? data.version : undefined}
-            height="calc(100vh - 12px)"
-          />
+          data.subject === "compare" ? (
+            <DiffCoverageReport
+              data={data}
+              defaultPath={defaultValue || undefined}
+              contextLines={3}
+              height="calc(100vh - 12px)"
+            />
+          ) : (
+            <CanyonReportApp
+              files={data.files ?? []}
+              instrumentCwd={data.instrumentCwd || "__canyon_snapshot__"}
+              generatedAt={data.generatedAt}
+              defaultValue={defaultValue}
+              packageName="@canyonjs/report"
+              packageVersion={typeof data.version === "string" ? data.version : undefined}
+              height="calc(100vh - 12px)"
+            />
+          )
         ) : (
           <div style={{ height: "calc(100vh - 12px)" }} />
         )}
