@@ -88,6 +88,7 @@ export function downloadSnapshot(id: string | number): Promise<Blob> {
  * 获取快照 HTML 报告对应的 report-data JSON（与 data/report-data.js 内 window.reportData 解析后一致）
  */
 export type SnapshotReportData = {
+  subject?: "commit" | "compare";
   files: Array<{
     path: string;
     source: string;
