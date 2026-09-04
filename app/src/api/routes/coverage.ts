@@ -538,6 +538,119 @@ function normalizeReportFilePath(inputPath: string) {
   return withoutLeading;
 }
 
+const ZERO_CHANGE_BRANCHES_SUMMARY = {
+  total: 0,
+  covered: 0,
+  skipped: 0,
+  pct: 100,
+} as const;
+
+function changeCoveragePercent(covered: number, total: number) {
+  return total === 0 ? 100 : Math.round((1000 * covered) / total) / 10;
+}
+
+function calcChangeStatementsForFile(
+  coverage: Record<string, unknown>,
+  newLine: number[],
+) {
+  const statementMap =
+    coverage.statementMap &&
+    typeof coverage.statementMap === "object" &&
+    !Array.isArray(coverage.statementMap)
+      ? (coverage.statementMap as Record<string, { start: { line: number }; end: { line: number } }>)
+      : {};
+  const s =
+    coverage.s && typeof coverage.s === "object" && !Array.isArray(coverage.s)
+      ? (coverage.s as Record<string, number>)
+      : {};
+
+  const relatedStatementKeys = new Set<string>();
+  for (const [key, value] of Object.entries(statementMap)) {
+    if (!value) continue;
+    if (newLine.some((line) => line >= value.start.line && line <= value.end.line)) {
+      relatedStatementKeys.add(key);
+    }
+  }
+
+  let covered = 0;
+  for (const key of relatedStatementKeys) {
+    if ((s[key] ?? 0) > 0) covered += 1;
+  }
+
+  const total = relatedStatementKeys.size;
+  return {
+    total,
+    covered,
+    skipped: 0,
+    pct: changeCoveragePercent(covered, total),
+  };
+}
+
+function calcChangeFunctionsForFile(
+  coverage: Record<string, unknown>,
+  newLine: number[],
+) {
+  const fnMap =
+    coverage.fnMap && typeof coverage.fnMap === "object" && !Array.isArray(coverage.fnMap)
+      ? (coverage.fnMap as Record<string, { decl: { start: { line: number }; end: { line: number } } }>)
+      : {};
+  const f =
+    coverage.f && typeof coverage.f === "object" && !Array.isArray(coverage.f)
+      ? (coverage.f as Record<string, number>)
+      : {};
+
+  let total = 0;
+  let covered = 0;
+  for (const [key, value] of Object.entries(fnMap)) {
+    if (!value?.decl) continue;
+    const startLine = value.decl.start.line;
+    const endLine = value.decl.end.line;
+    if (newLine.some((line) => line >= startLine && line <= endLine)) {
+      total += 1;
+      if ((f[key] ?? 0) > 0) covered += 1;
+    }
+  }
+
+  return {
+    total,
+    covered,
+    skipped: 0,
+    pct: changeCoveragePercent(covered, total),
+  };
+}
+
+/** 跳过 canyon-data 的 changebranches 计算（有 bug），固定为 0 */
+function genSummaryMapWithoutChangeBranches(
+  coverageMapData: Record<string, Record<string, unknown>>,
+  codeChanges?: Array<{ path: string; additions: number[] }>,
+) {
+  const summary = genSummaryMapByCoverageMap(
+    coverageMapData as Record<string, any>,
+    [],
+  ) as Record<string, Record<string, unknown>>;
+
+  for (const [path, fileSummary] of Object.entries(summary)) {
+    fileSummary.changebranches = { ...ZERO_CHANGE_BRANCHES_SUMMARY };
+
+    const additions =
+      codeChanges?.find((change) => `${change.path}` === path)?.additions ?? [];
+    if (additions.length === 0) continue;
+
+    const fileCoverage = {
+      path,
+      branchMap: {},
+      statementMap: {},
+      fnMap: {},
+      ...coverageMapData[path],
+    };
+    fileSummary.changestatements = calcChangeStatementsForFile(fileCoverage, additions);
+    fileSummary.changefunctions = calcChangeFunctionsForFile(fileCoverage, additions);
+    fileSummary.change = true;
+  }
+
+  return summary;
+}
+
 async function buildSnapshotReportDataScript(args: {
   provider: string;
   repoID: string;
@@ -623,10 +736,7 @@ async function buildSnapshotReportDataScript(args: {
     })
     .filter((item) => item.additions.length > 0);
 
-  const summary = genSummaryMapByCoverageMap(
-    coverageByPath as unknown as Record<string, any>,
-    diffAdditions,
-  );
+  const summary = genSummaryMapWithoutChangeBranches(coverageByPath, diffAdditions);
   const reportData = {
     type: "istanbuljs",
     reportPath: "coverage/index.html",
@@ -671,8 +781,6 @@ function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
   let changestatementsCovered = 0;
   let changefunctionsTotal = 0;
   let changefunctionsCovered = 0;
-  let changebranchesTotal = 0;
-  let changebranchesCovered = 0;
 
   const getLineRange = (node: unknown) => {
     if (!node || typeof node !== "object") return null;
@@ -728,7 +836,6 @@ function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
     const additionsSet = new Set(additions);
     const impactedStatementIDs = new Set<string>();
     const impactedFunctionIDs = new Set<string>();
-    const impactedBranchKeys = new Set<string>();
 
     for (const [statementID, statementNode] of Object.entries(statementMap)) {
       statementsTotal += 1;
@@ -770,14 +877,6 @@ function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
         branchesTotal += 1;
         const count = Number(branchHitsRaw[index] ?? 0);
         if (Number.isFinite(count) && count > 0) branchesCovered += 1;
-
-        if (additionsSet.size === 0) continue;
-        const locationNode = locationsRaw[index];
-        const range = getLineRange(locationNode);
-        if (!range) continue;
-        if (isImpactedByAdditions(range, additionsSet)) {
-          impactedBranchKeys.add(`${branchID}:${index}`);
-        }
       }
     }
 
@@ -792,14 +891,6 @@ function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
       const count = Number(f[fnID] ?? 0);
       if (Number.isFinite(count) && count > 0) changefunctionsCovered += 1;
     }
-
-    changebranchesTotal += impactedBranchKeys.size;
-    for (const branchKey of impactedBranchKeys) {
-      const [branchID, indexRaw] = branchKey.split(":");
-      const branchHitsRaw = Array.isArray(b[branchID]) ? (b[branchID] as unknown[]) : [];
-      const count = Number(branchHitsRaw[Number(indexRaw)] ?? 0);
-      if (Number.isFinite(count) && count > 0) changebranchesCovered += 1;
-    }
   }
 
   return {
@@ -813,8 +904,8 @@ function calcSnapshotMetricsFromFiles(files: Array<Record<string, unknown>>) {
     changestatementsTotal,
     changefunctionsCovered,
     changefunctionsTotal,
-    changebranchesCovered,
-    changebranchesTotal,
+    changebranchesCovered: 0,
+    changebranchesTotal: 0,
   };
 }
 
@@ -1026,7 +1117,7 @@ coverageApi.openapi(coverageSummaryMapRoute, async (c) => {
             Boolean(item.path) && item.additions.length > 0,
           )
       : [];
-  const summary = genSummaryMapByCoverageMap(coverage, diffAdditions);
+  const summary = genSummaryMapWithoutChangeBranches(coverage, diffAdditions);
   return c.json(summary);
 });
 
