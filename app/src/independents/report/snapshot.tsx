@@ -1,6 +1,7 @@
 import { DiffCoverageReport } from "@canyonjs/diff-coverage";
 import "@canyonjs/diff-coverage/style.css";
-import { CanyonReportApp } from "@canyonjs/report-component";
+import { ReportApp } from "@canyonjs/html-modern";
+import "@canyonjs/html-modern/style.css";
 import { useRequest } from "ahooks";
 import { Alert, Spin } from "antd";
 import { useMemo } from "react";
@@ -44,15 +45,13 @@ const SnapshotReport = () => {
               height="calc(100vh - 12px)"
             />
           ) : (
-            <CanyonReportApp
-              files={data.files ?? []}
-              instrumentCwd={data.instrumentCwd || "__canyon_snapshot__"}
-              generatedAt={data.generatedAt}
-              defaultValue={defaultValue}
-              packageName="@canyonjs/report"
-              packageVersion={typeof data.version === "string" ? data.version : undefined}
-              height="calc(100vh - 12px)"
-            />
+            <div style={{ height: "calc(100vh - 12px)" }}>
+              <ReportApp
+                files={data.files ?? []}
+                projectRoot={data.instrumentCwd || "__canyon_snapshot__"}
+                defaultValue={defaultValue}
+              />
+            </div>
           )
         ) : (
           <div style={{ height: "calc(100vh - 12px)" }} />

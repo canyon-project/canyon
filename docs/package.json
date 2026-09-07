@@ -31,8 +31,5 @@
     "tailwindcss": "4.1.18",
     "tsx": "^4.19.0",
     "@theguild/remark-mermaid": "latest"
-  },
-  "engines": {
-    "node": "22"
   }
 }
