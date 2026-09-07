@@ -16,37 +16,10 @@ import { getCommitsByRepoID } from "@/api/lib/coverage/commits.ts";
 import { getAuth } from "@/api/lib/auth.ts";
 import { getNewScm } from "@/api/lib/scm.ts";
 import { ensureCompareDiff } from "@/api/lib/compare/ensure-diff.ts";
-import { CoverageMapQuerySchema, CoverageCommitsQuerySchema } from "@/shared/schemas/coverage.ts";
+import { CoverageCommitsQuerySchema } from "@/shared/schemas/coverage.ts";
 import { genSummaryMapByCoverageMap } from "canyon-data";
 
 const require = createRequire(import.meta.url);
-
-const coverageMapGetRoute = createRoute({
-  method: "get",
-  path: "/map",
-  summary: "获取覆盖率 Map",
-  description:
-    "根据 subject=commit、subjectID（sha）、provider、repoID 等获取指定 commit 的覆盖率 map 数据。",
-  tags: ["覆盖率"],
-  request: { query: CoverageMapQuerySchema },
-  responses: {
-    200: { description: "覆盖率 map" },
-    400: { description: "参数错误或 subject 非 commit" },
-  },
-});
-
-const coverageSummaryMapRoute = createRoute({
-  method: "get",
-  path: "/summary/map",
-  summary: "获取覆盖率 Summary Map",
-  description: "获取指定 commit 的覆盖率汇总 map，用于报告展示。参数同 /map。",
-  tags: ["覆盖率"],
-  request: { query: CoverageMapQuerySchema },
-  responses: {
-    200: { description: "覆盖率 summary map" },
-    400: { description: "参数错误或 subject 非 commit" },
-  },
-});
 
 const coverageCommitsRoute = createRoute({
   method: "get",
@@ -129,7 +102,7 @@ const snapshotCreateRoute = createRoute({
   path: "/snapshot",
   summary: "创建覆盖率快照",
   description:
-    "基于 /coverage/map 全量数据创建快照。创建后状态先为 generating，完成后为 completed，超过 300 秒置为 timeout。",
+    "创建覆盖率快照。创建后状态先为 generating，完成后为 completed，超过 300 秒置为 timeout。",
   tags: ["覆盖率"],
   request: {
     body: {
@@ -1083,43 +1056,6 @@ async function getMapBySubject(q: {
       return { success: false, message: "invalid subject" };
   }
 }
-
-coverageApi.openapi(coverageMapGetRoute, async (c) => {
-  const q = c.req.valid("query");
-  const result = await getMapBySubject(q);
-  if (typeof result === "object" && "success" in result && result.success === false) {
-    return c.json(
-      { success: false, message: (result as { message?: string }).message ?? "Failed" },
-      400,
-    );
-  }
-  return c.json(result);
-});
-
-coverageApi.openapi(coverageSummaryMapRoute, async (c) => {
-  const q = c.req.valid("query");
-  const map = await getMapBySubject(q);
-  if (typeof map === "object" && "success" in map && map.success === false) {
-    return c.json(
-      { success: false, message: (map as { message?: string }).message ?? "Failed" },
-      400,
-    );
-  }
-  const coverage = map as unknown as Record<string, any>;
-  const diffAdditions =
-    q.subject === "pull" || q.subject === "merge_requests" || q.subject === "compare"
-      ? Object.values(coverage)
-          .map((m: unknown) => {
-            const o = m as { path?: string; diff?: { additions?: number[] } };
-            return { path: o?.path, additions: o?.diff?.additions || [] };
-          })
-          .filter((item): item is { path: string; additions: number[] } =>
-            Boolean(item.path) && item.additions.length > 0,
-          )
-      : [];
-  const summary = genSummaryMapWithoutChangeBranches(coverage, diffAdditions);
-  return c.json(summary);
-});
 
 coverageApi.openapi(coverageCommitsRoute, async (c) => {
   const { repoID, pathWithNamespace, provider, page, pageSize } = c.req.valid("query");

@@ -225,7 +225,9 @@
     "snapshot.detail.report_json": "Report data（JSON）",
     "snapshot.detail.load_report_data": "report-data を読み込む",
     "snapshot.detail.report_not_available": "report-data がありません（旧データまたは未保存）",
-    "snapshot.detail.report_load_failed": "report-data の読み込みに失敗しました"
+    "snapshot.detail.report_load_failed": "report-data の読み込みに失敗しました",
+    "report.realtime_deprecated_title": "リアルタイムレポートは提供終了",
+    "report.realtime_deprecated_desc": "カバレッジレポートはスナップショット方式に変更されました。Commit または Compare ページの「スナップショット」メニューからスナップショットを作成し、完了後にスナップショットレポートを開いてください。"
   },
   "settings": {
     "desc": "アカウント情報を設定します",

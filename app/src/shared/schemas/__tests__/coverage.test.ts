@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CoverageClientSchema, CoverageMapInitSchema, CoverageMapQuerySchema } from "../coverage";
+import { CoverageClientSchema, CoverageMapInitSchema } from "../coverage";
 
 describe("CoverageClientSchema", () => {
   it("应通过合法 coverage 对象", () => {
@@ -27,40 +27,5 @@ describe("CoverageMapInitSchema", () => {
       coverage: {},
     });
     expect(invalid.success).toBe(false);
-  });
-});
-
-describe("CoverageMapQuerySchema", () => {
-  it("应通过合法查询", () => {
-    const result = CoverageMapQuerySchema.safeParse({
-      subject: "commit",
-      subjectID: "abc123",
-      provider: "gitlab",
-      repoID: "126555",
-    });
-    expect(result.success).toBe(true);
-    if (result.success) {
-      expect(result.data.buildTarget).toBe("");
-    }
-  });
-
-  it("应通过 gitlab_tujia 等扩展 provider", () => {
-    const result = CoverageMapQuerySchema.safeParse({
-      subject: "commit",
-      subjectID: "6f041f00bddd5ebed2285bbc742393f82c4236ac",
-      provider: "gitlab_tujia",
-      repoID: "2378",
-    });
-    expect(result.success).toBe(true);
-  });
-
-  it("subject 枚举外应失败", () => {
-    const result = CoverageMapQuerySchema.safeParse({
-      subject: "invalid",
-      subjectID: "x",
-      provider: "gitlab",
-      repoID: "1",
-    });
-    expect(result.success).toBe(false);
   });
 });
