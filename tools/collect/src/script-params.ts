@@ -10,7 +10,7 @@ export function applyCollectParamsFromCurrentScript(): void {
     return;
   }
   const el = document.currentScript as HTMLScriptElement | null;
-  if (!el?.src) {
+  if (!el || !el.src) {
     return;
   }
   let url: URL;
