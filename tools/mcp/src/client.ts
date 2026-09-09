@@ -1,30 +1,3 @@
-export type CoverageSubject = "commit" | "compare" | "pull" | "merge_requests";
-
-export type CompareCreateBody = {
-  repoID: string;
-  provider: string;
-  subject?: string;
-  subjectID?: string;
-  mode?: "commits" | "commit_branch" | "branches" | "mr";
-  baseKind?: "sha" | "branch";
-  headKind?: "sha" | "branch";
-  baseRef?: string;
-  headRef?: string;
-  mrIid?: string;
-  refresh?: boolean;
-};
-
-export type CoverageSummaryEntry = {
-  path?: string;
-  change?: boolean;
-  statements?: { total: number; covered: number; pct: number };
-  changestatements?: { total: number; covered: number; pct: number };
-  newlines?: { total: number; covered: number; pct: number };
-  lines?: { total: number; covered: number; pct: number };
-};
-
-export type CoverageSummaryMap = Record<string, CoverageSummaryEntry>;
-
 export type CompareRecord = {
   subjectID: string;
   subject: string;
@@ -124,25 +97,6 @@ export class CanyonClient {
     return this.request<RepoRecord[]>(`/api/repos${qs}`);
   }
 
-  getCoverageSummary(args: {
-    provider: string;
-    repoID: string;
-    subject: CoverageSubject;
-    subjectID: string;
-    buildTarget?: string;
-    scene?: string;
-  }): Promise<CoverageSummaryMap> {
-    const params = new URLSearchParams({
-      provider: args.provider,
-      repoID: args.repoID,
-      subject: args.subject,
-      subjectID: args.subjectID,
-    });
-    if (args.buildTarget) params.set("buildTarget", args.buildTarget);
-    if (args.scene) params.set("scene", args.scene);
-    return this.request<CoverageSummaryMap>(`/api/coverage/summary/map?${params}`);
-  }
-
   listCompares(args: {
     provider: string;
     repoID: string;
@@ -156,18 +110,6 @@ export class CanyonClient {
       pageSize: String(args.pageSize ?? 20),
     });
     return this.request<{ data: CompareRecord[]; total: number }>(`/api/source/diff?${params}`);
-  }
-
-  createCompare(body: CompareCreateBody): Promise<{
-    subjectID: string;
-    from: string;
-    to: string;
-    files: Array<{ path: string; additions: number[]; deletions: number[] }>;
-  }> {
-    return this.request(`/api/source/diff`, {
-      method: "POST",
-      body: JSON.stringify({ subject: "compare", ...body }),
-    });
   }
 
   listSnapshots(args: {

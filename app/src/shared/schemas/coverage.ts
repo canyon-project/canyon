@@ -1,5 +1,4 @@
 import { z } from "@hono/zod-openapi";
-import { ProviderQueryParam } from "./provider.ts";
 
 /** coverage 数据结构：Record<filePath, entry>，放宽校验避免 Zod v4 与 openapi 扩展兼容问题 */
 const CoverageDataSchema = z.record(z.string(), z.any());
@@ -28,31 +27,6 @@ export const CoverageMapInitSchema = z
     diff: z.array(z.any()).optional(),
   })
   .openapi("CoverageMapInit");
-
-/** GET /api/coverage/map、/api/coverage/summary/map 查询参数 */
-export const CoverageMapQuerySchema = z
-  .object({
-    subject: z
-      .enum(["commit", "pull", "merge_requests", "compare"])
-      .openapi({ param: { name: "subject", in: "query" } }),
-    subjectID: z.string().openapi({ param: { name: "subjectID", in: "query" } }),
-    provider: ProviderQueryParam,
-    repoID: z.string().openapi({ param: { name: "repoID", in: "query" } }),
-    buildTarget: z
-      .string()
-      .optional()
-      .default("")
-      .openapi({ param: { name: "buildTarget", in: "query" } }),
-    filePath: z
-      .string()
-      .optional()
-      .openapi({ param: { name: "filePath", in: "query" } }),
-    scene: z
-      .string()
-      .optional()
-      .openapi({ param: { name: "scene", in: "query" } }),
-  })
-  .openapi("CoverageMapQuery");
 
 /** GET /api/coverage/commits 查询参数 */
 export const CoverageCommitsQuerySchema = z

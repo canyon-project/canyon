@@ -226,7 +226,9 @@
     "snapshot.detail.report_json": "Report data (JSON)",
     "snapshot.detail.load_report_data": "Load report-data",
     "snapshot.detail.report_not_available": "No report-data (legacy snapshot or not stored)",
-    "snapshot.detail.report_load_failed": "Failed to load report-data"
+    "snapshot.detail.report_load_failed": "Failed to load report-data",
+    "report.realtime_deprecated_title": "Real-time report discontinued",
+    "report.realtime_deprecated_desc": "Coverage reports now use snapshots. Create a snapshot from the Commits or Compare page via the Snapshot menu, then open the snapshot report when it is ready."
   },
   "settings": {
     "desc": "Set up your account information",

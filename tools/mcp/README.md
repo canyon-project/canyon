@@ -14,8 +14,6 @@ Canyon 的 MCP（Model Context Protocol）服务端，供 Cursor / Claude 等 AI
 | Tool | 作用 |
 | --- | --- |
 | `list_repos` | 列出已接入仓库 |
-| `get_coverage_summary` | 获取 commit / compare / MR 覆盖率摘要 |
-| `get_uncovered_in_diff` | 查看 compare 中未覆盖的变更语句 |
 | `list_compares` | 列出 compare 记录 |
 | `list_snapshots` | 列出覆盖率快照 |
 
@@ -67,14 +65,8 @@ monorepo 内也可先用 workspace 包：
 ## 示例对话
 
 - 「列出 Canyon 里接入的仓库」
-- 「MR 123 这次改动哪些文件还没覆盖？」
-- 「compare subjectID 是 xxx 的变更覆盖率怎么样？」
-
-`get_uncovered_in_diff` 可以直接传：
-
-- 已有 `subjectID`
-- `mrIid`
-- `baseRef` + `headRef`（可选 `mode` / `baseKind` / `headKind`）
+- 「列出这个仓库的覆盖率快照」
+- 「compare subjectID 是 xxx 有哪些快照？」
 
 ## 架构说明
 

@@ -225,7 +225,9 @@
     "snapshot.detail.report_json": "Report data（JSON）",
     "snapshot.detail.load_report_data": "加载 report-data",
     "snapshot.detail.report_not_available": "暂无 report-data（旧快照或未入库）",
-    "snapshot.detail.report_load_failed": "加载 report-data 失败"
+    "snapshot.detail.report_load_failed": "加载 report-data 失败",
+    "report.realtime_deprecated_title": "实时报告已下线",
+    "report.realtime_deprecated_desc": "覆盖率报告已改为快照模式。请在仓库的 Commit 或 Compare 页面通过「快照」菜单创建快照，完成后打开快照报告查看。"
   },
   "settings": {
     "desc": "设置您的账户信息",
