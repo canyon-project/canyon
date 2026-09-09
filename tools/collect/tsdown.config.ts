@@ -10,7 +10,8 @@ export default defineConfig([
   {
     entry: "./src/index.ts",
     ...browserCompat,
-    format: "esm",
+    // ESM + CJS：Next SSR / webpack 仍会 require() CJS
+    format: ["esm", "cjs"],
     dts: true,
   },
   {
