@@ -15,10 +15,10 @@ export interface CollectInitOptions {
  */
 export function init(options?: CollectInitOptions): void {
   const g = getGlobal();
-  if (options?.dsn !== undefined) {
+  if (options && options.dsn !== undefined) {
     g.CANYON_DSN = options.dsn;
   }
-  if (options?.scene !== undefined) {
+  if (options && options.scene !== undefined) {
     g.CANYON_SCENE = { ...(g.CANYON_SCENE || {}), ...options.scene };
   }
   installCollect();
