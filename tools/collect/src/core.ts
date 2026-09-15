@@ -56,6 +56,9 @@ export const installCollect = () => {
   if (isWebDriverBrowser()) {
     return;
   }
+  if (typeof document === "undefined") {
+    return;
+  }
   if (listenerAttached) {
     return;
   }
