@@ -1,0 +1,26 @@
+{
+  "name": "webpack-babel-ts",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "main": "index.js",
+  "scripts": {
+    "build-ts": "tsc",
+    "build-webpack-babel-ts": "rm -rf .canyon_output && npm run build-ts && webpack --mode production"
+  },
+  "devDependencies": {
+    "@canyonjs/babel-plugin": "latest",
+    "babel-loader": "latest",
+    "babel-plugin-istanbul": "latest",
+    "typescript": "catalog:",
+    "webpack": "latest",
+    "webpack-cli": "latest"
+  },
+  "nyc": {
+    "include": [
+      "build/**"
+    ]
+  }
+}

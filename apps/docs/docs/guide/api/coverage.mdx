@@ -1,0 +1,114 @@
+# Coverage API
+
+基址默认本地：`http://localhost:3000`。以下路径均相对基址。
+
+## `POST /coverage/map/init`
+
+写入某 `buildHash` 的 coverage 元数据与文件级 map（`statement_map` + 共享 `input_source_map`）。
+
+|      |                                |
+| ---- | ------------------------------ |
+| 成功 | `201 { buildHash, fileCount }` |
+| 失败 | `400 { error }`                |
+
+请求体：`Record<path, IstanbulFileCoverage>`，字段见 [CI 总览 · init](/guide/ci/overview)。
+
+---
+
+## `POST /coverage/client`
+
+上报命中。直接 insert hit，附带 tag。
+
+|      |                                               |
+| ---- | --------------------------------------------- |
+| 成功 | `201 { buildHash, tagKey, hitCount }`         |
+| 失败 | `400`（缺 tag / 缺 s / buildHash 未 init 等） |
+
+```json
+{
+  "tag": { "source": "", "type": "e2e", "env": "test", "trigger": "pipeline" },
+  "coverage": {
+    "/file.js": { "path": "/file.js", "s": { "0": 1 }, "buildHash": "…" }
+  }
+}
+```
+
+---
+
+## `POST /coverage/snapshot`
+
+创建异步快照任务。
+
+|        |                                                 |
+| ------ | ----------------------------------------------- |
+| 已接受 | `202 { taskId, status }`                        |
+| 冲突   | `409 { error, taskId, status }`（已有 running） |
+| 失败   | `400`（buildHash 不存在等）                     |
+
+```json
+{ "buildHash": "…", "tag": { "type": "e2e" } }
+```
+
+`tag` 可选。服务端流程：压缩 hit → 组装 map/sourcemap → `@canyon/data` 回溯源码 → 写 snapshot。
+
+---
+
+## `GET /coverage/snapshot/tasks/:taskId`
+
+查询任务。`succeeded` 时带 `coverage`（源码路径 → `{ path, s, buildHash }`）。
+
+| status            | 说明                 |
+| ----------------- | -------------------- |
+| pending / running | 继续轮询             |
+| succeeded         | 读 `coverage` 算概览 |
+| failed / rejected | 读 `error`，CI 失败  |
+
+---
+
+## `GET /coverage/builds`
+
+管理台用：列出全部 build，含 `fileCount` / `hitCount` / `tags[]`。
+
+```json
+{
+  "items": [
+    {
+      "buildHash": "…",
+      "provider": "",
+      "repoId": "",
+      "sha": "",
+      "fileCount": 7,
+      "hitCount": 28,
+      "tagCount": 3,
+      "tags": [{ "tagKey": "…", "tag": { "type": "e2e", "env": "test" } }]
+    }
+  ]
+}
+```
+
+---
+
+## `GET /coverage/builds/:buildHash/snapshot-tasks`
+
+某 build 下的快照任务列表（新到旧），便于管理台展示。
+
+---
+
+## 相关表（便于排错）
+
+| 表                              | 含义                                |
+| ------------------------------- | ----------------------------------- |
+| `canyon_next6_coverage`         | build 元数据，`id = buildHash`      |
+| `canyon_next6_coverage_map`     | 文件 statement_map + sourcemap hash |
+| `canyon_next6_input_source_map` | 内容寻址 sourcemap                  |
+| `canyon_next6_tag`              | tagKey → tag JSON                   |
+| `canyon_next6_coverage_hit`     | 命中行（可多行，快照时压缩）        |
+| `canyon_next6_snapshot_task`    | 快照任务状态机                      |
+| `canyon_next6_snapshot`         | 回溯后的 coverage JSON              |
+
+## 环境变量（API 进程）
+
+| 变量                     | 含义                                       |
+| ------------------------ | ------------------------------------------ |
+| `DATABASE_URL`           | Postgres                                   |
+| `SNAPSHOT_TASK_SLEEP_MS` | 快照执行额外等待，默认 `10000`；e2e 用 `0` |

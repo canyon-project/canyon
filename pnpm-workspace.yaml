@@ -1,0 +1,44 @@
+packages:
+  - "apps/*"
+  - "services/*"
+  - "packages/*"
+
+allowBuilds:
+  esbuild: true
+
+catalog:
+  # TypeScript / Node
+  typescript: ^7.0.2
+  tsx: ^4.23.15
+  "@types/node": ^26.6.4
+
+  # React
+  react: 19.2.3
+  react-dom: 19.2.3
+  "@types/react": ~19.2.2
+  "@types/react-dom": ~19.2.2
+  react-server-dom-webpack: 19.2.3
+
+  # Vite
+  vite: ^8.3.3
+  "@vitejs/plugin-react": ^6.1.2
+  "@vitejs/plugin-rsc": ^0.5.36
+
+  # Lint / format
+  oxlint: ^1.87.0
+  oxfmt: ^0.72.0
+
+  # Tailwind
+  tailwindcss: ^4.3.3
+  "@tailwindcss/postcss": ^4.3.3
+  "@tailwindcss/vite": ^4.3.3
+
+  # API
+  hono: ^4.13.13
+  "@hono/node-server": ^2.1.4
+
+  # www
+  vinext: ^1.0.1
+
+minimumReleaseAgeExclude:
+  - "@hono/node-server@2.1.4"

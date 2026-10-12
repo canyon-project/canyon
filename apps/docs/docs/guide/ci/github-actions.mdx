@@ -1,0 +1,145 @@
+# GitHub Actions 示例
+
+下面是一个**示意** workflow：在 PR 上完成 init →（测试）client → snapshot → 轮询 → 计算概览 → 写 Check。
+
+请按仓库实际路径改 `coverage-map.json` / hit 产物路径；测试步骤用你们自己的命令替换。
+
+```yaml
+name: coverage
+
+on:
+  pull_request:
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    env:
+      CANYON_API: ${{ secrets.CANYON_API }}
+      # 生产请设为真实值；本地联调可 0
+      # SNAPSHOT_TASK_SLEEP_MS 是服务端环境变量，不是 CI 客户端
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install & instrumented build
+        run: |
+          pnpm install
+          # 产出带 istanbul map 的 JSON，例如合并到 coverage-map.json
+          pnpm --filter your-app build:coverage
+          node scripts/merge-canyon-output.mjs > coverage-map.json
+
+      - name: Canyon map/init
+        id: init
+        run: |
+          RESP=$(curl -sS -X POST "$CANYON_API/coverage/map/init" \
+            -H 'Content-Type: application/json' \
+            --data-binary @coverage-map.json)
+          echo "$RESP"
+          echo "build_hash=$(echo "$RESP" | jq -r .buildHash)" >> "$GITHUB_OUTPUT"
+
+      - name: Run tests & report hits
+        env:
+          BUILD_HASH: ${{ steps.init.outputs.build_hash }}
+        run: |
+          pnpm test:coverage
+          # 将测试产生的 hit 转成 client 请求体（含 tag + coverage.s）
+          node scripts/build-client-payload.mjs \
+            --build-hash "$BUILD_HASH" \
+            --tag-type e2e \
+            --tag-env test \
+            > coverage-client.json
+          curl -sS -X POST "$CANYON_API/coverage/client" \
+            -H 'Content-Type: application/json' \
+            --data-binary @coverage-client.json
+
+      - name: Create snapshot & poll
+        id: snap
+        env:
+          BUILD_HASH: ${{ steps.init.outputs.build_hash }}
+        run: |
+          CREATE=$(curl -sS -w '\n%{http_code}' -X POST "$CANYON_API/coverage/snapshot" \
+            -H 'Content-Type: application/json' \
+            -d "{\"buildHash\":\"$BUILD_HASH\",\"tag\":{\"env\":\"test\"}}")
+          BODY=$(echo "$CREATE" | head -n -1)
+          CODE=$(echo "$CREATE" | tail -n 1)
+          if [ "$CODE" = "409" ]; then
+            TASK_ID=$(echo "$BODY" | jq -r .taskId)
+          else
+            test "$CODE" = "202"
+            TASK_ID=$(echo "$BODY" | jq -r .taskId)
+          fi
+          echo "task_id=$TASK_ID" >> "$GITHUB_OUTPUT"
+
+          for i in $(seq 1 180); do
+            RESP=$(curl -sS "$CANYON_API/coverage/snapshot/tasks/$TASK_ID")
+            STATUS=$(echo "$RESP" | jq -r .status)
+            echo "poll #$i status=$STATUS"
+            if [ "$STATUS" = "succeeded" ]; then
+              echo "$RESP" | jq .coverage > coverage-snapshot.json
+              echo "$RESP" | jq -r .snapshotId > /tmp/snapshot_id
+              exit 0
+            fi
+            if [ "$STATUS" = "failed" ] || [ "$STATUS" = "rejected" ]; then
+              echo "$RESP" | jq .
+              exit 1
+            fi
+            sleep 2
+          done
+          echo "timeout waiting snapshot"
+          exit 1
+
+      - name: Summarize & gate
+        id: summary
+        run: |
+          node <<'NODE'
+          const fs = require("fs");
+          const coverage = JSON.parse(fs.readFileSync("coverage-snapshot.json", "utf8"));
+          let covered = 0, total = 0;
+          for (const file of Object.values(coverage)) {
+            const values = Object.values(file.s || {});
+            total += values.length;
+            covered += values.filter((n) => n > 0).length;
+          }
+          const pct = total === 0 ? 100 : (covered / total) * 100;
+          const min = Number(process.env.COVERAGE_MIN_PCT || 80);
+          const conclusion = pct >= min ? "success" : "failure";
+          console.log(JSON.stringify({ covered, total, pct, conclusion }, null, 2));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `pct=${pct.toFixed(2)}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, `conclusion=${conclusion}\n`);
+          if (conclusion !== "success") process.exit(1);
+          NODE
+
+      - name: PR comment
+        if: always() && github.event_name == 'pull_request'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "$(cat <<EOF
+          ### Canyon 覆盖率
+          - buildHash: \`${{ steps.init.outputs.build_hash }}\`
+          - taskId: \`${{ steps.snap.outputs.task_id }}\`
+          - statements: **${{ steps.summary.outputs.pct }}%**
+          - conclusion: \`${{ steps.summary.outputs.conclusion }}\`
+          EOF
+          )"
+```
+
+## 多 Job 上报
+
+若 unit / e2e 拆成并行 job：
+
+1. **一个** job 负责 `map/init`，把 `buildHash` 写成 artifact；
+2. 各测试 job 下载 `buildHash`，跑完后各自 `client`（不同 `tag.type`）；
+3. **汇总 job** `needs: [unit, e2e]`，再 `snapshot` + 轮询 + 门槛。
+
+同一 `buildHash` 上不要并行开两个 snapshot。

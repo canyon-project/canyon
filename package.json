@@ -1,0 +1,24 @@
+{
+  "name": "canyon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "type": "module",
+  "scripts": {
+    "fmt": "oxfmt",
+    "lint": "oxlint",
+    "typecheck": "tsc --noEmit && pnpm -r run typecheck",
+    "clean": "tsx scripts/clean.ts",
+    "dev": "pnpm run -r dev"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxfmt": "catalog:",
+    "oxlint": "catalog:",
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  },
+  "packageManager": "pnpm@12.4.1"
+}

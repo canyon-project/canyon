@@ -1,0 +1,96 @@
+# GitLab CI 示例
+
+示意：在 Merge Request pipeline 中完成 init → client → snapshot → 轮询 → 概览 → commit status。
+
+```yaml
+stages:
+  - build
+  - test
+  - coverage
+
+variables:
+  CANYON_API: $CANYON_API_URL
+
+build:coverage-map:
+  stage: build
+  script:
+    - pnpm install
+    - pnpm --filter your-app build:coverage
+    - node scripts/merge-canyon-output.mjs > coverage-map.json
+    - |
+      RESP=$(curl -sS -X POST "$CANYON_API/coverage/map/init" \
+        -H 'Content-Type: application/json' \
+        --data-binary @coverage-map.json)
+      echo "$RESP"
+      echo "$(echo "$RESP" | jq -r .buildHash)" > build_hash.txt
+  artifacts:
+    paths:
+      - build_hash.txt
+      - coverage-map.json
+
+test:e2e:
+  stage: test
+  needs: ["build:coverage-map"]
+  script:
+    - pnpm test:e2e
+    - |
+      BUILD_HASH=$(cat build_hash.txt)
+      node scripts/build-client-payload.mjs \
+        --build-hash "$BUILD_HASH" \
+        --tag-type e2e --tag-env test \
+        > coverage-client.json
+      curl -sS -X POST "$CANYON_API/coverage/client" \
+        -H 'Content-Type: application/json' \
+        --data-binary @coverage-client.json
+
+coverage:snapshot:
+  stage: coverage
+  needs: ["test:e2e"]
+  script:
+    - |
+      BUILD_HASH=$(cat build_hash.txt)
+      CREATE=$(curl -sS -w '\n%{http_code}' -X POST "$CANYON_API/coverage/snapshot" \
+        -H 'Content-Type: application/json' \
+        -d "{\"buildHash\":\"$BUILD_HASH\"}")
+      BODY=$(echo "$CREATE" | head -n -1)
+      CODE=$(echo "$CREATE" | tail -n 1)
+      if [ "$CODE" = "409" ]; then
+        TASK_ID=$(echo "$BODY" | jq -r .taskId)
+      else
+        test "$CODE" = "202"
+        TASK_ID=$(echo "$BODY" | jq -r .taskId)
+      fi
+
+      for i in $(seq 1 180); do
+        RESP=$(curl -sS "$CANYON_API/coverage/snapshot/tasks/$TASK_ID")
+        STATUS=$(echo "$RESP" | jq -r .status)
+        echo "poll #$i status=$STATUS"
+        if [ "$STATUS" = "succeeded" ]; then
+          echo "$RESP" | jq .coverage > coverage-snapshot.json
+          break
+        fi
+        if [ "$STATUS" = "failed" ] || [ "$STATUS" = "rejected" ]; then
+          echo "$RESP" | jq .
+          exit 1
+        fi
+        sleep 2
+      done
+
+      node <<'NODE'
+      const fs = require("fs");
+      const coverage = JSON.parse(fs.readFileSync("coverage-snapshot.json", "utf8"));
+      let covered = 0, total = 0;
+      for (const file of Object.values(coverage)) {
+        const values = Object.values(file.s || {});
+        total += values.length;
+        covered += values.filter((n) => n > 0).length;
+      }
+      const pct = total === 0 ? 100 : (covered / total) * 100;
+      const min = Number(process.env.COVERAGE_MIN_PCT || 80);
+      console.log({ covered, total, pct, min });
+      if (pct < min) process.exit(1);
+      NODE
+  # 可选：用 curl 调 GitLab Commit Status API 写 success/failed
+```
+
+要点与 [总览](/guide/ci/overview) 相同：先 init，再 client，最后 snapshot 并轮询；`buildHash` 通过 artifact 在 job 间传递。

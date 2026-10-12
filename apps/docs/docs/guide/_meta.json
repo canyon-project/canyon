@@ -1,0 +1,17 @@
+[
+  {
+    "type": "dir",
+    "name": "start",
+    "label": "开始"
+  },
+  {
+    "type": "dir",
+    "name": "ci",
+    "label": "PR / MR CI"
+  },
+  {
+    "type": "dir",
+    "name": "api",
+    "label": "API"
+  }
+]

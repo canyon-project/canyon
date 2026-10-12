@@ -1,0 +1,28 @@
+{
+  "name": "api",
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm --filter @canyon/data build && tsx watch src/index.ts",
+    "build": "pnpm --filter @canyon/data build && tsc",
+    "start": "node dist/index.js",
+    "typecheck": "pnpm --filter @canyon/data build && tsc --noEmit",
+    "db:migrate": "tsx src/db/migrate.ts",
+    "db:sql": "tsx src/db/dump-sql.ts > schema.sql",
+    "test": "pnpm --filter @canyon/data build && TEST_DATABASE_URL=postgres://postgres:123456@localhost:5432/canyon_test vitest run"
+  },
+  "dependencies": {
+    "@canyon/data": "workspace:*",
+    "@hono/node-server": "catalog:",
+    "dotenv": "^18.0.7",
+    "hono": "catalog:",
+    "kysely": "^0.29.6",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pg": "^8.23.1",
+    "tsx": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "^3.2.4"
+  }
+}

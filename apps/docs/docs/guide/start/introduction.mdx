@@ -1,0 +1,27 @@
+# 简介
+
+Canyon 用于在 **Pull Request / Merge Request** 的测试 CI 中采集覆盖率，并产出**源码级**覆盖率概览。
+
+典型目标不是只在本地看 Istanbul 报告，而是：
+
+1. 构建产物完成插桩后，把 **coverage map**（语句结构 + inputSourceMap）上传到服务端；
+2. 测试跑完后，把 **命中 hit**（`s`）按场景 tag 上报；
+3. 创建**快照任务**：服务端聚合 hit、拼回 map、用 source map **回溯到源码**；
+4. CI **轮询任务状态**，拿到快照 coverage 后计算概览（语句覆盖率等）；
+5. 把结果写回 PR/MR（Check Run、评论、失败门槛等）。
+
+完整步骤见 [PR / MR CI 集成](/guide/ci/overview)。
+
+## 仓库里相关部分
+
+| 路径                              | 作用                                      |
+| --------------------------------- | ----------------------------------------- |
+| `services/api`                    | 覆盖率 HTTP API、任务与快照落库           |
+| `packages/data`（`@canyon/data`） | 组装 map/hit/sourcemap，并做源码回溯      |
+| `apps/app`                        | Coverage 管理台：列表、生成快照、查看任务 |
+| `packages/real-app`               | 插桩构建示例（产出 `.canyon_output`）     |
+
+## 下一步
+
+- 先读 [核心概念](/guide/start/concepts)
+- 再按 [CI 集成指南](/guide/ci/overview) 接到 GitHub Actions / GitLab CI

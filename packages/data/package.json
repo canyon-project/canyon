@@ -1,0 +1,31 @@
+{
+  "name": "@canyon/data",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Istanbul 覆盖率组装、合并与 source map 回溯",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "demo": "tsx src/demo.ts"
+  },
+  "dependencies": {
+    "@vitest/istanbul-lib-coverage": "^1.0.2",
+    "@vitest/istanbul-lib-source-maps": "^1.0.2"
+  },
+  "devDependencies": {
+    "tsx": "catalog:",
+    "typescript": "catalog:"
+  }
+}
