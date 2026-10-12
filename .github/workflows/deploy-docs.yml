@@ -8,12 +8,6 @@ on:
   push:
     branches:
       - next
-    paths:
-      - "apps/docs/**"
-      - "pnpm-lock.yaml"
-      - "pnpm-workspace.yaml"
-      - "package.json"
-      - ".github/workflows/deploy-docs.yml"
   workflow_dispatch:
 
 permissions:
