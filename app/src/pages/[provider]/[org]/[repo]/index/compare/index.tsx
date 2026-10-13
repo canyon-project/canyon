@@ -280,22 +280,28 @@ const ComparePage = () => {
     const ref = side === "base" ? record.baseRef : record.headRef;
     const commitInfo = side === "base" ? record.baseCommit : record.headCommit;
     const shortSha = sha ? sha.substring(0, 7) : "-";
-    const titlePreview = commitInfo?.title
-      ? commitInfo.title.split("\n")[0].substring(0, 60)
-      : null;
+    const titleText = commitInfo?.title ? commitInfo.title.split("\n")[0] : null;
     const author = commitInfo?.authorName || commitInfo?.authorEmail || null;
     const email = commitInfo?.authorEmail || null;
     const createdAt = commitInfo?.createdAt ? formatDate(commitInfo.createdAt) : null;
+    const authorLine = author
+      ? `${author}${email && author !== email ? ` (${email})` : ""}${createdAt ? ` · ${createdAt}` : ""}`
+      : null;
     const showBranch =
       kind === "branch" && typeof ref === "string" && ref.length > 0 && !/^[a-f0-9]{40}$/i.test(ref);
 
     return (
-      <div>
+      <div className="min-w-0 overflow-hidden">
         {showBranch ? (
-          <div style={{ marginBottom: 4 }}>
-            <Tag color="blue" style={{ marginInlineEnd: 0 }}>
-              {ref}
-            </Tag>
+          <div className="mb-1 min-w-0">
+            <Tooltip title={ref}>
+              <Tag
+                color="blue"
+                className="me-0 block max-w-full truncate"
+              >
+                {ref}
+              </Tag>
+            </Tooltip>
           </div>
         ) : null}
         <Text code style={{ fontSize: "12px" }}>
@@ -316,28 +322,28 @@ const ComparePage = () => {
             />
           </Tooltip>
         )}
-        {titlePreview && commitInfo && (
-          <div style={{ fontSize: "12px", marginTop: "4px", color: "#666" }}>
-            <Tooltip title={commitInfo.title}>
-              {titlePreview}
-              {commitInfo.title.length > 60 ? "..." : ""}
-            </Tooltip>
-          </div>
+        {titleText && (
+          <Text
+            ellipsis={{ tooltip: commitInfo?.title }}
+            style={{ display: "block", width: "100%", fontSize: 12, marginTop: 4, color: "#666" }}
+          >
+            {titleText}
+          </Text>
         )}
-        {author && (
-          <div style={{ fontSize: "11px", marginTop: "2px", color: "#999" }}>
-            <Space size={4}>
-              {commitInfo?.avatar ? (
-                <Avatar src={commitInfo.avatar} size={18} />
-              ) : (
-                <Avatar size={18} icon={<UserOutlined />} />
-              )}
-              <span>
-                {author}
-                {email && author !== email && ` (${email})`}
-                {createdAt && ` · ${createdAt}`}
-              </span>
-            </Space>
+        {authorLine && (
+          <div className="mt-0.5 flex min-w-0 items-center gap-1">
+            {commitInfo?.avatar ? (
+              <Avatar src={commitInfo.avatar} size={18} className="shrink-0" />
+            ) : (
+              <Avatar size={18} icon={<UserOutlined />} className="shrink-0" />
+            )}
+            <Text
+              type="secondary"
+              ellipsis={{ tooltip: authorLine }}
+              style={{ fontSize: 11, flex: 1, width: 0, minWidth: 0 }}
+            >
+              {authorLine}
+            </Text>
           </div>
         )}
       </div>
@@ -363,20 +369,23 @@ const ComparePage = () => {
       title: t("projects.comparison.columns.base"),
       dataIndex: "base",
       key: "base",
-      width: 200,
+      width: "24%",
+      onCell: () => ({ style: { maxWidth: 0, overflow: "hidden" } }),
       render: (text: string, record: CompareRecord) => renderRefCell(text, record, "base"),
     },
     {
       title: t("projects.comparison.columns.head"),
       dataIndex: "head",
       key: "head",
-      width: 200,
+      width: "24%",
+      onCell: () => ({ style: { maxWidth: 0, overflow: "hidden" } }),
       render: (text: string, record: CompareRecord) => renderRefCell(text, record, "head"),
     },
     {
       title: t("projects.comparison.columns.fileCount"),
       key: "fileCount",
-      width: 60,
+      width: 108,
+      onHeaderCell: () => ({ style: { whiteSpace: "nowrap" } }),
       render: (_: unknown, record: CompareRecord) => (
         <Text strong>{record.files?.length || 0}</Text>
       ),
@@ -384,7 +393,9 @@ const ComparePage = () => {
     {
       title: t("projects.comparison.columns.createdAt"),
       key: "createdAt",
-      width: 100,
+      width: 176,
+      onHeaderCell: () => ({ style: { whiteSpace: "nowrap" } }),
+      onCell: () => ({ style: { whiteSpace: "nowrap" } }),
       sorter: (a, b) =>
         new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime(),
       defaultSortOrder: "descend",
@@ -394,7 +405,9 @@ const ComparePage = () => {
     {
       title: t("projects.comparison.columns.action"),
       key: "action",
-      width: 400,
+      width: 360,
+      onHeaderCell: () => ({ style: { whiteSpace: "nowrap" } }),
+      onCell: () => ({ style: { whiteSpace: "nowrap" } }),
       render: (_: unknown, record: CompareRecord) => {
         return (
           <Space size={12} wrap={false}>
@@ -538,6 +551,7 @@ const ComparePage = () => {
           onCreateSuccess={() => setSnapshotDrawerMode("records")}
         />
         <Table<CompareRecord>
+          tableLayout="fixed"
           columns={columns}
           dataSource={compareRecords}
           loading={loading}

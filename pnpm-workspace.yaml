@@ -6,6 +6,16 @@ packages:
   - plugins/*
   - app
 
+allowBuilds:
+  '@ibm/plex-mono': true
+  '@prisma/client': true
+  '@prisma/engines': true
+  '@swc/core': true
+  better-sqlite3: true
+  core-js: true
+  esbuild: true
+  prisma: true
+
 catalog:
   "@ant-design/icons": 6.1.0
   "@types/istanbul-lib-coverage": ^2.0.6
