@@ -16,7 +16,8 @@
     "dotenv": "^18.0.7",
     "hono": "catalog:",
     "kysely": "^0.29.6",
-    "pg": "^8.23.1"
+    "pg": "^8.23.1",
+    "@vitest/istanbul-lib-report": "^1.0.2"
   },
   "devDependencies": {
     "@types/node": "catalog:",
