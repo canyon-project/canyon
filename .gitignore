@@ -6,7 +6,7 @@ yarn-error.log*
 *.cpuprofile
 *.heapprofile
 lib-cov
-coverage
+#coverage
 node_modules
 .env
 .cache
