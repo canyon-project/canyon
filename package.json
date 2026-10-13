@@ -11,7 +11,9 @@
     "lint": "oxlint",
     "typecheck": "tsc --noEmit && pnpm -r run typecheck",
     "clean": "tsx scripts/clean.ts",
-    "dev": "pnpm run -r dev"
+    "dev": "pnpm run -r dev",
+    "build": "pnpm --filter app build && pnpm --filter api build",
+    "start": "pnpm --filter api start"
   },
   "devDependencies": {
     "@types/node": "catalog:",

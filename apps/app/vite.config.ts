@@ -6,6 +6,11 @@ import Pages from "vite-plugin-pages";
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), Pages(), tailwindcss()],
+  build: {
+    // 与 API 同进程托管：构建产物写入 services/api/public
+    outDir: "../../services/api/public",
+    emptyOutDir: true,
+  },
   server: {
     port: 5173,
     proxy: {

@@ -26,3 +26,6 @@ lerna-debug.log*
 
 # misc
 .DS_Store
+
+# 管理台构建产物（apps/app build）
+public/
