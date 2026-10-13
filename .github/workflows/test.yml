@@ -1,0 +1,66 @@
+# API e2e：Postgres + migrate + real-app 插桩产物 + vitest
+# 触发：PR、push 到 next、手动
+
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - next
+  workflow_dispatch:
+
+concurrency:
+  group: test-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgres://postgres:123456@localhost:5432/canyon_test
+  TEST_DATABASE_URL: postgres://postgres:123456@localhost:5432/canyon_test
+  SNAPSHOT_TASK_SLEEP_MS: "0"
+
+jobs:
+  api-e2e:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: "123456"
+          POSTGRES_DB: canyon_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d canyon_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Migrate test database
+        run: pnpm --filter api db:migrate
+
+      - name: Build real-app fixtures
+        # e2e 读 packages/real-app/.canyon_output（gitignore，需在 CI 生成）
+        run: pnpm --filter webpack-babel-ts build-webpack-babel-ts
+
+      - name: Run API e2e
+        run: pnpm --filter api test
