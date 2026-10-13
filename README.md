@@ -36,9 +36,9 @@ pnpm install
 
 # API（需 Postgres，配置 services/api/.env 的 DATABASE_URL）
 pnpm --filter api db:migrate
-pnpm --filter api dev          # http://localhost:3000
+pnpm --filter api dev          # http://localhost:8080
 
-# 管理台（代理 /api → :3000）
+# 管理台（代理 /api → :8080）
 pnpm --filter app dev
 
 # 文档

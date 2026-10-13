@@ -46,8 +46,8 @@
 ```bash
 pnpm install
 pnpm --filter api db:migrate          # 需 DATABASE_URL
-pnpm --filter api dev                 # :3000，会先 build @canyon/data
-pnpm --filter app dev                 # Vite，/api 代理到 :3000
+pnpm --filter api dev                 # :8080，会先 build @canyon/data
+pnpm --filter app dev                 # Vite，/api 代理到 :8080
 pnpm --filter docs dev
 pnpm --filter api test                # e2e，默认连 canyon_test；**不清库**
 ```
