@@ -21,6 +21,5 @@
     "oxlint": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:"
-  },
-  "packageManager": "pnpm@12.4.1"
+  }
 }
