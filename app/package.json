@@ -64,7 +64,6 @@
   },
   "devDependencies": {
     "@canyonjs/report": "latest",
-    "@canyonjs/vite-plugin": "latest",
     "@hono/vite-build": "^1.10.0",
     "@hono/vite-dev-server": "^0.25.0",
     "@tailwindcss/vite": "4.2.2",
@@ -79,7 +78,6 @@
     "tailwindcss": "^4.2.1",
     "typescript": "~5.9.3",
     "vite": "8",
-    "vite-plugin-istanbul": "7",
     "vite-plugin-pages": "^0.33.3",
     "vitest": "4.1.3"
   }
