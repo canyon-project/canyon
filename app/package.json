@@ -21,7 +21,7 @@
     "@ant-design/icons": "6.1.0",
     "@canyonjs/diff-coverage": "0.0.11",
     "@canyonjs/git-provider": "0.0.10",
-    "@canyonjs/html-modern": "latest",
+    "@canyonjs/html-modern": "0.1.5",
     "@codemirror/lang-javascript": "^6.2.4",
     "@codemirror/language": "^6.11.3",
     "@codemirror/state": "^6.5.2",
