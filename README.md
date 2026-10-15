@@ -25,7 +25,8 @@
 | `packages/data` | `@canyon/data`：组装与源码回溯 |
 | `apps/app` | 管理台（Coverage / 快照任务） |
 | `apps/docs` | Rspress 文档 |
-| `packages/real-app` | 插桩构建示例 |
+| `packages/real-app` | `@canyon/real-app` 插桩构建示例 |
+| `e2e` | `@canyon/e2e` 仓库级端到端（API Vitest + Playwright） |
 
 pnpm workspace + catalog，包管理器见根目录 `packageManager`。
 
@@ -45,10 +46,11 @@ pnpm --filter app dev
 pnpm --filter docs dev
 ```
 
-API e2e（默认 `canyon_test`，**不会清库**）：
+E2E（默认 `canyon_test`，**不会清库**；会先构建 `@canyon/real-app`）：
 
 ```bash
-pnpm --filter api test
+pnpm e2e
+# 或仅 API 契约：pnpm --filter @canyon/e2e test:api
 ```
 
 ## 文档与 AI

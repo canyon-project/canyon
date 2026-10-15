@@ -59,8 +59,10 @@ jobs:
         run: pnpm --filter api db:migrate
 
       - name: Build real-app fixtures
-        # e2e 读 packages/real-app/.canyon_output（gitignore，需在 CI 生成）
-        run: pnpm --filter webpack-babel-ts build-webpack-babel-ts
+        run: pnpm --filter @canyon/real-app build
 
-      - name: Run API e2e
-        run: pnpm --filter api test
+      - name: Install Playwright (Chromium)
+        run: pnpm --filter @canyon/e2e exec playwright install chromium --with-deps
+
+      - name: Run e2e (API + Playwright)
+        run: pnpm --filter @canyon/e2e test

@@ -1,6 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+
+import { canyonOutputDir } from "./paths.js";
 
 export type CanyonFileEntry = {
   buildHash: string;
@@ -12,11 +13,6 @@ export type CanyonFileEntry = {
   [key: string]: unknown;
 };
 
-const canyonOutputDir = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "../../../../packages/real-app/.canyon_output",
-);
-
 /** 读取 .canyon_output 下全部 JSON，合并为单次 init 请求体 */
 export async function loadMergedCanyonOutput(): Promise<{
   raw: string;
@@ -27,7 +23,7 @@ export async function loadMergedCanyonOutput(): Promise<{
   const entries = await readdir(canyonOutputDir);
   const jsonFiles = entries.filter((name) => name.endsWith(".json")).sort();
   if (jsonFiles.length === 0) {
-    throw new Error(`未找到覆盖率文件: ${canyonOutputDir}`);
+    throw new Error(`未找到覆盖率文件: ${canyonOutputDir}（请先 pnpm --filter @canyon/real-app build）`);
   }
 
   const payload: Record<string, CanyonFileEntry> = {};

@@ -3,6 +3,7 @@ packages:
   - "services/*"
   - "packages/*"
   - "tools/*"
+  - "e2e"
 
 allowBuilds:
   esbuild: true
