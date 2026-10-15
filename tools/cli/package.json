@@ -1,0 +1,23 @@
+{
+  "name": "@canyon/cli",
+  "version": "0.0.0",
+  "private": true,
+  "description": "打印 GitHub Actions 流水线环境变量",
+  "type": "module",
+  "bin": {
+    "canyon-gha-vars": "./dist/cli.mjs"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "node dist/cli.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "tsdown": "^0.23.1",
+    "typescript": "catalog:"
+  }
+}

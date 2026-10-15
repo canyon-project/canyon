@@ -1,0 +1,82 @@
+# 构建 @canyon/cli 并在真实 Runner 上校验能读到 GITHUB_/RUNNER_ 变量
+
+name: CLI GHA vars
+
+on:
+  pull_request:
+    paths:
+      - "tools/cli/**"
+      - ".github/workflows/cli-gha-vars.yml"
+  push:
+    branches:
+      - next
+    paths:
+      - "tools/cli/**"
+      - ".github/workflows/cli-gha-vars.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: cli-gha-vars-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  print-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 12.4.1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Build CLI
+        run: pnpm --filter @canyon/cli build
+
+      - name: 打印流水线变量（JSON）
+        run: node tools/cli/dist/cli.mjs
+
+      - name: 校验关键变量存在
+        run: |
+          node tools/cli/dist/cli.mjs > /tmp/gha-vars.json
+          node --input-type=module <<'EOF'
+          import { readFileSync } from "node:fs";
+
+          const vars = JSON.parse(readFileSync("/tmp/gha-vars.json", "utf8"));
+          const required = [
+            "CI",
+            "GITHUB_ACTIONS",
+            "GITHUB_REPOSITORY",
+            "GITHUB_SHA",
+            "GITHUB_WORKFLOW",
+            "GITHUB_RUN_ID",
+            "RUNNER_OS",
+            "RUNNER_ARCH",
+          ];
+
+          for (const key of required) {
+            const value = vars[key];
+            if (value === undefined || value === "") {
+              throw new Error(`缺少或为空: ${key}`);
+            }
+          }
+
+          if (vars.GITHUB_ACTIONS !== "true") {
+            throw new Error(`GITHUB_ACTIONS 应为 "true"，实际: ${vars.GITHUB_ACTIONS}`);
+          }
+          if (vars.CI !== "true") {
+            throw new Error(`CI 应为 "true"，实际: ${vars.CI}`);
+          }
+
+          console.log(`已校验 ${required.length} 个关键变量`);
+          EOF
