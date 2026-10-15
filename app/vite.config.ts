@@ -4,10 +4,6 @@ import build from "@hono/vite-build/node";
 import react from "@vitejs/plugin-react";
 import Pages from "vite-plugin-pages";
 import tailwindcss from "@tailwindcss/vite";
-import istanbulPlugin from "vite-plugin-istanbul";
-import canyonVitePlugin from "@canyonjs/vite-plugin";
-
-const isProduction = process.env.NODE_ENV === "production";
 
 export default defineConfig({
   build: {
@@ -32,14 +28,6 @@ export default defineConfig({
       entry: "./src/api/index.ts",
       exclude: [/^(?!\/api(\/|$|\?))/],
     }),
-    ...(isProduction
-      ? [
-        istanbulPlugin({
-          forceBuildInstrument: true,
-        }),
-        canyonVitePlugin(),
-      ]
-      : []),
   ],
   resolve: {
     tsconfigPaths: true,
