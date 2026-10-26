@@ -13,6 +13,7 @@ import {
   filterCoverageEntriesWithBuildHash,
   filterInvalidCoverageFiles,
 } from "@/api/lib/collect/helpers.ts";
+import { relayCollectPayload } from "@/api/lib/collect/relay.ts";
 import {
   CoverageClientSchema,
   CoverageMapInitSchema,
@@ -89,6 +90,7 @@ function firstBuildHashInCoverage(coverage: Record<string, unknown>): string | u
 
 collectApi.openapi(coverageClientRoute, async (c) => {
   const body = c.req.valid("json");
+  relayCollectPayload("client", body);
 
   const payloadHash = generateObjectSignature(body);
 
@@ -239,6 +241,7 @@ function calculateSceneKey(scene: Record<string, unknown>): string {
 
 collectApi.openapi(coverageMapInitRoute, async (c) => {
   const body = c.req.valid("json");
+  relayCollectPayload("map-init", body);
   const coverage = body.coverage as Record<string, Record<string, unknown>>;
 
   let sha = body.sha;
