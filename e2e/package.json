@@ -1,0 +1,21 @@
+{
+  "name": "@canyon/e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "仓库级端到端：API 契约测试 + Playwright 真实项目场景",
+  "type": "module",
+  "scripts": {
+    "test:api": "pnpm --filter @canyon/data build && vitest run --config vitest.config.ts",
+    "test:real-project": "playwright test --config playwright.config.ts",
+    "test": "pnpm run test:api && pnpm run test:real-project"
+  },
+  "devDependencies": {
+    "@hono/node-server": "catalog:",
+    "@playwright/test": "^1.51.0",
+    "@types/node": "catalog:",
+    "dotenv": "^18.0.7",
+    "serve": "^14.2.4",
+    "typescript": "catalog:",
+    "vitest": "^3.2.4"
+  }
+}

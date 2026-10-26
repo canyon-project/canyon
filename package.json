@@ -13,7 +13,11 @@
     "clean": "tsx scripts/clean.ts",
     "dev": "pnpm run -r dev",
     "build": "pnpm --filter app build && pnpm --filter api build",
-    "start": "pnpm --filter api start"
+    "start": "pnpm --filter api start",
+    "e2e:fixtures": "pnpm --filter @canyon/real-app build",
+    "e2e:api": "pnpm --filter @canyon/e2e test:api",
+    "e2e:real-project": "pnpm --filter @canyon/e2e test:real-project",
+    "e2e": "pnpm run e2e:fixtures && pnpm run e2e:api && pnpm run e2e:real-project"
   },
   "devDependencies": {
     "@types/node": "catalog:",

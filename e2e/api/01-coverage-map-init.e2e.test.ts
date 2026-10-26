@@ -9,7 +9,7 @@ import {
   uniqueBuildHash,
   withBuildHash,
   type CanyonFileEntry,
-} from "./helpers/canyon-output.js";
+} from "../shared/canyon-output.js";
 
 const dbUrl = process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL;
 if (!dbUrl) {
@@ -17,9 +17,9 @@ if (!dbUrl) {
 }
 process.env.DATABASE_URL = dbUrl;
 
-const { createApp } = await import("../src/app.js");
-const { db } = await import("../src/lib/db.js");
-const { migrateTestDb } = await import("../src/db/test-db.js");
+const { createApp } = await import("../../services/api/src/app.js");
+const { db } = await import("../../services/api/src/lib/db.js");
+const { migrateTestDb } = await import("../../services/api/src/db/test-db.js");
 
 /** map/init 边角：重复 init、跨 build 复用 input_source_map（不清库，留下数据） */
 describe("POST /coverage/map/init 边角 (e2e)", () => {
@@ -119,7 +119,6 @@ describe("POST /coverage/map/init 边角 (e2e)", () => {
       .where("input_source_map_hash", "is not", null)
       .execute();
 
-    // B 用到的 hash 都应已在 A 的集合里（内容寻址复用）
     for (const row of hashesAfterSecond) {
       expect(uniqueHashes.has(row.input_source_map_hash)).toBe(true);
     }

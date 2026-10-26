@@ -16,7 +16,8 @@
 | `packages/data` | `@canyon/data` | 组装 map/hit/sourcemap；`remapToSourceSnapshot` 回溯源码 |
 | `apps/app` | `app` | Ant Design 管理台（Coverage 列表 / 快照任务） |
 | `apps/docs` | `docs` | Rspress 文档；`next` 分支部署 GitHub Pages |
-| `packages/real-app` | — | 插桩构建示例，产出 `.canyon_output` |
+| `packages/real-app` | `@canyon/real-app` | 插桩构建示例，产出 `.canyon_output` |
+| `e2e` | `@canyon/e2e` | 仓库级 e2e（Vitest API + Playwright 真实项目） |
 
 ## 数据模型（务必先理解）
 
@@ -49,10 +50,11 @@ pnpm --filter api db:migrate          # 需 DATABASE_URL
 pnpm --filter api dev                 # :8080，会先 build @canyon/data
 pnpm --filter app dev                 # Vite，/api 代理到 :8080
 pnpm --filter docs dev
-pnpm --filter api test                # e2e，默认连 canyon_test；**不清库**
+pnpm e2e                              # 先 build real-app，再跑 @canyon/e2e（**不清库**）
+pnpm --filter api test                # 同 e2e:api
 ```
 
-e2e：`services/api/test/01-*.e2e.test.ts`（init 边角）、`02-coverage-flow.e2e.test.ts`（顺序全流程）。断言按本次 `buildHash` 隔离，因不清库。
+e2e：`e2e/api/01-*.e2e.test.ts`（init 边角）、`02-coverage-flow.e2e.test.ts`（顺序全流程）；`e2e/scenarios/real-project/`（Playwright + HTTP）。断言按本次 `buildHash` 隔离，因不清库。
 
 ## 约定与禁区
 

@@ -1,14 +1,12 @@
 {
-  "name": "webpack-babel-ts",
+  "name": "@canyon/real-app",
   "version": "1.0.0",
-  "description": "",
-  "keywords": [],
-  "license": "ISC",
-  "author": "",
-  "main": "index.js",
+  "private": true,
+  "description": "插桩构建示例（webpack + babel + TS），产出 .canyon_output 供 e2e / 文档参考",
   "scripts": {
-    "build-ts": "tsc",
-    "build-webpack-babel-ts": "rm -rf .canyon_output && npm run build-ts && webpack --mode production"
+    "build:tsc": "tsc -p config/tsconfig.json",
+    "build": "rm -rf .canyon_output .artifacts/tsc && pnpm run build:tsc && webpack --config config/webpack.config.js --mode production",
+    "typecheck": "tsc -p config/tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@canyonjs/babel-plugin": "latest",
@@ -19,8 +17,6 @@
     "webpack-cli": "latest"
   },
   "nyc": {
-    "include": [
-      "build/**"
-    ]
+    "include": [".artifacts/tsc/**"]
   }
 }

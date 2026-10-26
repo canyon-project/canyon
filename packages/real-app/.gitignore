@@ -35,3 +35,4 @@ pnpm-lock.yaml
 .env
 
 build
+.artifacts
