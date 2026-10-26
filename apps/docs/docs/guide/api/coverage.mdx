@@ -11,7 +11,7 @@
 | 成功 | `201 { buildHash, fileCount }` |
 | 失败 | `400 { error }`                |
 
-请求体：`Record<path, IstanbulFileCoverage>`，字段见 [CI 总览 · init](/guide/ci/overview)。
+请求体：`Record<path, IstanbulFileCoverage>`。Mock 见 [采集请求体](/guide/api/data-struct) 与仓库 `data-struct/map-init.mock.json`。
 
 ---
 
@@ -24,14 +24,7 @@
 | 成功 | `201 { buildHash, tagKey, hitCount }`         |
 | 失败 | `400`（缺 tag / 缺 s / buildHash 未 init 等） |
 
-```json
-{
-  "tag": { "source": "", "type": "e2e", "env": "test", "trigger": "pipeline" },
-  "coverage": {
-    "/file.js": { "path": "/file.js", "s": { "0": 1 }, "buildHash": "…" }
-  }
-}
-```
+Mock 见 [采集请求体](/guide/api/data-struct) 与 `data-struct/coverage-client.mock.json`。
 
 ---
 
@@ -55,7 +48,7 @@
 
 ## `GET /coverage/snapshot/tasks/:taskId`
 
-查询任务。`succeeded` 时带 `coverage`（源码路径 → `{ path, s, buildHash }`）。
+查询任务。`succeeded` 时带 `coverage`（源码路径 → Istanbul 单文件 + `buildHash`，含回溯后的 `statementMap`）。
 
 | status            | 说明                 |
 | ----------------- | -------------------- |

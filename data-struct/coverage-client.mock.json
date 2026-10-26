@@ -1,0 +1,26 @@
+{
+  "tag": {
+    "source": "automation",
+    "type": "e2e",
+    "env": "test",
+    "trigger": "pipeline"
+  },
+  "coverage": {
+    "/mock/project/build/main.js": {
+      "path": "/mock/project/build/main.js",
+      "buildHash": "mock-build-001",
+      "s": {
+        "0": 1,
+        "1": 0,
+        "2": 3
+      }
+    },
+    "/mock/project/build/utils.js": {
+      "path": "/mock/project/build/utils.js",
+      "buildHash": "mock-build-001",
+      "s": {
+        "0": 2
+      }
+    }
+  }
+}

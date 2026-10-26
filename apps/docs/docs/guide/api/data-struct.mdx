@@ -1,0 +1,83 @@
+# 采集请求体（Mock）
+
+仓库根目录 `data-struct/` 提供可直接 `curl` 的示例 JSON，字段与 API 解析一致。
+
+## `POST /coverage/map/init`
+
+**顶层**：`Record<仪器侧绝对路径, 文件对象>`（不是再包一层 `files`）。
+
+| 字段 | 必填 | 说明 |
+| --- | --- | --- |
+| `path` | 建议 | 与对象键一致；缺省用键 |
+| `buildHash` | 是 | 同批所有文件必须相同 |
+| `statementMap` | 是 | Istanbul 语句 map，`"id" → { start, end }` |
+| `inputSourceMap` | 否 | Source Map v3；用于快照回溯 |
+| `provider` / `repoID` / `sha` / `buildTarget` / `instrumentCwd` | 否 | 写入 build 元数据 |
+
+init **只存结构**，不要求带命中；`s` / `f` / `b` 即使出现在仪器 JSON 里也不会作为 hit 入库。
+
+示例见 `data-struct/map-init.mock.json`（节选）：
+
+```json
+{
+  "/mock/project/build/main.js": {
+    "path": "/mock/project/build/main.js",
+    "buildHash": "mock-build-001",
+    "statementMap": {
+      "0": {
+        "start": { "line": 1, "column": 0 },
+        "end": { "line": 1, "column": 42 }
+      }
+    },
+    "inputSourceMap": {
+      "version": 3,
+      "sources": ["../src/main.ts"],
+      "mappings": "AAAA,SAAS,CAAC"
+    }
+  }
+}
+```
+
+## `POST /coverage/client`
+
+**顶层**：`{ tag, coverage }`。
+
+| 字段 | 必填 | 说明 |
+| --- | --- | --- |
+| `tag` | 是 | 场景标签；会规范化为 `source` / `type` / `env` / `trigger` 四键（缺省空串） |
+| `coverage` | 是 | `Record<路径, 命中对象>`，至少一条 |
+| `coverage.*.path` | 建议 | 与键一致 |
+| `coverage.*.buildHash` | 是 | 须已 map/init；同批一致 |
+| `coverage.*.s` | 是 | 语句命中 `"id" → number` |
+
+client **只上报 `s`**，不带 `statementMap`；路径须与 init 时的仪器侧 `raw_file_path` 对齐。
+
+示例见 `data-struct/coverage-client.mock.json`：
+
+```json
+{
+  "tag": {
+    "source": "automation",
+    "type": "e2e",
+    "env": "test",
+    "trigger": "pipeline"
+  },
+  "coverage": {
+    "/mock/project/build/main.js": {
+      "path": "/mock/project/build/main.js",
+      "buildHash": "mock-build-001",
+      "s": { "0": 1, "1": 0, "2": 3 }
+    }
+  }
+}
+```
+
+## 与快照结果的区别
+
+| 阶段 | 路径 | 是否含 `statementMap` |
+| --- | --- | --- |
+| map/init | build 产物 | 是（仪器侧） |
+| client | build 产物 | 否 |
+| 快照 `coverage` | 源码 | 是（回溯后） |
+
+接口说明见 [Coverage API](/guide/api/coverage)、流水线见 [CI 总览](/guide/ci/overview)。

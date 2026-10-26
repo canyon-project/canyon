@@ -1,0 +1,56 @@
+{
+  "/mock/project/build/main.js": {
+    "path": "/mock/project/build/main.js",
+    "buildHash": "mock-build-001",
+    "provider": "github",
+    "repoID": "acme/demo-app",
+    "sha": "abc123def456",
+    "buildTarget": "production",
+    "instrumentCwd": "/mock/project",
+    "statementMap": {
+      "0": {
+        "start": { "line": 1, "column": 0 },
+        "end": { "line": 1, "column": 42 }
+      },
+      "1": {
+        "start": { "line": 2, "column": 0 },
+        "end": { "line": 2, "column": 18 }
+      },
+      "2": {
+        "start": { "line": 4, "column": 0 },
+        "end": { "line": 4, "column": 24 }
+      }
+    },
+    "inputSourceMap": {
+      "version": 3,
+      "file": "main.js",
+      "sourceRoot": "",
+      "sources": ["../src/main.ts"],
+      "names": [],
+      "mappings": "AAAA,SAAS,CAAC;ACCD"
+    }
+  },
+  "/mock/project/build/utils.js": {
+    "path": "/mock/project/build/utils.js",
+    "buildHash": "mock-build-001",
+    "provider": "github",
+    "repoID": "acme/demo-app",
+    "sha": "abc123def456",
+    "buildTarget": "production",
+    "instrumentCwd": "/mock/project",
+    "statementMap": {
+      "0": {
+        "start": { "line": 1, "column": 0 },
+        "end": { "line": 1, "column": 30 }
+      }
+    },
+    "inputSourceMap": {
+      "version": 3,
+      "file": "utils.js",
+      "sourceRoot": "",
+      "sources": ["../src/utils.ts"],
+      "names": [],
+      "mappings": "AAAA"
+    }
+  }
+}
