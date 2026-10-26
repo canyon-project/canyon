@@ -30,7 +30,15 @@ function totalStatementHits(
 }
 
 function assertRemappedSnapshot(
-  coverage: Record<string, { path: string; s: Record<string, number>; buildHash: string }> | null,
+  coverage: Record<
+    string,
+    {
+      path: string;
+      statementMap: Record<string, unknown>;
+      s: Record<string, number>;
+      buildHash: string;
+    }
+  > | null,
   buildHash: string,
 ): void {
   expect(coverage).toBeTruthy();
@@ -48,6 +56,8 @@ function assertRemappedSnapshot(
   for (const file of Object.values(coverage!)) {
     expect(file.buildHash).toBe(buildHash);
     expect(file.path).toBeTruthy();
+    expect(file.statementMap).toEqual(expect.any(Object));
+    expect(Object.keys(file.statementMap).length).toBeGreaterThan(0);
     expect(file.s).toEqual(expect.any(Object));
   }
   expect(totalStatementHits(coverage)).toBeGreaterThan(0);

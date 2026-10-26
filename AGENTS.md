@@ -24,7 +24,7 @@
 - **Map / Hit 分离**：`map/init` 存 `statement_map` + 内容寻址 `input_source_map`；`client` **只 insert hit（`s`）**，不做合并。
 - **buildHash**：一次可对齐构建的主键；须先 init 再 client。
 - **tag**：`{ source, type, env, trigger }` → `tagKey = sha256(stableStringify(...))`；快照可按 jsonb `@>` 筛选。
-- **快照任务**：压缩同 build+tagKey+file 的多行 hit → 拼 map/sourcemap → `@canyon/data` 回溯 → 写 `snapshot.coverage`（源码 path + `s`）。
+- **快照任务**：压缩同 build+tagKey+file 的多行 hit → 拼 map/sourcemap → `@canyon/data` 回溯 → 写 `snapshot.coverage`（源码 Istanbul 单文件 + `buildHash`）。
 - **锁**：同 `buildHash` 同时只允许一个 `running` 快照；Postgres advisory lock + 任务状态。
 
 表前缀：`canyon_next6_*`（coverage / map / input_source_map / tag / hit / snapshot_task / snapshot）。

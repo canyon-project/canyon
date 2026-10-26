@@ -11,10 +11,15 @@ export type InstrumentFileCoverage = {
   buildHash?: string;
 };
 
-/** 快照落库结构：源码路径 + 语句命中 */
+/** 快照落库结构：回溯后的源码 Istanbul 单文件 + buildHash */
 export type SnapshotFileCoverage = {
   path: string;
+  statementMap: Record<string, unknown>;
+  fnMap: Record<string, unknown>;
+  branchMap: Record<string, unknown>;
   s: Record<string, number>;
+  f: Record<string, number>;
+  b: Record<string, unknown>;
   buildHash: string;
 };
 

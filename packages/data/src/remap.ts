@@ -14,8 +14,25 @@ function asStatementHits(value: unknown): Record<string, number> {
   return out;
 }
 
+function asObjectMap(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return {};
+  }
+  return value as Record<string, unknown>;
+}
+
+type TransformedFileCoverage = {
+  path?: string;
+  statementMap?: unknown;
+  fnMap?: unknown;
+  branchMap?: unknown;
+  s?: unknown;
+  f?: unknown;
+  b?: unknown;
+};
+
 /**
- * 用 istanbul-lib-source-maps 把仪器覆盖率回溯到源码，并裁成快照结构。
+ * 用 istanbul-lib-source-maps 把仪器覆盖率回溯到源码，保留 Istanbul 单文件结构（含 statementMap）。
  * 注意：createCoverageMap / transform 过程会使用输入对象的拷贝语义，勿依赖原地 mutate。
  */
 export async function remapToSourceSnapshot(
@@ -32,17 +49,19 @@ export async function remapToSourceSnapshot(
   );
   const mapStore = createSourceMapStore();
   const transformed = await mapStore.transformCoverage(coverageMap);
-  const json = transformed.toJSON() as Record<
-    string,
-    { path?: string; s?: Record<string, number> }
-  >;
+  const json = transformed.toJSON() as Record<string, TransformedFileCoverage>;
 
   const snapshot: Record<string, SnapshotFileCoverage> = {};
   for (const [filePath, file] of Object.entries(json)) {
     const path = typeof file.path === "string" && file.path.length > 0 ? file.path : filePath;
     snapshot[path] = {
       path,
+      statementMap: asObjectMap(file.statementMap),
+      fnMap: asObjectMap(file.fnMap),
+      branchMap: asObjectMap(file.branchMap),
       s: asStatementHits(file.s),
+      f: asStatementHits(file.f),
+      b: asObjectMap(file.b),
       buildHash,
     };
   }

@@ -99,7 +99,7 @@ curl -sS -X POST "$CANYON_API/coverage/map/init" \
 }
 ```
 
-- `coverage` 里只需保证有 `path`、`s`、`buildHash`（不必再带完整 `statementMap`）。
+- `coverage` 为回溯后的 Istanbul 单文件结构（含 `statementMap`、`s` 等）及 `buildHash`。
 - 多种测试类型应**分别上报**不同 `tag`（例如 unit 一次、e2e 一次）。
 
 ```bash

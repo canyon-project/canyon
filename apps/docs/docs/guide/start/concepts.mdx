@@ -63,13 +63,18 @@ flowchart TD
 {
   "/path/to/src/App.tsx": {
     "path": "/path/to/src/App.tsx",
+    "statementMap": { "0": { "start": { "line": 1, "column": 0 }, "end": { "line": 1, "column": 10 } } },
+    "fnMap": {},
+    "branchMap": {},
     "s": { "0": 1, "1": 0, "2": 3 },
+    "f": {},
+    "b": {},
     "buildHash": "..."
   }
 }
 ```
 
-只关心语句 `s`。`path` 已是 **源码路径**（不是打包后的 `build/*.js`）。
+结构与 Istanbul 单文件 coverage 一致（回溯后的 **源码** `statementMap` + `s` 等）。`path` 已是源码路径（不是打包后的 `build/*.js`）。
 
 ## 任务状态
 
