@@ -53,22 +53,22 @@ export const CoverageCommitsQuerySchema = z
   })
   .openapi("CoverageCommitsQuery");
 
-/** POST /api/coverage/client 响应 */
+/** POST /api/coverage/client 响应（业务跳过时仅 success/message，其余字段可选） */
 export const CoverageClientResponseSchema = z
   .object({
     success: z.boolean(),
     message: z.string().optional(),
     idempotent: z.boolean().optional(),
-    buildHash: z.string(),
-    sceneKey: z.string(),
-    coverageLength: z.number(),
+    buildHash: z.string().optional(),
+    sceneKey: z.string().optional(),
+    coverageLength: z.number().optional(),
     coverageFilesTotal: z.number().optional(),
     coverageFilesFiltered: z.number().optional(),
-    provider: z.string(),
-    repoID: z.string(),
-    sha: z.string(),
+    provider: z.string().optional(),
+    repoID: z.string().optional(),
+    sha: z.string().optional(),
     buildTarget: z.string().optional(),
-    instrumentCwd: z.string(),
+    instrumentCwd: z.string().optional(),
   })
   .openapi("CoverageClientResponse");
 

@@ -37,15 +37,14 @@ const coverageClientRoute = createRoute({
   },
   responses: {
     200: {
-      description: "成功",
+      description:
+        "受理成功（含幂等命中、无 buildHash、过滤后为空、找不到 coverage 记录等业务跳过，均以 success 字段区分）",
       content: {
         "application/json": {
           schema: CoverageClientResponseSchema,
         },
       },
     },
-    400: { description: "参数错误" },
-    502: { description: "未找到 coverage 记录，请先调用 map/init" },
   },
 });
 
@@ -101,32 +100,26 @@ collectApi.openapi(coverageClientRoute, async (c) => {
   const sceneKey = generateObjectSignature(body.scene || {});
   const coverageWithBuildHash = filterCoverageEntriesWithBuildHash(body.coverage);
   if (Object.keys(coverageWithBuildHash).length === 0) {
-    return c.json(
-      {
-        success: false,
-        message: "coverage 中无带 buildHash 的有效文件条目",
-      },
-      400,
-    );
+    return c.json({
+      success: false,
+      message: "coverage 中无带 buildHash 的有效文件条目",
+    });
   }
 
   const filterResult = filterInvalidCoverageFiles(coverageWithBuildHash);
   const coverage = filterResult.filteredCoverage as typeof body.coverage;
 
   if (filterResult.remainingFiles === 0) {
-    return c.json(
-      {
-        success: false,
-        message: "过滤后无有效覆盖率文件（语句 hit 均为 0 或缺少有效 s 字段）",
-      },
-      400,
-    );
+    return c.json({
+      success: false,
+      message: "过滤后无有效覆盖率文件（语句 hit 均为 0 或缺少有效 s 字段）",
+    });
   }
 
   const buildHash = firstBuildHashInCoverage(coverage as Record<string, unknown>);
 
   if (!buildHash) {
-    return c.json({ success: false, message: "coverage 中缺少 buildHash" }, 400);
+    return c.json({ success: false, message: "coverage 中缺少 buildHash" });
   }
 
   const prismacoverage = await prisma.coverage.findFirst({
@@ -134,14 +127,11 @@ collectApi.openapi(coverageClientRoute, async (c) => {
   });
 
   if (!prismacoverage) {
-    return c.json(
-      {
-        success: false,
-        message:
-          "找不到对应的 coverage 记录，请先通过 /api/coverage/map/init 接口上传覆盖率映射数据",
-      },
-      502,
-    );
+    return c.json({
+      success: false,
+      message:
+        "找不到对应的 coverage 记录，请先通过 /api/coverage/map/init 接口上传覆盖率映射数据",
+    });
   }
 
   const successPayload = {
